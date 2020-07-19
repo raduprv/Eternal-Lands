@@ -229,7 +229,6 @@ static int do_defer = 1;
 
 int write_ini_on_exit= 1;
 // Window Handling
-int elconfig_win= -1;
 int force_elconfig_win_ontop = 0;
 #ifdef ELC
 static int elconfig_tab_collection_id= 1;
@@ -242,9 +241,6 @@ struct {
 	Uint16	x;
 	Uint16	y;
 } elconfig_tabs[MAX_TABS];
-
-int elconfig_menu_x= 10;
-int elconfig_menu_y= 10;
 
 int windows_on_top= 0;
 static int options_set= 0;
@@ -510,6 +506,7 @@ static void change_show_action_bar(int * var)
 
 static void change_minimap_scale(float * var, float * value)
 {
+	int minimap_win = get_id_MW(MW_MINIMAP);
 	int shown = 0;
 	float last_minimap_size_coefficient = minimap_size_coefficient;
 	*var= *value;
@@ -517,10 +514,9 @@ static void change_minimap_scale(float * var, float * value)
 	if (last_minimap_size_coefficient != minimap_size_coefficient && minimap_win >= 0)
 	{
 		shown = get_show_window(minimap_win);
-		minimap_win_x = windows_list.window[minimap_win].cur_x;
-		minimap_win_y = windows_list.window[minimap_win].cur_y;
+		set_pos_MW(MW_MINIMAP, windows_list.window[minimap_win].cur_x, windows_list.window[minimap_win].cur_y);
 		destroy_window(minimap_win);
-		minimap_win = -1;
+		set_id_MW(MW_MINIMAP, -1);
 	}
 	if (shown)
 		display_minimap();
@@ -1250,7 +1246,7 @@ void change_windowed_chat (int *wc, int val)
 static void change_quickbar_relocatable (int *rel)
 {
 	*rel= !*rel;
-	if (quickbar_win >= 0)
+	if (get_id_MW(MW_QUICKBAR) >= 0)
 	{
 		init_quickbar ();
 	}
@@ -1259,7 +1255,7 @@ static void change_quickbar_relocatable (int *rel)
 static void change_quickspells_relocatable (int *rel)
 {
 	*rel= !*rel;
-	if (quickspell_win >= 0)
+	if (get_id_MW(MW_QUICKSPELLS) >= 0)
 	{
 		init_quickspell ();
 	}
@@ -1441,41 +1437,40 @@ static void change_gamma(float *pointer, float *value)
 #ifndef MAP_EDITOR2
 void change_windows_on_top(int *var)
 {
-	int winid_list[] = { storage_win, manufacture_win, items_win, buddy_win, ground_items_win,
-						 sigil_win, elconfig_win, tab_stats_win, tab_info_win,
-						 minimap_win, questlog_win, trade_win, range_win, emotes_win };
-	int i;
-
+	enum managed_window_enum i;
 	*var=!*var;
+
 	if (*var)
 	{
-		for (i=0; i<sizeof(winid_list)/sizeof(int); i++)
+		for (i = 0; i < MW_MAX; i++)
 		{
-			if (winid_list[i] >= 0)
+			int win_id = get_id_MW(i);
+			if (on_top_responsive_MW(i) && (win_id >= 0) && (win_id < windows_list.num_windows))
 			{
-				window_info *win = &windows_list.window[winid_list[i]];
+				window_info *win = &windows_list.window[win_id];
 				/* Change the root windows */
-				move_window(winid_list[i], -1, 0, win->pos_x, win->pos_y );
+				move_window(win_id, -1, 0, win->pos_x, win->pos_y );
 				/* Display any open windows */
 				if (win->displayed != 0 || win->reinstate != 0)
-					show_window(winid_list[i]);
+					show_window(win_id);
 			}
 		}
 	}
 	else
 	{
 		// Change the root windows
-		for (i=0; i<sizeof(winid_list)/sizeof(int); i++)
-			if (winid_list[i] >= 0)
+		for (i = 0; i < MW_MAX; i++)
+		{
+			int win_id = get_id_MW(i);
+			if (on_top_responsive_MW(i) && (win_id >= 0) && (win_id < windows_list.num_windows))
 			{
-				window_info *win = &windows_list.window[winid_list[i]];
-				move_window(winid_list[i], game_root_win, 0, win->pos_x, win->pos_y );
+				window_info *win = &windows_list.window[win_id];
+				move_window(win_id, game_root_win, 0, win->pos_x, win->pos_y );
 			}
-
-		// Hide all the windows if needed
-		if (windows_list.window[game_root_win].displayed == 0) {
-			hide_window(game_root_win);
 		}
+		// Hide all the windows if needed
+		if (windows_list.window[game_root_win].displayed == 0)
+			hide_window(game_root_win);
 	}
 }
 #endif
@@ -2650,25 +2645,25 @@ static void init_ELC_vars(void)
 	add_var(OPT_FLOAT,"mapmark_text_size", "marksize", &font_scales[MAPMARK_FONT], change_text_zoom, 1.0, "Mapmark Text Size","Sets the size of the mapmark text", FONT, 0.1, 2.0, 0.01);
 	add_var(OPT_FLOAT,"ui_scale","ui_scale",&local_ui_scale,change_ui_scale,1,"User interface scaling factor","Scale user interface by this factor, useful for high DPI displays.  Note: the options window will be rescaled after reopening.",FONT,0.75,3.0,0.01);
 	add_var(OPT_INT,"cursor_scale_factor","cursor_scale_factor",&cursor_scale_factor ,change_cursor_scale_factor,cursor_scale_factor,"Mouse pointer scaling factor","The size of the mouse pointer is scaled by this factor",FONT, 1, max_cursor_scale_factor);
-	add_var(OPT_BOOL,"disablewsmok", "disable_window_scaling_mouse_or_keys", &custom_scale_factors.disable_mouse_or_keys, change_var, 0, "Disable Window Scaling with Mouse or Keys", "If you do not want to use keys or mouse+scrollwheel to scale individual windows, set this option.", FONT);
-	add_var(OPT_FLOAT,"trade_win_scale","tradewinscale",&custom_scale_factors.trade,change_win_scale_factor,1.0f,"Trade window scaling factor",win_scale_description,FONT,win_scale_min,win_scale_max,win_scale_step);
-	add_var(OPT_FLOAT,"item_win_scale","itemwinscale",&custom_scale_factors.items,change_win_scale_factor,1.0f,"Inventory window scaling factor",win_scale_description,FONT,win_scale_min,win_scale_max,win_scale_step);
-	add_var(OPT_FLOAT,"bags_win_scale","bagswinscale",&custom_scale_factors.bags,change_win_scale_factor,1.0f,"Ground bag window scaling factor",win_scale_description,FONT,win_scale_min,win_scale_max,win_scale_step);
-	add_var(OPT_FLOAT,"spells_win_scale","spellswinscale",&custom_scale_factors.spells,change_win_scale_factor,1.0f,"Spells window scaling factor",win_scale_description,FONT,win_scale_min,win_scale_max,win_scale_step);
-	add_var(OPT_FLOAT,"storage_win_scale","storagewinscale",&custom_scale_factors.storage,change_win_scale_factor,1.0f,"Storage window scaling factor",win_scale_description,FONT,win_scale_min,win_scale_max,win_scale_step);
-	add_var(OPT_FLOAT,"manu_win_scale","manuwinscale",&custom_scale_factors.manufacture,change_win_scale_factor,1.0f,"Manufacturing window scaling factor",win_scale_description,FONT,win_scale_min,win_scale_max,win_scale_step);
-	add_var(OPT_FLOAT,"emote_win_scale","emotewinscale",&custom_scale_factors.emote,change_win_scale_factor,1.0f,"Emote window scaling factor",win_scale_description,FONT,win_scale_min,win_scale_max,win_scale_step);
-	add_var(OPT_FLOAT,"questlog_win_scale","questlogwinscale",&custom_scale_factors.questlog,change_win_scale_factor,1.0f,"Quest log window scaling factor",win_scale_description,FONT,win_scale_min,win_scale_max,win_scale_step);
-	add_var(OPT_FLOAT,"note_url_win_scale","noteurlwinscale",&custom_scale_factors.info,change_win_scale_factor,1.0f,"Notepad/URL window scaling factor",win_scale_description,FONT,win_scale_min,win_scale_max,win_scale_step);
-	add_var(OPT_FLOAT,"buddy_win_scale","buddywinscale",&custom_scale_factors.buddy,change_win_scale_factor,1.0f,"Buddy window scaling factor",win_scale_description,FONT,win_scale_min,win_scale_max,win_scale_step);
-	add_var(OPT_FLOAT,"stats_win_scale","statswinscale",&custom_scale_factors.stats,change_win_scale_factor,1.0f,"Stats window scaling factor",win_scale_description,FONT,win_scale_min,win_scale_max,win_scale_step);
-	add_var(OPT_FLOAT,"help_win_scale","helpwinscale",&custom_scale_factors.help,change_win_scale_factor,1.0f,"Help window scaling factor",win_scale_description,FONT,win_scale_min,win_scale_max,win_scale_step);
-	add_var(OPT_FLOAT,"ranging_win_scale","rangingwinscale",&custom_scale_factors.ranging,change_win_scale_factor,1.0f,"Ranging window scaling factor",win_scale_description,FONT,win_scale_min,win_scale_max,win_scale_step);
+	add_var(OPT_BOOL,"disablewsmok", "disable_window_scaling_mouse_or_keys", get_scale_flag_MW(), change_var, 0, "Disable Window Scaling with Mouse or Keys", "If you do not want to use keys or mouse+scrollwheel to scale individual windows, set this option.", FONT);
+	add_var(OPT_FLOAT,"trade_win_scale","tradewinscale",get_scale_WM(MW_TRADE),change_win_scale_factor,1.0f,"Trade window scaling factor",win_scale_description,FONT,win_scale_min,win_scale_max,win_scale_step);
+	add_var(OPT_FLOAT,"item_win_scale","itemwinscale",get_scale_WM(MW_ITEMS),change_win_scale_factor,1.0f,"Inventory window scaling factor",win_scale_description,FONT,win_scale_min,win_scale_max,win_scale_step);
+	add_var(OPT_FLOAT,"bags_win_scale","bagswinscale",get_scale_WM(MW_BAGS),change_win_scale_factor,1.0f,"Ground bag window scaling factor",win_scale_description,FONT,win_scale_min,win_scale_max,win_scale_step);
+	add_var(OPT_FLOAT,"spells_win_scale","spellswinscale",get_scale_WM(MW_SPELLS),change_win_scale_factor,1.0f,"Spells window scaling factor",win_scale_description,FONT,win_scale_min,win_scale_max,win_scale_step);
+	add_var(OPT_FLOAT,"storage_win_scale","storagewinscale",get_scale_WM(MW_STORAGE),change_win_scale_factor,1.0f,"Storage window scaling factor",win_scale_description,FONT,win_scale_min,win_scale_max,win_scale_step);
+	add_var(OPT_FLOAT,"manu_win_scale","manuwinscale",get_scale_WM(MW_MANU),change_win_scale_factor,1.0f,"Manufacturing window scaling factor",win_scale_description,FONT,win_scale_min,win_scale_max,win_scale_step);
+	add_var(OPT_FLOAT,"emote_win_scale","emotewinscale",get_scale_WM(MW_EMOTE),change_win_scale_factor,1.0f,"Emote window scaling factor",win_scale_description,FONT,win_scale_min,win_scale_max,win_scale_step);
+	add_var(OPT_FLOAT,"questlog_win_scale","questlogwinscale",get_scale_WM(MW_QUESTLOG),change_win_scale_factor,1.0f,"Quest log window scaling factor",win_scale_description,FONT,win_scale_min,win_scale_max,win_scale_step);
+	add_var(OPT_FLOAT,"note_url_win_scale","noteurlwinscale",get_scale_WM(MW_INFO),change_win_scale_factor,1.0f,"Notepad/URL window scaling factor",win_scale_description,FONT,win_scale_min,win_scale_max,win_scale_step);
+	add_var(OPT_FLOAT,"buddy_win_scale","buddywinscale",get_scale_WM(MW_BUDDY),change_win_scale_factor,1.0f,"Buddy window scaling factor",win_scale_description,FONT,win_scale_min,win_scale_max,win_scale_step);
+	add_var(OPT_FLOAT,"stats_win_scale","statswinscale",get_scale_WM(MW_STATS),change_win_scale_factor,1.0f,"Stats window scaling factor",win_scale_description,FONT,win_scale_min,win_scale_max,win_scale_step);
+	add_var(OPT_FLOAT,"help_win_scale","helpwinscale",get_scale_WM(MW_HELP),change_win_scale_factor,1.0f,"Help window scaling factor",win_scale_description,FONT,win_scale_min,win_scale_max,win_scale_step);
+	add_var(OPT_FLOAT,"ranging_win_scale","rangingwinscale",get_scale_WM(MW_RANGING),change_win_scale_factor,1.0f,"Ranging window scaling factor",win_scale_description,FONT,win_scale_min,win_scale_max,win_scale_step);
+	add_var(OPT_FLOAT,"achievements_win_scale","achievementswinscale",get_scale_WM(MW_ACHIEVE),change_win_scale_factor,1.0f,"Achievements window scaling factor",win_scale_description,FONT,win_scale_min,win_scale_max,win_scale_step);
+	add_var(OPT_FLOAT,"dialogue_win_scale","dialoguewinscale",get_scale_WM(MW_DIALOGUE),change_win_scale_factor,1.0f,"Dialogue window scaling factor",win_scale_description,FONT,win_scale_min,win_scale_max,win_scale_step);
+	add_var(OPT_FLOAT,"quickbar_win_scale","quickbarwinscale",get_scale_WM(MW_QUICKBAR),change_win_scale_factor,1.0f,"Quickbar window scaling factor",win_scale_description,FONT,win_scale_min,win_scale_max,win_scale_step);
+	add_var(OPT_FLOAT,"quickspells_win_scale","quickspellswinscale",get_scale_WM(MW_QUICKSPELLS),change_win_scale_factor,1.0f,"Quickspells window scaling factor",win_scale_description,FONT,win_scale_min,win_scale_max,win_scale_step);
 	add_var(OPT_FLOAT,"options_win_scale","optionswinscale",&elconf_custom_scale,change_elconf_win_scale_factor,1.0f,"Options window scaling factor","Multiplied by the user interface scaling factor. Change will take effect after closing then reopening the window.",FONT,win_scale_min,win_scale_max,win_scale_step);
-	add_var(OPT_FLOAT,"achievements_win_scale","achievementswinscale",&custom_scale_factors.achievements,change_win_scale_factor,1.0f,"Achievements window scaling factor",win_scale_description,FONT,win_scale_min,win_scale_max,win_scale_step);
-	add_var(OPT_FLOAT,"dialogue_win_scale","dialoguewinscale",&custom_scale_factors.dialogue,change_win_scale_factor,1.0f,"Dialogue window scaling factor",win_scale_description,FONT,win_scale_min,win_scale_max,win_scale_step);
-	add_var(OPT_FLOAT,"quickbar_win_scale","quickbarwinscale",&custom_scale_factors.quickbar,change_win_scale_factor,1.0f,"Quickbar window scaling factor",win_scale_description,FONT,win_scale_min,win_scale_max,win_scale_step);
-	add_var(OPT_FLOAT,"quickspells_win_scale","quickspellswinscale",&custom_scale_factors.quickspells,change_win_scale_factor,1.0f,"Quickspells window scaling factor",win_scale_description,FONT,win_scale_min,win_scale_max,win_scale_step);
 #ifdef NEW_CURSOR
 	add_var(OPT_BOOL,"sdl_cursors","sdl_cursors", &sdl_cursors, change_sdl_cursor,1,"Use Standard Black/White Mouse Pointers", "When disabled, use the experimental coloured mouse pointers. Needs the texture from Git dev-data-files/cursor2.dss.", FONT);
 	add_var(OPT_BOOL,"big_cursors","big_cursors", &big_cursors, change_var,0,"Use Large Pointers", "When using the experiment coloured mouse pointers, use the large pointer set.", FONT);
@@ -3583,11 +3578,8 @@ static int show_elconfig_handler(window_info * win) {
 	if (get_show_window(newchar_root_win)) {
 		init_window(win->window_id, newchar_root_win, 0, win->pos_x - pwinx, win->pos_y - pwiny, win->len_x, win->len_y);
 	} else {
-		int our_root_win= -1;
-		if (!force_elconfig_win_ontop && !windows_on_top) {
-			our_root_win= game_root_win;
-		}
-		init_window(win->window_id, our_root_win, 0, win->pos_x - pwinx, win->pos_y - pwiny, win->len_x, win->len_y);
+		init_window(win->window_id, ((not_on_top_now(MW_CONFIG) &&  !force_elconfig_win_ontop) ?game_root_win : -1),
+			0, win->pos_x - pwinx, win->pos_y - pwiny, win->len_x, win->len_y);
 	}
 #else
 	init_window(win->window_id, game_root_win, 0, win->pos_x - pwinx, win->pos_y - pwiny, win->len_x, win->len_y);
@@ -3620,28 +3612,25 @@ static int change_elconfig_font_handler(window_info *win, font_cat cat)
 //  If the scale has changed and the window is hidden, destroy it, it will be re-create with the new scale
 void check_for_config_window_scale(void)
 {
+	int elconfig_win = get_id_MW(MW_CONFIG);
 	if (recheck_window_scale && (elconfig_win >= 0) && !get_show_window(elconfig_win))
 	{
 		size_t i;
-		elconfig_menu_x = windows_list.window[elconfig_win].cur_x;
-		elconfig_menu_y = windows_list.window[elconfig_win].cur_y;
+		set_pos_MW(MW_CONFIG, windows_list.window[elconfig_win].cur_x, windows_list.window[elconfig_win].cur_y);
 		for (i=MAX_TABS; i>0; i--)
 			tab_collection_close_tab(elconfig_win, elconfig_tab_collection_id, i-1);
 		destroy_window(elconfig_win);
-		elconfig_win = -1;
+		set_id_MW(MW_CONFIG, -1);
 		recheck_window_scale = 0;
 	}
 }
 
 void display_elconfig_win(void)
 {
-	if(elconfig_win < 0) {
-		int our_root_win= -1;
-		int i;
+	int elconfig_win = get_id_MW(MW_CONFIG);
 
-		if (!windows_on_top) {
-			our_root_win= game_root_win;
-		}
+	if(elconfig_win < 0) {
+		int i;
 
 		set_config_font();
 
@@ -3658,10 +3647,12 @@ void display_elconfig_win(void)
 		elconfig_menu_y_len = ELCONFIG_SCALED_VALUE(440);
 
 		/* Set up the window */
-		elconfig_win= create_window(win_configuration, our_root_win, 0, elconfig_menu_x, elconfig_menu_y,
+		elconfig_win = create_window(win_configuration, (not_on_top_now(MW_CONFIG) ?game_root_win : -1), 0, get_pos_x_MW(MW_CONFIG), get_pos_y_MW(MW_CONFIG),
 			elconfig_menu_x_len, elconfig_menu_y_len, ELW_WIN_DEFAULT|ELW_USE_UISCALE);
+		set_id_MW(MW_CONFIG, elconfig_win);
 		if (elconfig_win >=0 && elconfig_win < windows_list.num_windows)
 			update_window_scale(&windows_list.window[elconfig_win], elconf_scale);
+		check_proportional_move(MW_CONFIG);
 		set_window_color(elconfig_win, ELW_COLOR_BORDER, 0.77f, 0.59f, 0.39f, 0.0f);
 		set_window_font_category(elconfig_win, CONFIG_FONT);
 		set_window_handler(elconfig_win, ELW_HANDLER_DISPLAY, &display_elconfig_handler );

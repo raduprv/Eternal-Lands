@@ -11,26 +11,6 @@ extern "C" {
 #endif
 
 /*!
- * \name windows handlers
- */
-/*! @{ */
-extern int questlog_win; /*!< handle for the questlog window */
-/*! @} */
-
-extern int questlog_menu_x;
-extern int questlog_menu_y;
-
-/*!
- * \ingroup quest_window
- * \brief Displays the questlog window
- *
- *      Displays the questlog window
- *
- * \callgraph
- */
-void display_questlog();
-
-/*!
  * \ingroup quest_window
  * \brief Loads the questlog from the users filesystem.
  *

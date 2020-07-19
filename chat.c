@@ -110,11 +110,11 @@ void input_widget_move_to_win(int window_id)
 		Uint32 flags;
 
 		input_widget->OnResize = input_field_resize;
-		if(window_id == console_root_win) {
+		if(window_id == get_id_MW(MW_CONSOLE)) {
 			flags = (TEXT_FIELD_BORDER|INPUT_DEFAULT_FLAGS)^WIDGET_CLICK_TRANSPARENT;
 		} else if(window_id == game_root_win && input_text_line.len == 0) {
 			flags = INPUT_DEFAULT_FLAGS|WIDGET_DISABLED;
-		} else if(window_id == map_root_win) {
+		} else if(window_id == get_id_MW(MW_TABMAP)) {
 			flags = INPUT_DEFAULT_FLAGS|WIDGET_INVISIBLE;
 		} else {
 			flags = INPUT_DEFAULT_FLAGS;
@@ -528,7 +528,9 @@ static void update_chat_window (text_message *msg, char highlight)
 				current_line = channels[ichan].nr_lines;
 				text_changed = 1;
 			}
-			else if (highlight && !channels[ichan].highlighted && channels[active_tab].chan_nr != CHAT_ALL && channels[ichan].chan_nr != CHAT_ALL && !get_show_window(console_root_win)) //Make sure we don't change the color of a highlighted tab
+			//Make sure we don't change the color of a highlighted tab
+			else if (highlight && !channels[ichan].highlighted && channels[active_tab].chan_nr != CHAT_ALL &&
+					channels[ichan].chan_nr != CHAT_ALL && !get_show_window_MW(MW_CONSOLE))
 			{
 				tab_set_label_color_by_id (chat_win, chat_tabcollection_id, channels[ichan].tab_id, 1.0, 1.0, 0.0);
 			}
@@ -948,7 +950,7 @@ int root_key_to_input_field (SDL_Keycode key_code, Uint32 key_unicode, Uint16 ke
 #endif
 		|| (!alt_on && !ctrl_on && is_printable (ch) && ch != '`'))
 	{
-		if (is_printable (ch) && !get_show_window(map_root_win)) {
+		if (is_printable (ch) && !get_show_window_MW(MW_TABMAP)) {
 			//Make sure the widget is visible.
 			widget_unset_flags (input_widget->window_id, input_widget->id, WIDGET_DISABLED);
 			widget_unset_flags (input_widget->window_id, input_widget->id, WIDGET_INVISIBLE);
@@ -966,7 +968,7 @@ int root_key_to_input_field (SDL_Keycode key_code, Uint32 key_unicode, Uint16 ke
 	{
 		do_tab_complete(&input_text_line);
 	}
-	else if (get_show_window(console_root_win))
+	else if (get_show_window_MW(MW_CONSOLE))
 	{
 		if (!chat_input_key (input_widget, 0, 0, key_code, key_unicode, key_mod))
 			return 0;
@@ -1829,7 +1831,7 @@ static int tab_special_click(widget_list *w, int mx, int my, Uint32 flags)
 			switch(tabs[itab].channel) {
 				case CHAT_HIST:
 					toggle_window(game_root_win);
-					toggle_window(console_root_win);
+					toggle_window_MW(MW_CONSOLE);
 					do_click_sound();
 					break;
 				case CHAT_LIST:
@@ -2033,7 +2035,7 @@ static void update_tab_bar (text_message * msg)
 	{
 		if (tabs[itab].channel == channel)
 		{
-			if (current_tab != itab && !tabs[itab].highlighted && tabs[current_tab].channel != CHAT_ALL && !get_show_window(console_root_win))
+			if (current_tab != itab && !tabs[itab].highlighted && tabs[current_tab].channel != CHAT_ALL && !get_show_window_MW(MW_CONSOLE))
 				widget_set_color (tab_bar_win, tabs[itab].button, 1.0f, 1.0f, 0.0f);
 			if (current_tab == itab) {
 				lines_to_show += rewrap_message(msg, CHAT_FONT, 1.0,
@@ -2455,8 +2457,6 @@ static int ui_scale_color_handler(window_info *win)
 
 static int display_channel_color_win(Uint32 channel_number)
 {
-	int our_root_win = -1;
-
 	if(channel_number == 0){
 		return -1;
 	}
@@ -2465,11 +2465,8 @@ static int display_channel_color_win(Uint32 channel_number)
 
 	if(channel_color_win < 0)
 	{
-		if (!windows_on_top) {
-			our_root_win = game_root_win;
-		}
 		/* Create the window */
-		channel_color_win = create_window(channel_color_title_str, our_root_win, 0, 300, 0, 0, 0, ELW_USE_UISCALE|ELW_WIN_DEFAULT);
+		channel_color_win = create_window(channel_color_title_str, -1, 0, 300, 0, 0, 0, ELW_USE_UISCALE|ELW_WIN_DEFAULT);
 		set_window_handler(channel_color_win, ELW_HANDLER_DISPLAY, &display_channel_color_handler);
 		set_window_handler(channel_color_win, ELW_HANDLER_HIDE, &hide_channel_color_handler);
 		set_window_handler(channel_color_win, ELW_HANDLER_UI_SCALE, &ui_scale_color_handler);
@@ -2747,7 +2744,7 @@ void prev_channel_tab(void)
 
 void update_text_windows (text_message * pmsg)
 {
-	if (console_root_win >= 0) update_console_win (pmsg);
+	if (get_id_MW(MW_CONSOLE) >= 0) update_console_win (pmsg);
 	switch (use_windowed_chat) {
 		case 0:
 			lines_to_show += pmsg->wrap_lines;

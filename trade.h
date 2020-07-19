@@ -15,34 +15,12 @@ extern "C" {
 extern int trade_you_accepted; /*!< flag, indicating whether you have accepted the trade or not */
 extern int trade_other_accepted; /*!< flag, indicating whether the trade partner has accepted the trade or not */
 
-extern int trade_menu_x;
-extern int trade_menu_y;
-
 typedef struct {
 	int type;
 	int image_id;
 	int quantity;
 	Uint16 id;
 } trade_item;
-
-/*!
- * \name windows handlers
- */
-/*! @{ */
-extern int trade_win;   /*!< trade windows handler */
-/*! @} */
-
-/*!
- * \ingroup 	trade_window
- * \brief 	Displays the trade window.
- *
- * 		Displays the trade window (initiates the window if it hasn't been done before).
- *
- * \callgraph
- */
-void display_trade_menu();
-
-//int check_trade_interface();
 
 /*!
  * \ingroup 	trade

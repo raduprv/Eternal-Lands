@@ -39,9 +39,6 @@ static char *emote_cats[EMOTES_CATEGORIES]= {
 	"Stand poses"*/ //remove this comment and change EMOTE_CATEGORIES to 5 to enable poses
 };
 
-int emotes_win= -1;
-int emotes_menu_x=10;
-int emotes_menu_y=20;
 static int emotes_rect_x = 0;
 static int emotes_rect_y = 0;
 static int emotes_rect_x2 = 0;
@@ -91,7 +88,7 @@ static void update_selectables(void)
 	hash_entry *he;
 
 	i=0;
-	pos=vscrollbar_get_pos(emotes_win, EMOTES_SCROLLBAR_ITEMS);
+	pos=vscrollbar_get_pos(get_id_MW(MW_EMOTE), EMOTES_SCROLLBAR_ITEMS);
 	memset(selectables,0,sizeof(emote_data*)*EMOTES_SHOWN);
 	hash_start_iterator(emotes);
 	while((he=hash_get_next(emotes))&&i<EMOTES_SHOWN){
@@ -140,7 +137,7 @@ static int display_emotes_handler(window_info *win)
 	static int last_pos=0;
 
 	//check if vbar has been moved
-	pos=vscrollbar_get_pos(emotes_win, EMOTES_SCROLLBAR_ITEMS);
+	pos=vscrollbar_get_pos(win->window_id, EMOTES_SCROLLBAR_ITEMS);
 	if(pos!=last_pos){
 		last_pos=pos;
 		update_selectables();
@@ -199,13 +196,13 @@ static int click_emotes_handler(window_info *win, int mx, int my, Uint32 flags)
 	//scroll if wheel on selectables
 	if(flags&ELW_WHEEL_UP) {
 		if(mx > box_left && mx < box_right && my > box_top && my < box_bot)
-			vscrollbar_scroll_up(emotes_win, EMOTES_SCROLLBAR_ITEMS);
+			vscrollbar_scroll_up(win->window_id, EMOTES_SCROLLBAR_ITEMS);
 		update_selectables();
 		last_pos=-1;
 		return 0;
 	} else if(flags&ELW_WHEEL_DOWN) {
 		if(mx > box_left && mx < box_right && my > box_top && my < box_bot)
-			vscrollbar_scroll_down(emotes_win, EMOTES_SCROLLBAR_ITEMS);
+			vscrollbar_scroll_down(win->window_id, EMOTES_SCROLLBAR_ITEMS);
 		update_selectables();
 		last_pos=-1;
 		return 0;
@@ -292,16 +289,15 @@ static int change_emotes_font_handler(window_info* win, font_cat cat)
 
 void display_emotes_menu(void)
 {
+	int emotes_win = get_id_MW(MW_EMOTE);
+
 	if(emotes_win < 0){
-		int our_root_win = -1;
 		int num_emotes;
 		hash_entry *he;
-
-		if (!windows_on_top) {
-			our_root_win = game_root_win;
-		}
-		emotes_win= create_window("Emotes", our_root_win, 0, emotes_menu_x, emotes_menu_y, 0, 0, ELW_USE_UISCALE|ELW_WIN_DEFAULT);
-		set_window_custom_scale(emotes_win, &custom_scale_factors.emote);
+		emotes_win = create_window("Emotes", (not_on_top_now(MW_EMOTE) ?game_root_win : -1), 0,
+			get_pos_x_MW(MW_EMOTE), get_pos_y_MW(MW_EMOTE), 0, 0, ELW_USE_UISCALE|ELW_WIN_DEFAULT);
+		set_id_MW(MW_EMOTE, emotes_win);
+		set_window_custom_scale(emotes_win, MW_EMOTE);
 		set_window_handler(emotes_win, ELW_HANDLER_DISPLAY, &display_emotes_handler );
 		set_window_handler(emotes_win, ELW_HANDLER_CLICK, &click_emotes_handler );
 		set_window_handler(emotes_win, ELW_HANDLER_UI_SCALE, &ui_scale_emotes_handler );
@@ -317,6 +313,7 @@ void display_emotes_menu(void)
 
 		if (emotes_win >=0 && emotes_win < windows_list.num_windows)
 			ui_scale_emotes_handler(&windows_list.window[emotes_win]);
+		check_proportional_move(MW_EMOTE);
 
 		update_selectables();
 

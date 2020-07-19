@@ -18,9 +18,6 @@
 #include "elconfig.h"
 #include "emotes.h"
 #include "events.h"
-#ifdef ECDEBUGWIN
-#include "eye_candy_debugwin.h"
-#endif
 #include "eye_candy_wrapper.h"
 #include "gl_init.h"
 #include "highlight.h"
@@ -1075,8 +1072,8 @@ void return_to_gamewin_common(void)
 		toggle_have_mouse();
 		keep_grabbing_mouse=0;
 	}
-	hide_window (map_root_win);
-	hide_window (console_root_win);
+	hide_window_MW(MW_TABMAP);
+	hide_window_MW(MW_CONSOLE);
 	show_window (game_root_win);
 	show_hud_windows();
 }
@@ -1086,27 +1083,8 @@ static void draw_ingame_interface(window_info *win)
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
-#ifdef	OLD_CLOSE_BAG
-	// watch for closing a bag
-	if(ground_items_win >= 0)
-		{
-			int	old_view= view_ground_items;
-
-			view_ground_items= get_show_window(ground_items_win);
-			// watch for telling the server we need to close the bag
-			if(old_view && !view_ground_items)
-				{
-					unsigned char protocol_name;
-
-					protocol_name= S_CLOSE_BAG;
-					my_tcp_send(my_socket,&protocol_name,1);
-				}
-		}
-#endif	//OLD_CLOSE_BAG
-
 	draw_hud_interface(win);
 	display_spells_we_have();
-
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
@@ -1540,149 +1518,54 @@ int string_input(char *text, size_t maxlen, SDL_Keycode key_code, Uint32 key_uni
 	return 0;
 }
 
-void hide_all_windows(){
+void hide_all_windows()
+{
 	/* Note: We don't watch for if a window is otherwise closed; alt+d to reopen only cares about the last
 	 * time it hid windows itself. If you alt+d to reopen windows, manually close them all, and alt+d
 	 * again, it'll reopen the same ones.
 	 */
-	static unsigned int were_open = 0;	//Currently up to 14 windows are managed by this function.
-	//If you add more windows, you must ensure that the int is at least 'windows' bits long.
-	if (get_show_window(ground_items_win) > 0 || get_show_window(items_win) > 0 || get_show_window(buddy_win) > 0 ||
-		get_show_window(manufacture_win) > 0 || get_show_window(elconfig_win) > 0 || get_show_window(sigil_win) > 0 ||
-		get_show_window(tab_stats_win) > 0 || get_show_window(tab_help_win) > 0 || get_show_window(storage_win) > 0 ||
-		get_show_window(dialogue_win) > 0 || get_show_window(questlog_win) > 0 || (get_show_window(minimap_win) > 0 && !pin_minimap)
-		|| get_show_window(tab_info_win) > 0 || get_show_window(emotes_win) > 0 || get_show_window(range_win) > 0
-	){	//Okay, hide the open ones.
-		if (get_window_showable(ground_items_win) > 0){
-			unsigned char protocol_name;
+	int any_open = 0;
+	enum managed_window_enum i;
 
-			hide_window (ground_items_win);
-			protocol_name= S_CLOSE_BAG;
-			my_tcp_send(my_socket,&protocol_name,1);
+	// control the minimap only if it is not pinned
+	if (pin_minimap)
+		clear_hideable_MW(MW_MINIMAP);
+	else
+		set_hideable_MW(MW_MINIMAP);
+
+	// check if any of the windows are shown, we will hide them all if so
+	for (i = 0; i < MW_MAX; i++)
+	{
+		if (!is_hideable_MW(i))
+			continue;
+		if (get_show_window_MW(i) > 0)
+		{
+			any_open = 1;
+			break;
 		}
-		if (get_window_showable(items_win) > 0){
-			hide_window (items_win);
-			were_open |= 1<<0;
-		} else {
-			were_open &= ~(1<<0);
-		}
-		if (get_window_showable(buddy_win) > 0){
-			hide_window (buddy_win);
-			were_open |= 1<<1;
-		} else {
-			were_open &= ~(1<<1);
-		}
-		if (get_window_showable(manufacture_win) > 0){
-			hide_window (manufacture_win);
-			were_open |= 1<<2;
-		} else {
-			were_open &= ~(1<<2);
-		}
-		if (get_window_showable(elconfig_win) > 0){
-			hide_window (elconfig_win);
-			were_open |= 1<<3;
-		} else {
-			were_open &= ~(1<<3);
-		}
-		if (get_window_showable(sigil_win) > 0){
-			hide_window (sigil_win);
-			were_open |= 1<<4;
-		} else {
-			were_open &= ~(1<<4);
-		}
-		if (get_window_showable(tab_stats_win) > 0){
-			hide_window (tab_stats_win);
-			were_open |= 1<<5;
-		} else {
-			were_open &= ~(1<<5);
-		}
-		if (get_window_showable(tab_help_win) > 0){
-			hide_window (tab_help_win);
-			were_open |= 1<<6;
-		} else {
-			were_open &= ~(1<<6);
-		}
-		if (get_window_showable(dialogue_win) > 0){
-			hide_window (dialogue_win);
-		}
-		if (get_window_showable(range_win)){
-			hide_window (range_win);
-			were_open |= 1<<7;
-		} else {
-			were_open &= ~(1<<7);
-		}
-		if (get_window_showable(minimap_win) > 0 && !pin_minimap){
-			hide_window (minimap_win);
-			were_open |= 1<<8;
-		} else {
-			were_open &= ~(1<<8);
-		}
-		if (get_window_showable(tab_info_win) > 0){
-			hide_window (tab_info_win);
-			were_open |= 1<<9;
-		} else {
-			were_open &= ~(1<<9);
-		}
-		if (get_window_showable(storage_win) > 0){
-			hide_window (storage_win);
-			if (view_only_storage)
-				were_open |= 1<<10;
+	}
+
+	for (i = 0; i < MW_MAX; i++)
+	{
+		if (!is_hideable_MW(i))
+			continue;
+		// at least one is shown so we hide them all
+		if (any_open)
+		{
+			// mark any that are open, so we re-open them next time
+			if (get_window_showable(get_id_MW(i)) > 0)
+			{
+				set_was_open_MW(i); // do first so overrideable in handler
+				hide_window_MW(i);
+			}
 			else
-				were_open &= ~(1<<10);
-		} else {
-			were_open &= ~(1<<10);
+				clear_was_open_MW(i);
 		}
-		if (get_window_showable(emotes_win) > 0){
-			hide_window (emotes_win);
-			were_open |= 1<<11;
-		} else {
-			were_open &= ~(1<<11);
-		}
-		if (get_window_showable(questlog_win) > 0){
-			hide_window (questlog_win);
-			were_open |= 1<<12;
-		} else {
-			were_open &= ~(1<<12);
-		}
-	} else {	//None were open, restore the ones that were open last time the key was pressed
-		if (were_open & 1<<0){
-			show_window (items_win);
-		}
-		if (were_open & 1<<1){
-			show_window (buddy_win);
-		}
-		if (were_open & 1<<2){
-			show_window (manufacture_win);
-		}
-		if (were_open & 1<<3){
-			show_window (elconfig_win);
-		}
-		if (were_open & 1<<4){
-			show_window (sigil_win);
-		}
-		if (were_open & 1<<5){
-			show_window (tab_stats_win);
-		}
-		if (were_open & 1<<6){
-			show_window (tab_help_win);
-		}
-		if (were_open & 1<<7){
-			show_window (range_win);
-		}
-		if (were_open & 1<<8){
-			show_window (minimap_win );
-		}
-		if (were_open & 1<<9){
-			show_window (tab_info_win);
-		}
-		if (view_only_storage && (were_open & 1<<10)){
-			show_window (storage_win );
-		}
-		if (were_open & 1<<11){
-			show_window (emotes_win);
-		}
-		if (were_open & 1<<12){
-			show_window (questlog_win);
+		// non were shown so we re-open any hidden last time
+		else
+		{
+			if (was_open_MW(i))
+				show_window_MW(i);
 		}
 	}
 }
@@ -1925,80 +1808,46 @@ int keypress_root_common (SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_m
 	{
 		toggle_ranging_lock();
 	}
-	// open or close windows
+	// open or close tabbed windows
 	else if (KEY_DEF_CMP(K_STATS, key_code, key_mod))
 	{
-		view_tab (&tab_stats_win, &tab_stats_collection_id, STATS_TAB_STATS);
-	}
-	else if (KEY_DEF_CMP(K_QUESTLOG, key_code, key_mod))
-	{
-		view_window (&questlog_win, 0);
+		view_tab(MW_STATS, tab_stats_collection_id, STATS_TAB_STATS);
 	}
 	else if (KEY_DEF_CMP(K_SESSION, key_code, key_mod))
 	{
-		view_tab (&tab_stats_win, &tab_stats_collection_id, STATS_TAB_SESSION);
+		view_tab(MW_STATS, tab_stats_collection_id, STATS_TAB_SESSION);
 	}
 	else if (KEY_DEF_CMP(K_COUNTERS, key_code, key_mod))
 	{
-		view_tab (&tab_stats_win, &tab_stats_collection_id, STATS_TAB_COUNTERS);
-	}
-	else if (KEY_DEF_CMP(K_OPTIONS, key_code, key_mod))
-	{
-		view_window (&elconfig_win, 0);
+		view_tab(MW_STATS, tab_stats_collection_id, STATS_TAB_COUNTERS);
 	}
 	else if (KEY_DEF_CMP(K_KNOWLEDGE, key_code, key_mod))
 	{
-		view_tab (&tab_stats_win, &tab_stats_collection_id, STATS_TAB_KNOWLEDGE);
+		view_tab(MW_STATS, tab_stats_collection_id, STATS_TAB_KNOWLEDGE);
 	}
 	else if (KEY_DEF_CMP(K_ENCYCLOPEDIA, key_code, key_mod))
 	{
-		view_tab (&tab_help_win, &tab_help_collection_id, HELP_TAB_ENCYCLOPEDIA);
+		view_tab(MW_HELP, tab_help_collection_id, HELP_TAB_ENCYCLOPEDIA);
 	}
 	else if (KEY_DEF_CMP(K_HELP, key_code, key_mod))
 	{
-		view_tab(&tab_help_win, &tab_help_collection_id, HELP_TAB_HELP);
+		view_tab(MW_HELP, tab_help_collection_id, HELP_TAB_HELP);
 	}
 	else if (KEY_DEF_CMP(K_HELPSKILLS, key_code, key_mod))
 	{
-		view_tab(&tab_help_win, &tab_help_collection_id, HELP_TAB_SKILLS);
+		view_tab(MW_HELP, tab_help_collection_id, HELP_TAB_SKILLS);
 	}
 	else if (KEY_DEF_CMP(K_RULES, key_code, key_mod))
 	{
-		view_tab(&tab_help_win, &tab_help_collection_id, HELP_TAB_RULES);
+		view_tab(MW_HELP, tab_help_collection_id, HELP_TAB_RULES);
 	}
 	else if (KEY_DEF_CMP(K_NOTEPAD, key_code, key_mod))
 	{
-		view_tab(&tab_info_win, &tab_info_collection_id, INFO_TAB_NOTEPAD);
+		view_tab(MW_INFO, tab_info_collection_id, INFO_TAB_NOTEPAD);
 	}
-	else if (KEY_DEF_CMP(K_MINIMAP, key_code, key_mod))
+	else if (KEY_DEF_CMP(K_BROWSERWIN, key_code, key_mod))
 	{
-		view_window (&minimap_win, 0);
-	}
-#ifdef ECDEBUGWIN
-	else if (KEY_DEF_CMP(K_ECDEBUGWIN, key_code, key_mod))
-	{
-		view_window (&ecdebug_win, 0);
-	}
-#endif // ECDEBUGWIN
-	else if (KEY_DEF_CMP(K_SIGILS, key_code, key_mod))
-	{
-		view_window (&sigil_win, -1);
-	}
-	else if (KEY_DEF_CMP(K_EMOTES, key_code, key_mod))
-	{
-		view_window (&emotes_win, -1);
-	}
-	else if (KEY_DEF_CMP(K_MANUFACTURE, key_code, key_mod))
-	{
-		view_window (&manufacture_win, -1);
-	}
-	else if (KEY_DEF_CMP(K_ITEMS, key_code, key_mod))
-	{
-		view_window (&items_win, -1);
-	}
-	else if (KEY_DEF_CMP(K_BUDDY, key_code, key_mod))
-	{
-		display_buddy();
+		view_tab(MW_INFO, tab_info_collection_id, INFO_TAB_URLWIN);
 	}
 	// set action modes
 	else if (KEY_DEF_CMP(K_WALK, key_code, key_mod))
@@ -2025,10 +1874,6 @@ int keypress_root_common (SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_m
 			go_ifk ();
 		}
 	}
-	else if (KEY_DEF_CMP(K_RANGINGWIN, key_code, key_mod))
-	{
-		view_window(&range_win, -1);
-	}
 	else if (KEY_DEF_CMP(K_TARGET_CLOSE, key_code, key_mod))
 	{
 		toggle_target_close_clicked_creature();
@@ -2040,10 +1885,6 @@ int keypress_root_common (SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_m
 	else if (KEY_DEF_CMP(K_BROWSER, key_code, key_mod))
 	{
 		open_last_seen_url();
-	}
-	else if (KEY_DEF_CMP(K_BROWSERWIN, key_code, key_mod))
-	{
-		view_tab(&tab_info_win, &tab_info_collection_id, INFO_TAB_URLWIN);
 	}
 	else if (key_code == SDLK_ESCAPE)
 	{
@@ -2074,13 +1915,22 @@ int keypress_root_common (SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_m
 	}
 	else if (KEY_DEF_CMP(K_REPEATSPELL, key_code, key_mod))	// REPEAT spell command
 	{
-		if ( !get_show_window (trade_win) )
+		if ( !get_show_window_MW(MW_TRADE) )
 		{
 			repeat_spell();
 		}
 	}
 	else
 	{
+		enum managed_window_enum i;
+		for (i = 0; i < MW_MAX; i++)
+		{
+			if (match_keydef_MW(i, key_code, key_mod))
+			{
+				view_window(i);
+				return 1;
+			}
+		}
 		return 0; // nothing we can handle
 	}
 
@@ -2247,7 +2097,7 @@ static int keypress_game_handler (window_info *win, int mx, int my, SDL_Keycode 
 		{
 			if (have_mouse) {toggle_have_mouse(); keep_grabbing_mouse=1;}
 			hide_window (game_root_win);
-			show_window (map_root_win);
+			show_window_MW(MW_TABMAP);
 		}
 	}
 	else if (key_code == SDLK_F6)
@@ -2360,7 +2210,7 @@ static int keypress_game_handler (window_info *win, int mx, int my, SDL_Keycode 
 		{
 			if (have_mouse) {toggle_have_mouse(); keep_grabbing_mouse=1;}
 			hide_window (game_root_win);
-			show_window (console_root_win);
+			show_window_MW(MW_CONSOLE);
 		}
 		// see if the common text handler can deal with it
 		else if ( !text_input_handler (key_code, key_unicode, key_mod) )

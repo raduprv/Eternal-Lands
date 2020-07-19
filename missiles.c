@@ -971,11 +971,8 @@ void missiles_init_defs()
 /*! Ranging win */
 /**********************************************/
 
-int range_win = -1;
-int range_win_x_len = 10;
-int range_win_y_len = 20;
-int ranging_win_x = 10;
-int ranging_win_y = 20;
+static int range_win_x_len = 10;
+static int range_win_y_len = 20;
 static int print_to_console = 0;
 static int result_x = 0;
 
@@ -1118,19 +1115,18 @@ int change_range_font_handler(window_info* win, font_cat cat)
 
 void display_range_win(void)
 {
+	int range_win = get_id_MW(MW_RANGING);
 	if(range_win < 0){
-		int our_root_win = -1;
-
-		if (!windows_on_top) {
-			our_root_win = game_root_win;
-		}
-		range_win = create_window(ranging_win_title_str, our_root_win, 0, ranging_win_x, ranging_win_y, range_win_x_len, range_win_y_len, ELW_USE_UISCALE|ELW_WIN_DEFAULT);
-		set_window_custom_scale(range_win, &custom_scale_factors.ranging);
+		range_win = create_window(ranging_win_title_str, (not_on_top_now(MW_RANGING) ?game_root_win : -1), 0, get_pos_x_MW(MW_RANGING), get_pos_y_MW(MW_RANGING),
+			range_win_x_len, range_win_y_len, ELW_USE_UISCALE|ELW_WIN_DEFAULT);
+		set_id_MW(MW_RANGING, range_win);
+		set_window_custom_scale(range_win, MW_RANGING);
 		set_window_handler(range_win, ELW_HANDLER_DISPLAY, &display_range_handler);
 		set_window_handler(range_win, ELW_HANDLER_UI_SCALE, &set_range_window_size);
 		set_window_handler(range_win, ELW_HANDLER_FONT_CHANGE, &change_range_font_handler);
 		cm_add(windows_list.window[range_win].cm_id, cm_ranging_menu_str, cm_ranging_handler);
 		set_range_window_size(&windows_list.window[range_win]);
+		check_proportional_move(MW_RANGING);
 	}
 	else
 	{

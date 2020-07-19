@@ -10,11 +10,6 @@
 extern "C" {
 #endif
 
-/*! \name windows handlers 
- * @{ */
-extern int map_root_win; /*!< handler for the map window */
-/*! @} */
-
 /*!
  * Stores the position and the text for markings on the map.
  * \todo this struct should be moved to some place where it belongs, like map.h or sector.h

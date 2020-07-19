@@ -262,6 +262,10 @@ int start_rendering()
 	LOG_INFO("free_pm_log()");
 	free_pm_log();
 
+	// window positions are proportionally adjusted ready for the next client run
+	LOG_INFO("restore_window_proportionally()");
+	restore_window_proportionally();
+
 	//save all local data
 	LOG_INFO("save_local_date()");
 	save_local_data();

@@ -19,9 +19,6 @@ typedef struct
  * \name windows handlers
  */
 /*! @{ */
-extern int ground_items_win; /*!< ground items windows handler */
-extern int ground_items_menu_x; /*!< ground items windows x position */
-extern int ground_items_menu_y; /*!< ground items windows y position */
 extern int ground_items_visible_grid_cols; /*!< ground items window number of columns visible */
 extern int ground_items_visible_grid_rows; /*!< ground items window number of rows visible */
 extern int view_ground_items; /*!< flag that indicates whether we should display ground items or not */
@@ -131,6 +128,14 @@ void remove_all_bags(void);
  * used by e.g. \ref put_bag_on_ground() or \ref remove_bag().
 */
 void open_bag(int object_id);
+
+/*!
+ * \ingroup item
+ * \brief   The server has asked to close the bag.
+ *
+ * \callgraph
+ */
+void server_close_bag(void);
 
 /*!
  * \ingroup item

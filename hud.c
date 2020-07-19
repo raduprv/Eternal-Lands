@@ -9,9 +9,6 @@
 #include "cursors.h"
 #include "elconfig.h"
 #include "emotes.h"
-#ifdef ECDEBUGWIN
-#include "eye_candy_debugwin.h"
-#endif
 #include "gamewin.h"
 #include "gl_init.h"
 #include "hud.h"
@@ -56,8 +53,9 @@ void cleanup_hud(void)
 	destroy_icon_window();
 	destroy_window(misc_win);
 	destroy_window(stats_bar_win);
-	destroy_window(quickbar_win);
-	stats_bar_win = quickbar_win = misc_win = -1;
+	destroy_window(get_id_MW(MW_QUICKBAR));
+	stats_bar_win = misc_win = -1;
+	set_id_MW(MW_QUICKBAR, -1);
 }
 
 
@@ -106,11 +104,11 @@ void init_hud_interface (hud_interface type)
 		ready_for_user_menus = 1;
 		if (enable_user_menus)
 			display_user_menus();
-		if ((minimap_win < 0) && open_minimap_on_start)
+		if ((get_id_MW(MW_MINIMAP) < 0) && open_minimap_on_start)
 		{
 			static int first_time = 1;
 			if (first_time)
-				view_window (&minimap_win, 0);
+				view_window(MW_MINIMAP);
 			first_time = 0;
 		}
 	}
@@ -120,8 +118,8 @@ void init_hud_interface (hud_interface type)
 
 void show_moveable_hud_windows(void)
 {
-	if (quickbar_win >= 0) show_window (quickbar_win);
-	if (quickspell_win >= 0) show_window (quickspell_win);
+	show_window_MW(MW_QUICKBAR);
+	show_window_MW(MW_QUICKSPELLS);
 	show_hud_indicators_window();
 }
 
@@ -138,15 +136,15 @@ void hide_hud_windows (void)
 	if (icons_win >= 0) hide_window (icons_win);
 	if (stats_bar_win >= 0) hide_window (stats_bar_win);
 	if (misc_win >= 0) hide_window (misc_win);
-	if (quickbar_win >= 0) hide_window (quickbar_win);
-	if (quickspell_win >= 0) hide_window (quickspell_win);
+	hide_window_MW(MW_QUICKBAR);
+	hide_window_MW(MW_QUICKSPELLS);
 	hide_hud_indicators_window();
 }
 
 void hide_moved_hud_windows(void)
 {
 	size_t i;
-	int list_of_windows[2] = { quickbar_win, quickspell_win };
+	int list_of_windows[2] = { get_id_MW(MW_QUICKBAR), get_id_MW(MW_QUICKSPELLS) };
 	for (i=0; i<2; i++)
 	{
 		if (get_show_window (list_of_windows[i])
@@ -228,133 +226,84 @@ CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
 }
 
-static void view_console_win (int *win, int id)
+static void view_console_win(void)
 {
-	if ( get_show_window (console_root_win) && !locked_to_console )
+	if ( get_show_window_MW(MW_CONSOLE) && !locked_to_console )
 		return_to_gamewin_common();
 	else
 	{
 		if ( get_show_window (game_root_win) )
 			hide_window (game_root_win);
-		if ( get_show_window (map_root_win) )
-			hide_window (map_root_win);
-		show_window (console_root_win);
+		if ( get_show_window_MW(MW_TABMAP) )
+			hide_window_MW(MW_TABMAP);
+		show_window_MW(MW_CONSOLE);
 	}
 }
 
-static void view_map_win (int * win, int id)
+static void view_map_win(void)
 {
-	if ( get_show_window (map_root_win) && !locked_to_console )
+	if ( get_show_window_MW(MW_TABMAP) && !locked_to_console )
 		return_to_gamewin_common();
 	else if ( switch_to_game_map () && !locked_to_console )
 	{
 		if ( get_show_window (game_root_win) )
 			hide_window (game_root_win);
-		if ( get_show_window (console_root_win) )
-			hide_window (console_root_win);
-		show_window (map_root_win);
+		if ( get_show_window_MW(MW_CONSOLE) )
+			hide_window_MW(MW_CONSOLE);
+		show_window_MW(MW_TABMAP);
 	}
 }
 
-typedef struct
+void view_window(enum managed_window_enum managed_win)
 {
-	char name[20];
-	int *id;
-} windowid_by_name;
-
-int* get_winid(const char *name)
-{
-	static windowid_by_name win_ids[] = {
-		{ "invent", &items_win },
-		{ "spell", &sigil_win },
-		{ "manu", &manufacture_win },
-		{ "emotewin", &emotes_win },
-		{ "quest", &questlog_win },
-		{ "map", &map_root_win },
-		{ "info", &tab_info_win },
-		{ "buddy", &buddy_win },
-		{ "stats", &tab_stats_win },
-		{ "console", &console_root_win },
-		{ "help", &tab_help_win },
-		{ "opts", &elconfig_win },
-		{ "range", &range_win },
-		{ "minimap", &minimap_win } };
-	size_t i;
-	if (name == NULL)
-		return NULL;
-	for (i=0; i<sizeof(win_ids)/sizeof(windowid_by_name); i++)
-		if (strcmp(win_ids[i].name, name) == 0)
-			return win_ids[i].id;
-	return NULL;
-}
-
-void view_window(int * window, int id)
-{
-	if (window == NULL)
+	if (managed_win >= MW_MAX)
 		return;
 
-	if (window == &map_root_win)
+	if (managed_win == MW_TABMAP)
 	{
-		view_map_win(window, id);
+		view_map_win();
 		return;
 	}
 
-	if (window == &console_root_win)
+	if (managed_win == MW_CONSOLE)
 	{
-		view_console_win(window, id);
+		view_console_win();
 		return;
 	}
 
-	if(window==&sigil_win||window==&manufacture_win)
+	if(managed_win == MW_SPELLS || managed_win == MW_MANU)
+	{
+		if(get_show_window_MW(MW_TRADE))
 		{
-			if(get_show_window(trade_win))
-				{
-					LOG_TO_CONSOLE(c_red2,no_open_on_trade);
-					return;
-				}
+			LOG_TO_CONSOLE(c_red2,no_open_on_trade);
+			return;
 		}
+	}
 
-	if(*window < 0)
-		{
-			//OK, the window has not been created yet - use the standard functions
-			if(window==&items_win)display_items_menu();
-			else if(window==&sigil_win) display_sigils_menu();
-			else if(window==&manufacture_win) display_manufacture_menu();
-			else if(window==&emotes_win) display_emotes_menu();
-			else if(window==&elconfig_win) display_elconfig_win();
-			else if(window==&buddy_win) display_buddy();
-			else if(window==&trade_win) display_trade_menu();
-			else if(window==&tab_info_win) display_tab_info();
-			else if(window==&minimap_win) display_minimap();
-#ifdef ECDEBUGWIN
-			else if(window==&ecdebug_win) display_ecdebugwin();
-#endif
-			else if(window==&storage_win) display_storage_menu();
-			else if(window==&tab_stats_win) display_tab_stats();
-			else if(window==&tab_help_win) display_tab_help();
-			else if(window==&questlog_win) display_questlog();
-			else if(window==&range_win) display_range_win();
-		}
-	else toggle_window(*window);
+	// If not created, call the display function, otherwise toggle the window.
+	if(get_id_MW(managed_win) < 0)
+		call_display_MW(managed_win);
+	else
+		toggle_window_MW(managed_win);
 }
 
-void view_tab (int *window, int *col_id, int tab)
+void view_tab (enum managed_window_enum managed_win, int col_id, int tab)
 {
-	if (get_show_window (*window))
+	if (get_show_window_MW(managed_win))
 	{
-		if (tab_collection_get_tab (*window, *col_id) == tab)
+		if (tab_collection_get_tab(get_id_MW(managed_win), col_id) == tab)
 		{
-			hide_window (*window);
+			hide_window_MW(managed_win);
 		}
 		else
 		{
-			tab_collection_select_tab (*window, *col_id, tab);
+			tab_collection_select_tab(get_id_MW(managed_win), col_id, tab);
 		}
 	}
 	else
 	{
-		view_window (window, 0);
-		tab_collection_select_tab (*window, *col_id, tab);
+		view_window(managed_win);
+		tab_collection_select_tab(get_id_MW(managed_win), col_id, tab);
 	}
 }
 

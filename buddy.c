@@ -32,10 +32,6 @@ typedef struct
    unsigned char type;
 }_buddy;
 
-int buddy_win=-1;
-int buddy_menu_x=150;
-int buddy_menu_y=70;
-
 static int buddy_scroll_id = 0;
 static int buddy_button_id = 1;
 static int buddy_menu_x_len=0;
@@ -156,10 +152,10 @@ static int click_buddy_handler (window_info *win, int mx, int my, Uint32 flags)
 
 	// scroll the winow with the mouse wheel
 	if(flags & ELW_WHEEL_UP) {
-		vscrollbar_scroll_up(buddy_win,buddy_scroll_id);
+		vscrollbar_scroll_up(win->window_id, buddy_scroll_id);
 		return 1;
 	} else if(flags & ELW_WHEEL_DOWN) {
-		vscrollbar_scroll_down(buddy_win,buddy_scroll_id);
+		vscrollbar_scroll_down(win->window_id, buddy_scroll_id);
 		return 1;
 	}
 
@@ -188,7 +184,7 @@ static int click_buddy_handler (window_info *win, int mx, int my, Uint32 flags)
 	y /= buddy_name_step_y;
 	if (y >= num_displayed_buddies)
 		return 0;
-	y += vscrollbar_get_pos(buddy_win,buddy_scroll_id);
+	y += vscrollbar_get_pos(win->window_id, buddy_scroll_id);
 	if((strlen(buddy_list[y].name) == 0)||(buddy_list[y].type > 0xFE)) {
 		//There's no name. Fall through.
 		return 0;
@@ -411,11 +407,11 @@ int display_buddy_add(void)
 		int cw;
 
 		/* Create the window */
-		buddy_add_win = create_window(buddy_add_str, buddy_win, 0, buddy_menu_x_len/2, buddy_menu_y_len/4, 0, 0, ELW_USE_UISCALE|ELW_WIN_DEFAULT);
+		buddy_add_win = create_window(buddy_add_str, get_id_MW(MW_BUDDY), 0, buddy_menu_x_len/2, buddy_menu_y_len/4, 0, 0, ELW_USE_UISCALE|ELW_WIN_DEFAULT);
 		if (buddy_add_win <=0 || buddy_add_win >= windows_list.num_windows)
 			return -1;
 		win = &windows_list.window[buddy_add_win];
-		set_window_custom_scale(buddy_add_win, &custom_scale_factors.buddy);
+		set_window_custom_scale(buddy_add_win, MW_BUDDY);
 
 		/* Add name input and label */
 		cw = get_avg_char_width_zoom(UI_FONT, win->current_scale);
@@ -466,11 +462,11 @@ static int display_buddy_change(_buddy *buddy)
 	}
 
 	/* Create the window */
-	buddy_change_win = create_window(buddy_change_str, buddy_win, 0, buddy_menu_x_len/2, buddy_menu_y_len/4, 0, 0, ELW_USE_UISCALE|ELW_WIN_DEFAULT);
+	buddy_change_win = create_window(buddy_change_str, get_id_MW(MW_BUDDY), 0, buddy_menu_x_len/2, buddy_menu_y_len/4, 0, 0, ELW_USE_UISCALE|ELW_WIN_DEFAULT);
 	if (buddy_change_win <=0 || buddy_change_win >= windows_list.num_windows)
 		return -1;
 	win = &windows_list.window[buddy_change_win];
-	set_window_custom_scale(buddy_change_win, &custom_scale_factors.buddy);
+	set_window_custom_scale(buddy_change_win, MW_BUDDY);
 
 	/* Add name label and name */
 	label_id = label_add_extended(buddy_change_win, label_id, NULL,
@@ -609,7 +605,7 @@ static int display_accept_buddy(char *name)
 
 	safe_snprintf(accept_windows[current_window].name, sizeof (accept_windows[current_window].name), "%s", name);
 
-	accept_windows[current_window].window_id = create_window(buddy_accept_str, buddy_win, 0,
+	accept_windows[current_window].window_id = create_window(buddy_accept_str, get_id_MW(MW_BUDDY), 0,
 		buddy_menu_x_len/2, buddy_menu_y_len/4, 0, 0, (ELW_USE_UISCALE|ELW_WIN_DEFAULT) ^ ELW_CLOSE_BOX);
 	set_window_handler(accept_windows[current_window].window_id, ELW_HANDLER_DISPLAY, &display_accept_buddy_handler);
 	set_window_handler(accept_windows[current_window].window_id, ELW_HANDLER_UI_SCALE, &ui_scale_accept_handler );
@@ -661,7 +657,7 @@ static void set_scrollbar_len(void)
 	for (i = 0; i < MAX_BUDDY; i++)
 		if (buddy_list[i].type != 0xff)
 			num_buddies++;
-	vscrollbar_set_bar_len(buddy_win, buddy_scroll_id, ((num_buddies - num_displayed_buddies < 0) ?0: num_buddies - num_displayed_buddies));
+	vscrollbar_set_bar_len(get_id_MW(MW_BUDDY), buddy_scroll_id, ((num_buddies - num_displayed_buddies < 0) ?0: num_buddies - num_displayed_buddies));
 }
 
 static int ui_scale_buddy_handler(window_info *win)
@@ -704,15 +700,15 @@ static int change_buddy_font_handler(window_info *win, font_cat cat)
 
 void display_buddy(void)
 {
+	int buddy_win = get_id_MW(MW_BUDDY);
+
 	if(buddy_win < 0)
 		{
-			int our_root_win = -1;
-			if (!windows_on_top) {
-				our_root_win = game_root_win;
-			}
-			buddy_win = create_window(win_buddy, our_root_win, 0, buddy_menu_x, buddy_menu_y, 0, 0, ELW_USE_UISCALE|ELW_WIN_DEFAULT);
+			buddy_win = create_window(win_buddy, (not_on_top_now(MW_BUDDY) ?game_root_win : -1), 0,
+				get_pos_x_MW(MW_BUDDY), get_pos_y_MW(MW_BUDDY), 0, 0, ELW_USE_UISCALE|ELW_WIN_DEFAULT);
+			set_id_MW(MW_BUDDY, buddy_win);
 
-			set_window_custom_scale(buddy_win, &custom_scale_factors.buddy);
+			set_window_custom_scale(buddy_win, MW_BUDDY);
 			set_window_handler(buddy_win, ELW_HANDLER_DISPLAY, &display_buddy_handler );
 			set_window_handler(buddy_win, ELW_HANDLER_CLICK, &click_buddy_handler );
 			set_window_handler(buddy_win, ELW_HANDLER_UI_SCALE, &ui_scale_buddy_handler );
@@ -725,6 +721,7 @@ void display_buddy(void)
 
 			if (buddy_win >=0 && buddy_win < windows_list.num_windows)
 				ui_scale_buddy_handler(&windows_list.window[buddy_win]);
+			check_proportional_move(MW_BUDDY);
 		}
 	else
 		{

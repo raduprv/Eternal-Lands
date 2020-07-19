@@ -96,14 +96,6 @@ extern int item_uid_enabled;				/*!< true if item ids are enable */
 extern const Uint16 unset_item_uid;			/*!< a value to compare with an itemd id to check if its set */
 /*! @} */
 
-
-/*! \name item window vars */
-/*! @{ */
-extern int items_win; 						/*!< inventory windows id */
-extern int items_menu_x;					/*!< position of the window saved in the config file */
-extern int items_menu_y;
-/*! @} */
-
 /*! \name Text fields for items */
 /*! @{ */
 #define MAX_ITEMS_TEXTURES  32
@@ -262,16 +254,6 @@ static __inline__ GLuint get_items_texture(int no)
 {
 	return items_text[no];
 }
-
-/*!
- * \ingroup items_window
- * \brief   Displays the items (inventory) window.
- *
- *      Displays the items (inventory) window. If the window was not displayed before, it will first created and the event handlers for the window initialized accordingly. \ref items_window recognizes the following events: \ref ELW_HANDLER_DISPLAY, \ref ELW_HANDLER_CLICK and \ref ELW_HANDLER_MOUSEOVER.
- *
- * \callgraph
- */
-void display_items_menu();
 
 /*!
  * \ingroup item

@@ -16,7 +16,6 @@ typedef struct {
 	// including CAST_SPELL and len bytes, len will be byte 2
 } mqbdata;
 
-extern int quickspell_win; /*!< quickbar windows handler */
 extern int num_quickspell_slots;
 extern int quickspells_relocatable;
 extern mqbdata * mqb_data[MAX_QUICKSPELL_SLOTS+1];

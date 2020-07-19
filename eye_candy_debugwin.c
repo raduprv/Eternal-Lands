@@ -1,7 +1,5 @@
 #ifdef ECDEBUGWIN
 
-#include "eye_candy_debugwin.h"
-
 #include "actors.h"
 #include "cal.h"
 #include "client_serv.h"
@@ -14,9 +12,6 @@
 #include "missiles.h"
 #include "skeletons.h"
 
-int ecdebug_win = -1;
-int ecdebug_win_x = 0;
-int ecdebug_win_y = 0;
 int ecdebug_win_width = 512;
 int ecdebug_win_height = 214;
 
@@ -252,13 +247,15 @@ int ecdw_clouds_handler();
 
 void display_ecdebugwin()
 {
+	int ecdebug_win = get_id_MW(MW_ECDEBUG);
+
 	if (ecdebug_win < 0) // create window
 	{
 		// init window
-		ecdebug_win = create_window("Eye Candy DEBUG", windows_on_top ? -1
-			: game_root_win, 0, ecdebug_win_x, ecdebug_win_y,
-			ecdebug_win_width, ecdebug_win_height, 
-			ELW_WIN_DEFAULT|ELW_TITLE_NAME);
+		ecdebug_win = create_window("Eye Candy DEBUG", (not_on_top_now(MW_ECDEBUG) ?game_root_win : -1)
+			: game_root_win, 0, get_pos_x_MW(MW_ECDEBUG), get_pos_y_MW(MW_ECDEBUG),
+			ecdebug_win_width, ecdebug_win_height, ELW_WIN_DEFAULT);
+		set_id_MW(MW_ECDEBUG, ecdebug_win);
 
 		// create tab collection
 		// 24 pixels offset down so we don't cover the [X] in the upper right corner

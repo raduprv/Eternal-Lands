@@ -50,10 +50,6 @@ int edit_quantity=-1;
 
 int item_action_mode=ACTION_WALK;
 
-int items_win= -1;
-int items_menu_x=10;
-int items_menu_y=20;
-
 int item_dragged=-1;
 int item_quantity=1;
 int use_item=-1;
@@ -1313,7 +1309,7 @@ static int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 				my_tcp_send(my_socket, str, 6);
 				do_drop_item_sound();
 			} else if (alt_on && (items_mod_click_any_cursor || (item_action_mode==ACTION_WALK))) {
-				if ((storage_win >= 0) && (get_show_window(storage_win)) && (view_only_storage == 0)) {
+				if ((get_id_MW(MW_STORAGE) >= 0) && (get_show_window_MW(MW_STORAGE)) && (view_only_storage == 0)) {
 					str[0]=DEPOSITE_ITEM;
 					str[1]=item_list[pos].pos;
 					*((Uint32*)(str+2))=SDL_SwapLE32(INT_MAX);
@@ -1378,7 +1374,7 @@ static int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 	}
 
 	// Sto All button
-	else if(over_button(win, mx, my)==BUT_STORE && storage_win >= 0 && view_only_storage == 0 && get_show_window(storage_win) /*thanks alberich*/){
+	else if(over_button(win, mx, my)==BUT_STORE && get_id_MW(MW_STORAGE) >= 0 && view_only_storage == 0 && get_show_window_MW(MW_STORAGE) /*thanks alberich*/){
 #ifdef STORE_ALL
 		/*
 		* Future code to save server load by having one byte to represent the 36 slot inventory loop. Will need server support.
@@ -1744,9 +1740,9 @@ static int show_items_handler(window_info * win)
 
 	resize_window(win->window_id, win_x_len, win_y_len);
 
-	cm_remove_regions(items_win);
+	cm_remove_regions(win->window_id);
 	for (i=0; i<NUMBUT; i++)
-		cm_add_region(buttons_cm_id[i], items_win, buttons_grid.pos_x, buttons_grid.pos_y + buttons_grid.height * i, buttons_grid.width, buttons_grid.height);
+		cm_add_region(buttons_cm_id[i], win->window_id, buttons_grid.pos_x, buttons_grid.pos_y + buttons_grid.height * i, buttons_grid.width, buttons_grid.height);
 
 	/* make sure we redraw any string */
 	last_items_string_id = 0;
@@ -1769,14 +1765,13 @@ static int context_items_handler(window_info *win, int widget_id, int mx, int my
 
 void display_items_menu()
 {
+	int items_win = get_id_MW(MW_ITEMS);
 	if(items_win < 0){
-		int our_root_win = -1;
-		if (!windows_on_top) {
-			our_root_win = game_root_win;
-		}
-		items_win= create_window(win_inventory, our_root_win, 0, items_menu_x, items_menu_y, 0, 0, ELW_USE_UISCALE|ELW_WIN_DEFAULT);
+		items_win = create_window(win_inventory, (not_on_top_now(MW_ITEMS) ?game_root_win : -1), 0, get_pos_x_MW(MW_ITEMS), get_pos_y_MW(MW_ITEMS),
+			0, 0, ELW_USE_UISCALE|ELW_WIN_DEFAULT);
+		set_id_MW(MW_ITEMS, items_win);
 
-		set_window_custom_scale(items_win, &custom_scale_factors.items);
+		set_window_custom_scale(items_win, MW_ITEMS);
 		set_window_handler(items_win, ELW_HANDLER_DISPLAY, &display_items_handler );
 		set_window_handler(items_win, ELW_HANDLER_CLICK, &click_items_handler );
 		set_window_handler(items_win, ELW_HANDLER_MOUSEOVER, &mouseover_items_handler );
@@ -1812,6 +1807,7 @@ void display_items_menu()
 		cm_bool_line(buttons_cm_id[BUT_ITEM_LIST], 0, &items_list_on_left, NULL);
 
 		show_items_handler(&windows_list.window[items_win]);
+		check_proportional_move(MW_ITEMS);
 
 	} else {
 		show_window(items_win);

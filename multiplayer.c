@@ -587,7 +587,7 @@ void connect_to_server()
 	clear_now_harvesting();
 	last_heart_beat= time(NULL);
 	send_heart_beat();	// prime the hearbeat to prevent some stray issues when there is lots of lag
-	hide_window(trade_win);
+	hide_window_MW(MW_TRADE);
 	do_connect_sound();
 
 	my_tcp_flush(my_socket);    // make sure tcp output buffer is empty
@@ -841,7 +841,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 					destroy_new_character_interface();
 				}
 				newchar_root_win = -1;
-				if (!get_show_window(console_root_win))
+				if (!get_show_window_MW(MW_CONSOLE))
 					show_window (game_root_win);
 
 				safe_snprintf(str,sizeof(str),"(%s on %s) %s",get_username(),get_server_name(),win_principal);
@@ -1037,7 +1037,10 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 					// if we don't get the product name, make sure we don't just count it as the last item.
 					else
 						counters_set_product_info("",0);
-					if(!((is_created_message&&mixed_message_filter)||get_show_window(items_win)||get_show_window(manufacture_win)||get_show_window(trade_win)))
+					if(!((is_created_message && mixed_message_filter) ||
+							get_show_window_MW(MW_ITEMS) ||
+							get_show_window_MW(MW_MANU) ||
+							get_show_window_MW(MW_TRADE)))
 						put_text_in_buffer(CHAT_SERVER, &in_data[3], data_length-3);
 				}  // End successs counters block
 				/* You failed to create a[n] ..., and lost the ingredients */
@@ -1485,7 +1488,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 #ifdef EXTRA_DEBUG
 	ERR();
 #endif
-				hide_window(ground_items_win);
+				server_close_bag();
 			}
 			break;
 
@@ -1587,7 +1590,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 
 		case GET_TRADE_EXIT:
 			{
-				hide_window(trade_win);
+				hide_window_MW(MW_TRADE);
 				trade_exit();
 			}
 			break;

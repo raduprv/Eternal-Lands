@@ -250,9 +250,9 @@ void change_map (const char *mapname)
 	//also, stop the rain
 	weather_clear();
 
-	if ( get_show_window (map_root_win) )
+	if (get_show_window_MW(MW_TABMAP))
 	{
-		hide_window(map_root_win);
+		hide_window_MW(MW_TABMAP);
 		show_window(game_root_win);
 	}
 #else // !MAP_EDITOR2
@@ -289,7 +289,7 @@ int load_empty_map()
 #ifndef MAP_EDITOR2
 		locked_to_console = 1;
 		hide_window (game_root_win);
-		show_window (console_root_win);
+		show_window_MW(MW_CONSOLE);
 		LOG_TO_CONSOLE(c_red4, no_nomap_str);
 		LOG_ERROR(cant_change_map, "./maps/nomap.elm");
 		SDLNet_TCP_Close(my_socket);

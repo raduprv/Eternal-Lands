@@ -13,9 +13,6 @@
 extern "C" {
 #endif
 
-extern int elconfig_win;
-extern int elconfig_menu_x;
-extern int elconfig_menu_y;
 extern float water_tiles_extension;
 extern int show_game_seconds;
 extern int skybox_update_delay;
@@ -94,8 +91,6 @@ typedef enum
 	INI_FILE_VAR,		/*!< for variables names from el.ini */
 	IN_GAME_VAR		/*!< for names of variables changed in the games */
 } var_name_type;
-
-void display_elconfig_win(void);
 
 int get_rotate_chat_log(void);
 

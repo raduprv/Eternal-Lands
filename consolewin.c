@@ -41,7 +41,6 @@
  * 	- Intimate use of input_widget all over the place in different modules
  */
 
-int console_root_win = -1;
 int console_scrollbar_enabled = 1;
 int locked_to_console = 0;
 
@@ -73,8 +72,8 @@ static void update_console_scrollbar(void)
 		barlen = total_nr_lines - nr_console_lines;
 		barpos = barlen - scroll_up_lines;
 	}
-	vscrollbar_set_bar_len(console_root_win, console_scrollbar_id, barlen);
-	vscrollbar_set_pos(console_root_win, console_scrollbar_id, barpos);
+	vscrollbar_set_bar_len(get_id_MW(MW_CONSOLE), console_scrollbar_id, barlen);
+	vscrollbar_set_pos(get_id_MW(MW_CONSOLE), console_scrollbar_id, barpos);
 	//printf("pos=%d len=%d scroll_up_lines=%d total_nr_lines=%d nr_console_lines=%d\n",
 	//	barpos, barlen, scroll_up_lines, total_nr_lines, nr_console_lines );
 }
@@ -93,7 +92,7 @@ static int display_console_handler (window_info *win)
 	{
 		find_line_nr(total_nr_lines, total_nr_lines - nr_console_lines - scroll_up_lines,
 			FILTER_ALL, &msg, &offset, CHAT_FONT, 1.0, console_text_width);
-		text_field_set_buf_pos(console_root_win, console_out_id, msg, offset);
+		text_field_set_buf_pos(win->window_id, console_out_id, msg, offset);
 		update_console_scrollbar();
 		console_text_changed = 0;
 	}
@@ -109,7 +108,7 @@ static int display_console_handler (window_info *win)
 	//ttlanhil: disabled, until the scrolling in console is adusted to work with filtering properly
 	//if the users prefer that console not be filtered, the following line can be removed.
 	//if they want it filtered, then more work can be done until it works properly
-	//((text_field*)((widget_find(console_root_win, console_out_id))->widget_info))->chan_nr = current_filter;
+	//((text_field*)((widget_find(win->window_id, console_out_id))->widget_info))->chan_nr = current_filter;
 
 	draw_hud_interface (win);
 
@@ -176,8 +175,8 @@ static int keypress_console_handler (window_info *win, int mx, int my, SDL_Keyco
 			// if K_MARKFILTER pressed, open the map window with the filter active
 			if (KEY_DEF_CMP(K_MARKFILTER, key_code, key_mod))
 				mark_filter_active = 1;
-			hide_window (console_root_win);
-			show_window (map_root_win);
+			hide_window (win->window_id);
+			show_window_MW(MW_TABMAP);
 		}
 	}
 	else
@@ -223,18 +222,18 @@ static int resize_console_handler (window_info *win, int width, int height)
 
 	console_text_width = (int) (console_active_width - 2*CONSOLE_TEXT_X_BORDER - scrollbar_x_adjust);
 
-	widget_resize (console_root_win, console_out_id, console_text_width, text_display_height);
-	widget_move (console_root_win, console_out_id, CONSOLE_TEXT_X_BORDER, CONSOLE_Y_OFFSET);
-	widget_resize (console_root_win, input_widget->id, console_active_width, input_widget->len_y);
-	widget_move (console_root_win, input_widget->id, 0, console_active_height - input_widget->len_y);
+	widget_resize (win->window_id, console_out_id, console_text_width, text_display_height);
+	widget_move (win->window_id, console_out_id, CONSOLE_TEXT_X_BORDER, CONSOLE_Y_OFFSET);
+	widget_resize (win->window_id, input_widget->id, console_active_width, input_widget->len_y);
+	widget_move (win->window_id, input_widget->id, 0, console_active_height - input_widget->len_y);
 
 	nr_console_lines = get_max_nr_lines(text_display_height, CHAT_FONT, 1.0);
 	recalc_message_lines();
 
 	if (console_scrollbar_enabled)
 	{
-		widget_resize(console_root_win, console_scrollbar_id, win->box_size, text_display_height);
-		widget_move(console_root_win, console_scrollbar_id, console_active_width - win->box_size, CONSOLE_Y_OFFSET);
+		widget_resize(win->window_id, console_scrollbar_id, win->box_size, text_display_height);
+		widget_move(win->window_id, console_scrollbar_id, console_active_width - win->box_size, CONSOLE_Y_OFFSET);
 		update_console_scrollbar();
 	}
 
@@ -250,7 +249,7 @@ static int resize_console_handler (window_info *win, int width, int height)
 
 static int console_scroll_click(widget_list *widget, int mx, int my, Uint32 flags)
 {
-	scroll_up_lines = (total_nr_lines - nr_console_lines) - vscrollbar_get_pos(console_root_win, console_scrollbar_id);
+	scroll_up_lines = (total_nr_lines - nr_console_lines) - vscrollbar_get_pos(widget->window_id, console_scrollbar_id);
 	console_text_changed = 1;
 	return 1;
 }
@@ -367,6 +366,7 @@ void update_console_win (text_message * msg)
 
 void toggle_console_scrollbar(int *enable)
 {
+	int console_root_win = get_id_MW(MW_CONSOLE);
 	*enable = !*enable;
 	if ((console_root_win >= 0) && (console_root_win < windows_list.num_windows))
 	{
@@ -398,6 +398,7 @@ static int change_console_font_handler(window_info *win, font_cat cat)
 
 void create_console_root_window (int width, int height)
 {
+	int console_root_win = get_id_MW(MW_CONSOLE);
 	if (console_root_win < 0)
 	{
 		window_info *win = NULL;
@@ -407,6 +408,7 @@ void create_console_root_window (int width, int height)
 		int input_height = get_input_height();
 
 		console_root_win = create_window ("Console", -1, -1, 0, 0, width, height, ELW_USE_UISCALE|ELW_TITLE_NONE|ELW_SHOW_LAST);
+		set_id_MW(MW_CONSOLE, console_root_win);
 		if (console_root_win < 0 || console_root_win >= windows_list.num_windows)
 			return;
 
@@ -457,6 +459,7 @@ void create_console_root_window (int width, int height)
 
 int input_field_resize(widget_list *w, Uint32 x, Uint32 y)
 {
+	int console_root_win = get_id_MW(MW_CONSOLE);
 	window_info *console_win = &windows_list.window[console_root_win];
 	widget_list *console_out_w = widget_find(console_root_win, console_out_id);
 	text_field *tf = w->widget_info;

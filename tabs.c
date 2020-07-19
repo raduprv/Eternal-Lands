@@ -14,24 +14,13 @@
 #include "url.h"
 #include "notepad.h"
 
-int tab_stats_win = -1;
-int tab_stats_collection_id = 16;
-int tab_stats_x = 150;
-int tab_stats_y = 70;
 unsigned tab_selected = 0;
+int tab_stats_collection_id = 16;
+int tab_help_collection_id = 17;
+int tab_info_collection_id = 18;
 static int tab_stat_scale_changed = 0;
 static int tab_help_scale_changed = 0;
 static int tab_info_scale_changed = 0;
-
-int tab_help_win = -1;
-int tab_help_collection_id = 17;
-int tab_help_x = 150;
-int tab_help_y = 70;
-
-int tab_info_win = -1;
-int tab_info_collection_id = 18;
-int tab_info_x = 150;
-int tab_info_y = 70;
 
 static int do_scale_stats_handler(window_info *win)
 {
@@ -94,14 +83,13 @@ static int change_stats_font_handler(window_info* win, font_cat cat)
 
 void display_tab_stats ()
 {
+	int tab_stats_win = get_id_MW(MW_STATS);
+
 	if (tab_stats_win < 0)
 	{
-		int our_root_win = -1;
-		if (!windows_on_top) {
-			our_root_win = game_root_win;
-		}
-		tab_stats_win = create_window (win_statistics, our_root_win, 0, tab_stats_x, tab_stats_y, 0, 0, ELW_USE_UISCALE|ELW_WIN_DEFAULT);
-		set_window_custom_scale(tab_stats_win, &custom_scale_factors.stats);
+		tab_stats_win = create_window (win_statistics, (not_on_top_now(MW_STATS) ?game_root_win : -1), 0, get_pos_x_MW(MW_STATS), get_pos_y_MW(MW_STATS), 0, 0, ELW_USE_UISCALE|ELW_WIN_DEFAULT);
+		set_id_MW(MW_STATS, tab_stats_win);
+		set_window_custom_scale(tab_stats_win, MW_STATS);
 		set_window_handler(tab_stats_win, ELW_HANDLER_UI_SCALE, &ui_scale_stats_handler );
 		set_window_handler(tab_stats_win, ELW_HANDLER_DISPLAY, &display_stats_handler);
 		set_window_handler(tab_stats_win, ELW_HANDLER_FONT_CHANGE, &change_stats_font_handler);
@@ -114,6 +102,7 @@ void display_tab_stats ()
 
 		if ((tab_stats_win > -1) && (tab_stats_win < windows_list.num_windows))
 			do_scale_stats_handler(&windows_list.window[tab_stats_win]);
+		check_proportional_move(MW_STATS);
 
 		tab_collection_select_tab (tab_stats_win, tab_stats_collection_id, tab_selected & 0xf);
 	}
@@ -185,10 +174,13 @@ static int change_help_font_handler(window_info* win, font_cat cat)
 
 void display_tab_help ()
 {
+	int tab_help_win = get_id_MW(MW_HELP);
+
 	if (tab_help_win < 0)
 	{
-		tab_help_win = create_window (win_help, -1, 0, tab_help_x, tab_help_y, 0, 0, ELW_USE_UISCALE|ELW_WIN_DEFAULT);
-		set_window_custom_scale(tab_help_win, &custom_scale_factors.help);
+		tab_help_win = create_window (win_help, -1, 0, get_pos_x_MW(MW_HELP), get_pos_y_MW(MW_HELP), 0, 0, ELW_USE_UISCALE|ELW_WIN_DEFAULT);
+		set_id_MW(MW_HELP, tab_help_win);
+		set_window_custom_scale(tab_help_win, MW_HELP);
 		set_window_handler(tab_help_win, ELW_HANDLER_DISPLAY, &display_help_handler);
 		set_window_handler(tab_help_win, ELW_HANDLER_UI_SCALE, &ui_scale_help_handler );
 		set_window_handler(tab_help_win, ELW_HANDLER_FONT_CHANGE, &change_help_font_handler);
@@ -201,6 +193,7 @@ void display_tab_help ()
 
 		if ((tab_help_win > -1) && (tab_help_win < windows_list.num_windows))
 			do_scale_help_handler(&windows_list.window[tab_help_win]);
+		check_proportional_move(MW_HELP);
 
 		tab_collection_select_tab (tab_help_win, tab_help_collection_id, (tab_selected >> 4) & 0xf);
 	}
@@ -272,14 +265,14 @@ static int change_info_font_handler(window_info* win, font_cat cat)
 
 void display_tab_info()
 {
+	int tab_info_win = get_id_MW(MW_INFO);
+
 	if (tab_info_win < 0)
 	{
-		int our_root_win = -1;
-		if (!windows_on_top)
-			our_root_win = game_root_win;
-
-		tab_info_win = create_window (tt_info, our_root_win, 0, tab_info_x, tab_info_y, 0, 0, ELW_USE_UISCALE|ELW_WIN_DEFAULT);
-		set_window_custom_scale(tab_info_win, &custom_scale_factors.info);
+		tab_info_win = create_window (tt_info, (not_on_top_now(MW_INFO) ?game_root_win : -1), 0,
+			get_pos_x_MW(MW_INFO), get_pos_y_MW(MW_INFO), 0, 0, ELW_USE_UISCALE|ELW_WIN_DEFAULT);
+		set_id_MW(MW_INFO, tab_info_win);
+		set_window_custom_scale(tab_info_win, MW_INFO);
 		set_window_handler(tab_info_win, ELW_HANDLER_DISPLAY, &display_info_handler);
 		set_window_handler(tab_info_win, ELW_HANDLER_UI_SCALE, &ui_scale_info_handler);
 		set_window_handler(tab_info_win, ELW_HANDLER_FONT_CHANGE, &change_info_font_handler);
@@ -289,7 +282,8 @@ void display_tab_info()
 		fill_url_window(tab_add(tab_info_win, tab_info_collection_id, win_url_str, 0, 0, ELW_USE_UISCALE));
 
 		if ((tab_info_win > -1) && (tab_info_win < windows_list.num_windows))
-			ui_scale_info_handler(&windows_list.window[tab_info_win]);
+			do_scale_info_handler(&windows_list.window[tab_info_win]);
+		check_proportional_move(MW_INFO);
 
 		tab_collection_select_tab (tab_info_win, tab_info_collection_id, (tab_selected >> 8) & 0xf);
 	}
@@ -307,13 +301,13 @@ unsigned get_tab_selected(void)
 	int tabnr;
 	tab_selected = 0;
 
-	tabnr = tab_collection_get_tab(tab_stats_win, tab_stats_collection_id);
+	tabnr = tab_collection_get_tab(get_id_MW(MW_STATS), tab_stats_collection_id);
 	tab_selected |= ((tabnr < 0) ?old_tab_selected :tabnr) & 0xf;
 
-	tabnr = tab_collection_get_tab(tab_help_win, tab_help_collection_id);
+	tabnr = tab_collection_get_tab(get_id_MW(MW_STATS), tab_help_collection_id);
 	tab_selected |= ((tabnr < 0) ?old_tab_selected :(tabnr<<4)) & 0xf0;
 
-	tabnr = tab_collection_get_tab(tab_info_win, tab_info_collection_id);
+	tabnr = tab_collection_get_tab(get_id_MW(MW_INFO), tab_info_collection_id);
 	tab_selected |= ((tabnr < 0) ?old_tab_selected :(tabnr<<8)) & 0xf00;
 
 	return tab_selected;

@@ -138,45 +138,32 @@ int get_hud_logo_size(void);
 
 /*!
  * \ingroup windows
- * \brief Get the window ID pointer using the name string
+ * \brief Shows or hides the specified window
  *
- * \param name		the name of the window
+ *      Shows the specified window by calling the appropriate display function if the window was not created before, else \ref toggle_window is called.
  *
- *	returns if sucessful, a pointer to the window id variable, otherwise NULL.
+ * \param managed_win   the window to show
  *
+ * \pre If \a managed_win is either of MW_ITEMS, MW_SPELLS or MW_MANU window and the trade window is currently active, and error message will get logged to the console and the functions returns.
  * \callgraph
  */
-int* get_winid(const char *name);
+void view_window(enum managed_window_enum managed_win);
 
 /*!
  * \ingroup windows
- * \brief Shows the window pointed to by \a win
+ * \brief Shows the selected \a tab of the given \a managed_win.
  *
- *      Shows the window pointed to by \a win by calling the appropriate display_*_win function if \a win was not created before, else \ref toggle_window is called.
+ *      Shows the selected \a tab of the given \a managed_win.
  *
- * \param win   the id of the window to show
- * \param id    unused
- *
- * \pre If \a win is either of \ref items_win, \ref sigil_win or \ref manufacture_win and the \ref trade_win is currently active, and error message will get logged to the console and the functions returns.
- * \callgraph
- */
-void view_window(int * win, int id);
-
-/*!
- * \ingroup windows
- * \brief Shows the selected \a tab of the given \a window.
- *
- *      Shows the selected \a tab of the given \a window.
- *
- * \param window    the id of the window
+ * \param managed_win    the window
  * \param col_id    the id of the tab collection
  * \param tab       the id of the tab to show
  *
- * \pre If \a window is already visisble and \a tab is the currently selected tab, the window will be hidden.
- * \pre If \a window is already visisble but \a tab is currently not selected, then \a tab will be selected.
+ * \pre If \a managed_win is already visisble and \a tab is the currently selected tab, the window will be hidden.
+ * \pre If \a managed_win is already visisble but \a tab is currently not selected, then \a tab will be selected.
  * \callgraph
  */
-void view_tab (int *window, int *col_id, int tab);
+void view_tab (enum managed_window_enum managed_win, int col_id, int tab);
 
 /*!
  * \ingroup windows

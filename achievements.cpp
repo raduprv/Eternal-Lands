@@ -645,7 +645,7 @@ void Achievements_Window::open_child(void)
 	{
 		child_win_id = create_window("child", parent->window_id, 0, 0, 0, 0, 0,
 			ELW_USE_BACKGROUND|ELW_USE_BORDER|ELW_SHOW|ELW_ALPHA_BORDER|ELW_SWITCHABLE_OPAQUE);
-		set_window_custom_scale(child_win_id, &custom_scale_factors.achievements);
+		set_window_custom_scale(child_win_id, MW_ACHIEVE);
 		set_window_handler(child_win_id, ELW_HANDLER_DISPLAY, (int (*)())&achievements_child_display_handler );
 	}
 	else
@@ -946,7 +946,7 @@ void Achievements_Window::open(int win_pos_x, int win_pos_y)
 
 	main_win_id = create_window(their_name.c_str(), -1, 0, win_pos_x, win_pos_y, 0, 0,
 		ELW_USE_UISCALE|ELW_TITLE_BAR|ELW_DRAGGABLE|ELW_USE_BACKGROUND|ELW_USE_BORDER|ELW_SHOW|ELW_TITLE_NAME|ELW_ALPHA_BORDER|ELW_SWITCHABLE_OPAQUE);
-	set_window_custom_scale(main_win_id, &custom_scale_factors.achievements);
+	set_window_custom_scale(main_win_id, MW_ACHIEVE);
 	set_window_handler(main_win_id, ELW_HANDLER_DISPLAY, (int (*)())&achievements_display_handler );
 	set_window_handler(main_win_id, ELW_HANDLER_CLICK, (int (*)())&achievements_click_handler );
 	set_window_handler(main_win_id, ELW_HANDLER_MOUSEOVER, (int (*)())&achievements_mouseover_handler );

@@ -252,37 +252,125 @@ typedef	struct	{
 	int	display_level;
 } windows_info;
 
-/*!
- * set of window custom scale factors
- */
-typedef struct {
-	float trade;
-	float items;
-	float bags;
-	float spells;
-	float storage;
-	float manufacture;
-	float emote;
-	float questlog;
-	float info;
-	float buddy;
-	float stats;
-	float help;
-	float ranging;
-	float achievements;
-	float dialogue;
-	float quickbar;
-	float quickspells;
-	int disable_mouse_or_keys;
-} custom_scale_factors_def;
-
-extern custom_scale_factors_def custom_scale_factors; /*!<* window custom scale factors */
 extern	windows_info	windows_list; /*!< global variable defining the list of windows */
 extern int windows_on_top; /*!< global variable for whether windows appear on top of the console */
 extern int top_SWITCHABLE_OPAQUE_window_drawn; /*!< the id of the top opaque switchable window */
 extern int opaque_window_backgrounds;
 
+/*!
+ * \name managed window definitions, used to specify which window to access
+ */
+/*! @{ */
+enum managed_window_enum
+{
+	MW_TRADE = 0,
+	MW_ITEMS,
+	MW_BAGS,
+	MW_SPELLS,
+	MW_STORAGE,
+	MW_MANU,
+	MW_EMOTE,
+	MW_QUESTLOG,
+	MW_INFO,
+	MW_BUDDY,
+	MW_STATS,
+	MW_HELP,
+	MW_RANGING,
+	MW_ACHIEVE,
+	MW_DIALOGUE,
+	MW_QUICKBAR,
+	MW_QUICKSPELLS,
+	MW_CONFIG,
+	MW_MINIMAP,
+	MW_ASTRO,
+	MW_TABMAP,
+	MW_CONSOLE,
+#ifdef ECDEBUGWIN
+	MW_ECDEBUG,
+#endif
+	MW_MAX
+};
+/*! @} */
+
+/*!
+ * \name window creation and open functions, defined here to limit includes
+ */
+/*! @{ */
+void display_trade_menu(void);
+void display_items_menu(void);
+void display_sigils_menu(void);
+void display_storage_menu(void);
+void display_manufacture_menu(void);
+void display_emotes_menu(void);
+void display_questlog(void);
+void display_tab_info(void);
+void display_buddy(void);
+void display_tab_stats(void);
+void display_tab_help(void);
+void display_range_win(void);
+void display_elconfig_win(void);
+void display_minimap(void);
+#ifdef ECDEBUGWIN
+void display_ecdebugwin(void);
+#endif
+/*! @} */
+
+
 // windows manager function
+
+/*!
+ * \name managed window access function
+ */
+/*! @{ */
+int get_id_MW(enum managed_window_enum managed_win);
+void set_id_MW(enum managed_window_enum managed_win, int win_id);
+void set_pos_MW(enum managed_window_enum managed_win, int pos_x, int pos_y);
+int get_pos_x_MW(enum managed_window_enum managed_win);
+int get_pos_y_MW(enum managed_window_enum managed_win);
+int on_top_responsive_MW(enum managed_window_enum managed_win);
+int not_on_top_now(enum managed_window_enum managed_win);
+void clear_was_open_MW(enum managed_window_enum managed_win);
+void set_was_open_MW(enum managed_window_enum managed_win);
+int was_open_MW(enum managed_window_enum managed_win);
+int is_hideable_MW(enum managed_window_enum managed_win);
+void clear_hideable_MW(enum managed_window_enum managed_win);
+void set_hideable_MW(enum managed_window_enum managed_win);
+void call_display_MW(enum managed_window_enum managed_win);
+int match_keydef_MW(enum managed_window_enum managed_win, SDL_Keycode key_code, Uint16 key_mod);
+float * get_scale_WM(enum managed_window_enum managed_win);
+void set_save_pos_MW(enum managed_window_enum managed_win, int *pos_x, int *pos_y);
+int * get_scale_flag_MW(void);
+enum managed_window_enum get_by_name_MW(const char *name);
+/*! @} */
+
+/*!
+ * \ingroup windows
+ * \brief Check if the specified window has pending adjustments and position proportionably
+ *
+ * \param managed_win		the index of the window in the managed window array
+ *
+ * \callgraph
+ */
+void check_proportional_move(enum managed_window_enum managed_win);
+
+/*!
+ * \ingroup windows
+ * \brief Adjust window positions proportionally using the supplied ratios
+ *
+ * \param pos_ratio_x		the ratio of the new window width over the old width
+ * \param pos_ratio_y		the ratio of the new window height over the old height
+ *
+ * \callgraph
+ */
+void move_windows_proportionally(float pos_ratio_x, float pos_ratio_y);
+
+/*!
+ * \ingroup windows
+ * \brief Adjusts window positions proportionally using window sizes from config
+ *
+ * \callgraph
+ */
+void restore_window_proportionally(void);
 
 /*!
  * \ingroup elwindows
@@ -292,10 +380,10 @@ extern int opaque_window_backgrounds;
  * determine the specific scale used for this window.
  *
  * \param win_id    the id of the window to select
- * \param new_scale pointer to the new scaling factor
+ * \param managed_win in index of the manage window which stores the scale
  * \callgraph
  */
-void set_window_custom_scale(int win_id, float *new_scale);
+void set_window_custom_scale(int win_id, enum managed_window_enum managed_win);
 
 /*!
  * \ingroup elwindows
@@ -875,6 +963,17 @@ int cm_title_handler(window_info *win, int widget_id, int mx, int my, int option
 //int	display_handler(window_info *win);
 //int	click_handler(window_info *win);
 //int	mouseover_handler(window_info *win);
+
+
+/*!
+ * \name managed window wrapper functions
+ */
+/*! @{ */
+inline void hide_window_MW(enum managed_window_enum managed_win) { hide_window(get_id_MW(managed_win)); }
+inline void show_window_MW(enum managed_window_enum managed_win) { show_window(get_id_MW(managed_win)); }
+inline void toggle_window_MW(enum managed_window_enum managed_win) { toggle_window(get_id_MW(managed_win)); }
+inline int get_show_window_MW(enum managed_window_enum managed_win) { return get_show_window(get_id_MW(managed_win)); }
+/*! @} */
 
 #ifdef __cplusplus
 } // extern "C"

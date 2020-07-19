@@ -378,7 +378,7 @@ class Questlog_Window
 		void cm_preshow_handler(int my);
 		int get_win_space(void) const { return win_space; }
 		void update_scrollbar_len(void)
-			{ if (questlog_win >= 0) vscrollbar_set_bar_len (questlog_win, quest_scroll_id, (active_entries.empty()) ?0 :active_entries.size()-1); }
+			{ if (get_id_MW(MW_QUESTLOG) >= 0) vscrollbar_set_bar_len (get_id_MW(MW_QUESTLOG), quest_scroll_id, (active_entries.empty()) ?0 :active_entries.size()-1); }
 		void add_npc_input_handler(const unsigned char *input_text, void *data);
 		void add_text_input_handler(const unsigned char *input_text, void *data);
 		void cancel_action(void) { current_action = -1; }
@@ -976,10 +976,10 @@ void Quest_List::open_window(void)
 {
 	if (win_id < 0)
 	{
-		win_id = create_window(questlist_filter_title_str, questlog_win, 0, 0, 0, 0, 0, ELW_USE_UISCALE|ELW_WIN_DEFAULT|ELW_RESIZEABLE);
+		win_id = create_window(questlist_filter_title_str, get_id_MW(MW_QUESTLOG), 0, 0, 0, 0, 0, ELW_USE_UISCALE|ELW_WIN_DEFAULT|ELW_RESIZEABLE);
 		if (win_id < 0 || win_id >= windows_list.num_windows)
 			return;
-		set_window_custom_scale(win_id, &custom_scale_factors.questlog);
+		set_window_custom_scale(win_id, MW_QUESTLOG);
 		set_window_handler(win_id, ELW_HANDLER_DISPLAY, (int (*)())&display_questlist_handler );
 		set_window_handler(win_id, ELW_HANDLER_CLICK, (int (*)())&click_questlist_handler );
 		set_window_handler(win_id, ELW_HANDLER_MOUSEOVER, (int (*)())&mouseover_questlist_handler );
@@ -1388,10 +1388,10 @@ void NPC_Filter::open_window(void)
 {
 	if (npc_filter_win < 0)
 	{
-		npc_filter_win = create_window(questlog_npc_filter_title_str, questlog_win, 0, 0, 0, 0, 0, ELW_USE_UISCALE|ELW_SCROLLABLE|ELW_RESIZEABLE|ELW_WIN_DEFAULT);
+		npc_filter_win = create_window(questlog_npc_filter_title_str, get_id_MW(MW_QUESTLOG), 0, 0, 0, 0, 0, ELW_USE_UISCALE|ELW_SCROLLABLE|ELW_RESIZEABLE|ELW_WIN_DEFAULT);
 		if (npc_filter_win < 0 && npc_filter_win >=  windows_list.num_windows)
 			return;
-		set_window_custom_scale(npc_filter_win, &custom_scale_factors.questlog);
+		set_window_custom_scale(npc_filter_win, MW_QUESTLOG);
 		set_window_handler(npc_filter_win, ELW_HANDLER_DISPLAY, (int (*)())&display_npc_filter_handler );
 		set_window_handler(npc_filter_win, ELW_HANDLER_CLICK, (int (*)())&click_npc_filter_handler );
 		set_window_handler(npc_filter_win, ELW_HANDLER_KEYPRESS, (int (*)())&keypress_npc_filter_handler );
@@ -1467,7 +1467,7 @@ void Questlog_Window::add_entry(window_info *win, size_t entry)
 	current_action = CMQL_ADD;
 	adding_insert_pos = (entry < active_entries.size()) ?active_entries[entry] :quest_entries.size();
 	close_ipu(&ipu_questlog);
-	init_ipu(&ipu_questlog, questlog_win, MAX_USERNAME_LENGTH, 1, MAX_USERNAME_LENGTH + 1, questlog_input_cancel_handler, questlog_add_npc_input_handler);
+	init_ipu(&ipu_questlog, win->window_id, MAX_USERNAME_LENGTH, 1, MAX_USERNAME_LENGTH + 1, questlog_input_cancel_handler, questlog_add_npc_input_handler);
 	display_popup_win(&ipu_questlog, questlog_add_npc_prompt_str);
 	centre_popup_window(&ipu_questlog);
 }
@@ -1490,7 +1490,7 @@ void Questlog_Window::add_text_input(window_info *win)
 {
 	prompt_for_add_text = false;
 	close_ipu(&ipu_questlog);
-	init_ipu(&ipu_questlog, questlog_win, 1024, 5, 40, questlog_input_cancel_handler, questlog_add_text_input_handler);
+	init_ipu(&ipu_questlog, win->window_id, 1024, 5, 40, questlog_input_cancel_handler, questlog_add_text_input_handler);
 	ipu_questlog.allow_nonprint_chars = 1;
 	display_popup_win(&ipu_questlog, questlog_add_text_prompt_str);
 	centre_popup_window(&ipu_questlog);
@@ -1541,7 +1541,7 @@ void Questlog_Window::find_in_entry(window_info *win)
 		return;
 	current_action = CMQL_FIND;
 	close_ipu(&ipu_questlog);
-	init_ipu(&ipu_questlog, questlog_win, 21, 1, 22, questlog_input_cancel_handler, questlog_find_input_handler);
+	init_ipu(&ipu_questlog, win->window_id, 21, 1, 22, questlog_input_cancel_handler, questlog_find_input_handler);
 	ipu_questlog.accept_do_not_close = 1;
 	display_popup_win(&ipu_questlog, questlog_find_prompt_str);
 	centre_popup_window(&ipu_questlog);
@@ -1732,9 +1732,9 @@ void Questlog_Window::ui_scale_handler(window_info *win)
 	qlwinwidth = content_width + 2 * qlborder + win->box_size;
 	qlwinheight = 16 * linesep;
 
-	widget_resize(questlog_win, quest_scroll_id, win->box_size, qlwinheight - win->box_size);
-	widget_move(questlog_win, quest_scroll_id, qlwinwidth - win->box_size, win->box_size);
-	resize_window(questlog_win, qlwinwidth, qlwinheight);
+	widget_resize(win->window_id, quest_scroll_id, win->box_size, qlwinheight - win->box_size);
+	widget_move(win->window_id, quest_scroll_id, qlwinwidth - win->box_size, win->box_size);
+	resize_window(win->window_id, qlwinwidth, qlwinheight);
 
 	if (questlist.get_win_id() >= 0 && questlist.get_win_id() < windows_list.num_windows)
 		questlist.ui_scale_handler(&windows_list.window[questlist.get_win_id()]);
@@ -1822,7 +1822,7 @@ int Questlog_Window::display_handler(window_info *win)
 //	Move to quest entry after scroll click
 void Questlog_Window::scroll_click_handler(widget_list *widget)
 {
-	int scroll = vscrollbar_get_pos (questlog_win, widget->id);
+	int scroll = vscrollbar_get_pos (get_id_MW(MW_QUESTLOG), widget->id);
 	goto_entry(scroll);
 }
 
@@ -1830,7 +1830,7 @@ void Questlog_Window::scroll_click_handler(widget_list *widget)
 //	Move to quest entry after scroll drag
 void Questlog_Window::scroll_drag_handler(widget_list *widget)
 {
-	int scroll = vscrollbar_get_pos (questlog_win, widget->id);
+	int scroll = vscrollbar_get_pos (get_id_MW(MW_QUESTLOG), widget->id);
 	goto_entry(scroll);
 }
 
@@ -1838,6 +1838,7 @@ void Questlog_Window::scroll_drag_handler(widget_list *widget)
 //	Move to entry of click wheel button in window
 int Questlog_Window::click_handler(window_info *win, Uint32 flags)
 {
+	int questlog_win = get_id_MW(MW_QUESTLOG);
 	if(flags&ELW_WHEEL_UP) {
 		vscrollbar_scroll_up(questlog_win, quest_scroll_id);
 		goto_entry(vscrollbar_get_pos(questlog_win, quest_scroll_id));
@@ -1882,7 +1883,7 @@ void Questlog_Window::goto_entry(int ln)
 		current_line = active_entries.size() - 1;
 	else
 		current_line = ln;
-	vscrollbar_set_pos(questlog_win, quest_scroll_id, current_line);
+	vscrollbar_set_pos(get_id_MW(MW_QUESTLOG), quest_scroll_id, current_line);
 }
 
 
@@ -1890,16 +1891,16 @@ void Questlog_Window::goto_entry(int ln)
 //
 void Questlog_Window::open(void)
 {
+	int questlog_win = get_id_MW(MW_QUESTLOG);
+
 	if (questlog_win < 0)
 	{
-		int our_root_win = -1;
-		if (!windows_on_top) {
-			our_root_win = game_root_win;
-		}
-		questlog_win = create_window(tab_questlog,our_root_win, 0, questlog_menu_x, questlog_menu_y, 0, 0, ELW_USE_UISCALE|ELW_WIN_DEFAULT);
+		questlog_win = create_window(tab_questlog, (not_on_top_now(MW_QUESTLOG) ?game_root_win : -1), 0,
+			get_pos_x_MW(MW_QUESTLOG), get_pos_y_MW(MW_QUESTLOG), 0, 0, ELW_USE_UISCALE|ELW_WIN_DEFAULT);
 		if (questlog_win < 0 || questlog_win >= windows_list.num_windows)
 			return;
-		set_window_custom_scale(questlog_win, &custom_scale_factors.questlog);
+		set_id_MW(MW_QUESTLOG, questlog_win);
+		set_window_custom_scale(questlog_win, MW_QUESTLOG);
 		set_window_handler(questlog_win, ELW_HANDLER_DISPLAY, (int (*)())display_questlog_handler);
 		set_window_handler(questlog_win, ELW_HANDLER_CLICK, (int (*)())questlog_click);
 		set_window_handler(questlog_win, ELW_HANDLER_MOUSEOVER, (int (*)())&mouseover_questlog_handler );
@@ -1910,6 +1911,7 @@ void Questlog_Window::open(void)
 
 		window_info *win = &windows_list.window[questlog_win];
 		ui_scale_questlog_handler(win);
+		check_proportional_move(MW_QUESTLOG);
 
 		size_t last_entry = active_entries.size()-1;
 		quest_scroll_id = vscrollbar_add_extended (questlog_win, quest_scroll_id, NULL, qlwinwidth - win->box_size, win->box_size, win->box_size, qlwinheight - win->box_size, 0, 1.0, last_entry, 1, last_entry);
@@ -2173,12 +2175,4 @@ extern "C" unsigned int get_options_questlog(void)
 extern "C" void set_options_questlog(unsigned int cfg_options)
 {
 	questlist.set_options(cfg_options);
-}
-
-
-extern "C"
-{
-	int questlog_win=-1;
-	int questlog_menu_x=150;
-	int questlog_menu_y=70;
 }

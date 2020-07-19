@@ -24,7 +24,6 @@
 #include "special_effects.h"
 
 
-int map_root_win = -1;
 static int showing_continent = 0;
 #ifdef DEBUG_MAP_SOUND
 extern int cur_tab_map;
@@ -121,10 +120,8 @@ static int display_map_handler (window_info * win)
 {
 	draw_hud_interface (win);
 	Leave2DMode ();
-	if(reload_tab_map && map_root_win >= 0 && windows_list.window[map_root_win].displayed){
-		//need to reload the BMP
-		switch_to_game_map();
-	}
+	if(reload_tab_map && windows_list.window[win->window_id].displayed)
+		switch_to_game_map(); //need to reload the BMP
 	draw_game_map (!showing_continent, mouse_over_minimap);
 	Enter2DMode ();
 	CHECK_GL_ERRORS ();
@@ -196,8 +193,8 @@ static int keypress_map_handler (window_info *win, int mx, int my, SDL_Keycode k
 		reset_tab_completer();
 		if (key_unicode == '`' || KEY_DEF_CMP(K_CONSOLE, key_code, key_mod))
 		{
-			hide_window (map_root_win);
-			show_window (console_root_win);
+			hide_window (win->window_id);
+			show_window_MW(MW_CONSOLE);
 		}
 		else if ( !text_input_handler (key_code, key_unicode, key_mod) )
 		{
@@ -232,9 +229,11 @@ static int hide_map_handler (window_info * win)
 
 void create_map_root_window (int width, int height)
 {
+	int map_root_win = get_id_MW(MW_TABMAP);
 	if (map_root_win < 0)
 	{
 		map_root_win = create_window ("Map", -1, -1, 0, 0, width, height, ELW_USE_UISCALE|ELW_TITLE_NONE|ELW_SHOW_LAST);
+		set_id_MW(MW_TABMAP, map_root_win);
 
 		set_window_handler (map_root_win, ELW_HANDLER_DISPLAY, &display_map_handler);
 		set_window_handler (map_root_win, ELW_HANDLER_KEYPRESS, (int (*)())&keypress_map_handler);

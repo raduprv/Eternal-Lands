@@ -286,7 +286,7 @@ static int change_rules_font_handler(window_info *win, font_cat cat)
 void fill_rules_window(int window_id)
 {
 	rules_win = window_id;
-	set_window_custom_scale(window_id, &custom_scale_factors.help);
+	set_window_custom_scale(window_id, MW_HELP);
 	set_window_font_category(window_id, RULES_FONT);
 
 	rules_scroll_id = vscrollbar_add_extended (window_id, rules_scroll_id, NULL,
@@ -305,8 +305,8 @@ void fill_rules_window(int window_id)
 static void toggle_rules_window()
 {
 	// Stop the window from closing if already open
-	if (!get_show_window (tab_help_win) || tab_collection_get_tab (tab_help_win, tab_help_collection_id) != HELP_TAB_RULES) {
-		view_tab(&tab_help_win, &tab_help_collection_id, HELP_TAB_RULES);
+	if (!get_show_window_MW(MW_HELP) || tab_collection_get_tab (get_id_MW(MW_HELP), tab_help_collection_id) != HELP_TAB_RULES) {
+		view_tab(MW_HELP, tab_help_collection_id, HELP_TAB_RULES);
 	}
 
 	last_display=1;
@@ -396,9 +396,9 @@ void highlight_rule (int type, const Uint8 *rule, int no)
 				next_win_id = newchar_root_win;
 				break;
 			case INTERFACE_CONSOLE:
-				if (console_root_win < 0)
+				if (get_id_MW(MW_CONSOLE) < 0)
 					create_console_root_window (window_width, window_height);
-				next_win_id = console_root_win;
+				next_win_id = get_id_MW(MW_CONSOLE);
 				break;
 			case INTERFACE_OPENING:
 				if (opening_root_win < 0)
@@ -407,9 +407,9 @@ void highlight_rule (int type, const Uint8 *rule, int no)
 				break;
 			case INTERFACE_MAP:
 			case INTERFACE_CONT:
-				if (map_root_win < 0)
+				if (get_id_MW(MW_TABMAP) < 0)
 					create_map_root_window (window_width, window_height);
-				next_win_id = map_root_win;
+				next_win_id = get_id_MW(MW_TABMAP);
 				break;
 			case INTERFACE_RULES:
 				// doesn't make sense, use the default

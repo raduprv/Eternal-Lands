@@ -18,14 +18,6 @@ extern unsigned char npc_name[NPC_NAME_BUF_LEN]; /*!< buffer for the NPCs name *
 extern int cur_portrait; /*!< pointer to the portrait used by a particular NPC */
 extern char npc_mark_str[NPC_NAME_BUF_LEN]; /*!< npc location in map mark - the template (print format) string used */
 
-/*! \name windows handlers 
- * @{ */
-extern int dialogue_win; /*!< dialogue windows handler */
-/*! @} */
-
-extern int dialogue_menu_x;
-extern int dialogue_menu_y;
-
 extern int autoclose_storage_dialogue;
 extern int auto_select_storage_option;
 extern int dialogue_copy_excludes_responses;

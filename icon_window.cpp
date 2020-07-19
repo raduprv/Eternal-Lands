@@ -133,23 +133,24 @@ namespace IconWindow
 	{
 		public:
 			Window_Icon(int icon_id, int coloured_icon_id, const char * help_str, const char * window_name, const std::vector<CommandQueue::Line> *lines = 0)
-				: Basic_Icon(icon_id, coloured_icon_id, help_str, lines), window_id(0)
-				{ window_id = get_winid(window_name); }
+				: Basic_Icon(icon_id, coloured_icon_id, help_str, lines), managed_win(MW_MAX)
+				{ managed_win = get_by_name_MW(window_name); }
 			void update_highlight(void)
 			{
 				Basic_Icon::update_highlight();
-				if ( window_id &&  *window_id >= 0 && (windows_list.window[*window_id].displayed || windows_list.window[*window_id].reinstate) )
+				int window_id = get_id_MW(managed_win);
+				if ((window_id >= 0) && (windows_list.window[window_id].displayed || windows_list.window[window_id].reinstate) )
 					Basic_Icon::set_highlight(true);
 			}
 			void action(void)
 			{
-				if (window_id)
-					view_window(window_id, 0);
+				if (managed_win < MW_MAX)
+					view_window(managed_win);
 				Basic_Icon::action();
 			}
 			~Window_Icon(void) {}
 		private:
-			int *window_id;
+			enum managed_window_enum managed_win;
 	};
 
 

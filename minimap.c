@@ -32,9 +32,6 @@
 #include "map.h"
 #include "image_loading.h"
 
-int minimap_win = -1;
-int minimap_win_x = 5;
-int minimap_win_y = 20;
 float minimap_tiles_distance = 48;
 int rotate_minimap = 1;
 int pin_minimap = 0;
@@ -444,13 +441,13 @@ static int display_minimap_handler(window_info *win)
 	int i;
 
 	if (win->pos_x + win->len_x/2 < 0)
-		move_window(minimap_win, win->pos_id, win->pos_loc, -win->len_x/2, win->pos_y);
+		move_window(win->window_id, win->pos_id, win->pos_loc, -win->len_x/2, win->pos_y);
 	else if (win->pos_x > window_width - win->len_x/2)
-		move_window(minimap_win, win->pos_id, win->pos_loc, window_width - win->len_x/2, win->pos_y);
+		move_window(win->window_id, win->pos_id, win->pos_loc, window_width - win->len_x/2, win->pos_y);
 	if (win->pos_y < 0)
-		move_window(minimap_win, win->pos_id, win->pos_loc, win->pos_x, win->title_height);
+		move_window(win->window_id, win->pos_id, win->pos_loc, win->pos_x, win->title_height);
 	else if (win->pos_y > window_height - win->title_height)
-		move_window(minimap_win, win->pos_id, win->pos_loc, win->pos_x, window_height - win->title_height);
+		move_window(win->window_id, win->pos_id, win->pos_loc, win->pos_x, window_height - win->title_height);
 
 	if (enable_controls)
 	{
@@ -567,7 +564,7 @@ static int click_minimap_handler(window_info * win, int mx, int my, Uint32 flags
 		if((mx >=close_button_x) && (mx <=close_button_x + win->title_height) 
 			&&	(my <= win->title_height))
 		{
-			hide_window(minimap_win);
+			hide_window(win->window_id);
 			return 1;
 		}
 		else if(my >= win->title_height)
@@ -698,7 +695,7 @@ void change_minimap(void)
 {
 	char minimap_file_name[256];
 
-	if(minimap_win < 0)
+	if(get_id_MW(MW_MINIMAP) < 0)
 		return;
 	//save_exploration_map();
 
@@ -753,14 +750,14 @@ static int ui_scale_minimap_handler(window_info *win)
 	if (title_len + win->title_height > win->len_x/2)
 		title_len = win->len_x/2 - win->title_height;
 	cm_remove_regions(win->cm_id);
-	cm_add_region(win->cm_id, minimap_win, win->len_x/2-title_len, 0, title_len*2, win->title_height );
+	cm_add_region(win->cm_id, win->window_id, win->len_x/2-title_len, 0, title_len*2, win->title_height );
 	resize_window(win->window_id, minimap_size, minimap_size + win->title_height);
 	return 1;
 }
 
 void display_minimap(void)
 {
-	window_info *win;
+	int minimap_win = get_id_MW(MW_MINIMAP);
 
 	minimap_size = 256 * minimap_size_coefficient;
 	float_minimap_size = 256.0 * minimap_size_coefficient;
@@ -773,8 +770,10 @@ void display_minimap(void)
 	if(minimap_win < 0)
 	{
 		//init minimap
-		minimap_win = create_window(win_minimap, windows_on_top?-1:game_root_win, 0, minimap_win_x, minimap_win_y, 
+		window_info *win;
+		minimap_win = create_window(win_minimap, (not_on_top_now(MW_MANU) ?game_root_win : -1), 0, get_pos_x_MW(MW_MINIMAP), get_pos_y_MW(MW_MINIMAP), 
 			minimap_size, minimap_size+ELW_TITLE_HEIGHT, ELW_USE_UISCALE|ELW_CLICK_TRANSPARENT|ELW_SHOW|ELW_TITLE_NAME|ELW_ALPHA_BORDER|ELW_SWITCHABLE_OPAQUE|ELW_DRAGGABLE);
+		set_id_MW(MW_MINIMAP, minimap_win);
 		set_window_handler(minimap_win, ELW_HANDLER_DISPLAY, &display_minimap_handler);	
 		set_window_handler(minimap_win, ELW_HANDLER_CLICK, &click_minimap_handler);	
 		set_window_handler(minimap_win, ELW_HANDLER_MOUSEOVER, &mouseover_minimap_handler);	
@@ -792,6 +791,7 @@ void display_minimap(void)
 		}
 
 		ui_scale_minimap_handler(win);
+		check_proportional_move(MW_MINIMAP);
 
 		cm_add(win->cm_id, cm_minimap_menu_str, NULL);
 		cm_add_region(win->cm_id, minimap_win, win->len_x/2-title_len, 0, title_len*2, win->title_height );

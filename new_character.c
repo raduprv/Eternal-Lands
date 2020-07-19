@@ -569,13 +569,13 @@ static int keypress_newchar_handler (window_info *win, int mx, int my, SDL_Keyco
 			camera_zoom_duration = 100;
 		camera_zoom_dir = 1;
 	} else if(KEY_DEF_CMP(K_OPTIONS, key_code, key_mod)){
-		view_window(&elconfig_win, 0);
+		view_window(MW_CONFIG);
 	} else if(KEY_DEF_CMP(K_ENCYCLOPEDIA, key_code, key_mod)){
-		view_tab(&tab_help_win, &tab_help_collection_id, HELP_TAB_ENCYCLOPEDIA);
+		view_tab(MW_HELP, tab_help_collection_id, HELP_TAB_ENCYCLOPEDIA);
 	} else if(KEY_DEF_CMP(K_HELP, key_code, key_mod)) {
-		view_tab(&tab_help_win, &tab_help_collection_id, HELP_TAB_HELP);
+		view_tab(MW_HELP, tab_help_collection_id, HELP_TAB_HELP);
 	} else if (KEY_DEF_CMP(K_RULES, key_code, key_mod)) {
-		view_tab(&tab_help_win, &tab_help_collection_id, HELP_TAB_RULES);
+		view_tab(MW_HELP, tab_help_collection_id, HELP_TAB_RULES);
 	} else if (KEY_DEF_CMP(K_ROTATELEFT, key_code, key_mod)) {
 		camera_rotation_speed = normal_camera_rotation_speed / 800.0;
 		camera_rotation_duration = 800;
@@ -878,8 +878,8 @@ void login_from_new_char(void)
 	our_actor.our_model=NULL;
 
 	// close help and setting windows
-	if (tab_help_win >= 0) hide_window (tab_help_win);
-	if (elconfig_win >= 0) hide_window (elconfig_win);
+	hide_window_MW(MW_HELP);
+	hide_window_MW(MW_CONFIG);
 
 	//restore use_windowed_chat
 	use_windowed_chat = old_use_windowed_chat;

@@ -466,7 +466,7 @@ static int click_login_handler (window_info *win, int mx, int my, Uint32 flags)
 	else if (settings_button_selected)
 	{
 		force_elconfig_win_ontop = 1;
-		view_window (&elconfig_win, 0);
+		view_window(MW_CONFIG);
 	}
 	return 1;
 }
@@ -556,8 +556,8 @@ static int keypress_login_handler (window_info *win, int mx, int my, SDL_Keycode
 static int show_login_handler(window_info * win)
 {
 	close_book_window();
-	hide_window(elconfig_win);
-	hide_window(tab_help_win);
+	hide_window_MW(MW_CONFIG);
+	hide_window_MW(MW_HELP);
 	return 1;
 }
 

@@ -121,8 +121,8 @@ static int context_hud_handler(window_info *win, int widget_id, int mx, int my, 
 	unsigned char protocol_name;
 	switch (option)
 	{
-		case CMH_MINIMAP: view_window(&minimap_win, 0); break;
-		case CMH_RANGSTATS: view_window(&range_win, 0); break;
+		case CMH_MINIMAP: view_window(MW_MINIMAP); break;
+		case CMH_RANGSTATS: view_window(MW_RANGING); break;
 #ifdef NEW_SOUND
 		case CMH_SOUND: toggle_sounds(&sound_on); set_var_unsaved("enable_sound", INI_FILE_VAR); break;
 		case CMH_MUSIC: toggle_music(&music_on); set_var_unsaved("enable_music", INI_FILE_VAR); break;
@@ -145,8 +145,8 @@ static void context_hud_pre_show_handler(window_info *win, int widget_id, int mx
 	cm_sound_enabled = sound_on;
 	cm_music_enabled = music_on;
 #endif // NEW_SOUND
-	cm_minimap_shown = get_show_window(minimap_win);
-	cm_rangstats_shown = get_show_window(range_win);
+	cm_minimap_shown = get_show_window_MW(MW_MINIMAP);
+	cm_rangstats_shown = get_show_window_MW(MW_RANGING);
 }
 
 
@@ -185,11 +185,11 @@ static void calc_statbar_shown(int base_y_pos, float scale)
 static void reset_cm_regions(void)
 {
 	cm_remove_regions(game_root_win);
-	cm_remove_regions(map_root_win);
-	cm_remove_regions(console_root_win);
+	cm_remove_regions(get_id_MW(MW_TABMAP));
+	cm_remove_regions(get_id_MW(MW_CONSOLE));
 	cm_add_region(cm_hud_id, game_root_win, window_width-hud_x, 0, hud_x, window_height);
-	cm_add_region(cm_hud_id, map_root_win, window_width-hud_x, 0, hud_x, window_height);
-	cm_add_region(cm_hud_id, console_root_win, window_width-hud_x, 0, hud_x, window_height);
+	cm_add_region(cm_hud_id, get_id_MW(MW_TABMAP), window_width-hud_x, 0, hud_x, window_height);
+	cm_add_region(cm_hud_id, get_id_MW(MW_CONSOLE), window_width-hud_x, 0, hud_x, window_height);
 }
 
 

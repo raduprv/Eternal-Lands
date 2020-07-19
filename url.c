@@ -641,8 +641,8 @@ static void open_current_url(list_node_t *chosen_url)
 static void context_url_pre_show_handler(window_info *win, int widget_id, int mx, int my, window_info *cm_win)
 {
 	// propagate opacity from parent tab window
-	if (cm_win!= NULL && tab_info_win >-1 && tab_info_win<windows_list.num_windows)
-		cm_win->opaque = windows_list.window[tab_info_win].opaque;
+	if (cm_win!= NULL && get_id_MW(MW_INFO) >-1 && get_id_MW(MW_INFO) < windows_list.num_windows)
+		cm_win->opaque = windows_list.window[get_id_MW(MW_INFO)].opaque;
 }
 
 /* called when a context menu option is selected */
@@ -776,7 +776,7 @@ static int resize_url_handler(window_info *win, int new_width, int new_height)
 /* fill the URL window created as a tab. */
 void fill_url_window(int window_id)
 {
-	set_window_custom_scale(window_id, &custom_scale_factors.info);
+	set_window_custom_scale(window_id, MW_INFO);
 	set_window_handler(window_id, ELW_HANDLER_DISPLAY, &display_url_handler );
 	set_window_handler(window_id, ELW_HANDLER_CLICK, &click_url_handler );
 	set_window_handler(window_id, ELW_HANDLER_RESIZE, &resize_url_handler );

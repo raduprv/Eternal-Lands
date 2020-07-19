@@ -221,66 +221,48 @@ static void read_bin_cfg(void)
 
 	//good, retrive the data
 	// TODO: move window save/restore into the window handler
-	items_menu_x=cfg_mem.items_menu_x;
-	items_menu_y=cfg_mem.items_menu_y;
+	set_pos_MW(MW_ITEMS, cfg_mem.items_menu_x, cfg_mem.items_menu_y);
 
-	ground_items_menu_x=cfg_mem.ground_items_menu_x & 0xFFFF;
-	ground_items_menu_y=cfg_mem.ground_items_menu_y & 0xFFFF;
+	set_pos_MW(MW_BAGS, cfg_mem.ground_items_menu_x & 0xFFFF, cfg_mem.ground_items_menu_y & 0xFFFF);
 	ground_items_visible_grid_cols = cfg_mem.ground_items_menu_x >> 16;
 	ground_items_visible_grid_rows = cfg_mem.ground_items_menu_y >> 16;
 
-	ranging_win_x=cfg_mem.ranging_win_x;
-	ranging_win_y=cfg_mem.ranging_win_y;
+	set_pos_MW(MW_RANGING, cfg_mem.ranging_win_x, cfg_mem.ranging_win_y);
 
-	trade_menu_x=cfg_mem.trade_menu_x;
-	trade_menu_y=cfg_mem.trade_menu_y;
+	set_pos_MW(MW_TRADE, cfg_mem.trade_menu_x, cfg_mem.trade_menu_y);
 
-	sigil_menu_x=cfg_mem.sigil_menu_x;
-	sigil_menu_y=cfg_mem.sigil_menu_y;
-	start_mini_spells=cfg_mem.start_mini_spells;
-	emotes_menu_x=cfg_mem.emotes_menu_x;
-	emotes_menu_y=cfg_mem.emotes_menu_y;
+	set_pos_MW(MW_SPELLS, cfg_mem.sigil_menu_x, cfg_mem.sigil_menu_y);
 
-	dialogue_menu_x=cfg_mem.dialogue_menu_x;
-	dialogue_menu_y=cfg_mem.dialogue_menu_y;
+	set_pos_MW(MW_EMOTE, cfg_mem.emotes_menu_x, cfg_mem.emotes_menu_y);
 
-	manufacture_menu_x=cfg_mem.manufacture_menu_x;
-	manufacture_menu_y=cfg_mem.manufacture_menu_y;
+	set_pos_MW(MW_DIALOGUE, cfg_mem.dialogue_menu_x, cfg_mem.dialogue_menu_y);
 
-	astrology_win_x = cfg_mem.astrology_win_x;
- 	astrology_win_y = cfg_mem.astrology_win_y;
+	set_pos_MW(MW_MANU, cfg_mem.manufacture_menu_x, cfg_mem.manufacture_menu_y);
 
-	tab_stats_x=cfg_mem.tab_stats_x;
-	tab_stats_y=cfg_mem.tab_stats_y;
+	set_pos_MW(MW_ASTRO, cfg_mem.astrology_win_x, cfg_mem.astrology_win_y);
 
-	elconfig_menu_x=cfg_mem.elconfig_menu_x;
-	elconfig_menu_y=cfg_mem.elconfig_menu_y;
+	set_pos_MW(MW_STATS, cfg_mem.tab_stats_x, cfg_mem.tab_stats_y);
 
-	tab_help_x=cfg_mem.tab_help_x;
-	tab_help_y=cfg_mem.tab_help_y;
+	set_pos_MW(MW_CONFIG, cfg_mem.elconfig_menu_x, cfg_mem.elconfig_menu_y);
 
-	storage_win_x=cfg_mem.storage_win_x;
-	storage_win_y=cfg_mem.storage_win_y;
+	set_pos_MW(MW_HELP, cfg_mem.tab_help_x, cfg_mem.tab_help_y);
 
-	buddy_menu_x=cfg_mem.buddy_menu_x;
-	buddy_menu_y=cfg_mem.buddy_menu_y;
+	set_pos_MW(MW_STORAGE, cfg_mem.storage_win_x, cfg_mem.storage_win_y);
 
-	questlog_menu_x=cfg_mem.questlog_win_x;
-	questlog_menu_y=cfg_mem.questlog_win_y;
+	set_pos_MW(MW_BUDDY, cfg_mem.buddy_menu_x, cfg_mem.buddy_menu_y);
 
-	minimap_win_x=cfg_mem.minimap_win_x;
-	minimap_win_y=cfg_mem.minimap_win_y;
+	set_pos_MW(MW_QUESTLOG, cfg_mem.questlog_win_x, cfg_mem.questlog_win_y);
+
+	set_pos_MW(MW_MINIMAP, cfg_mem.minimap_win_x, cfg_mem.minimap_win_y);
 	minimap_tiles_distance=cfg_mem.minimap_zoom;
 
 	tab_selected=cfg_mem.tab_selected;
 
-	tab_info_x=cfg_mem.tab_info_x;
-	tab_info_y=cfg_mem.tab_info_y;
+	set_pos_MW(MW_INFO, cfg_mem.tab_info_x, cfg_mem.tab_info_y);
 
 	if(quickbar_relocatable > 0)
 	{
-		quickbar_x = cfg_mem.quickbar_x;
-		quickbar_y = cfg_mem.quickbar_y;
+		set_pos_MW(MW_QUICKBAR, cfg_mem.quickbar_x, cfg_mem.quickbar_y);
 		quickbar_dir = cfg_mem.quickbar_flags & 0xFF;
 		quickbar_draggable = (cfg_mem.quickbar_flags & 0xFF00) >> 8;
 		if (quickbar_dir != HORIZONTAL)
@@ -376,145 +358,47 @@ void save_bin_cfg(void)
 	cfg_mem.cfg_version_num=CFG_VERSION;	// set the version number
 	//good, retrive the data
 	// TODO: move window save/restore into the window handler
-	if(range_win >= 0) {
-		cfg_mem.ranging_win_x=windows_list.window[range_win].cur_x;
-		cfg_mem.ranging_win_y=windows_list.window[range_win].cur_y;
-	} else {
-		cfg_mem.ranging_win_x=ranging_win_x;
-		cfg_mem.ranging_win_y=ranging_win_y;
-	}
+	set_save_pos_MW(MW_RANGING, &cfg_mem.ranging_win_x, &cfg_mem.ranging_win_y);
 
-	if(tab_help_win >= 0) {
-		cfg_mem.tab_help_x=windows_list.window[tab_help_win].cur_x;
-		cfg_mem.tab_help_y=windows_list.window[tab_help_win].cur_y;
-	} else {
-		cfg_mem.tab_help_x=tab_help_x;
-		cfg_mem.tab_help_y=tab_help_y;
-	}
+	set_save_pos_MW(MW_RANGING, &cfg_mem.ranging_win_x, &cfg_mem.ranging_win_y);
 
-	if(items_win >= 0) {
-		cfg_mem.items_menu_x=windows_list.window[items_win].cur_x;
-		cfg_mem.items_menu_y=windows_list.window[items_win].cur_y;
-	} else {
-		cfg_mem.items_menu_x=items_menu_x;
-		cfg_mem.items_menu_y=items_menu_y;
-	}
+	set_save_pos_MW(MW_HELP, &cfg_mem.tab_help_x, &cfg_mem.tab_help_y);
 
-	if(ground_items_win >= 0) {
-		cfg_mem.ground_items_menu_x = windows_list.window[ground_items_win].cur_x;
-		cfg_mem.ground_items_menu_y = windows_list.window[ground_items_win].cur_y;
-	} else {
-		cfg_mem.ground_items_menu_x = ground_items_menu_x;
-		cfg_mem.ground_items_menu_y = ground_items_menu_y;
-	}
+	set_save_pos_MW(MW_ITEMS, &cfg_mem.items_menu_x, &cfg_mem.items_menu_y);
+
+	set_save_pos_MW(MW_BAGS, &cfg_mem.ground_items_menu_x, &cfg_mem.ground_items_menu_y);
 	cfg_mem.ground_items_menu_x |= ground_items_visible_grid_cols << 16;
 	cfg_mem.ground_items_menu_y |= ground_items_visible_grid_rows << 16;
 
-	if(trade_win >= 0) {
-		cfg_mem.trade_menu_x=windows_list.window[trade_win].cur_x;
-		cfg_mem.trade_menu_y=windows_list.window[trade_win].cur_y;
-	} else {
-		cfg_mem.trade_menu_x=trade_menu_x;
-		cfg_mem.trade_menu_y=trade_menu_y;
-	}
+	set_save_pos_MW(MW_TRADE, &cfg_mem.trade_menu_x, &cfg_mem.trade_menu_y);
 
 	cfg_mem.start_mini_spells=start_mini_spells;
-	if(sigil_win >= 0) {
-		cfg_mem.sigil_menu_x=windows_list.window[sigil_win].cur_x;
-		cfg_mem.sigil_menu_y=windows_list.window[sigil_win].cur_y;
-	} else {
-		cfg_mem.sigil_menu_x=sigil_menu_x;
-		cfg_mem.sigil_menu_y=sigil_menu_y;
-	}
-	if(emotes_win >= 0) {
-		cfg_mem.emotes_menu_x=windows_list.window[emotes_win].cur_x;
-		cfg_mem.emotes_menu_y=windows_list.window[emotes_win].cur_y;
-	} else {
-		cfg_mem.emotes_menu_x=emotes_menu_x;
-		cfg_mem.emotes_menu_y=emotes_menu_y;
-	}
-	if(dialogue_win >= 0) {
-		cfg_mem.dialogue_menu_x=windows_list.window[dialogue_win].cur_x;
-		cfg_mem.dialogue_menu_y=windows_list.window[dialogue_win].cur_y;
-	} else {
-		cfg_mem.dialogue_menu_x=dialogue_menu_x;
-		cfg_mem.dialogue_menu_y=dialogue_menu_y;
-	}
+	set_save_pos_MW(MW_SPELLS, &cfg_mem.sigil_menu_x, &cfg_mem.sigil_menu_y);
 
-	if(manufacture_win >= 0) {
-		cfg_mem.manufacture_menu_x=windows_list.window[manufacture_win].cur_x;
-		cfg_mem.manufacture_menu_y=windows_list.window[manufacture_win].cur_y;
-	} else {
-		cfg_mem.manufacture_menu_x=manufacture_menu_x;
-		cfg_mem.manufacture_menu_y=manufacture_menu_y;
-	}
+	set_save_pos_MW(MW_EMOTE, &cfg_mem.emotes_menu_x, &cfg_mem.emotes_menu_y);
 
-	if(astrology_win >= 0) {
- 		cfg_mem.astrology_win_x=windows_list.window[astrology_win].cur_x;
- 		cfg_mem.astrology_win_y=windows_list.window[astrology_win].cur_y;
- 	} else {
- 		cfg_mem.astrology_win_x=astrology_win_x;
- 		cfg_mem.astrology_win_y=astrology_win_y;
- 	}
+	set_save_pos_MW(MW_DIALOGUE, &cfg_mem.dialogue_menu_x, &cfg_mem.dialogue_menu_y);
 
-	if(elconfig_win >= 0) {
-		cfg_mem.elconfig_menu_x=windows_list.window[elconfig_win].cur_x;
-		cfg_mem.elconfig_menu_y=windows_list.window[elconfig_win].cur_y;
-	} else {
-		cfg_mem.elconfig_menu_x=elconfig_menu_x;
-		cfg_mem.elconfig_menu_y=elconfig_menu_y;
-	}
+	set_save_pos_MW(MW_MANU, &cfg_mem.manufacture_menu_x, &cfg_mem.manufacture_menu_y);
 
-	if(storage_win >= 0) {
-		cfg_mem.storage_win_x=windows_list.window[storage_win].cur_x;
-		cfg_mem.storage_win_y=windows_list.window[storage_win].cur_y;
-	} else {
-		cfg_mem.storage_win_x=storage_win_x;
-		cfg_mem.storage_win_y=storage_win_y;
-	}
+	set_save_pos_MW(MW_ASTRO, &cfg_mem.astrology_win_x, &cfg_mem.astrology_win_y);
 
-	if(tab_stats_win >= 0) {
-		cfg_mem.tab_stats_x=windows_list.window[tab_stats_win].cur_x;
-		cfg_mem.tab_stats_y=windows_list.window[tab_stats_win].cur_y;
-	} else {
-		cfg_mem.tab_stats_x=tab_stats_x;
-		cfg_mem.tab_stats_y=tab_stats_y;
-	}
+	set_save_pos_MW(MW_CONFIG, &cfg_mem.elconfig_menu_x, &cfg_mem.elconfig_menu_y);
 
-	if(buddy_win >= 0) {
-		cfg_mem.buddy_menu_x=windows_list.window[buddy_win].cur_x;
-		cfg_mem.buddy_menu_y=windows_list.window[buddy_win].cur_y;
-	} else {
-		cfg_mem.buddy_menu_x=buddy_menu_x;
-		cfg_mem.buddy_menu_y=buddy_menu_y;
-	}
+	set_save_pos_MW(MW_STORAGE, &cfg_mem.storage_win_x, &cfg_mem.storage_win_y);
 
-	if(questlog_win >= 0) {
-		cfg_mem.questlog_win_x=windows_list.window[questlog_win].cur_x;
-		cfg_mem.questlog_win_y=windows_list.window[questlog_win].cur_y;
-	} else {
-		cfg_mem.questlog_win_x=questlog_menu_x;
-		cfg_mem.questlog_win_y=questlog_menu_y;
-	}
+	set_save_pos_MW(MW_STATS, &cfg_mem.tab_stats_x, &cfg_mem.tab_stats_y);
 
-	if(minimap_win >= 0) {
-		cfg_mem.minimap_win_x=windows_list.window[minimap_win].cur_x;
-		cfg_mem.minimap_win_y=windows_list.window[minimap_win].cur_y;
-	} else {
-		cfg_mem.minimap_win_x=minimap_win_x;
-		cfg_mem.minimap_win_y=minimap_win_y;
-	}
+	set_save_pos_MW(MW_BUDDY, &cfg_mem.buddy_menu_x, &cfg_mem.buddy_menu_y);
+
+	set_save_pos_MW(MW_QUESTLOG, &cfg_mem.questlog_win_x, &cfg_mem.questlog_win_y);
+
+	set_save_pos_MW(MW_MINIMAP, &cfg_mem.minimap_win_x, &cfg_mem.minimap_win_y);
 	cfg_mem.minimap_zoom=minimap_tiles_distance;
 
 	cfg_mem.tab_selected=get_tab_selected();
 
-	if(tab_info_win >= 0) {
-		cfg_mem.tab_info_x=windows_list.window[tab_info_win].cur_x;
-		cfg_mem.tab_info_y=windows_list.window[tab_info_win].cur_y;
-	} else {
-		cfg_mem.tab_info_x=tab_info_x;
-		cfg_mem.tab_info_y=tab_info_y;
-	}
+	set_save_pos_MW(MW_INFO, &cfg_mem.tab_info_x, &cfg_mem.tab_info_y);
 
 	cfg_mem.banner_settings = 0;
 	cfg_mem.banner_settings |= view_health_bar;
@@ -527,18 +411,8 @@ void save_bin_cfg(void)
 
 	cfg_mem.quantity_selected=(quantities.selected<ITEM_EDIT_QUANT)?quantities.selected :0;
 
-	if (quickbar_win >= 0)
-	{
-		cfg_mem.quickbar_x = windows_list.window[quickbar_win].cur_x;
-		cfg_mem.quickbar_y = windows_list.window[quickbar_win].cur_y;
-		cfg_mem.quickbar_flags = quickbar_dir | (quickbar_draggable<<8);
-	}
-	else
-	{
-		cfg_mem.quickbar_x = quickbar_x;
-		cfg_mem.quickbar_y = quickbar_y;
-		cfg_mem.quickbar_flags = quickbar_dir | (quickbar_draggable<<8);
-	}
+	set_save_pos_MW(MW_QUICKBAR, &cfg_mem.quickbar_x, &cfg_mem.quickbar_y);
+	cfg_mem.quickbar_flags = quickbar_dir | (quickbar_draggable<<8);
 
 	get_statsbar_watched_stats(cfg_mem.watch_this_stats);
 

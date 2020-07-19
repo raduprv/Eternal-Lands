@@ -140,7 +140,7 @@ static void category_updated(void)
 //
 void pickup_storage_item(int image_id, Uint16 item_id, int cat_id)
 {
-	if ((storage_win<0) || (find_category(cat_id) == -1))
+	if ((get_id_MW(MW_STORAGE) < 0) || (find_category(cat_id) == -1))
 	{
 		do_alert1_sound();
 		item_lists_reset_pickup_fail_time();
@@ -207,7 +207,7 @@ void get_storage_categories(const char *in_data, int len)
 	}
 
 	no_storage_categories = in_data[0];
-	if (storage_win > 0) vscrollbar_set_bar_len(storage_win, STORAGE_SCROLLBAR_CATEGORIES, ( no_storage_categories - storage_categories_display ) > 1 ? (no_storage_categories - storage_categories_display) : 1);
+	if (get_id_MW(MW_STORAGE) > 0) vscrollbar_set_bar_len(get_id_MW(MW_STORAGE), STORAGE_SCROLLBAR_CATEGORIES, ( no_storage_categories - storage_categories_display ) > 1 ? (no_storage_categories - storage_categories_display) : 1);
 
 	selected_category=-1;
 	active_storage_item=-1;
@@ -230,8 +230,8 @@ int find_category(int id)
 
 void set_window_name(char *extra_sep, char *extra_name)
 {
-	safe_snprintf(windows_list.window[storage_win].window_name,
-		sizeof(windows_list.window[storage_win].window_name),
+	safe_snprintf(windows_list.window[get_id_MW(MW_STORAGE)].window_name,
+		sizeof(windows_list.window[get_id_MW(MW_STORAGE)].window_name),
 		"%s%s%s%s", win_storage, extra_sep, extra_name, ((view_only_storage) ?win_storage_vo:""));
 }
 
@@ -379,12 +379,12 @@ void get_storage_items (const Uint8 *in_data, int len)
 		storage_items[i].quantity=0;
 	}
 
-	vscrollbar_set_pos(storage_win, STORAGE_SCROLLBAR_ITEMS, 0);
-	pos = vscrollbar_get_pos(storage_win, STORAGE_SCROLLBAR_CATEGORIES);
+	vscrollbar_set_pos(get_id_MW(MW_STORAGE), STORAGE_SCROLLBAR_ITEMS, 0);
+	pos = vscrollbar_get_pos(get_id_MW(MW_STORAGE), STORAGE_SCROLLBAR_CATEGORIES);
 	if (cat < pos) {
-		vscrollbar_set_pos(storage_win, STORAGE_SCROLLBAR_CATEGORIES, cat);
+		vscrollbar_set_pos(get_id_MW(MW_STORAGE), STORAGE_SCROLLBAR_CATEGORIES, cat);
 	} else	if (cat >= pos + storage_categories_display) {
-		vscrollbar_set_pos(storage_win, STORAGE_SCROLLBAR_CATEGORIES, cat - storage_categories_display + 1);
+		vscrollbar_set_pos(get_id_MW(MW_STORAGE), STORAGE_SCROLLBAR_CATEGORIES, cat - storage_categories_display + 1);
 	}
 
 	update_items_in_category();
@@ -394,9 +394,6 @@ void get_storage_items (const Uint8 *in_data, int len)
 
 }
 
-int storage_win=-1;
-int storage_win_x=100;
-int storage_win_y=100;
 static int cat_scrollbar_id = 0;
 static int items_scrollbar_id = 0;
 
@@ -508,7 +505,7 @@ static int post_display_storage_handler(window_info * win)
 	if(active_storage_item >= 0) {
 		int i, pos;
 		/* Draw the active item's quantity on top of everything else. */
-		for(i = pos = item_grid_size * vscrollbar_get_pos(storage_win, STORAGE_SCROLLBAR_ITEMS); i < pos + item_grid_size*item_grid_size && i < no_storage; i++) {
+		for(i = pos = item_grid_size * vscrollbar_get_pos(win->window_id, STORAGE_SCROLLBAR_ITEMS); i < pos + item_grid_size*item_grid_size && i < no_storage; i++) {
 			if(storage_items[i].pos == active_storage_item) {
 				if (storage_items[i].quantity) {
 					char str[20];
@@ -553,7 +550,7 @@ int display_storage_handler(window_info * win)
 	glColor3f(0.77f, 0.57f, 0.39f);
 	glEnable(GL_TEXTURE_2D);
 
-	for(i=pos=vscrollbar_get_pos(storage_win,STORAGE_SCROLLBAR_CATEGORIES); i<no_storage_categories && storage_categories[i].id!=-1 && i<pos+storage_categories_display; i++,n++){
+	for(i=pos=vscrollbar_get_pos(win->window_id,STORAGE_SCROLLBAR_CATEGORIES); i<no_storage_categories && storage_categories[i].id!=-1 && i<pos+storage_categories_display; i++,n++){
 		int the_colour = from_color_char(storage_categories[i].name[0]);
 		size_t offset = 1;
 		if (the_colour == c_red3)
@@ -576,7 +573,7 @@ int display_storage_handler(window_info * win)
 	}
 
 	glColor3f(1.0f,1.0f,1.0f);
-	for(i = pos = item_grid_size * vscrollbar_get_pos(storage_win, STORAGE_SCROLLBAR_ITEMS); i < pos + item_grid_size*item_grid_size && i < no_storage; i++){
+	for(i = pos = item_grid_size * vscrollbar_get_pos(win->window_id, STORAGE_SCROLLBAR_ITEMS); i < pos + item_grid_size*item_grid_size && i < no_storage; i++){
 		GLfloat u_start, v_start, u_end, v_end;
 		int x_start, x_end, y_start, y_end;
 		int cur_item;
@@ -674,15 +671,15 @@ int click_storage_handler(window_info * win, int mx, int my, Uint32 flags)
 {
 	if(flags&ELW_WHEEL_UP) {
 		if(mx>border_size && mx<cat_right_offset) {
-			vscrollbar_scroll_up(storage_win, STORAGE_SCROLLBAR_CATEGORIES);
+			vscrollbar_scroll_up(win->window_id, STORAGE_SCROLLBAR_CATEGORIES);
 		} else if(mx>item_left_offset && mx<item_right_offset){
-			vscrollbar_scroll_up(storage_win, STORAGE_SCROLLBAR_ITEMS);
+			vscrollbar_scroll_up(win->window_id, STORAGE_SCROLLBAR_ITEMS);
 		}
 	} else if(flags&ELW_WHEEL_DOWN) {
 		if(mx>border_size && mx<cat_right_offset) {
-			vscrollbar_scroll_down(storage_win, STORAGE_SCROLLBAR_CATEGORIES);
+			vscrollbar_scroll_down(win->window_id, STORAGE_SCROLLBAR_CATEGORIES);
 		} else if(mx>item_left_offset && mx<item_right_offset){
-			vscrollbar_scroll_down(storage_win, STORAGE_SCROLLBAR_ITEMS);
+			vscrollbar_scroll_down(win->window_id, STORAGE_SCROLLBAR_ITEMS);
 		}
 	}
 	else if ( (flags & ELW_MOUSE_BUTTON) == 0) {
@@ -692,7 +689,7 @@ int click_storage_handler(window_info * win, int mx, int my, Uint32 flags)
 		if((my > cat_string_top_offset) && (my < (cat_string_top_offset + storage_categories_display * cat_name_separation))){
 			if(mx>border_size && mx<cat_right_offset){
 				int cat=-1;
-				cat=(my - cat_string_left_offset) / cat_name_separation + vscrollbar_get_pos(storage_win, STORAGE_SCROLLBAR_CATEGORIES);
+				cat=(my - cat_string_left_offset) / cat_name_separation + vscrollbar_get_pos(win->window_id, STORAGE_SCROLLBAR_CATEGORIES);
 				move_to_category(cat);
 				do_click_sound();
 			}
@@ -756,7 +753,7 @@ int mouseover_storage_handler(window_info *win, int mx, int my)
 			int pos=last_pos=(my - cat_string_top_offset) / cat_name_separation;
 			int p;
 
-			for(i=p=vscrollbar_get_pos(storage_win,STORAGE_SCROLLBAR_CATEGORIES);i<no_storage_categories;i++){
+			for(i=p=vscrollbar_get_pos(win->window_id, STORAGE_SCROLLBAR_CATEGORIES);i<no_storage_categories;i++){
 				if(i==selected_category) {
 				} else if(i!=p+pos) {
 					storage_categories[i].name[0]  = to_color_char (c_orange1);
@@ -769,11 +766,11 @@ int mouseover_storage_handler(window_info *win, int mx, int my)
 		}
 	}
 	if ((my > border_size) && (my<bottom_offset) && (mx > item_grid_left_offset) && (mx < item_right_offset)) {
-		cur_item_over = get_mouse_pos_in_grid(mx, my, item_grid_size, item_grid_size, item_grid_left_offset, border_size, item_box_size, item_box_size)+vscrollbar_get_pos(storage_win, STORAGE_SCROLLBAR_ITEMS)*item_grid_size;
+		cur_item_over = get_mouse_pos_in_grid(mx, my, item_grid_size, item_grid_size, item_grid_left_offset, border_size, item_box_size, item_box_size)+vscrollbar_get_pos(win->window_id, STORAGE_SCROLLBAR_ITEMS)*item_grid_size;
 		if(cur_item_over>=no_storage||cur_item_over<0||!storage_items[cur_item_over].quantity) cur_item_over=-1;
 	}
 
-	last_category = last_pos+vscrollbar_get_pos(storage_win,STORAGE_SCROLLBAR_CATEGORIES);
+	last_category = last_pos+vscrollbar_get_pos(win->window_id,STORAGE_SCROLLBAR_CATEGORIES);
 	if(last_pos>=0 && last_pos<storage_categories_display && last_category != selected_category) {
 		storage_categories[last_category].name[0] = to_color_char (c_orange1);
 		last_pos=-1;
@@ -851,6 +848,7 @@ static int context_storage_handler(window_info *win, int widget_id, int mx, int 
 
 void display_storage_menu()
 {
+	int storage_win = get_id_MW(MW_STORAGE);
 	int i;
 
 	/* Entropy suggested hack to determine if this is the view only "#sto" opened storage */
@@ -865,12 +863,10 @@ void display_storage_menu()
 	}
 
 	if(storage_win<=0){
-		int our_root_win = -1;
-		if (!windows_on_top) {
-			our_root_win = game_root_win;
-		}
-		storage_win=create_window(win_storage, our_root_win, 0, storage_win_x, storage_win_y, 0, 0, ELW_USE_UISCALE|ELW_WIN_DEFAULT|ELW_TITLE_NAME);
-		set_window_custom_scale(storage_win, &custom_scale_factors.storage);
+		storage_win = create_window(win_storage, (not_on_top_now(MW_STORAGE) ?game_root_win : -1), 0,
+			get_pos_x_MW(MW_STORAGE), get_pos_y_MW(MW_STORAGE), 0, 0, ELW_USE_UISCALE|ELW_WIN_DEFAULT|ELW_TITLE_NAME);
+		set_id_MW(MW_STORAGE, storage_win);
+		set_window_custom_scale(storage_win, MW_STORAGE);
 		set_window_handler(storage_win, ELW_HANDLER_DISPLAY, &display_storage_handler);
 		set_window_handler(storage_win, ELW_HANDLER_POST_DISPLAY, &post_display_storage_handler);
 		set_window_handler(storage_win, ELW_HANDLER_CLICK, &click_storage_handler);
@@ -907,11 +903,11 @@ void display_storage_menu()
 	set_window_name("", "");
 
 	ui_scale_storage_handler(&windows_list.window[storage_win]);
+	check_proportional_move(MW_STORAGE);
 }
 
 void close_storagewin()
 {
-	if(storage_win >= 0 && !view_only_storage) {
-		hide_window(storage_win);
-	}
+	if(!view_only_storage)
+		hide_window_MW(MW_STORAGE);
 }

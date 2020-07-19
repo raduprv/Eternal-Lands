@@ -112,10 +112,7 @@ typedef struct
 static spell_def active_spells[NUM_ACTIVE_SPELLS];
 
 //windows related
-int sigil_win=-1; //this is referred externally so we will change it when we switch windows
 int start_mini_spells=0; //do we start minimized?
-int sigil_menu_x=10;
-int sigil_menu_y=20;
 static int sigils_win=-1;
 static int spell_win=-1;
 static int spell_mini_win=-1;
@@ -910,14 +907,14 @@ static int draw_switcher(window_info *win){
 		glVertex3i(win->len_x-0.75*win->box_size,1.25*win->box_size,0);
 	glEnd();
 
-	if (sigil_win==spell_win || sigil_win==spell_mini_win) {
+	if (get_id_MW(MW_SPELLS) == spell_win || get_id_MW(MW_SPELLS) == spell_mini_win) {
 		//Draw switcher spells <-> mini
 		glBegin(GL_LINES);
 			glVertex3i(win->len_x-win->box_size,3*win->box_size,0);
 			glVertex3i(win->len_x,3*win->box_size,0);
 			glVertex3i(win->len_x-win->box_size,3*win->box_size,0);
 			glVertex3i(win->len_x-win->box_size,2*win->box_size,0);
-			if(sigil_win==spell_win) {
+			if(get_id_MW(MW_SPELLS) == spell_win) {
 			//arrow down
 					glVertex3i(win->len_x-0.75*win->box_size,2.25*win->box_size,0);
 					glVertex3i(win->len_x-0.5*win->box_size,2.75*win->box_size,0);
@@ -1214,7 +1211,7 @@ static int switch_handler(int new_win){
 	window_info *win;
 	int this_win;
 
-	last_win=sigil_win;
+	last_win = get_id_MW(MW_SPELLS);
 	this_win=new_win;
 
 	win=&windows_list.window[last_win];
@@ -1223,15 +1220,15 @@ static int switch_handler(int new_win){
 	move_window(this_win, win->pos_id, win->pos_loc, win->pos_x, win->pos_y);
 	show_window(this_win);
 	select_window(this_win);
-	sigil_win=this_win;
-	start_mini_spells=(sigil_win==spell_mini_win)? 1:0;
+	set_id_MW(MW_SPELLS, this_win);
+	start_mini_spells=(this_win == spell_mini_win)? 1:0;
 
 	return 1;
 }
 
 
 static int click_switcher_handler(window_info *win, int mx, int my, Uint32 flags){
-
+	int sigil_win = get_id_MW(MW_SPELLS);
 	if (mx>=win->len_x-win->box_size&&my>=win->box_size&&my<=2*win->box_size) {
 		do_click_sound();
 		switch_handler((sigil_win==sigils_win) ? (last_win):(sigils_win));
@@ -1813,7 +1810,7 @@ static int prepare_for_cast(void){
 		mqb_data[0]->spell_id=-1;
 	}
 
-	if(sigil_win!=sigils_win&&we_have_spell>=0){
+	if(get_id_MW(MW_SPELLS) != sigils_win && we_have_spell >= 0){
 		mqb_data[0]->spell_id=spells_list[we_have_spell].id;
 		mqb_data[0]->spell_image=spells_list[we_have_spell].image;
 		memcpy(mqb_data[0]->spell_name, spells_list[we_have_spell].name, 60);
@@ -1963,14 +1960,10 @@ void display_sigils_menu()
 
 	if(sigils_win < 0){
 		//create sigil win
-		int our_root_win = -1;
+		sigils_win = create_window(win_sigils, (not_on_top_now(MW_SPELLS) ?game_root_win : -1), 0,
+			get_pos_x_MW(MW_SPELLS), get_pos_y_MW(MW_SPELLS), 0, 0, ELW_USE_UISCALE|ELW_WIN_DEFAULT);
 
-		if (!windows_on_top) {
-			our_root_win = game_root_win;
-		}
-		sigils_win= create_window(win_sigils, our_root_win, 0, sigil_menu_x, sigil_menu_y, 0, 0, ELW_USE_UISCALE|ELW_WIN_DEFAULT);
-
-		set_window_custom_scale(sigils_win, &custom_scale_factors.spells);
+		set_window_custom_scale(sigils_win, MW_SPELLS);
 		set_window_handler(sigils_win, ELW_HANDLER_DISPLAY, &display_sigils_handler );
 		set_window_handler(sigils_win, ELW_HANDLER_CLICK, &click_sigils_handler );
 		set_window_handler(sigils_win, ELW_HANDLER_MOUSEOVER, &mouseover_sigils_handler );
@@ -1991,14 +1984,10 @@ void display_sigils_menu()
 
 	if(spell_win < 0){
 		//create spell win
-		int our_root_win = -1;
+		spell_win= create_window("Spells", (not_on_top_now(MW_SPELLS) ?game_root_win : -1), 0,
+			get_pos_x_MW(MW_SPELLS), get_pos_y_MW(MW_SPELLS), 0, 0, ELW_USE_UISCALE|ELW_WIN_DEFAULT);
 
-		if (!windows_on_top) {
-			our_root_win = game_root_win;
-		}
-		spell_win= create_window("Spells", our_root_win, 0, sigil_menu_x, sigil_menu_y, 0, 0, ELW_USE_UISCALE|ELW_WIN_DEFAULT);
-
-		set_window_custom_scale(spell_win, &custom_scale_factors.spells);
+		set_window_custom_scale(spell_win, MW_SPELLS);
 		set_window_handler(spell_win, ELW_HANDLER_DISPLAY, &display_spells_handler );
 		set_window_handler(spell_win, ELW_HANDLER_CLICK, &click_spells_handler );
 		set_window_handler(spell_win, ELW_HANDLER_MOUSEOVER, &mouseover_spells_handler );
@@ -2012,19 +2001,15 @@ void display_sigils_menu()
 			ui_scale_spells_handler(&windows_list.window[spell_win]);
 
 		hide_window(spell_win);
-		if(!start_mini_spells) sigil_win=spell_win;
+		if(!start_mini_spells) set_id_MW(MW_SPELLS, spell_win);
 	}
 
 	if(spell_mini_win < 0){
 		//create mini spell win
-		int our_root_win = -1;
+		spell_mini_win= create_window("Spells", (not_on_top_now(MW_SPELLS) ?game_root_win : -1), 0,
+			get_pos_x_MW(MW_SPELLS), get_pos_y_MW(MW_SPELLS), 0, 0, ELW_USE_UISCALE|ELW_WIN_DEFAULT);
 
-		if (!windows_on_top) {
-			our_root_win = game_root_win;
-		}
-		spell_mini_win= create_window("Spells", our_root_win, 0, sigil_menu_x, sigil_menu_y, 0, 0, ELW_USE_UISCALE|ELW_WIN_DEFAULT);
-
-		set_window_custom_scale(spell_mini_win, &custom_scale_factors.spells);
+		set_window_custom_scale(spell_mini_win, MW_SPELLS);
 		set_window_handler(spell_mini_win, ELW_HANDLER_DISPLAY, &display_spells_mini_handler );
 		set_window_handler(spell_mini_win, ELW_HANDLER_CLICK, &click_spells_mini_handler );
 		set_window_handler(spell_mini_win, ELW_HANDLER_MOUSEOVER, &mouseover_spells_mini_handler );
@@ -2034,10 +2019,12 @@ void display_sigils_menu()
 			ui_scale_spells_mini_handler(&windows_list.window[spell_mini_win]);
 
 		hide_window(spell_mini_win);
-		if(start_mini_spells) sigil_win=spell_mini_win;
+		if(start_mini_spells) set_id_MW(MW_SPELLS, spell_mini_win);
 	}
 	check_castability();
-	switch_handler((init_ok) ? (sigil_win):(sigils_win));
+	switch_handler((init_ok) ? (get_id_MW(MW_SPELLS)):(sigils_win));
+
+	check_proportional_move(MW_SPELLS);
 }
 
 
@@ -2207,7 +2194,7 @@ static void init_sigils(void){
 void spell_text_from_server(const Uint8 *in_data, int data_length)
 {
 	safe_strncpy2((char *)raw_spell_text, (const char *)in_data, TEXTBUFSIZE, data_length);
-	if(sigil_win == -1 || !windows_list.window[sigil_win].displayed)
+	if(get_id_MW(MW_SPELLS) == -1 || !windows_list.window[get_id_MW(MW_SPELLS)].displayed)
 		put_text_in_buffer (CHAT_SERVER, in_data, data_length);
 	have_error_message=1;
 }

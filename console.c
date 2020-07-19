@@ -1365,11 +1365,7 @@ int command_help(char *text, int len)
 {
 	// help can open the Enc!
 	if(auto_open_encyclopedia)
-	{
-		view_tab (&tab_help_win, &tab_help_collection_id, HELP_TAB_HELP);
-	}
-	// this use to return 0 - to fall thru and send it to the server
-	// but the server does not handle the command and Entropy says it never did
+		view_tab (MW_HELP, tab_help_collection_id, HELP_TAB_HELP);
 	return 1;
 }
 

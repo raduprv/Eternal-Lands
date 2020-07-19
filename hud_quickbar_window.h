@@ -16,9 +16,6 @@ extern "C" {
  * \name windows handlers
  */
 /*! @{ */
-extern int quickbar_win; /*!< quickbar windows handler */
-extern int quickbar_x;
-extern int quickbar_y;
 extern int quickbar_dir;
 extern int quickbar_draggable;
 extern int num_quickbar_slots;

@@ -52,9 +52,6 @@ const float negative_bar_colors[12] =
 	0.690f, 0.173f, 0.294f  // bottomleft
 };
 
-int astrology_win_x = 10;
-int astrology_win_y = 20;
-int	astrology_win= -1;
 int always_show_astro_details = 0;
 
 static int astrology_win_x_len = 0;
@@ -261,13 +258,14 @@ int is_astrology_message (const char * RawText)
 
 static int ok_handler()
 {
-	hide_window(astrology_win);
+	hide_window_MW(MW_ASTRO);
 	return 1;
 }
 
 //adjusts the astrology window size/widgets position, depending on what it displays (predictor or indicator)
 static void adjust_astrology_window()
 {
+	int astrology_win = get_id_MW(MW_ASTRO);
 	int button_x = (astrology_win_x_len - widget_get_width(astrology_win, ok_button_id)) / 2;
 	int button_y = astrology_win_y_len - widget_get_height(astrology_win, ok_button_id) - 2 * astro_border;
 
@@ -318,7 +316,7 @@ static int ui_scale_astrology_handler(window_info *win)
 	button_resize(win->window_id, ok_button_id, 0, 0, win->current_scale);
 
 	astrology_win_x_len = bar_left_x * 2 + progress_bar_width * 2;
-	astrology_win_y_len = bar_top_3 + progress_bar_height + 4 * astro_border + widget_get_height(astrology_win, ok_button_id);
+	astrology_win_y_len = bar_top_3 + progress_bar_height + 4 * astro_border + widget_get_height(win->window_id, ok_button_id);
 
 	adjust_astrology_window();
 
@@ -327,15 +325,12 @@ static int ui_scale_astrology_handler(window_info *win)
 
 void display_astrology_window(const char * raw_text)
 {
+	int astrology_win = get_id_MW(MW_ASTRO);
 	if(astrology_win < 0)
 	{
-		int our_root_win = -1;
-
-		if (!windows_on_top) {
-			our_root_win = game_root_win;
-		}
-		astrology_win= create_window(win_astrology, our_root_win, 0, astrology_win_x, astrology_win_y, 0, 0,
+		astrology_win = create_window(win_astrology, (not_on_top_now(MW_ASTRO) ?game_root_win : -1), 0, get_pos_x_MW(MW_ASTRO), get_pos_y_MW(MW_ASTRO), 0, 0,
 			(ELW_USE_UISCALE|ELW_WIN_DEFAULT) ^ ELW_CLOSE_BOX);
+		set_id_MW(MW_ASTRO, astrology_win);
 
 		set_window_handler(astrology_win, ELW_HANDLER_DISPLAY, &display_astrology_handler );
 		set_window_handler(astrology_win, ELW_HANDLER_UI_SCALE, &ui_scale_astrology_handler );
@@ -345,6 +340,7 @@ void display_astrology_window(const char * raw_text)
 
 		if (astrology_win >= 0 && astrology_win < windows_list.num_windows)
 			ui_scale_astrology_handler(&windows_list.window[astrology_win]);
+		check_proportional_move(MW_ASTRO);
 
 		cm_add(windows_list.window[astrology_win].cm_id, cm_astro_menu_str, cm_astro_handler);
 		cm_bool_line(windows_list.window[astrology_win].cm_id, ELW_CM_MENU_LEN+2, &always_show_astro_details, NULL );

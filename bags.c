@@ -37,9 +37,6 @@ typedef struct
 #endif // ONGOING_BAG_EFFECT
 } bag;
 
-int ground_items_win= -1;
-int ground_items_menu_x=400;
-int ground_items_menu_y=20;
 int ground_items_visible_grid_rows = 10;
 int ground_items_visible_grid_cols = 5;
 int items_auto_get_all = 0;
@@ -432,7 +429,7 @@ void items_get_bag(int x, int y)
 		if(bag_list[pos].x != 0 && bag_list[pos].y != 0 &&
 			bag_list[pos].x == x && bag_list[pos].y == y)
 		{
-			if(get_show_window(ground_items_win))
+			if(get_show_window_MW(MW_BAGS))
 				pick_up_all_items();
 			else
 			{
@@ -736,29 +733,51 @@ static int ui_scale_ground_items_handler(window_info * win)
 	return 1;
 }
 
+static int do_not_send_close = 0;
+
+void server_close_bag(void)
+{
+	do_not_send_close = 1;
+	hide_window_MW(MW_BAGS);
+}
+
+static int hide_handler(window_info *win)
+{
+	clear_was_open_MW(MW_BAGS); // never re-open a ground bag
+	if (!do_not_send_close)
+	{
+		unsigned char protocol_name = S_CLOSE_BAG;
+		my_tcp_send(my_socket, &protocol_name, 1);
+	}
+	else
+		do_not_send_close = 0;
+	return 1;
+}
+
 static void draw_pick_up_menu(void)
 {
-	if(ground_items_win < 0){
-		int our_root_win = -1;
-		if (!windows_on_top) {
-			our_root_win = game_root_win;
-		}
-		ground_items_win= create_window(win_bag, our_root_win, 0, ground_items_menu_x, ground_items_menu_y,
-			0, 0, ELW_USE_UISCALE|ELW_SCROLLABLE|ELW_RESIZEABLE|ELW_WIN_DEFAULT);
+	int ground_items_win = get_id_MW(MW_BAGS);
 
-		set_window_custom_scale(ground_items_win, &custom_scale_factors.bags);
+	if(ground_items_win < 0){
+		ground_items_win = create_window(win_bag, (not_on_top_now(MW_BAGS) ?game_root_win : -1), 0, get_pos_x_MW(MW_BAGS), get_pos_y_MW(MW_BAGS),
+			0, 0, ELW_USE_UISCALE|ELW_SCROLLABLE|ELW_RESIZEABLE|ELW_WIN_DEFAULT);
+		set_id_MW(MW_BAGS, ground_items_win);
+
+		set_window_custom_scale(ground_items_win, MW_BAGS);
 		set_window_handler(ground_items_win, ELW_HANDLER_DISPLAY, &display_ground_items_handler );
 		set_window_handler(ground_items_win, ELW_HANDLER_PRE_DISPLAY, &pre_display_ground_items_handler );
 		set_window_handler(ground_items_win, ELW_HANDLER_CLICK, &click_ground_items_handler );
 		set_window_handler(ground_items_win, ELW_HANDLER_MOUSEOVER, &mouseover_ground_items_handler );
 		set_window_handler(ground_items_win, ELW_HANDLER_RESIZE, &resize_ground_items_handler );
 		set_window_handler(ground_items_win, ELW_HANDLER_CLOSE, &clear_groundlist );
+		set_window_handler(ground_items_win, ELW_HANDLER_HIDE, &hide_handler );
 		set_window_handler(ground_items_win, ELW_HANDLER_UI_SCALE, &ui_scale_ground_items_handler );
 
 		if (ground_items_win >=0 && ground_items_win < windows_list.num_windows)
 			ui_scale_ground_items_handler(&windows_list.window[ground_items_win]);
 		else
 			return;
+		check_proportional_move(MW_BAGS);
 
 	} else {
 		show_window(ground_items_win);

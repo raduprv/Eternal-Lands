@@ -55,7 +55,7 @@ void fill_help_win (int window_id)
 			break;
 	}
 	helppage=i;
-	set_window_custom_scale(window_id, &custom_scale_factors.help);
+	set_window_custom_scale(window_id, MW_HELP);
 	set_window_font_category(window_id, ENCYCLOPEDIA_FONT);
 	set_window_handler (window_id, ELW_HANDLER_DISPLAY, &display_help_handler);
 	set_window_handler (window_id, ELW_HANDLER_CLICK, &click_help_handler);

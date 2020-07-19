@@ -55,10 +55,7 @@ int cur_portrait=8;
 int portraits_tex[MAX_PORTRAITS_TEXTURES];
 
 response dialogue_responces[MAX_RESPONSES];
-int dialogue_win= -1;
 
-int dialogue_menu_x=1;
-int dialogue_menu_y=1;
 static int char_frame_size = 0;
 static int char_size = 0;
 static int border_space = 0;
@@ -493,10 +490,7 @@ CHECK_GL_ERRORS();
 
 void close_dialogue(void)
 {
-	if(dialogue_win >= 0)
-	{
-		hide_window(dialogue_win);
-	}
+	hide_window_MW(MW_DIALOGUE);
 }
 
 static int mouseover_dialogue_handler(window_info *win, int mx, int my)
@@ -883,14 +877,18 @@ int change_dialogue_font_handler(window_info *win, font_cat cat)
 
 void display_dialogue(const Uint8 *in_data, int data_length)
 {
+	int dialogue_win = get_id_MW(MW_DIALOGUE);
+
 	if (!get_show_window(dialogue_win))
 		do_icon_click_sound();
 
 	if(dialogue_win < 0)
 	{
-		dialogue_win= create_window("Dialogue", game_root_win, 0, dialogue_menu_x, dialogue_menu_y, 0, 0, (ELW_USE_UISCALE|ELW_WIN_DEFAULT)^ELW_CLOSE_BOX);
+		dialogue_win = create_window("Dialogue", game_root_win, 0,
+			get_pos_x_MW(MW_DIALOGUE), get_pos_y_MW(MW_DIALOGUE), 0, 0, (ELW_USE_UISCALE|ELW_WIN_DEFAULT)^ELW_CLOSE_BOX);
+		set_id_MW(MW_DIALOGUE, dialogue_win);
 
-		set_window_custom_scale(dialogue_win, &custom_scale_factors.dialogue);
+		set_window_custom_scale(dialogue_win, MW_DIALOGUE);
 		set_window_handler(dialogue_win, ELW_HANDLER_DISPLAY, &display_dialogue_handler );
 		set_window_handler(dialogue_win, ELW_HANDLER_MOUSEOVER, &mouseover_dialogue_handler );
 		set_window_handler(dialogue_win, ELW_HANDLER_KEYPRESS, (int (*)())&keypress_dialogue_handler );
@@ -924,6 +922,7 @@ void display_dialogue(const Uint8 *in_data, int data_length)
 	safe_strncpy2((char*)dialogue_string, (const char*)in_data, sizeof(dialogue_string), data_length);
 	if (dialogue_win >=0 && dialogue_win < windows_list.num_windows)
 		ui_scale_dialogue_handler(&windows_list.window[dialogue_win]);
+	check_proportional_move(MW_DIALOGUE);
 
 	recalc_option_positions = new_dialogue = new_text_to_log = 1;
 }

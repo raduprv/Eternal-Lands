@@ -28,9 +28,6 @@
 #define ITEM_INFO_ROWS 4
 #define ITEM_BANK 2
 
-int trade_win=-1;
-int trade_menu_x=10;
-int trade_menu_y=20;
 int trade_you_accepted=0;
 int trade_other_accepted=0;
 
@@ -442,11 +439,11 @@ void get_your_trade_objects (const Uint8 *data)
 	trade_other_accepted=0;
 
 	//we have to close the manufacture window, otherwise bad things can happen.
-	hide_window(manufacture_win);
-	hide_window(sigil_win);
+	hide_window_MW(MW_MANU);
+	hide_window_MW(MW_SPELLS);
 	//Open the inventory window
 	display_items_menu();
-	view_window(&trade_win, -1);
+	view_window(MW_TRADE);
 }
 
 void put_item_on_trade (const Uint8 *data)
@@ -531,14 +528,14 @@ static int close_trade_handler(window_info *win)
 
 void display_trade_menu()
 {
-	if(trade_win < 0){
-		int our_root_win = -1;
-		if (!windows_on_top) {
-			our_root_win = game_root_win;
-		}
-		trade_win= create_window(win_trade, our_root_win, 0, trade_menu_x, trade_menu_y, 0, 0, ELW_USE_UISCALE|ELW_WIN_DEFAULT);
+	int trade_win = get_id_MW(MW_TRADE);
 
-		set_window_custom_scale(trade_win, &custom_scale_factors.trade);
+	if(trade_win < 0){
+		trade_win = create_window(win_trade, (not_on_top_now(MW_TRADE) ?game_root_win : -1), 0,
+			get_pos_x_MW(MW_TRADE), get_pos_y_MW(MW_TRADE), 0, 0, ELW_USE_UISCALE|ELW_WIN_DEFAULT);
+		set_id_MW(MW_TRADE, trade_win);
+
+		set_window_custom_scale(trade_win, MW_TRADE);
 		set_window_handler(trade_win, ELW_HANDLER_DISPLAY, &display_trade_handler );
 		set_window_handler(trade_win, ELW_HANDLER_CLICK, &click_trade_handler );
 		set_window_handler(trade_win, ELW_HANDLER_MOUSEOVER, &mouseover_trade_handler );
@@ -547,6 +544,8 @@ void display_trade_menu()
 
 		if (trade_win >= 0 && trade_win < windows_list.num_windows)
 			ui_scale_trade_handler(&windows_list.window[trade_win]);
+		check_proportional_move(MW_TRADE);
+
 	} else {
 		show_window(trade_win);
 		select_window(trade_win);

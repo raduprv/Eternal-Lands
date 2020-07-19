@@ -35,9 +35,6 @@
 int wanted_num_recipe_entries = 10;
 int disable_manuwin_keypress = 0;
 const int max_num_recipe_entries = 500;
-int manufacture_win= -1;
-int manufacture_menu_x=10;
-int manufacture_menu_y=20;
 static int pipeline_x = 0;
 static int last_changed_slot=-1;
 
@@ -1229,7 +1226,7 @@ int mix_handler(Uint8 quantity, const char* empty_error_str)
 	int i;
 	int cannot_manu = 1;
 
-	if(manufacture_win < 0)
+	if(get_id_MW(MW_MANU) < 0)
 		build_manufacture_list();
 
 	for(i=MIX_SLOT_OFFSET;i<MIX_SLOT_OFFSET+NUM_MIX_SLOTS;i++)
@@ -1575,15 +1572,13 @@ static int change_manufacture_font_handler(window_info *win, font_cat cat)
 
 void display_manufacture_menu()
 {
-	if(manufacture_win < 0){
-		int our_root_win = -1;
+	int manufacture_win = get_id_MW(MW_MANU);
 
-		if (!windows_on_top) {
-			our_root_win = game_root_win;
-		}
-		manufacture_win= create_window(win_manufacture, our_root_win, 0, manufacture_menu_x,
-			manufacture_menu_y, 0, 0, ELW_USE_UISCALE|ELW_WIN_DEFAULT);
-		set_window_custom_scale(manufacture_win, &custom_scale_factors.manufacture);
+	if(manufacture_win < 0){
+		manufacture_win = create_window(win_manufacture, (not_on_top_now(MW_MANU) ?game_root_win : -1), 0,
+			get_pos_x_MW(MW_MANU), get_pos_y_MW(MW_MANU), 0, 0, ELW_USE_UISCALE|ELW_WIN_DEFAULT);
+		set_id_MW(MW_MANU, manufacture_win);
+		set_window_custom_scale(manufacture_win, MW_MANU);
 
 		set_window_handler(manufacture_win, ELW_HANDLER_DISPLAY, &display_manufacture_handler );
 		set_window_handler(manufacture_win, ELW_HANDLER_CLICK, &click_manufacture_handler );
@@ -1615,7 +1610,7 @@ void display_manufacture_menu()
 		//Create a child window to show recipes in a dropdown panel
 		recipe_win= create_window("w_recipe", manufacture_win, 0, 0, 0, 0, 0,
 			ELW_USE_UISCALE|ELW_TITLE_NONE|ELW_SHOW|ELW_USE_BACKGROUND|ELW_ALPHA_BORDER|ELW_SWITCHABLE_OPAQUE|ELW_USE_BORDER|ELW_RESIZEABLE);
-		set_window_custom_scale(recipe_win, &custom_scale_factors.manufacture);
+		set_window_custom_scale(recipe_win, MW_MANU);
 		set_window_handler(recipe_win, ELW_HANDLER_DISPLAY, &recipe_dropdown_draw);
 		set_window_handler(recipe_win, ELW_HANDLER_CLICK, &recipe_dropdown_click_handler );
 		set_window_handler(recipe_win, ELW_HANDLER_MOUSEOVER, &mouseover_recipe_handler );
@@ -1627,6 +1622,7 @@ void display_manufacture_menu()
 
 		if ((manufacture_win > -1) && (manufacture_win < windows_list.num_windows))
 			ui_scale_manufacture_handler(&windows_list.window[manufacture_win]);
+		check_proportional_move(MW_MANU);
 
 		// context menu
 		cm_recipewin = cm_create(cm_recipe_menu_str, context_recipe_handler);

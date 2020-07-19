@@ -638,7 +638,7 @@ static int post_display_knowledge_handler(window_info *win)
 
 void fill_knowledge_win(int window_id)
 {
-	set_window_custom_scale(window_id, &custom_scale_factors.stats);
+	set_window_custom_scale(window_id, MW_STATS);
 	set_window_handler(window_id, ELW_HANDLER_DISPLAY, &display_knowledge_handler );
 	set_window_handler(window_id, ELW_HANDLER_CLICK, &click_knowledge_handler );
 	set_window_handler(window_id, ELW_HANDLER_MOUSEOVER, &mouseover_knowledge_handler );

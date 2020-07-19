@@ -93,8 +93,8 @@ int show_opening_handler (window_info *win) {
 #ifndef MAP_EDITOR2
 	close_book_window();
 #endif
-	hide_window(elconfig_win);
-	hide_window(tab_help_win);
+	hide_window_MW(MW_CONFIG);
+	hide_window_MW(MW_HELP);
 	return 1;
 }
 
