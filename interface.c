@@ -1118,7 +1118,6 @@ int put_mark_on_position(int map_x, int map_y, const char * name)
 
 		my_strncp(marks[max_mark].text,name,sizeof(marks[max_mark].text));
 		rtrim_string(marks[max_mark].text); //remove trailing white space
-		marks[max_mark].text[strlen(marks[max_mark].text)]=0;
 
 		marks[max_mark].server_side=0;
 		marks[max_mark].server_side_id=-1;
