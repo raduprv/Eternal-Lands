@@ -610,20 +610,25 @@ namespace Indicators
 		unsigned int x = 0;
 		unsigned int y = 0;
 
+		if (indicators_win < 0)
+		{
+			*opts = option_settings;
+			*pos = position_settings;
+			return;
+		}
+
 		std::vector<Basic_Indicator *>::iterator i;
 		for (i=indicators.begin(); i<indicators.end(); ++i, shift++)
 			flags |= (((*i)->not_active()) ?1 :0) << shift;
 
-		if (!default_location && (indicators_win >= 0))
-		{
+		if (!default_location)
 			flags |= 1 << 24;
-			x = static_cast<unsigned int>(windows_list.window[indicators_win].cur_x);
-			y = static_cast<unsigned int>(windows_list.window[indicators_win].cur_y);
-		}
 		flags |= background_on << 25;
 		flags |= border_on << 26;
-
 		*opts = flags;
+
+		x = static_cast<unsigned int>(windows_list.window[indicators_win].cur_x);
+		y = static_cast<unsigned int>(windows_list.window[indicators_win].cur_y);
 		*pos = x | (y<<16);
 	}
 
