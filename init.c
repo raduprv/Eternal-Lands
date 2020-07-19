@@ -527,10 +527,16 @@ void save_bin_cfg(void)
 
 	cfg_mem.quantity_selected=(quantities.selected<ITEM_EDIT_QUANT)?quantities.selected :0;
 
-	if (quickbar_win >= 0 && quickbar_relocatable > 0)
+	if (quickbar_win >= 0)
 	{
 		cfg_mem.quickbar_x = windows_list.window[quickbar_win].cur_x;
 		cfg_mem.quickbar_y = windows_list.window[quickbar_win].cur_y;
+		cfg_mem.quickbar_flags = quickbar_dir | (quickbar_draggable<<8);
+	}
+	else
+	{
+		cfg_mem.quickbar_x = quickbar_x;
+		cfg_mem.quickbar_y = quickbar_y;
 		cfg_mem.quickbar_flags = quickbar_dir | (quickbar_draggable<<8);
 	}
 
