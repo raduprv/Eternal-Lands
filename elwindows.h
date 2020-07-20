@@ -969,10 +969,10 @@ int cm_title_handler(window_info *win, int widget_id, int mx, int my, int option
  * \name managed window wrapper functions
  */
 /*! @{ */
-inline void hide_window_MW(enum managed_window_enum managed_win) { hide_window(get_id_MW(managed_win)); }
-inline void show_window_MW(enum managed_window_enum managed_win) { show_window(get_id_MW(managed_win)); }
-inline void toggle_window_MW(enum managed_window_enum managed_win) { toggle_window(get_id_MW(managed_win)); }
-inline int get_show_window_MW(enum managed_window_enum managed_win) { return get_show_window(get_id_MW(managed_win)); }
+static inline void hide_window_MW(enum managed_window_enum managed_win) { hide_window(get_id_MW(managed_win)); }
+static inline void show_window_MW(enum managed_window_enum managed_win) { show_window(get_id_MW(managed_win)); }
+static inline void toggle_window_MW(enum managed_window_enum managed_win) { toggle_window(get_id_MW(managed_win)); }
+static inline int get_show_window_MW(enum managed_window_enum managed_win) { return get_show_window(get_id_MW(managed_win)); }
 /*! @} */
 
 #ifdef __cplusplus
