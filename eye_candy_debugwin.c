@@ -252,8 +252,8 @@ void display_ecdebugwin()
 	if (ecdebug_win < 0) // create window
 	{
 		// init window
-		ecdebug_win = create_window("Eye Candy DEBUG", (not_on_top_now(MW_ECDEBUG) ?game_root_win : -1)
-			: game_root_win, 0, get_pos_x_MW(MW_ECDEBUG), get_pos_y_MW(MW_ECDEBUG),
+		ecdebug_win = create_window("Eye Candy DEBUG", (not_on_top_now(MW_ECDEBUG) ?game_root_win : -1),
+            0, get_pos_x_MW(MW_ECDEBUG), get_pos_y_MW(MW_ECDEBUG),
 			ecdebug_win_width, ecdebug_win_height, ELW_WIN_DEFAULT);
 		set_id_MW(MW_ECDEBUG, ecdebug_win);
 
