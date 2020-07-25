@@ -134,7 +134,7 @@ static int display_trade_handler(window_info *win)
 			}
 			draw_text(x_start, y_text, (const unsigned char*)str, strlen(str), win->font_category,
 				TDO_SHADOW, 1, TDO_FOREGROUND, 1.0, 1.0, 1.0, TDO_BACKGROUND, 0.0, 0.0, 0.0,
-				TDO_ZOOM, zoom, TDO_VERTICAL_ALIGNMENT, valign);
+				TDO_ZOOM, zoom, TDO_VERTICAL_ALIGNMENT, valign, TDO_END);
 			//by doing the images in reverse, you can't cover up the digits>4
 			//also, by offsetting each one, numbers don't overwrite each other:
 			//before: 123456 in one box and 56 in the other could allow
@@ -190,14 +190,24 @@ static int display_trade_handler(window_info *win)
 			}
 			draw_text(x_start, y_text, (const unsigned char*)str, strlen(str), win->font_category,
 				TDO_SHADOW, 1, TDO_FOREGROUND, 1.0, 1.0, 1.0, TDO_BACKGROUND, 0.0, 0.0, 0.0,
-				TDO_ZOOM, zoom, TDO_VERTICAL_ALIGNMENT, valign);
+				TDO_ZOOM, zoom, TDO_VERTICAL_ALIGNMENT, valign, TDO_END);
 
 			if(storage_available && others_trade_list[i].type==ITEM_BANK){
-				str[0]='s';
-				str[1]='t';
-				str[2]='o';
-				str[3]=0;
-				draw_string_small_shadowed_zoomed(x_start,y_start-1,(unsigned char*)str,1,1.0f,1.0f,1.0f,0.0f,0.0f,0.0f, win->current_scale);
+				str[0]='S';
+				str[1]=0;
+			if (i & 1)
+			{
+				y_text = y_end;
+				valign = BOTTOM_LINE;
+			}
+			else
+			{
+				y_text = y_start;
+				valign = TOP_LINE;
+			}
+			draw_text(x_end - win->small_font_max_len_x/2, y_text, (const unsigned char*)str, strlen(str), win->font_category,
+				TDO_SHADOW, 1, TDO_FOREGROUND, 1.0, 1.0, 1.0, TDO_BACKGROUND, 0.0, 0.0, 0.0,
+				TDO_ZOOM, win->current_scale_small, TDO_VERTICAL_ALIGNMENT, valign, TDO_ALIGNMENT, RIGHT, TDO_END);
 			}
 		}
 	}
