@@ -640,7 +640,8 @@ static void change_ui_scale(float *var, float *value)
 static void change_elconf_win_scale_factor(float *var, float *value)
 {
 	*var= *value;
-	recheck_window_scale = 1;
+	if (get_id_MW(MW_CONFIG) >= 0)
+		recheck_window_scale = 1;
 }
 
 static void change_win_scale_factor(float *var, float *value)
@@ -3593,7 +3594,8 @@ static int show_elconfig_handler(window_info * win) {
 static int ui_scale_elconfig_handler(window_info *win)
 {
 	update_window_scale(win, elconf_scale); // stop scale change impacting immediately
-	recheck_window_scale = 1; // check later of can now rescale
+	if (get_id_MW(MW_CONFIG) >= 0)
+		recheck_window_scale = 1;
 	return 1;
 }
 
@@ -3604,7 +3606,8 @@ static int change_elconfig_font_handler(window_info *win, font_cat cat)
 {
 	if (cat != UI_FONT)
 		return 0;
-	recheck_window_scale = 1;
+	if (get_id_MW(MW_CONFIG) >= 0)
+		recheck_window_scale = 1;
 	return 1;
 }
 
