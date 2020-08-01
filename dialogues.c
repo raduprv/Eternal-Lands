@@ -7,6 +7,7 @@
 #include "dialogues.h"
 #include "asc.h"
 #include "elwindows.h"
+#include "filter.h"
 #include "io/elpathwrapper.h"
 #include "gamewin.h"
 #include "init.h"
@@ -160,7 +161,8 @@ void build_response_entries (const Uint8 *data, int total_length)
 		my_strncp((char*)dialogue_responces[i].text, (char*)&data[last_index + 2], len);
 		dialogue_responces[i].response_id = SDL_SwapLE16(*((Uint16 *)(data + last_index + 2 + len)));
 		dialogue_responces[i].to_actor = SDL_SwapLE16(*((Uint16 *)(data + last_index + 2 + 2 + len)));
-		dialogue_responces[i].width_in_char = len;
+		// apply any local or global filters and set the final length of the text
+		dialogue_responces[i].width_in_char = filter_text((char *)dialogue_responces[i].text, len, sizeof (dialogue_responces[i].text));
 		last_index += len + 3 * 2;
 	}
 
@@ -919,7 +921,10 @@ void display_dialogue(const Uint8 *in_data, int data_length)
 
 	text_log_get_npc_setting();
 
+	// set the dialogue text and filter apply any local or global filters
 	safe_strncpy2((char*)dialogue_string, (const char*)in_data, sizeof(dialogue_string), data_length);
+	filter_text((char *)dialogue_string, data_length, sizeof (dialogue_string));
+
 	if (dialogue_win >=0 && dialogue_win < windows_list.num_windows)
 		ui_scale_dialogue_handler(&windows_list.window[dialogue_win]);
 	check_proportional_move(MW_DIALOGUE);
