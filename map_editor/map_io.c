@@ -579,7 +579,7 @@ int load_map (const char* file_name)
 			else
 			{
 				add_particle_sys(cur_particles_io.file_name,cur_particles_io.x_pos,cur_particles_io.y_pos,cur_particles_io.z_pos);
-				if(particles_list[i]) particles_list[i]->ttl=-1;//Fail-safe if things fuck up...
+				if(particles_list[i]) particles_list[i]->ttl=-1;//Fail-safe if things mess up...
 			}
 		}
 
