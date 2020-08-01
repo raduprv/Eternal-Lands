@@ -1374,7 +1374,7 @@ int	draw_window_title(window_info *win)
 		show_help(cm_title_help_str, 0, win->len_y+10, win->current_scale);
 
 	glColor3f(1.0f,1.0f,1.0f);
-	//ok, now draw that shit...
+	//ok, now draw it...
 
 	bind_texture(icons_text);
 	glEnable(GL_ALPHA_TEST);

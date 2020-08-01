@@ -458,7 +458,7 @@ int	draw_window_title(window_info *win)
 	if((win->flags&ELW_TITLE_BAR) == ELW_TITLE_NONE)	return 0;
 
 	glColor3f(1.0f,1.0f,1.0f);
-	//ok, now draw that shit...
+	//ok, now draw it ...
 
 	bind_texture(icons_text);
 	glEnable(GL_ALPHA_TEST);

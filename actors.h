@@ -747,14 +747,14 @@ extern SDL_threadID have_actors_lock;
 #define	LOCK_ACTORS_LISTS() 	\
 	{\
 		fprintf(stderr,"Last locked by: %s %s %d\n",__FILE__,__FUNCTION__,__LINE__);\
-		if(SDL_LockMutex(actors_lists_mutex)==-1) {fprintf(stderr,"We're fucked!! The mutex on %s %s %d was not locked even though we asked it to!\n",__FILE__,__FUNCTION__,__LINE__); abort(); }\
+		if(SDL_LockMutex(actors_lists_mutex)==-1) {fprintf(stderr,"The mutex on %s %s %d was not locked even though we asked it to!\n",__FILE__,__FUNCTION__,__LINE__); abort(); }\
 		assert(have_actors_lock==0); have_actors_lock=SDL_ThreadID(); \
 	}
 #define	UNLOCK_ACTORS_LISTS() 	\
 	{\
 		fprintf(stderr,"Last unlocked by: %s %s %d\n",__FILE__,__FUNCTION__,__LINE__);\
 		assert(have_actors_lock); assert(have_actors_lock==SDL_ThreadID()); have_actors_lock=0; \
-		if(SDL_UnlockMutex(actors_lists_mutex)==-1)  {fprintf(stderr,"We're fucked!! The mutex on %s %s %d was not unlocked even though we asked it to!\n",__FILE__,__FUNCTION__,__LINE__); abort(); }\
+		if(SDL_UnlockMutex(actors_lists_mutex)==-1)  {fprintf(stderr,"The mutex on %s %s %d was not unlocked even though we asked it to!\n",__FILE__,__FUNCTION__,__LINE__); abort(); }\
 	}
 /*! @} */
 #else
