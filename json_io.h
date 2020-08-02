@@ -45,6 +45,22 @@ int json_load_channel_colours(const char *file_name, channelcolor *channel_colou
 int json_save_channel_colours(const char *file_name, const channelcolor *channel_colours, size_t max_channel_colours);
 /*! @} */
 
+/*!
+ * \name Functions for character options.
+ */
+/*! @{ */
+int json_character_options_set_file_name(const char *file_name);
+int json_character_options_load_file(void);
+int json_character_options_save_file(void);
+int json_character_options_get_int(const char *var_name, int default_value);
+void json_character_options_set_int(const char *var_name, int value);
+float json_character_options_get_float(const char *var_name, float default_value);
+void json_character_options_set_float(const char *var_name, float value);
+int json_character_options_get_bool(const char *var_name, int default_value);
+void json_character_options_set_bool(const char *var_name, int value);
+int json_character_options_exists(const char *var_name);
+void json_character_options_remove(const char *var_name);
+/*! @} */
 
 #ifdef __cplusplus
 } // extern "C"

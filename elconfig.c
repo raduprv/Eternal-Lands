@@ -48,6 +48,9 @@
  #include "interface.h"
  #include "items.h"
  #include "item_info.h"
+#ifdef JSON_FILES
+ #include "json_io.h"
+#endif
  #include "loginwin.h"
  #include "manufacture.h"
  #include "map.h"
@@ -174,6 +177,9 @@ typedef struct
 	float	config_file_val; /*!< the value after the config file is read */
 	int 	len; /*!< length of the variable */
 	int 	in_ini_file; /*!< true if the var was present when we read the ini file */
+#ifdef JSON_FILES
+	int 	character_override;  /*!< true if the var is in the list maintained per character, requires JSON file support */
+#endif
 	int	saved;
 //	char 	*message; /*!< In case you want a message to be written when a setting is changed */
 	dichar display;
@@ -1190,6 +1196,8 @@ static void change_use_json_user_files(int *var)
 	*var= !*var;
 	if (ready_for_user_files)
 	{
+		if (*var) // character options have no non-json equlivavnt
+			load_character_options();
 		save_local_data();
 		LOG_TO_CONSOLE(c_green1, local_only_save_str);
 	}
@@ -1859,7 +1867,7 @@ static int context_option_handler(window_info *win, int widget_id, int mx, int m
 }
 
 // add a named preset value to the option's label context menu
-static void add_cm_option_line(const char *prefix, var_struct *option, float value)
+static int add_cm_option_line(const char *prefix, var_struct *option, float value)
 {
 	char menu_text[256];
 	switch (option->type)
@@ -1868,18 +1876,19 @@ static void add_cm_option_line(const char *prefix, var_struct *option, float val
 		case OPT_INT_F:
 		case OPT_MULTI:
 		case OPT_MULTI_H:
-			sprintf(menu_text, "\n%s: %d\n", prefix, (int)value);
+			safe_snprintf(menu_text, sizeof(menu_text), "\n%s: %d\n", prefix, (int)value);
 			break;
 		case OPT_BOOL:
-			sprintf(menu_text, "\n%s: %s\n", prefix, ((int)value) ?"true": "false");
+			safe_snprintf(menu_text, sizeof(menu_text), "\n%s: %s\n", prefix, ((int)value) ?"true": "false");
 			break;
 		case OPT_FLOAT:
-			sprintf(menu_text, "\n%s: %.2f\n", prefix, value);
+			safe_snprintf(menu_text, sizeof(menu_text), "\n%s: %g\n", prefix, value);
 			break;
 		default:
-			return;
+			return 0;
 	}
 	cm_add(cm_id, menu_text, NULL);
+	return 1;
 }
 
 // create the context menu when we right click an option label
@@ -1892,9 +1901,18 @@ static void call_option_menu(var_struct *option)
 	cm_set_colour(cm_id, CM_GREY, 201.0/256.0, 254.0/256.0, 203.0/256.0);
 	cm_set(cm_id, option->name, context_option_handler);
 	cm_grey_line(cm_id, 0, 1);
-	add_cm_option_line("Set to default value", option, option->default_val);
-	add_cm_option_line("Set to initial value", option, option->config_file_val);
-	cm_set_data(cm_id, (void *)option);
+	if (add_cm_option_line(cm_options_default_str, option, option->default_val))
+	{
+		add_cm_option_line(cm_options_initial_str, option, option->config_file_val);
+#ifdef JSON_FILES
+		if (get_use_json_user_files() && ready_for_user_files)
+		{
+			cm_add(cm_id, cm_options_per_character_str, NULL);
+			cm_bool_line(cm_id, 3, &option->character_override, NULL);
+		}
+#endif
+		cm_set_data(cm_id, (void *)option);
+	}
 	cm_show_direct(cm_id, -1, -1);
 }
 #endif
@@ -2409,6 +2427,9 @@ static void add_var(option_type type, char * name, char * shortname, void * var,
 	our_vars.var[no]->snlen=strlen(our_vars.var[no]->shortname);
 	our_vars.var[no]->saved= 0;
 	our_vars.var[no]->in_ini_file = 0;
+#ifdef JSON_FILES
+	our_vars.var[no]->character_override = 0;
+#endif
 #ifdef ELC
 	add_options_distringid(name, &our_vars.var[no]->display, short_desc, long_desc);
 #endif //ELC
@@ -3705,4 +3726,145 @@ void display_elconfig_win(void)
 	show_window(elconfig_win);
 	select_window(elconfig_win);
 }
+
+#ifdef JSON_FILES
+// If we have logged in to a character, save any override options.
+//
+// For each el.ini option, check if we have the override value set:
+//   If we do, save the value if it is new or changed.
+//   If we do not, remove any existing override value.
+//
+void save_character_options(void)
+{
+	size_t i;
+
+	if (!get_use_json_user_files() || !ready_for_user_files)
+		return;
+
+	for(i = 0; i < our_vars.no; i++)
+	{
+		var_struct *option = our_vars.var[i];
+		if (option->character_override)
+		{
+			int do_save = 1;
+			switch (option->type)
+			{
+				case OPT_INT:
+				case OPT_INT_F:
+				case OPT_MULTI:
+				case OPT_MULTI_H:
+				{
+					if (json_character_options_exists(option->name))
+						if (*((int *)option->var) == json_character_options_get_int(option->name, *((int *)option->var)))
+							do_save = 0;
+					if (do_save)
+						json_character_options_set_int(option->name, *((int *)option->var));
+					break;
+				}
+				case OPT_BOOL:
+				{
+					if (json_character_options_exists(option->name))
+						if (*((int *)option->var) == json_character_options_get_bool(option->name, *((int *)option->var)))
+							do_save = 0;
+					if (do_save)
+						json_character_options_set_bool(option->name, *((int *)option->var));
+					break;
+				}
+				case OPT_FLOAT:
+				{
+					if (json_character_options_exists(option->name))
+						if (*((float *)option->var) == json_character_options_get_float(option->name, *((float *)option->var)))
+							do_save = 0;
+					if (do_save)
+						json_character_options_set_float(option->name, *((float *)option->var));
+					break;
+				}
+				default:
+					break;
+			}
+		}
+		else
+		{
+			if (json_character_options_exists(option->name))
+				json_character_options_remove(option->name);
+		}
+	}
+
+	json_character_options_save_file();
+
+}
+
+
+// If we have logged in to a character, check for any override options.
+//
+// The character_options_<name>.json file can contain character specific
+// values for options.  For each el.ini option, check if we have an
+// override value to use.  Also set the character_override flag for the var
+// so that we can show the option as checked when using the context menu
+// for the option. We do not set the unsaved state for vars that have
+// been overridden so that they are not saved in the el.ini.
+//
+void load_character_options(void)
+{
+	size_t i;
+	char json_fname[128];
+	static int already_loaded = 0;
+
+	if (!get_use_json_user_files() || !ready_for_user_files  || already_loaded)
+		return;
+
+	safe_snprintf(json_fname, sizeof(json_fname), "%scharacter_options_%s.json", get_path_config(), get_lowercase_username());
+	json_character_options_set_file_name(json_fname);
+	json_character_options_load_file();
+
+	already_loaded = 1;
+
+	for(i = 0; i < our_vars.no; i++)
+	{
+		if (json_character_options_exists(our_vars.var[i]->name))
+		{
+			var_struct *option = our_vars.var[i];
+			int last_save = option->saved;
+			option->character_override = 1;
+			switch (option->type)
+			{
+				case OPT_INT:
+				case OPT_INT_F:
+				{
+					int new_value = json_character_options_get_int(option->name, *((int *)option->var));
+					set_var_OPT_INT(option->name, new_value);
+					break;
+				}
+				case OPT_MULTI:
+				case OPT_MULTI_H:
+				{
+					int new_value = json_character_options_get_int(option->name, *((int *)option->var));
+					option->func(option->var, new_value);
+					break;
+				}
+				case OPT_BOOL:
+				{
+					int new_value = json_character_options_get_bool(option->name, *((int *)option->var));
+					if (*(int *)option->var != new_value)
+					{
+						*(int *)option->var = !new_value;
+						option->func(option->var);
+					}
+					break;
+				}
+				case OPT_FLOAT:
+				{
+					float new_value = json_character_options_get_float(option->name, *((float *)option->var));
+					set_var_OPT_FLOAT(option->name, new_value);
+					break;
+				}
+				default:
+					break;
+			}
+			option->saved = last_save;
+		}
+	}
+}
+#endif
+
 #endif //ELC

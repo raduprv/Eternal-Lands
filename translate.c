@@ -386,6 +386,11 @@ char
 	cm_recipe_menu_str[100],
 	cm_manuwin_menu_str[50],
 	cm_encycl_base_str[150],
+	cm_options_default_str[50],
+	cm_options_initial_str[50],
+#ifdef JSON_FILES
+	cm_options_per_character_str[50],
+#endif
 	/* user_menus.cpp */
 	um_invalid_command_str[50],
 	um_invalid_line_str[50],
@@ -1682,6 +1687,11 @@ void init_help()
 	add_xml_identifier(misc, "cm_recipe_menu", cm_recipe_menu_str, "Add additional recipe row\nClear selected recipe\nDelete selected recipe\nSort recipes by name", sizeof(cm_recipe_menu_str));
 	add_xml_identifier(misc, "cm_manuwin_menu", cm_manuwin_menu_str, "\n--\nDisable key presses for window", sizeof(cm_manuwin_menu_str));
 	add_xml_identifier(misc, "cm_encycl_base", cm_encycl_base_str, "Encyclopedia Index\nSearch Encyclopedia Titles\nRepeat Last Search\nBookmark This Page\nUnbookmark This Page\nClear Bookmarks", sizeof(cm_encycl_base_str));
+	add_xml_identifier(misc, "cm_options_default", cm_options_default_str, "Set to default value", sizeof(cm_options_default_str));
+	add_xml_identifier(misc, "cm_options_initial", cm_options_initial_str, "Set to initial value", sizeof(cm_options_initial_str));
+#ifdef JSON_FILES
+	add_xml_identifier(misc, "cm_options_per_character", cm_options_per_character_str, "Manage value just for this character", sizeof(cm_options_per_character_str));
+#endif
 
 	/* user_menus.cpp */
 	add_xml_identifier(misc, "um_invalid_command", um_invalid_command_str, "Invalid command text", sizeof(um_invalid_command_str));

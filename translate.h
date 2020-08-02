@@ -526,6 +526,11 @@ extern char
 		cm_recipe_menu_str[100],
 		cm_manuwin_menu_str[50],
 		cm_encycl_base_str[150],
+		cm_options_default_str[50],
+		cm_options_initial_str[50],
+#ifdef JSON_FILES
+		cm_options_per_character_str[50],
+#endif
 		/* user_menus.cpp */
 		um_invalid_command_str[50],
 		um_invalid_line_str[50],

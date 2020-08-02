@@ -856,6 +856,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 				passmngr_save_login();
 #ifdef JSON_FILES
 				set_ready_for_user_files();
+				load_character_options();
 #endif
 				load_quickspells();
 				load_recipes();

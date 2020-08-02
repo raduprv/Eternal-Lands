@@ -1632,6 +1632,9 @@ void save_local_data(void)
 	unload_questlog();
 	save_item_lists();
 	save_channel_colors();
+#ifdef JSON_FILES
+	save_character_options();
+#endif
 }
 
 
