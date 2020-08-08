@@ -986,12 +986,14 @@ void highdpi_scale(int *width, int *height)
 //	You need to ration of SDL_GL_GetDrawableSize()/SDL_GetWindowSize() to scale the mouse location.
 void update_window_size_and_scale(void)
 {
+	float old_width = window_highdpi_scale_width, old_height = window_highdpi_scale_height;
 	int non_dpi_w, non_dpi_h;
 	SDL_GetWindowSize(el_gl_window, &non_dpi_w, &non_dpi_h);
 	SDL_GL_GetDrawableSize(el_gl_window, &window_width, &window_height);
 	window_highdpi_scale_width = (float)window_width / (float)non_dpi_w;
 	window_highdpi_scale_height = (float)window_height / (float)non_dpi_h;
-	update_highdpi_auto_scaling();
+	if ((old_width != window_highdpi_scale_width) || (old_height != window_highdpi_scale_height))
+		update_highdpi_auto_scaling();
 }
 
 void toggle_full_screen(void)
