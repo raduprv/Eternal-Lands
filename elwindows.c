@@ -1107,6 +1107,7 @@ int	create_window(const char *name, int pos_id, Uint32 pos_loc, int pos_x, int p
 			else
 				cm_grey_line(win->cm_id, 1, 1);
 			cm_bool_line(win->cm_id, 2, &windows_on_top, "windows_on_top");
+			cm_bool_line(win->cm_id, 3, get_scale_flag_MW(), "disable_window_scaling_controls");
 		}
 		else
 			win->cm_id = CM_INIT_VALUE;

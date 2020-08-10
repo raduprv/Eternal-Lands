@@ -24,7 +24,7 @@ extern const GLfloat gui_color[3];
 #define	ELW_TITLE_HEIGHT	16
 #define	ELW_BOX_SIZE		20
 #define ELW_TITLE_SIZE 35
-#define ELW_CM_MENU_LEN		3
+#define ELW_CM_MENU_LEN		4
 /*! @} */
 
 /*!
