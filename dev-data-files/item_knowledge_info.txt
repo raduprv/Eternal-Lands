@@ -228,16 +228,16 @@
   215 |   561 | Ring of Massive Mana Destruction Building
   216 |   564 | Book of Gypsum Harvesting
   217 |   565 | Book of Gypsum Molding
-  218 |   569 | Sslessar Summoning Stone
-  219 |   570 | Bear Summoning Stone
-  220 |   571 | Tiger Summoning Stone
-  221 |   572 | Yeti Summoning Stone
-  222 |   573 | Giant Spider Summoning Stone
-  223 |   574 | Arctic Chim Summoning Stone
-  224 |   575 | Phantom Warrior Summoning Stone
-  225 |   576 | Fluffy Summoning Stone
-  226 |   577 | Armed Orc Summoning Stone
-  227 |   578 | Giant Summoning Stone
+  218 |   579 | Sslessar Stone Construction
+  219 |   580 | Bear Stone Construction
+  220 |   581 | Tiger Stone Construction
+  221 |   582 | Yeti Stone Construction
+  222 |   583 | Giant Spider Stone Construction
+  223 |   584 | Arctic Chim Stone Construction
+  224 |   585 | Phantom Warrior Stone Construction
+  225 |   586 | Fluffy Stone Construction
+  226 |   587 | Armed Orc Stone Construction
+  227 |   588 | Giant Stone Construction
   228 |   589 | Potion of Alchemy Construction
   229 |   590 | Potion of Potion Construction
   230 |   596 | Copper Mining
