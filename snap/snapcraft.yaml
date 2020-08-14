@@ -61,8 +61,8 @@ parts:
       - desktop-glib-only
 
   data:
-    source: https://github.com/raduprv/Eternal-Lands/releases/download/1.9.5.7/el_195_p7_data_files.zip
-    source-checksum: md5/c58b6f374d0f9ce3f0aa0fe4eab348d5
+    source: https://twinmoons.org.uk/el/git/el_195_latest_data.zip
+    source-checksum: md5/8354f13b7d9109402cbfa29061b301c5
     plugin: dump
     organize:
       el_data/ : data/
@@ -70,7 +70,6 @@ parts:
       snapcraftctl build
       sed -i 's|^#browser.*$|#browser = x-www-browser|g' $SNAPCRAFT_PART_INSTALL/el_data/el.ini
       sed -i 's|^#use_new_selection.*$|#use_new_selection = 1|g' $SNAPCRAFT_PART_INSTALL/el_data/el.ini
-      cp -p ${SNAPCRAFT_PROJECT_DIR}/dev-data-files/item_knowledge_info.txt $SNAPCRAFT_PART_INSTALL/el_data/
 
   sound:
     source: https://github.com/raduprv/Eternal-Lands/releases/download/1.9.5.2/eternallands-sound_1.9.4.zip
