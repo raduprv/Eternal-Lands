@@ -263,7 +263,9 @@ void drag_item(int item, int storage, int mini)
 			use_item = item_dragged=-1;
 			return;
 		}
-		if (item_list[item].is_stackable) {
+		if (item >= ITEM_WEAR_START) {
+			quantity = -1;
+		} else if (item_list[item].is_stackable) {
 			if(quantity > item_list[item].quantity)
 				quantity = item_list[item].quantity;
 		// The quantity for non-stackable items is misleading so don't show it unless we can reliably count how many we have.
@@ -273,7 +275,7 @@ void drag_item(int item, int storage, int mini)
 			size_t i;
 			int count = 0;
 			for (i = 0; i < ITEM_WEAR_START; i++)
-				if((item_list[item].image_id == item_list[i].image_id) && (item_list[item].id == item_list[i].id))
+				if((item_list[i].quantity > 0) && (item_list[item].image_id == item_list[i].image_id) && (item_list[item].id == item_list[i].id))
 					count++;
 			if (quantity > count)
 				quantity = count;
