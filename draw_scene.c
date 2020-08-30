@@ -139,7 +139,7 @@ void draw_scene()
 	if (item_dragged != -1)
 		drag_item (item_dragged, 0, 0);
 	else if (use_item != -1 && current_cursor == CURSOR_USE_WITEM)
-		drag_item (use_item, 0, 1);
+		drag_item (use_item, 0, ((cursor_scale_factor > 1) ?0: 1));
 	else if (storage_item_dragged != -1)
 		drag_item (storage_item_dragged, 1, 0);
 	draw_special_cursors();
