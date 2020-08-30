@@ -213,10 +213,12 @@ int get_fps_default_width(void);
 /*! @{ */
 void set_gamewin_action_mode(int new_mode);
 int get_gamewin_action_mode(void);
+void save_gamewin_action_mode(void);
+int retrieve_gamewin_action_mode(void);
 static inline int is_gamewin_look_action(void) { return (get_gamewin_action_mode() == ACTION_LOOK); }
 static inline void clear_gamewin_look_action(void) { set_gamewin_action_mode(ACTION_WALK); }
-static inline void set_gamewin_wand_action(void) { set_gamewin_action_mode(ACTION_WAND); }
-static inline void clear_gamewin_wand_action(void) { if (get_gamewin_action_mode() == ACTION_WAND) set_gamewin_action_mode(ACTION_WALK); }
+static inline void set_gamewin_wand_action(void) { save_gamewin_action_mode(); set_gamewin_action_mode(ACTION_WAND); }
+static inline void clear_gamewin_wand_action(void) { if (get_gamewin_action_mode() == ACTION_WAND) set_gamewin_action_mode(retrieve_gamewin_action_mode()); }
 static inline void set_gamewin_usewith_action(void) { set_gamewin_action_mode(ACTION_USE_WITEM); }
 /*! @} */
 

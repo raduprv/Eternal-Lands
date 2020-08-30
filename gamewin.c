@@ -85,11 +85,24 @@ static int cursors_tex;
 static int fps_center_x = 0;
 static int fps_default_width = 0;
 static int action_mode = ACTION_WALK;
+static int last_action_mode = ACTION_WALK;
 
 // Set the game root window action mode
 void set_gamewin_action_mode(int new_mode)
 {
 	action_mode = new_mode;
+}
+
+// save the current mode so it can be restored later
+void save_gamewin_action_mode(void)
+{
+	last_action_mode = action_mode;
+}
+
+// return the last saved action mode
+int retrieve_gamewin_action_mode(void)
+{
+	return last_action_mode;
 }
 
 // Get the game root window action mode
