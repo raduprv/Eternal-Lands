@@ -1072,15 +1072,18 @@ static int click_manufacture_handler(window_info *win, int mx, int my, Uint32 fl
 		quantitytomove = 10;
 
 	/* if the eye cursor is active and we right click, change to standard walk */
-	if(action_mode==ACTION_LOOK && (flags&ELW_RIGHT_MOUSE))
-		action_mode = ACTION_WALK;
+	if ((flags & ELW_RIGHT_MOUSE) && is_gamewin_look_action())
+	{
+		clear_gamewin_look_action();
+		return 0;
+	}
 
 	//see if we clicked on any item in the main category
 	pos=get_mouse_pos_in_grid(mx, my, GRID_COLS, GRID_ROWS, 0, 0, SLOT_SIZE, SLOT_SIZE);
 
 	if (pos >= 0 && manufacture_list[pos].quantity > 0)
 	{
-		if(action_mode==ACTION_LOOK || (flags&ELW_RIGHT_MOUSE)) {
+		if ((flags & ELW_RIGHT_MOUSE) || is_gamewin_look_action()) {
 			str[0]=LOOK_AT_INVENTORY_ITEM;
 			str[1]=manufacture_list[pos].pos;
 			my_tcp_send(my_socket,str,2);
@@ -1136,7 +1139,7 @@ static int click_manufacture_handler(window_info *win, int mx, int my, Uint32 fl
 
 	if (pos >= 0 && manufacture_list[MIX_SLOT_OFFSET+pos].quantity > 0)
 	{
-		if(action_mode==ACTION_LOOK || (flags&ELW_RIGHT_MOUSE)){
+		if((flags & ELW_RIGHT_MOUSE) || is_gamewin_look_action()){
 			str[0]=LOOK_AT_INVENTORY_ITEM;
 			str[1]=manufacture_list[MIX_SLOT_OFFSET+pos].pos;
 			my_tcp_send(my_socket,str,2);
@@ -1370,11 +1373,10 @@ static int mouseover_manufacture_slot_handler(window_info *win, int mx, int my)
 		show_help(descp_str, 0, win->len_y + 10 + win->small_font_len_y*help_line++, win->current_scale);
 
 	/* if we're over an occupied slot and the eye cursor function is active, show the eye cursor */
-	if (check_for_eye){
-		if (action_mode == ACTION_LOOK){
-			elwin_mouse = CURSOR_EYE;
-			return 1;
-		}
+	if (check_for_eye && is_gamewin_look_action())
+	{
+		elwin_mouse = CURSOR_EYE;
+		return 1;
 	}
 
 	return 0;

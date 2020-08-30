@@ -198,7 +198,7 @@ namespace IconWindow
 			void update_highlight(void)
 			{
 				Basic_Icon::update_highlight();
-				if (action_mode == the_action_mode)
+				if (get_gamewin_action_mode() == the_action_mode)
 					Basic_Icon::set_highlight(true);
 			}
 			void action(void)

@@ -15,19 +15,6 @@ extern "C" {
 
 extern int have_a_map;  /*!< flag indicating whether a map is available or not */
 
-/*! \name Action types */
-/*! @{ */
-#define ACTION_WALK 0
-#define ACTION_LOOK 1
-#define ACTION_USE 2
-#define ACTION_USE_WITEM 3
-#define ACTION_TRADE 4
-#define ACTION_ATTACK 5
-#define ACTION_WAND 6
-/*! @} */
-
-extern int action_mode; /*!< contains the current action type */
-
 /*! \name Mouse movement coordinates
  * @{ */
 extern int mouse_x; /*!< current x coordinate of the mouse */

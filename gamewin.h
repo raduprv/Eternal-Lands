@@ -14,6 +14,17 @@
 extern "C" {
 #endif
 
+/*! \name Action types */
+/*! @{ */
+#define ACTION_WALK 0
+#define ACTION_LOOK 1
+#define ACTION_USE 2
+#define ACTION_USE_WITEM 3
+#define ACTION_TRADE 4
+#define ACTION_ATTACK 5
+#define ACTION_WAND 6
+/*! @} */
+
 extern int HUD_MARGIN_X;
 extern int HUD_MARGIN_Y;
 extern int have_mouse;
@@ -195,6 +206,19 @@ void create_game_root_window (int width, int height);
  * \callgraph
  */
 int get_fps_default_width(void);
+
+/*!
+ * \name game root window action mode access functions
+ */
+/*! @{ */
+void set_gamewin_action_mode(int new_mode);
+int get_gamewin_action_mode(void);
+static inline int is_gamewin_look_action(void) { return (get_gamewin_action_mode() == ACTION_LOOK); }
+static inline void clear_gamewin_look_action(void) { set_gamewin_action_mode(ACTION_WALK); }
+static inline void set_gamewin_wand_action(void) { set_gamewin_action_mode(ACTION_WAND); }
+static inline void clear_gamewin_wand_action(void) { if (get_gamewin_action_mode() == ACTION_WAND) set_gamewin_action_mode(ACTION_WALK); }
+static inline void set_gamewin_usewith_action(void) { set_gamewin_action_mode(ACTION_USE_WITEM); }
+/*! @} */
 
 #ifdef __cplusplus
 } // extern "C"

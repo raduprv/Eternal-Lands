@@ -7,7 +7,6 @@
 #define __ITEMS_H__
 
 #include "platform.h"
-#include "bags.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -91,9 +90,10 @@ extern item_extra item_list_extra[ITEM_NUM_ITEMS]; /*!< global list of items ext
 extern int item_dragged;					/*!< the position of any currently dragged item, or -1 */
 extern int item_quantity;					/*!< the number of items for and any currently dragged item */
 extern int use_item;						/*!< the position of any current items used */
-extern int item_action_mode;				/*!< the current cursor mode for the items window */
 extern int item_uid_enabled;				/*!< true if item ids are enable */
 extern const Uint16 unset_item_uid;			/*!< a value to compare with an itemd id to check if its set */
+extern int independant_inventory_action_modes; /*!< use independant action modes for inventory window */
+
 /*! @} */
 
 /*! \name Text fields for items */
@@ -345,6 +345,15 @@ void set_shown_string(char colour_code, const char *the_text);
 
 void get_item_uv(const Uint32 item, float* u_start, float* v_start,
 	float* u_end, float* v_end);
+
+/*!
+ * \ingroup item
+ * \brief Set the action mode for the items window.
+ *
+ * \param new_mode  the new action mode, ignored if not one that can be used
+ *
+ */
+void set_items_action_mode(int new_mode);
 
 #ifdef __cplusplus
 } // extern "C"

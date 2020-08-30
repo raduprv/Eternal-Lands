@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include "trade.h"
 #include "asc.h"
+#include "cursors.h"
 #include "elwindows.h"
 #include "gamewin.h"
 #include "hud.h"
@@ -281,8 +282,14 @@ static int click_trade_handler(window_info *win, int mx, int my, Uint32 flags)
 	if ( !(left_click || right_click) ) return 0;
 
 	if(right_click) {
-		item_dragged=
-		storage_item_dragged=-1;
+		if ((item_dragged == -1) && (storage_item_dragged == -1) && is_gamewin_look_action()) {
+			clear_gamewin_look_action();
+			return 1;
+		}
+		if ((item_dragged != -1) || (storage_item_dragged != -1)) {
+			item_dragged = storage_item_dragged = -1;
+			return 1;
+		}
 	}
 
 	if(left_click && item_dragged!=-1){
@@ -312,7 +319,7 @@ static int click_trade_handler(window_info *win, int mx, int my, Uint32 flags)
 
 		if (pos >= 0 && your_trade_list[pos].quantity)
 		{
-			if(action_mode==ACTION_LOOK || right_click) {
+			if(right_click || is_gamewin_look_action()) {
 				str[0]=LOOK_AT_TRADE_ITEM;
 				str[1]=pos;
 				str[2]=0;//your trade
@@ -334,7 +341,7 @@ static int click_trade_handler(window_info *win, int mx, int my, Uint32 flags)
 
 		if (pos >= 0 && others_trade_list[pos].quantity)
 		{
-			if(action_mode==ACTION_LOOK || right_click){
+			if(right_click || is_gamewin_look_action()){
 				str[0]=LOOK_AT_TRADE_ITEM;
 				str[1]=pos;
 				str[2]=1;//their trade
@@ -383,6 +390,7 @@ static int click_trade_handler(window_info *win, int mx, int my, Uint32 flags)
 
 static int mouseover_trade_handler(window_info *win, int mx, int my)
 {
+	int check_for_eye = 0;
 	int pos = -1;
 	trade_item *over_item = NULL;
 
@@ -402,6 +410,7 @@ static int mouseover_trade_handler(window_info *win, int mx, int my)
 	{
 		over_item = &your_trade_list[pos];
 		mouse_over_your_trade_pos = pos;
+		check_for_eye = 1;
 	}
 	else {
 		pos = get_mouse_pos_in_grid(mx, my, ITEM_COLS, ITEM_ROWS, trade_border + (ITEM_COLS + 1) * trade_gridsize, trade_grid_start_y,
@@ -410,11 +419,19 @@ static int mouseover_trade_handler(window_info *win, int mx, int my)
 		{
 			over_item = &others_trade_list[pos];
 			mouse_over_others_trade_pos = pos;
+			check_for_eye = 1;
 		}
 	}
 
 	if (show_item_desc_text && (over_item != NULL) && item_info_available() && (get_item_count(over_item->id, over_item->image_id) == 1))
 		tool_tip_str = get_item_description(over_item->id, over_item->image_id);
+
+	/* if we're over an occupied slot and the eye cursor function is active, show the eye cursor */
+	if (check_for_eye && is_gamewin_look_action())
+	{
+		elwin_mouse = CURSOR_EYE;
+		return 1;
+	}
 
 	return 0;
 }

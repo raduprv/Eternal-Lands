@@ -48,7 +48,7 @@ struct quantities quantities = {
 };
 int edit_quantity=-1;
 
-int item_action_mode=ACTION_WALK;
+static int item_action_mode = ACTION_WALK;
 
 int item_dragged=-1;
 int item_quantity=1;
@@ -56,6 +56,7 @@ int use_item=-1;
 int item_uid_enabled = 0;
 const Uint16 unset_item_uid = (Uint16)-1;
 int items_text[MAX_ITEMS_TEXTURES];
+int independant_inventory_action_modes = 0;
 
 /* title menu options */
 int allow_equip_swap=0;
@@ -100,6 +101,14 @@ static struct { int last_dest; int move_to; int move_from; size_t string_id; Uin
 
 static int show_items_handler(window_info * win);
 static void drop_all_handler(void);
+
+// Limit external setting of the action mode: Called due to an action keypress or action icon in the icon window.
+void set_items_action_mode(int new_mode)
+{
+	// Only change the action mode if is one used by the window.
+	if (!independant_inventory_action_modes && ((new_mode == ACTION_WALK) || (new_mode == ACTION_LOOK) || (new_mode == ACTION_USE) || (new_mode == ACTION_USE_WITEM)))
+		item_action_mode = new_mode;
+}
 
 void set_shown_string(char colour_code, const char *the_text)
 {
@@ -1232,7 +1241,8 @@ static int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 		}
 	}
 
-	if(item_action_mode==ACTION_USE_WITEM)	action_mode=ACTION_USE_WITEM;
+	if (item_action_mode == ACTION_USE_WITEM)
+		set_gamewin_usewith_action();
 
 	//see if we changed the quantity
 	if((mx >= quantity_grid.pos_x) && (mx < quantity_grid.pos_x + quantity_grid.len_x) &&

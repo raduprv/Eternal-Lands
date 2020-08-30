@@ -1618,23 +1618,23 @@ void process_network_spell (const char *data, int len)
 			return;;
 		case S_SELECT_TARGET://spell_result==3
 			spell_result=3;
-			action_mode=ACTION_WAND;
+			set_gamewin_wand_action();
 			break;
 		case S_SELECT_TELE_LOCATION://spell_result==2
 			// we're about to teleport, don't let the pathfinder
 			// interfere with our destination
 			if (pf_follow_path) pf_destroy_path ();
 			spell_result=2;
-			action_mode=ACTION_WAND;
+			set_gamewin_wand_action();
 			break;
 		case S_SUCCES://spell_result==1
 			spell_result=1;
-			action_mode=ACTION_WALK;
+			clear_gamewin_wand_action();
 			spell_cast(data[1]);
 			break;
 		case S_FAILED:
 			spell_result=0;
-			action_mode=ACTION_WALK;
+			clear_gamewin_wand_action();
 			return;
 	}
 

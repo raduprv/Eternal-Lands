@@ -84,6 +84,19 @@ static int cursors_tex;
 #endif // NEW_CURSOR
 static int fps_center_x = 0;
 static int fps_default_width = 0;
+static int action_mode = ACTION_WALK;
+
+// Set the game root window action mode
+void set_gamewin_action_mode(int new_mode)
+{
+	action_mode = new_mode;
+}
+
+// Get the game root window action mode
+int get_gamewin_action_mode(void)
+{
+	return action_mode;
+}
 
 int get_fps_default_width(void)
 {
@@ -1582,7 +1595,9 @@ static void toggle_sit_stand()
 
 void switch_action_mode(int mode)
 {
-	item_action_mode = qb_action_mode = action_mode = mode;
+	action_mode = mode;
+	set_quickbar_action_mode(mode);
+	set_items_action_mode(mode);
 }
 
 

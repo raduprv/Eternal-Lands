@@ -77,8 +77,6 @@ int im_other_player_view_hp_bar = 0;
 int im_other_player_banner_bg = 0;
 int im_other_player_show_banner_on_damage = 0;
 
-int action_mode=ACTION_WALK;
-
 Uint32 click_time=0;
 
 int small_map_screen_x_left = 0;

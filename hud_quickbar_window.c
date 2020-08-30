@@ -4,6 +4,7 @@
 #include "elconfig.h"
 #include "elwindows.h"
 #include "font.h"
+#include "gamewin.h"
 #include "gl_init.h"
 #include "hud.h"
 #include "hud_quickbar_window.h"
@@ -22,8 +23,8 @@ int quickbar_dir=HORIZONTAL;
 // with quickbar_relocatable off, the default will be docked to right hud
 int quickbar_relocatable=0;
 int num_quickbar_slots = 6;
-int qb_action_mode=ACTION_USE;
 int cm_quickbar_enabled = 0;
+int independant_quickbar_action_modes = 0;
 
 static size_t cm_quickbar_id = CM_INIT_VALUE;
 static int mouseover_quickbar_item_pos = -1;
@@ -31,6 +32,7 @@ static int item_quickbar_slot_size = -1;
 static int default_item_quickbar_x = -1;
 static int default_item_quickbar_y = -1;
 static int shown_quickbar_slots = -1;
+static int qb_action_mode=ACTION_USE;
 
 enum { CMQB_ENABLE=0, CMQB_SEP1, CMQB_RELOC, CMQB_DRAG, CMQB_FLIP, CMQB_SEP2, CMQB_RESET };
 
@@ -283,7 +285,10 @@ static int	click_quickbar_handler(window_info *win, int mx, int my, Uint32 flags
 	if(right_click) {
 		switch(qb_action_mode) {
 		case ACTION_WALK:
-			qb_action_mode=ACTION_LOOK;
+			if(item_dragged != -1)
+				item_dragged = -1;
+			else
+				qb_action_mode = ACTION_LOOK;
 			break;
 		case ACTION_LOOK:
 			qb_action_mode=ACTION_USE;
@@ -306,7 +311,8 @@ static int	click_quickbar_handler(window_info *win, int mx, int my, Uint32 flags
 		return 1;
 	}
 
-	if(qb_action_mode==ACTION_USE_WITEM)	action_mode=ACTION_USE_WITEM;
+	if (qb_action_mode == ACTION_USE_WITEM)
+		set_gamewin_usewith_action();
 
 	// no in window check needed, already done
 	//see if we clicked on any item in the main category
@@ -728,4 +734,12 @@ int action_item_keys(SDL_Keycode key_code, Uint16 key_mod)
 			return 1;
 		}
 	return 0;
+}
+
+// Limit external setting of the action mode: Called due to an action keypress or action icon in the icon window.
+void set_quickbar_action_mode(int new_mode)
+{
+	// Only change the action mode if is one used by the window.
+	if (!independant_quickbar_action_modes && ((new_mode == ACTION_WALK) || (new_mode == ACTION_LOOK) || (new_mode == ACTION_USE) || (new_mode == ACTION_USE_WITEM)))
+		qb_action_mode = new_mode;
 }

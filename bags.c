@@ -617,12 +617,11 @@ static int click_ground_items_handler(window_info *win, int mx, int my, Uint32 f
 	if(right_click) {
 		if(item_dragged != -1) {
 			item_dragged = -1;
-		} else if(item_action_mode == ACTION_LOOK) {
-			item_action_mode = ACTION_WALK;
-		} else {
-			item_action_mode = ACTION_LOOK;
+			return 1;
+		} else if(is_gamewin_look_action()) {
+			clear_gamewin_look_action();
+			return 1;
 		}
-		return 1;
 	}
 
 	// see if we clicked on the "Get All" box
@@ -645,7 +644,7 @@ static int click_ground_items_handler(window_info *win, int mx, int my, Uint32 f
 			my_tcp_send(my_socket, str, 6);
 			do_drop_item_sound();
 		}
-	} else if(item_action_mode==ACTION_LOOK) {
+	} else if(right_click || is_gamewin_look_action()) {
 		str[0]= LOOK_AT_GROUND_ITEM;
 		str[1]= ground_item_list[pos].pos;
 		my_tcp_send(my_socket,str,2);
@@ -675,7 +674,7 @@ static int mouseover_ground_items_handler(window_info *win, int mx, int my) {
 		int image_id = ground_item_list[pos].image_id;
 		if (show_item_desc_text && item_info_available() && (get_item_count(item_id, image_id) == 1))
 			item_desc_str = get_item_description(item_id, image_id);
-		if(item_action_mode==ACTION_LOOK) {
+		if(is_gamewin_look_action()) {
 			elwin_mouse=CURSOR_EYE;
 		} else {
 			elwin_mouse=CURSOR_PICK;
