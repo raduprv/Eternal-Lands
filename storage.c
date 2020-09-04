@@ -280,6 +280,14 @@ static int item_cmp(const void *a, const void *b)
 
 static void update_items_in_category(void)
 {
+	// Make sure dragged storage items with zero quantity are no longer dragged
+	if ((storage_item_dragged >=0) && (storage_item_dragged < STORAGE_ITEMS_SIZE) && (storage_items[storage_item_dragged].quantity <= 0))
+		storage_item_dragged = -1;
+
+	// if enabled, sort the items alphabetically by description (if we have one)
+	if ((no_storage > 0) && sort_storage_items)
+		qsort(storage_items, STORAGE_ITEMS_SIZE, sizeof(ground_item), item_cmp);
+
 	// Update the filter
 	if (!disable_storage_filter && (no_storage > 0) && (filter_item_text_size > 0))
 		filter_items_by_description(storage_items_filter, storage_items, filter_item_text, no_storage);
@@ -289,14 +297,6 @@ static void update_items_in_category(void)
 		for (i=0; i<STORAGE_ITEMS_SIZE; i++)
 			storage_items_filter[i] = 0;
 	}
-
-	// Make sure dragged storage items with zero quantity are no longer dragged
-	if ((storage_item_dragged >=0) && (storage_item_dragged < STORAGE_ITEMS_SIZE) && (storage_items[storage_item_dragged].quantity <= 0))
-		storage_item_dragged = -1;
-
-	// if enabled, sort the items alphabetically by description (if we have one)
-	if ((no_storage > 0) && sort_storage_items)
-		qsort(storage_items, STORAGE_ITEMS_SIZE, sizeof(ground_item), item_cmp);
 }
 
 void get_storage_items (const Uint8 *in_data, int len)
