@@ -360,8 +360,6 @@ void save_bin_cfg(void)
 	// TODO: move window save/restore into the window handler
 	set_save_pos_MW(MW_RANGING, &cfg_mem.ranging_win_x, &cfg_mem.ranging_win_y);
 
-	set_save_pos_MW(MW_RANGING, &cfg_mem.ranging_win_x, &cfg_mem.ranging_win_y);
-
 	set_save_pos_MW(MW_HELP, &cfg_mem.tab_help_x, &cfg_mem.tab_help_y);
 
 	set_save_pos_MW(MW_ITEMS, &cfg_mem.items_menu_x, &cfg_mem.items_menu_y);
