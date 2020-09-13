@@ -1489,7 +1489,7 @@ static int display_game_handler (window_info *win)
 CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
 
-	if ((input_widget!= NULL) && (input_widget->window_id != win->window_id) && !get_show_window(chat_win))
+	if ((input_widget!= NULL) && (input_widget->window_id != win->window_id) && !get_show_window(get_id_MW(MW_CHAT)))
 		input_widget_move_to_win(win->window_id);
 
 	return 1;

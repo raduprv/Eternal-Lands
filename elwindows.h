@@ -285,6 +285,7 @@ enum managed_window_enum
 	MW_ASTRO,
 	MW_TABMAP,
 	MW_CONSOLE,
+	MW_CHAT,
 #ifdef ECDEBUGWIN
 	MW_ECDEBUG,
 #endif

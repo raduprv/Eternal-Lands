@@ -470,7 +470,7 @@ int input_field_resize(widget_list *w, Uint32 x, Uint32 y)
 	msg->wrap_width = 0;
 	tf->nr_lines = rewrap_message(msg, w->fcat, w->size,
 		w->len_x - 2 * tf->x_space, &tf->cursor);
-	if(use_windowed_chat != 2 || !get_show_window(chat_win)) {
+	if(use_windowed_chat != 2 || !get_show_window(get_id_MW(MW_CHAT))) {
 		window_info *win = &windows_list.window[w->window_id];
 		widget_move(input_widget->window_id, input_widget->id, 0, win->len_y - input_widget->len_y - HUD_MARGIN_Y);
 	}

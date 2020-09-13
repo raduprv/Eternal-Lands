@@ -234,6 +234,15 @@ typedef struct
 	unsigned int quickspell_win_options;
 	/*! @} */
 
+	/*!
+	 * \name chat window position
+	 */
+	/*! @{ */
+	int chat_win_x;
+	int chat_win_y;
+	/*! @} */
+
+
 }bin_cfg;
 
 extern char configdir[256]; /*!< the default directory where we look for configuration files */

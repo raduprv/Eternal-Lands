@@ -194,7 +194,7 @@ static void read_bin_cfg(void)
 	int i;
 	const char *fname = "el.cfg";
 	size_t ret;
-	int have_additions = 1;
+	int have_quickspells = 1, have_chat_win = 1;
 
 	memset(&cfg_mem, 0, sizeof(cfg_mem));	// make sure its clean
 
@@ -204,12 +204,14 @@ static void read_bin_cfg(void)
 	fclose(f);
 
 	// If more options are added to the end of the structure, we can maintain backwards compatibility.
-	// If have_additions is not true, those options will remain set to zero as the file does not include them.
+	// For each addition we can check the size to see if its present and use it if so, otherwise use zeros.
 	// We only need to change the version number if we alter/remove older options.
 	// We still need to check the size is what is expected.
 
-	if (ret == sizeof(cfg_mem) - 2 * sizeof(unsigned int))
-		have_additions = 0;
+	if (ret == (sizeof(cfg_mem) - 2 * sizeof(int)))
+		have_chat_win = 0;
+	else if (ret == (sizeof(cfg_mem) - 2 * sizeof(int) - 2 * sizeof(unsigned int)))
+		have_quickspells = have_chat_win = 0;
 	else if (ret != sizeof(cfg_mem))
 	{
 		LOG_ERROR("%s() failed to read %s\n", __FUNCTION__, fname);
@@ -338,8 +340,11 @@ static void read_bin_cfg(void)
 
 	set_settings_hud_indicators(cfg_mem.hud_indicators_options, cfg_mem.hud_indicators_position);
 
-	if (have_additions)
+	if (have_quickspells)
 		set_quickspell_options(cfg_mem.quickspell_win_options, cfg_mem.quickspell_win_position);
+
+	if (have_chat_win)
+		set_pos_MW(MW_CHAT, cfg_mem.chat_win_x, cfg_mem.chat_win_y);
 }
 
 void save_bin_cfg(void)
@@ -359,6 +364,8 @@ void save_bin_cfg(void)
 	//good, retrive the data
 	// TODO: move window save/restore into the window handler
 	set_save_pos_MW(MW_RANGING, &cfg_mem.ranging_win_x, &cfg_mem.ranging_win_y);
+
+	set_save_pos_MW(MW_CHAT, &cfg_mem.chat_win_x, &cfg_mem.chat_win_y);
 
 	set_save_pos_MW(MW_HELP, &cfg_mem.tab_help_x, &cfg_mem.tab_help_y);
 

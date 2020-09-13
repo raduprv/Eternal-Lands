@@ -73,6 +73,7 @@ static managed_window_def managed_windows =
 	.list[MW_ASTRO] = { .id = -1, .pos_x = 10, .pos_y = 20, .prop_pos = 1, .pos_ratio_x = 1.0f, .pos_ratio_y = 1.0f, .on_top = 1, .icon_name = "astro", .hideable = 0, .was_open = 0, .scale = 1.0f, .key_def = NULL, .display = NULL },
 	.list[MW_TABMAP] = { .id = -1, .pos_x = 0, .pos_y = 0, .prop_pos = 0, .pos_ratio_x = 1.0f, .pos_ratio_y = 1.0f, .on_top = 0, .icon_name = "map", .hideable = 0, .was_open = 0, .scale = 1.0f, .key_def = NULL, .display = NULL },
 	.list[MW_CONSOLE] = { .id = -1, .pos_x = 0, .pos_y = 0, .prop_pos = 0, .pos_ratio_x = 1.0f, .pos_ratio_y = 1.0f, .on_top = 0, .icon_name = "console", .hideable = 0, .was_open = 0, .scale = 1.0f, .key_def = NULL, .display = NULL },
+	.list[MW_CHAT] = { .id = -1, .pos_x = 0, .pos_y = 0, .prop_pos = 1, .pos_ratio_x = 1.0f, .pos_ratio_y = 1.0f, .on_top = 0, .icon_name = "chat", .hideable = 0, .was_open = 0, .scale = 1.0f, .key_def = NULL, .display = NULL },
 #ifdef ECDEBUGWIN
 	.list[MW_ECDEBUG] = { .id = -1, .pos_x = 10, .pos_y = 10, .prop_pos = 0, .pos_ratio_x = 1.0f, .pos_ratio_y = 1.0f, .on_top = 0, .icon_name = "ecdebug", .hideable = 0, .was_open = 0, .scale = 1.0f, .key_def = &K_ECDEBUGWIN, .display = display_ecdebugwin },
 #endif

@@ -1241,9 +1241,9 @@ void change_windowed_chat (int *wc, int val)
 			display_chat();
 		}
 	}
-	else if (chat_win >= 0)
+	else if (get_id_MW(MW_CHAT) >= 0)
 	{
-		hide_window (chat_win);
+		hide_window (get_id_MW(MW_CHAT));
 	}
 
 	if (old_wc != *wc && (old_wc == 1 || old_wc == 2) )
@@ -1488,7 +1488,7 @@ void change_windows_on_top(int *var)
 static void change_separate_flag(int * pointer) {
 	change_var(pointer);
 
-	if (chat_win >= 0) {
+	if (get_id_MW(MW_CHAT) >= 0) {
 		update_chat_win_buffers();
 	}
 }
@@ -2687,6 +2687,7 @@ static void init_ELC_vars(void)
 	add_var(OPT_FLOAT,"dialogue_win_scale","dialoguewinscale",get_scale_WM(MW_DIALOGUE),change_win_scale_factor,1.0f,"Dialogue window scaling factor",win_scale_description,FONT,win_scale_min,win_scale_max,win_scale_step);
 	add_var(OPT_FLOAT,"quickbar_win_scale","quickbarwinscale",get_scale_WM(MW_QUICKBAR),change_win_scale_factor,1.0f,"Quickbar window scaling factor",win_scale_description,FONT,win_scale_min,win_scale_max,win_scale_step);
 	add_var(OPT_FLOAT,"quickspells_win_scale","quickspellswinscale",get_scale_WM(MW_QUICKSPELLS),change_win_scale_factor,1.0f,"Quickspells window scaling factor",win_scale_description,FONT,win_scale_min,win_scale_max,win_scale_step);
+	add_var(OPT_FLOAT,"chat_win_scale","chatwinscale",get_scale_WM(MW_CHAT),change_win_scale_factor,1.0f,"Chat window scaling factor",win_scale_description,FONT,win_scale_min,win_scale_max,win_scale_step);
 	add_var(OPT_FLOAT,"options_win_scale","optionswinscale",&elconf_custom_scale,change_elconf_win_scale_factor,1.0f,"Options window scaling factor","Multiplied by the user interface scaling factor. Change will take effect after closing then reopening the window.",FONT,win_scale_min,win_scale_max,win_scale_step);
 #ifdef NEW_CURSOR
 	add_var(OPT_BOOL,"sdl_cursors","sdl_cursors", &sdl_cursors, change_sdl_cursor,1,"Use Standard Black/White Mouse Pointers", "When disabled, use the experimental coloured mouse pointers. Needs the texture from Git dev-data-files/cursor2.dss.", FONT);

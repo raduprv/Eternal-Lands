@@ -31,7 +31,6 @@
 #include "io/elpathwrapper.h"
 #include "sound.h"
 
-int chat_win = -1;
 static queue_t *chan_name_queue;
 widget_list *input_widget = NULL;
 
@@ -100,7 +99,7 @@ void input_widget_move_to_win(int window_id)
 		return;
 
 	widget_move_win(input_widget->window_id, input_widget->id, window_id);
-	if(window_id == chat_win) {
+	if(window_id == get_id_MW(MW_CHAT)) {
 		widget_set_flags(input_widget->window_id, input_widget->id, TEXT_FIELD_BORDER|TEXT_FIELD_EDITABLE|TEXT_FIELD_NO_KEYPRESS);
 		input_widget->OnResize = NULL;
 		resize_chat_handler(win, win->len_x, win->len_y);
@@ -129,14 +128,14 @@ void input_widget_move_to_win(int window_id)
 static void add_tab (Uint8 channel)
 {
 	if (tab_bar_win != -1) add_tab_button (channel);
-	if (chat_win != -1) add_chat_tab (0, channel);
+	if (get_id_MW(MW_CHAT) != -1) add_chat_tab (0, channel);
 }
 
 static void remove_tab (Uint8 channel)
 {
 	recolour_messages(display_text_buffer);
 	if (tab_bar_win != -1) remove_tab_button (channel);
-	if (chat_win != -1) remove_chat_tab (channel);
+	if (get_id_MW(MW_CHAT) != -1) remove_chat_tab (channel);
 }
 
 static void update_tab_idx (Uint8 old_idx, Uint8 new_idx)
@@ -149,7 +148,7 @@ static void update_tab_idx (Uint8 old_idx, Uint8 new_idx)
 	// is lower than old_idx, so we should be safe.
 
 	if (tab_bar_win != -1) update_tab_button_idx (old_idx, new_idx);
-	if (chat_win != -1) update_chat_tab_idx (old_idx, new_idx);
+	if (get_id_MW(MW_CHAT) != -1) update_chat_tab_idx (old_idx, new_idx);
 }
 
 static void set_channel_tabs (const Uint32 *chans)
@@ -275,6 +274,7 @@ static chan_name *tab_label (Uint8 chan);//Forward declaration
 
 void clear_chat_wins (void)
 {
+	int chat_win = get_id_MW(MW_CHAT);
 	int i = 0;
 	if(use_windowed_chat != 2){return;}
 
@@ -359,6 +359,7 @@ static int close_channel (window_info *win)
 
 static void remove_chat_tab (Uint8 channel)
 {
+	int chat_win = get_id_MW(MW_CHAT);
 	int ichan;
 
 	for (ichan = 0; ichan < MAX_CHAT_TABS; ichan++)
@@ -382,6 +383,7 @@ static void remove_chat_tab (Uint8 channel)
 
 static int add_chat_tab(int nlines, Uint8 channel)
 {
+	int chat_win = get_id_MW(MW_CHAT);
 	int ichan;
 
 	for (ichan = 0; ichan < MAX_CHAT_TABS; ichan++)
@@ -469,6 +471,7 @@ static Uint8 get_tab_channel (Uint8 channel)
 
 static void update_chat_window (text_message *msg, char highlight)
 {
+	int chat_win = get_id_MW(MW_CHAT);
 	int ichan, len, nlines, width, channel;
 	char found;
 
@@ -571,7 +574,7 @@ static int display_chat_handler (window_info *win)
 	static int msg_start = 0, offset_start = 0;
 	if (text_changed)
 	{
-		int line = vscrollbar_get_pos (chat_win, chat_scroll_id);
+		int line = vscrollbar_get_pos (get_id_MW(MW_CHAT), chat_scroll_id);
 
 		find_line_nr(channels[active_tab].nr_lines, line, channels[active_tab].chan_nr,
 			&msg_start, &offset_start, CHAT_FONT, 1.0, chat_win_text_width);
@@ -587,6 +590,7 @@ static int display_chat_handler (window_info *win)
 
 static void switch_to_chat_tab(int id, char click)
 {
+	int chat_win = get_id_MW(MW_CHAT);
 	if(!click)
 	{
 		int itab;
@@ -703,7 +707,7 @@ static int chat_tabs_click (widget_list *widget, int mx, int my, Uint32 flags)
 {
 	int id;
 
-	id = tab_collection_get_tab_id (chat_win, widget->id);
+	id = tab_collection_get_tab_id (get_id_MW(MW_CHAT), widget->id);
 
 	if (flags&ELW_RIGHT_MOUSE)
 	{
@@ -731,7 +735,7 @@ static int chat_tabs_click (widget_list *widget, int mx, int my, Uint32 flags)
 
 static int chat_scroll_drag (widget_list *widget, int mx, int my, Uint32 flags, int dx, int dy)
 {
-	int line = vscrollbar_get_pos (chat_win, widget->id);
+	int line = vscrollbar_get_pos (get_id_MW(MW_CHAT), widget->id);
 	if (line != current_line)
 	{
 		text_changed = 1;
@@ -742,7 +746,7 @@ static int chat_scroll_drag (widget_list *widget, int mx, int my, Uint32 flags, 
 
 static int chat_scroll_click (widget_list *widget, int mx, int my, Uint32 flags)
 {
-	int line = vscrollbar_get_pos (chat_win, widget->id);
+	int line = vscrollbar_get_pos (get_id_MW(MW_CHAT), widget->id);
 	if (line != current_line)
 	{
 		text_changed = 1;
@@ -781,6 +785,7 @@ int chat_input_key (widget_list *widget, int mx, int my, SDL_Keycode key_code, U
 
 static int resize_chat_handler(window_info *win, int width, int height)
 {
+	int chat_win = get_id_MW(MW_CHAT);
 	int itab;
 	int line_height = get_line_height(CHAT_FONT, 1.0);
 	int line_skip = get_line_skip(CHAT_FONT, 1.0);
@@ -832,6 +837,7 @@ static int resize_chat_handler(window_info *win, int width, int height)
 
 void update_chat_win_buffers(void)
 {
+	int chat_win = get_id_MW(MW_CHAT);
 	int itab, imsg;
 	// recompute line breaks
 	for (itab = 0; itab < MAX_CHAT_TABS; itab++)
@@ -979,7 +985,7 @@ int root_key_to_input_field (SDL_Keycode key_code, Uint32 key_unicode, Uint16 ke
 	}
 
 	tf->next_blink = cur_time + TF_BLINK_DELAY;
-	if (input_widget->window_id != chat_win
+	if (input_widget->window_id != get_id_MW(MW_CHAT)
 		&& tf->nr_lines != get_max_nr_lines(input_widget->len_y-2*tf->y_space, CHAT_FONT, 1.0))
 	{
 		/* Resize the input widget if needed */
@@ -1089,6 +1095,7 @@ static void create_chat_window(void)
 	int inout_width = CHAT_WIN_TEXT_WIDTH + 2 * CHAT_WIN_SPACE;
 	int tabcol_height = output_height + CHAT_WIN_TAG_HEIGHT;
 	int input_y = tabcol_height + 2 * CHAT_WIN_SPACE;
+	int chat_win = -1;
 
 	int min_width = CHAT_WIN_SCROLL_WIDTH + 2 * CHAT_WIN_SPACE + (int)(CHAT_WIN_TEXT_WIDTH * font_scales[CHAT_FONT]);
 	int min_height = 7 * CHAT_WIN_SPACE + CHAT_WIN_TAG_HEIGHT + get_text_height(2, CHAT_FONT, 1.0)
@@ -1097,9 +1104,11 @@ static void create_chat_window(void)
 	nr_displayed_lines = get_max_nr_lines(output_height - 2*CHAT_WIN_SPACE, CHAT_FONT, 1.0);
 	chat_out_text_height = output_height - 2 * CHAT_WIN_SPACE;
 
-	chat_win = create_window ("Chat", game_root_win, 0, 0, 0, chat_win_width, chat_win_height, ELW_USE_UISCALE|ELW_WIN_DEFAULT|ELW_RESIZEABLE|ELW_CLICK_TRANSPARENT);
+	chat_win = create_window ("Chat", game_root_win, 0, get_pos_x_MW(MW_CHAT), get_pos_y_MW(MW_CHAT), chat_win_width, chat_win_height, ELW_USE_UISCALE|ELW_WIN_DEFAULT|ELW_RESIZEABLE|ELW_CLICK_TRANSPARENT);
 	if (chat_win < 0 || chat_win >= windows_list.num_windows)
 		return;
+	set_id_MW(MW_CHAT, chat_win);
+	set_window_custom_scale(chat_win, MW_CHAT);
 
 	set_window_handler (chat_win, ELW_HANDLER_DISPLAY, &display_chat_handler);
 	set_window_handler (chat_win, ELW_HANDLER_RESIZE, &resize_chat_handler);
@@ -1138,10 +1147,13 @@ static void create_chat_window(void)
 	}
 	set_window_min_size (chat_win, min_width, min_height);
 	ui_scale_chat_handler(&windows_list.window[chat_win]);
+
+	check_proportional_move(MW_CHAT);
 }
 
 void display_chat(void)
 {
+	int chat_win = get_id_MW(MW_CHAT);
 	if (chat_win < 0)
 	{
 		create_chat_window ();
@@ -2689,7 +2701,7 @@ void next_channel_tab(void)
 			switch_to_tab(next_tab);
 		break;
 		case 2: //Window
-			widget = widget_find(chat_win, chat_tabcollection_id);
+			widget = widget_find(get_id_MW(MW_CHAT), chat_tabcollection_id);
 			collection = widget->widget_info;
 			if(active_tab == collection->nr_tabs - 1)
 			{
@@ -2725,7 +2737,7 @@ void prev_channel_tab(void)
 			switch_to_tab(next_tab);
 			break;
 		case 2: //Window
-			widget = widget_find(chat_win, chat_tabcollection_id);
+			widget = widget_find(get_id_MW(MW_CHAT), chat_tabcollection_id);
 			collection = widget->widget_info;
 			if(active_tab == 2)
 			{
@@ -2787,6 +2799,7 @@ void recolour_messages(text_message *msgs){
 
 void reset_tab_channel_colours(void)
 {
+	int chat_win = get_id_MW(MW_CHAT);
 	int i;
 	for (i=0; i < MAX_CHAT_TABS; i++) {
 		if (channels[i].open) {
