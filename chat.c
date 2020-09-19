@@ -13,6 +13,7 @@
 #include "errors.h"
 #include "gamewin.h"
 #include "hud.h"
+#include "icon_window.h"
 #include "init.h"
 #include "interface.h"
 #ifdef JSON_FILES
@@ -84,11 +85,26 @@ static const int tab_control_border_sep = 2;
 static const int tab_control_half_len = 5;
 static const int tab_control_underline_sep = 4;
 
+int enable_chat_show_hide = 0;
 static int chat_shown = 1;
 
 void enable_chat_shown(void)
 {
 	chat_shown = 1;
+	switch (use_windowed_chat)
+	{
+		case 0: // old chat
+			lines_to_show = MAX_LINE_TO_SHOW;
+			break;
+		case 1: // chat bar
+			show_window(tab_bar_win);
+			lines_to_show = MAX_LINE_TO_SHOW;
+			break;
+		case 2: // chat window
+			show_window(get_id_MW(MW_CHAT));
+			break;
+	}
+	set_icon_state("chat", (enable_chat_show_hide != 0));
 }
 
 int is_chat_shown(void)
@@ -98,12 +114,15 @@ int is_chat_shown(void)
 
 void open_chat(void)
 {
-	toggle_chat();
+	if (enable_chat_show_hide)
+		toggle_chat();
 }
 
 void toggle_chat(void)
 {
 	if (get_window_showable(get_id_MW(MW_CONSOLE)))
+		return;
+	if (!enable_chat_show_hide)
 		return;
 	switch (use_windowed_chat)
 	{
@@ -1090,6 +1109,13 @@ void put_string_in_input_field(const Uint8 *text)
 
 static int close_chat_handler (window_info *win)
 {
+	// if show and hide enabled, just moved to the hidden state
+	if (enable_chat_show_hide)
+	{
+		chat_shown = 0;
+		return 1;
+	}
+
 	// revert to using the tab bar
 	// call the config function to make sure it's done properly
 	change_windowed_chat(&use_windowed_chat, 1);

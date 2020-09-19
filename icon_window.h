@@ -105,6 +105,17 @@ void set_icon_spacing(int icon_spacing);
 void destroy_icon_window(void);
 
 
+/*!
+ * \ingroup windows
+ * \brief Enable or disable an icon in the icon window.
+ *
+ * \param	help_name	the help name of the window.
+ * \param	enabled		true of we want to icon enabled.
+ * \callgraph
+ */
+void set_icon_state(const char *help_name, int enabled);
+
+
 #ifdef __cplusplus
 } // extern "C"
 #endif

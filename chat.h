@@ -39,6 +39,7 @@ extern int guild_chat_separate;		/*!< if non-zero, show GMs in a different tab *
 extern int server_chat_separate;	/*!< if non-zero, show game messages in a different tab */
 extern int mod_chat_separate;		/*!< for moderators and newbie helpers only: if non-zero, show mod chat in a different tab */
 extern int tab_bar_win;			 /*!< handler for the tab bar window */
+extern int enable_chat_show_hide;	/*!< config option to enable show/hide of the chat system */
 
 /*!
  * \brief   Moves the chat input widget to a different window

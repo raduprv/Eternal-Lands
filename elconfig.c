@@ -1254,6 +1254,12 @@ void change_windowed_chat (int *wc, int val)
 	enable_chat_shown();
 }
 
+static void change_enable_chat_show_hide(int * var)
+{
+	*var= !*var;
+	enable_chat_shown();
+}
+
 static void change_quickbar_relocatable (int *rel)
 {
 	*rel= !*rel;
@@ -2611,6 +2617,7 @@ static void init_ELC_vars(void)
 
 	// CHAT TAB
 	add_var(OPT_MULTI,"windowed_chat", "winchat", &use_windowed_chat, change_windowed_chat, 1, "Chat Display Style", "How do you want your chat to be displayed?", CHAT, "Old behavior", "Tabbed chat", "Chat window", NULL);
+	add_var(OPT_BOOL, "enable_chat_show_hide", "ecsh", &enable_chat_show_hide, change_enable_chat_show_hide, 0, "Enable Show/Hide For Chat", "If enabled, you can show or hide chat either using the #K_CHAT key (usually ALT+c) or using the optional icon-bar icon.", CHAT);
 	add_var(OPT_BOOL,"local_chat_separate", "locsep", &local_chat_separate, change_separate_flag, 0, "Separate Local Chat", "Should local chat be separate?", CHAT);
 	// The forces that be want PMs always global, so that they're less likely to be ignored
 	//add_var (OPT_BOOL, "personal_chat_separate", "pmsep", &personal_chat_separate, change_separate_flag, 0, "Separate Personal Chat", "Should personal chat be separate?", CHAT);
