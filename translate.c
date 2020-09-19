@@ -45,6 +45,7 @@ char	tt_walk[30],
 	tt_use_witem[30],
 	tt_trade[30],
 	tt_attack[30],
+	tt_chat[30],
 	tt_inventory[30],
 	tt_spell[30],
 	tt_manufacture[30],
@@ -1611,6 +1612,7 @@ void init_help()
 	add_xml_identifier(tooltips,"use_witem",tt_use_witem,"Use with",sizeof(tt_use_witem));
 	add_xml_identifier(tooltips,"trade",tt_trade,"Trade",sizeof(tt_trade));
 	add_xml_identifier(tooltips,"attack",tt_attack,"Attack",sizeof(tt_attack));
+	add_xml_identifier(tooltips,"chat",tt_chat,"View Chat",sizeof(tt_chat));
 	add_xml_identifier(tooltips,"invent",tt_inventory,"View inventory",sizeof(tt_inventory));
 	add_xml_identifier(tooltips,"spell",tt_spell,"View spell window",sizeof(tt_spell));
 	add_xml_identifier(tooltips,"manu",tt_manufacture,"View manufacture window",sizeof(tt_manufacture));

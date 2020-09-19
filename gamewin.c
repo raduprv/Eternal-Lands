@@ -1453,7 +1453,7 @@ static int display_game_handler (window_info *win)
 
 	CHECK_GL_ERRORS ();
 	/* Draw the chat text */
-	if (use_windowed_chat != 2)
+	if (is_chat_shown() && (use_windowed_chat != 2))
 	{
 		int msg, offset, filter;
 		filter = use_windowed_chat == 1 ? current_filter : FILTER_ALL;
@@ -2266,7 +2266,12 @@ static int show_game_handler (window_info *win) {
 	init_hud_interface (HUD_INTERFACE_GAME);
 	show_hud_windows();
 	if (use_windowed_chat == 1)
-		display_tab_bar();
+	{
+		if (is_chat_shown())
+			display_tab_bar();
+		else
+			hide_window(tab_bar_win);
+	}
 	set_all_intersect_update_needed(main_bbox_tree); // redraw the scene
 	return 1;
 }

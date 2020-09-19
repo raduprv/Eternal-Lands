@@ -120,6 +120,7 @@ el_key_def K_WINSCALEDOWN = {SDLK_DOWN, KMOD_LCTRL, "#K_WINSCALEDOWN"};
 el_key_def K_WINSCALEDEF = {SDLK_HOME, KMOD_LCTRL, "#K_WINSCALEDEF"};
 el_key_def K_WINSCALEINIT = {SDLK_END, KMOD_LCTRL, "#K_WINSCALEINIT"};
 el_key_def K_SUMMONINGMENU = {SDLK_u, KMOD_LALT, "#K_SUMMONINGMENU"};
+el_key_def K_CHAT = {SDLK_c, KMOD_LALT, "#K_CHAT"};
 // Dont forget to add to key_def_store[]
 
 // Remaining keys are not assigned to the keyboard but
@@ -132,7 +133,7 @@ el_key_def K_HELPSKILLS = {SDLK_UNKNOWN, KMOD_NONE, "#K_HELPSKILLS"};
 // a table of key definition, so we can search for definitions
 static el_key_def *key_def_store[] =
 {
-	&K_ADVANCE, &K_AFK, &K_BROWSER, &K_BROWSERWIN, &K_BUDDY, &K_CAMERADOWN, &K_CAMERAUP,
+	&K_ADVANCE, &K_AFK, &K_BROWSER, &K_BROWSERWIN, &K_BUDDY, &K_CAMERADOWN, &K_CAMERAUP, &K_CHAT,
 	&K_CONSOLE, &K_COPY, &K_COPY_ALT, &K_COUNTERS, &K_CUT, &K_EMOTES, &K_ENCYCLOPEDIA, &K_ESCAPE,
 	&K_ETHERBARS, &K_EXTEND_CAM, &K_FIRST_PERSON, &K_FROTATELEFT, &K_FROTATERIGHT, &K_GRAB_MOUSE,
 	&K_HEALTHBAR, &K_HELP, &K_HELPSKILLS, &K_HIDEWINS, &K_ITEM1, &K_ITEM10, &K_ITEM11, &K_ITEM12,

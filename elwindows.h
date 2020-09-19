@@ -341,6 +341,8 @@ int match_keydef_MW(enum managed_window_enum managed_win, SDL_Keycode key_code, 
 float * get_scale_WM(enum managed_window_enum managed_win);
 void set_save_pos_MW(enum managed_window_enum managed_win, int *pos_x, int *pos_y);
 int * get_scale_flag_MW(void);
+void toggle_window_MW(enum managed_window_enum managed_win);
+int get_window_showable_MW(enum managed_window_enum managed_win);
 enum managed_window_enum get_by_name_MW(const char *name);
 /*! @} */
 
@@ -972,7 +974,6 @@ int cm_title_handler(window_info *win, int widget_id, int mx, int my, int option
 /*! @{ */
 static inline void hide_window_MW(enum managed_window_enum managed_win) { hide_window(get_id_MW(managed_win)); }
 static inline void show_window_MW(enum managed_window_enum managed_win) { show_window(get_id_MW(managed_win)); }
-static inline void toggle_window_MW(enum managed_window_enum managed_win) { toggle_window(get_id_MW(managed_win)); }
 static inline int get_show_window_MW(enum managed_window_enum managed_win) { return get_show_window(get_id_MW(managed_win)); }
 /*! @} */
 

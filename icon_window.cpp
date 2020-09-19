@@ -138,14 +138,11 @@ namespace IconWindow
 			void update_highlight(void)
 			{
 				Basic_Icon::update_highlight();
-				int window_id = get_id_MW(managed_win);
-				if ((window_id >= 0) && (windows_list.window[window_id].displayed || windows_list.window[window_id].reinstate) )
-					Basic_Icon::set_highlight(true);
+				Basic_Icon::set_highlight(get_window_showable_MW(managed_win));
 			}
 			void action(void)
 			{
-				if (managed_win < MW_MAX)
-					view_window(managed_win);
+				view_window(managed_win);
 				Basic_Icon::action();
 			}
 			~Window_Icon(void) {}

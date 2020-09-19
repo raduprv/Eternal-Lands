@@ -1250,6 +1250,8 @@ void change_windowed_chat (int *wc, int val)
 	{
 		convert_tabs (*wc);
 	}
+
+	enable_chat_shown();
 }
 
 static void change_quickbar_relocatable (int *rel)

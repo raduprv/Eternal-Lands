@@ -48,6 +48,7 @@ static int display_channel_color_win(Uint32 channel_number);
 #define MAX_CHAT_TABS 12			/*!< Size of the \see channels array */
 #define MAX_ACTIVE_CHANNELS	10		/*!< Maximum number of channels in use */
 #define SPEC_CHANS 12				/*!< 11 are currently in use. read channels.xml for the list */
+#define MAX_LINE_TO_SHOW 10			/*!< for tab char and old behaviour, the maximum number of lines to show */
 
 typedef struct
 {
@@ -82,6 +83,45 @@ static chan_name * pseudo_chans[SPEC_CHANS];
 static const int tab_control_border_sep = 2;
 static const int tab_control_half_len = 5;
 static const int tab_control_underline_sep = 4;
+
+static int chat_shown = 1;
+
+void enable_chat_shown(void)
+{
+	chat_shown = 1;
+}
+
+int is_chat_shown(void)
+{
+	return chat_shown;
+}
+
+void open_chat(void)
+{
+	toggle_chat();
+}
+
+void toggle_chat(void)
+{
+	if (get_window_showable(get_id_MW(MW_CONSOLE)))
+		return;
+	switch (use_windowed_chat)
+	{
+		case 0: // old chat
+			if ((chat_shown = ((chat_shown) ?0 :1)))
+				lines_to_show = MAX_LINE_TO_SHOW;
+			break;
+		case 1: // chat bar
+			toggle_window(tab_bar_win);
+			if ((chat_shown = get_window_showable(tab_bar_win)))
+				lines_to_show = MAX_LINE_TO_SHOW;
+			break;
+		case 2: // chat window
+			toggle_window(get_id_MW(MW_CHAT));
+			chat_shown = get_window_showable(get_id_MW(MW_CHAT));
+			break;
+	}
+}
 
 int get_tabbed_chat_end_x(void)
 {
@@ -1606,7 +1646,7 @@ static int tab_bar_button_click (widget_list *w, int mx, int my, Uint32 flags)
 			switch_to_tab(itab);
 			do_click_sound();
 		}
-		lines_to_show = 10;
+		lines_to_show = MAX_LINE_TO_SHOW;
 	}
 	return 1;
 }
@@ -2033,14 +2073,14 @@ static void update_tab_bar (text_message * msg)
 	if (channel == CHAT_ALL || channel == CHAT_MODPM) {
 		lines_to_show += rewrap_message(msg, CHAT_FONT, 1.0,
 			get_console_text_width(), NULL);
-		if (lines_to_show >= 10) lines_to_show = 10;
+		if (lines_to_show >= MAX_LINE_TO_SHOW) lines_to_show = MAX_LINE_TO_SHOW;
 		return;
 	}
 
 	if (tabs[current_tab].channel == CHAT_ALL) {
 		lines_to_show += rewrap_message(msg, CHAT_FONT, 1.0,
 			get_console_text_width(), NULL);
-		if (lines_to_show >= 10) lines_to_show = 10;
+		if (lines_to_show >= MAX_LINE_TO_SHOW) lines_to_show = MAX_LINE_TO_SHOW;
 	}
 
 	for (itab = 2; itab < tabs_in_use; itab++)
@@ -2052,7 +2092,7 @@ static void update_tab_bar (text_message * msg)
 			if (current_tab == itab) {
 				lines_to_show += rewrap_message(msg, CHAT_FONT, 1.0,
 					get_console_text_width(), NULL);
-				if (lines_to_show >= 10) lines_to_show = 10;
+				if (lines_to_show >= MAX_LINE_TO_SHOW) lines_to_show = MAX_LINE_TO_SHOW;
 			}
 			return;
 		}
@@ -2760,7 +2800,7 @@ void update_text_windows (text_message * pmsg)
 	switch (use_windowed_chat) {
 		case 0:
 			lines_to_show += pmsg->wrap_lines;
-			if (lines_to_show > 10) lines_to_show = 10;
+			if (lines_to_show > MAX_LINE_TO_SHOW) lines_to_show = MAX_LINE_TO_SHOW;
 			break;
 		case 1:
 			update_tab_bar (pmsg);

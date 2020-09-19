@@ -114,6 +114,7 @@ extern el_key_def K_WINSCALEDOWN;       /*!< key used to decrease custom window 
 extern el_key_def K_WINSCALEDEF;        /*!< key used to reset custom window scale factor to default */
 extern el_key_def K_WINSCALEINIT;       /*!< key used to reset custom window scale factor to initial value */
 extern el_key_def K_SUMMONINGMENU;      /*!< key used to open summoning menu for last summomed creature */
+extern el_key_def K_CHAT;               /*!< key used to toggle chat display */
 /*! @} */
 
 /*! \name Quickbar access keys */

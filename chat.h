@@ -253,6 +253,11 @@ int get_tabbed_chat_end_x(void);
 
 int get_input_height();
 
+void open_chat(void);
+void toggle_chat(void);
+void enable_chat_shown(void);
+int is_chat_shown(void);
+
 #ifdef __cplusplus
 } // extern "C"
 #endif
