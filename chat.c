@@ -1154,7 +1154,7 @@ static int change_chat_font_handler(window_info* win, font_cat cat)
 
 static void create_chat_window(void)
 {
-	int chat_win_width = CHAT_WIN_TEXT_WIDTH + 4 * CHAT_WIN_SPACE + CHAT_WIN_SCROLL_WIDTH;
+	int chat_win_width = (int)(CHAT_WIN_TEXT_WIDTH * font_scales[CHAT_FONT]) + 4 * CHAT_WIN_SPACE + CHAT_WIN_SCROLL_WIDTH;
 	int input_height = get_text_height(3, CHAT_FONT, 1.0) + 2 * CHAT_WIN_SPACE;
 	int output_height = get_text_height(8, CHAT_FONT, 1.0) + 2 * CHAT_WIN_SPACE;
 	int chat_win_height = output_height + input_height + 3 * CHAT_WIN_SPACE + CHAT_WIN_TAG_HEIGHT;
@@ -1163,7 +1163,7 @@ static void create_chat_window(void)
 	int input_y = tabcol_height + 2 * CHAT_WIN_SPACE;
 	int chat_win = -1;
 
-	int min_width = CHAT_WIN_SCROLL_WIDTH + 2 * CHAT_WIN_SPACE + (int)(CHAT_WIN_TEXT_WIDTH * font_scales[CHAT_FONT]);
+	int min_width = chat_win_width * 0.5;
 	int min_height = 7 * CHAT_WIN_SPACE + CHAT_WIN_TAG_HEIGHT + get_text_height(2, CHAT_FONT, 1.0)
 		+ get_text_height(5, CHAT_FONT, 1.0);
 
