@@ -3886,6 +3886,7 @@ void load_character_options(void)
 	size_t i;
 	char json_fname[128];
 	static int already_loaded = 0;
+	int have_user_video_mode = 0;
 
 	if (!get_use_json_user_files() || !ready_for_user_files  || already_loaded)
 		return;
@@ -3917,6 +3918,9 @@ void load_character_options(void)
 				{
 					int new_value = json_character_options_get_int(option->name, *((int *)option->var));
 					option->func(option->var, new_value);
+					// user defined video mode is a special case as we may set the mode before we have the width/height
+					if ((strcmp(option->name, "video_mode") == 0) && (*((int *)option->var) == 0))
+						have_user_video_mode = 1;
 					break;
 				}
 				case OPT_BOOL:
@@ -3941,6 +3945,10 @@ void load_character_options(void)
 			option->saved = last_save;
 		}
 	}
+
+	// if we have user defined video mode, try setting the mode again now as we will now have the width and height
+	if (have_user_video_mode)
+		switch_video(video_mode, full_screen);
 }
 #endif
 
