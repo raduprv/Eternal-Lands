@@ -320,8 +320,12 @@ extern char
 		ranginglock_disabled_str[50],
 		close_click_targetting_on_str[50],
 		close_click_targetting_off_str[50],
-		/*gl_init.c*/
+		/* gl_init.c and window size strings */
 		window_size_adjusted_str[50],
+		reset_res_str[50],
+		set_res_str[50],
+		save_res_str[50],
+		show_res_str[50],
 		/*hud.c*/
 		no_open_on_trade[100], 
 		stats_scroll_help_str[100],

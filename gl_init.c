@@ -968,6 +968,19 @@ int switch_video(int mode, int full_screen)
 	return 1;
 }
 
+//	Set the window size as specified without changing the window mode.
+void set_client_window_size(int width, int height)
+{
+	Uint32 old_window_width = window_width, old_window_height = window_height;
+	window_width = width;
+	window_height = height;
+	SDL_RestoreWindow(el_gl_window);
+	SDL_SetWindowFullscreen(el_gl_window, 0);
+	SDL_SetWindowSize(el_gl_window, window_width, window_height);
+	update_window_size_and_scale();
+	resize_all_root_windows(old_window_width, window_width, old_window_height, window_height);
+}
+
 //	Get a single value for highhdpi scaling.
 float get_highdpi_scale(void)
 {

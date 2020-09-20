@@ -306,6 +306,19 @@ int toggle_OPT_BOOL_by_name(const char *str);
  * \retval	1 if sucessfull, 0 if option not found
  */
 int set_var_OPT_INT(const char *str, int new_value);
+
+/*!
+ * \ingroup config
+ * brief Restore the video mode to that when the client was started.
+ */
+void restore_starting_video_mode(void);
+
+/*!
+ * \ingroup config
+ * brief Save the current client window size as user defined mode.
+ */
+void set_user_defined_video_mode(void);
+
 #endif
 
 void toggle_follow_cam(int * fc);

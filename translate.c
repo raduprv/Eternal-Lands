@@ -187,8 +187,12 @@ char
 	ranginglock_disabled_str[50],
 	close_click_targetting_on_str[50],
 	close_click_targetting_off_str[50],
-	/*gl_init.c*/
+	/* gl_init.c and window size strings */
 	window_size_adjusted_str[50],
+	reset_res_str[50],
+	set_res_str[50],
+	save_res_str[50],
+	show_res_str[50],
 	/*hud.c*/
 	no_open_on_trade[100],
 	stats_scroll_help_str[100],
@@ -1413,6 +1417,10 @@ void init_help()
 	add_xml_identifier(misc,"low",low_framerate_str,"Low framerate detected, shadows and eye candy disabled!",sizeof(low_framerate_str));
 	add_xml_identifier(misc,"encycl_search_prompt",encycl_search_prompt_str,"Enter text to find",sizeof(encycl_search_prompt_str));
 	add_xml_identifier(misc,"size",window_size_adjusted_str,"Window size adjusted to %s",sizeof(window_size_adjusted_str));
+	add_xml_identifier(misc,"reset_res",reset_res_str,"Reset window size",sizeof(reset_res_str));
+	add_xml_identifier(misc,"set_res",set_res_str,"Set window size",sizeof(set_res_str));
+	add_xml_identifier(misc,"save_res",save_res_str,"Saved user defined window size",sizeof(save_res_str));
+	add_xml_identifier(misc,"show_res",show_res_str,"Current window size",sizeof(show_res_str));
 	add_xml_identifier(misc,"trade",no_open_on_trade,"You can't open this window while on trade.",sizeof(no_open_on_trade));
 	add_xml_identifier(misc,"user",login_username_str,"Username:",sizeof(login_username_str));
 	add_xml_identifier(misc,"pass",login_password_str,"Password:",sizeof(login_password_str));

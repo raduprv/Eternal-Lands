@@ -1757,6 +1757,52 @@ static int set_var_OPT_FLOAT(const char *str, float new_value)
 	return 0;
 }
 
+static int set_var_OPT_BOOL(const char *str, int new_value)
+{
+	int var_index = find_var(str, INI_FILE_VAR);
+
+	if ((var_index != -1) && ((our_vars.var[var_index]->type == OPT_BOOL) || (our_vars.var[var_index]->type == OPT_BOOL_INI)))
+	{
+		var_struct *option = our_vars.var[var_index];
+		if (*(int *)option->var != new_value)
+		{
+			*(int *)option->var = !new_value;
+			option->func(option->var);
+			option->saved = 0;
+		}
+	}
+
+	LOG_ERROR("Can't find var '%s', type 'OPT_BOOL'", str);
+	return 0;
+}
+
+
+static int set_var_OPT_MULTI(const char *str, size_t new_value)
+{
+	int var_index = find_var(str, INI_FILE_VAR);
+
+	if ((var_index != -1) && ((our_vars.var[var_index]->type == OPT_MULTI) || (our_vars.var[var_index]->type == OPT_MULTI_H)))
+	{
+		var_struct *option = our_vars.var[var_index];
+		int window_id = elconfig_tabs[option->widgets.tab_id].tab;
+		int widget_id = option->widgets.widget_id;
+		size_t max_sel = option->args.multi.count;
+		if (new_value >= max_sel)
+		{
+			LOG_ERROR("Invalid value '%lu' for var '%s', type 'OPT_MULTI*' max '%lu'", new_value, str, max_sel);
+			return 0;
+		}
+		option->func(option->var, new_value);
+		option->saved = 0;
+		if ((window_id > 0) && (widget_id > 0) && (widget_find(window_id, widget_id) != NULL))
+			multiselect_set_selected(window_id, option->widgets.widget_id, new_value);
+		return 1;
+	}
+
+	LOG_ERROR("Can't find var '%s', type 'OPT_MULTI'", str);
+	return 0;
+}
+
 static float get_option_initial_value(const char *longname)
 {
 	int var_index = find_var(longname, COMMAND_LINE_LONG_VAR);
@@ -1833,7 +1879,6 @@ static size_t cm_id = CM_INIT_VALUE;
 // set the new value form the label option's context menu
 static int context_option_handler(window_info *win, int widget_id, int mx, int my, int menu_option)
 {
-	int int_value;
 	float new_value = 0;
 	var_struct *option = (var_struct *)cm_get_data(cm_id);
 	if (menu_option == 1)
@@ -1847,23 +1892,14 @@ static int context_option_handler(window_info *win, int widget_id, int mx, int m
 	{
 		case OPT_INT:
 		case OPT_INT_F:
-			int_value = (int)new_value;
-			set_var_OPT_INT(option->name, int_value);
+			set_var_OPT_INT(option->name, (int)new_value);
 			break;
 		case OPT_MULTI:
 		case OPT_MULTI_H:
-			int_value = (int)new_value;
-			option->func(option->var, int_value);
-			option->saved = 0;
+			set_var_OPT_MULTI(option->name, (size_t)new_value);
 			break;
 		case OPT_BOOL:
-			int_value = (int)new_value;
-			if (*(int *)option->var != int_value)
-			{
-				*(int *)option->var = !int_value;
-				option->func(option->var);
-				option->saved = 0;
-			}
+			set_var_OPT_BOOL(option->name, (int)new_value);
 			break;
 		case OPT_FLOAT:
 			set_var_OPT_FLOAT(option->name, new_value);
@@ -1923,6 +1959,35 @@ static void call_option_menu(var_struct *option)
 	}
 	cm_show_direct(cm_id, -1, -1);
 }
+
+void restore_starting_video_mode(void)
+{
+	int var_index =find_var("video_width", INI_FILE_VAR);
+	if (var_index != -1)
+		set_var_OPT_INT(our_vars.var[var_index]->name, (size_t)our_vars.var[var_index]->config_file_val);
+	if ((var_index = find_var("video_height", INI_FILE_VAR)) != -1)
+		set_var_OPT_INT(our_vars.var[var_index]->name, (size_t)our_vars.var[var_index]->config_file_val);
+	if ((var_index = find_var("video_mode", INI_FILE_VAR)) != -1)
+		set_var_OPT_MULTI(our_vars.var[var_index]->name, (size_t)our_vars.var[var_index]->config_file_val);
+	if ((var_index = find_var("full_screen", INI_FILE_VAR)) != -1)
+		set_var_OPT_BOOL(our_vars.var[var_index]->name,  (int)our_vars.var[var_index]->config_file_val);
+}
+
+void set_user_defined_video_mode(void)
+{
+	int var_index = find_var("video_width", INI_FILE_VAR);
+	if (var_index != -1)
+	{
+		set_var_OPT_INT(our_vars.var[var_index]->name, window_width);
+		if ((var_index = find_var("video_height", INI_FILE_VAR)) != -1)
+		{
+			set_var_OPT_INT(our_vars.var[var_index]->name, window_height);
+			if ((var_index = find_var("video_mode", INI_FILE_VAR)) != -1)
+				set_var_OPT_MULTI(our_vars.var[var_index]->name, 0);
+		}
+	}
+}
+
 #endif
 
 void change_language(const char *new_lang)
