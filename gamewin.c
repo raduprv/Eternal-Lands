@@ -1461,7 +1461,7 @@ static int display_game_handler (window_info *win)
 		{
 			draw_messages(get_tab_bar_x(), get_tab_bar_y(), display_text_buffer,
 				DISPLAY_TEXT_BUFFER_SIZE, filter, msg, offset, -1,
-				get_console_text_width(), 1 + get_text_height(lines_to_show, CHAT_FONT, 1.0),
+				get_console_text_width(), 1 + get_text_height(get_lines_to_show(), CHAT_FONT, 1.0),
 				CHAT_FONT, 1.0, NULL);
 		}
 	}

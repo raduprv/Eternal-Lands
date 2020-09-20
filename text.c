@@ -50,8 +50,7 @@ text_message input_text_line;
 
 char last_pm_from[32];
 
-Uint32 last_server_message_time;
-int lines_to_show=0;
+static Uint32 last_server_message_time;
 
 int show_timestamp = 0;
 
@@ -1181,13 +1180,12 @@ int find_last_lines_time (int *msg, int *offset, Uint8 filter, int width)
 	// adjust the lines_no according to the time elapsed since the last message
 	if ( (cur_time - last_server_message_time) / 1000 > 3)
 	{
-		if (lines_to_show > 0)
-			lines_to_show--;
+		dec_lines_to_show();
 		last_server_message_time = cur_time;
 	}
-	if (lines_to_show <= 0) return 0;
+	if (get_lines_to_show() <= 0) return 0;
 
-	find_line_nr(get_total_nr_lines(), get_total_nr_lines() - lines_to_show,
+	find_line_nr(get_total_nr_lines(), get_total_nr_lines() - get_lines_to_show(),
 		filter, msg, offset, CHAT_FONT, 1.0, width);
 	return 1;
 }

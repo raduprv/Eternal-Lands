@@ -28,6 +28,15 @@ typedef struct
 	int color;
 } channelcolor;
 
+typedef struct
+{
+	int value;
+	const int lower;
+	const int upper;
+} max_chat_lines_def;
+
+extern max_chat_lines_def max_chat_lines;
+
 extern widget_list *input_widget;
 
 extern int use_windowed_chat;		/*!< flag indicating whether we use the channel selection bar, the chat window, or neither */
@@ -258,6 +267,36 @@ void open_chat(void);
 void toggle_chat(void);
 void enable_chat_shown(void);
 int is_chat_shown(void);
+
+
+/*!
+ * \ingroup chat_window
+ *
+ * \brief	Get the current number of chat lines shown.
+ *
+ * \retval	the number of lines
+ *
+ * \callgraph
+ */
+int get_lines_to_show(void);
+
+/*!
+ * \ingroup chat_window
+ *
+ * \brief	Decrement the number of chat lines shown.
+ *
+ * \callgraph
+ */
+void dec_lines_to_show(void);
+
+/*!
+ * \ingroup chat_window
+ *
+ * \brief	Set the number of chat lines shown to zero.
+ *
+ * \callgraph
+ */
+void clear_lines_to_show(void);
 
 #ifdef __cplusplus
 } // extern "C"

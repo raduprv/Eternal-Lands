@@ -335,7 +335,7 @@ int get_total_nr_lines(void)
 
 void clear_console(){
 	console_text_changed = 1;
-	lines_to_show = 0;
+	clear_lines_to_show();
 	scroll_up_lines = 0;
 	total_nr_lines = 0;
 }
