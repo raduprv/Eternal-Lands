@@ -212,10 +212,13 @@ static float get_research_eta(void)
 
 char *get_research_eta_str(char *str, size_t size)
 {
-	float eta = get_research_eta();
-	if (eta < 0.01)
+	float eta = 0.0f;
+	if (your_info.research_total && (your_info.research_completed == your_info.research_total))
+	{
 		safe_snprintf(str, size, completed_research);
-	else if (eta < 1)
+		return str;
+	}
+	if ((eta = get_research_eta()) < 1)
 		safe_snprintf(str, size, lessthanaminute_str);
 	else
 	{
