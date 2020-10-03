@@ -732,24 +732,23 @@ static int ui_scale_ground_items_handler(window_info * win)
 	return 1;
 }
 
-static int do_not_send_close = 0;
-
 void server_close_bag(void)
 {
-	do_not_send_close = 1;
 	hide_window_MW(MW_BAGS);
+	clear_groundlist();
+	clear_was_open_MW(MW_BAGS);
 }
 
-static int hide_handler(window_info *win)
+void client_close_bag(void)
 {
-	clear_was_open_MW(MW_BAGS); // never re-open a ground bag
-	if (!do_not_send_close)
-	{
-		unsigned char protocol_name = S_CLOSE_BAG;
-		my_tcp_send(my_socket, &protocol_name, 1);
-	}
-	else
-		do_not_send_close = 0;
+	const unsigned char protocol_close_bag = S_CLOSE_BAG;
+	my_tcp_send(my_socket, &protocol_close_bag, 1);
+	server_close_bag();
+}
+
+static int close_handler(window_info *win)
+{
+	client_close_bag();
 	return 1;
 }
 
@@ -768,8 +767,7 @@ static void draw_pick_up_menu(void)
 		set_window_handler(ground_items_win, ELW_HANDLER_CLICK, &click_ground_items_handler );
 		set_window_handler(ground_items_win, ELW_HANDLER_MOUSEOVER, &mouseover_ground_items_handler );
 		set_window_handler(ground_items_win, ELW_HANDLER_RESIZE, &resize_ground_items_handler );
-		set_window_handler(ground_items_win, ELW_HANDLER_CLOSE, &clear_groundlist );
-		set_window_handler(ground_items_win, ELW_HANDLER_HIDE, &hide_handler );
+		set_window_handler(ground_items_win, ELW_HANDLER_CLOSE, &close_handler );
 		set_window_handler(ground_items_win, ELW_HANDLER_UI_SCALE, &ui_scale_ground_items_handler );
 
 		if (ground_items_win >=0 && ground_items_win < windows_list.num_windows)

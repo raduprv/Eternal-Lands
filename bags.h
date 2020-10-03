@@ -139,6 +139,14 @@ void server_close_bag(void);
 
 /*!
  * \ingroup item
+ * \brief   The client is closing the bag.
+ *
+ * \callgraph
+ */
+void client_close_bag(void);
+
+/*!
+ * \ingroup item
  * \brief   Handle the inventory Get All button.
  *
  *      Handle the inventory Get All button.

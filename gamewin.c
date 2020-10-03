@@ -1583,6 +1583,8 @@ void hide_all_windows()
 			{
 				set_was_open_MW(i); // do first so overrideable in handler
 				hide_window_MW(i);
+				if (i == MW_BAGS)  // too many edge case to reopen a bag so close it fully
+					client_close_bag();
 			}
 			else
 				clear_was_open_MW(i);
