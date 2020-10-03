@@ -1625,7 +1625,7 @@ bool FontManager::initialize()
 		if (!option.failed())
 			_options.push_back(std::move(option));
 	}
-	if (_options[0].failed())
+	if (_options.empty() || _options[0].failed())
 		return false;
 #ifdef TTF
 	initialize_ttf();
