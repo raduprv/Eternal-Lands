@@ -28,7 +28,9 @@ typedef enum
 	HUD_INTERFACE_LAST      /*!< the last interface used */
 } hud_interface;
 
-extern Uint32 exp_lev[200];
+#define MAX_EXP_LEVEL 180
+extern Uint32 exp_lev[MAX_EXP_LEVEL];
+
 extern int hud_text;
 extern int hud_x;
 extern int hud_y;
