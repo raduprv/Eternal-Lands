@@ -490,6 +490,7 @@ char	name_too_long[75],
 	item_list_learn_cat_str[90],
 	item_uid_help_str[80],
 	item_use_not_unique_str[80],
+	item_use_get_failed_str[80],
 	item_info_load_failed_str[80],
 	cmd_ignores[20],
 	cmd_ignore[20],
@@ -1112,6 +1113,7 @@ void init_console()
 	add_xml_identifier(misc,"item_list_learn_cat",item_list_learn_cat_str,"Note: storage categories need to be learnt by selecting each category.",sizeof(item_list_learn_cat_str));
 	add_xml_identifier(misc,"item_uid_help",item_uid_help_str,"Use #item_uid (set to 1) to enable unique item information.",sizeof(item_uid_help_str));
 	add_xml_identifier(misc,"item_use_not_unique",item_use_not_unique_str,"Cannot record item use in counters as item is not unique.",sizeof(item_use_not_unique_str));
+	add_xml_identifier(misc,"item_use_get_failed",item_use_get_failed_str,"Cannot record item use in counters as problem with item: ",sizeof(item_use_get_failed_str));
 	add_xml_identifier(misc,"item_info_load_failed",item_info_load_failed_str,"Could not load the item information file",sizeof(item_info_load_failed_str));
 
 	add_xml_identifier(loading_msg,"init_opengl",init_opengl_str,"Initializing OpenGL extensions",sizeof(init_opengl_str));

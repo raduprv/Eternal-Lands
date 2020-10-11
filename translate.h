@@ -266,6 +266,7 @@ extern char
 		item_list_learn_cat_str[90],
 		item_uid_help_str[80],
 		item_use_not_unique_str[80],
+		item_use_get_failed_str[80],
 		item_info_load_failed_str[80],
 		cmd_ignores[20],
 		cmd_ignore[20],
