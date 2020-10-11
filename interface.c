@@ -926,8 +926,8 @@ void draw_game_map (int map, int mouse_mini)
 		{
 			if (cur_map!=-1)
 			{
-				screen_x = main_r - main_w * ( (px * x_size / 6) + continent_maps[cur_map].x_start) / 512;
-				screen_y = main_h * ( (py * y_size / 6) + continent_maps[cur_map].y_start) / 512;
+				screen_x = main_l + main_w * ( (px * x_size / 6) + continent_maps[cur_map].x_start) / 512;
+				screen_y = main_b - main_h * ( (py * y_size / 6) + continent_maps[cur_map].y_start) / 512;
 			}
 			else
 			{
