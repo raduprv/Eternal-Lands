@@ -738,8 +738,8 @@ int command_calc(char *text, int len)
 	res = calc_exp(text, &calcerr);
 	switch (calcerr){
 		case CALCERR_OK:
-			if (trunc(res)==res) safe_snprintf (str,sizeof(str), "%s = %.0f",text,res);
-			else safe_snprintf (str,sizeof(str), "%s = %.2f",text,res);
+			if (trunc(res)==res) safe_snprintf (str,sizeof(str), "%s = %.0lf",text,res);
+			else safe_snprintf (str,sizeof(str), "%s = %.2lf",text,res);
 			LOG_TO_CONSOLE (c_orange1, str);
 			break;
 		case CALCERR_SYNTAX:
@@ -1607,7 +1607,10 @@ int command_quantity(char *text, int len)
 		// set the quantity to the result of the calculation, truncated
 		quantities.selected = ITEM_EDIT_QUANT;
 		item_quantity = quantities.quantity[ITEM_EDIT_QUANT].val = (int)res;
-		safe_snprintf(str, sizeof(str), "%s: %s = %d", quantity_str, text, item_quantity);
+		if (trunc(res)==res)
+			safe_snprintf(str, sizeof(str), "%s: %s = %d", quantity_str, text, item_quantity);
+		else
+			safe_snprintf(str, sizeof(str), "%s: %s = %.2lf -> %d", quantity_str, text, res, item_quantity);
 		LOG_TO_CONSOLE(c_green1, str);
 	}
 	return 1;
