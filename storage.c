@@ -48,6 +48,7 @@ ground_item storage_items[STORAGE_ITEMS_SIZE]={{0,0,0,0}};
 int no_storage;
 
 #define MAX_DESCR_LEN 202
+static const int item_grid_size = 6;
 char storage_text[MAX_DESCR_LEN]={0};
 static char last_storage_text[MAX_DESCR_LEN]={0};
 static unsigned char wrapped_storage_text[MAX_DESCR_LEN+10]={0};
@@ -297,6 +298,22 @@ static void update_items_in_category(void)
 		for (i=0; i<STORAGE_ITEMS_SIZE; i++)
 			storage_items_filter[i] = 0;
 	}
+
+	// Calculate the last row containing items and set the scrollbar to scroll just enough.
+	// If the last row is full, we set the bar to scroll to the next row so we can see empty space.
+	{
+		size_t i;
+		int last_occupied_row = 0;
+		for (i = 0; i < STORAGE_ITEMS_SIZE; i++)
+			if (storage_items[i].quantity > 0)
+			{
+				last_occupied_row = i / item_grid_size;
+				if ((i % item_grid_size) == (item_grid_size - 1))
+					last_occupied_row += 1;
+			}
+		vscrollbar_set_bar_len(get_id_MW(MW_STORAGE), STORAGE_SCROLLBAR_ITEMS,
+			(last_occupied_row > (item_grid_size - 1)) ?last_occupied_row - (item_grid_size - 1) : 0);
+	}
 }
 
 void get_storage_items (const Uint8 *in_data, int len)
@@ -407,7 +424,6 @@ static int item_grid_left_offset = 0;
 static int item_right_offset = 0;
 static int border_size = 0;
 static int bottom_offset = 0;
-static int item_grid_size = 0;
 static int item_box_size = 0;
 static int cat_string_left_offset = 0;
 static int cat_string_top_offset = 0;
@@ -438,7 +454,6 @@ static int ui_scale_storage_handler(window_info *win)
 	int max_cat_width = get_max_cat_width(win->font_category, win->current_scale_small);
 
 	// set the basic sizes
-	item_grid_size = 6;
 	border_size = (int)(0.5 + 10 * win->current_scale);
 	item_box_size = (int)(0.5 + 32 * win->current_scale);
 
@@ -877,7 +892,7 @@ void display_storage_menu()
 
 		cat_scrollbar_id = vscrollbar_add_extended(storage_win, STORAGE_SCROLLBAR_CATEGORIES, NULL, 0, 0, 0, 0, 0, 1.0, 0, 1,
 				max2i(no_storage_categories - storage_categories_display, 0));
-		items_scrollbar_id = vscrollbar_add_extended(storage_win, STORAGE_SCROLLBAR_ITEMS, NULL, 0, 0, 0, 0, 0, 1.0, 0, 1, 28);
+		items_scrollbar_id = vscrollbar_add_extended(storage_win, STORAGE_SCROLLBAR_ITEMS, NULL, 0, 0, 0, 0, 0, 1.0, 0, 1, 0);
 
 		cm_add(windows_list.window[storage_win].cm_id, cm_storage_menu_str, context_storage_handler);
 		cm_add(windows_list.window[storage_win].cm_id, cm_dialog_options_str, context_storage_handler);
