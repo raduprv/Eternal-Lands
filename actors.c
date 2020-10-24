@@ -1597,7 +1597,11 @@ void add_actor_from_server (const char *in_data, int len)
 
 	i= add_actor(actor_type, actors_defs[actor_type].skin_name, f_x_pos, f_y_pos, 0.0, f_z_rot, scale, 0, 0, 0, 0, 0, 0, 0, actor_id);
 
-	if(i==-1) return;//A nasty error occured and we couldn't add the actor. Ignore it.
+	if(i==-1)
+	{
+		UNLOCK_ACTORS_LISTS();
+		return;//A nasty error occured and we couldn't add the actor. Ignore it.
+	}
 
 	//The actors list is locked when we get here...
 
