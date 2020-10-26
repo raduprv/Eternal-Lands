@@ -478,8 +478,8 @@ namespace cm
 	{
 		set(menu_list, handler);
 		pre_show_handler = 0;
-		highlight_top.set(0.11f, 0.11f, 0.11f);
-		highlight_bottom.set(0.77f, 0.57f, 0.39f);
+		highlight_top.set(gui_invert_color[0], gui_invert_color[1], gui_invert_color[2]);
+		highlight_bottom.set(gui_color[0], gui_color[1], gui_color[2]);
 		text_colour.set(1.0f, 1.0f, 1.0f);
 		grey_colour.set(0.7f, 0.7f, 0.7f);
 	}
@@ -882,7 +882,7 @@ static int cm_test_window_display_handler(window_info *win)
 	for (i=0; i<2; i++)
 	{
 		glDisable(GL_TEXTURE_2D);
-		glColor3f(0.77f, 0.57f, 0.39f);
+		glColor3fv(gui_color);
 		glBegin(GL_LINE_LOOP);
 		glVertex3i(cm_coord[i][0], cm_coord[i][1], 0);
 		glVertex3i(cm_coord[i][0]+cm_coord[i][2], cm_coord[i][1], 0);

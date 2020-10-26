@@ -3574,7 +3574,8 @@ static void elconfig_populate_tabs(void)
 				widget_width = ELCONFIG_SCALED_VALUE(250);
 				widget_id = multiselect_add_extended(window_id, elconfig_free_widget_id++, NULL,
 					window_width - TAB_MARGIN - widget_width, current_y, widget_width,
-					ELCONFIG_SCALED_VALUE(80), elconf_scale, 0.77f, 0.59f, 0.39f, 0.32f, 0.23f, 0.15f, 0);
+					ELCONFIG_SCALED_VALUE(80), elconf_scale, gui_color[0], gui_color[1], gui_color[2],
+					gui_invert_color[0], gui_invert_color[1], gui_invert_color[2], 0);
 				for (iopt = 0; iopt < var->args.multi.count; ++iopt)
 				{
 					const char *label = var->args.multi.elems[iopt].label;
@@ -3615,7 +3616,8 @@ static void elconfig_populate_tabs(void)
 				x = current_x + widget_get_width(window_id, label_id) + SPACING;
 				widget_id = multiselect_add_extended(window_id, elconfig_free_widget_id++,
 					NULL, x, current_y, ELCONFIG_SCALED_VALUE(350), ELCONFIG_SCALED_VALUE(80),
-					elconf_scale, 0.77f, 0.59f, 0.39f, 0.32f, 0.23f, 0.15f, 0);
+					elconf_scale, gui_color[0], gui_color[1], gui_color[2], gui_invert_color[0],
+					gui_invert_color[1], gui_invert_color[2], 0);
 				dx = 0;
 				for (iopt = 0; iopt < var->args.multi.count; ++iopt)
 				{
@@ -3761,7 +3763,7 @@ void display_elconfig_win(void)
 		if (elconfig_win >=0 && elconfig_win < windows_list.num_windows)
 			update_window_scale(&windows_list.window[elconfig_win], elconf_scale);
 		check_proportional_move(MW_CONFIG);
-		set_window_color(elconfig_win, ELW_COLOR_BORDER, 0.77f, 0.59f, 0.39f, 0.0f);
+		set_window_color(elconfig_win, ELW_COLOR_BORDER, gui_color[0], gui_color[1], gui_color[2], 0.0f);
 		set_window_font_category(elconfig_win, CONFIG_FONT);
 		set_window_handler(elconfig_win, ELW_HANDLER_DISPLAY, &display_elconfig_handler );
 		set_window_handler(elconfig_win, ELW_HANDLER_UI_SCALE, &ui_scale_elconfig_handler );

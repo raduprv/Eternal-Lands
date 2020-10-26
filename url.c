@@ -583,7 +583,7 @@ CHECK_GL_ERRORS();
 	} /* end if have url */
 
 	/* draw a line below the list of url, above the current url full text */
-	glColor3f(0.77f,0.59f,0.39f);
+	glColor3fv(gui_color);
 	glDisable(GL_TEXTURE_2D);
 	glBegin(GL_LINES);
 	glVertex2i(0, url_win_full_url_y_start);

@@ -731,7 +731,7 @@ static int draw_production_pipe(window_info *win, int x, int y, int recipe_num){
 
 	//draw the grid, in red if selected
 	if (recipe_num==cur_recipe) glColor3f(1.0f,0.0f,0.0f);
-	else glColor3f(0.77f,0.57f,0.39f);
+	else glColor3fv(gui_color);
 	rendergrid(NUM_MIX_SLOTS,1,x, y, SLOT_SIZE, SLOT_SIZE);
 
 	glEnable(GL_TEXTURE_2D);
@@ -753,7 +753,7 @@ static int	display_manufacture_handler(window_info *win)
 			last_recipes_opaque = last_main_opaque = win->opaque = windows_list.window[recipe_win].opaque;
 	}
 
-	glColor3f(0.77f,0.57f,0.39f);
+	glColor3fv(gui_color);
 	glEnable(GL_TEXTURE_2D);
 
 	glColor3f(1.0f,1.0f,1.0f);
@@ -796,7 +796,7 @@ static int	display_manufacture_handler(window_info *win)
 	// it such that images are rendered exactly within the boxes on all
 	// cards
 	glDisable(GL_TEXTURE_2D);
-	glColor3f(0.77f,0.57f,0.39f);
+	glColor3fv(gui_color);
 
 	//draw the grid
 	rendergrid(GRID_COLS, GRID_ROWS, 0, 0, SLOT_SIZE, SLOT_SIZE);

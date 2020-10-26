@@ -982,7 +982,7 @@ static int button_draw(widget_list *W)
 	button *l = (button *)W->widget_info;
 	int text_width = W->len_x - 2*BUTTONRADIUS*W->size;
 	draw_smooth_button(NULL, W->fcat, W->size, W->pos_x, W->pos_y, text_width,
-		1, W->r, W->g, W->b, W->Flags & BUTTON_ACTIVE, 0.32f, 0.23f, 0.15f, 0.0f);
+		1, W->r, W->g, W->b, W->Flags & BUTTON_ACTIVE, gui_invert_color[0], gui_invert_color[1], gui_invert_color[2], 0.0f);
 	draw_text(W->pos_x + W->len_x/2, W->pos_y + W->len_y/2 - l->center_offset, l->text,
 		strlen((const char*)l->text), W->fcat, TDO_MAX_WIDTH, text_width, TDO_ALIGNMENT, CENTER,
 		TDO_VERTICAL_ALIGNMENT, CENTER_LINE, TDO_ZOOM, W->size, TDO_SHRINK_TO_FIT, 1, TDO_END);
@@ -1144,13 +1144,13 @@ int progressbar_draw(widget_list *W)
 			glVertex3i(W->pos_x + pixels, W->pos_y + W->len_y, 0);
 			if (have_bar_colors) glColor3fv(&b->colors[9]);
 			glVertex3i(W->pos_x, W->pos_y + W->len_y, 0);//LabRat: fix unfilled pixels in progress bar
-			glColor3f(0.77f,0.57f,0.39f);
+			glColor3fv(gui_color);
 		glEnd();
 	}
 	if(W->r != -1.0)
 		glColor3f(W->r,W->g,W->b);
 	else
-		glColor3f(0.77f,0.57f,0.39f);
+		glColor3fv(gui_color);
 
 	//LabRat: Draw bounding box after progress bar
 	glBegin(GL_LINE_LOOP);
@@ -4218,13 +4218,13 @@ static int multiselect_draw(widget_list *widget)
 		int top_but = (M->scrollbar != -1) ?vscrollbar_get_pos(M->win_id, M->scrollbar) :0;
 		int start_y = M->buttons[top_but].y;
 
-		r = widget->r != -1 ? widget->r : 0.77f;
-		g = widget->g != -1 ? widget->g : 0.59f;
-		b = widget->b != -1 ? widget->b : 0.39f;
+		r = widget->r != -1 ? widget->r : gui_color[0];
+		g = widget->g != -1 ? widget->g : gui_color[1];
+		b = widget->b != -1 ? widget->b : gui_color[2];
 
-		hr = M->highlighted_red != -1 ? M->highlighted_red : 0.32f;
-		hg = M->highlighted_green != -1 ? M->highlighted_green : 0.23f;
-		hb = M->highlighted_blue != -1 ? M->highlighted_blue : 0.15f;
+		hr = M->highlighted_red != -1 ? M->highlighted_red : gui_invert_color[0];
+		hg = M->highlighted_green != -1 ? M->highlighted_green : gui_invert_color[1];
+		hb = M->highlighted_blue != -1 ? M->highlighted_blue : gui_invert_color[2];
 
 		for(i = top_but; i < M->nr_buttons; i++) {
 			button_y = M->buttons[i].y - start_y;

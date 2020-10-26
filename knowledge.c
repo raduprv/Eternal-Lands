@@ -262,7 +262,7 @@ int display_knowledge_handler(window_info *win)
 	}
 
 	glDisable(GL_TEXTURE_2D);
-	glColor3f(0.77f,0.57f,0.39f);
+	glColor3fv(gui_color);
 	glBegin(GL_LINES);
 	// window separators
 	glVertex3i(0,booklist_y_len,0);
@@ -281,7 +281,7 @@ int display_knowledge_handler(window_info *win)
 		glColor3f(0.10f,0.10f,0.80f);
 		glVertex3i(progress_left_x + progress,progress_bot_y, 0);
 		glVertex3i(progress_left_x, progress_bot_y, 0);
-		glColor3f(0.77f,0.57f,0.39f);
+		glColor3fv(gui_color);
 		glEnd();
 	}
 	//progress bar

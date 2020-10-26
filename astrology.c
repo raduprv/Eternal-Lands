@@ -405,7 +405,7 @@ static int display_astrology_handler(window_info *win)
 	GLfloat right_colors[6];
 	int i;
 
-	glColor3f(0.77f,0.57f,0.39f);
+	glColor3fv(gui_color);
 
 	switch(astrology_display_type)
 	{
@@ -545,7 +545,7 @@ static int display_astrology_handler(window_info *win)
 	}
 
 	glDisable(GL_TEXTURE_2D);
-//	glColor3f(0.77f,0.57f,0.39f);
+//	glColor3fv(gui_color);
 
 	//draw progress borders
 	glLineWidth (2.0f);

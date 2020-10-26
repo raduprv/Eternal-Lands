@@ -501,7 +501,7 @@ static int mouseover_npc_filter_handler(window_info *win, int mx, int my)
 //
 void draw_highlight(int topleftx, int toplefty, int widthx, int widthy, size_t col)
 {
-	float colours[2][2][3] = { { {0.11f, 0.11f, 0.11f }, {0.77f, 0.57f, 0.39f} },
+	float colours[2][2][3] = { { {gui_invert_color[0], gui_invert_color[1], gui_invert_color[2]}, {gui_color[0], gui_color[1], gui_color[2]} },
 							  { {0.11, 0.11f, 0.11f}, {0.33, 0.42f, 0.70f} } };
 	if (col > 1)
 		col = 0;
@@ -848,7 +848,7 @@ void Quest_List::display_handler(window_info *win)
 		if ((active_filter == QLFLT_QUEST) && (thequest->get_id() == get_selected()))
 			draw_highlight(spacer, posy-spacer, hl_x, linesep, 1);
 		if (cm_active() && (get_highlighted() == thequest->get_id()))
-			glColor3f(0.77f, 0.57f, 0.39f);
+			glColor3fv(gui_color);
 		// display comleted quests less prominently
 		else if (thequest->get_completed())
 			glColor3f(0.6f,0.6f,0.6f);
@@ -1797,7 +1797,7 @@ int Questlog_Window::display_handler(window_info *win)
 		glColor3f(0.7f, 0.7f, 1.0f);
 		if ((cm_questlog_over_entry < active_entries.size()) && (entry == cm_questlog_over_entry))
 		{
-			glColor3f(0.77f, 0.57f, 0.39f);
+			glColor3fv(gui_color);
 			const ustring& name = quest_entries[active_entries[entry]].get_disp_npc();
 			font_manager.draw(FontManager::Category::UI_FONT, name.c_str(), name.length(),
 				qlborder, start_y, options);

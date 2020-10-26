@@ -16,6 +16,9 @@ extern "C" {
 
 //! The default color for GUI elements
 extern const GLfloat gui_color[3];
+extern const GLfloat gui_invert_color[3];
+extern const GLfloat gui_bright_color[3];
+extern const GLfloat gui_dull_color[3];
 
 /*!
  * \name Title bar & other constants

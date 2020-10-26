@@ -891,7 +891,7 @@ void display_spells_we_have(void)
 static int draw_switcher(window_info *win){
 
 	glDisable(GL_TEXTURE_2D);
-	glColor3f(0.77f,0.57f,0.39f);
+	glColor3fv(gui_color);
 
 	//Draw switcher spells <-> sigils
 	glBegin(GL_LINES);
@@ -1001,7 +1001,7 @@ static void draw_current_spell(window_info *win, int x, int y, int sigils_too, i
 
 	//draw strings
 	x=start_x;
-	glColor3f(0.77f,0.57f,0.39f);
+	glColor3fv(gui_color);
 	if(sigils_too) {
 		x+=grid_size*2;
 		draw_string_small_zoomed(x, y - win->small_font_len_y, (unsigned char*)"Sigils", 1, win->current_scale);
@@ -1070,7 +1070,7 @@ static int display_sigils_handler(window_info *win)
 	// it such that images are rendered exactly within the boxes on all
 	// cards
 	glDisable(GL_TEXTURE_2D);
-	glColor3f(0.77f,0.57f,0.39f);
+	glColor3fv(gui_color);
 
 	rendergrid (NUM_SIGILS_LINE, NUM_SIGILS_ROW, 0, 0, sigil_grid_size, sigil_grid_size);
 	rendergrid (MAX_SIGILS, 1, sigil_border, win->len_y - sigil_grid_size - sigil_border - 1, sigil_grid_size, sigil_grid_size);
@@ -1115,7 +1115,7 @@ static int display_spells_handler(window_info *win){
 			k++;
 		}
 		glDisable(GL_TEXTURE_2D);
-		glColor3f(0.77f,0.57f,0.39f);
+		glColor3fv(gui_color);
 		rendergrid(SPELLS_ALIGN_X,groups_list[i].spells/(SPELLS_ALIGN_X+1)+1,x,y,spell_grid_size,spell_grid_size);
 	}
 
@@ -1186,7 +1186,7 @@ static int display_spells_mini_handler(window_info *win)
 	//draw the current spell
 	draw_current_spell(win, x, win->len_y - spell_mini_grid_size - spell_mini_border, 0, spell_mini_grid_size);
 	glDisable(GL_TEXTURE_2D);
-	glColor3f(0.77f,0.57f,0.39f);
+	glColor3fv(gui_color);
 	rendergrid(SPELLS_ALIGN_X, spell_mini_rows, x, y, spell_mini_grid_size, spell_mini_grid_size);
 
 	if(we_have_spell>=0&&spells_list[we_have_spell].uncastable){

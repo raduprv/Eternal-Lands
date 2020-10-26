@@ -988,7 +988,8 @@ static int errorbox_draw(widget_list *w)
 
 static int name_draw(widget_list *w)
 {
-	draw_smooth_button((const unsigned char*)w->widget_info, w->fcat, w->size, w->pos_x, w->pos_y, w->len_x - 2*BUTTONRADIUS*w->size, 1, w->r, w->g, w->b, active == *(int*)w->spec, 0.32f, 0.23f, 0.15f, 0.0f);
+	draw_smooth_button((const unsigned char*)w->widget_info, w->fcat, w->size, w->pos_x, w->pos_y, w->len_x - 2*BUTTONRADIUS*w->size, 1,
+		w->r, w->g, w->b, active == *(int*)w->spec, gui_invert_color[0], gui_invert_color[1], gui_invert_color[2], 0.0f);
 	return 1;
 }
 
@@ -996,11 +997,13 @@ static int password_draw(widget_list *w)
 {
 	if(!hidden)
 	{
-		draw_smooth_button(get_pass_str(strlen((const char*)w->widget_info)), w->fcat, w->size, w->pos_x, w->pos_y, w->len_x - 2*BUTTONRADIUS*w->size, 1, w->r, w->g, w->b, active == *(int*)w->spec, 0.32f, 0.23f, 0.15f, 0.0f);
+		draw_smooth_button(get_pass_str(strlen((const char*)w->widget_info)), w->fcat, w->size, w->pos_x, w->pos_y, w->len_x - 2*BUTTONRADIUS*w->size, 1,
+			w->r, w->g, w->b, active == *(int*)w->spec, gui_invert_color[0], gui_invert_color[1], gui_invert_color[2], 0.0f);
 	}
 	else
 	{
-		draw_smooth_button((const unsigned char*)w->widget_info, w->fcat, w->size, w->pos_x, w->pos_y, w->len_x - 2*BUTTONRADIUS*w->size, 1, w->r, w->g, w->b, active == *(int*)w->spec, 0.32f, 0.23f, 0.15f, 0.0f);
+		draw_smooth_button((const unsigned char*)w->widget_info, w->fcat, w->size, w->pos_x, w->pos_y, w->len_x - 2*BUTTONRADIUS*w->size, 1,
+			w->r, w->g, w->b, active == *(int*)w->spec, gui_invert_color[0], gui_invert_color[1], gui_invert_color[2], 0.0f);
 	}
 	return 1;
 }
@@ -1583,8 +1586,8 @@ static const struct WIDGET_TYPE box_type = {NULL, &box_draw, NULL, NULL, NULL, N
 
 static int init_color_race_handler(window_info * win)
 {
-	float r = 0.77f, g = 0.57f, b = 0.39f; //widget color
-	float rh = 0.32f, gh = 0.23f, bh = 0.15f; //highlighted color
+	float r = gui_color[0], g = gui_color[1], b = gui_color[2]; //widget color
+	float rh = gui_invert_color[0], gh = gui_invert_color[1], bh = gui_invert_color[2]; //highlighted color
 	float very_small = win->current_scale_small; //font sizes
 	float bit_small = 0.9f * win->current_scale;
 	float normal = 1.0f * win->current_scale;
@@ -1739,7 +1742,7 @@ static int display_newchar_hud_handler(window_info * win)
 	glVertex2i(win->len_x, win->len_y);
 	glVertex2i(win->len_x, 0);
 	glEnd();
-	glColor3f(0.77f, 0.57f, 0.39f);
+	glColor3fv(gui_color);
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE

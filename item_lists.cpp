@@ -1033,7 +1033,7 @@ namespace ItemLists
 		glDisable(GL_TEXTURE_2D);
 
 		// draw the item grid
-		glColor3f(0.77f,0.57f,0.39f);
+		glColor3fv(gui_color);
 		rendergrid(num_grid_cols(), num_grid_rows, 0, 0, get_grid_size(), get_grid_size());
 
 		// if an object is selected, draw a green grid around it
@@ -1051,9 +1051,9 @@ namespace ItemLists
 
 		// Drawn the new list button (+) with highlight when mouse over
 		if (mouse_over_add_button)
-			glColor3f(0.99f,0.77f,0.55f);
+			glColor3fv(gui_bright_color);
 		else
-			glColor3f(0.77f,0.57f,0.39f);
+			glColor3fv(gui_color);
 
 		int half_plus_width = 3*win->current_scale / 2;
 		int half_plus_length = ui_control_space/3;

@@ -942,7 +942,7 @@ void draw_actor_overtext( actor* actor_ptr )
 
 	//---
 	// Draw text
-	glColor3f(0.77f,0.57f,0.39f);
+	glColor3fv(gui_color);
 
 	DRAW_INGAME_SMALL(x_left+margin, y_bottom+margin,actor_ptr->current_displayed_text,1);
 

@@ -81,7 +81,7 @@ static int display_trade_handler(window_info *win)
 	x_off = trade_border + (ITEM_COLS + 1) * trade_gridsize + ITEM_COLS / 2 * trade_gridsize;
 	draw_string_small_zoomed_centered(x_off, button_y_bot - win->default_font_len_y * 0.9, (unsigned char*)accept_str, 1, win->current_scale);
 
-	glColor3f(0.77f,0.57f,0.39f);
+	glColor3fv(gui_color);
 
 	//Draw the trade session names
 	x_off = trade_border + ITEM_COLS / 2 * trade_gridsize;
@@ -216,7 +216,7 @@ static int display_trade_handler(window_info *win)
 
 	glDisable(GL_TEXTURE_2D);
 
-	glColor3f(0.77f,0.57f,0.39f);
+	glColor3fv(gui_color);
 	// grids for goods on trade
 	rendergrid (ITEM_COLS, ITEM_ROWS, trade_border, trade_grid_start_y, trade_gridsize, trade_gridsize);
 	rendergrid (ITEM_COLS, ITEM_ROWS, trade_border + (ITEM_COLS + 1) * trade_gridsize, trade_grid_start_y, trade_gridsize, trade_gridsize);

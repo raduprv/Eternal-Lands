@@ -1598,7 +1598,7 @@ void cleanup_chan_names(void)
 static void switch_to_tab(int id)
 {
 	int i=2;
-	widget_set_color (tab_bar_win, tabs[current_tab].button, 0.77f, 0.57f, 0.39f);
+	widget_set_color (tab_bar_win, tabs[current_tab].button, gui_color[0], gui_color[1], gui_color[2]);
 	widget_set_color (tab_bar_win, tabs[0].button,  0.5f, 0.75f, 1.0f);
 	widget_set_color (tab_bar_win, tabs[1].button,  0.5f, 0.75f, 1.0f);
 	for(;i < MAX_CHAT_TABS; ++i) {
@@ -1607,7 +1607,7 @@ static void switch_to_tab(int id)
 		} else if(tabs[i].highlighted) {
 			continue;
 		}
-		widget_set_color (tab_bar_win, tabs[i].button, 0.77f, 0.57f, 0.39f);
+		widget_set_color (tab_bar_win, tabs[i].button, gui_color[0], gui_color[1], gui_color[2]);
 	}
 	current_tab = id;
 	widget_set_color (tab_bar_win, tabs[current_tab].button, 0.57f, 1.0f, 0.59f);
@@ -1832,7 +1832,7 @@ static int display_chan_sel_handler(window_info *win)
 		}
 	}
 	glDisable(GL_TEXTURE_2D);
-	glColor3f(0.77f, 0.57f, 0.39f);
+	glColor3fv(gui_color);
 	glBegin(GL_LINES);
 		glVertex2i(0, y - chan_sel_sep_offset);
 		glVertex2i(win->len_x, y - chan_sel_sep_offset);
@@ -1959,7 +1959,7 @@ static int draw_tab_details (widget_list *W)
 	int half_len = (int)(0.5 + W->size * tab_control_half_len);
 	int itab;
 
-	glColor3f(0.77f,0.57f,0.39f);
+	glColor3fv(gui_color);
 
 	glDisable(GL_TEXTURE_2D);
 
@@ -1991,7 +1991,7 @@ static int draw_tab_details (widget_list *W)
 				glVertex2i(plus_x + 1, plus_y + half_len);
 				glVertex2i(plus_x - 1, plus_y + half_len);
 			glEnd();
-			glColor3f(0.77f,0.57f,0.39f);
+			glColor3fv(gui_color);
 			/* draw a dotted underline if input would go to this channel */
 			if ((input_text_line.len > 0) && (input_text_line.data[0] == '@') && !((input_text_line.len > 1) && (input_text_line.data[1] == '@')))
 			{

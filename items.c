@@ -632,7 +632,7 @@ static int display_items_handler(window_info *win)
 	but_labels[BUT_MIX] = (items_mix_but_all) ?mix_all_str :mix_one_str;
 	for (i=0; i<NUMBUT; i++) {
 		strap_word(but_labels[i],my_str);
-		glColor3f(0.77f,0.57f,0.39f);
+		glColor3fv(gui_color);
 		draw_text(buttons_grid.pos_x + buttons_grid.width/2,
 			buttons_grid.pos_y + buttons_grid.height * i + buttons_grid.height/2,
 			(const unsigned char*)my_str, strlen(my_str), win->font_category,
@@ -787,9 +787,9 @@ static int display_items_handler(window_info *win)
 	glDisable(GL_TEXTURE_2D);
 
 	if (text_arrow.mouse_over != -1)
-		glColor3f(0.99f,0.77f,0.55f);
+		glColor3fv(gui_bright_color);
 	else
-		glColor3f(0.77f,0.57f,0.39f);
+		glColor3fv(gui_color);
 	text_arrow.mouse_over = -1;
 	if (items_disable_text_block)
 	{
@@ -829,9 +829,9 @@ static int display_items_handler(window_info *win)
 	}
 
 	if (unequip_arrow.mouse_over != -1)
-		glColor3f(0.99f,0.77f,0.55f);
+		glColor3fv(gui_bright_color);
 	else
-		glColor3f(0.77f,0.57f,0.39f);
+		glColor3fv(gui_color);
 	unequip_arrow.mouse_over = -1;
 	if (items_equip_grid_on_left)
 	{
@@ -871,7 +871,7 @@ static int display_items_handler(window_info *win)
 	// Render the grid *after* the images. It seems impossible to code
 	// it such that images are rendered exactly within the boxes on all
 	// cards
-	glColor3f(0.77f,0.57f,0.39f);
+	glColor3fv(gui_color);
 
 	//draw the grids
 	rendergrid(items_grid.cols, items_grid.rows, items_grid.pos_x, items_grid.pos_y, items_grid.width, items_grid.height);
@@ -880,7 +880,7 @@ static int display_items_handler(window_info *win)
 	rendergrid(equip_grid.cols, equip_grid.rows, equip_grid.pos_x, equip_grid.pos_y, equip_grid.width, equip_grid.height);
 
 	// draw the button boxes
-	glColor3f(0.77f,0.57f,0.39f);
+	glColor3fv(gui_color);
 	for (i=0; i<NUMBUT; i++) {
 		glBegin(GL_LINE_LOOP);
 			glVertex3i(buttons_grid.pos_x + buttons_grid.width, buttons_grid.pos_y + buttons_grid.height * i, 0);
@@ -893,7 +893,7 @@ static int display_items_handler(window_info *win)
 	// highlight a button with the mouse over
 	if (buttons_grid.mouse_over != -1)
 	{
-		glColor3f(0.99f,0.77f,0.55f);
+		glColor3fv(gui_bright_color);
 		glBegin(GL_LINE_LOOP);
 			glVertex3i(buttons_grid.pos_x + buttons_grid.width + 1, buttons_grid.pos_y + buttons_grid.height * buttons_grid.mouse_over - 1, 0);
 			glVertex3i(buttons_grid.pos_x - 1, buttons_grid.pos_y + buttons_grid.height * buttons_grid.mouse_over - 1, 0);

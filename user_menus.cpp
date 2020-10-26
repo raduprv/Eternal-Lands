@@ -415,9 +415,9 @@ namespace UserMenus
 		if (menus.empty())
 		{
 			if (mouse_over_window)
-				glColor3f(0.77f,0.57f,0.39f);
+				glColor3fv(gui_color);
 			else
-				glColor3f(0.40f,0.30f,0.20f);
+				glColor3fv(gui_dull_color);
 			if (use_small_font)
 				draw_string_small_zoomed(curr_x, window_y_pad, (const unsigned char *)um_no_menus_str, 1, win->current_scale);
 			else
@@ -442,9 +442,9 @@ namespace UserMenus
 			if ((current_mouseover_menu == i) || (open_menu == i))
 				glColor3f(1.0f,1.0f,1.0f);
 			else if (mouse_over_window)
-				glColor3f(0.77f,0.57f,0.39f);
+				glColor3fv(gui_color);
 			else
-				glColor3f(0.40f,0.30f,0.20f);
+				glColor3fv(gui_dull_color);
 			if (use_small_font)
 				draw_string_small_zoomed(curr_x, window_y_pad, (const unsigned char *)menus[i]->get_name().c_str(), 1, win->current_scale);
 			else

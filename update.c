@@ -643,7 +643,7 @@ static void draw_update_interface (window_info *win)
 /*	Possibly use this box to display the list of files updated?
 
 	glDisable(GL_TEXTURE_2D);
-	glColor3f(0.77f,0.57f,0.39f);
+	glColor3fv(gui_color);
 	glBegin(GL_LINES);
 	glVertex3i(diff + 30 * window_ratio, 50 * window_ratio, 0);
 	glVertex3i(len_x - (diff + 30 * window_ratio) - 20, 50 * window_ratio, 0);

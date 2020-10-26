@@ -126,7 +126,7 @@ static int display_buddy_handler(window_info *win)
 	//Draw a button for the requests
 	if(!queue_isempty(buddy_request_queue)) {
 		glDisable(GL_TEXTURE_2D);
-		//glColor3f(0.77f, 0.59f, 0.39f);
+		//glColor3fv(gui_color);
 		glColor3f(0.3, 1, 0.3);
 		glBegin(GL_LINE_LOOP);
 			glVertex2i(request_box_start_x - win->small_font_max_len_x, 0);
@@ -137,7 +137,7 @@ static int display_buddy_handler(window_info *win)
 		glEnable(GL_TEXTURE_2D);
 		draw_string_small_zoomed(request_box_start_x + win->small_font_max_len_x, 0, (unsigned char*)buddy_request_str, 1, win->current_scale);
 	}
-	glColor3f(0.77f, 0.57f, 0.39f);
+	glColor3fv(gui_color);
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
@@ -306,7 +306,7 @@ static int display_accept_buddy_handler(window_info *win)
 	if(win != NULL) {
 		int i;
 
-		glColor3f(0.77f, 0.57f, 0.39f);
+		glColor3fv(gui_color);
 		for(i = 0; i < MAX_ACCEPT_BUDDY_WINDOWS; i++) {
 			if(accept_windows[i].window_id == win->window_id) {
 				draw_string_small_zoomed(buddy_border_space, buddy_border_space, (unsigned char*)accept_windows[i].text, 2, win->current_scale);

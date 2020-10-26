@@ -779,7 +779,7 @@ static void draw_rules_interface (window_info * win)
 	}
 
 	glDisable(GL_TEXTURE_2D);
-	glColor3f(0.77f,0.57f,0.39f);
+	glColor3fv(gui_color);
 	glBegin(GL_LINES);
 	glVertex3i(box_border_x, ui_seperator_y, 0);
 	glVertex3i(box_border_x + text_box_width, ui_seperator_y, 0);
@@ -790,7 +790,7 @@ static void draw_rules_interface (window_info * win)
 	glEnd();
 	glEnable(GL_TEXTURE_2D);
 
-	glColor3f (0.77f, 0.57f, 0.39f);
+	glColor3fv(gui_color);
 
 	if (countdown != 0)
 		safe_snprintf (str, sizeof(str), you_can_proceed, countdown / 2);

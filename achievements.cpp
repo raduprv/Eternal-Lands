@@ -615,7 +615,7 @@ static int achievements_child_display_handler(window_info *win)
 	const Achievement * achievement = as->achievement(index);
 	if (achievement)
 	{
-		glColor3f(0.77f, 0.57f, 0.39f);
+		glColor3fv(gui_color);
 		draw_string_small_zoomed_centered(win->len_x/2, as->get_border(),
 			reinterpret_cast<const unsigned char *>(achievement->get_title().c_str()), 1, as->get_current_scale());
 
@@ -625,7 +625,7 @@ static int achievements_child_display_handler(window_info *win)
 	}
 	else
 	{
-		glColor3f(0.77f, 0.57f, 0.39f);
+		glColor3fv(gui_color);
 		std::ostringstream buf;
 		buf << "Undefined " << index;
 		draw_string_small_zoomed_centered(win->len_x/2, as->get_border(),

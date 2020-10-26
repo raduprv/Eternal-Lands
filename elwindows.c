@@ -22,6 +22,9 @@
 #define ELW_WIN_MAX 128
 
 const GLfloat gui_color[3] = { 0.77f, 0.57f, 0.39f };
+const GLfloat gui_invert_color[3] = { 0.32f, 0.23f, 0.15f };
+const GLfloat gui_bright_color[3] = { 0.95f, 0.76f, 0.52f };
+const GLfloat gui_dull_color[3] = { 0.40f, 0.30f, 0.20f };
 
 // Managed Windows
 // Provide common features for selected windows including id, position, name,
@@ -1154,13 +1157,13 @@ int	create_window(const char *name, int pos_id, Uint32 pos_loc, int pos_x, int p
 		win->back_color[1] = 0.0f;
 		win->back_color[2] = 0.0f;
 		win->back_color[3] = 0.4f;
-		win->border_color[0] = 0.77f;
-		win->border_color[1] = 0.57f;
-		win->border_color[2] = 0.39f;
+		win->border_color[0] = gui_color[0];
+		win->border_color[1] = gui_color[1];
+		win->border_color[2] = gui_color[2];
 		win->border_color[3] = 0.0f;
-		win->line_color[0] = 0.77f;
-		win->line_color[1] = 0.57f;
-		win->line_color[2] = 0.39f;
+		win->line_color[0] = gui_color[0];
+		win->line_color[1] = gui_color[1];
+		win->line_color[2] = gui_color[2];
 		win->line_color[3] = 0.0f;
 
 		win->custom_scale = NULL;

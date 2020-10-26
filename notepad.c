@@ -348,7 +348,7 @@ void display_popup_win (INPUT_POPUP *ipu, const char* label)
 		// clear the buffers
 		*ipu->popup_line_text = '\0';
 		init_text_message (&ipu->popup_text, ipu->maxlen);
-		set_text_message_color (&ipu->popup_text, 0.77f, 0.57f, 0.39f);
+		set_text_message_color (&ipu->popup_text, gui_color[0], gui_color[1], gui_color[2]);
 
 		// Label
 		ipu->popup_label = label_add_extended(ipu->popup_win, widget_id++, NULL, 0, 0, 0, win->current_scale, label);
@@ -525,7 +525,7 @@ static void init_note (int id, const char* name, const char* content)
 
 	init_text_message (&(note_list[id].text), nsize);
 	set_text_message_data (&(note_list[id].text), content);
-	set_text_message_color (&(note_list[id].text), 0.77f, 0.57f, 0.39f);
+	set_text_message_color (&(note_list[id].text), gui_color[0], gui_color[1], gui_color[2]);
 
 	note_list[id].button_id = -1;
 	note_list[id].window = -1;
@@ -795,7 +795,7 @@ static void open_note_tab_continued(int id)
 	if (note_list[id].window < 0 || note_list[id].window > windows_list.num_windows)
 		return;
 	tab_win = &windows_list.window[note_list[id].window];
-	widget_set_color (notepad_win, note_list[id].window, 0.77f, 0.57f, 0.39f);
+	widget_set_color (notepad_win, note_list[id].window, gui_color[0], gui_color[1], gui_color[2]);
 	set_window_handler (note_list[id].window, ELW_HANDLER_DESTROY, note_tab_destroy);
 
 	// remove button
@@ -1080,7 +1080,7 @@ void fill_notepad_window(int window_id)
 	note_tabcollection_id = tab_collection_add (window_id, NULL, 0, 0, 0, 0);
 	main_note_tab_id = tab_add (window_id, note_tabcollection_id, tab_main, 0, 0, ELW_USE_UISCALE);
 	set_window_custom_scale(main_note_tab_id, MW_INFO);
-	widget_set_color (window_id, main_note_tab_id, 0.77f, 0.57f, 0.39f);
+	widget_set_color (window_id, main_note_tab_id, gui_color[0], gui_color[1], gui_color[2]);
 	set_window_handler(main_note_tab_id, ELW_HANDLER_CLICK, &click_buttonwin_handler);
 	set_window_handler(main_note_tab_id, ELW_HANDLER_RESIZE, &resize_buttonwin_handler);
 

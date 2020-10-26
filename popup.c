@@ -717,7 +717,7 @@ static int popup_display_object( popup_t *this_popup, window_info *win )
 		}
 	}
 
-	glColor3f(0.77f,0.57f,0.39f);
+	glColor3fv(gui_color);
     POPUP_FUNC_LEAVE;
 	return 1;
 }

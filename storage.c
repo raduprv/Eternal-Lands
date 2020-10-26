@@ -562,7 +562,7 @@ int display_storage_handler(window_info * win)
 
 	have_storage_list = 0;	//We visited storage, so we may have changed something
 
-	glColor3f(0.77f, 0.57f, 0.39f);
+	glColor3fv(gui_color);
 	glEnable(GL_TEXTURE_2D);
 
 	for(i=pos=vscrollbar_get_pos(win->window_id,STORAGE_SCROLLBAR_CATEGORIES); i<no_storage_categories && storage_categories[i].id!=-1 && i<pos+storage_categories_display; i++,n++){
@@ -572,11 +572,13 @@ int display_storage_handler(window_info * win)
 			elglColourI(c_selected);
 		else if (the_colour == c_green2)
 			elglColourI(c_highlighted);
+		else if (the_colour == c_orange1)
+			glColor3fv(gui_bright_color);
 		else
 			offset = 0;
 		draw_string_small_zoomed(cat_string_left_offset, cat_string_top_offset + n * cat_name_separation, (unsigned char*)&storage_categories[i].name[offset],1, win->current_scale);
 	}
-	glColor3f(0.77f, 0.57f, 0.39f);
+	glColor3fv(gui_color);
 	if(storage_text[0]){
 		if (strcmp(storage_text, last_storage_text) != 0) {
 			safe_strncpy(last_storage_text, storage_text, sizeof(last_storage_text));
@@ -630,7 +632,7 @@ int display_storage_handler(window_info * win)
 	// cards
 	glDisable(GL_TEXTURE_2D);
 
-	glColor3f(0.77f, 0.57f, 0.39f);
+	glColor3fv(gui_color);
 
 	glBegin(GL_LINE_LOOP);
 		glVertex2i(border_size,  border_size);

@@ -265,7 +265,7 @@ static void draw_stats_bar(window_info *win, int x, int y, int val, int len, flo
 		glEnd();
 	}
 	// draw the bar frame
-	glColor3f(0.77f, 0.57f, 0.39f);
+	glColor3fv(gui_color);
 	glBegin(GL_LINE_LOOP);
 	glVertex3i(x, y, 0);
 	glVertex3i(x+stats_bar_len, y, 0);

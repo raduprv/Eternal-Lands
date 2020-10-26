@@ -239,7 +239,7 @@ int display_session_handler(window_info *win)
 	y += y_step;
 
 	glDisable(GL_TEXTURE_2D);
-	glColor3f(0.77f, 0.57f, 0.39f);
+	glColor3fv(gui_color);
 	glBegin(GL_LINES);
 	glVertex3i(0, y, 0);
 	glVertex3i(win->len_x, y, 0);

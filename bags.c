@@ -525,7 +525,7 @@ static int display_ground_items_handler(window_info *win)
 
 	// write "get all" in the "get all" box :)
 	strap_word(get_all_str,my_str);
-	glColor3f(0.77f,0.57f,0.39f);
+	glColor3fv(gui_color);
 	but_text_y = (int)(0.5 + ((GRIDSIZE - (float)(2 * win->small_font_len_y)) / 2.0));
 	draw_string_small_zoomed_centered(win->len_x-GRIDSIZE/2, win->box_size+but_text_y+yoffset, (unsigned char*)my_str, 2, win->current_scale);
 
@@ -572,7 +572,7 @@ static int display_ground_items_handler(window_info *win)
 	// cards
 	glDisable(GL_TEXTURE_2D);
 
-	glColor3f(0.77f,0.57f,0.39f);
+	glColor3fv(gui_color);
 	/* if a full grid render in one go */
 	if (ground_items_grid_cols*ground_items_grid_rows == ITEMS_PER_BAG)
 		rendergrid(ground_items_grid_cols, ground_items_grid_rows, grid_sep_x, grid_sep_y, GRIDSIZE, GRIDSIZE);

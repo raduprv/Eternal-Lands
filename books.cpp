@@ -701,9 +701,9 @@ void TextLink::display() const
 {
 	TextDrawOptions options = TextDrawOptions().set_zoom(_zoom);
 	if (_under_mouse)
-		options.set_foreground(0.95f, 0.76f, 0.52f);
+		options.set_foreground(gui_bright_color[0], gui_bright_color[1], gui_bright_color[2]);
 	else
-		options.set_foreground(0.77f, 0.59f, 0.38f);
+		options.set_foreground(gui_color[0], gui_color[1], gui_color[2]);
 	FontManager::get_instance().draw(UI_FONT, _text.c_str(), _text.length(),
 		_x_begin, _y_begin, options);
 }

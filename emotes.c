@@ -146,7 +146,7 @@ static int display_emotes_handler(window_info *win)
 	//draw texts
 	glEnable(GL_TEXTURE_2D);
 
-	SET_COLOR(c_orange1);
+	glColor3fv(gui_bright_color);
 	draw_string_small_zoomed(border_space, top_border - win->small_font_len_y, (unsigned char*)"Categories",1, win->current_scale);
 	draw_string_small_zoomed(border_space, top_border + emotes_rect_y + box_sep  - win->small_font_len_y, (unsigned char*)"Emotes",1, win->current_scale);
 
@@ -163,7 +163,7 @@ static int display_emotes_handler(window_info *win)
 		if(selectables[i])
 			draw_string_small_zoomed(border_space + inbox_space, top_border + emotes_rect_y + box_sep + inbox_space + category_y_step * i, (unsigned char*)selectables[i]->name,1, win->current_scale);
 	}
-	glColor3f(0.77f, 0.57f, 0.39f);
+	glColor3fv(gui_color);
 	//do grids
 	glDisable(GL_TEXTURE_2D);
 

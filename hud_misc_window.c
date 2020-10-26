@@ -102,7 +102,7 @@ CHECK_GL_ERRORS();
 	}
 
 	// draw the bar frame
-	glColor3f(0.77f, 0.57f, 0.39f);
+	glColor3fv(gui_color);
 	glBegin(GL_LINE_LOOP);
 	glVertex3i(x, y, 0);
 	glVertex3i(x+max_len, y, 0);
@@ -288,14 +288,14 @@ CHECK_GL_ERRORS();
 				- get_buf_width_zoom((const unsigned char*)str, 4, win->font_category, digital_clock_zoom)
 				+ get_char_width_zoom(str[3], win->font_category, digital_clock_zoom) / 2;
 			draw_text(x, base_y_start, (const unsigned char*)str, strlen(str),
-				win->font_category, TDO_SHADOW, 1, TDO_FOREGROUND, 0.77, 0.57, 0.39,
+				win->font_category, TDO_SHADOW, 1, TDO_FOREGROUND, gui_color[0], gui_color[1], gui_color[2],
 				TDO_BACKGROUND, 0.0, 0.0, 0.0, TDO_ZOOM, digital_clock_zoom, TDO_END);
 		}
 		else
 		{
 			safe_snprintf(str, sizeof(str), "%1d:%02d", real_game_minute/60, real_game_minute%60);
 			draw_text(win->len_x/2, base_y_start, (const unsigned char*)str, strlen(str),
-				win->font_category, TDO_SHADOW, 1, TDO_FOREGROUND, 0.77, 0.57, 0.39,
+				win->font_category, TDO_SHADOW, 1, TDO_FOREGROUND, gui_color[0], gui_color[1], gui_color[2],
 				TDO_BACKGROUND, 0.0, 0.0, 0.0, TDO_ALIGNMENT, CENTER, TDO_ZOOM, digital_clock_zoom,
 				TDO_END);
 		}
@@ -397,7 +397,7 @@ CHECK_GL_ERRORS();
 
 		for (thestat=0; thestat<NUM_WATCH_STAT-1; thestat++)
 		{
-			static const float lbl_color[6] = { 0.77f, 0.57f, 0.39f, 1.0f, 1.0f, 1.0f };
+			static const GLfloat white_color[3] = { 1.0f, 1.0f, 1.0f };
 
 			int hover_offset = 0;
 			const float *col;
@@ -414,7 +414,7 @@ CHECK_GL_ERRORS();
 				draw_side_stats_bar(win, box_x, y, statsinfo[thestat].skillattr->base,
 					*statsinfo[thestat].exp, *statsinfo[thestat].next_lev, 0);
 
-			col = (statsinfo[thestat].is_selected == 1) ? lbl_color : lbl_color + 3;
+			col = (statsinfo[thestat].is_selected == 1) ? gui_color : white_color;
 			draw_text(text_x_left, y + 1 + side_stats_bar_text_offset,
 				statsinfo[thestat].skillnames->shortname,
 				strlen((const char*)statsinfo[thestat].skillnames->shortname), win->font_category,

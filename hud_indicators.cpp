@@ -212,11 +212,11 @@ namespace Indicators
 		if (mouse_over)
 			glColor3f(1.0f,1.0f,1.0f);
 		else if (unavailable_func && unavailable_func())
-			glColor3f(0.20f,0.15f,0.10f);
+			glColor3f(gui_dull_color[0]/2, gui_dull_color[1]/2, gui_dull_color[2]/2);
 		else if (cntr_func && cntr_func())
-			glColor3f(0.99f,0.87f,0.65f);
+			glColor3fv(gui_bright_color);
 		else
-			glColor3f(0.40f,0.30f,0.20f);
+			glColor3fv(gui_dull_color);
 		draw_string_zoomed(x_pos, Vars::border(), (const unsigned char*)indicator_text.c_str(), 1, Vars::zoom());
 		mouse_over = false;
 	}
@@ -434,7 +434,7 @@ namespace Indicators
 		}
 		if (!have_active)
 		{
-			glColor3f(0.40f,0.30f,0.20f);
+			glColor3fv(gui_dull_color);
 			draw_string_zoomed(pos_x, Vars::border(), (const unsigned char *)no_indicators_str, 1, Vars::zoom());
 			pos_x += static_cast<int>(strlen(no_indicators_str) * Vars::zoom() * Vars::font_x() + 0.5);
 		}
