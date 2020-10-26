@@ -8,7 +8,7 @@ moved around by the optional title bar. A standard right-click context menu
 controls window options. These options include a run-time reload function so you
 can update the menus without restarting the client. Left clicking a particular
 menu name opens the menu.  The window options and position are saved
-between sessions in the el.cfg file.  The use of user menus is enabled/disabled
+between sessions in the cfg file.  The use of user menus is enabled/disabled
 by an option in the config window.
 
 The .menu files are flat text files so they are easy to create and edit outside
@@ -341,7 +341,7 @@ namespace UserMenus
 
 
 	//
-	//	return current window position and option values, normally for saving in el.cfg
+	//	return current window position and option values, normally for saving in the cfg file
 	//
 	void Container::get_options(int *win_x, int *win_y, int *options)
 	{
@@ -366,7 +366,7 @@ namespace UserMenus
 
 
 	//
-	//	set window position and option, normally from el.cfg
+	//	set window position and option, normally from the cfg file
 	//
 	void Container::set_options(int win_x, int win_y, int options)
 	{

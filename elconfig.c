@@ -130,6 +130,8 @@
  #define MAX_TABS	10
 #endif
 
+const char * ini_filename = "el.ini";
+
 #ifdef ELC
 static int CHECKBOX_SIZE = 0;
 static int SPACING = 0;			//Space between widgets and labels and lines
@@ -209,7 +211,7 @@ struct variables
 
 /*!
  * For some multi-select widgets (currently only the font selections, it seems),
- * not all possible options are available at the time el.ini is read. Rather than
+ * not all possible options are available at the time the ini file is read. Rather than
  * blindly assuming the option will later be added, setting these options is
  * deferred to a later stage after the widget has been fully initialized.
  */
@@ -491,7 +493,7 @@ static void change_var(int * var)
 #ifndef MAP_EDITOR
 static void change_cursor_scale_factor(int * var, int value)
 {
-	// check the range, an invalid setting in the el.ini file bypasses the bound checking of that var
+	// check the range, an invalid setting in the ini file bypasses the bound checking of that var
 	if ((value > 0) && (value <= max_cursor_scale_factor))
 	{
 		*var= value;
@@ -712,10 +714,10 @@ void reset_win_scale_factor(int set_default, float *changed_window_custom_scale)
 
 /*
  * The chat logs are created very early on in the client start up, before the
- * el.ini file is read at least. Because of this, a simple el.ini file variable
+ * ini file is read at least. Because of this, a simple ini file variable
  * can not be used to enabled/disable rotating chat log files. I suppose the init
  * code could be changed but rather do that and unleash all kinds of grief, use a
- * simple flag file when the chat logs are opened.  The el.ini file setting now
+ * simple flag file when the chat logs are opened.  The ini file setting now
  * becomes the creater/remover of that file.
  */
 static int rotate_chat_log_config_var = 0;
@@ -730,7 +732,7 @@ int get_rotate_chat_log(void)
 	return rotate_chat_log;
 }
 
-/* create or delete the flag file to reflect the el.ini file rotate chat log value */
+/* create or delete the flag file to reflect the ini file rotate chat log value */
 static void change_rotate_chat_log(int *value)
 {
 	*value = !*value;
@@ -770,7 +772,7 @@ static void change_rotate_chat_log(int *value)
 /* called after the el.in file has been read, so we can consolidate the rotate chat log status */
 static void consolidate_rotate_chat_log_status(void)
 {
-	/* it is too late to use a newly set rotate log value, but we can set the el.ini flag if rotating is on */
+	/* it is too late to use a newly set rotate log value, but we can set the ini flag if rotating is on */
 	if ((rotate_chat_log==1) && !rotate_chat_log_config_var)
 	{
 		rotate_chat_log_config_var = 1;
@@ -2163,7 +2165,7 @@ void check_deferred_options()
  * Defer setting multi-select variable.
  *
  * Some multi-select variables cannot be reliably set because they are not fully
- * initialized before el.ini is read. This function stores the desired option
+ * initialized before the ini is read. This function stores the desired option
  * for setting later.
  * \param var_idx The index of the multi-select variable in \see our_vars.
  * \param opt_idx The index of the desired option in the options list of the variable
@@ -2199,7 +2201,7 @@ static int add_deferred_option(int var_idx, int opt_idx, const char* value)
  * Set a the value of a multi-select variable.
  *
  * Set the value of the multiselect valuable at index \a var_idx in \see our_vars,
- * to the option described by \a str (a line from el.ini). If the description
+ * to the option described by \a str (a line from the ini file). If the description
  * contains both an index and a value, the value is preferred over the index,
  * and the variable is set to the first option that has the same value. If the
  * value cannot be found, or no value is set and the index is out of range,
@@ -2339,7 +2341,7 @@ int check_var(char *str, var_name_type type)
 	if (type == INI_FILE_VAR)
 		our_vars.var[i]->saved= 1;
 	else if (type == IN_GAME_VAR)
-		// make sure in-game changes are stored in el.ini
+		// make sure in-game changes are stored in the ini file
 		our_vars.var[i]->saved= 0;
 	switch (our_vars.var[i]->type)
 	{
@@ -3060,11 +3062,11 @@ int read_el_ini (void)
 #ifdef MAP_EDITOR
 	FILE *fin= open_file_config("mapedit.ini", "r");
 #else
-	FILE *fin= open_file_config("el.ini", "r");
+	FILE *fin= open_file_config(ini_filename, "r");
 #endif //MAP_EDITOR
 
 	if (fin == NULL){
-		LOG_ERROR("%s: %s \"el.ini\": %s\n", reg_error_str, cant_open_file, strerror(errno));
+		LOG_ERROR("%s: %s \"%s\": %s\n", reg_error_str, cant_open_file, ini_filename, strerror(errno));
 		return 0;
 	}
 
@@ -3099,7 +3101,7 @@ int write_el_ini (void)
 
 	// first check if we need to change anything
 	//
-	// The advantage of skipping this check is that a new el.ini would be
+	// The advantage of skipping this check is that a new ini file would be
 	// created in the users $HOME/.elc for Unix users, even if nothing
 	// changed. However, most of the time it's pointless to update an
 	// unchanged file.
@@ -3125,9 +3127,9 @@ int write_el_ini (void)
 	}
 
 	// read the ini file
-	file = open_file_config("el.ini", "r");
+	file = open_file_config(ini_filename, "r");
 	if(file == NULL){
-		LOG_ERROR("%s: %s \"el.ini\": %s\n", reg_error_str, cant_open_file, strerror(errno));
+		LOG_ERROR("%s: %s \"%s\": %s\n", reg_error_str, cant_open_file, ini_filename, strerror(errno));
 	} else {
 		maxlines= 300;
 	 	cont= malloc (maxlines * sizeof (input_line));
@@ -3143,9 +3145,9 @@ int write_el_ini (void)
 	}
 
 	// Now write the contents of the file, updating those variables that have been changed
-	file = open_file_config("el.ini", "w");
+	file = open_file_config(ini_filename, "w");
 	if(file == NULL){
-		LOG_ERROR("%s: %s \"el.ini\": %s\n", reg_error_str, cant_open_file, strerror(errno));
+		LOG_ERROR("%s: %s \"%s\": %s\n", reg_error_str, cant_open_file, ini_filename, strerror(errno));
 		free(cont);
 		return 0;
 	}
@@ -3816,7 +3818,7 @@ void display_elconfig_win(void)
 #ifdef JSON_FILES
 // If we have logged in to a character, save any override options.
 //
-// For each el.ini option, check if we have the override value set:
+// For each ini file option, check if we have the override value set:
 //   If we do, save the value if it is new or changed.
 //   If we do not, remove any existing override value.
 //
@@ -3884,11 +3886,11 @@ void save_character_options(void)
 // If we have logged in to a character, check for any override options.
 //
 // The character_options_<name>.json file can contain character specific
-// values for options.  For each el.ini option, check if we have an
+// values for options.  For each ini file option, check if we have an
 // override value to use.  Also set the character_override flag for the var
 // so that we can show the option as checked when using the context menu
 // for the option. We do not set the unsaved state for vars that have
-// been overridden so that they are not saved in the el.ini.
+// been overridden so that they are not saved in the ini file.
 //
 void load_character_options(void)
 {

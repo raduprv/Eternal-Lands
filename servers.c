@@ -1,6 +1,7 @@
 #include <string.h>
 #include "servers.h"
 #include "asc.h"
+#include "elconfig.h"
 #include "errors.h"
 #include "gl_init.h"
 #include "misc.h"
@@ -59,7 +60,7 @@ void set_server_details()
 	num = find_server_from_id(id);
 	if (num == -1)
 	{
-		// Oops... what they they specify on the command line?
+		// Oops... what did they specify on the command line?
 		LOG_ERROR("Server profile not found in servers.lst for server: %s. Failover to server: main.", id);
 		// Failover to the main server
 		num = find_server_from_id("main");
@@ -86,12 +87,12 @@ void set_server_details()
 		
 		mkdir_tree(get_path_config(), 0);
 		// First, try to copy the ini file out of $CONF/main
-		safe_snprintf(src, sizeof(src), "%smain/el.ini", get_path_config_base());
-		safe_snprintf(dest, sizeof(dest), "%sel.ini", get_path_config());
+		safe_snprintf(src, sizeof(src), "%smain/%s", get_path_config_base(), ini_filename);
+		safe_snprintf(dest, sizeof(dest), "%s%s", get_path_config(), ini_filename);
 		copy_file(src, dest);
 		// Secondly, try to copy the ini file out of $CONF (this will fail without harm if above succeeds)
-		safe_snprintf(src, sizeof(src), "%s/el.ini", get_path_config_base());
-		safe_snprintf(dest, sizeof(dest), "%sel.ini", get_path_config());
+		safe_snprintf(src, sizeof(src), "%s/%s", get_path_config_base(), ini_filename);
+		safe_snprintf(dest, sizeof(dest), "%s%s", get_path_config(), ini_filename);
 		copy_file(src, dest);
 	}
 }

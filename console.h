@@ -12,10 +12,6 @@
 extern "C" {
 #endif
 
-#ifndef DEF_INFO
- #define DEF_INFO ""
-#endif
-
 typedef struct {
 	char command[64];
 	int (*callback)();

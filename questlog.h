@@ -106,9 +106,9 @@ void clear_waiting_for_questlog_entry(void);
 
 /*!
  * \ingroup quest_window
- * \brief Write the questlog options to the el.cfg structure.
+ * \brief Write the questlog options to the cfg file structure.
  *
- *      Write the questlog options to the el.cfg structure.
+ *      Write the questlog options to the cfg file structure.
  *
  * \callgraph
  */
@@ -117,9 +117,9 @@ unsigned int get_options_questlog(void);
 
 /*!
  * \ingroup quest_window
- * \brief  Read the questlog options from the el.cfg structure.
+ * \brief  Read the questlog options from the cfg file structure.
  *
- *      Read the questlog options from the el.cfg structure.
+ *      Read the questlog options from the cfg file structure.
  *
  * return true if if answer is yes.
  * \callgraph

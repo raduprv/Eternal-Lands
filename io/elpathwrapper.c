@@ -664,7 +664,7 @@ void file_check_datadir(void)
 		char pwd[MAX_PATH];
 		if (getcwd(pwd, MAX_PATH) == NULL)
 			pwd[0] = '\0';
-		LOG_WARNING("Didn't find your data_dir, using the current directory instead. Please correct this in your el.ini . Given data_dir was: \"%s\". Using \"%s\".\n", datadir, pwd);
+		LOG_WARNING("Didn't find your data_dir, using the current directory instead. Please correct this in your %s. Given data_dir was: \"%s\". Using \"%s\".\n", ini_filename, datadir, pwd);
 		strcpy(datadir, "./");
 	}
 #ifdef WINDOWS

@@ -57,6 +57,10 @@
 #include "missiles.h"
 #include "threads.h"
 
+#ifndef DEF_INFO
+  #define DEF_INFO ""
+#endif
+
 /* NOTE: This file contains implementations of the following, currently unused, and commented functions:
  *          Look at the end of the file.
  *

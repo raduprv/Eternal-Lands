@@ -610,7 +610,6 @@ char	reg_error_str[15],
 	invalid_video_mode[75],
 	failed_sdl_net_init[30],
 	failed_sdl_timer_init[30],
-	cant_read_elini[50],
 	must_use_tabs[80],
 	init_opengl_str[35],
 	init_random_str[35],
@@ -1229,7 +1228,6 @@ void init_errors()
 	add_xml_identifier(load,"font",cant_load_font,"Unable to load font",sizeof(cant_load_font));
 	add_xml_identifier(load,"fatal",fatal_error_str,"Fatal",sizeof(fatal_error_str));
 	add_xml_identifier(load,"noe3d",no_e3d_list,"Couldn't read e3dlist.txt",sizeof(no_e3d_list));
-	add_xml_identifier(load,"elini",cant_read_elini,"Couldn't read configuration file el.ini",sizeof(cant_read_elini));
 	add_xml_identifier(load,"invmap",invalid_map,"%s is an invalid map!",sizeof(invalid_map));
 	add_xml_identifier(load,"parsenotes",cant_parse_notes,"Unable to parse xml notepad. It will be overwritten.",sizeof(cant_parse_notes));
 	add_xml_identifier(load,"noteswrong",notes_wrong,"Document of the wrong type. It will be overwritten.",sizeof(notes_wrong));

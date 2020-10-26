@@ -93,7 +93,7 @@
 #include "custom_update.h"
 #endif  //CUSTOM_UPDATE
 
-#define	CFG_VERSION 7	// change this when critical changes to el.cfg are made that will break it
+#define	CFG_VERSION 7	// change this when critical changes to the cfg file are made that will break it
 
 char configdir[256]="./";
 #ifdef DATA_DIR
@@ -102,6 +102,7 @@ char datadir[256]=DATA_DIR;
 char datadir[256]="./";
 #endif //DATA_DIR
 
+static const char *cfg_filename = "el.cfg";
 static int no_lang_in_config = 0;
 
 #ifndef FASTER_MAP_LOAD
@@ -167,8 +168,9 @@ static void read_config(void)
 	if ( !read_el_ini () )
 	{
 		// oops, the file doesn't exist, give up
-		const char *err_stg = "Failure reading el.ini";
-		fprintf(stderr, "%s\n", err_stg);
+		char err_stg[80];
+		safe_snprintf(err_stg, sizeof(err_stg), "Failure reading %s", ini_filename);
+		fprintf(stderr, "%s", err_stg);
 		LOG_ERROR(err_stg);
 		SDL_Quit ();
 		FATAL_ERROR_WINDOW(err_stg);
@@ -192,13 +194,12 @@ static void read_bin_cfg(void)
 	FILE *f = NULL;
 	bin_cfg cfg_mem;
 	int i;
-	const char *fname = "el.cfg";
 	size_t ret;
 	int have_quickspells = 1, have_chat_win = 1;
 
 	memset(&cfg_mem, 0, sizeof(cfg_mem));	// make sure its clean
 
-	f=open_file_config_no_local(fname,"rb");
+	f=open_file_config_no_local(cfg_filename,"rb");
 	if(f == NULL)return;//no config file, use defaults
 	ret = fread(&cfg_mem,1,sizeof(cfg_mem),f);
 	fclose(f);
@@ -214,7 +215,7 @@ static void read_bin_cfg(void)
 		have_quickspells = have_chat_win = 0;
 	else if (ret != sizeof(cfg_mem))
 	{
-		LOG_ERROR("%s() failed to read %s\n", __FUNCTION__, fname);
+		LOG_ERROR("%s() failed to read %s\n", __FUNCTION__, cfg_filename);
 		return;
 	}
 
@@ -353,9 +354,9 @@ void save_bin_cfg(void)
 	bin_cfg cfg_mem;
 	int i;
 
-	f=open_file_config("el.cfg","wb");
+	f=open_file_config(cfg_filename,"wb");
 	if(f == NULL){
-		LOG_ERROR("%s: %s \"el.cfg\": %s\n", reg_error_str, cant_open_file, strerror(errno));
+		LOG_ERROR("%s: %s \"%s\": %s\n", reg_error_str, cant_open_file, cfg_filename, strerror(errno));
 		return;//blah, whatever
 	}
 	memset(&cfg_mem, 0, sizeof(cfg_mem));	// make sure its clean

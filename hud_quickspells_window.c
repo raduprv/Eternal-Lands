@@ -706,7 +706,7 @@ void add_quickspell(void)
 }
 
 
-// if relocatable, save the position and options to the el.cfg file
+// if relocatable, save the position and options to the cfg file
 void get_quickspell_options(unsigned int *options, unsigned int *position)
 {
 	int quickspell_win = get_id_MW(MW_QUICKSPELLS);
@@ -718,7 +718,7 @@ void get_quickspell_options(unsigned int *options, unsigned int *position)
 }
 
 
-// if relocatable, set position and options from the el.cfg file
+// if relocatable, set position and options from the cfg file
 void set_quickspell_options(unsigned int options, unsigned int position)
 {
 	if (quickspells_relocatable)

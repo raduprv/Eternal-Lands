@@ -1624,7 +1624,7 @@ void save_local_data(void)
 	save_quickspells();
 	//Save recipes
 	save_recipes();
-	// save el.ini if asked
+	// save ini file if asked
 	if (write_ini_on_exit) write_el_ini ();
 	// save notepad contents if the file was loaded
 	if (notepad_loaded) notepad_save_file();

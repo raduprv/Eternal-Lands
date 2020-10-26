@@ -2338,7 +2338,10 @@ void get_actor_damage(int actor_id, int damage)
 
 		act->damage=damage;
 		act->damage_ms=2000;
-		act->cur_health-=damage;
+		if(act->cur_health > (Uint16)damage)
+			act->cur_health -= damage;
+		else
+			act->cur_health = 0;
 
 		if (act->cur_health <= 0) {
 #ifdef NEW_SOUND
@@ -2367,7 +2370,6 @@ void get_actor_damage(int actor_id, int damage)
 
 void get_actor_heal(int actor_id, int quantity)
 {
-	//int i=0;
 	actor *act;
 #ifdef EXTRA_DEBUG
 	ERR();

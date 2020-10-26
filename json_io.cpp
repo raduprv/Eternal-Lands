@@ -514,7 +514,7 @@ namespace JSON_IO_Character_Options
 
 
 	//	A Class to load and save the character options in json format.
-	//	Character options if present override values in the el.ini file.
+	//	Character options if present override values in the ini file.
 	//
 	class Character_Options
 	{

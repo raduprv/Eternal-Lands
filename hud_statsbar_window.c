@@ -687,7 +687,7 @@ void set_statsbar_watched_stats(int *cfg_watch_this_stats)
 {
 	int i;
 #if MAX_WATCH_STATS != 5
-#error You cannot just go around changing MAX_WATCH_STATS as its used by the el.cfg file so change init.h too.
+#error You cannot just go around changing MAX_WATCH_STATS as its used by the cfg file so change init.h too.
 #endif
 	for(i=0;i<MAX_WATCH_STATS;i++)
 	{

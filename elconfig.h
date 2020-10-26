@@ -13,6 +13,7 @@
 extern "C" {
 #endif
 
+extern const char * ini_filename;
 extern float water_tiles_extension;
 extern int show_game_seconds;
 extern int skybox_update_delay;
@@ -24,7 +25,7 @@ extern float pointer_size;
 #endif // NEW_CURSOR
 extern Uint32 max_actor_texture_handles;
 
-extern int write_ini_on_exit; /*< variable that determines if el.ini file is rewritten on exit of the program */
+extern int write_ini_on_exit; /*< variable that determines if the ini file is rewritten on exit of the program */
 
 extern int video_mode_set;
 extern int no_adjust_shadows;
@@ -88,7 +89,7 @@ typedef enum
 {
 	COMMAND_LINE_SHORT_VAR,	/*!< for abbreviated variable names from the command line */
 	COMMAND_LINE_LONG_VAR,	/*!< for full variable names from the command line */
-	INI_FILE_VAR,		/*!< for variables names from el.ini */
+	INI_FILE_VAR,		/*!< for variables names from the ini file */
 	IN_GAME_VAR		/*!< for names of variables changed in the games */
 } var_name_type;
 
@@ -192,9 +193,9 @@ void free_vars(void);
 
 /*!
  * \ingroup config
- * \brief   Reads the el.ini configuration file
+ * \brief   Reads the ini configuration file
  *
- *     Reads the el.ini configuration file
+ *     Reads the ini configuration file
  *
  * \retval int      0 if reading fails, 1 if successful
  *
@@ -203,9 +204,9 @@ int read_el_ini(void);
 
 /*!
  * \ingroup config
- * \brief   Writes the el.ini configuration file
+ * \brief   Writes the ini configuration file
  *
- *     Writes the current configuration to the el.ini file
+ *     Writes the current configuration to the ini file
  *
  * \retval int      0 if writing fails, 1 if successful
  *
@@ -331,7 +332,7 @@ void options_loaded(void);
  * Set previously stored multi-select variables.
  *
  * Some multi-select variables cannot be reliably set because they are not fully
- * initialized before el.ini is read. The values for these variables are stored,
+ * initialized before the ini file is read. The values for these variables are stored,
  * and the variables are set to the correct option afterwards using this function.
  * The initialization is done as follows:
  * 1. if only an index is stored, and it is a valid index, that is used.
