@@ -1,8 +1,8 @@
 /*
-	langselwin.c - Shows a language selection window if no language specified in el.ini
+	langselwin.c - Shows a language selection window if no language specified in the ini file.
 
 	Each available language is displayed from languages/langsel.xml.  The user can click on
-	their preferred language and then press save which will save the value in el.ini.
+	their preferred language and then press save which will save the value in the ini file.
 	Beside the save button a note can be displayed explaining a bit about languages in EL.
 	If the language "en" is chosen the client will continue to open the login/new
 	character/rules screen.   Otherwise, the client will be restarted.  All the text and
@@ -47,7 +47,7 @@ static list_node_t *langsel_list = NULL;
 static LANGSEL_LIST_NODE *langsel_default_node = NULL;
 static LANGSEL_LIST_NODE *langsel_chosen_node = NULL;
 static LANGSEL_LIST_NODE *langsel_selected_node = NULL;
-static float langsel_winRGB[4][3] = {{0.0f,0.25f,1.0f},{0.2f,0.7f,1.2f},{0.2f,1.0f,1.2f},{0.77f, 0.57f, 0.39f}};
+static float langsel_winRGB[4][3] = {{0.0f,0.25f,1.0f},{0.2f,0.7f,1.2f},{0.2f,1.0f,1.2f},{1.0f, 1.0f, 1.0f}};
 
 
 static int langsel_load_list(void)
@@ -55,6 +55,10 @@ static int langsel_load_list(void)
 	xmlDocPtr doc;
 	xmlNodePtr cur;
 	char *error_prefix = "Reading langsel.xml: ";
+
+	langsel_winRGB[3][0] = gui_color[0];
+	langsel_winRGB[3][1] = gui_color[1];
+	langsel_winRGB[3][2] = gui_color[2];
 
 	if ((doc = xmlReadFile("languages/langsel.xml", NULL, 0)) == NULL)
 	{
