@@ -254,10 +254,10 @@ int HandleEvent (SDL_Event *event)
 					last_gain = SDL_GetTicks();
 					el_input_focus = 1;
 					break;
-				case SDL_WINDOWEVENT_RESIZED:
+				case SDL_WINDOWEVENT_SIZE_CHANGED:
 				{
 					Uint32 old_window_width = window_width, old_window_height = window_height;
-					//printf("SDL_WINDOWEVENT_RESIZED\n");
+					//printf("\nSDL_WINDOWEVENT_SIZE_CHANGED old=%dx%d new=%dx%d\n", old_window_width, old_window_height, event->window.data1, event->window.data2);
 					update_window_size_and_scale();
 					resize_all_root_windows(old_window_width, window_width, old_window_height, window_height);
 					break;

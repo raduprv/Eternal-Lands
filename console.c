@@ -1699,10 +1699,8 @@ static int command_change_pass(char *text, int len)
 
 static int command_reset_res(char *text, int len)
 {
-	char str[80];
 	restore_starting_video_mode();
-	safe_snprintf(str, sizeof(str), "%s %dx%d", reset_res_str, window_width, window_height);
-	LOG_TO_CONSOLE(c_yellow1, str);
+	LOG_TO_CONSOLE(c_yellow1, reset_res_str);
 	return 1;
 }
 
@@ -1718,10 +1716,8 @@ static int command_set_res(char *text, int len)
 			new_height = atoi(text);
 		if ((new_width > 0) && (new_height > 0))
 		{
-			char str[80];
 			set_client_window_size(new_width, new_height);
-			safe_snprintf(str, sizeof(str), "%s %dx%d", set_res_str, window_width, window_height);
-			LOG_TO_CONSOLE(c_yellow1, str);
+			LOG_TO_CONSOLE(c_yellow1, set_res_str);
 			return 1;
 		}
 	}
@@ -1731,10 +1727,8 @@ static int command_set_res(char *text, int len)
 
 static int command_save_res(char *text, int len)
 {
-	char str[80];
 	set_user_defined_video_mode();
-	safe_snprintf(str, sizeof(str), "%s %dx%d", save_res_str, window_width, window_height);
-	LOG_TO_CONSOLE(c_yellow1, str);
+	LOG_TO_CONSOLE(c_yellow1, save_res_str);
 	return 1;
 }
 

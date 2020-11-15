@@ -27,9 +27,6 @@ extern int bpp; /*!< color depth to use */
 extern int video_mode; /*!< currently selected video mode */
 extern int video_user_width; /*!< userdefined window width */
 extern int video_user_height; /*!< userdefined window height */
-#ifdef WINDOWS
-extern int disable_window_adjustment; /*<! Switch off window size adjustment for window borders, task bar and the like */
-#endif
 extern int full_screen; /*!< flag that inidicates whether we are in fullscreen or windowed mode */
 extern int disable_gamma_adjust;
 extern float gamma_var; /*!< The current gamma value */
