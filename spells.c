@@ -1400,7 +1400,7 @@ static int mouseover_sigils_handler(window_info *win, int mx, int my)
 
 		if (pos >= 0 && sigils_list[pos].have_sigil)
 		{
-			my_strcp((char*)raw_spell_text,sigils_list[pos].name);
+			safe_strncpy((char*)raw_spell_text, sigils_list[pos].name, sizeof(raw_spell_text));
 			have_error_message=0;
 		}
 		return 0;
@@ -1411,7 +1411,7 @@ static int mouseover_sigils_handler(window_info *win, int mx, int my)
 		int pos=get_mouse_pos_in_grid(mx, my, MAX_SIGILS, 1, sigil_border, win->len_y-sigil_grid_size-sigil_border-1, sigil_grid_size, sigil_grid_size);
 
 		if (pos >= 0 && on_cast[pos]!=-1){
-			my_strcp((char*)raw_spell_text,sigils_list[on_cast[pos]].name);
+			safe_strncpy((char*)raw_spell_text, sigils_list[on_cast[pos]].name, sizeof(raw_spell_text));
 			have_error_message=0;
 		}
 		return 0;
@@ -2028,167 +2028,165 @@ void display_sigils_menu()
 }
 
 
-static void init_sigils(void){
-	int i;
-
-	i=0;
+static void init_sigils(void)
+{
+	sigil_def *def = sigils_list;
 
 	// TODO: load this data from a file
-	sigils_list[i].sigil_img=0;
-	my_strcp(sigils_list[i].name,(char*)sig_change.str);
-	my_strcp(sigils_list[i].description,(char*)sig_change.desc);
-	sigils_list[i].have_sigil=1;
+	def->sigil_img = 0;
+	safe_strncpy(def->name, (const char*)sig_change.str, sizeof(def->name));
+	safe_strncpy(def->description, (const char*)sig_change.desc, sizeof(def->description));
+	def->have_sigil = 1;
 
-	i++;
-	sigils_list[i].sigil_img=1;
-	my_strcp(sigils_list[i].name,(char*)sig_restore.str);
-	my_strcp(sigils_list[i].description,(char*)sig_restore.desc);
-	sigils_list[i].have_sigil=1;
+	++def;
+	def->sigil_img = 1;
+	safe_strncpy(def->name, (const char*)sig_restore.str, sizeof(def->name));
+	safe_strncpy(def->description, (const char*)sig_restore.desc, sizeof(def->description));
+	def->have_sigil = 1;
 
-	i++;
-	sigils_list[i].sigil_img=2;
-	my_strcp(sigils_list[i].name,(char*)sig_space.str);
-	my_strcp(sigils_list[i].description,(char*)sig_space.desc);
-	sigils_list[i].have_sigil=1;
+	++def;
+	def->sigil_img = 2;
+	safe_strncpy(def->name, (const char*)sig_space.str, sizeof(def->name));
+	safe_strncpy(def->description, (const char*)sig_space.desc, sizeof(def->description));
+	def->have_sigil = 1;
 
-	i++;
-	sigils_list[i].sigil_img=3;
-	my_strcp(sigils_list[i].name,(char*)sig_increase.str);
-	my_strcp(sigils_list[i].description,(char*)sig_increase.desc);
-	sigils_list[i].have_sigil=1;
+	++def;
+	def->sigil_img = 3;
+	safe_strncpy(def->name, (const char*)sig_increase.str, sizeof(def->name));
+	safe_strncpy(def->description, (const char*)sig_increase.desc, sizeof(def->description));
+	def->have_sigil = 1;
 
-	i++;
-	sigils_list[i].sigil_img=4;
-	my_strcp(sigils_list[i].name,(char*)sig_decrease.str);
-	my_strcp(sigils_list[i].description,(char*)sig_decrease.desc);
-	sigils_list[i].have_sigil=1;
+	++def;
+	def->sigil_img = 4;
+	safe_strncpy(def->name, (const char*)sig_decrease.str, sizeof(def->name));
+	safe_strncpy(def->description, (const char*)sig_decrease.desc, sizeof(def->description));
+	def->have_sigil = 1;
 
-	i++;
-	sigils_list[i].sigil_img=5;
-	my_strcp(sigils_list[i].name,(char*)sig_temp.str);
-	my_strcp(sigils_list[i].description,(char*)sig_temp.desc);
-	sigils_list[i].have_sigil=1;
+	++def;
+	def->sigil_img = 5;
+	safe_strncpy(def->name, (const char*)sig_temp.str, sizeof(def->name));
+	safe_strncpy(def->description, (const char*)sig_temp.desc, sizeof(def->description));
+	def->have_sigil = 1;
 
-	i++;
-	sigils_list[i].sigil_img=6;
-	my_strcp(sigils_list[i].name,(char*)sig_perm.str);
-	my_strcp(sigils_list[i].description,(char*)sig_perm.desc);
-	sigils_list[i].have_sigil=1;
+	++def;
+	def->sigil_img = 6;
+	safe_strncpy(def->name, (const char*)sig_perm.str, sizeof(def->name));
+	safe_strncpy(def->description, (const char*)sig_perm.desc, sizeof(def->description));
+	def->have_sigil = 1;
 
-	i++;
-	sigils_list[i].sigil_img=7;
-	my_strcp(sigils_list[i].name,(char*)sig_move.str);
-	my_strcp(sigils_list[i].description,(char*)sig_move.desc);
-	sigils_list[i].have_sigil=1;
+	++def;
+	def->sigil_img = 7;
+	safe_strncpy(def->name, (const char*)sig_move.str, sizeof(def->name));
+	safe_strncpy(def->description, (const char*)sig_move.desc, sizeof(def->description));
+	def->have_sigil = 1;
 
-	i++;
-	sigils_list[i].sigil_img=8;
-	my_strcp(sigils_list[i].name,(char*)sig_local.str);
-	my_strcp(sigils_list[i].description,(char*)sig_local.desc);
-	sigils_list[i].have_sigil=1;
+	++def;
+	def->sigil_img = 8;
+	safe_strncpy(def->name, (const char*)sig_local.str, sizeof(def->name));
+	safe_strncpy(def->description, (const char*)sig_local.desc, sizeof(def->description));
+	def->have_sigil = 1;
 
-	i++;
-	sigils_list[i].sigil_img=9;
-	my_strcp(sigils_list[i].name,(char*)sig_global.str);
-	my_strcp(sigils_list[i].description,(char*)sig_global.desc);
-	sigils_list[i].have_sigil=1;
+	++def;
+	def->sigil_img = 9;
+	safe_strncpy(def->name, (const char*)sig_global.str, sizeof(def->name));
+	safe_strncpy(def->description, (const char*)sig_global.desc, sizeof(def->description));
+	def->have_sigil = 1;
 
-	i++;
-	sigils_list[i].sigil_img=10;
-	my_strcp(sigils_list[i].name,(char*)sig_fire.str);
-	my_strcp(sigils_list[i].description,(char*)sig_fire.desc);
-	sigils_list[i].have_sigil=1;
+	++def;
+	def->sigil_img = 10;
+	safe_strncpy(def->name, (const char*)sig_fire.str, sizeof(def->name));
+	safe_strncpy(def->description, (const char*)sig_fire.desc, sizeof(def->description));
+	def->have_sigil = 1;
 
-	i++;
-	sigils_list[i].sigil_img=11;
-	my_strcp(sigils_list[i].name,(char*)sig_water.str);
-	my_strcp(sigils_list[i].description,(char*)sig_water.desc);
-	sigils_list[i].have_sigil=1;
+	++def;
+	def->sigil_img = 11;
+	safe_strncpy(def->name, (const char*)sig_water.str, sizeof(def->name));
+	safe_strncpy(def->description, (const char*)sig_water.desc, sizeof(def->description));
+	def->have_sigil = 1;
 
-	i++;
-	sigils_list[i].sigil_img=12;
-	my_strcp(sigils_list[i].name,(char*)sig_air.str);
-	my_strcp(sigils_list[i].description,(char*)sig_air.desc);
-	sigils_list[i].have_sigil=1;
+	++def;
+	def->sigil_img = 12;
+	safe_strncpy(def->name, (const char*)sig_air.str, sizeof(def->name));
+	safe_strncpy(def->description, (const char*)sig_air.desc, sizeof(def->description));
+	def->have_sigil = 1;
 
-	i++;
-	sigils_list[i].sigil_img=13;
-	my_strcp(sigils_list[i].name,(char*)sig_earth.str);
-	my_strcp(sigils_list[i].description,(char*)sig_earth.desc);
-	sigils_list[i].have_sigil=1;
+	++def;
+	def->sigil_img = 13;
+	safe_strncpy(def->name, (const char*)sig_earth.str, sizeof(def->name));
+	safe_strncpy(def->description, (const char*)sig_earth.desc, sizeof(def->description));
+	def->have_sigil = 1;
 
-	i++;
-	sigils_list[i].sigil_img=14;
-	my_strcp(sigils_list[i].name,(char*)sig_spirit.str);
-	my_strcp(sigils_list[i].description,(char*)sig_spirit.desc);
-	sigils_list[i].have_sigil=1;
+	++def;
+	def->sigil_img = 14;
+	safe_strncpy(def->name, (const char*)sig_spirit.str, sizeof(def->name));
+	safe_strncpy(def->description, (const char*)sig_spirit.desc, sizeof(def->description));
+	def->have_sigil = 1;
 
-	i++;
-	sigils_list[i].sigil_img=15;
-	my_strcp(sigils_list[i].name,(char*)sig_matter.str);
-	my_strcp(sigils_list[i].description,(char*)sig_matter.desc);
-	sigils_list[i].have_sigil=1;
+	++def;
+	def->sigil_img = 15;
+	safe_strncpy(def->name, (const char*)sig_matter.str, sizeof(def->name));
+	safe_strncpy(def->description, (const char*)sig_matter.desc, sizeof(def->description));
+	def->have_sigil = 1;
 
-	i++;
-	sigils_list[i].sigil_img=16;
-	my_strcp(sigils_list[i].name,(char*)sig_energy.str);
-	my_strcp(sigils_list[i].description,(char*)sig_energy.desc);
-	sigils_list[i].have_sigil=1;
+	++def;
+	def->sigil_img = 16;
+	safe_strncpy(def->name, (const char*)sig_energy.str, sizeof(def->name));
+	safe_strncpy(def->description, (const char*)sig_energy.desc, sizeof(def->description));
+	def->have_sigil = 1;
 
-	i++;
-	sigils_list[i].sigil_img=17;
-	my_strcp(sigils_list[i].name,(char*)sig_magic.str);
-	my_strcp(sigils_list[i].description,(char*)sig_magic.desc);
-	sigils_list[i].have_sigil=1;
+	++def;
+	def->sigil_img = 17;
+	safe_strncpy(def->name, (const char*)sig_magic.str, sizeof(def->name));
+	safe_strncpy(def->description, (const char*)sig_magic.desc, sizeof(def->description));
+	def->have_sigil = 1;
 
-	i++;
-	sigils_list[i].sigil_img=18;
-	my_strcp(sigils_list[i].name,(char*)sig_destroy.str);
-	my_strcp(sigils_list[i].description,(char*)sig_destroy.desc);
-	sigils_list[i].have_sigil=1;
+	++def;
+	def->sigil_img = 18;
+	safe_strncpy(def->name, (const char*)sig_destroy.str, sizeof(def->name));
+	safe_strncpy(def->description, (const char*)sig_destroy.desc, sizeof(def->description));
+	def->have_sigil = 1;
 
-	i++;
-	sigils_list[i].sigil_img=19;
-	my_strcp(sigils_list[i].name,(char*)sig_create.str);
-	my_strcp(sigils_list[i].description,(char*)sig_create.desc);
-	sigils_list[i].have_sigil=1;
+	++def;
+	def->sigil_img = 19;
+	safe_strncpy(def->name, (const char*)sig_create.str, sizeof(def->name));
+	safe_strncpy(def->description, (const char*)sig_create.desc, sizeof(def->description));
+	def->have_sigil = 1;
 
-	i++;
-	sigils_list[i].sigil_img=20;
-	my_strcp(sigils_list[i].name,(char*)sig_knowledge.str);
-	my_strcp(sigils_list[i].description,(char*)sig_knowledge.desc);
-	sigils_list[i].have_sigil=1;
+	++def;
+	def->sigil_img = 20;
+	safe_strncpy(def->name, (const char*)sig_knowledge.str, sizeof(def->name));
+	safe_strncpy(def->description, (const char*)sig_knowledge.desc, sizeof(def->description));
+	def->have_sigil = 1;
 
-	i++;
-	sigils_list[i].sigil_img=21;
-	my_strcp(sigils_list[i].name,(char*)sig_protection.str);
-	my_strcp(sigils_list[i].description,(char*)sig_protection.desc);
-	sigils_list[i].have_sigil=1;
+	++def;
+	def->sigil_img = 21;
+	safe_strncpy(def->name, (const char*)sig_protection.str, sizeof(def->name));
+	safe_strncpy(def->description, (const char*)sig_protection.desc, sizeof(def->description));
+	def->have_sigil = 1;
 
-	i++;
-	sigils_list[i].sigil_img=22;
-	my_strcp(sigils_list[i].name,(char*)sig_remove.str);
-	my_strcp(sigils_list[i].description,(char*)sig_remove.desc);
-	sigils_list[i].have_sigil=1;
+	++def;
+	def->sigil_img = 22;
+	safe_strncpy(def->name, (const char*)sig_remove.str, sizeof(def->name));
+	safe_strncpy(def->description, (const char*)sig_remove.desc, sizeof(def->description));
+	def->have_sigil = 1;
 
-	i++;
-	sigils_list[i].sigil_img=23;
-	my_strcp(sigils_list[i].name,(char*)sig_health.str);
-	my_strcp(sigils_list[i].description,(char*)sig_health.desc);
-	sigils_list[i].have_sigil=1;
+	++def;
+	def->sigil_img = 23;
+	safe_strncpy(def->name, (const char*)sig_health.str, sizeof(def->name));
+	safe_strncpy(def->description, (const char*)sig_health.desc, sizeof(def->description));
+	def->have_sigil = 1;
 
-	i++;
-	sigils_list[i].sigil_img=24;
-	my_strcp(sigils_list[i].name,(char*)sig_life.str);
-	my_strcp(sigils_list[i].description,(char*)sig_life.desc);
-	sigils_list[i].have_sigil=1;
+	++def;
+	def->sigil_img = 24;
+	safe_strncpy(def->name, (const char*)sig_life.str, sizeof(def->name));
+	safe_strncpy(def->description, (const char*)sig_life.desc, sizeof(def->description));
+	def->have_sigil = 1;
 
-	i++;
-	sigils_list[i].sigil_img=25;
-	my_strcp(sigils_list[i].name,(char*)sig_death.str);
-	my_strcp(sigils_list[i].description,(char*)sig_death.desc);
-	sigils_list[i].have_sigil=1;
-
+	++def;
+	def->sigil_img = 25;
+	safe_strncpy(def->name, (const char*)sig_death.str, sizeof(def->name));
+	safe_strncpy(def->description, (const char*)sig_death.desc, sizeof(def->description));
+	def->have_sigil = 1;
 }
 
 void spell_text_from_server(const Uint8 *in_data, int data_length)

@@ -216,18 +216,6 @@ char* safe_strcasestr (const char* haystack, size_t haystack_len, const char* ne
 
 /*!
  * \ingroup	misc_utils
- * \brief	The function copies the string from source to dest
- *
- * 		The function copies the string from source to destination, and put a terminating \\0
- *
- * \param	dest The destination char array
- * \param	source The source char array
- * \todo	We should just use strcpy instead...
- */
-void my_strcp(char *dest,const char * source);
-
-/*!
- * \ingroup	misc_utils
  * \brief	The function copies the string from source to dest, but no more than n characters
  *
  * 		The function copies the string from source to destination, but no more than n characters. It also puts an ending \\0

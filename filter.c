@@ -92,8 +92,8 @@ int add_to_filter_list (const char *name, char local, char save_name)
 			if (left[0] == '*' && left[l] != '*') filter_list[i].wildcard_type = 1;
 			if (left[0] != '*' && left[l] == '*') filter_list[i].wildcard_type = 2;
 			if (left[0] == '*' && left[l] == '*') filter_list[i].wildcard_type = 3;
-			my_strcp (filter_list[i].name, left);
-			my_strcp (filter_list[i].replacement, right);
+			strcpy(filter_list[i].name, left);
+			strcpy(filter_list[i].replacement, right);
 			filter_list[i].len = strlen(filter_list[i].name);//memorize the length
 			filter_list[i].rlen = strlen(filter_list[i].replacement);//memorize the length
 			filter_list[i].local = local;

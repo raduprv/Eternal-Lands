@@ -281,15 +281,6 @@ char* safe_strcasestr (const char* haystack, size_t haystack_len, const char* ne
 	return NULL;
 }
 
-void my_strcp(char *dest,const char * source)
-{
-	while(*source)
-	{
-		*dest++=*source++;
-	}
-	*dest='\0';
-}
-
 void my_strncp (char *dest, const char *source, size_t len)
 {
 	while (*source != '\0' && --len > 0)

@@ -78,7 +78,7 @@ static int do_load_map(const char *file_name, update_func *update_function)
 #endif
 	file_mem = el_get_pointer(file);
 
-	my_strcp(map_file_name, file_name);
+	safe_strncpy(map_file_name, file_name, sizeof(map_file_name));
 
 	LOG_DEBUG("Loading map '%s'.", file_name);
 

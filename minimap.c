@@ -619,7 +619,7 @@ static void load_exploration_map (void)
 	if(!minimap_texture)
 		return;
 
-	my_strcp (exploration_map_filename, map_file_name);
+	safe_strncpy(exploration_map_filename, map_file_name, sizeof(exploration_map_filename));
 	exploration_map_filename[strlen(exploration_map_filename)-4] = 0;
 	strcat (exploration_map_filename, ".xm");
 	safe_strncpy (current_exploration_map_filename, exploration_map_filename, sizeof (current_exploration_map_filename));

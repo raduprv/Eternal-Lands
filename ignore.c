@@ -38,7 +38,7 @@ int add_to_ignore_list(char *name, char save_name)
 			if(!ignore_list[i].used)
 				{
 					//excellent, a free spot
-					my_strcp(ignore_list[i].name,name);
+					safe_strncpy(ignore_list[i].name, name, sizeof(ignore_list[i].name));
 					//add to the global ignore file, if the case
 					if(save_name)
 						{
@@ -257,7 +257,7 @@ int pre_check_if_ignored (const char *input_text, int len, Uint8 channel)
 		if (channel == CHAT_PERSONAL || channel == CHAT_MODPM)
 		{
 			//memorise the name
-			my_strcp (last_pm_from, name);
+			safe_strncpy(last_pm_from, name, sizeof(last_pm_from));
 		}
 		return 0;
 	}
