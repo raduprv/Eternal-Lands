@@ -281,15 +281,6 @@ char* safe_strcasestr (const char* haystack, size_t haystack_len, const char* ne
 	return NULL;
 }
 
-void my_strncp (char *dest, const char *source, size_t len)
-{
-	while (*source != '\0' && --len > 0)
-	{
-		*dest++ = *source++;
-	}
-	*dest = '\0';
-}
-
 Sint32 my_strncompare(const char *dest, const char *src, Sint32 len)
 {
 	int i;
@@ -465,7 +456,7 @@ void get_string_value(char *buf, size_t maxlen, const xmlNode *node)
 	if (!node->children)
 		buf[0] = '\0';
 	else
-		my_strncp(buf, (const char*)node->children->content, maxlen);
+		safe_strncpy(buf, (const char*)node->children->content, maxlen);
 }
 
 void get_item_string_value(char *buf, size_t maxlen, const xmlNode *item,

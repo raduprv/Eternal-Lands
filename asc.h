@@ -216,18 +216,6 @@ char* safe_strcasestr (const char* haystack, size_t haystack_len, const char* ne
 
 /*!
  * \ingroup	misc_utils
- * \brief	The function copies the string from source to dest, but no more than n characters
- *
- * 		The function copies the string from source to destination, but no more than n characters. It also puts an ending \\0
- *
- * \param	dest The destination char array
- * \param	source The source char array
- * \param	len The number of bytes you wish to copy
- */
-void my_strncp (char *dest, const char *source, size_t len);
-
-/*!
- * \ingroup	misc_utils
  * \brief	Compares n bytes of the 2 strings (case insensitive)
  *
  * 		The function compares n bytes of the 2 strings. It is not case sensitive

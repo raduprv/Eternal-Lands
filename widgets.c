@@ -1959,7 +1959,7 @@ int tab_add (int window_id, Uint32 col_id, const char *label, Uint16 tag_width, 
 		col->max_tabs = new_max;
 	}
 
-	my_strncp ((char*)col->tabs[nr].label, label, sizeof (col->tabs[nr].label));
+	safe_strncpy((char*)col->tabs[nr].label, label, sizeof (col->tabs[nr].label));
 	col->tabs[nr].content_id = create_window ("", window_id, 0, w->pos_x, w->pos_y + col->tag_height, w->len_x, w->len_y - col->tag_height, ELW_TITLE_NONE|flags);
 	col->tabs[nr].closable = closable ? 1 : 0;
 

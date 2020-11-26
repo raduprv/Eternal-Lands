@@ -1138,7 +1138,7 @@ int	create_window(const char *name, int pos_id, Uint32 pos_loc, int pos_x, int p
 		}
 		else
 			win->cm_id = CM_INIT_VALUE;
-		my_strncp(win->window_name, name, sizeof (win->window_name));
+		safe_strncpy(win->window_name, name, sizeof (win->window_name));
 
 		if (pos_id >= 0 && !windows_list.window[pos_id].displayed)
 		{

@@ -216,19 +216,19 @@ static void change_actor (void)
 			actors_defs[our_actor.race].boots[our_actor.boots].mesh_index;
 
 		// Recopy all of the textures.
-		my_strncp(our_actor.our_model->body_parts->hands_tex,actors_defs[our_actor.race].skin[our_actor.skin].hands_name,sizeof(our_actor.our_model->body_parts->hands_tex));
-		my_strncp(our_actor.our_model->body_parts->head_tex,actors_defs[our_actor.race].skin[our_actor.skin].head_name,sizeof(our_actor.our_model->body_parts->head_tex));
+		safe_strncpy(our_actor.our_model->body_parts->hands_tex,actors_defs[our_actor.race].skin[our_actor.skin].hands_name,sizeof(our_actor.our_model->body_parts->hands_tex));
+		safe_strncpy(our_actor.our_model->body_parts->head_tex,actors_defs[our_actor.race].skin[our_actor.skin].head_name,sizeof(our_actor.our_model->body_parts->head_tex));
 
-		my_strncp(our_actor.our_model->body_parts->hair_tex,actors_defs[our_actor.race].hair[our_actor.hair].hair_name,sizeof(our_actor.our_model->body_parts->hair_tex));
+		safe_strncpy(our_actor.our_model->body_parts->hair_tex,actors_defs[our_actor.race].hair[our_actor.hair].hair_name,sizeof(our_actor.our_model->body_parts->hair_tex));
 #ifdef NEW_EYES
-		my_strncp(our_actor.our_model->body_parts->eyes_tex,actors_defs[our_actor.race].eyes[our_actor.eyes].eyes_name,sizeof(our_actor.our_model->body_parts->eyes_tex));
+		safe_strncpy(our_actor.our_model->body_parts->eyes_tex,actors_defs[our_actor.race].eyes[our_actor.eyes].eyes_name,sizeof(our_actor.our_model->body_parts->eyes_tex));
 #endif
-		my_strncp(our_actor.our_model->body_parts->arms_tex,actors_defs[our_actor.race].shirt[our_actor.shirt].arms_name,sizeof(our_actor.our_model->body_parts->arms_tex));
-		my_strncp(our_actor.our_model->body_parts->torso_tex,actors_defs[our_actor.race].shirt[our_actor.shirt].torso_name,sizeof(our_actor.our_model->body_parts->torso_tex));
+		safe_strncpy(our_actor.our_model->body_parts->arms_tex,actors_defs[our_actor.race].shirt[our_actor.shirt].arms_name,sizeof(our_actor.our_model->body_parts->arms_tex));
+		safe_strncpy(our_actor.our_model->body_parts->torso_tex,actors_defs[our_actor.race].shirt[our_actor.shirt].torso_name,sizeof(our_actor.our_model->body_parts->torso_tex));
 
-		my_strncp(our_actor.our_model->body_parts->pants_tex,actors_defs[our_actor.race].legs[our_actor.pants].legs_name,sizeof(our_actor.our_model->body_parts->pants_tex));
+		safe_strncpy(our_actor.our_model->body_parts->pants_tex,actors_defs[our_actor.race].legs[our_actor.pants].legs_name,sizeof(our_actor.our_model->body_parts->pants_tex));
 
-		my_strncp(our_actor.our_model->body_parts->boots_tex,actors_defs[our_actor.race].boots[our_actor.boots].boots_name,sizeof(our_actor.our_model->body_parts->boots_tex));
+		safe_strncpy(our_actor.our_model->body_parts->boots_tex,actors_defs[our_actor.race].boots[our_actor.boots].boots_name,sizeof(our_actor.our_model->body_parts->boots_tex));
 
 		free_actor_texture(our_actor.our_model->texture_id);
 		our_actor.our_model->texture_id = load_enhanced_actor(our_actor.our_model->body_parts, 0);	// Rebuild the actor's textures.
@@ -1283,10 +1283,10 @@ static void update_head(void)
 static void update_skin(void)
 {
 	// Copy the skin texture names.
-	my_strncp(our_actor.our_model->body_parts->hands_tex,
+	safe_strncpy(our_actor.our_model->body_parts->hands_tex,
 		actors_defs[our_actor.race].skin[our_actor.skin].hands_name,
 		sizeof(our_actor.our_model->body_parts->hands_tex));
-	my_strncp(our_actor.our_model->body_parts->head_tex,
+	safe_strncpy(our_actor.our_model->body_parts->head_tex,
 		actors_defs[our_actor.race].skin[our_actor.skin].head_name,
 		sizeof(our_actor.our_model->body_parts->head_tex));
 
@@ -1297,7 +1297,7 @@ static void update_skin(void)
 static void update_hair(void)
 {
 	// Copy the hair texture name.
-	my_strncp(our_actor.our_model->body_parts->hair_tex,
+	safe_strncpy(our_actor.our_model->body_parts->hair_tex,
 		actors_defs[our_actor.race].hair[our_actor.hair].hair_name,
 		sizeof(our_actor.our_model->body_parts->hair_tex));
 
@@ -1309,7 +1309,7 @@ static void update_hair(void)
 static void update_eyes()
 {
 	// Copy the eyes texture name.
-	my_strncp(our_actor.our_model->body_parts->eyes_tex,
+	safe_strncpy(our_actor.our_model->body_parts->eyes_tex,
 		actors_defs[our_actor.race].eyes[our_actor.eyes].eyes_name,
 		sizeof(our_actor.our_model->body_parts->eyes_tex));
 
@@ -1321,10 +1321,10 @@ static void update_eyes()
 static void update_shirt()
 {
 	// Copy the shirt and arms texture names.
-	my_strncp(our_actor.our_model->body_parts->arms_tex,
+	safe_strncpy(our_actor.our_model->body_parts->arms_tex,
 		actors_defs[our_actor.race].shirt[our_actor.shirt].arms_name,
 		sizeof(our_actor.our_model->body_parts->arms_tex));
-	my_strncp(our_actor.our_model->body_parts->torso_tex,
+	safe_strncpy(our_actor.our_model->body_parts->torso_tex,
 		actors_defs[our_actor.race].shirt[our_actor.shirt].torso_name,
 		sizeof(our_actor.our_model->body_parts->torso_tex));
 
@@ -1346,7 +1346,7 @@ static void update_shirt()
 static void update_pants(void)
 {
 	// Copy the pants texture name.
-	my_strncp(our_actor.our_model->body_parts->pants_tex,
+	safe_strncpy(our_actor.our_model->body_parts->pants_tex,
 		actors_defs[our_actor.race].legs[our_actor.pants].legs_name,
 		sizeof(our_actor.our_model->body_parts->pants_tex));
 
@@ -1369,7 +1369,7 @@ static void update_pants(void)
 static void update_boots(void)
 {
 	// Copy the new boots texture name.
-	my_strncp(our_actor.our_model->body_parts->boots_tex,
+	safe_strncpy(our_actor.our_model->body_parts->boots_tex,
 		actors_defs[our_actor.race].boots[our_actor.boots].boots_name,
 		sizeof(our_actor.our_model->body_parts->boots_tex));
 

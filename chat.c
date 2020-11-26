@@ -470,7 +470,7 @@ static int add_chat_tab(int nlines, Uint8 channel)
 			channels[ichan].newchan = 1;
 			channels[ichan].highlighted = 0;
 
-			my_strncp(title,(tab_label(channel))->name, sizeof(title));
+			safe_strncpy(title,(tab_label(channel))->name, sizeof(title));
 
 			channels[ichan].tab_id = tab_add (chat_win, chat_tabcollection_id, title, 0, 1, 0);
 			set_window_flag (channels[ichan].tab_id, ELW_CLICK_TRANSPARENT);

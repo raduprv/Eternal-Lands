@@ -158,7 +158,7 @@ void build_response_entries (const Uint8 *data, int total_length)
 			break;
 
 		dialogue_responces[i].in_use = 1;
-		my_strncp((char*)dialogue_responces[i].text, (char*)&data[last_index + 2], len);
+		safe_strncpy((char*)dialogue_responces[i].text, (char*)&data[last_index + 2], len);
 		dialogue_responces[i].response_id = SDL_SwapLE16(*((Uint16 *)(data + last_index + 2 + len)));
 		dialogue_responces[i].to_actor = SDL_SwapLE16(*((Uint16 *)(data + last_index + 2 + 2 + len)));
 		// apply any local or global filters and set the final length of the text

@@ -1576,7 +1576,7 @@ void play_music(int list)
 	{
 		if (fscanf (fp, "%254s", strLine) == 1)
 		{
-			my_strncp (playlist[i].file_name, strLine, MAX_PLAYLIST_FILENAME);
+			safe_strncpy(playlist[i].file_name, strLine, MAX_PLAYLIST_FILENAME);
 			playlist[i].min_x = 0;
 			playlist[i].min_y = 0;
 			playlist[i].max_x = 10000;

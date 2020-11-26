@@ -413,7 +413,7 @@ static e3d_object *load_e3d_cache(const char* file_name)
 		return NULL;
 	}
 	// and fill in the data
-	my_strncp(e3d_id->file_name, file_name, sizeof(e3d_id->file_name));
+	safe_strncpy(e3d_id->file_name, file_name, sizeof(e3d_id->file_name));
 
 	e3d_id = load_e3d_detail(e3d_id);
 	if (!e3d_id)
@@ -475,7 +475,7 @@ int add_e3d_at_id(int id, const char* file_name,
 	{
 		LOG_ERROR(nasty_error_str, fname);
 		//replace it with the null object, to avoid object IDs corruption
-		my_strncp(fname, "./3dobjects/badobject.e3d", sizeof(fname));
+		safe_strncpy(fname, "./3dobjects/badobject.e3d", sizeof(fname));
 		returned_e3d = load_e3d_cache(fname);
 		if (!returned_e3d)
 			return -1; // umm, not even found the place holder, this is teh SUCK!!!
@@ -484,7 +484,7 @@ int add_e3d_at_id(int id, const char* file_name,
 	our_object = calloc(1, sizeof (object3d));
 
 	// and fill it in
-	my_strncp(our_object->file_name, fname, sizeof(our_object->file_name));
+	safe_strncpy(our_object->file_name, fname, sizeof(our_object->file_name));
 	our_object->x_pos = x_pos;
 	our_object->y_pos = y_pos;
 	our_object->z_pos = z_pos;

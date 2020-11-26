@@ -1658,7 +1658,7 @@ void add_actor_from_server (const char *in_data, int len)
 		{
 			LOG_ERROR("%s (%d): %s/%d\n", bad_actor_name_length, actors_list[i]->actor_type,&in_data[17], (int)strlen(&in_data[17]));
 		}
-	else my_strncp(actors_list[i]->actor_name,&in_data[17],30);
+	else safe_strncpy(actors_list[i]->actor_name,&in_data[17],30);
 
 	if (attachment_type >= 0)
 		add_actor_attachment(actor_id, attachment_type);

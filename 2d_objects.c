@@ -289,7 +289,7 @@ static obj_2d_def* load_obj_2d_def(const char *file_name)
 	if (!sep || sep == file_name)
 		*cur_dir = '\0';
 	else
-		my_strncp(cur_dir, file_name, sep-file_name+1);
+		safe_strncpy(cur_dir, file_name, sep-file_name+1);
 
 	file = el_open(file_name);
 	if (!file)
@@ -309,7 +309,7 @@ static obj_2d_def* load_obj_2d_def(const char *file_name)
 
 	//ok, the file is loaded, so parse it
 	cur_object=calloc(1, sizeof(obj_2d_def));
-	my_strncp(cur_object->file_name, file_name,
+	safe_strncpy(cur_object->file_name, file_name,
 		sizeof(cur_object->file_name));
 	parse_2d0(obj_file_mem, f_size, cur_dir, cur_object);
 
@@ -762,7 +762,7 @@ int add_2d_obj(char * file_name, float x_pos, float y_pos, float z_pos,
 	}
 
 	our_object = calloc(1, sizeof(obj_2d));
-	my_strncp(our_object->file_name, fname, 80);
+	safe_strncpy(our_object->file_name, fname, 80);
 	our_object->x_pos=x_pos;
 	our_object->y_pos=y_pos;
 	our_object->z_pos=z_pos;

@@ -1386,7 +1386,7 @@ int command_storage(char *text, int len)
 		int nb = len - i - 1;
 		if (nb > sizeof (storage_filter) - 1)
 			nb = sizeof (storage_filter) - 1;
-		my_strncp (storage_filter, text+i+1, nb+1);
+		safe_strncpy(storage_filter, text+i+1, nb+1);
 	}
 
 	if (have_storage_list)
