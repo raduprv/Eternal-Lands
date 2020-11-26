@@ -29,7 +29,7 @@ int add_to_ignore_list(char *name, char save_name)
 	for(i=0;i<MAX_IGNORES;i++)
 		{
 			if(ignore_list[i].used)
-				if(my_strcompare(ignore_list[i].name,name))return -1;//already in the list
+				if (!strcasecmp(ignore_list[i].name, name))return -1;//already in the list
 		}
 
 	//ok, find a free spot
@@ -70,7 +70,7 @@ int remove_from_ignore_list(char *name)
 	for(i=0;i<MAX_IGNORES;i++)
 		{
 			if(!found && ignore_list[i].used)
-				if(my_strcompare(ignore_list[i].name,name))
+				if (!strcasecmp(ignore_list[i].name, name))
 					{
 						ignore_list[i].used=0;
 						found = 1;
@@ -107,7 +107,7 @@ int check_if_ignored (const char *name)
 
 	for (i = 0; i < MAX_IGNORES; i++)
 	{
-		if (ignore_list[i].used && my_strcompare(ignore_list[i].name, name))
+		if (ignore_list[i].used && !strcasecmp(ignore_list[i].name, name))
 			return 1;	// yep, ignored
 	}
 	return 0;	// nope

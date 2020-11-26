@@ -70,7 +70,7 @@ int add_to_filter_list (const char *name, char local, char save_name)
 			{
 				if (filter_list[j].len > 0)
 				{
-					if (my_strcompare (filter_list[j].name, left))
+					if (!strcasecmp(filter_list[j].name, left))
 						return -1; // Already in the list
 				}
 			}
@@ -118,7 +118,7 @@ int remove_from_filter_list (const char *name)
 	{
 		if (filter_list[i].len > 0)
 		{
-			if (my_strcompare (filter_list[i].name, name))
+			if (!strcasecmp(filter_list[i].name, name))
 			{
 				local = filter_list[i].local;
 				filter_list[i].len = 0;

@@ -52,7 +52,7 @@ void fill_skills_win (int window_id)
 
 	for(i=0;i<=numpage;i++)
 	{
-		if(my_strcompare(Page[i].Name,"newskills"))
+		if (!strcasecmp(Page[i].Name, "newskills"))
 			break;
 	}
 	skillspage = i;

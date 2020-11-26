@@ -780,9 +780,13 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 							i--;// last actor was put here, he needs to be checked too
 						}
 #ifdef UID
-					else if(kind_of_actor==COMPUTER_CONTROLLED_HUMAN && (actors_list[i]->kind_of_actor==COMPUTER_CONTROLLED_HUMAN || actors_list[i]->kind_of_actor==PKABLE_COMPUTER_CONTROLLED) && !my_strcompare(&in_data[32], actors_list[i]->actor_name))
+					else if (kind_of_actor == COMPUTER_CONTROLLED_HUMAN
+						&& (actors_list[i]->kind_of_actor == COMPUTER_CONTROLLED_HUMAN || actors_list[i]->kind_of_actor == PKABLE_COMPUTER_CONTROLLED)
+						&& !strcasecmp(&in_data[32], actors_list[i]->actor_name))
 #else
-					else if(kind_of_actor==COMPUTER_CONTROLLED_HUMAN && (actors_list[i]->kind_of_actor==COMPUTER_CONTROLLED_HUMAN || actors_list[i]->kind_of_actor==PKABLE_COMPUTER_CONTROLLED) && !my_strcompare(&in_data[28], actors_list[i]->actor_name))
+					else if (kind_of_actor == COMPUTER_CONTROLLED_HUMAN
+						&& (actors_list[i]->kind_of_actor == COMPUTER_CONTROLLED_HUMAN || actors_list[i]->kind_of_actor == PKABLE_COMPUTER_CONTROLLED)
+						&& !strcasecmp(&in_data[28], actors_list[i]->actor_name))
 #endif
 						{
 #ifdef UID

@@ -4529,7 +4529,7 @@ int add_to_sound_warnings_list(const char * text)
 	{
 		if (warnings_list[i].sound >= 0)
 		{
-			if (my_strcompare (warnings_list[i].string, right))
+			if (!strcasecmp(warnings_list[i].string, right))
 				return -1; // Already in the list
 		}
 	}

@@ -298,15 +298,6 @@ Sint32 my_strncompare(const char *dest, const char *src, Sint32 len)
 	else return 1;
 }
 
-Sint32 my_strcompare(const char *dest, const char *src)
-{
-	Uint32 len;
-
-	len=strlen(dest);
-	if(len!=strlen(src))return 0;
-	return(my_strncompare(dest, src, len));
-}
-
 // is this string more then one character and all alpha in it are CAPS?
 Sint32 my_isupper(const char *src, int len)
 {

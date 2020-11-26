@@ -229,19 +229,6 @@ Sint32 my_strncompare(const char *dest, const char *src, Sint32 len);
 
 /*!
  * \ingroup	misc_utils
- * \brief	Compares the 2 strings
- *
- * 		The function compares the 2 strings, calls my_strncompare.
- *
- * \param	dest The first string
- * \param	src The second string
- * \retval Sint32 	Returns 1 on match, 0 if the strings doesn't match.
- * \sa my_strncompare
- */
-Sint32 my_strcompare(const char *dest, const char *src);
-
-/*!
- * \ingroup	misc_utils
  * \brief	Checks if len/2 characters of the string is uppercase
  *
  * 		Checks if len/2 characters of the string is uppercase

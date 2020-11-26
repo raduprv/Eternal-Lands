@@ -841,7 +841,7 @@ int command_unmark_special(char *text, int len, int do_log)
 	if(*text) {
 		for (i = 0; i < max_mark; i ++)
 		{
-			if (my_strcompare(marks[i].text, text) && (marks[i].x != -1))
+			if (!strcasecmp(marks[i].text, text) && (marks[i].x != -1))
 			{
 				char str[512];
 				marks[i].x = marks[i].y = -1;
@@ -1566,7 +1566,7 @@ int command_ckdata(char *text, int len)
 	/* if we have an expected value, compare then display an appropriate message */
 	if (*expected_digest_str)
 	{
-		if (my_strcompare(digest_str, expected_digest_str))
+		if (!strcasecmp(digest_str, expected_digest_str))
 			LOG_TO_CONSOLE(c_green2,"ckdata: File matches expected checksum");
 		else
 			LOG_TO_CONSOLE(c_red2,"ckdata: File does not match expected checksum");

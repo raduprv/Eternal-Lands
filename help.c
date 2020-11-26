@@ -51,7 +51,7 @@ void fill_help_win (int window_id)
 	size_t i;
 	for(i=0;i<=numpage;i++)
 	{
-		if(my_strcompare(Page[i].Name,"HelpPage"))
+		if (!strcasecmp(Page[i].Name, "HelpPage"))
 			break;
 	}
 	helppage=i;
