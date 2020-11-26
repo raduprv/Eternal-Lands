@@ -175,7 +175,7 @@ int check_if_filtered (const char *name)
 			if (filter_list[i].wildcard_type==0)
 			{
 				/* no wildcard, normal compare */
-				if (my_strncompare (filter_list[i].name, name, filter_list[i].len))
+				if (!strncasecmp(filter_list[i].name, name, filter_list[i].len))
 				{
 					if (!isalpha (name[filter_list[i].len]))
 					{
@@ -194,14 +194,14 @@ int check_if_filtered (const char *name)
 				l = filter_list[i].len;
 				if (t >= l-1)
 				{
-					if (my_strncompare (&(filter_list[i].name[1]), &name[t-l], l-1))
+					if (!strncasecmp(&(filter_list[i].name[1]), &name[t-l], l-1))
 						return i;
 				}
 			}
 			else if (filter_list[i].wildcard_type == 2)
 			{
 				/* word*                      */
-				if (my_strncompare (filter_list[i].name, name, filter_list[i].len-1))
+				if (!strncasecmp(filter_list[i].name, name, filter_list[i].len-1))
 					return i;
 			}
 			else if (filter_list[i].wildcard_type==3)
@@ -210,7 +210,7 @@ int check_if_filtered (const char *name)
 				for (t = 0; ; t++)
 				{
 					if (!isalpha (name[t])) break;
-					if (my_strncompare(&(filter_list[i].name[1]), &name[t], filter_list[i].len-2))
+					if (!strncasecmp(&(filter_list[i].name[1]), &name[t], filter_list[i].len-2))
 						return i;//yep, filtered
 				}
 			}
@@ -233,7 +233,7 @@ int filter_storage_text (char * input_text, int len, int size) {
 		{
 			iline = ++ic;
 		}
-		else if (my_strncompare (input_text+ic, storage_filter, flen))
+		else if (!strncasecmp(input_text+ic, storage_filter, flen))
 		{
 			diff = iline - istart;
 			if (diff > 0)
@@ -272,7 +272,7 @@ int filter_text (char *buff, int len, int size)
 {
 	int i, t, bad_len, rep_len, new_len, idx;
 
-	if (len > 31 && my_strncompare (buff+1, "Items you have in your storage:", 31)){
+	if (len > 31 && !strncasecmp(buff+1, "Items you have in your storage:", 31)){
 		//First up, attempt to save the storage list for re-reading later
 		if(size <= sizeof(cached_storage_list)){
 			memcpy(cached_storage_list, buff, size);

@@ -1049,7 +1049,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 						put_text_in_buffer(CHAT_SERVER, &in_data[3], data_length-3);
 				}  // End successs counters block
 				/* You failed to create a[n] ..., and lost the ingredients */
-				if (my_strncompare(inventory_item_string+1, "You failed to create a[n] ", 26))
+				if (!strncasecmp(inventory_item_string+1, "You failed to create a[n] ", 26))
 				{
 					size_t item_name_len = 0;
 					char item_name[128];

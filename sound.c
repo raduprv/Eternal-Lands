@@ -1622,13 +1622,13 @@ int display_song_name()
 		}
 		for (; i < comments->comments; ++i)
 		{
-			if ((artist == NULL) && (comments->comment_lengths[i] > 6) && (my_strncompare(comments->user_comments[i],"artist", 6)))
+			if ((artist == NULL) && (comments->comment_lengths[i] > 6) && (!strncasecmp(comments->user_comments[i],"artist", 6)))
 			{
 				artist = comments->user_comments[i] + 7;
 				if(title)
 					break;
 			}
-			else if ((title == NULL) && (comments->comment_lengths[i] > 6) && (my_strncompare(comments->user_comments[i],"title", 5)))
+			else if ((title == NULL) && (comments->comment_lengths[i] > 6) && (!strncasecmp(comments->user_comments[i],"title", 5)))
 			{
 				title = comments->user_comments[i] + 6;
 				if(artist)

@@ -416,7 +416,7 @@ int test_for_console_command(char *text, int length)
 		/* Look for a matching command */
 		for(i = 0; i < command_count; i++) {
 			cmd_len = strlen(commands[i].command);
-			if(strlen(text) >= cmd_len && my_strncompare(text, commands[i].command, cmd_len) && (isspace(text[cmd_len]) || text[cmd_len] == '\0')) {
+			if(strlen(text) >= cmd_len && !strncasecmp(text, commands[i].command, cmd_len) && (isspace(text[cmd_len]) || text[cmd_len] == '\0')) {
 				/* Command matched */
 				if(commands[i].callback && commands[i].callback(text+cmd_len, length-cmd_len)) {
 					/* The command was handled and we don't want to send it to the server */
@@ -1324,7 +1324,7 @@ int command_msg(char *text, int len)
 
 	// find first space, then skip any spaces
 	text = getparams(text);
-	if(my_strncompare(text, "all", 3))
+	if(!strncasecmp(text, "all", 3))
 	{
 		print_all_messages();
 	}

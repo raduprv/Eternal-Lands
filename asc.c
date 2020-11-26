@@ -281,23 +281,6 @@ char* safe_strcasestr (const char* haystack, size_t haystack_len, const char* ne
 	return NULL;
 }
 
-Sint32 my_strncompare(const char *dest, const char *src, Sint32 len)
-{
-	int i;
-	char ch1,ch2;
-
-	for(i=0;i<len;i++)
-		{
-			ch1=src[i];
-			ch2=dest[i];
-			if(ch1>=65 && ch1<=90)ch1+=32;//make lowercase
-			if(ch2>=65 && ch2<=90)ch2+=32;//make lowercase
-			if(ch1!=ch2)break;
-		}
-	if(i!=len)return 0;
-	else return 1;
-}
-
 // is this string more then one character and all alpha in it are CAPS?
 Sint32 my_isupper(const char *src, int len)
 {

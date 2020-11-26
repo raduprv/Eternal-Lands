@@ -216,19 +216,6 @@ char* safe_strcasestr (const char* haystack, size_t haystack_len, const char* ne
 
 /*!
  * \ingroup	misc_utils
- * \brief	Compares n bytes of the 2 strings (case insensitive)
- *
- * 		The function compares n bytes of the 2 strings. It is not case sensitive
- *
- * \param	dest The first string
- * \param	src The second string
- * \param	len The number of bytes to compare
- * \retval Sint32	Returns 1 on match, 0 if the strings doesn't match.
- */
-Sint32 my_strncompare(const char *dest, const char *src, Sint32 len);
-
-/*!
- * \ingroup	misc_utils
  * \brief	Checks if len/2 characters of the string is uppercase
  *
  * 		Checks if len/2 characters of the string is uppercase

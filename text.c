@@ -504,7 +504,7 @@ int filter_or_ignore_text (char *text_to_add, int len, int size, Uint8 channel)
 	ed (ttlanhil): made it check if it's a server colour. still not perfect
 	(this should have been done server-side instead of parsing the date), but safer
 	*/
-	if (from_color_char (text_to_add[0]) == c_green1 && my_strncompare(text_to_add+1,"Game Date", 9))
+	if (from_color_char (text_to_add[0]) == c_green1 && !strncasecmp(text_to_add+1, "Game Date", 9))
 	{
 		//we assume that the server will still send little-endian dd/mm/yyyy... we could make it safer by parsing the format too, but it's simpler to assume
 		const char * const month_names[] = { "Aluwia", "Seedar", "Akbar", "Zartia", "Elandra", "Viasia", "Fruitfall", "Mortia", "Carnelar", "Nimlos", "Chimar", "Vespia" };
@@ -553,7 +553,7 @@ int filter_or_ignore_text (char *text_to_add, int len, int size, Uint8 channel)
 		}
 	}
 
-	if (from_color_char (text_to_add[0]) == c_green1 && my_strncompare(text_to_add+1,"Game Time", 9))
+	if (from_color_char (text_to_add[0]) == c_green1 && !strncasecmp(text_to_add+1, "Game Time", 9))
 	{
 		real_game_second = atoi(&text_to_add[18]);
 		set_real_game_second_valid();
@@ -568,36 +568,36 @@ int filter_or_ignore_text (char *text_to_add, int len, int size, Uint8 channel)
 	}
 
 	if (channel == CHAT_SERVER) {
-		if (my_strncompare(text_to_add+1, "You started to harvest ", 23)) {
+		if (!strncasecmp(text_to_add+1, "You started to harvest ", 23)) {
 			strncpy(harvest_name, text_to_add+1+23, len-1-23-1);
 			harvest_name[len-1-23-1] = '\0';
 			set_now_harvesting();
 		}
-		else if ((my_strncompare(text_to_add+1, "You stopped harvesting.", 23)) ||
-			(my_strncompare(text_to_add+1, "You can't harvest while fighting (duh)!", 39)) ||
-			(my_strncompare(text_to_add+1, "You can't do that while trading!", 32)) ||
-			(my_strncompare(text_to_add+1, "You can't harvest here", 22)) ||
-			(my_strncompare(text_to_add+1, "You lack the knowledge of ", 26)) ||
-			((my_strncompare(text_to_add+1, "You need to wear ", 17) && strstr(text_to_add, "order to harvest") != NULL)) ||
-			((my_strncompare(text_to_add+1, "You need to have a ", 19) && strstr(text_to_add, "order to harvest") != NULL)))
+		else if ((!strncasecmp(text_to_add+1, "You stopped harvesting.", 23)) ||
+			(!strncasecmp(text_to_add+1, "You can't harvest while fighting (duh)!", 39)) ||
+			(!strncasecmp(text_to_add+1, "You can't do that while trading!", 32)) ||
+			(!strncasecmp(text_to_add+1, "You can't harvest here", 22)) ||
+			(!strncasecmp(text_to_add+1, "You lack the knowledge of ", 26)) ||
+			((!strncasecmp(text_to_add+1, "You need to wear ", 17) && strstr(text_to_add, "order to harvest") != NULL)) ||
+			((!strncasecmp(text_to_add+1, "You need to have a ", 19) && strstr(text_to_add, "order to harvest") != NULL)))
 		{
 			clear_now_harvesting();
 		}
-		else if (my_strncompare(text_to_add+1, "Great, you changed your password!", 33))
+		else if (!strncasecmp(text_to_add+1, "Great, you changed your password!", 33))
 		{
 			passmngr_confirm_pw_change();
 		}
-		else if (my_strncompare(text_to_add+1, "Glow on!", 8))
+		else if (!strncasecmp(text_to_add+1, "Glow on!", 8))
 		{
 			if (set_glow_status(1))
 				return 0;
 		}
-		else if (my_strncompare(text_to_add+1, "Glow off!", 9))
+		else if (!strncasecmp(text_to_add+1, "Glow off!", 9))
 		{
 			if (set_glow_status(0))
 				return 0;
 		}
-		else if (my_strncompare(text_to_add+1, "You need the I glow in the dark perk in order to use this.", 58))
+		else if (!strncasecmp(text_to_add+1, "You need the I glow in the dark perk in order to use this.", 58))
 		{
 			glow_perk_unavailable = 1;
 			if (glow_perk_check_state)
@@ -609,17 +609,17 @@ int filter_or_ignore_text (char *text_to_add, int len, int size, Uint8 channel)
 		else if (is_death_message(text_to_add+1)) {
 			// nothing to be done here cause all is done in the test function
 		}
-		else if (my_strncompare(text_to_add+1, "You found ", 10) && strstr(text_to_add+1, " coins.")) {
+		else if (!strncasecmp(text_to_add+1, "You found ", 10) && strstr(text_to_add+1, " coins.")) {
 			decrement_harvest_counter(atoi(text_to_add+11));
 		}
-		else if (my_strncompare(text_to_add+1, "Send Item UIDs ", 15)) {
+		else if (!strncasecmp(text_to_add+1, "Send Item UIDs ", 15)) {
 			if (text_to_add[1+15] == '0')
 				item_uid_enabled = 0;
 			else if (text_to_add[1+15] == '1')
 				item_uid_enabled = 1;
 			printf("item_uid_enabled=%d\n", item_uid_enabled);
 		}
-		else if ((copy_next_LOCATE_ME > 0) && my_strncompare(text_to_add+1, "You are in ", 11)) {
+		else if ((copy_next_LOCATE_ME > 0) && !strncasecmp(text_to_add+1, "You are in ", 11)) {
 			char buffer[4096];
 			switch (copy_next_LOCATE_ME)
 			{
@@ -634,11 +634,11 @@ int filter_or_ignore_text (char *text_to_add, int len, int size, Uint8 channel)
 			copy_next_LOCATE_ME = 0;
 			return 0;
 		}
-		else if (my_strncompare(text_to_add+1, "You see: ", 9)) {
+		else if (!strncasecmp(text_to_add+1, "You see: ", 9)) {
 			achievements_player_name(text_to_add+10, len-10);
 		}
-		else if ((my_strncompare(text_to_add+1, "You just got food poisoned!", 27)) ||
-			(my_strncompare(text_to_add+1, "Oh well, no invisibility, but we got poisoned.", 46)))
+		else if ((!strncasecmp(text_to_add+1, "You just got food poisoned!", 27)) ||
+			(!strncasecmp(text_to_add+1, "Oh well, no invisibility, but we got poisoned.", 46)))
 		{
 			increment_poison_incidence();
 		}
@@ -661,7 +661,7 @@ int filter_or_ignore_text (char *text_to_add, int len, int size, Uint8 channel)
 			if (!book_window_is_open())
 				return 0;
 		}
-		else if (my_strncompare(text_to_add+1, "You are researching ", 20)) {
+		else if (!strncasecmp(text_to_add+1, "You are researching ", 20)) {
 			if (get_true_knowledge_info(text_to_add+1))
 				return 0;
 		}
@@ -669,9 +669,9 @@ int filter_or_ignore_text (char *text_to_add, int len, int size, Uint8 channel)
 			static Uint32 last_time[] = { 0, 0 };
 			static int done_one[] = { 0, 0 };
 			int match_index = -1;
-			if (my_strncompare(text_to_add+1, "You are too far away! Get closer!", 33))
+			if (!strncasecmp(text_to_add+1, "You are too far away! Get closer!", 33))
 				match_index = 0;
-			else if (my_strncompare(text_to_add+1, "Can't do, your target is already fighting with someone else,", 60))
+			else if (!strncasecmp(text_to_add+1, "Can't do, your target is already fighting with someone else,", 60))
 				match_index = 1;
 			if (match_index > -1)
 			{
@@ -688,17 +688,17 @@ int filter_or_ignore_text (char *text_to_add, int len, int size, Uint8 channel)
 		}
 
 	} else if (channel == CHAT_LOCAL) {
-		if (now_harvesting() && my_strncompare(text_to_add+1, get_username(), strlen(get_username()))) {
+		if (now_harvesting() && !strncasecmp(text_to_add+1, get_username(), strlen(get_username()))) {
 			char *ptr = text_to_add+1+strlen(get_username());
-			if (my_strncompare(ptr, " found a ", 9)) {
+			if (!strncasecmp(ptr, " found a ", 9)) {
 				ptr += 9;
-				if (my_strncompare(ptr, "bag of gold, getting ", 21)) {
+				if (!strncasecmp(ptr, "bag of gold, getting ", 21)) {
 					decrement_harvest_counter(atoi(ptr+21));
 				} else if (!strstr(ptr, " could not carry ")) {
 					decrement_harvest_counter(1);
 				}
 			}
-		} else if (my_strncompare(text_to_add+1, "(*) ", 4)) {
+		} else if (!strncasecmp(text_to_add+1, "(*) ", 4)) {
 			increment_summon_counter(text_to_add+1+4);
 			if (summoning_filter) return 0;
 		}
@@ -707,7 +707,7 @@ int filter_or_ignore_text (char *text_to_add, int len, int size, Uint8 channel)
 	catch_counters_text(text_to_add+1);
 
 	/* put #mpm in a popup box, on top of all else */
-	if ((channel == CHAT_MODPM) && (my_strncompare(text_to_add+1, "[Mod PM from", 12))) {
+	if ((channel == CHAT_MODPM) && (!strncasecmp(text_to_add+1, "[Mod PM from", 12))) {
 		display_server_popup_win((const unsigned char*)text_to_add);
 	}
 
