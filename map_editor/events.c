@@ -134,6 +134,7 @@ int HandleEvent(SDL_Event *event)
                     case SDLK_n:        game_minute=0;  break;
                     case SDLK_d:        game_minute=60; break;
 
+                    case SDLK_PLUS:
                     case SDLK_KP_PLUS:
                         if(view_tiles_list){
                             if(tile_offset<192)
@@ -142,6 +143,7 @@ int HandleEvent(SDL_Event *event)
                             grid_height+=0.1f;
                         break;
 
+                    case SDLK_MINUS:
                     case SDLK_KP_MINUS:
                         if(view_tiles_list){
                             if(tile_offset>0)
@@ -154,6 +156,20 @@ int HandleEvent(SDL_Event *event)
                         break;
                 }
             }
+            // Allow regular '+' (possibly entered by Shift+= or similar) as well.
+            else if (!ctrl_on && !alt_on && event->key.keysym.unicode == '+')
+            {
+                if (view_tiles_list)
+                {
+                    if (tile_offset < 192)
+                        tile_offset += 64;
+                }
+                else
+                {
+                    grid_height += 0.1f;
+                }
+            }
+
 
             // process key, what push not depening on extended keys
             switch(event->key.keysym.sym) {
