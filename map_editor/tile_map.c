@@ -139,25 +139,21 @@ void draw_tile_map()
 
 }
 
-//load only the tiles that are on the map
+// load all possible map tiles
 void load_map_tiles()
 {
-	int i;
 	int cur_tile;
-	char str[80];
-	for(i=0;i<tile_map_size_x*tile_map_size_y;i++)
+	char file_name[80];
+	for (cur_tile = 0; cur_tile < 255; ++cur_tile)
 	{
-		cur_tile=tile_map[i];
-		//check to see if we already have the current tile loaded
-		if(!tile_list[cur_tile] && cur_tile!=255)//if it is 255, it's a null tile, don't load it
-			{
-				//tile not loaded, so load it
-				if(!cur_tile && dungeon) cur_tile=231;
-				snprintf(str, sizeof(str), "./3dobjects/tile%i.dds",cur_tile);
-				tile_list[cur_tile] = load_texture_cached(str, tt_mesh);
-			}
+		if (!tile_list[cur_tile])
+		{
+			// tile not loaded, so load it
+			if (!cur_tile && dungeon) cur_tile = 231;
+			snprintf(file_name, sizeof(file_name), "./3dobjects/tile%i.dds", cur_tile);
+			tile_list[cur_tile] = load_texture_cached(file_name, tt_mesh);
+		}
 	}
-
 }
 
 int get_tile_walkable(const int x, const int y)
