@@ -3,6 +3,7 @@
 #include <math.h>
 #include <string.h>
 #include <ctype.h>
+#include <limits.h>
 #include "new_actors.h"
 #include "actor_scripts.h"
 #include "asc.h"
@@ -684,12 +685,14 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 #endif
 	//the last bytes of the packet even if scale+attachment is not sent
 #ifdef NEW_EYES
-	if((*(in_data+len-2) > EYES_GOLD)|| (*(in_data+len-2) < 0))
-	{
-		eyes=0;
-	} else {
-		eyes=*(in_data+len-2);
-	}
+	if ((in_data[len-2] > EYES_GOLD)
+#if (EYES_BROWN > 0) || (CHAR_MIN == SCHAR_MIN)
+		|| (in_data[len-2] < EYES_BROWN)
+#endif
+	)
+		eyes = EYES_BROWN;
+	else
+		eyes = in_data[len-2];
 #endif
 	neck=*(in_data+len-1);
 
