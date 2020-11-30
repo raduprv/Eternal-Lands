@@ -49,7 +49,6 @@ void kill_particles_object(int object_id);
 void move_particles_object(int object_id);
 void clone_particles_object(int object_id);
 
-void load_all_tiles();
 void move_tile();
 void draw_light_source(light * object_id);
 void visualise_lights();

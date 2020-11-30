@@ -4,22 +4,6 @@
 #include "global.h"
 #include "../asc.h"
 
-image_t map_tiles[256];
-
-void destroy_map_tiles()
-{
-	int i;
-
-	for (i = 0; i < 256; i++)
-	{
-		if (map_tiles[i].image)
-		{
-			free(map_tiles[i].image);
-		}
-	}
-}
-
-
 void draw_tile_map()
 {
 	int x_start,x_end,y_start,y_end;

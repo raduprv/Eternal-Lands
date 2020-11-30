@@ -138,7 +138,6 @@ void init_stuff()
 		lights_list[i] = NULL;
 
 	new_map(256,256);
-	load_all_tiles();
 
 	//lights setup
 	build_global_light_table();

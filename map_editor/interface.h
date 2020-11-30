@@ -8,6 +8,11 @@
 #endif
 #include "../platform.h"
 
+#ifdef __cplusplus
+extern "C"
+{
+#endif // __cplusplus
+
 //modes
 #define mode_tile 0
 #define mode_2d 1
@@ -78,7 +83,6 @@ extern char alt_on;
 extern int buttons_text;
 
 extern int map_has_changed;
-extern GLuint minimap_tex;
 extern int show_position_on_minimap;
 
 int check_interface_buttons();
@@ -93,11 +97,16 @@ void draw_light_info();
 void draw_height_info();
 void display_tiles_list();
 void display_heights_list();
+void get_minimap_dimensions(int *x, int *y, int *width, int *height);
 void check_mouse_minimap();
 void draw_mouse_minimap();
 void draw_minimap();
 void display_new_map_menu();
 void display_map_settings();
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
 
 #endif
 

@@ -165,7 +165,6 @@ void init_gl()
 void handle_window_resize()
 {
 	unload_texture_cache();
-	if(minimap_tex) {glDeleteTextures(1,&minimap_tex);minimap_tex=0;}
 	
 	SDL_QuitSubSystem(SDL_INIT_VIDEO);
 	
