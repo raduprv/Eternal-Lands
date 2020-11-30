@@ -771,6 +771,7 @@ void init_stuff(void)
 	init_attribf();
 
 	init_statsinfo_array();
+	init_floating_messages();
 
 	//Read the books for i.e. the new char window
 	init_books();

@@ -279,6 +279,8 @@ extern int floatingmessages_enabled;
 void drawactor_floatingmessages(int actor_id, float healthbar_z);
 void add_floating_message(int actor_id, char * str, int direction, float r, float g, float b, int active_time);
 void init_statsinfo_array(void);
+void init_floating_messages(void);
+void cleanup_floating_messages(void);
 
 #ifdef __cplusplus
 } // extern "C"

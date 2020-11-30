@@ -451,9 +451,11 @@ void increment_counter(int counter_id, const char *name, int quantity, int extra
 
 	if (floating_session_counters && (floating_counter_flags & (1 << i)))
 	{
-		char str[128];
-		safe_snprintf(str, sizeof(str), "%s: %u", name, counters[i][j].n_session);
+		size_t buf_len = strlen(name) + 20; // room for " : [+/-]4294967296\0"
+		char *str = malloc(buf_len);
+		safe_snprintf(str, buf_len, "%s: %u", name, counters[i][j].n_session);
 		add_floating_message(yourself, str, FLOATINGMESSAGE_NORTH, 0.3, 0.3, 1.0, 1500);
+		free(str);
 	}
 
 	sort_counter(counter_id);

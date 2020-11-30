@@ -35,7 +35,7 @@ struct stats_struct statsinfo[NUM_SKILLS];
 
 typedef struct {
         int actor_id;//The actor it's related to
-        char message[50];
+        char *message;
         int first_time;
         int active_time;
         int direction;
@@ -43,12 +43,12 @@ typedef struct {
         float color[3];
 } floating_message;
 
-floating_message floating_messages[MAX_NUMBER_OF_FLOATING_MESSAGES];
+static floating_message floating_messages[MAX_NUMBER_OF_FLOATING_MESSAGES];
 
 int floatingmessages_enabled = 1;
 
-void floatingmessages_add_level(int actor_id, int level, const unsigned char * skillname);
-void floatingmessages_compare_stat(int actor_id, int value, int new_value, const unsigned char *skillname);
+static void floatingmessages_add_level(int actor_id, int level, const unsigned char * skillname);
+static void floatingmessages_compare_stat(int actor_id, int value, int new_value, const unsigned char *skillname);
 
 void get_the_stats(Sint16 *stats, size_t len_in_bytes)
 {
@@ -1006,7 +1006,7 @@ int display_stats_handler(window_info *win)
         return 1;
 }
 
-int click_stats_handler(window_info *win, int mx, int my, Uint32 flags)
+static int click_stats_handler(window_info *win, int mx, int my, Uint32 flags)
 {
         int     i;
         int is_button = flags & ELW_MOUSE_BUTTON;
@@ -1053,7 +1053,36 @@ void fill_stats_win (int window_id)
 		set_content_widths(&windows_list.window[window_id]);
 }
 
-void draw_floatingmessage(floating_message *message, float healthbar_z) {
+void init_floating_messages(void)
+{
+	size_t i;
+	for(i = 0; i < MAX_NUMBER_OF_FLOATING_MESSAGES; i++)
+	{
+		floating_messages[i].active = 0;
+		floating_messages[i].message = NULL;
+	}
+}
+
+static void free_message(size_t index)
+{
+	if ((index < MAX_NUMBER_OF_FLOATING_MESSAGES) && floating_messages[index].active)
+	{
+		floating_messages[index].active = 0;
+		free(floating_messages[index].message);
+		floating_messages[index].message = NULL;
+	}
+}
+
+void cleanup_floating_messages(void)
+{
+	size_t i;
+	for(i = 0; i < MAX_NUMBER_OF_FLOATING_MESSAGES; i++)
+		if (floating_messages[i].active)
+			free_message(i);
+}
+
+
+static void draw_floatingmessage(floating_message *message, float healthbar_z) {
         float cut;
         double f, width, y, x, z;
         double model[16],proj[16];
@@ -1137,7 +1166,7 @@ void drawactor_floatingmessages(int actor_id, float healthbar_z) {
                 if(floating_messages[i].active){
                         if(floating_messages[i].first_time<=cur_time){
                                 if(floating_messages[i].first_time+floating_messages[i].active_time<cur_time){
-                                        floating_messages[i].active=0;
+                                        free_message(i);
                                 } else if(floating_messages[i].actor_id==actor_id)
                                         draw_floatingmessage(&floating_messages[i], healthbar_z);
                         }
@@ -1149,7 +1178,7 @@ void drawactor_floatingmessages(int actor_id, float healthbar_z) {
                 if(floating_messages[i].active){
                         if(floating_messages[i].first_time<=cur_time){
                                 if(floating_messages[i].first_time+floating_messages[i].active_time<cur_time){
-                                        floating_messages[i].active=0;
+                                        free_message(i);
                                 } else if(floating_messages[i].actor_id==actor_id)
                                         draw_floatingmessage(&floating_messages[i], healthbar_z);
                         }
@@ -1162,7 +1191,7 @@ CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
 }
 
-floating_message *get_free_floatingmessage() {
+static floating_message *get_free_floatingmessage() {
         int i;
         for(i = 0; i < MAX_NUMBER_OF_FLOATING_MESSAGES; i++) {
                 if (floating_messages[i].active == 0)
@@ -1178,6 +1207,7 @@ void add_floating_message(int actor_id, char * str, int direction, float r, floa
         static int last_direction_added[5]={0};
         static int last_actor[5]={0};//Make sure that we don't see too many messages from that actor
         floating_message *m=get_free_floatingmessage();
+        size_t message_len;
 
         if(!m) return;
 
@@ -1185,7 +1215,9 @@ void add_floating_message(int actor_id, char * str, int direction, float r, floa
         m->color[1]=g;
         m->color[2]=b;
 
-        safe_snprintf(m->message, sizeof(m->message), "%s", str);
+        message_len = strlen(str);
+        m->message = malloc(message_len + 1);
+        safe_strncpy2(m->message, str, message_len + 1, message_len);
 
         m->direction=direction;
         m->active_time=active_time;
@@ -1223,7 +1255,7 @@ void add_floating_message(int actor_id, char * str, int direction, float r, floa
         last_direction_added[4]=direction;
 }
 
-void floatingmessages_add_level(int actor_id, int level, const unsigned char * skillname)
+static void floatingmessages_add_level(int actor_id, int level, const unsigned char * skillname)
 {
         char str[50];
 
@@ -1231,7 +1263,7 @@ void floatingmessages_add_level(int actor_id, int level, const unsigned char * s
         add_floating_message(actor_id, str, FLOATINGMESSAGE_NORTH, 0.3, 0.3, 1.0, 2000);
 }
 
-void floatingmessages_compare_stat(int actor_id, int value, int new_value, const unsigned char *skillname)
+static void floatingmessages_compare_stat(int actor_id, int value, int new_value, const unsigned char *skillname)
 {
         char str[50];
         int diff=new_value-value;

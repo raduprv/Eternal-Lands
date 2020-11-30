@@ -307,6 +307,8 @@ int start_rendering()
 	LOG_INFO("cleanup_rules()");
 	cleanup_rules();
 	//save_exploration_map();
+	LOG_INFO("cleanup_floating_messages()");
+	cleanup_floating_messages();
 	LOG_INFO("cleanup_counters()");
 	cleanup_counters();
 	LOG_INFO("cleanup_chan_names()");

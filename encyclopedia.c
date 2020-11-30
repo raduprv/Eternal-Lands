@@ -126,7 +126,9 @@ CHECK_GL_ERRORS();
 		int scaled_xend = (int)(0.5 + x_fac * i->xend.pixels)
 			+ cw_big * i->xend.nr_big + cw_small * i->xend.nr_small;
 		int scaled_y = (int)(0.5 + y_fac * (i->y - 2) + win->current_scale * 2);
-		int scaled_yend = (int)(0.5 + y_fac * (i->yend - 2) + win->current_scale * 2);
+		// maintain aspect ratio for images, both dimensions following the font x scale
+		float ratio = (i->xend.pixels > i->x.pixels) ? ((float)i->yend - (float)i->y) / ((float)i->xend.pixels - (float)i->x.pixels) : 1.0f;
+		int scaled_yend = scaled_y + (int)(0.5 + ratio * (scaled_xend - scaled_x));
 		int scaled_j = (int)(0.5 + y_fac * j);
 
 		if((scaled_y-scaled_j > 0) && (scaled_yend-scaled_j < win->len_y ))
