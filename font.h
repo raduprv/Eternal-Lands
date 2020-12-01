@@ -823,8 +823,6 @@ public:
 #ifndef MAP_EDITOR2
 	void draw_ortho_ingame_string(const unsigned char* text, size_t len,
 		float x, float y, float z, int max_lines, float zoom_x, float zoom_y) const;
-	void draw_ingame_string(const unsigned char* text, size_t len,
-		float x, float y, int max_lines, float zoom_x, float zoom_y) const;
 #endif // ! MAP_EDITOR2
 #endif // ELC
 
@@ -1538,17 +1536,11 @@ public:
 	}
 #ifdef ELC
 #ifndef MAP_EDITOR2
-	void draw_ortho_ingame_string(const unsigned char* text, size_t len,
+	void draw_ortho_ingame_string(Category cat, const unsigned char* text, size_t len,
 		float x, float y, float z, int max_lines, float zoom_x, float zoom_y)
 	{
-		get(NAME_FONT, zoom_y).draw_ortho_ingame_string(text, len, x, y, z, max_lines,
-			zoom_x * font_scales[NAME_FONT], zoom_y * font_scales[NAME_FONT]);
-	}
-	void draw_ingame_string(const unsigned char* text, size_t len,
-		float x, float y, int max_lines, float zoom_x, float zoom_y)
-	{
-		get(CHAT_FONT, zoom_y).draw_ingame_string(text, len, x, y, max_lines,
-			zoom_x * font_scales[CHAT_FONT], zoom_y * font_scales[CHAT_FONT]);
+		get(cat, zoom_y).draw_ortho_ingame_string(text, len, x, y, z, max_lines,
+			zoom_x * font_scales[cat], zoom_y * font_scales[cat]);
 	}
 #endif // !MAP_EDITOR_2
 #endif // ELC
@@ -2423,10 +2415,8 @@ void draw_messages(int x, int y, text_message *msgs, int msgs_size, Uint8 filter
 void draw_console_separator(int x_space, int y, int width, float text_zoom);
 #ifdef ELC
 #ifndef MAP_EDITOR2
-void draw_ortho_ingame_string(float x, float y, float z,
-	const unsigned char *text, int max_lines, float zoom_x, float zoom_y);
-void draw_ingame_string(float x, float y, const unsigned char *text,
-	int max_lines, float zoom_x, float zoom_y);
+void draw_ortho_ingame_string(float x, float y, float z, const unsigned char *text, int max_lines,
+	font_cat cat, float zoom_x, float zoom_y);
 #endif // !MAP_EDITOR2
 #endif // ELC
 

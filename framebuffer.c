@@ -164,7 +164,7 @@ void check_fbo_formats()
 	// Try all formats, and report which ones work as target
 	int i, j, k;
 	GLuint fb, tid;
-       	GLint old_drawbuffer, old_readbuffer;
+	GLint old_drawbuffer, old_readbuffer;
 	GLenum target, fmt;
 
 	target = GL_TEXTURE_2D;
@@ -172,7 +172,7 @@ void check_fbo_formats()
 	glGetIntegerv (GL_DRAW_BUFFER, &old_drawbuffer);
 	glGetIntegerv (GL_READ_BUFFER, &old_readbuffer);
 
-	LOG_INFO("Checking supported framebuffe formats....");
+	LOG_INFO("Checking supported framebuffer formats....");
 	for (i = 0; i < COLOR_FORMAT_COUNT; i++)
 	{
 		GLuint status;

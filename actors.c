@@ -34,11 +34,6 @@
 #include "fsaa/fsaa.h"
 #endif	/* FSAA */
 
-#ifdef ELC
-#define DRAW_ORTHO_INGAME_NORMAL(x, y, z, our_string, max_lines)	draw_ortho_ingame_string(x, y, z, (const Uint8*)our_string, max_lines, INGAME_FONT_X_LEN*10.0, INGAME_FONT_X_LEN*10.0)
-#define DRAW_INGAME_SMALL(x, y, our_string, max_lines)	draw_ingame_string(x, y, (const Uint8*)our_string, max_lines, SMALL_INGAME_FONT_X_LEN, SMALL_INGAME_FONT_Y_LEN)
-#endif
-
 actor *actors_list[MAX_ACTORS];
 int max_actors=0;
 SDL_mutex *actors_lists_mutex = NULL;	//used for locking between the timer and main threads
@@ -48,7 +43,7 @@ actor_types actors_defs[MAX_ACTOR_DEFS];
 
 attached_actors_types attached_actors_defs[MAX_ACTOR_DEFS];
 
-void draw_actor_overtext( actor* actor_ptr ); /* forward declaration */
+void draw_actor_overtext(actor* actor_ptr, double hx, double hy, double hz); /* forward declaration */
 
 int no_near_actors=0;
 #ifdef NEW_SOUND
@@ -551,7 +546,7 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 				float x,y;
 				x = window_width / 2.0 - 0.5f * (float)get_string_width_zoom(str, NAME_FONT,  font_scale*0.17);
 				y = a_bounce + window_height/2.0-40.0;
-				draw_ortho_ingame_string(x, y, 0, str, 1, font_scale*.14, font_scale*.14);
+				draw_ortho_ingame_string(x, y, 0, str, 1, NAME_FONT, font_scale*.14, font_scale*.14);
 			}
 			else
 			{
@@ -560,7 +555,7 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 				int lines = (!(view_mode_instance && displaying_me) && (display_hp || display_health_bar) && (display_ether || display_ether_bar)) ? 3 : 2;
 				draw_ortho_ingame_string(hx - 0.5f * (float)get_string_width_zoom(str, NAME_FONT, font_scale2*0.17),
 					a_bounce + hy + extra_y + get_text_height(lines, NAME_FONT, name_zoom), 0, str, 1,
-					font_scale2*.14, font_scale2*.14);
+					NAME_FONT, font_scale2*.14, font_scale2*.14);
 			}
 			glDisable(GL_BLEND);
 		}
@@ -568,7 +563,8 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 		{	//No floating messages
 			sprintf((char*)str,"%i",actor_id->damage);
 			glColor3f (1.0f, 0.3f, 0.3f);
-			DRAW_ORTHO_INGAME_NORMAL(-0.1f,healthbar_z/2.0f,0,str,1.0f);
+			draw_ortho_ingame_string(-0.1f, 0.5*healthbar_z, 0.0f, str, 1, NAME_FONT,
+				INGAME_FONT_X_LEN*10.0, INGAME_FONT_X_LEN*10.0);
 		}
 		if (view_mode_instance && im_other_player_show_banner_on_damage && displaying_other_player && !display_hp && !display_health_bar && actor_id->damage>0) {
 			display_hp = 1;
@@ -619,7 +615,7 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 				safe_snprintf ((char*)temp, sizeof (temp), "%s", actor_id->actor_name);
 				banner_width = 0.5 * (float)get_string_width_zoom((unsigned char*)actor_id->actor_name, NAME_FONT, font_size_x);
 				draw_ortho_ingame_string(hx-banner_width, hy+bar_y_len/2.0f, hz, temp,
-					1, font_size_x, font_size_y);
+					1, NAME_FONT, font_size_x, font_size_y);
 			}
 			if (view_buffs)
 			{
@@ -671,14 +667,14 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 						//choose color for the health
 						set_health_color(actor_id, (float)actor_id->cur_health/(float)actor_id->max_health, 1.0f, 1.0f);
 						draw_ortho_ingame_string(hx-disp+hp_off, hy-bar_y_len/3.0f,
-							hz, hp, 1, ALT_INGAME_FONT_X_LEN*font_scale,
+							hz, hp, 1, NAME_FONT, ALT_INGAME_FONT_X_LEN*font_scale,
 							ALT_INGAME_FONT_X_LEN*font_scale);
 					}
 
 					if (display_ether) {
 						set_mana_color((float)your_info.ethereal_points.cur / (float)your_info.ethereal_points.base, 1.0f, 1.0f);
 						draw_ortho_ingame_string(hx-disp+eth_off, ey-bar_y_len/3.0f,
-							hz, mana, 1, ALT_INGAME_FONT_X_LEN*font_scale,
+							hz, mana, 1, NAME_FONT, ALT_INGAME_FONT_X_LEN*font_scale,
 							ALT_INGAME_FONT_X_LEN*font_scale);
 					}
 				}
@@ -826,14 +822,14 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 
 	glEnable(GL_TEXTURE_2D);
 
+	if ((actor_id->current_displayed_text_time_left>0)&&(actor_id->current_displayed_text[0] != 0)){
+		draw_actor_overtext(actor_id, hx, hy, hz);
+	}
+
 	glMatrixMode(GL_PROJECTION);
 	glPopMatrix();
 	glMatrixMode(GL_MODELVIEW);
 	glPopMatrix();
-
-	if ((actor_id->current_displayed_text_time_left>0)&&(actor_id->current_displayed_text[0] != 0)){
-		draw_actor_overtext( actor_id );
-	}
 
 	if(floatingmessages_enabled)drawactor_floatingmessages(actor_id->actor_id, healthbar_z);
 
@@ -861,41 +857,45 @@ CHECK_GL_ERRORS();
 
 void draw_bubble(float x_left, float x_right, float x_leg_left, float x_leg_right, float y_top, float y_bottom, float y_actor)
 {
-	const float r=0.1f;
-	const float mul=M_PI/180.0f;
+	const float z = 0.01f;
+	const float r = 0.25 * (y_top - y_bottom);
+	const float mul = M_PI/180.0f;
 	int angle;
 
 	glEnable(GL_BLEND);
 	glColor4f(1.0f, 1.0f, 1.0f, 0.5f);
 	glBlendFunc(GL_NONE, GL_SRC_ALPHA);
-	glBegin(GL_POLYGON);
-
-	for(angle=90;angle<180;angle+=10){
-		float rad=-mul*angle;
-		glVertex3f(x_left+cos(rad)*r-r, 0.01f, y_bottom+r+sin(rad)*r);
-	}
-
-	for(angle=180;angle<270;angle+=10){
-		float rad=-mul*angle;
-		glVertex3f(x_left+cos(rad)*r-r, 0.01f, y_top-r+sin(rad)*r);
-	}
-
-	for(angle=270;angle<360;angle+=10){
-		float rad=-mul*angle;
-		glVertex3f(x_right+cos(rad)*r+r, 0.01f, y_top-r+sin(rad)*r);
-	}
-
-	for(angle=0;angle<90;angle+=10){
-		float rad=-mul*angle;
-		glVertex3f(x_right+cos(rad)*r+r, 0.01f, y_bottom+sin(rad)*r+r);
-	}
-
-	glEnd();
 
 	glBegin(GL_POLYGON);
-		glVertex3f(x_leg_right, 0.01f, y_bottom+0.02);
-		glVertex3f(x_leg_right, 0.01f, y_actor);
-		glVertex3f(x_leg_left, 0.01f, y_bottom+0.02);
+	for (angle = 0; angle <= 90; angle += 10)
+	{
+		float rad = mul * angle;
+		glVertex3f(x_right - r + cos(rad)*r, y_top - r + sin(rad)*r, z);
+	}
+
+	for (angle = 90;angle <= 180; angle += 10)
+	{
+		float rad = mul*angle;
+		glVertex3f(x_left + r + cos(rad)*r, y_top - r + sin(rad)*r, z);
+	}
+
+	for(angle = 180; angle < 270; angle += 10)
+	{
+		float rad = mul*angle;
+		glVertex3f(x_left + r + cos(rad)*r, y_bottom + r + sin(rad)*r, z);
+	}
+
+	for (angle = 270; angle <= 360; angle += 10)
+	{
+		float rad = mul*angle;
+		glVertex3f(x_right - r + cos(rad)*r, y_bottom + r + sin(rad)*r, z);
+	}
+	glEnd(); // GL_POLYGON
+
+	glBegin(GL_TRIANGLES);
+		glVertex3f(x_leg_left, y_bottom, z);
+		glVertex3f(x_leg_right, y_actor, z);
+		glVertex3f(x_leg_right, y_bottom, z);
 	glEnd();
 
 	glDisable(GL_BLEND);
@@ -905,52 +905,62 @@ CHECK_GL_ERRORS();
 }
 
 //-- Logan Dugenoux [5/26/2004]
-void draw_actor_overtext( actor* actor_ptr )
+void draw_actor_overtext(actor* actor_ptr, double hx, double hy, double hz)
 {
-	float z, w, h;
+	int lines = 1; //(!(view_mode_instance && displaying_me) && (display_hp || display_health_bar) && (display_ether || display_ether_bar)) ? 3 : 2;
+	float font_scale = 0.14f / ALT_INGAME_FONT_X_LEN;
 	float x_left, x_right, x_leg_left, x_leg_right, y_top, y_bottom, y_actor;
 	float textwidth;
 	float textheight;
 	float margin;
 
-	//-- decrease display time
-	actor_ptr->current_displayed_text_time_left -= (cur_time-last_time);
+	actor *me = get_our_actor();
+	if (me && me != actor_ptr)
+	{
+		double dx, dy, dz, actor_dsq, me_dsq;
+		dx = actor_ptr->x_pos - camera_x;
+		dy = actor_ptr->y_pos - camera_y;
+		dz = actor_ptr->z_pos - camera_z;
+		actor_dsq = dx*dx + dy*dy + dz*dz;
+		dx = me->x_pos - camera_x;
+		dy = me->y_pos - camera_y;
+		dz = me->z_pos - camera_z;
+		me_dsq = dx*dx + dy*dy + dz*dz;
+		font_scale *= (1.0 + 5.0 * (me_dsq / actor_dsq - 1.0));
+	}
 
-	textwidth = ((float)get_string_width_zoom((unsigned char*)actor_ptr->current_displayed_text,
-		NAME_FONT, SMALL_INGAME_FONT_X_LEN * zoom_level / 3.0)) / 12.0;
-	textheight = (0.06f*zoom_level/3.0)*4;
-	margin = 0.02f*zoom_level;
-	z = 1.2f;// distance over the player
-	if (actor_ptr->sitting)		z = 0.8f; // close if he's sitting
-	w = textwidth+margin*2;
-	h = textheight+margin*2;
+	textwidth = get_string_width_zoom((const unsigned char*)actor_ptr->current_displayed_text,
+		CHAT_FONT, font_scale);
+	textheight = get_text_height(lines, CHAT_FONT, font_scale);
 
-	x_left=-w/2.0f;
-	x_right=w/2.0f;
-	x_leg_left=-0.3f;
-	x_leg_right=0.0f;
+	margin = get_max_char_width_zoom(CHAT_FONT, font_scale);
 
-	y_top=z+0.7f+h;
-	y_bottom=z+0.7f;
-	y_actor=z+0.2f;
+	x_left = hx - 0.5*textwidth - margin;
+	x_right = hx + 0.5*textwidth + margin;
+	x_leg_left = hx - margin;
+	x_leg_right = hx;
+
+	y_top = hy + textheight + margin;
+	y_bottom = hy - margin;
+	y_actor = y_bottom - margin;
 
 	glDisable(GL_TEXTURE_2D);
-
-	draw_bubble(x_left+0.01f, x_right-0.01f, x_leg_left, x_leg_right, y_top-0.01f, y_bottom+0.01f, y_actor+0.01f);
-
+	draw_bubble(x_left, x_right, x_leg_left, x_leg_right, y_top, y_bottom, y_actor);
 	glEnable(GL_TEXTURE_2D);
 
 	//---
 	// Draw text
-	glColor3fv(gui_color);
 
-	DRAW_INGAME_SMALL(x_left+margin, y_bottom+margin,actor_ptr->current_displayed_text,1);
+	draw_ortho_ingame_string(hx - 0.5f * textwidth, hy, 0.0f,
+		(const unsigned char*)actor_ptr->current_displayed_text, lines,
+		CHAT_FONT, font_scale, font_scale);
 
-	//glDepthFunc(GL_LESS);
-	if (actor_ptr->current_displayed_text_time_left<=0)
+	//-- decrease display time
+	actor_ptr->current_displayed_text_time_left -= (cur_time-last_time);
+	if (actor_ptr->current_displayed_text_time_left <= 0)
 	{	// clear if needed
 		actor_ptr->current_displayed_text_time_left = 0;
-		actor_ptr->current_displayed_text[0] = 0;
+		actor_ptr->current_displayed_text[0] = '\0';
 	}
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();

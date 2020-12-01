@@ -1320,56 +1320,6 @@ void Font::draw_ortho_ingame_string(const unsigned char* text, size_t len,
 	glEnd();
 	glDisable(GL_ALPHA_TEST);
 }
-
-void Font::draw_ingame_string(const unsigned char* text, size_t len,
-	float x, float y, int max_lines, float zoom_x, float zoom_y) const
-{
-	float dy = zoom_y * zoom_level / 3.0;
-	float cur_x = x;
-	float cur_y = y;
-	int cur_line = 0;
-
-	glEnable(GL_ALPHA_TEST); // enable alpha filtering, so we have some alpha key
-	glAlphaFunc(GL_GREATER,0.1f);
-	bind_texture();
-	glBegin(GL_QUADS);
-	for (size_t i = 0; i < len; ++i)
-	{
-		unsigned char ch = text[i];
-		if (ch == '\n')
-		{
-			cur_y += dy;
-			cur_x = x;
-			if (++cur_line >= max_lines)
-				break;
-		}
-		else if (is_color(ch))
-		{
-			glEnd(); // Ooops - NV bug fix!!
-			set_color(from_color_char(ch));
-			glBegin(GL_QUADS); // Ooops - NV bug fix!!
-		}
-		else
-		{
-			int pos = get_position(ch);
-			if (pos >= 0)
-			{
-				float dx = width_pos(pos, 1.0) * zoom_x * zoom_level / (3.0 * 12.0);
-				float u_start, u_end, v_start, v_end;
-				get_texture_coordinates(pos, u_start, u_end, v_start, v_end);
-
-				glTexCoord2f(u_start, v_start); glVertex3f(cur_x,    0, cur_y+dy);
-				glTexCoord2f(u_start, v_end);   glVertex3f(cur_x,    0, cur_y);
-				glTexCoord2f(u_end,   v_end);   glVertex3f(cur_x+dx, 0, cur_y);
-				glTexCoord2f(u_end, v_start);   glVertex3f(cur_x+dx, 0, cur_y+dy);
-
-				cur_x += width_spacing_pos(pos, 1.0) * zoom_x * zoom_level / (3.0 * 12.0);
-			}
-		}
-	}
-	glEnd();
-	glDisable(GL_ALPHA_TEST);
-}
 #endif // !MAP_EDITOR_2
 #endif // ELC
 
@@ -2128,19 +2078,12 @@ void draw_console_separator(int x_space, int y, int width, float text_zoom)
 
 #ifdef ELC
 #ifndef MAP_EDITOR2
-void draw_ortho_ingame_string(float x, float y, float z,
-	const unsigned char *text, int max_lines, float zoom_x, float zoom_y)
+void draw_ortho_ingame_string(float x, float y, float z, const unsigned char *text, int max_lines,
+	font_cat cat, float zoom_x, float zoom_y)
 {
-	FontManager::get_instance().draw_ortho_ingame_string(text,
+	FontManager::get_instance().draw_ortho_ingame_string(cat, text,
 		strlen(reinterpret_cast<const char*>(text)),
 		x, y, z, max_lines, zoom_x, zoom_y);
-}
-void draw_ingame_string(float x, float y, const unsigned char *text,
-	int max_lines, float zoom_x, float zoom_y)
-{
-	FontManager::get_instance().draw_ingame_string(text,
-			strlen(reinterpret_cast<const char*>(text)),
-			x, y, max_lines, zoom_x, zoom_y);
 }
 #endif // !MAP_EDITOR2
 #endif // ELC

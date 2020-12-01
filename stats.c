@@ -1144,7 +1144,7 @@ static void draw_floatingmessage(floating_message *message, float healthbar_z) {
         glOrtho(view[0],view[2]+view[0],view[1],view[3]+view[1],0.0f,-1.0f);
 
         draw_ortho_ingame_string(x, y, 0, (unsigned char*)message->message, 1,
-			INGAME_FONT_X_LEN*8.0, INGAME_FONT_X_LEN*8.0);
+			NAME_FONT, INGAME_FONT_X_LEN*8.0, INGAME_FONT_X_LEN*8.0);
 
         glMatrixMode(GL_PROJECTION);
         glPopMatrix();
