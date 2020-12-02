@@ -857,9 +857,8 @@ CHECK_GL_ERRORS();
 }
 
 
-void draw_bubble(float x_left, float x_right, float x_leg_left, float x_leg_right, float y_top, float y_bottom, float y_actor)
+void draw_bubble(float x_left, float x_right, float x_leg_left, float x_leg_right, float y_top, float y_bottom, float y_actor, float z)
 {
-	const float z = 0.01f;
 	const float r = 0.25 * (y_top - y_bottom);
 	const float mul = M_PI/180.0f;
 	int angle;
@@ -946,17 +945,17 @@ static void draw_actor_overtext(actor* actor_ptr, double x, double y, double z)
 	x_leg_left = x - margin;
 	x_leg_right = x;
 
-	y_bottom = y + margin;
+	y_bottom = y + 1.5*margin;
 	y_top = y_bottom + text_height + 2*margin;
 
 	glDisable(GL_TEXTURE_2D);
-	draw_bubble(x_left, x_right, x_leg_left, x_leg_right, y_top, y_bottom, y);
+	draw_bubble(x_left, x_right, x_leg_left, x_leg_right, y_top, y_bottom, y, z+0.0001f);
 	glEnable(GL_TEXTURE_2D);
 
 	//---
 	// Draw text
 
-	draw_ortho_ingame_string(x - 0.5f * text_width, y_bottom+margin, 0.0f,
+	draw_ortho_ingame_string(x - 0.5f * text_width, y_bottom+margin, z,
 		(const unsigned char*)actor_ptr->current_displayed_text, lines,
 		CHAT_FONT, font_scale, font_scale);
 
