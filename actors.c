@@ -43,7 +43,7 @@ actor_types actors_defs[MAX_ACTOR_DEFS];
 
 attached_actors_types attached_actors_defs[MAX_ACTOR_DEFS];
 
-void draw_actor_overtext(actor* actor_ptr, double hx, double hy, double hz); /* forward declaration */
+static void draw_actor_overtext(actor* actor_ptr, double x, double y, double z); /* forward declaration */
 
 int no_near_actors=0;
 #ifdef NEW_SOUND
@@ -430,6 +430,7 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 	double healthbar_x_len_converted=0;
 	double healthbar_x_len_loss=0;
 	double healthbar_x_loss_fade=1.0f;
+	double y_top, y_bottom;
 
 	//we use health bar variables if possible, all the extras we need for ether bar are:
 	double ether_str_x_len = 0;
@@ -802,20 +803,21 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 	}
 
 	// draw the alpha background (if ness)
+	y_bottom = hy;
+	y_bottom += (!display_health_line && !display_ether_line && display_names) ? bar_y_len-6.0 : -5.0;
+	y_bottom -= (num_lines == 3 || (num_lines==2 && !display_names)) ? bar_y_len : 0.0;
+	y_top = y_bottom + bar_y_len * num_lines + 2;
 	if (display_banner_alpha && banner_width > 0) {
 		//if banner width > 0 there MUST be something displayed in the banner
-		float start_y = hy;
-		start_y  += ((!display_health_line && !display_ether_line && display_names) ?bar_y_len-6.0 :-5.0);
-		start_y  -= (num_lines == 3 || (num_lines==2 && !display_names)) ? bar_y_len:0.0;
 		banner_width += 3;
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_ONE, GL_SRC_ALPHA);
 		glColor4f(0.0f, 0.0f, 0.0f, 0.6f);
 		glBegin(GL_QUADS);
-			glVertex3f (hx-banner_width, start_y, hz + 0.0001);
-			glVertex3f (hx+banner_width, start_y, hz + 0.0001);
-			glVertex3f (hx+banner_width, start_y+bar_y_len*num_lines+2, hz + 0.0001);
-			glVertex3f (hx-banner_width, start_y+bar_y_len*num_lines+2, hz + 0.0001);
+			glVertex3f(hx-banner_width, y_bottom, hz + 0.0001);
+			glVertex3f(hx+banner_width, y_bottom, hz + 0.0001);
+			glVertex3f(hx+banner_width, y_top, hz + 0.0001);
+			glVertex3f(hx-banner_width, y_top, hz + 0.0001);
 		glEnd();
 		glDisable(GL_BLEND);
 	}
@@ -823,7 +825,7 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 	glEnable(GL_TEXTURE_2D);
 
 	if ((actor_id->current_displayed_text_time_left>0)&&(actor_id->current_displayed_text[0] != 0)){
-		draw_actor_overtext(actor_id, hx, hy, hz);
+		draw_actor_overtext(actor_id, hx, y_top, hz);
 	}
 
 	glMatrixMode(GL_PROJECTION);
@@ -905,53 +907,56 @@ CHECK_GL_ERRORS();
 }
 
 //-- Logan Dugenoux [5/26/2004]
-void draw_actor_overtext(actor* actor_ptr, double hx, double hy, double hz)
+static void draw_actor_overtext(actor* actor_ptr, double x, double y, double z)
 {
-	int lines = 1; //(!(view_mode_instance && displaying_me) && (display_hp || display_health_bar) && (display_ether || display_ether_bar)) ? 3 : 2;
+	int lines = 1;
 	float font_scale = 0.14f / ALT_INGAME_FONT_X_LEN;
-	float x_left, x_right, x_leg_left, x_leg_right, y_top, y_bottom, y_actor;
-	float textwidth;
-	float textheight;
+	float x_left, x_right, x_leg_left, x_leg_right, y_top, y_bottom;
+	float text_width;
+	float text_height;
 	float margin;
 
 	actor *me = get_our_actor();
 	if (me && me != actor_ptr)
 	{
+		const float s_rx = sin(rx * M_PI / 180);
+		const float c_rx = cos(rx * M_PI / 180);
+		const float s_rz = sin(rz * M_PI / 180);
+		const float c_rz = cos(rz * M_PI / 180);
+		float cam_x = me->x_pos + zoom_level*camera_distance * s_rx * s_rz;
+		float cam_y = me->y_pos + zoom_level*camera_distance * s_rx * c_rz;
+		float cam_z = me->z_pos + zoom_level*camera_distance * c_rx;
 		double dx, dy, dz, actor_dsq, me_dsq;
-		dx = actor_ptr->x_pos - camera_x;
-		dy = actor_ptr->y_pos - camera_y;
-		dz = actor_ptr->z_pos - camera_z;
+		dx = actor_ptr->x_pos - cam_x;
+		dy = actor_ptr->y_pos - cam_y;
+		dz = actor_ptr->z_pos - cam_z;
 		actor_dsq = dx*dx + dy*dy + dz*dz;
-		dx = me->x_pos - camera_x;
-		dy = me->y_pos - camera_y;
-		dz = me->z_pos - camera_z;
-		me_dsq = dx*dx + dy*dy + dz*dz;
-		font_scale *= (1.0 + 5.0 * (me_dsq / actor_dsq - 1.0));
+		me_dsq = zoom_level*zoom_level * camera_distance*camera_distance;
+		font_scale *= 0.5 + 0.5 * me_dsq / actor_dsq;
 	}
 
-	textwidth = get_string_width_zoom((const unsigned char*)actor_ptr->current_displayed_text,
+	text_width = get_string_width_zoom((const unsigned char*)actor_ptr->current_displayed_text,
 		CHAT_FONT, font_scale);
-	textheight = get_text_height(lines, CHAT_FONT, font_scale);
+	text_height = get_text_height(lines, CHAT_FONT, font_scale);
 
-	margin = get_max_char_width_zoom(CHAT_FONT, font_scale);
+	margin = 0.25 * text_height;
 
-	x_left = hx - 0.5*textwidth - margin;
-	x_right = hx + 0.5*textwidth + margin;
-	x_leg_left = hx - margin;
-	x_leg_right = hx;
+	x_left = x - 0.5*text_width - margin;
+	x_right = x + 0.5*text_width + margin;
+	x_leg_left = x - margin;
+	x_leg_right = x;
 
-	y_top = hy + textheight + margin;
-	y_bottom = hy - margin;
-	y_actor = y_bottom - margin;
+	y_bottom = y + margin;
+	y_top = y_bottom + text_height + 2*margin;
 
 	glDisable(GL_TEXTURE_2D);
-	draw_bubble(x_left, x_right, x_leg_left, x_leg_right, y_top, y_bottom, y_actor);
+	draw_bubble(x_left, x_right, x_leg_left, x_leg_right, y_top, y_bottom, y);
 	glEnable(GL_TEXTURE_2D);
 
 	//---
 	// Draw text
 
-	draw_ortho_ingame_string(hx - 0.5f * textwidth, hy, 0.0f,
+	draw_ortho_ingame_string(x - 0.5f * text_width, y_bottom+margin, 0.0f,
 		(const unsigned char*)actor_ptr->current_displayed_text, lines,
 		CHAT_FONT, font_scale, font_scale);
 
