@@ -563,7 +563,7 @@ int Font::center_offset(const unsigned char* text, size_t len, float zoom)
 // 4) We must be able to place the cursor at the end of the text. Therefore, if the last line cannot
 //    fit the cursor, an extra soft break is inserted.
 std::tuple<ustring, int, int> Font::reset_soft_breaks(const unsigned char *text,
-	size_t text_len, const TextDrawOptions& options, ssize_t cursor, float *max_line_width)
+	size_t text_len, const TextDrawOptions& options, ssize_t cursor, int *max_line_width)
 {
 	int block_width = std::ceil(_block_width * _scale_x * options.zoom());
 	int cursor_width = width_spacing('_', options.zoom());
@@ -637,7 +637,7 @@ std::tuple<ustring, int, int> Font::reset_soft_breaks(const unsigned char *text,
 		if (max_line_width)
 		{
 			cur_width = line_width(text + start, end - start, options.zoom());
-			*max_line_width = std::max(*max_line_width, float(cur_width));
+			*max_line_width = std::max(*max_line_width, cur_width);
 		}
 
 		last_start = start;
@@ -1285,9 +1285,9 @@ void Font::draw_ortho_ingame_string(const unsigned char* text, size_t len,
 	for (size_t i = 0; i < len; ++i)
 	{
 		unsigned char ch = text[i];
-		if (ch == '\n')
+		if (ch == '\n' || ch == '\r')
 		{
-			cur_y += line_skip;
+			cur_y -= line_skip;
 			cur_x = x;
 			if (++cur_line >= max_lines)
 				break;
@@ -1914,7 +1914,7 @@ void get_top_bottom(const unsigned char* text, size_t len, font_cat cat, float z
 }
 
 int reset_soft_breaks(unsigned char *text, int len, int size, font_cat cat,
-	float text_zoom, int width, int *cursor_ptr, float *max_line_width)
+	float text_zoom, int width, int *cursor_ptr, int *max_line_width)
 {
 	int cursor = cursor_ptr ? *cursor_ptr : -1;
 	TextDrawOptions options = TextDrawOptions().set_max_width(width).set_zoom(text_zoom);

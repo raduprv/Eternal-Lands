@@ -364,10 +364,9 @@ static int display_login_handler (window_info *win)
 	if (strlen (log_in_error_str))
 	{
 		int max_win_width = window_width - 2 * win->default_font_max_len_x;
-		float max_line_width = 0;
 		int num_lines = reset_soft_breaks((unsigned char*)log_in_error_str,
 			strlen(log_in_error_str), sizeof (log_in_error_str), UI_FONT,
-			win->current_scale, max_win_width, NULL, &max_line_width);
+			win->current_scale, max_win_width, NULL, NULL);
 		glColor3f (1.0f, 0.0f, 0.0f);
 		draw_string_zoomed_centered(window_width/2, username_bar_y - (num_lines + 2) * win->default_font_len_y, (const unsigned char*)log_in_error_str, num_lines, win->current_scale);
 	}

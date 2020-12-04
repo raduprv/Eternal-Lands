@@ -350,8 +350,6 @@ static popup_option_t *popup_option_allocate()
 
 static void flowing_text_perform_flow( flowing_text_t *text, int max_length )
 {
-	float text_width;
-
 	text->lines = reset_soft_breaks ((unsigned char*)text->str,
 									 strlen(text->str),
 									 text->str_size_allocated,
@@ -359,9 +357,7 @@ static void flowing_text_perform_flow( flowing_text_t *text, int max_length )
 									 popup_font_zoom,
 									 max_length,
 									 NULL,
-									 &text_width);
-
-	text->width = (int)text_width;
+									 &text->width);
     text->height = get_text_height(text->lines, UI_FONT, popup_font_zoom);
 }
 

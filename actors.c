@@ -140,6 +140,8 @@ int add_actor (int actor_type, char * skin_name, float x_pos, float y_pos, float
 	our_actor = calloc(1, sizeof(actor));
 
 	memset(our_actor->current_displayed_text, 0, MAX_CURRENT_DISPLAYED_TEXT_LEN);
+	our_actor->current_displayed_text_lines = 0;
+	our_actor->current_displayed_text_width = 0;
 	our_actor->current_displayed_text_time_left =  0;
 
 	our_actor->is_enhanced_model=0;
@@ -908,11 +910,10 @@ CHECK_GL_ERRORS();
 //-- Logan Dugenoux [5/26/2004]
 static void draw_actor_overtext(actor* actor_ptr, double x, double y, double z)
 {
-	int lines = 1;
+	int lines = min2i(actor_ptr->current_displayed_text_lines, 3);
 	float font_scale = 0.14f / ALT_INGAME_FONT_X_LEN;
 	float x_left, x_right, x_leg_left, x_leg_right, y_top, y_bottom;
-	float text_width;
-	float text_height;
+	float text_width, line_height, text_height;
 	float margin;
 
 	actor *me = get_our_actor();
@@ -934,11 +935,11 @@ static void draw_actor_overtext(actor* actor_ptr, double x, double y, double z)
 		font_scale *= 0.5 + 0.5 * me_dsq / actor_dsq;
 	}
 
-	text_width = get_string_width_zoom((const unsigned char*)actor_ptr->current_displayed_text,
-		CHAT_FONT, font_scale);
+	text_width = font_scale * actor_ptr->current_displayed_text_width;
+	line_height = get_line_height(CHAT_FONT, font_scale);
 	text_height = get_text_height(lines, CHAT_FONT, font_scale);
 
-	margin = 0.25 * text_height;
+	margin = 0.25 * line_height;
 
 	x_left = x - 0.5*text_width - margin;
 	x_right = x + 0.5*text_width + margin;
@@ -955,7 +956,7 @@ static void draw_actor_overtext(actor* actor_ptr, double x, double y, double z)
 	//---
 	// Draw text
 
-	draw_ortho_ingame_string(x - 0.5f * text_width, y_bottom+margin, z,
+	draw_ortho_ingame_string(x - 0.5f * text_width, y_bottom + margin + text_height - line_height, z,
 		(const unsigned char*)actor_ptr->current_displayed_text, lines,
 		CHAT_FONT, font_scale, font_scale);
 
@@ -964,6 +965,8 @@ static void draw_actor_overtext(actor* actor_ptr, double x, double y, double z)
 	if (actor_ptr->current_displayed_text_time_left <= 0)
 	{	// clear if needed
 		actor_ptr->current_displayed_text_time_left = 0;
+		actor_ptr->current_displayed_text_lines = 0;
+		actor_ptr->current_displayed_text_width = 0;
 		actor_ptr->current_displayed_text[0] = '\0';
 	}
 #ifdef OPENGL_TRACE
@@ -1724,14 +1727,15 @@ void add_actor_from_server (const char *in_data, int len)
 //--- LoganDugenoux [5/25/2004]
 #define MS_PER_CHAR	200
 #define MINI_BUBBLE_MS	500
-void	add_displayed_text_to_actor( actor * actor_ptr, const char* text )
+void add_displayed_text_to_actor(actor *actor_ptr, const char* text)
 {
-	int len_to_add;
-	len_to_add = strlen(text);
-	safe_snprintf(actor_ptr->current_displayed_text, sizeof(actor_ptr->current_displayed_text), "%s", text);
-	actor_ptr->current_displayed_text_time_left = len_to_add*MS_PER_CHAR;
-
-	actor_ptr->current_displayed_text_time_left += MINI_BUBBLE_MS;
+	char *dest = actor_ptr->current_displayed_text;
+	const size_t size = sizeof(actor_ptr->current_displayed_text);
+	safe_snprintf(dest, size, "%s", text);
+	actor_ptr->current_displayed_text_width = 0;
+	actor_ptr->current_displayed_text_lines = reset_soft_breaks((unsigned char*)dest, strlen(dest),
+		size, CHAT_FONT, 1.0, window_width/3, NULL, &actor_ptr->current_displayed_text_width);
+	actor_ptr->current_displayed_text_time_left = MINI_BUBBLE_MS + strlen(text) * MS_PER_CHAR;
 }
 
 //--- LoganDugenoux [5/25/2004]

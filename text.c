@@ -1280,13 +1280,13 @@ void clear_display_text_buffer ()
 int rewrap_message(text_message* msg, font_cat cat, float text_zoom, int width, int *cursor)
 {
 	int nlines;
-	float max_line_width = 0;
 
 	if (msg == NULL || msg->data == NULL || msg->deleted)
 		return 0;
 
 	if (msg->wrap_width != width || msg->wrap_zoom != text_zoom)
 	{
+		int max_line_width = 0;
  		nlines = reset_soft_breaks((unsigned char*)msg->data, msg->len, msg->size,
 			cat, text_zoom, width, cursor, &max_line_width);
 		msg->len = strlen(msg->data);

@@ -745,7 +745,7 @@ public:
 	 * 	cursor position
 	 */
 	std::tuple<ustring, int, int> reset_soft_breaks(const unsigned char *text, size_t text_len,
-		const TextDrawOptions& options, ssize_t cursor = -1, float *max_line_width = 0);
+		const TextDrawOptions& options, ssize_t cursor = -1, int *max_line_width = nullptr);
 	/*!
 	 * \brief Recompute where the line breaks in a string should occur
 	 *
@@ -1431,7 +1431,7 @@ public:
 	 * 	cursor position
 	 */
 	std::tuple<ustring, int, int> reset_soft_breaks(Category cat, const unsigned char *text,
-		size_t text_len, const TextDrawOptions& options, int cursor = -1, float *max_line_width = nullptr)
+		size_t text_len, const TextDrawOptions& options, int cursor = -1, int *max_line_width = nullptr)
 	{
 		TextDrawOptions cat_options = TextDrawOptions(options).scale_zoom(font_scales[cat]);
 		return get(cat, options.zoom())
@@ -1902,7 +1902,7 @@ void get_top_bottom(const unsigned char* text, size_t len, font_cat cat, float t
  * \return The wrapped text, and the new number of lines in the text
  */
 int reset_soft_breaks(unsigned char *text, int len, int size, font_cat cat,
-	float text_zoom, int width, int *cursor, float *max_line_width);
+	float text_zoom, int width, int *cursor, int *max_line_width);
 /*!
  * \ingroup text_font
  * \brief Wrap a text so that it fits into a window
