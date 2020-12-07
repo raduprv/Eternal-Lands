@@ -173,6 +173,16 @@ extern "C"
 	} ec_EffectEnum;
 
 	extern ec_reference harvesting_effect_reference;
+	/*!
+	* \ingroup eye_candy
+	* \brief Start or stop the harvesting effect
+	*
+	*       Start or stop the harvesting eye candy effect dependent on the
+	* 	state of the \sa harvesting flag
+	*
+	* \callgraph
+	*/
+	void check_harvesting_effect(void);
 
 	////////////////////////////////////////////////////////////////////////////////
 	// EyeCandy wrapper functions declaration                                     //
