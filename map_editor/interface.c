@@ -939,12 +939,6 @@ int new_map_display_handler ()
 		glColor3f (1.0f, 1.0f, 1.0f);
 	draw_string (2, 5*17+2, (const unsigned char*) "Large      [128x128]", 1);
 
-	if (map_size == 4)
-		glColor3f (0.0f, 0.5f, 1.0f);
-	else 
-		glColor3f (1.0f, 1.0f, 1.0f);
-	draw_string (2, 6*17+2, (const unsigned char*) "Huge       [256x256]", 1);
-
 	glColor3f (1.0f, 1.0f, 1.0f);
 	draw_string (2, 8*17+2, (const unsigned char*) "   [Ok]    [Cancel]", 1);
 	
