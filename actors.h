@@ -14,6 +14,7 @@
 #include <SDL_mutex.h>
 #include "bbox_tree.h"
 #include "cal_types.h"
+#include "chat.h"
 #include "client_serv.h"
 #include "platform.h"
 #include "tiles.h"
@@ -47,8 +48,10 @@ extern int use_alpha_banner;	/*!< Use_alpha_banner defines if an alpha backgroun
 #define PKABLE_COMPUTER_CONTROLLED 5	/*!< Draw the actors name in red*/
 /*! \} */
 
-/*! Max text len to display into bubbles overhead*/
-#define MAX_CURRENT_DISPLAYED_TEXT_LEN 160
+/*! The maximum number of lines in the overhead text */
+#define MAX_CURRENT_DISPLAYED_TEXT_LINES 3
+/*! Max text len to display into bubbles overhead */
+#define MAX_CURRENT_DISPLAYED_TEXT_LEN (MAX_TEXT_MESSAGE_LENGTH + MAX_CURRENT_DISPLAYED_TEXT_LINES + 1)
 
 // default duration in ms of a step when an actor is walking
 #define DEFAULT_STEP_DURATION 250

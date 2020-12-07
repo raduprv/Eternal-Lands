@@ -26,6 +26,7 @@
 #include "hud.h"
 #include "interface.h"
 #include "main.h"
+#include "misc.h"
 #include "translate.h"
 #include "io/elpathwrapper.h"
 #include "threads.h"

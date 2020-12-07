@@ -17,6 +17,7 @@
 #include "hud_timer.h"
 #include "interface.h"
 #include "items.h"
+#include "main.h"
 #include "map.h"
 #include "multiplayer.h"
 #include "new_actors.h"

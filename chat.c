@@ -20,6 +20,7 @@
 #include "json_io.h"
 #endif
 #include "loginwin.h"
+#include "main.h"
 #include "mapwin.h"
 #include "multiplayer.h"
 #include "queue.h"

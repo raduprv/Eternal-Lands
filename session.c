@@ -7,6 +7,7 @@
 #include "elwindows.h"
 #include "init.h"
 #include "hud.h"
+#include "main.h"
 #include "missiles.h"
 #include "multiplayer.h"
 #include "named_colours.h"

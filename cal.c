@@ -6,6 +6,7 @@
 #include "errors.h"
 #include "font.h"
 #include "load_gl_extensions.h"
+#include "main.h"
 #include "missiles.h"
 #include "shadows.h"
 #include "translate.h"

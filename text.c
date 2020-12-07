@@ -21,6 +21,7 @@
 #include "items.h"
 #include "knowledge.h"
 #include "lights.h"
+#include "main.h"
 #include "misc.h"
 #include "multiplayer.h"
 #include "password_manager.h"
@@ -123,8 +124,6 @@ int log_chat = LOG_SERVER;
 
 FILE	*chat_log=NULL;
 FILE	*srv_log=NULL;
-
-ec_reference harvesting_effect_reference = NULL;
 
 #ifndef NEW_SOUND
 int afk_snd_warning = 0;
@@ -438,29 +437,6 @@ int parse_text_for_emote_commands(const char *text, int len)
 	return  ((ef==wf) ? (emote_filter):(0));
 
 }
-
-
-/* stop or restart the harvesting eye candy effect depending on the harvesting state */
-void check_harvesting_effect(void)
-{
-	/* if the harvesting effect is on but we're not harvesting, stop it */
-	if ((!now_harvesting() || !use_harvesting_eye_candy) && (harvesting_effect_reference != NULL))
-	{
-		ec_recall_effect(harvesting_effect_reference);
-		harvesting_effect_reference = NULL;
-	}
-	/* but if we are harvesting but there is no effect, start it if wanted */
-	else if (now_harvesting() && use_eye_candy && use_harvesting_eye_candy && (harvesting_effect_reference == NULL))
-	{
-		actor *act;
-		LOCK_ACTORS_LISTS();
-		act = get_actor_ptr_from_id(yourself);
-		if (act != NULL)
-			harvesting_effect_reference = ec_create_ongoing_harvesting2(act, 1.0, 1.0, (poor_man ? 6 : 10), 1.0);
-		UNLOCK_ACTORS_LISTS();
-	}
-}
-
 
 int filter_or_ignore_text (char *text_to_add, int len, int size, Uint8 channel)
 {

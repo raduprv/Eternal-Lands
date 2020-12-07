@@ -37,6 +37,7 @@ may be do:
 #include "elwindows.h"
 #include "gamewin.h"
 #include "gl_init.h"
+#include "misc.h"
 #include "text.h"
 #include "widgets.h"
 

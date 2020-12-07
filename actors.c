@@ -139,7 +139,7 @@ int add_actor (int actor_type, char * skin_name, float x_pos, float y_pos, float
 
 	our_actor = calloc(1, sizeof(actor));
 
-	memset(our_actor->current_displayed_text, 0, MAX_CURRENT_DISPLAYED_TEXT_LEN);
+	memset(our_actor->current_displayed_text, 0, sizeof(our_actor->current_displayed_text));
 	our_actor->current_displayed_text_lines = 0;
 	our_actor->current_displayed_text_width = 0;
 	our_actor->current_displayed_text_time_left =  0;
@@ -910,7 +910,7 @@ CHECK_GL_ERRORS();
 //-- Logan Dugenoux [5/26/2004]
 static void draw_actor_overtext(actor* actor_ptr, double x, double y, double z)
 {
-	int lines = min2i(actor_ptr->current_displayed_text_lines, 3);
+	int lines = min2i(actor_ptr->current_displayed_text_lines, MAX_CURRENT_DISPLAYED_TEXT_LINES);
 	float font_scale = 0.14f / ALT_INGAME_FONT_X_LEN;
 	float x_left, x_right, x_leg_left, x_leg_right, y_top, y_bottom;
 	float text_width, line_height, text_height;

@@ -39,6 +39,7 @@
 #include "encyclopedia.h"
 #include "errors.h"
 #include "events.h"
+#include "eye_candy_wrapper.h"
 #include "gl_init.h"
 #include "hud.h"
 #include "icon_window.h"

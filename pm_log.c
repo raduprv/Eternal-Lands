@@ -7,6 +7,7 @@
 #include "asc.h"
 #include "init.h"
 #include "loginwin.h"
+#include "main.h"
 #include "multiplayer.h"
 #include "translate.h"
 #include "url.h"

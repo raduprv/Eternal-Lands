@@ -82,6 +82,7 @@ typedef enum
 	CENTER_PASSWORD
 } ver_alignment;
 
+#include "client_serv.h"
 #include "gl_init.h"
 #include "text.h"
 #include "widgets.h"
@@ -89,6 +90,7 @@ typedef enum
 #ifdef __cplusplus
 
 #include <array>
+#include <stdexcept>
 #include <string>
 #include <unordered_map>
 #include <vector>

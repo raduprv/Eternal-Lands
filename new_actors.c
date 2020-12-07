@@ -79,7 +79,7 @@ static int add_enhanced_actor(enhanced_actor *this_actor, float x_pos, float y_p
 
 	our_actor = calloc(1, sizeof(actor));
 
-	memset(our_actor->current_displayed_text, 0, MAX_CURRENT_DISPLAYED_TEXT_LEN);
+	memset(our_actor->current_displayed_text, 0, sizeof(our_actor->current_displayed_text));
 	our_actor->current_displayed_text_time_left =  0;
 
 	our_actor->texture_id=texture_id;

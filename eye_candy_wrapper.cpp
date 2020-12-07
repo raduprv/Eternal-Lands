@@ -4,6 +4,7 @@
 #include "cal.h"
 #include "cal3d_wrapper.h"
 #include "client_serv.h" // For mine_type defines
+#include "counters.h"
 #include "draw_scene.h"
 #include "elconfig.h"
 #include "errors.h"
@@ -60,6 +61,8 @@ bool force_idle = false;
 volatile bool idle_semaphore = false;
 
 float average_framerate = 20000.0; // Windows has such horrible timer resolution, I have to average these out.  Anyways, it doesn't hurt to do this in Linux, either.
+
+ec_reference harvesting_effect_reference = NULL;
 
 // F U N C T I O N S //////////////////////////////////////////////////////////
 
@@ -3468,6 +3471,7 @@ extern "C" void ec_add_wind_effect_list(ec_reference reference, ec_effects effec
 	ec_internal_effects* cast_effects = (ec_internal_effects*)effects;
 	((ec::WindEffect*)(cast_reference->effect))->set_pass_off(*cast_effects);
 }
+
 #ifndef MAP_EDITOR
 extern "C" ec_reference ec_create_mine_detonate(float x, float y, float z, int mine_type, int LOD)
 {
@@ -3614,6 +3618,27 @@ extern "C" ec_reference ec_create_missile_effect(int missile_id, int LOD, int hi
 
 	eye_candy.push_back_effect(ret->effect);
 	return (ec_reference)ret;
+}
+
+/* stop or restart the harvesting eye candy effect depending on the harvesting state */
+extern "C" void check_harvesting_effect()
+{
+	/* if the harvesting effect is on but we're not harvesting, stop it */
+	if ((!now_harvesting() || !use_harvesting_eye_candy) && (harvesting_effect_reference != NULL))
+	{
+		ec_recall_effect(harvesting_effect_reference);
+		harvesting_effect_reference = NULL;
+	}
+	/* but if we are harvesting but there is no effect, start it if wanted */
+	else if (now_harvesting() && use_eye_candy && use_harvesting_eye_candy && (harvesting_effect_reference == NULL))
+	{
+		actor *act;
+		LOCK_ACTORS_LISTS();
+		act = get_actor_ptr_from_id(yourself);
+		if (act != NULL)
+			harvesting_effect_reference = ec_create_ongoing_harvesting2(act, 1.0, 1.0, (poor_man ? 6 : 10), 1.0);
+		UNLOCK_ACTORS_LISTS();
+	}
 }
 #endif //!MAP_EDITOR
 ///////////////////////////////////////////////////////////////////////////////

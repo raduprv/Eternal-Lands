@@ -20,6 +20,7 @@
 #include "init.h"
 #include "hud.h"
 #include "loginwin.h"
+#include "misc.h"
 #include "notepad.h"
 #include "tabs.h"
 #include "text.h"

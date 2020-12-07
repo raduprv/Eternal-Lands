@@ -15,13 +15,14 @@
  */
 
 
-#include <assert.h>
-#include <vector>
-#include <string>
-#include <iostream>
-#include <fstream>
-#include <sstream>
 #include <algorithm>
+#include <cassert>
+#include <fstream>
+#include <iostream>
+#include <map>
+#include <sstream>
+#include <string>
+#include <vector>
 
 //needed for notepad.h
 #include <SDL.h>
