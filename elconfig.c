@@ -100,7 +100,9 @@
 
 #include "eye_candy_wrapper.h"
 #include "sendvideoinfo.h"
+#ifndef MAP_EDITOR
 #include "actor_init.h"
+#endif
 #include "io/elpathwrapper.h"
 #include "textures.h"
 #ifdef	FSAA

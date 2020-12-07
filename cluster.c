@@ -1,7 +1,9 @@
 #ifdef CLUSTER_INSIDES
 
 #include "cluster.h"
+#ifndef MAP_EDITOR
 #include "actors.h"
+#endif
 
 static short* clusters = NULL;
 
