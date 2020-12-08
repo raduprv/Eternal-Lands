@@ -3,6 +3,7 @@
 #include <map>
 #include <string>
 #include <vector>
+#include <cmath>
 #include <SDL_types.h>
 
 #include "context_menu.h"
