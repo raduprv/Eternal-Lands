@@ -858,7 +858,8 @@ CHECK_GL_ERRORS();
 }
 
 
-static void draw_bubble(float x_left, float x_right, float x_leg_left, float x_leg_right, float y_top, float y_bottom, float y_actor, float z, float r)
+static void draw_bubble(float x_left, float x_right, float x_leg_left, float x_leg_right,
+	float y_top, float y_bottom, float y_actor, float z, float r)
 {
 	const float mul = M_PI/180.0f;
 	int angle;
@@ -885,6 +886,10 @@ static void draw_bubble(float x_left, float x_right, float x_leg_left, float x_l
 		float rad = mul*angle;
 		glVertex3f(x_left + r + cos(rad)*r, y_bottom + r + sin(rad)*r, z);
 	}
+	// Explicitly include the vertices where the leg attaches to the bubble, to prevent a gap
+	// between the bubble and the leg
+	glVertex3f(x_leg_left, y_bottom, z);
+	glVertex3f(x_leg_right, y_bottom, z);
 
 	for (angle = 270; angle <= 360; angle += 10)
 	{
