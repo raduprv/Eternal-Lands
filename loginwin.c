@@ -658,7 +658,7 @@ void set_password(const char * new_password)
 	password_initial = 1;
 }
 
-int valid_username_pasword(void)
+int valid_username_password(void)
 {
 	int i, username_len, password_len;
 

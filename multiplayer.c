@@ -604,7 +604,7 @@ void send_login_info()
 	const char * local_username_str;
 	const char * local_password_str;
 
-	if (!valid_username_pasword())
+	if (!valid_username_password())
 		return;
 
 	local_username_str = get_username();
