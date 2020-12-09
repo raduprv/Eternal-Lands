@@ -35,7 +35,7 @@ const char * get_server(void);
 void set_username(const char * new_username);
 void set_password(const char * new_password);
 void set_server(const char * new_server);
-int valid_username_pasword(void);
+int valid_username_password(void);
 /*! @} */
 
 /*!

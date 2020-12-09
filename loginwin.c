@@ -798,7 +798,7 @@ void set_server(const char * new_server)
 	server_initial = 1;
 }
 
-int valid_username_pasword(void)
+int valid_username_password(void)
 {
 	int i, username_len, password_len;
 
