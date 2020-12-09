@@ -1649,7 +1649,7 @@ int keypress_root_common (SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_m
 			put_string_in_input_field((unsigned char*)line);
 		}
 	}
-	else if(disconnected && !alt_on && !ctrl_on && !locked_to_console)
+	else if(disconnected && !alt_on && !ctrl_on && !locked_to_console && can_login)
 	{
 		connect_to_server();
 	}

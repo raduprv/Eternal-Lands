@@ -249,6 +249,16 @@ extern char configdir[256]; /*!< the default directory where we look for configu
 extern char datadir[256]; /*!< the default directory where we look for data files (aka installation dir) */
 
 /*!
+ * \ingroup readconfig
+ * \brief   Reads the server configuration file.
+ *
+ *		Reads the server configuration, or the default one if no server selected.
+ *
+ * \pre If the config could not be read, the function calls exit.
+ */
+void read_config(void);
+
+/*!
  * \ingroup loadsave
  * \brief   Stores the window layout in the binary cfg file.
  *

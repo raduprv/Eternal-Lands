@@ -48,7 +48,130 @@ int find_server_from_id (const char* id)
 	return -1;
 }
 
-void set_server_details()
+int set_server_details_from_id(char* id)
+{
+	//char id[20];
+	int num;
+	//safe_strncpy(id, check_server_id_on_command_line(), sizeof(id));
+
+	fprintf(stderr,"[DEBUG] set_server_details_from_id: [%s]\n", id);
+
+	if (!strcmp(id, ""))
+	{
+		safe_strncpy(id, "main", sizeof(id));
+	}
+	num = find_server_from_id(id);
+	if (num == -1)
+	{
+		// Oops... what did they specify on the command line?
+		LOG_ERROR("Server profile not found in servers.lst for server: %s.", id);
+		FATAL_ERROR_WINDOW("Server profile not found in servers.lst for server: %s.", id);
+		return 0;
+		/*
+		LOG_ERROR("Server profile not found in servers.lst for server: %s. Failover to server: main.", id);
+		// Failover to the main server
+		num = find_server_from_id("main");
+		if (num == -1)
+		{
+			// Error, this is a problem!
+			static char *error_str = "Fatal error: Server profile not found in servers.lst for server: main";
+			LOG_ERROR(error_str);
+			FATAL_ERROR_WINDOW(error_str);
+			exit(1);
+		}
+		*/
+	}
+	// We found a valid profile so set some vars
+	fprintf(stderr,"[DEBUG] Using the server profile: %s\n", servers[num].id);
+	LOG_DEBUG("Using the server profile: %s", servers[num].id);
+	cur_server = num;
+	safe_strncpy((char *)server_address, (char *)servers[num].address, sizeof(server_address));
+	port = servers[num].port;
+	fprintf(stderr,"[DEBUG] Server %s:%d\n", server_address, port);
+	// Check if the config directory for the profile exists and if not then create and
+	// copy main's ini file into it
+	if (!check_configdir())
+	{
+		char src[1000];
+		char dest[1000];
+		
+		mkdir_tree(get_path_config(), 0);
+		// First, try to copy the ini file out of $CONF/main
+		safe_snprintf(src, sizeof(src), "%smain/%s", get_path_config_base(), ini_filename);
+		safe_snprintf(dest, sizeof(dest), "%s%s", get_path_config(), ini_filename);
+		fprintf(stderr, "[DEBUG] copy_file(%s,%s)\n",src, dest);
+		copy_file(src, dest);
+		// Secondly, try to copy the ini file out of $CONF (this will fail without harm if above succeeds)
+		safe_snprintf(src, sizeof(src), "%s/%s", get_path_config_base(), ini_filename);
+		safe_snprintf(dest, sizeof(dest), "%s%s", get_path_config(), ini_filename);
+		fprintf(stderr, "[DEBUG] copy_file(%s,%s)\n",src, dest);
+		copy_file(src, dest);
+	}
+	return 1;
+}
+
+void set_default_config()
+{
+	//char id[20];
+	//int num;
+	//safe_strncpy(id, check_server_id_on_command_line(), sizeof(id));
+	//if (!strcmp(id, ""))
+	//{
+	//	fprintf(stderr,"[DEBUG] set_default_config - default to 'main'\n");
+	//	safe_strncpy(id, "main", sizeof(id));
+	//}
+
+	//fprintf(stderr,"[DEBUG] set_default_config: [%s]\n", id);
+
+	fprintf(stderr,"[DEBUG] set_default_config\n");
+
+	//num = find_server_from_id(id);
+	//if (num == -1)
+	//{
+		//// Oops... what did they specify on the command line?
+		//LOG_ERROR("Server profile not found in servers.lst for server: %s. Failover to server: main.", id);
+		//// Failover to the main server
+		//num = find_server_from_id("main");
+		//if (num == -1)
+		//{
+			//// Error, this is a problem!
+			//static char *error_str = "Fatal error: Server profile not found in servers.lst for server: main";
+			//LOG_ERROR(error_str);
+			//FATAL_ERROR_WINDOW(error_str);
+			//exit(1);
+		//}
+	//}
+	// We found a valid profile so set some vars
+	fprintf(stderr,"[DEBUG] Using the default profile\n");
+
+	//LOG_DEBUG("Using the server profile: %s", servers[num].id);
+	//cur_server = num;
+	//safe_strncpy((char *)server_address, (char *)servers[num].address, sizeof(server_address));
+	//port = servers[num].port;
+	//fprintf(stderr,"[DEBUG] Server %s:%d\n", server_address, port);
+	// Check if the config directory for the profile exists and if not then create and
+	// copy main's ini file into it
+	if (!check_configdir())
+	{
+		char src[1000];
+		char dest[1000];
+		
+		mkdir_tree(get_path_config(), 0);
+		// First, try to copy the ini file out of $CONF/main
+		safe_snprintf(src, sizeof(src), "%smain/%s", get_path_config_base(), ini_filename);
+		safe_snprintf(dest, sizeof(dest), "%s%s", get_path_config(), ini_filename);
+		fprintf(stderr, "[DEBUG] copy_file(%s,%s)\n",src, dest);
+		copy_file(src, dest);
+		// Secondly, try to copy the ini file out of $CONF (this will fail without harm if above succeeds)
+		safe_snprintf(src, sizeof(src), "%s/%s", get_path_config_base(), ini_filename);
+		safe_snprintf(dest, sizeof(dest), "%s%s", get_path_config(), ini_filename);
+		fprintf(stderr, "[DEBUG] copy_file(%s,%s)\n",src, dest);
+		copy_file(src, dest);
+	}
+}
+
+/*
+void set_server_details_from_id()
 {
 	char id[20];
 	int num;
@@ -84,7 +207,7 @@ void set_server_details()
 	{
 		char src[1000];
 		char dest[1000];
-		
+
 		mkdir_tree(get_path_config(), 0);
 		// First, try to copy the ini file out of $CONF/main
 		safe_snprintf(src, sizeof(src), "%smain/%s", get_path_config_base(), ini_filename);
@@ -96,6 +219,7 @@ void set_server_details()
 		copy_file(src, dest);
 	}
 }
+*/
 
 const char * get_server_dir()
 {

@@ -142,8 +142,27 @@ const char * get_path_config_base(void)
 	}
 #endif // platform check
 
+	fprintf(stderr,"[DEBUG] get_path_config_base: %s\n", locbuffer);
+
 	return locbuffer;
 }
+
+const char * get_path_default_config(void)
+{
+	static char locbuffer[MAX_PATH] = {0};
+
+	// Check if we have selected a server yet, otherwise return the base config dir
+#ifndef MAP_EDITOR
+	safe_snprintf(locbuffer, sizeof(locbuffer), "%s%s", get_path_config_base(), "");
+#else
+	safe_snprintf(locbuffer, sizeof(locbuffer), "%s/", get_path_config_base());
+#endif //!MAP_EDITOR
+
+	fprintf(stderr,"[DEBUG] get_path_default_config: %s\n", locbuffer);
+
+	return locbuffer;
+}
+
 const char * get_path_config(void)
 {
 	static char locbuffer[MAX_PATH] = {0};
@@ -780,6 +799,10 @@ int copy_file(const char *source, const char *dest)
 	return 0;
 }
 
+int check_default_config(void)
+{
+	return file_exists(get_path_config());
+}
 
 int check_configdir(void)
 {

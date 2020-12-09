@@ -348,6 +348,7 @@ extern char
 		/*loginwin.c*/
 		login_username_str[20],
 		login_password_str[20],
+		login_server_str[20],
 		login_rules_str[120],
 		passmngr_enabled_str[70],
 		passmngr_disabled_str[70],

@@ -6,3 +6,5 @@ git_version
 map_editor/mapedit.x86.linux.bin
 docs/DOXYTAGS
 docs/html
+.idea/
+cmake-build-debug/

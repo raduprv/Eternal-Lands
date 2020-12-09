@@ -88,6 +88,7 @@ int in_data_used=0;
 int tcp_out_loc= 0;
 int previously_logged_in= 0;
 volatile int disconnected= 1;
+volatile int can_login= 0;
 time_t last_heart_beat;
 time_t last_save_time;
 int always_pathfinding = 0;
@@ -511,6 +512,8 @@ void send_version_to_server(IPaddress *ip)
 void connect_to_server()
 {
 	IPaddress	ip;
+
+	fprintf(stderr, "[DEBUG] connect_to_server()\n");
 
 	tcp_out_loc= 0; // clear the tcp output buffer
 	if(this_version_is_invalid) return;
