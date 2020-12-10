@@ -11,6 +11,7 @@
 #include "elwindows.h"
 #endif
 #include "events.h"
+#include "eye_candy_wrapper.h"
 #include "gamewin.h"
 #include "gl_init.h"
 #include "hud.h"
@@ -29,7 +30,6 @@
 #include "spells.h"
 #include "sound.h"
 #include "storage.h"
-#include "text.h"
 #include "tiles.h"
 #include "weather.h"
 

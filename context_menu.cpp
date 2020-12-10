@@ -3,6 +3,7 @@
 #include <map>
 #include <string>
 #include <vector>
+#include <cmath>
 #include <SDL_types.h>
 
 #include "context_menu.h"
@@ -17,9 +18,9 @@
 //
 //  Implements a simple context menu system using the standard el windows.
 //  Intended to be a familiar GUI context menu activated via a right mouse click.
-//  At its simplest, the user code just needs create a new context object
+//  At its simplest, the user code just needs to create a new context object
 //  providing a callback function for when an option is selected or using boolean
-//	only options.  The Container class provides a creation/destruction/management/access
+//  only options.  The Container class provides a creation/destruction/management/access
 //  wrapper.
 //  Author bluap/pjbroad March/April 2008
 //
@@ -259,7 +260,7 @@ namespace cm
 		do
 		{
 			found_entry = false;
-  			for (std::map<int, size_t>::iterator itp = full_windows.begin(); itp != full_windows.end(); ++itp)
+			for (std::map<int, size_t>::iterator itp = full_windows.begin(); itp != full_windows.end(); ++itp)
 			{
 				if (itp->second == cm_id)
 				{
@@ -274,8 +275,8 @@ namespace cm
 		// remove all regions linked to this context menu
 		do
 		{
- 			found_entry = false;
- 			for (REG_MM::iterator itp = window_regions.begin(); itp != window_regions.end(); ++itp)
+			found_entry = false;
+			for (REG_MM::iterator itp = window_regions.begin(); itp != window_regions.end(); ++itp)
 			{
 				if (itp->second.cm_id == cm_id)
 				{
@@ -290,8 +291,8 @@ namespace cm
 		// remove all widgets linked to this context menu
 		do
 		{
- 			found_entry = false;
- 			for (WID_MM::iterator itp = window_widgets.begin(); itp != window_widgets.end(); ++itp)
+			found_entry = false;
+			for (WID_MM::iterator itp = window_widgets.begin(); itp != window_widgets.end(); ++itp)
 			{
 				if (itp->second.cm_id == cm_id)
 				{
@@ -353,8 +354,8 @@ namespace cm
 
 		// check if this window has any widget activation settings and open if mouse in that widget
 		{
-  			std::pair< WID_MM::iterator, WID_MM::iterator> itp = window_widgets.equal_range(window_id);
-  			for (WID_MM::iterator it = itp.first; it != itp.second; ++it)
+			std::pair< WID_MM::iterator, WID_MM::iterator> itp = window_widgets.equal_range(window_id);
+			for (WID_MM::iterator it = itp.first; it != itp.second; ++it)
 			{
 				window_info *win = window_info_from_id(window_id);
 				widget_list *wid = widget_find(window_id, it->second.widget_id);
@@ -367,8 +368,8 @@ namespace cm
 
 		// check if this window has any active regions and open if mouse in that region
 		{
-  			std::pair< REG_MM::iterator, REG_MM::iterator> itp = window_regions.equal_range(window_id);
-  			for (REG_MM::iterator it = itp.first; it != itp.second; ++it)
+			std::pair< REG_MM::iterator, REG_MM::iterator> itp = window_regions.equal_range(window_id);
+			for (REG_MM::iterator it = itp.first; it != itp.second; ++it)
 			{
 				window_info *win = window_info_from_id(window_id);
 				assert(win!=NULL);
@@ -404,8 +405,8 @@ namespace cm
 	// remove any activation for the specifed window/widget
 	int Container::remove_widget(int window_id, int widget_id)
 	{
-  		std::pair< WID_MM::iterator, WID_MM::iterator> itp = window_widgets.equal_range(window_id);
-  		for (WID_MM::iterator it = itp.first; it != itp.second; ++it)
+		std::pair< WID_MM::iterator, WID_MM::iterator> itp = window_widgets.equal_range(window_id);
+		for (WID_MM::iterator it = itp.first; it != itp.second; ++it)
 		{
 			if (it->second.widget_id == widget_id)
 			{
@@ -608,9 +609,9 @@ namespace cm
 		// move the window, one corner anchored to the mouse click position, so its on screen
 		if (wx+width > window_width)
 			wx -= width;
-   		if (wy+height > window_height)
+		if (wy+height > window_height)
 			wy -= height;
-   		move_window(cm_window_id, -1, 0, wx, wy);
+		move_window(cm_window_id, -1, 0, wx, wy);
 
 		// make sure the window is updated with this instances size and data
 		windows_list.window[cm_window_id].data = this;

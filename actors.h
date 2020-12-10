@@ -640,7 +640,6 @@ typedef struct
 	/*! \{ */
 	char current_displayed_text[MAX_CURRENT_DISPLAYED_TEXT_LEN]; /*!< If the text is displayed in a bubble over the actor, this holds the text*/
 	int current_displayed_text_lines;     /*!< The number of lines of text */
-	int current_displayed_text_width;     /*!< Width of the text in pixels, before perspective scaling */
 	int current_displayed_text_time_left; /*!< Defines the remaining time the overhead text should be displayed*/
 	/*! \} */
 

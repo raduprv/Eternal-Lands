@@ -433,18 +433,6 @@ int rewrap_message(text_message* msg, font_cat cat, float zoom, int width, int *
 void cleanup_text_buffers(void);
 
 
-
-/*!
- * \ingroup text_font
- * \brief Start or stop the harvesting effect
- *
- *       Start or stop the harvesting eye candy effect dependent on the
- * 	state of the \sa harvesting flag
- *
- * \callgraph
- */
-void check_harvesting_effect(void);
-
 /*!
  * \ingroup text_font
  * \brief return special day status

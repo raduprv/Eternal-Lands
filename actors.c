@@ -141,7 +141,6 @@ int add_actor (int actor_type, char * skin_name, float x_pos, float y_pos, float
 
 	memset(our_actor->current_displayed_text, 0, sizeof(our_actor->current_displayed_text));
 	our_actor->current_displayed_text_lines = 0;
-	our_actor->current_displayed_text_width = 0;
 	our_actor->current_displayed_text_time_left =  0;
 
 	our_actor->is_enhanced_model=0;
@@ -859,9 +858,9 @@ CHECK_GL_ERRORS();
 }
 
 
-void draw_bubble(float x_left, float x_right, float x_leg_left, float x_leg_right, float y_top, float y_bottom, float y_actor, float z)
+static void draw_bubble(float x_left, float x_right, float x_leg_left, float x_leg_right,
+	float y_top, float y_bottom, float y_actor, float z, float r)
 {
-	const float r = 0.25 * (y_top - y_bottom);
 	const float mul = M_PI/180.0f;
 	int angle;
 
@@ -887,6 +886,10 @@ void draw_bubble(float x_left, float x_right, float x_leg_left, float x_leg_righ
 		float rad = mul*angle;
 		glVertex3f(x_left + r + cos(rad)*r, y_bottom + r + sin(rad)*r, z);
 	}
+	// Explicitly include the vertices where the leg attaches to the bubble, to prevent a gap
+	// between the bubble and the leg
+	glVertex3f(x_leg_left, y_bottom, z);
+	glVertex3f(x_leg_right, y_bottom, z);
 
 	for (angle = 270; angle <= 360; angle += 10)
 	{
@@ -913,7 +916,7 @@ static void draw_actor_overtext(actor* actor_ptr, double x, double y, double z)
 	int lines = min2i(actor_ptr->current_displayed_text_lines, MAX_CURRENT_DISPLAYED_TEXT_LINES);
 	float font_scale = 0.14f / ALT_INGAME_FONT_X_LEN;
 	float x_left, x_right, x_leg_left, x_leg_right, y_top, y_bottom;
-	float text_width, line_height, text_height;
+	int text_width, line_height, text_height;
 	float margin;
 
 	actor *me = get_our_actor();
@@ -935,11 +938,12 @@ static void draw_actor_overtext(actor* actor_ptr, double x, double y, double z)
 		font_scale *= 0.5 + 0.5 * me_dsq / actor_dsq;
 	}
 
-	text_width = font_scale * actor_ptr->current_displayed_text_width;
+	get_buf_dimensions((const unsigned char*)actor_ptr->current_displayed_text,
+		strlen(actor_ptr->current_displayed_text),
+		CHAT_FONT, font_scale, &text_width, &text_height);
 	line_height = get_line_height(CHAT_FONT, font_scale);
-	text_height = get_text_height(lines, CHAT_FONT, font_scale);
 
-	margin = 0.25 * line_height;
+	margin = 0.5 * line_height;
 
 	x_left = x - 0.5*text_width - margin;
 	x_right = x + 0.5*text_width + margin;
@@ -950,7 +954,7 @@ static void draw_actor_overtext(actor* actor_ptr, double x, double y, double z)
 	y_top = y_bottom + text_height + 2*margin;
 
 	glDisable(GL_TEXTURE_2D);
-	draw_bubble(x_left, x_right, x_leg_left, x_leg_right, y_top, y_bottom, y, z+0.0001f);
+	draw_bubble(x_left, x_right, x_leg_left, x_leg_right, y_top, y_bottom, y, z+0.0001f, 1.5*margin);
 	glEnable(GL_TEXTURE_2D);
 
 	//---
@@ -966,7 +970,6 @@ static void draw_actor_overtext(actor* actor_ptr, double x, double y, double z)
 	{	// clear if needed
 		actor_ptr->current_displayed_text_time_left = 0;
 		actor_ptr->current_displayed_text_lines = 0;
-		actor_ptr->current_displayed_text_width = 0;
 		actor_ptr->current_displayed_text[0] = '\0';
 	}
 #ifdef OPENGL_TRACE
@@ -1732,9 +1735,8 @@ void add_displayed_text_to_actor(actor *actor_ptr, const char* text)
 	char *dest = actor_ptr->current_displayed_text;
 	const size_t size = sizeof(actor_ptr->current_displayed_text);
 	safe_snprintf(dest, size, "%s", text);
-	actor_ptr->current_displayed_text_width = 0;
 	actor_ptr->current_displayed_text_lines = reset_soft_breaks((unsigned char*)dest, strlen(dest),
-		size, CHAT_FONT, 1.0, window_width/3, NULL, &actor_ptr->current_displayed_text_width);
+		size, CHAT_FONT, 1.0, window_width/3, NULL, NULL);
 	actor_ptr->current_displayed_text_time_left = MINI_BUBBLE_MS + strlen(text) * MS_PER_CHAR;
 }
 
