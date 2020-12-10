@@ -34,6 +34,14 @@ void calc_shadow_matrix();
 
 /*!
  * \ingroup shadows
+ * \brief Set up parameters for cloud shadows
+ *
+ * Set up OpenGL texture parameters for drawing cloud shadows on the ground.
+ */
+void setup_cloud_texturing(void);
+
+/*!
+ * \ingroup shadows
  * \brief Redraws the scene with shadows casted by the sun.
  *
  *      Draws the scene with shadows enabled that are cast by the sun.

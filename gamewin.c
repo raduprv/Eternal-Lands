@@ -1273,6 +1273,7 @@ static int display_game_handler (window_info *win)
 			draw_lake_tiles ();
 		}
 
+		setup_cloud_texturing();
 		draw_tile_map();
 		CHECK_GL_ERRORS ();
 		display_2d_objects();
