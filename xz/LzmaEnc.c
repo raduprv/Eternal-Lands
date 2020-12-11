@@ -1336,7 +1336,9 @@ static UInt32 GetOptimum(CLzmaEnc *p, UInt32 position, UInt32 *backRes)
       lenTest = lenTestTemp;
       
       if (repIndex == 0)
+      {
         startLen = lenTest + 1;
+      }
         
       /* if (_maxMode) */
         {
