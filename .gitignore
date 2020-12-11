@@ -7,3 +7,4 @@ map_editor/mapedit.x86.linux.bin
 docs/DOXYTAGS
 docs/html
 pawn_scripts/*.amx
+pawn_scripts/features.inc

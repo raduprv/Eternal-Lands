@@ -38,8 +38,11 @@ size_t AMXAPI aux_ProgramSize(const char *filename)
   fread(&hdr, sizeof hdr, 1, fp);
   fclose(fp);
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Waddress-of-packed-member"
   amx_Align16(&hdr.magic);
   amx_Align32((uint32_t *)&hdr.stp);
+#pragma GCC diagnostic pop
   return (hdr.magic==AMX_MAGIC) ? (size_t)hdr.stp : 0;
 }
 
@@ -53,9 +56,12 @@ int AMXAPI aux_LoadProgram(AMX *amx, const char *filename, void *memblock)
   if ((fp = fopen(filename, "rb")) == NULL)
     return AMX_ERR_NOTFOUND;
   fread(&hdr, sizeof hdr, 1, fp);
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Waddress-of-packed-member"
   amx_Align16(&hdr.magic);
   amx_Align32((uint32_t *)&hdr.size);
   amx_Align32((uint32_t *)&hdr.stp);
+#pragma GCC diagnostic pop
   if (hdr.magic != AMX_MAGIC) {
     fclose(fp);
     return AMX_ERR_FORMAT;

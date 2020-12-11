@@ -34,8 +34,8 @@ typedef struct _pawn_timer_queue
 } pawn_timer_queue;
 
 // the machines themselves
-static pawn_machine srv_amx = {0, 0, NULL};
-static pawn_machine map_amx = {0, 0, NULL};
+static pawn_machine srv_amx = {0};
+static pawn_machine map_amx = {0};
 
 static pawn_timer_queue *map_timer_queue = NULL;
 
@@ -51,10 +51,10 @@ static __inline__ int ticks_less_equal (Uint32 ticks, Uint32 limit)
 	return !ticks_less (limit, ticks);
 }
 
-static __inline__ int ticks_greater_equal (Uint32 ticks, Uint32 limit)
-{
-	return !ticks_less (ticks, limit);
-}
+// static __inline__ int ticks_greater_equal(Uint32 ticks, Uint32 limit)
+// {
+// 	return !ticks_less (ticks, limit);
+// }
 
 void pop_timer_queue (pawn_timer_queue **queue)
 {
@@ -215,7 +215,6 @@ int run_pawn_function (pawn_machine *machine, const char* fun, const char* fmt, 
 
 	if (fmt != NULL && (nr_args = strlen (fmt)) > 0)
 	{
-		char c;
 		const char *s;
 		int i;
 		REAL f;
@@ -241,7 +240,7 @@ int run_pawn_function (pawn_machine *machine, const char* fun, const char* fmt, 
 					args[iarg] = (cell) s;
 					break;
 				default:
-					LOG_ERROR ("unknown format specifier '%c' in Pawn call", c);
+					LOG_ERROR ("unknown format specifier '%c' in Pawn call", fmt[iarg]);
 					free (args);
 					return 1;
 			}
