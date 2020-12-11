@@ -120,14 +120,14 @@ int initialize_pawn_machine (pawn_machine *machine, const char* fname)
 	memsize = aux_ProgramSize (fname);
 	if (memsize == 0)
 	{
-		log_error ("Unable to determine memory size for Pawn file %s", fname);
+		LOG_ERROR ("Unable to determine memory size for Pawn file %s", fname);
 		return 0;
 	}
 
 	buffer = malloc (memsize);
 	if (buffer == NULL)
 	{
-		log_error ("unable to allocate memory for Pawn file %s", fname);
+		LOG_ERROR ("unable to allocate memory for Pawn file %s", fname);
 		return 0;
 	}
 
@@ -135,7 +135,7 @@ int initialize_pawn_machine (pawn_machine *machine, const char* fname)
 	if (err != AMX_ERR_NONE)
 	{
 		free (buffer);
-		log_error ("unable to load Pawn file %s", fname);
+		LOG_ERROR ("unable to load Pawn file %s", fname);
 		return 0;
 	}
 
@@ -149,7 +149,7 @@ int initialize_pawn_machine (pawn_machine *machine, const char* fname)
 	if (err != AMX_ERR_NONE)
 	{
 		free (buffer);
-		log_error ("Unable to initialize all native functions for Pawn file %s", fname);
+		LOG_ERROR ("Unable to initialize all native functions for Pawn file %s", fname);
 		return 0;
 	}
 
@@ -202,14 +202,14 @@ int run_pawn_function (pawn_machine *machine, const char* fun, const char* fmt, 
 
 	if (!machine->initialized)
 	{
-		log_error ("Unable to execute Pawn function: machine not initialized");
+		LOG_ERROR ("Unable to execute Pawn function: machine not initialized");
 		return 0;
 	}
 
 	err = amx_FindPublic (&(machine->amx), fun, &index);
 	if (err != AMX_ERR_NONE)
 	{
-		log_error ("Unable to locate Pawn function %s", fun);
+		LOG_ERROR ("Unable to locate Pawn function %s", fun);
 		return 0;
 	}
 
@@ -241,7 +241,7 @@ int run_pawn_function (pawn_machine *machine, const char* fun, const char* fmt, 
 					args[iarg] = (cell) s;
 					break;
 				default:
-					log_error ("unknown format specifier '%c' in Pawn call", c);
+					LOG_ERROR ("unknown format specifier '%c' in Pawn call", c);
 					free (args);
 					return 1;
 			}
@@ -273,7 +273,7 @@ int run_pawn_function (pawn_machine *machine, const char* fun, const char* fmt, 
 	err = amx_Exec (&(machine->amx), NULL, index);
 	if (err != AMX_ERR_NONE)
 	{
-		log_error ("Error %d executing Pawn function %s", err, fun);
+		LOG_ERROR ("Error %d executing Pawn function %s", err, fun);
 		return 0;
 	}
 

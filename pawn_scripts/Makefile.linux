@@ -1,0 +1,6 @@
+PAWNC = pawncc
+
+all: pawn_test.amx
+
+pawn_test.amx: *.p *.inc
+	$(PAWNC) $<
