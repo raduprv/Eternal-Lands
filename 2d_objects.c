@@ -32,6 +32,8 @@
 #define PLANT 1
 #define FENCE 2
 
+#define DRAW_CLOUDS_SHADOWS (!dungeon && (clouds_shadows || use_shadow_mapping))
+
 obj_2d *obj_2d_list[MAX_OBJ_2D];
 
 #ifdef FASTER_MAP_LOAD
@@ -94,7 +96,7 @@ void draw_2d_object(obj_2d *object_id)
 
 	bind_texture(obj_def_pointer->texture_id);
 
-	if (dungeon || (!clouds_shadows && !use_shadow_mapping))
+	if (!DRAW_CLOUDS_SHADOWS)
 		{
 			glBegin(GL_QUADS);
 
@@ -109,8 +111,8 @@ void draw_2d_object(obj_2d *object_id)
 
 			glTexCoord2f(u_end,v_start);
 			glVertex3f(render_x_start+x_size,render_y_start,z_pos);
-			
-	    		glEnd();
+
+			glEnd();
 		}
 	else
 		{
@@ -130,10 +132,9 @@ void draw_2d_object(obj_2d *object_id)
 			x1=x_pos+x1;
 			y1=y_pos+y1;
 
-			ELglMultiTexCoord2fARB(base_unit,u_start,v_start);
-			ELglMultiTexCoord2fARB(detail_unit,x1/texture_scale
-								 +clouds_movement_u,y1/texture_scale
-								 +clouds_movement_v);
+			ELglMultiTexCoord2fARB(base_unit, u_start, v_start);
+			ELglMultiTexCoord2fARB(detail_unit, x1/texture_scale + clouds_movement_u,
+				y1/texture_scale + clouds_movement_v);
 			glVertex3f(x,y,z_pos);
 
 			x=render_x_start;
@@ -143,10 +144,9 @@ void draw_2d_object(obj_2d *object_id)
 			x1=x_pos+x1;
 			y1=y_pos+y1;
 
-			ELglMultiTexCoord2fARB(base_unit,u_start,v_end);
-			ELglMultiTexCoord2fARB(detail_unit,x1/texture_scale
-								 +clouds_movement_u,y1/texture_scale
-								 +clouds_movement_v);
+			ELglMultiTexCoord2fARB(base_unit, u_start, v_end);
+			ELglMultiTexCoord2fARB(detail_unit, x1/texture_scale + clouds_movement_u,
+				y1/texture_scale + clouds_movement_v);
 			glVertex3f(x,y,z_pos);
 
 			x=render_x_start+x_size;
@@ -156,10 +156,9 @@ void draw_2d_object(obj_2d *object_id)
 			x1=x_pos+x1;
 			y1=y_pos+y1;
 
-			ELglMultiTexCoord2fARB(base_unit,u_end,v_end);
-			ELglMultiTexCoord2fARB(detail_unit,x1/texture_scale
-								 +clouds_movement_u,y1/texture_scale
-								 +clouds_movement_v);
+			ELglMultiTexCoord2fARB(base_unit, u_end, v_end);
+			ELglMultiTexCoord2fARB(detail_unit, x1/texture_scale + clouds_movement_u,
+				y1/texture_scale + clouds_movement_v);
 			glVertex3f(x,y,z_pos);
 
 			x=render_x_start+x_size;
@@ -169,13 +168,11 @@ void draw_2d_object(obj_2d *object_id)
 			x1=x_pos+x1;
 			y1=y_pos+y1;
 
-
-			ELglMultiTexCoord2fARB(base_unit,u_end,v_start);
-			ELglMultiTexCoord2fARB(detail_unit,x1/texture_scale
-								 +clouds_movement_u,y1/texture_scale
-								 +clouds_movement_v);
+			ELglMultiTexCoord2fARB(base_unit, u_end, v_start);
+			ELglMultiTexCoord2fARB(detail_unit, x1/texture_scale + clouds_movement_u,
+				y1/texture_scale + clouds_movement_v);
 			glVertex3f(x,y,z_pos);
-    		glEnd();
+			glEnd();
 		}
 	glPopMatrix();//restore the scene
 #ifdef OPENGL_TRACE
@@ -945,14 +942,13 @@ void display_2d_objects()
 	glEnable(GL_ALPHA_TEST);
 	glAlphaFunc(GL_GREATER, 0.18f);
 
-	if (!dungeon && !(!clouds_shadows && !use_shadow_mapping))
+	if (DRAW_CLOUDS_SHADOWS)
 	{
-		if(clouds_shadows)
+		if (clouds_shadows)
 		{
 			//bind the detail texture
 			ELglActiveTextureARB(detail_unit);
 			glEnable(GL_TEXTURE_2D);
-			//glBindTexture(GL_TEXTURE_2D, texture_cache[ground_detail_text].texture_id);
 			bind_texture_unbuffered(ground_detail_text);
 		}
 		ELglActiveTextureARB(base_unit);
@@ -990,9 +986,9 @@ void display_2d_objects()
 		draw_2d_object(obj_2d_list[l]);
 	}
 
-	if (!dungeon && !(!clouds_shadows && !use_shadow_mapping))
+	if (DRAW_CLOUDS_SHADOWS)
 	{
-    		//disable the multitexturing
+		//disable the multitexturing
 		ELglActiveTextureARB(detail_unit);
 		glDisable(GL_TEXTURE_2D);
 		ELglActiveTextureARB(base_unit);

@@ -9,6 +9,9 @@ ADDRSANITISER_CFLAGS=-fsanitize=address
 PNG_SCREENSHOT_LIBS = $(shell pkg-config libpng --libs)
 TTF_LIBS = $(shell pkg-config SDL2_ttf --libs)
 ADDRSANITISER_LIBS=-fsanitize=address
+PAWN_LIBS = -ldl
+
+PAWN_DEPS_DIR = .deps/pawn
 
 OPTIONS = -DLINUX -DELC $(foreach FEATURE, $(FEATURES), -D$(FEATURE)) -D_7ZIP_ST $(GIT_VERSION) \
 	$(shell pkg-config sdl2 --cflags) \
@@ -139,7 +142,10 @@ $(EXE): $(OBJS)
 #recompile on Makefile or conf change
 #.depend $(OBJS): Makefile.linux make.conf
 
-DEPS_MAGIC := $(shell mkdir .deps .deps/io .deps/shader .deps/eye_candy .deps/exceptions .deps/xz .deps/xml .deps/fsaa .deps/engine > /dev/null 2>&1 || :)
+DEPS_DIRS = .deps .deps/io .deps/shader .deps/eye_candy .deps/exceptions .deps/xz .deps/xml \
+	.deps/fsaa .deps/engine \
+	$(foreach FEATURE, $(FEATURES), $($(FEATURE)_DEPS_DIR))
+DEPS_MAGIC := $(shell mkdir $(DEPS_DIRS) > /dev/null 2>&1 || :)
 
 $(COBJS): %.o: %.c Makefile.linux make.conf
 	@echo "  CC   $@"
@@ -195,14 +201,5 @@ make.conf: make.defaults
 	else \
 		cp $< $@; \
 	fi
-
-pawn_scripts/features.inc: make.conf
-	echo "#if defined _features_included" > $@; \
-	echo "\t#endinput" >> $@; \
-	echo "#endif" >> $@; \
-	echo "#define _features_included" >> $@; \
-	for feature in $(FEATURES); do \
-		echo "#define $$feature" >> $@; \
-	done
 
 -include $(DEP_FILES)

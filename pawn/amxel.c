@@ -22,11 +22,11 @@
 void update_object_pos_and_rot (object3d* obj)
 {
 	e3d_object* e3d = obj->e3d_data;
-	unsigned int ground;
+// 	unsigned int ground;
 	
 	calc_rotation_and_translation_matrix (obj->matrix, obj->x_pos, obj->y_pos, obj->z_pos, obj->x_rot, obj->y_rot, obj->z_rot);
 	
-	ground = !has_normal (e3d->vertex_options);
+// 	ground = !has_normal (e3d->vertex_options);
 
 	// FIXME: TODO: update the bounding boxes for this object. Will probably
 	// require a new type of bbox storage.

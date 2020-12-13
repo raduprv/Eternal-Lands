@@ -8,3 +8,5 @@ docs/DOXYTAGS
 docs/html
 .idea/
 cmake-build-debug/
+pawn_scripts/*.amx
+pawn_scripts/features.inc

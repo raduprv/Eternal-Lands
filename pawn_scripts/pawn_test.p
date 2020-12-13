@@ -1,3 +1,4 @@
+#include "default.inc"
 #include "maps.p"
 
 public pawn_test (const msg[]) 

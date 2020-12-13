@@ -1273,6 +1273,7 @@ static int display_game_handler (window_info *win)
 			draw_lake_tiles ();
 		}
 
+		setup_cloud_texturing();
 		draw_tile_map();
 		CHECK_GL_ERRORS ();
 		display_2d_objects();
@@ -2161,15 +2162,14 @@ static int keypress_game_handler (window_info *win, int mx, int my, SDL_Keycode 
 	{
 		if (object_under_mouse != -1 && thing_under_the_mouse == UNDER_MOUSE_3D_OBJ && objects_list[object_under_mouse])
 		{
-			run_pawn_map_function ("play_with_object_pos", "ii", object_under_mouse, key & ELW_SHIFT ? 1: 0);
+			run_pawn_map_function("play_with_object_pos", "ii", object_under_mouse, key_mod & KMOD_SHIFT ? 1: 0);
 		}
 		else
 		{
-			run_pawn_server_function ("pawn_test", "s", "meep!");
+			run_pawn_server_function("pawn_test", "s", "meep!");
 		}
 	}
 #endif
-
 	else if (key_code == SDLK_F8)
 	{
 		static int ison = 0;
