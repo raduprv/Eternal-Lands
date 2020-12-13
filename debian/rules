@@ -20,7 +20,7 @@ build-stamp: configure-stamp
 	# Commands to compile the package.
 	mkdir -p build && \
 		cd build && \
-		cmake -DLOCAL_NLOHMANN_JSON=On -DTTF=On -DEXEC=el.x86.linux.bin -DVERSION_PREFIX=1.9.5 .. && \
+		cmake -DLOCAL_NLOHMANN_JSON=On -DTTF=On -DEXEC=el.linux.bin -DVERSION_PREFIX=1.9.5 .. && \
 		make
 	touch $@
 
@@ -53,7 +53,7 @@ binary-arch: build install
 	dh_installexamples
 	dh_install
 	dh_installmenu
-	dh_installman pkgfiles/eternallands.6 pkgfiles/el.x86.linux.bin.6
+	dh_installman pkgfiles/eternallands.6 pkgfiles/el.linux.bin.6
 	dh_link
 	dh_strip
 	dh_compress
