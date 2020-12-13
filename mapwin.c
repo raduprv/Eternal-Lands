@@ -190,7 +190,6 @@ static int keypress_map_handler (window_info *win, int mx, int my, SDL_Keycode k
 	}
 	else
 	{
-		reset_tab_completer();
 		if (key_unicode == '`' || KEY_DEF_CMP(K_CONSOLE, key_code, key_mod))
 		{
 			hide_window (win->window_id);

@@ -989,6 +989,7 @@ int root_key_to_input_field (SDL_Keycode key_code, Uint32 key_unicode, Uint16 ke
 	text_field *tf;
 	text_message *msg;
 	int alt_on = key_mod & KMOD_ALT, ctrl_on = key_mod & KMOD_CTRL;
+	int do_reset_tab_completer = 1;
 
 	if(input_widget == NULL || (input_widget->Flags & TEXT_FIELD_EDITABLE) == 0) {
 		return 0;
@@ -1043,6 +1044,7 @@ int root_key_to_input_field (SDL_Keycode key_code, Uint32 key_unicode, Uint16 ke
 	else if (KEY_DEF_CMP(K_TABCOMPLETE, key_code, key_mod) && input_text_line.len > 0)
 	{
 		do_tab_complete(&input_text_line);
+		do_reset_tab_completer = 0;
 	}
 	else if (get_show_window_MW(MW_CONSOLE))
 	{
@@ -1053,6 +1055,9 @@ int root_key_to_input_field (SDL_Keycode key_code, Uint32 key_unicode, Uint16 ke
 	{
 		return 0;
 	}
+
+	if (do_reset_tab_completer)
+		reset_tab_completer();
 
 	tf->next_blink = cur_time + TF_BLINK_DELAY;
 	if (input_widget->window_id != get_id_MW(MW_CHAT)
