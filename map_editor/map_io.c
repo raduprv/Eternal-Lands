@@ -437,10 +437,18 @@ int load_map (const char* file_name)
 #endif	//ZLIB
 	
 	//verify if we have a valid file
-	if(cur_map_header.file_sig[0]!='e')return 0;
-	if(cur_map_header.file_sig[1]!='l')return 0;
-	if(cur_map_header.file_sig[2]!='m')return 0;
-	if(cur_map_header.file_sig[3]!='f')return 0;
+	if(cur_map_header.file_sig[0]!='e'
+		|| cur_map_header.file_sig[1]!='l'
+		|| cur_map_header.file_sig[2]!='m'
+		|| cur_map_header.file_sig[3]!='f')
+	{
+#ifdef ZLIB
+		gzclose(f);
+#else
+		fclose(f);
+#endif
+		return 0;
+	}
 
 	destroy_map();//Only destroy the map now....
 
