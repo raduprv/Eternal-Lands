@@ -9,7 +9,7 @@ description: |
   of several character races but all are equal.
   See http://www.eternal-lands.com/
 grade: stable
-base: core18
+base: core20
 confinement: strict
 type: app
 icon: pkgfiles/snap-package/eternallands.png
@@ -24,7 +24,7 @@ parts:
     stage-packages:
       - libglib2.0-bin
 
-  client:
+  binary:
     source: https://github.com/raduprv/Eternal-Lands
     source-type: git
     # Include for stable release, comment out for dev build, comment out for latest commit dev release
@@ -32,7 +32,7 @@ parts:
     build-packages: [build-essential, libcal3d12-dev, libsdl2-image-dev, libsdl2-net-dev, libsdl2-ttf-dev, libxml2-dev, libopenal-dev, libvorbis-dev, libpng-dev]
     plugin: cmake
     # Add -DVERSION_PREFIX=x.y.z for dev build, remove for release
-    configflags:  ["-DCMAKE_BUILD_TYPE=release", "-DEXEC=el.linux.bin", "-DVERSION_PREFIX=1.9.5", "-DLOCAL_NLOHMANN_JSON=On", "-DTTF=On" ]
+    cmake-parameters:  ["-DCMAKE_BUILD_TYPE=release", "-DEXEC=el.linux.bin", "-DVERSION_PREFIX=1.9.5", "-DLOCAL_NLOHMANN_JSON=On", "-DCMAKE_INSTALL_PREFIX=/" ]
     stage-packages:
       - libglib2.0-0
       - libsdl2-net-2.0-0
@@ -61,8 +61,8 @@ parts:
       - desktop-glib-only
 
   data:
-    source: https://twinmoons.org.uk/el/git/el_195_latest_data.zip
-    source-checksum: md5/8354f13b7d9109402cbfa29061b301c5
+    source: https://twinmoons.org.uk/el/git/el_data_20201214.zip
+    source-checksum: md5/fc968e82c61e4ba48de03a3d20c6dc4c
     plugin: dump
     organize:
       el_data/ : data/
@@ -101,4 +101,4 @@ apps:
       - audio-playback
       - desktop
     desktop: bin/eternallands.desktop
-    command: desktop-launch $SNAP/bin/launcher.sh $*
+    command: bin/desktop-launch $SNAP/bin/launcher.sh
