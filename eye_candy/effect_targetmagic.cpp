@@ -722,9 +722,8 @@ namespace ec
 
 	void TargetMagicEffect::draw(const Uint64 usec)
 	{
-		for (std::vector<Shape*>::iterator iter = capless_cylinders.begin(); iter
-			!= capless_cylinders.end(); iter++)
-			(*iter)->draw();
+		for (auto cylinder: capless_cylinders)
+			cylinder->draw();
 	}
 
 	TargetMagicEffect2::TargetMagicEffect2(EyeCandy* _base,

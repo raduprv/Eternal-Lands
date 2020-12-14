@@ -1788,7 +1788,7 @@ namespace ec
 			}
 			;
 
-			virtual Vec3 get_force_gradient(Particle& p) = 0;
+			virtual Vec3 get_force_gradient(Particle& p) const = 0;
 
 			coord_t max_distance;
 			coord_t max_distance_squared;
@@ -1813,7 +1813,7 @@ namespace ec
 			}
 			;
 
-			virtual Vec3 get_force_gradient(Particle& p);
+			virtual Vec3 get_force_gradient(Particle& p) const;
 
 			Vec3* pos;
 	};
@@ -1839,7 +1839,7 @@ namespace ec
 			}
 			;
 
-			virtual Vec3 get_force_gradient(Particle& p);
+			virtual Vec3 get_force_gradient(Particle& p) const;
 
 			Vec3* pos;
 			coord_t bottom;
@@ -1859,7 +1859,7 @@ namespace ec
 			}
 			;
 
-			virtual Vec3 get_force_gradient(Particle& p);
+			virtual Vec3 get_force_gradient(Particle& p) const;
 
 			Vec3* start;
 			Vec3* end;
@@ -1885,7 +1885,7 @@ namespace ec
 			}
 			;
 
-			virtual Vec3 get_force_gradient(Particle& p);
+			virtual Vec3 get_force_gradient(Particle& p) const;
 
 			Vec3* pos;
 	};
@@ -1929,7 +1929,7 @@ namespace ec
 			}
 			;
 
-			virtual Vec3 get_force_gradient(Particle& p);
+			virtual Vec3 get_force_gradient(Particle& p) const;
 
 			Vec3 start;
 			Vec3 end;
@@ -2013,13 +2013,11 @@ namespace ec
 			virtual bool idle(const Uint64 usec) = 0;
 			virtual void draw(const Uint64 usec)
 			{
-				for (std::map<Particle*, bool>::iterator iter2 =
-					particles.begin(); iter2 != particles.end(); iter2++)
+				for (auto& iter2: particles)
 				{
-					for (std::vector<Obstruction*>::iterator iter =
-						obstructions->begin(); iter != obstructions->end(); iter++)
+					for (auto obstruction: *obstructions)
 					{
-						(*iter)->get_force_gradient(*(iter2->first));
+						obstruction->get_force_gradient(*iter2.first);
 					}
 				}
 			}
