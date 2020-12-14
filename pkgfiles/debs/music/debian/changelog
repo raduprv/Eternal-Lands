@@ -1,6 +1,6 @@
-eternallands-music (1.6.0-1) unstable; urgency=low
+eternallands-music (1.9.5.8-0ubuntu1) xenial; urgency=low
 
-  * Initial release. (Closes: #486429)
+  * Development release
 
- -- Paul Broadhead <pjbroad@twinmoons.clara.co.uk>  Wed, 02 Jul 2008 00:35:21 +0100
+ -- Paul Broadhead <pjbroad@twinmoons.org.uk>  Wed, 02 Jul 2008 00:35:21 +0100
 
