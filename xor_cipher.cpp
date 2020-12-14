@@ -32,7 +32,7 @@
 namespace XOR_Cipher
 {
 	//	A wrapper around the EL client LOG_ERROR() function.
-	static void show_error(const char * function_name, std::string message)
+	static void show_error(const char * function_name, const std::string& message)
 	{
 #ifdef ELC
 		LOG_ERROR("%s: %s\n", function_name, message.c_str());
@@ -43,14 +43,14 @@ namespace XOR_Cipher
 
 	//	Contruct using a pre created key, specified as hex
 	//
-	Cipher::Cipher(const std::string key_hex_str) : status_ok(true)
+	Cipher::Cipher(const std::string& key_hex_str) : status_ok(true)
 	{
 		key = hex_to_cipher(key_hex_str);
 	}
 
 	//	Construct using a key stored in a file.  If the file does not exist, create a randon key and save to the file.
 	//
-	Cipher::Cipher(const std::string file_name, size_t the_key_size) : key_file_name(file_name), status_ok(true)
+	Cipher::Cipher(const std::string& file_name, size_t the_key_size) : key_file_name(file_name), status_ok(true)
 	{
 		std::ifstream in(key_file_name.c_str());
 		if (!in)
@@ -84,7 +84,7 @@ namespace XOR_Cipher
 
 	//	Convert a binary cipher text vector to a hex string
 	//
-	std::string Cipher::cipher_to_hex(const std::vector<unsigned char> cipher_text) const
+	std::string Cipher::cipher_to_hex(const std::vector<unsigned char>& cipher_text) const
 	{
 		std::stringstream ss;
 		for (size_t i=0; i<cipher_text.size(); ++i)
@@ -94,7 +94,7 @@ namespace XOR_Cipher
 
 	//	Convert a validated hex string to a binary vector for use in this module
 	//
-	std::vector<unsigned char> Cipher::hex_to_cipher(const std::string hex_str)
+	std::vector<unsigned char> Cipher::hex_to_cipher(const std::string& hex_str)
 	{
 		std::vector <unsigned char> cipher_text;
 		if (((hex_str.size() % 2) == 0) && (hex_str.find_first_not_of("0123456789abcdefABCDEF", 0) == std::string::npos))
@@ -116,7 +116,7 @@ namespace XOR_Cipher
 
 	//	Return the encryted cipher text for the specifed string
 	//
-	std::vector<unsigned char> Cipher::encrypt(const std::string plain_text)
+	std::vector<unsigned char> Cipher::encrypt(const std::string& plain_text)
 	{
 		std::vector<unsigned char> cipher_text;
 		if (plain_text.size() <= key.size())
@@ -132,7 +132,7 @@ namespace XOR_Cipher
 
 	//	Return the plan text string of the specified cipher text
 	//
-	std::string Cipher::decrypt(const std::vector<unsigned char> cipher_text)
+	std::string Cipher::decrypt(const std::vector<unsigned char>& cipher_text)
 	{
 		std::string plain_text;
 		if (cipher_text.size() <= key.size())

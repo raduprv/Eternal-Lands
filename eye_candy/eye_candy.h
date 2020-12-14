@@ -2227,11 +2227,11 @@ namespace ec
 			~Logger()
 			{	delete rdbuf();};
 
-			void log_text(const std::string message)
+			void log_text(const std::string& message)
 			{	((LoggerBuf*)rdbuf())->logs.push_back(message);};
-			void log_warning(const std::string message)
+			void log_warning(const std::string& message)
 			{	log_text("WARNING: " + message + "\n");};
-			void log_error(const std::string message)
+			void log_error(const std::string& message)
 			{	log_text("ERROR: " + message + "\n"); ec_error_status = true;};
 			std::vector<std::string> fetch()
 			{	const std::vector<std::string> ret(((LoggerBuf*)rdbuf())->logs); ((LoggerBuf*)rdbuf())->logs.clear(); return ret;};

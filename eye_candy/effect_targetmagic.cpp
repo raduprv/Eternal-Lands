@@ -307,7 +307,7 @@ namespace ec
 	}
 
 	TargetMagicEffect::TargetMagicEffect(EyeCandy* _base, bool* _dead,
-		Vec3* _pos, const std::vector<Vec3*> _targets,
+		Vec3* _pos, const std::vector<Vec3*>& _targets,
 		const TargetMagicType _type,
 		std::vector<ec::Obstruction*>* _obstructions, const Uint16 _LOD)
 	{
@@ -318,7 +318,7 @@ namespace ec
 	}
 
 	void TargetMagicEffect::initialize(EyeCandy* _base, bool* _dead,
-		Vec3* _pos, const std::vector<Vec3*> _targets,
+		Vec3* _pos, const std::vector<Vec3*>& _targets,
 		const TargetMagicType _type,
 		std::vector<ec::Obstruction*>* _obstructions, const Uint16 _LOD)
 	{

@@ -25,13 +25,13 @@ namespace JSON_IO
 {
 	static size_t get_json_indent(void)
 		{ return 0; } // 0 is compact, non-zero give pretty output, 4 for example
-	static int exit_error(const char *function, size_t line, std::string message, int error_code)
+	static int exit_error(const char *function, size_t line, const std::string& message, int error_code)
 		{ LOG_ERROR("%s:%ld %s", function, line, message.c_str()); return error_code; }
 	static void info_message(const char *function, size_t line, std::string message)
 		{ LOG_INFO("%s:%ld %s", function, line, message.c_str()); }
-	static void console_message(std::string file_type, std::string message)
+	static void console_message(const std::string& file_type, const std::string& message)
 		{ std::string full_message = "Problem with " + file_type + ": " + message; LOG_TO_CONSOLE(c_red3, full_message.c_str()); }
-	static void file_format_error(std::string file_type)
+	static void file_format_error(const std::string& file_type)
 		{ console_message(file_type, "File format error. " + file_type + " will not be saved until this is corrected."); }
 }
 

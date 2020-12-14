@@ -190,7 +190,7 @@ void Quest_Title_Request::request(void)
 //
 class QuestCompare {
 	public:
-		bool operator()(const Quest x, const Quest y) const
+		bool operator()(const Quest& x, const Quest& y) const
 		{
 			if (x.get_id() == Quest::UNSET_ID)
 				return true;

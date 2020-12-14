@@ -67,7 +67,7 @@ namespace cm
 			class Menu_Line
 			{
 				public:
-					Menu_Line(std::string _text) : text(_text), control_var(0), config_name(0), is_grey(false), is_separator(false) {}
+					Menu_Line(const std::string& _text) : text(_text), control_var(0), config_name(0), is_grey(false), is_separator(false) {}
 					std::string text;
 					int *control_var;
 					const char *config_name;

@@ -33,12 +33,12 @@ namespace ec
 				Vec3* _target, const TargetMagicType _type,
 				std::vector<ec::Obstruction*>* _obstructions, const Uint16 _LOD);
 			TargetMagicEffect(EyeCandy* _base, bool* _dead, Vec3* _pos,
-				const std::vector<Vec3*> _targets, const TargetMagicType _type,
+				const std::vector<Vec3*>& _targets, const TargetMagicType _type,
 				std::vector<ec::Obstruction*>* _obstructions, const Uint16 _LOD);
 			~TargetMagicEffect();
 
 			void initialize(EyeCandy* _base, bool* _dead, Vec3* _pos,
-				const std::vector<Vec3*> _targets, const TargetMagicType _type,
+				const std::vector<Vec3*>& _targets, const TargetMagicType _type,
 				std::vector<ec::Obstruction*>* _obstructions, const Uint16 _LOD);
 
 			virtual EffectEnum get_type()
