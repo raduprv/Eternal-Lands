@@ -603,7 +603,7 @@ CHECK_GL_ERRORS();
 
 void setup_cloud_texturing(void)
 {
-	glActiveTexture(detail_unit);
+	ELglActiveTextureARB(detail_unit);
 	if (!dungeon && clouds_shadows)
 	{
 		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE);
@@ -621,7 +621,7 @@ void setup_cloud_texturing(void)
 		glDisable(GL_TEXTURE_2D);
 		glBindTexture(GL_TEXTURE_2D, 0);
 	}
-	glActiveTexture(base_unit);
+	ELglActiveTextureARB(base_unit);
 }
 
 void draw_sun_shadowed_scene(int any_reflection)
