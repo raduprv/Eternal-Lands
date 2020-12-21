@@ -3811,11 +3811,17 @@ static int pword_pos_under_mouse(password_entry* entry, int mx, int space,
 		case P_NONE:
 			return -1;
 		case P_TEXT:
+			if (mx < space)
+				// Avoid click before the first character setting the cursor position to -1
+				return entry->draw_begin;
 			for (i = entry->draw_begin, str_width = space; pw[i] && str_width <= mx; ++i)
 				str_width += get_char_width_zoom(pw[i], cat, size);
 			return (str_width <= mx) ? i : i-1;
 		case P_NORMAL:
 		default:
+			if (mx < space)
+				// Avoid click before the first character setting the cursor position to -1
+				return entry->draw_begin;
 			cw = get_char_width_zoom('*', cat, size);
 			return min2i(entry->draw_begin + (mx - space + cw - 1) / cw,
 				strlen((const char*)pw));

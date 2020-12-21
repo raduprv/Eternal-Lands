@@ -423,7 +423,7 @@ static int int_zero_func(void)
 }
 #endif
 
-static __inline__ void check_option_var(char* name);
+static __inline__ void check_option_var(const char* name);
 
 static __inline__ void destroy_shadow_mapping(void)
 {
@@ -2018,7 +2018,7 @@ void change_language(const char *new_lang)
 	}
 }
 
-static __inline__ void check_option_var(char* name)
+static __inline__ void check_option_var(const char* name)
 {
 	int i;
 	int value_i;
