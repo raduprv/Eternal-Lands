@@ -26,8 +26,6 @@ enum { STATS_TAB_STATS = 0, STATS_TAB_KNOWLEDGE, STATS_TAB_COUNTERS, STATS_TAB_S
 enum { INFO_TAB_NOTEPAD, INFO_TAB_URLWIN };
 /*! @} */
 
-extern unsigned int tab_selected;
-
 extern int tab_stats_collection_id; /*!< pointer to the \ref tab_collection for statistics windows */
 
 extern int tab_help_collection_id; /*!< pointer to the \ref tab_collection for help windows */
@@ -38,11 +36,41 @@ extern int tab_info_collection_id; /*!< pointer to the \ref tab_collection for i
  * \ingroup tabs
  * \brief Displays the tabbed info window.
  *
- *      Each tab collection has 4 bits of the word, this function controls which is which.
+ *      Each tab collection has 4 bits of the word, get the values to save to the cfg file.
  *
  * \callgraph
  */
 unsigned get_tab_selected(void);
+
+/*!
+ * \ingroup tabs
+ * \brief Displays the tabbed info window.
+ *
+ *      Each tab collection has 4 bits of the word, set the values to read from the cfg file.
+ *
+ * \callgraph
+ */
+void set_tab_selected(unsigned int new_tab_selected);
+
+#ifdef JSON_FILES
+/*!
+ * \ingroup tabs
+ *
+ *      Write the selected tab info to the client state file.
+ *
+ * \callgraph
+ */
+void write_tab_selected(void);
+
+/*!
+ * \ingroup tabs
+ *
+ *      Read the selected tab info from the client state file.
+ *
+ * \callgraph
+ */
+void read_tab_selected(void);
+#endif
 
 #ifdef __cplusplus
 } // extern "C"

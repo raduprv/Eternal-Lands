@@ -9,6 +9,9 @@ extern "C" {
 #include "counters.h"
 #include "manufacture.h"
 
+#define USE_JSON_DEBUG(message) {}
+//#define USE_JSON_DEBUG(message) {printf("%s:%d %s\n", __FUNCTION__, __LINE__, message);}
+
 /*!
  * \name Functions to load and save the manufacture window recipes.
  */
@@ -60,6 +63,22 @@ int json_character_options_get_bool(const char *var_name, int default_value);
 void json_character_options_set_bool(const char *var_name, int value);
 int json_character_options_exists(const char *var_name);
 void json_character_options_remove(const char *var_name);
+/*! @} */
+
+/*!
+ * \name Functions for Client State
+ */
+/*! @{ */
+int json_load_cstate(const char *file_name);
+int json_save_cstate(const char *file_name);
+int json_cstate_get_int(const char *section_name, const char *var_name, int default_value);
+void json_cstate_set_int(const char *section_name, const char *var_name, int value);
+unsigned int json_cstate_get_unsigned_int(const char *section_name, const char *var_name, unsigned int default_value);
+void json_cstate_set_unsigned_int(const char *section_name, const char *var_name, unsigned int value);
+float json_cstate_get_float(const char *section_name, const char *var_name, float default_value);
+void json_cstate_set_float(const char *section_name, const char *var_name, float value);
+int json_cstate_get_bool(const char *section_name, const char *var_name, int default_value);
+void json_cstate_set_bool(const char *section_name, const char *var_name, int value);
 /*! @} */
 
 #ifdef __cplusplus

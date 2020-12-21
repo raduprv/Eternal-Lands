@@ -96,6 +96,9 @@ BBC News||#open_url http://news.bbc.co.uk/
 #include "icon_window.h"
 #include "init.h"
 #include "io/elpathwrapper.h"
+#ifdef JSON_FILES
+#include "json_io.h"
+#endif
 #include "translate.h"
 #include "user_menus.h"
 
@@ -140,7 +143,11 @@ namespace UserMenus
 			void open_window(void);
 			void close_window(void) { command_queue.clear(); if (win_id >= 0) hide_window(win_id); }
 			void set_options(int win_x, int win_y, int options);
-			void get_options(int *win_x, int *win_y, int *options);
+			void get_options(int *win_x, int *win_y, int *options) const;
+#ifdef JSON_FILES
+			void read_options(const char *dict_name);
+			void write_options(const char *dict_name) const;
+#endif
 			static Container * get_instance(void);
 			static int action_handler(window_info *win, int widget_id, int mx, int my, int option) { return get_instance()->action(widget_id, option); }
 			static void pre_show_handler(window_info *win, int widget_id, int mx, int my, window_info *cm_win) { get_instance()->pre_show(win, widget_id, mx, my, cm_win); }
@@ -343,7 +350,7 @@ namespace UserMenus
 	//
 	//	return current window position and option values, normally for saving in the cfg file
 	//
-	void Container::get_options(int *win_x, int *win_y, int *options)
+	void Container::get_options(int *win_x, int *win_y, int *options) const
 	{
 		if(win_id >= 0)
 		{
@@ -382,6 +389,52 @@ namespace UserMenus
 			win_y_pos = win_y;
 		}
 	}
+
+
+#ifdef JSON_FILES
+	//
+	//	Write window position and option values, normally for saving in the cfg file
+	//
+	void Container::write_options(const char *dict_name) const
+	{
+		if(win_id >= 0)
+		{
+			json_cstate_set_int(dict_name, "pos_x", windows_list.window[win_id].cur_x);
+			json_cstate_set_int(dict_name, "pos_y", windows_list.window[win_id].cur_y);
+		}
+		else
+		{
+			json_cstate_set_int(dict_name, "pos_x", win_x_pos);
+			json_cstate_set_int(dict_name, "pos_y", win_y_pos);
+		}
+		json_cstate_set_bool(dict_name, "window_used", window_used);
+		json_cstate_set_bool(dict_name, "title_on", title_on);
+		json_cstate_set_bool(dict_name, "border_on", border_on);
+		json_cstate_set_bool(dict_name, "use_small_font", use_small_font);
+		json_cstate_set_bool(dict_name, "include_datadir", include_datadir);
+		json_cstate_set_bool(dict_name, "background_off", background_on ^ 1);
+		json_cstate_set_int(dict_name, "standard_window_position", standard_window_position);
+	}
+
+
+	//
+	//	Read window position and option, normally from the cfg file
+	//
+	void Container::read_options(const char *dict_name)
+	{
+		if ((window_used = json_cstate_get_bool(dict_name, "window_used", 0)))
+		{
+			title_on = json_cstate_get_bool(dict_name, "title_on", 0);
+			border_on = json_cstate_get_bool(dict_name, "border_on", 0);
+			use_small_font = json_cstate_get_bool(dict_name, "use_small_font", 0);
+			include_datadir = json_cstate_get_bool(dict_name, "include_datadir", 0);
+			background_on = json_cstate_get_bool(dict_name, "background_off", 0) ^ 1;
+			standard_window_position = json_cstate_get_int(dict_name, "standard_window_position", 0);
+			win_x_pos = json_cstate_get_int(dict_name, "pos_x", 0);
+			win_y_pos = json_cstate_get_int(dict_name, "pos_y", 0);
+		}
+	}
+#endif
 
 
 	//
@@ -836,6 +889,18 @@ extern "C"
 	{
 		UserMenus::Container::get_instance()->get_options(win_x, win_y, options);
 	}
+
+#ifdef JSON_FILES
+	void read_options_user_menus(const char *dict_name)
+	{
+		UserMenus::Container::get_instance()->read_options(dict_name);
+	}
+
+	void write_options_user_menus(const char *dict_name)
+	{
+		UserMenus::Container::get_instance()->write_options(dict_name);
+	}
+#endif
 
 	void toggle_user_menus(int *enable)
 	{
