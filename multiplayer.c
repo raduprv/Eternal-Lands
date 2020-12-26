@@ -1924,7 +1924,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 
 		case STORAGE_TEXT:
 			{
-				if (data_length <= 4)
+				if (data_length <= 5)
 				{
 				  LOG_WARNING("CAUTION: Possibly forged STORAGE_TEXT packet received.\n");
 				  break;
