@@ -204,6 +204,12 @@ static void save_kill_window(GtkWidget *widget, GdkEvent *event, gpointer data)
 
 void show_save_window(char * name, char * folder, char * select, GtkFileFilter * filter)
 {
+	static const char* default_file_name =
+#ifdef ZLIBW
+		"my_map.elm.gz";
+#else
+		"my_map.elm";
+#endif
 	static void * cur_filter;
 
 	cur_filter=filter;
@@ -232,7 +238,7 @@ void show_save_window(char * name, char * folder, char * select, GtkFileFilter *
 	gtk_file_chooser_set_filter(GTK_FILE_CHOOSER(gtk_save_win), filter);
 	gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(gtk_save_win), folder);
 	if(select[0])gtk_file_chooser_set_filename(GTK_FILE_CHOOSER(gtk_save_win), select);
-	else gtk_file_chooser_set_current_name(GTK_FILE_CHOOSER(gtk_save_win), "my_map.elm");
+	else gtk_file_chooser_set_current_name(GTK_FILE_CHOOSER(gtk_save_win), default_file_name);
 
 	gtk_widget_show(gtk_save_win);
 }
