@@ -136,7 +136,7 @@ int HandleEvent(SDL_Event *event)
 
                     case SDLK_PLUS:
                     case SDLK_KP_PLUS:
-                        if(view_tiles_list){
+                        if(get_show_window(tiles_win)){
                             if(tile_offset<192)
                                 tile_offset+=64;
 						} else 
@@ -145,7 +145,7 @@ int HandleEvent(SDL_Event *event)
 
                     case SDLK_MINUS:
                     case SDLK_KP_MINUS:
-                        if(view_tiles_list){
+                        if(get_show_window(tiles_win)){
                             if(tile_offset>0)
                                 tile_offset -= 64;
 						} else 
@@ -159,7 +159,7 @@ int HandleEvent(SDL_Event *event)
             // Allow regular '+' (possibly entered by Shift+= or similar) as well.
             else if (!ctrl_on && !alt_on && event->key.keysym.unicode == '+')
             {
-                if (view_tiles_list)
+                if (get_show_window(tiles_win))
                 {
                     if (tile_offset < 192)
                         tile_offset += 64;
@@ -692,9 +692,8 @@ int HandleEvent(SDL_Event *event)
 			}
 #endif
 			if(right_click==1 && cur_tool==tool_select && cur_mode==mode_particles && selected_particles_object!=-1)kill_particles_object(selected_particles_object);
-			if(right_click==1 && cur_mode==mode_tile && view_tiles_list)
+			if(right_click==1 && cur_mode==mode_tile && get_show_window(tiles_win))
 				{
-					view_tiles_list=0;
 					cur_tool=tool_select;
 					selected_tile=0;
 				}

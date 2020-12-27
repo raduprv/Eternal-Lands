@@ -63,7 +63,7 @@ extern char move_tile_a_tile;
 extern char move_tile_a_height;
 extern int tiles_no;
 extern int tile_offset;
-extern char view_tiles_list;
+extern int tiles_win;
 extern char view_heights_list;
 extern char view_new_map_menu;
 

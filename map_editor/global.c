@@ -123,7 +123,6 @@ char move_tile_a_tile=0;
 char move_tile_a_height=0;
 int tiles_no = 255;
 int tile_offset=0;
-char view_tiles_list=0;
 float x_tile_menu_offset=64;
 float y_tile_menu_offset=128;
 char view_new_map_menu=0;
