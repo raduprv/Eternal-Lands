@@ -189,10 +189,11 @@ void save_button_clicked(GtkWidget * widget, void ** filter)
 	gtk_widget_hide(gtk_save_win);
 }
 
-static void save_check_escape(GtkWidget *widget, GdkEventKey *event, gpointer data)
+static gboolean save_check_escape(GtkWidget *widget, GdkEventKey *event, gpointer data)
 {
 	if (gtk_save_win && event->keyval == GDK_KEY_Escape)
 		gtk_widget_hide(gtk_save_win);
+	return FALSE;
 }
 
 static void save_kill_window(GtkWidget *widget, GdkEvent *event, gpointer data)
