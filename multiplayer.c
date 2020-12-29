@@ -752,7 +752,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 				//print_packet(in_data,data_length);
 				if (data_length <= 32)
 				{
-				  LOG_WARNING("CAUTION: Possibly forged ADD_ENHANCED_ACTOR packet received.\n");
+				  LOG_WARNING("CAUTION: Possibly forged ADD_NEW_ENHANCED_ACTOR packet received.\n");
 				  break;
 				}
 				add_enhanced_actor_from_server((char*)&in_data[3], data_length-3);
@@ -1219,7 +1219,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 			{
 				if (data_length <= 4)
 				{
-				  LOG_WARNING("CAUTION: Possibly forged CREATE_CHAR_NOT_OKAY packet received.\n");
+				  LOG_WARNING("CAUTION: Possibly forged CREATE_CHAR_NOT_OK packet received.\n");
 				  break;
 				}
 				set_create_char_error ((char*)&in_data[3], data_length - 3);
@@ -1352,7 +1352,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 				char str[160];
 				if (data_length <= 6)
 				{
-				  LOG_WARNING("CAUTION: Possibly forged SYNC_CLOCK packet received.\n");
+				  LOG_WARNING("CAUTION: Possibly forged PONG packet received.\n");
 				  break;
 				}
 				testing_server_connection_time = 0;
@@ -1548,7 +1548,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 			{
 				if (data_length <= 23)
 				{
-				  LOG_WARNING("CAUTION: Possibly forged NPC_INFO packet received.\n");
+				  LOG_WARNING("CAUTION: Possibly forged SEND_NPC_INFO packet received.\n");
 				  break;
 				}
 				safe_strncpy2((char*)npc_name, (char*)&in_data[3], sizeof(npc_name), 20);
