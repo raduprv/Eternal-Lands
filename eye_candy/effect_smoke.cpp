@@ -66,7 +66,7 @@ namespace ec
 		Vec3 velocity_shift;
 		velocity_shift.randomize();
 		velocity_shift.y /= 3;
-		velocity_shift.normalize(0.00002 * std::sqrt(delta_t));
+		velocity_shift.normalize(0.00002 * std::sqrt((double)delta_t));
 		velocity += velocity_shift;
 		return true;
 	}
@@ -93,7 +93,7 @@ namespace ec
 		sqrt_scale = std::sqrt(scale);
 		max_size = scale * 270 / (_LOD + 10);
 		size_scalar = sqrt_scale * 75 / (_LOD + 5);
-		alpha_scalar = 5.5 / (std::sqrt(_LOD) + 1.0);
+		alpha_scalar = 5.5 / (std::sqrt((double)_LOD) + 1.0);
 		count_scalar = 500000 / _LOD;
 		LOD = base->last_forced_LOD;
 		desired_LOD = _LOD;

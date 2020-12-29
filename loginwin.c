@@ -362,12 +362,18 @@ static int click_login_handler (window_info *win, int mx, int my, Uint32 flags)
 	{
 		username_box_selected = 1;
 		password_box_selected = 0;
+#ifdef ANDROID
+		SDL_StartTextInput();
+#endif
 	}
 	// check to see if we clicked on the password box
 	else if (mx >= password_bar_x && mx <= password_bar_x + password_bar_x_len && my >= password_bar_y && my <= password_bar_y + password_bar_y_len)
 	{
 		username_box_selected = 0;
 		password_box_selected = 1;
+#ifdef ANDROID
+		SDL_StartTextInput();
+#endif
 	}
 	// check to see if we clicked login select button
 	else if (mx >= passmngr_button_x && mx <= passmngr_button_x + passmngr_button_size && my >= passmngr_button_y && my <= passmngr_button_y + passmngr_button_size)
@@ -382,26 +388,47 @@ static int click_login_handler (window_info *win, int mx, int my, Uint32 flags)
 			do_alert1_sound();
 	}
 	// check to see if we clicked on the ACTIVE Log In button
+#ifndef ANDROID
 	if (log_in_button_selected)
+#else
+	if ((mx >= log_in_x) && (mx <= log_in_x + log_in_x_len) && 
+		(my >= log_in_y) && (my <= log_in_y + log_in_y_len) && input_username_str[0] && input_password_str[0])
+#endif
 	{
 		log_in_error_str[0] = '\0';
+#ifdef ANDROID
+		log_in_button_selected = 1;
+		SDL_StopTextInput();
+#endif
 		set_username(input_username_str);
 		set_password(input_password_str);
 		passmngr_destroy_window();
 		send_login_info ();
 	}
 	//check to see if we clicked on the ACTIVE New Char button
+#ifndef ANDROID
 	else if (new_char_button_selected)
+#else
+	else if ((mx >= new_char_x) && (mx <= new_char_x + new_char_x_len) && 
+		(my >= new_char_y) && (my <= new_char_y + new_char_y_len))
+#endif
 	{
 		// don't destroy the login window just yet, the user might 
 		// click the back button
+#ifdef ANDROID
+		new_char_button_selected = 1;
+#endif
 		hide_window (login_root_win);
 		create_newchar_root_window ();
 		passmngr_destroy_window();
 		if (last_display == -1)
 		{
+#ifndef ANDROID
 			create_rules_root_window (win->len_x, win->len_y, newchar_root_win, 15);
 			show_window (rules_root_win);
+#else
+			show_window (newchar_root_win);
+#endif
 		}
 		else 
 		{
@@ -409,8 +436,16 @@ static int click_login_handler (window_info *win, int mx, int my, Uint32 flags)
 		}
 	}
 	// to see if we clicked on the ACTIVE settings button
+#ifndef ANDROID
 	else if (settings_button_selected)
+#else
+	else if ((mx >= settings_x) && (mx <= settings_x + settings_x_len) &&
+		(my >= settings_y) && (my <= settings_y + settings_y_len))
+#endif
 	{
+#ifdef ANDROID
+		settings_button_selected = 1;
+#endif
 		force_elconfig_win_ontop = 1;
 		view_window (&elconfig_win, 0);
 	}
@@ -522,7 +557,9 @@ void create_login_root_window (int width, int height)
 		login_root_win = create_window ("Login", -1, -1, 0, 0, width, height, ELW_USE_UISCALE|ELW_TITLE_NONE|ELW_SHOW_LAST);
 
 		set_window_handler (login_root_win, ELW_HANDLER_DISPLAY, &display_login_handler);		
+#ifndef ANDROID
 		set_window_handler (login_root_win, ELW_HANDLER_MOUSEOVER, &mouseover_login_handler);		
+#endif
 		set_window_handler (login_root_win, ELW_HANDLER_CLICK, &click_login_handler);		
 		set_window_handler (login_root_win, ELW_HANDLER_KEYPRESS, (int (*)())&keypress_login_handler);
 		set_window_handler (login_root_win, ELW_HANDLER_RESIZE, &resize_login_handler);

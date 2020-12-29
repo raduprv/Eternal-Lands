@@ -14,14 +14,18 @@
 #include "storage.h"
 #include "string.h"
 #include "textures.h"
+#ifndef ANDROID
 #include "trade_log.h"
+#endif
 #include "translate.h"
 #ifdef OPENGL_TRACE
 #include "gl_init.h"
 #endif
 #include "sound.h"
 
+#ifndef ANDROID
 #define ITEM_INVENTORY 1
+#endif
 #define ITEM_ROWS 4
 #define ITEM_COLS 4
 #define MAX_ITEMS (ITEM_COLS * ITEM_ROWS)
@@ -233,12 +237,13 @@ static int display_trade_handler(window_info *win)
 		last_items_string_id = inventory_item_string_id;
 	}
 	draw_string_small_zoomed(trade_border/2, button_y_bot + trade_border, (unsigned char*)items_string, ITEM_INFO_ROWS, win->current_scale);
-
+#ifndef ANDROID
 	if (tool_tip_str != NULL)
 	{
 		show_help(tool_tip_str, 0, win->len_y+10, win->current_scale);
 		tool_tip_str = NULL;
 	}
+#endif
 
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
@@ -247,7 +252,7 @@ CHECK_GL_ERRORS();
 	return 1;
 }
 
-
+#ifndef ANDROID
 static int click_trade_handler(window_info *win, int mx, int my, Uint32 flags)
 {
 	Uint8 str[256];
@@ -365,6 +370,114 @@ static int click_trade_handler(window_info *win, int mx, int my, Uint32 flags)
 
 	return 1;
 }
+#else
+//android
+int click_trade_handler(window_info *win, int mx, int my, Uint32 flags)
+{
+	Uint8 str[256];
+	int left_click = flags & ELW_LEFT_MOUSE;
+	int right_click = flags & ELW_RIGHT_MOUSE;
+	int trade_quantity_storage_offset = 3; /* Offset of trade quantity in packet. Can be 3 or 4 */
+
+	if (!(left_click || right_click))
+		return 0;
+
+	if(left_click && (mx > win->len_x - win->box_size) && (my < win->box_size))
+	{
+		str[0]=EXIT_TRADE;
+		my_tcp_send(my_socket, str, 1);
+		hide_window(trade_win);
+		return 1;
+	}
+
+	if ((mx > trade_border) && (mx < trade_border + ITEM_COLS * trade_gridsize) &&
+		(my > trade_grid_start_y) && (my < trade_grid_start_y + ITEM_ROWS * trade_gridsize))
+	{
+		int pos = get_mouse_pos_in_grid (mx, my, ITEM_COLS, ITEM_ROWS, trade_border, trade_grid_start_y, trade_gridsize, trade_gridsize);
+		if ((pos >= 0) && your_trade_list[pos].quantity)
+		{
+			if(action_mode == ACTION_LOOK || right_click)
+			{
+				str[0] = LOOK_AT_TRADE_ITEM;
+				str[1] = pos;
+				str[2] = 0; // your trade
+				my_tcp_send(my_socket,str,3);
+			}
+			else
+			{
+				str[0] = REMOVE_OBJECT_FROM_TRADE;
+				str[1] = pos;
+				*((Uint32 *)(str +2)) = SDL_SwapLE32(item_quantity);
+				my_tcp_send(my_socket, str, 6);
+				do_drag_item_sound();
+			}
+		}
+		return 1;
+	}
+
+	else if ((mx > trade_border + (ITEM_COLS + 1) * trade_gridsize) && (mx < trade_border + (ITEM_COLS * 2 + 1) * trade_gridsize) &&
+		trade_grid_start_y && (my < trade_grid_start_y + ITEM_ROWS * trade_gridsize))
+	{
+		int pos = get_mouse_pos_in_grid(mx, my, ITEM_COLS, ITEM_ROWS, trade_border + (ITEM_COLS + 1) * trade_gridsize,
+			trade_grid_start_y, trade_gridsize, trade_gridsize);
+		if ((pos >= 0) && others_trade_list[pos].quantity)
+		{
+			if ((action_mode == ACTION_LOOK) || right_click)
+			{
+				str[0] = LOOK_AT_TRADE_ITEM;
+				str[1] = pos;
+				str[2] = 1; // their trade
+				my_tcp_send(my_socket, str, 3);
+			} else if (left_click && storage_available)
+			{
+				if (others_trade_list[pos].type == ITEM_BANK)
+					others_trade_list[pos].type = ITEM_INVENTORY;
+				else
+					others_trade_list[pos].type = ITEM_BANK;
+			}
+		}
+		return 1;
+
+	}
+
+	else if ((mx > button_x_left) && (mx < button_x_right) && (my > button_y_top) && (my < button_y_bot))
+	{
+		// check to see if we hit the Accept box
+		if ((trade_you_accepted == 2) || right_click)
+		{
+			str[0] = REJECT_TRADE;
+			my_tcp_send(my_socket, str, 1);
+			do_click_sound();
+		} else {
+			str[0] = ACCEPT_TRADE;
+			if(trade_you_accepted == 1)
+			{
+				int i;
+				for(i = 0; i < 16; i++)
+					str[i + 1] = (others_trade_list[i].quantity > 0) * others_trade_list[i].type;
+#ifndef ANDROID
+				trade_accepted(other_player_trade_name, your_trade_list, others_trade_list, 16);
+#endif
+			}
+			my_tcp_send(my_socket, str, 17);
+			do_click_sound();
+		}
+		return 1;
+	}
+
+	else if (my > button_y_bot + trade_border)
+	{
+		static Uint32 last_click = 0;
+		if (safe_button_click(&last_click))
+		{
+			set_shown_string(0, "");
+			return 1;
+		}
+	}
+
+	return 1;
+}
+#endif
 
 static int mouseover_trade_handler(window_info *win, int mx, int my)
 {
@@ -524,7 +637,9 @@ void display_trade_menu()
 
 		set_window_handler(trade_win, ELW_HANDLER_DISPLAY, &display_trade_handler );
 		set_window_handler(trade_win, ELW_HANDLER_CLICK, &click_trade_handler );
+#ifndef ANDROID
 		set_window_handler(trade_win, ELW_HANDLER_MOUSEOVER, &mouseover_trade_handler );
+#endif
 		set_window_handler(trade_win, ELW_HANDLER_UI_SCALE, &ui_scale_trade_handler );
 
 		if (trade_win >= 0 && trade_win < windows_list.num_windows)

@@ -386,6 +386,42 @@ static int ui_scale_console_handler(window_info *win)
 	return 1;
 }
 
+#ifdef ANDROID
+int finger_motion_console_handler(window_info *win, Uint32 timestamp, float x, float y, float dx, float dy)
+{
+	if ((dx != dx) || (dy != dy))
+		return 1; // we got a nan....
+
+	if ((dx < -2) || (dx > 2) || (dy < -2) || (dy > 2))
+		return 1; // it's the multi gesture stupid bug
+
+	if (dx < -0.02)
+	{
+		if(!SDL_IsTextInputActive())
+			SDL_StartTextInput();
+		return 1;
+	}
+	else if (dx > 0.02)
+	{
+		SDL_StopTextInput();
+		return 1;
+	}
+
+	if ((dy > 0.0001) && (total_nr_lines > (nr_console_lines + scroll_up_lines)))
+	{
+		scroll_up_lines++;
+		console_text_changed = 1;
+	}
+	else if ((dy <- 0.0001) && (scroll_up_lines > 0))
+	{
+		scroll_up_lines--;
+		console_text_changed = 1;
+	}
+
+	return 1;
+}
+#endif
+
 void create_console_root_window (int width, int height)
 {
 	if (console_root_win < 0)
@@ -408,7 +444,11 @@ void create_console_root_window (int width, int height)
 		set_window_handler (console_root_win, ELW_HANDLER_KEYPRESS, (int (*)())&keypress_console_handler);
 		set_window_handler (console_root_win, ELW_HANDLER_RESIZE, &resize_console_handler);
 		set_window_handler (console_root_win, ELW_HANDLER_CLICK, &click_console_handler);
+#ifdef ANDROID
+		set_window_handler (console_root_win, ELW_HANDLER_FINGER_MOTION, (int (*)())&finger_motion_console_handler);
+#else
 		set_window_handler (console_root_win, ELW_HANDLER_MOUSEOVER, &mouseover_console_handler);
+#endif
 		set_window_handler (console_root_win, ELW_HANDLER_SHOW, &show_console_handler);
 		set_window_handler (console_root_win, ELW_HANDLER_UI_SCALE, &ui_scale_console_handler);
 
@@ -432,11 +472,13 @@ void create_console_root_window (int width, int height)
 
 		nr_console_lines = (int) (console_active_height - input_widget->len_y -  CONSOLE_SEP_HEIGHT - CONSOLE_Y_OFFSET) / (DEFAULT_FONT_Y_LEN * chat_zoom);
 
+#ifndef ANDROID
 		if (console_scrollbar_enabled && (console_root_win >= 0) && (console_root_win < windows_list.num_windows))
 		{
 			create_console_scrollbar(&windows_list.window[console_root_win]);
 			update_console_scrollbar();
 		}
+#endif
 	}
 }
 

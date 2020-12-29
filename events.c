@@ -7,6 +7,10 @@
 
 #include "elconfig.h"
 #include "events.h"
+#ifdef ANDROID
+#include "console.h"
+#include "elwindows.h"
+#endif
 #include "context_menu.h"
 #include "gamewin.h"
 #include "gl_init.h"
@@ -20,6 +24,12 @@
 #include "pawn/elpawn.h"
 #endif
 #include "textures.h"
+
+#ifdef ANDROID
+int last_mouse_x;
+int last_mouse_y;
+int last_mouse_flags;
+#endif
 
 #ifdef OSX
 int osx_right_mouse_cam = 0;
@@ -188,8 +198,20 @@ int HandleEvent (SDL_Event *event)
 
 	switch( event->type )
 	{
+#ifdef ANDROID
+		case SDL_APP_TERMINATING:
+			SDL_Log("OS is terminating us...");
+			save_local_data(NULL, 0);
+			exit(1);
+			break;
 
-#if !defined(WINDOWS) && !defined(OSX)
+		case SDL_APP_WILLENTERBACKGROUND:
+			SDL_Log("App entered background");
+			save_local_data(NULL, 0);
+			break;
+#endif
+
+#if !defined(WINDOWS) && !defined(OSX) && !defined(ANDROID)
 		case SDL_SYSWMEVENT:
 			if (event->syswm.msg->msg.x11.event.type == SelectionNotify)
 				finishpaste(event->syswm.msg->msg.x11.event.xselection);
@@ -218,8 +240,10 @@ int HandleEvent (SDL_Event *event)
 					break;
 				case SDL_WINDOWEVENT_LEAVE:
 				case SDL_WINDOWEVENT_FOCUS_LOST:
+#ifndef ANDROID
 					last_loss = SDL_GetTicks();
 					el_input_focus = 0;
+#endif
 					break;
 				case SDL_WINDOWEVENT_ENTER:
 				case SDL_WINDOWEVENT_FOCUS_GAINED:
@@ -265,6 +289,14 @@ int HandleEvent (SDL_Event *event)
 				cm_post_show_check(1); /* any non-mod keypress forces any context menu to close */
 			//printf("SDL_KEYDOWN keycode=%u,[%s] mod=%u timestamp=%u\n", event->key.keysym.sym, SDL_GetKeyName(event->key.keysym.sym), event->key.keysym.mod, event->key.timestamp);
 			last_SDL_KEYDOWN_timestamp = event->key.timestamp;
+#ifdef ANDROID
+			if(event->key.keysym.sym == SDLK_AC_BACK)
+			{
+				last_SDL_KEYDOWN_return_value = 1;
+				close_last_window();
+				break;
+			}
+#endif
 			last_SDL_KEYDOWN_return_value = keypress_in_windows (mouse_x, mouse_y, event->key.keysym.sym, 0, event->key.keysym.mod);
 			//printf("SDL_KEYDOWN result=%d\n", last_SDL_KEYDOWN_return_value);
 			break;
@@ -274,6 +306,16 @@ int HandleEvent (SDL_Event *event)
 			//printf("SDL_QUIT\n");
 			done = 1;
 			break;
+
+#ifdef ANDROID
+		case SDL_MULTIGESTURE:
+			multi_gesture_in_windows(event->mgesture.timestamp, event->mgesture.x, event->mgesture.y, event->mgesture.dDist, event->mgesture.dTheta);
+			break;
+
+		case SDL_FINGERMOTION:
+			finger_motion_in_windows(event->tfinger.timestamp, event->tfinger.x, event->tfinger.y, event->tfinger.dx, event->tfinger.dy);
+			break;
+#endif
 
 		case SDL_MOUSEBUTTONDOWN:
 		case SDL_MOUSEBUTTONUP:
@@ -389,8 +431,10 @@ int HandleEvent (SDL_Event *event)
 					camera_rotation_speed = -1.0;
 
 				// the following variables have to be removed!
+#ifndef ANDROID
 				camera_rotation_duration = 0;
 				camera_tilt_duration = 0;
+#endif
 				if (fol_cam && !fol_cam_behind)
 				{
 					hold_camera += camera_kludge - last_kludge;
@@ -411,6 +455,11 @@ int HandleEvent (SDL_Event *event)
 
 			if ( left_click == 1 || right_click == 1 || middle_click == 1 || (flags & (ELW_WHEEL_UP | ELW_WHEEL_DOWN) ) )
 			{
+#ifdef ANDROID
+				last_mouse_x = mouse_x;
+				last_mouse_y = mouse_y;
+				last_mouse_flags = flags;
+#endif
 				click_in_windows (mouse_x, mouse_y, flags);
 			}
 			if (left_click >= 1)
@@ -433,10 +482,16 @@ int HandleEvent (SDL_Event *event)
 			case	EVENT_MOVEMENT_TIMER:
 				pf_move();
 				break;
+#ifdef ANDROID
+			case	EVENT_CURSOR_CALCULATION_COMPLETE:
+				click_in_windows (last_mouse_x, last_mouse_y, last_mouse_flags);
+				break;
+#endif
 			case	EVENT_UPDATE_PARTICLES:
 				update_particles();
 				break;
 
+#ifndef ANDROID
 			case    EVENT_UPDATES_DOWNLOADED:
 				handle_update_download((struct http_get_struct *)event->user.data1);
 				break;
@@ -444,6 +499,7 @@ int HandleEvent (SDL_Event *event)
 			case    EVENT_DOWNLOAD_COMPLETE:
 				handle_file_download((struct http_get_struct *)event->user.data1);
 				break;
+#endif
 
 #ifdef PAWN			
 			case 	EVENT_PAWN_TIMER:

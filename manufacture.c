@@ -1478,8 +1478,10 @@ void display_manufacture_menu()
 
 		set_window_handler(manufacture_win, ELW_HANDLER_DISPLAY, &display_manufacture_handler );
 		set_window_handler(manufacture_win, ELW_HANDLER_CLICK, &click_manufacture_handler );
+#ifndef ANDROID
 		set_window_handler(manufacture_win, ELW_HANDLER_MOUSEOVER, &mouseover_manufacture_slot_handler );
 		set_window_handler(manufacture_win, ELW_HANDLER_KEYPRESS, (int (*)())&keypress_manufacture_handler );
+#endif
 		set_window_handler(manufacture_win, ELW_HANDLER_UI_SCALE, &ui_scale_manufacture_handler );
 
 		mixone_button_id=button_add_extended(manufacture_win, mixone_button_id, NULL,
@@ -1507,9 +1509,13 @@ void display_manufacture_menu()
 			ELW_USE_UISCALE|ELW_TITLE_NONE|ELW_SHOW|ELW_USE_BACKGROUND|ELW_ALPHA_BORDER|ELW_SWITCHABLE_OPAQUE|ELW_USE_BORDER|ELW_RESIZEABLE);
 		set_window_handler(recipe_win, ELW_HANDLER_DISPLAY, &recipe_dropdown_draw);
 		set_window_handler(recipe_win, ELW_HANDLER_CLICK, &recipe_dropdown_click_handler );
+#ifndef ANDROID
 		set_window_handler(recipe_win, ELW_HANDLER_MOUSEOVER, &mouseover_recipe_handler );
+#endif
 		set_window_handler(recipe_win, ELW_HANDLER_RESIZE, &resize_recipe_handler );
+#ifndef ANDROID
 		set_window_handler(recipe_win, ELW_HANDLER_KEYPRESS, (int (*)())&keypress_recipe_handler );
+#endif
 
 		recipe_win_scroll_id = vscrollbar_add_extended(recipe_win, 1, NULL, 0,
 			0, 0, 0, 0, 1.0, 0.77f, 0.57f, 0.39f, 0, 1, num_recipe_entries-num_displayed_recipes);

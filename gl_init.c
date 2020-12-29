@@ -208,6 +208,10 @@ void init_video(void)
 		else
 			bpp = 32;
 	}
+#ifdef ANDROID
+	// force otherwise selection does not work on android // ANDROID_TODO
+	bpp = 32;
+#endif
 
 	// adjust the video mode depending on the BITSPERPIXEL available
 	if (video_mode == 0)
@@ -333,6 +337,10 @@ void init_video(void)
 
 	// get the windos size, these variables are used globaly
 	SDL_GetWindowSize(el_gl_window, &window_width, &window_height);
+
+#ifdef ANDROID
+	set_scale_from_window_size();
+#endif
 
 	// enable V-SYNC, choosing active as a preference
 	if (SDL_GL_SetSwapInterval(-1) < 0)
@@ -964,11 +972,13 @@ int print_gl_errors(const char *file, int line)
 {
 	GLenum	glErr, anyErr=GL_NO_ERROR;
 
+#ifndef ANDROID
 	while ((glErr=glGetError()) != GL_NO_ERROR )
 	 {
 		anyErr=glErr;
 		log_error(file, line, "OpenGL %s", gluErrorString(glErr));
 	}
+#endif
 	return anyErr;
 }
 

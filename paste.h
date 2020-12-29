@@ -46,7 +46,7 @@ void copy_to_clipboard(const char* text);
 void copy_to_primary(const char* text);
 #endif
 
-#if !defined OSX && !defined WINDOWS
+#if !defined OSX && !defined WINDOWS && !defined ANDROID
 
 #include <X11/Xlib.h>
 

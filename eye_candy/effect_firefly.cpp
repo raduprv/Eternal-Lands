@@ -44,7 +44,7 @@ namespace ec
 		Vec3 velocity_shift;
 		velocity_shift.randomize();
 		velocity_shift.y *= 0.3;
-		velocity_shift.normalize(0.0005 * std::sqrt(delta_t));
+		velocity_shift.normalize(0.0005 * std::sqrt((double)delta_t));
 		velocity += velocity_shift;
 		const coord_t magnitude = velocity.magnitude();
 		if (magnitude > 0.35)

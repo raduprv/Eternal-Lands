@@ -20,7 +20,9 @@
 #include "ignore.h"
 #include "icon_window.h"
 #include "init.h"
+#ifndef ANDROID
 #include "item_lists.h"
+#endif
 #include "interface.h"
 #include "knowledge.h"
 #include "list.h"
@@ -1606,7 +1608,9 @@ int save_local_data(char * text, int len){
 	// for the new questlog, this actually just saves any pending changes
 	// should be renamed when NEW_QUESTLOG #def is removed
 	unload_questlog();
+#ifndef ANDROID
 	save_item_lists();
+#endif
 	save_channel_colors();
 	LOG_TO_CONSOLE(c_green1, local_save_str);
 	return 0;

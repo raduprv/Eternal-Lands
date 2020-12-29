@@ -1244,7 +1244,9 @@ void fill_encyclopedia_win (int window_id)
 		return;
 	}
 
+#ifndef ANDROID
 	set_window_handler(window_id, ELW_HANDLER_MOUSEOVER, &mouseover_encyclopedia_handler);
+#endif
 	set_window_handler(window_id, ELW_HANDLER_KEYPRESS, (int (*)())&keypress_encyclopedia_handler);
 
 	if (!cm_valid(cm_encycl))

@@ -1,5 +1,6 @@
 #include "../platform.h"
 #include "elpathwrapper.h"
+#include "elfilewrapper.h"
 #include "../asc.h"
 #include "../elconfig.h"
 #include "../elc_private.h"
@@ -18,6 +19,10 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <errno.h>
+#ifdef ANDROID
+#include <SDL_log.h>
+#include <SDL_system.h>
+#endif
 
 #ifndef S_ISDIR
 #define S_ISDIR(x) (((x) & S_IFMT) == S_IFDIR)
@@ -57,6 +62,8 @@ const static char* cfgdirname = CONFIGDIR;
 const static char* cfgdirname = "Library/Application\ Support/Eternal\ Lands";
 #elif defined(WINDOWS)
 const static char* cfgdirname = "Eternal Lands";
+#elif defined(ANDROID)
+const static char* cfgdirname = "conf_and_logs";
 #else /* *nix */
 const static char* cfgdirname = ".elc";
 #endif // platform check
@@ -146,6 +153,12 @@ const char * get_path_config(void)
 {
 	static char locbuffer[MAX_PATH] = {0};
 
+#ifdef ANDROID
+	strcpy(locbuffer,SDL_AndroidGetInternalStoragePath());//?problem with cfg?
+	strcat(locbuffer,"/config/");
+	return locbuffer;
+#endif
+
 	// Check if we have selected a server yet, otherwise return the base config dir
 #ifndef MAP_EDITOR
 	safe_snprintf(locbuffer, sizeof(locbuffer), "%s%s/", get_path_config_base(), get_server_dir());
@@ -196,9 +209,24 @@ char * check_custom_dir(char * in_file)
 
 FILE *open_file_config (const char* filename, const char* mode)
 {
+#ifdef ANDROID
+	char str[1024];
+#endif
 	FILE *fp = open_file_config_no_local(filename, mode);
 	if (fp != NULL)
 		return fp;
+#ifdef ANDROID
+	if(do_file_exists(filename, "./", sizeof(str), str) != 1)
+	{
+		return NULL;
+	}
+
+	SDL_Log("open_file_config: we try the ./%s",filename);
+	char pwd[MAX_PATH];
+	chdir(datadir);
+	getcwd(pwd, MAX_PATH);
+	SDL_Log("cur path is %s",pwd);
+#endif
 	//Not there? okay, try the current directory
 	return fopen(filename, mode);
 }
@@ -228,6 +256,9 @@ FILE * open_file_config_no_local(const char* filename, const char* mode)
 		}
 	}
 
+#ifdef ANDROID
+	SDL_Log("Config no local path: %s",locbuffer);
+#endif
 	return fopen(locbuffer, mode);
 }
 
@@ -276,8 +307,15 @@ FILE * open_file_data_datadir(const char* filename, const char* mode) {
 FILE * open_file_data(const char* in_filename, const char* mode){
 	char filename[MAX_PATH];
 	FILE* fp = NULL;
-	
+#ifdef ANDROID
+	char str[1024];
+	SDL_Log("open_file_data OPEN FILE !!!!!! %s",in_filename);
+#endif
+
 	safe_strncpy(filename, in_filename, sizeof(filename));
+#ifdef ANDROID
+	do_file_exists(filename, "./", sizeof(str), str);//extract it if needed
+#endif
 	if(strchr(mode, 'w') == NULL){
 		//Reading? okay, we check updates first
 		if((fp = open_file_data_updates(filename, mode, 0)) != NULL){
@@ -416,7 +454,11 @@ int mkdir_tree (const char *path, int relative_only)
 		return 0;
 	}
 
+#ifdef ANDROID
+	if (dir_exists (dir))
+#else
 	if (dir_exists (dir) || file_exists(dir))
+#endif
 	{
 		// directory is there, don't bother
 		return 1;
@@ -457,6 +499,9 @@ int mkdir_tree (const char *path, int relative_only)
 			if (MKDIR (dir) != 0)
 			{
 				LOG_ERROR("Cannot create directory (mkdir() failed): %s, %s", dir, path);
+#ifdef ANDROID
+				SDL_Log("Can't create dir: %s in path %s", dir, path);
+#endif
 				return 0;
 			}
 		}

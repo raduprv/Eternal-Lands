@@ -113,6 +113,42 @@ void change_depth_framebuffer_size(int width, int height, GLuint *fbo, GLuint *f
  */
 void check_fbo_formats();
 
+#ifdef ANDROID
+/**
+ * @ingroup 	display_utils
+ * @brief 	Free framebuffer.
+ * 
+ * Frees the given frame buffer, render buffer and texture.
+ * @param 	fbo The frame buffer.
+ * @param 	fbo_depth_buffer The render depth buffer.
+ * @param 	fbo_stencil_buffer The render stencil buffer.
+ * @param 	fbo_rbuf The destination render buffer.
+ *  
+ * @callgraph
+ */
+void free_rbuf_framebuffer(GLuint *fbo, GLuint *fbo_depth_buffer, GLuint * fbo_stencil_buffer,
+	GLuint *fbo_rbuf);
+
+/**
+ * @ingroup 	display_utils
+ * @brief 	Creates a new frame buffer, attachs a new render depth and stencil buffer and a
+ * destination texture.
+ * 
+ * Creates a new frame buffer, attachs a new render depth and stencil buffer and a
+ * destination texture.
+ * @param	width The width of the texture.
+ * @param	height The height of the texture.
+ * @param 	fbo The frame buffer.
+ * @param 	fbo_depth_buffer The render depth buffer.
+ * @param 	fbo_stencil_buffer The render stencil buffer.
+ * @param 	fbo_rbuf The destination render buffer.
+ *  
+ * @callgraph
+ */
+void make_rbuf_framebuffer(int width, int height, GLuint *fbo, GLuint *fbo_depth_buffer,
+	GLuint * fbo_stencil_buffer, GLuint *fbo_rbuf);
+#endif
+
 #ifdef	DEBUG
 void print_fbo_errors(const char *file, int line);
 #define CHECK_FBO_ERRORS()	print_fbo_errors(__FILE__, __LINE__)

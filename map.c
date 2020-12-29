@@ -42,6 +42,10 @@
 #include "sky.h"
 #include "mines.h"
 #include "highlight.h"
+#ifdef ANDROID
+// ANDROID_TODO
+#include "android_glu.h"
+#endif
 
 int map_type=1;
 Uint32 map_flags=0;
@@ -758,7 +762,20 @@ void display_map_markers() {
 		y += (TILESIZE_Y / 2);
 		if(DST(ax,ay,x,y)>MARK_DIST||marks[i].x<0||!marks_3d) continue;
 		z = get_tile_height(marks[i].x, marks[i].y)+2.3;
+
+#ifndef ANDROID
 		gluProject(x, y, z, model, proj, view, &hx, &hy, &hz);
+#else
+// ANDROID_TODO
+		float temp_array[3];
+		temp_array[0]=hx;
+		temp_array[1]=hy;
+		temp_array[2]=hz;
+		glhProject(x, y, z, model, proj, view, temp_array);
+		hx=temp_array[0];
+		hy=temp_array[1];
+		hz=temp_array[2];
+#endif
 		//shorten text
 		memcpy(tmpb,marks[i].text+MARK_CLIP_POS,4);
 		marks[i].text[MARK_CLIP_POS]=marks[i].text[MARK_CLIP_POS+1]=marks[i].text[MARK_CLIP_POS+2]='.';

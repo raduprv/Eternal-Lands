@@ -3,7 +3,9 @@
 #include <stdarg.h>
 #include <string.h>
 #include <ctype.h>
+#ifndef ANDROID
 #include <iconv.h>
+#endif
 #include <errno.h>
 #include "asc.h"
 #include "errors.h"
@@ -421,11 +423,15 @@ int my_UTF8Toisolat1(char **dest, size_t * lu, const char **src, size_t * l)
 int my_UTF8Toisolat1(char **dest, size_t * lu, char **src, size_t * l)
 #endif
 {
+#ifndef ANDROID
 	iconv_t t=iconv_open("ISO_8859-1","UTF-8");
 
 	iconv(t, src, l, dest, lu);
 
 	iconv_close(t);
+#else //android
+	strncpy(*dest,*src,*lu);
+#endif
 	return 1;
 }
 

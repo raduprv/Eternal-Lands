@@ -1095,6 +1095,30 @@ int vscrollbar_set_pos(int window_id, Uint32 widget_id, int pos)
 	return 0;
 }
 
+#ifdef ANDROID
+int vscrollbar_scroll_up_amount(int window_id, Uint32 widget_id, int amount)
+{
+	widget_list *w = widget_find(window_id, widget_id);
+	if (w)
+	{
+		vscrollbar *scrollbar = w->widget_info;
+		return vscrollbar_set_pos(window_id, widget_id, scrollbar->pos - amount);
+	}
+	return 0;
+}
+
+int vscrollbar_scroll_down_amount(int window_id, Uint32 widget_id, int amount)
+{
+	widget_list *w = widget_find(window_id, widget_id);
+	if(w && !(w->Flags & WIDGET_DISABLED))
+	{
+		vscrollbar *scrollbar = w->widget_info;
+		return vscrollbar_set_pos(window_id, widget_id, scrollbar->pos + amount);
+	}
+	return 0;
+}
+#endif
+
 int vscrollbar_scroll_up(int window_id, Uint32 widget_id)
 {
 	widget_list *w = widget_find(window_id, widget_id);
@@ -2779,12 +2803,13 @@ static int text_field_click(widget_list *w, int mx, int my, Uint32 flags)
 #endif
 #endif
 
+#ifndef ANDROID
 	em_before = tf->select.em;
 	update_selection(mx, my, w, 0);
 	if (em_before != -1 && tf->select.em == -1)
 		/* We deselected some text, click was handled */
 		return 1;
-
+#endif
 	if ( (w->Flags & TEXT_FIELD_EDITABLE) == 0)
 		return 0;
 
@@ -2802,7 +2827,9 @@ static int text_field_click(widget_list *w, int mx, int my, Uint32 flags)
 
 static int text_field_drag(widget_list *w, int mx, int my, Uint32 flags, int dx, int dy)
 {
+#ifndef ANDROID
 	update_selection(mx, my, w, 1);
+#endif
 	return 1;
 }
 

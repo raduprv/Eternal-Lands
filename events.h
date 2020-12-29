@@ -22,6 +22,9 @@ enum {
 	EVENT_UPDATE_PARTICLES,	 /*!< update the particles */
 	EVENT_UPDATES_DOWNLOADED,/*!< the event to send when the main updates.lst has been downloaded */
 	EVENT_DOWNLOAD_COMPLETE, /*!< the normal event to send when a download finishes */
+#ifdef ANDROID
+	EVENT_CURSOR_CALCULATION_COMPLETE, /*!< event to send after the what is under mouse was calculated in the display loop */
+#endif
 #ifdef PAWN
 	EVENT_PAWN_TIMER,        /*!< event for running Pawn timer callbacks */
 #endif

@@ -106,7 +106,7 @@
 	#include <OpenAL/al.h>
 	#include <OpenAL/alc.h>
 	#include <OpenAL/MacOSX_OALExtensions.h>
-#else
+#elif !defined(ANDROID)
 	#include <AL/al.h>
 	#include <AL/alc.h>
 #endif //lib location platform checking

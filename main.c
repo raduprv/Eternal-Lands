@@ -2,6 +2,10 @@
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
+#ifdef ANDROID
+#include <gl4esinit.h>
+#endif
+
 #include "platform.h"
 
 #ifdef	__GNUC__
@@ -41,7 +45,9 @@
 #include "icon_window.h"
 #include "io/elfilewrapper.h"
 #include "init.h"
+#ifndef ANDROID
 #include "item_lists.h"
+#endif
 #include "interface.h"
 #include "lights.h"
 #include "manufacture.h"
@@ -61,12 +67,16 @@
 #include "sound.h"
 #include "text.h"
 #include "timers.h"
+#ifndef ANDROID
 #include "trade_log.h"
+#endif
 #include "translate.h"
 #include "textures.h"
 #include "update.h"
 #include "url.h"
+#ifndef ANDROID
 #include "user_menus.h"
+#endif
 #include "weather.h"
 #ifdef MEMORY_DEBUG
 #include "elmemory.h"
@@ -291,8 +301,10 @@ int start_rendering()
 	passmngr_destroy();
 	LOG_INFO("unload_questlog()");
 	unload_questlog();
+#ifndef ANDROID
 	LOG_INFO("save_item_lists()");
 	save_item_lists();
+#endif
 	LOG_INFO("free_emotes()");
 	free_emotes();
 	LOG_INFO("free_actor_defs()");
@@ -310,10 +322,12 @@ int start_rendering()
 	cleanup_chan_names();
 	LOG_INFO("cleanup_hud()");
 	cleanup_hud();
+#ifndef ANDROID
 	LOG_INFO("destroy_trade_log()");
 	destroy_trade_log();
 	LOG_INFO("destroy_user_menus()");
 	destroy_user_menus();
+#endif
 	LOG_INFO("destroy_all_root_windows()");
 	destroy_all_root_windows();
 	LOG_INFO("SDL_RemoveTimer()");
@@ -336,6 +350,10 @@ int start_rendering()
 	SDL_QuitSubSystem(SDL_INIT_AUDIO);
 	LOG_INFO("SDL_QuitSubSystem(SDL_INIT_TIMER)");
 	SDL_QuitSubSystem(SDL_INIT_TIMER);
+#ifdef ANDROID
+	LOG_INFO("SDL_QuitSubSystem(SDL_INIT_VIDEO)");
+	SDL_QuitSubSystem(SDL_INIT_VIDEO);
+#endif
 /*#ifdef WINDOWS
 	// attempt to restart if requested
 	if(restart_required > 0){
@@ -349,10 +367,12 @@ int start_rendering()
 	LOG_INFO("stopp_custom_update()");
 	stopp_custom_update();
 #endif	/* CUSTOM_UPDATE */
+#ifndef ANDROID
 	LOG_INFO("clear_zip_archives()");
 	clear_zip_archives();
 	LOG_INFO("clean_update()");
 	clean_update();
+#endif
 
 	LOG_INFO("cleanup_tcp()");
 	cleanup_tcp();
@@ -505,6 +525,9 @@ int Main(int argc, char **argv)
 int main(int argc, char **argv)
 #endif
 {
+#ifdef ANDROID
+	initialize_gl4es();
+#endif
 #ifdef MEMORY_DEBUG
 	elm_init();
 #endif //MEMORY_DEBUG

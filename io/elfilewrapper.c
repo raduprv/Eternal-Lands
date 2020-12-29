@@ -63,6 +63,64 @@ static void free_el_file(el_file_t* file)
 	free(file);
 }
 
+#ifdef ANDROID
+int extract_asset_file(const char *file_name)
+{
+	SDL_RWops *io;
+	int file_size;
+	Uint8 *buffer;
+	FILE *f = NULL;
+	char new_file_name[200];
+	char sanitized_file_name[200];
+
+	if (file_name[0] == '.') // strip the ./ part
+		strncpy(sanitized_file_name, &file_name[2], sizeof(sanitized_file_name));
+	else
+		strncpy(sanitized_file_name, file_name, sizeof(sanitized_file_name));
+
+
+	io = SDL_RWFromFile(sanitized_file_name, "rb");
+
+	if (io == NULL)
+	{
+		SDL_Log("!!!!!!!Couldn't find asset %s",file_name);
+		return 0;
+	}
+
+	file_size = io->size(io);
+	if (file_size == -1)
+		return 0;
+
+	buffer = (Uint8 *)malloc(file_size);
+
+	if (!buffer)
+	{
+		SDL_Log("!!!!!!!Couldn't allocate memory to read file %s, quitting",file_name);
+		exit(1);
+	}
+
+	io->read(io, buffer, file_size, 1);
+	io->close(io);
+
+	sprintf(new_file_name, "%s%s", "./", sanitized_file_name);
+	mkdir_tree (new_file_name, 1); // make the path if needed
+	f = fopen(new_file_name, "wb");
+	if (f == NULL)
+	{
+		SDL_Log("!!!!!!!Couldn't WRITE file %s ....",new_file_name);
+		exit(1);
+	}
+
+	fwrite(buffer,file_size,1,f);
+	fclose(f);
+
+	free(buffer);
+
+	// SDL_Log("Hopefully, we extracted file: %s",file_name);
+	return 1;
+}
+#endif
+
 int compare_el_zip_file_entry(const void* a, const void* b)
 {
 	if (((el_zip_file_entry_t*)a)->hash == ((el_zip_file_entry_t*)b)->hash)
@@ -443,7 +501,11 @@ void unload_zip_archive(const char* file_name)
 	LEAVE_DEBUG_MARK("unload zip");
 }
 
+#ifdef ANDROID
+Uint32 do_file_exists(const char* file_name, const char* path,
+#else
 static Uint32 do_file_exists(const char* file_name, const char* path,
+#endif
 	const Uint32 size, char* buffer)
 {
 	struct stat fstat;
@@ -490,7 +552,13 @@ static Uint32 do_file_exists(const char* file_name, const char* path,
 		return 1;
 	}
 
+#ifdef ANDROID
+	// try to extract it
+	// SDL_Log("Trying to extract %s because not found",buffer);
+	return extract_asset_file(file_name);
+#else
 	return 0;
+#endif
 }
 
 static Uint32 file_exists_path(const char* file_name, const char* extra_path)
@@ -511,12 +579,12 @@ static Uint32 file_exists_path(const char* file_name, const char* extra_path)
 			return 1;
 		}
 	}
-
+#ifndef ANDROID
 	if (do_file_exists(file_name, get_path_updates(), sizeof(str), str) == 1)
 	{
 		return 1;
 	}
-
+#endif
 	init_key(file_name, &key, sizeof(str), str);
 
 	CHECK_AND_LOCK_MUTEX(zip_mutex);
@@ -758,12 +826,12 @@ static el_file_ptr file_open(const char* file_name, const char* extra_path)
 			return xz_gz_file_open(str);
 		}
 	}
-
+#ifndef ANDROID
 	if (do_file_exists(file_name, get_path_updates(), sizeof(str), str) == 1)
 	{
 		return xz_gz_file_open(str);
 	}
-
+#endif
 	init_key(file_name, &key, sizeof(str), str);
 
 	CHECK_AND_LOCK_MUTEX(zip_mutex);
@@ -811,6 +879,7 @@ el_file_ptr el_open(const char* file_name)
 	return result;
 }
 
+#ifndef ANDROID
 el_file_ptr el_open_custom(const char* file_name)
 {
 	el_file_ptr result;
@@ -823,7 +892,9 @@ el_file_ptr el_open_custom(const char* file_name)
 
 	return result;
 }
+#endif
 
+#ifndef ANDROID
 el_file_ptr el_open_anywhere(const char* file_name)
 {
 	el_file_ptr result;
@@ -836,6 +907,7 @@ el_file_ptr el_open_anywhere(const char* file_name)
 
 	return result;
 }
+#endif
 
 Sint64 el_read(el_file_ptr file, Sint64 size, void* buffer)
 {
@@ -1014,6 +1086,7 @@ int el_file_exists(const char* file_name)
 	return result;
 }
 
+#ifndef ANDROID
 int el_custom_file_exists(const char* file_name)
 {
 	int result;
@@ -1026,6 +1099,7 @@ int el_custom_file_exists(const char* file_name)
 
 	return result;
 }
+#endif
 
 int el_file_exists_config(const char* file_name)
 {
@@ -1040,6 +1114,7 @@ int el_file_exists_config(const char* file_name)
 	return result;
 }
 
+#ifndef ANDROID
 int el_file_exists_anywhere(const char* file_name)
 {
 	int result;
@@ -1052,6 +1127,7 @@ int el_file_exists_anywhere(const char* file_name)
 
 	return result;
 }
+#endif
 
 const char* el_file_name(el_file_ptr file)
 {

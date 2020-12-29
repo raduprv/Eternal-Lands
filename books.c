@@ -742,7 +742,9 @@ static void display_page(window_info* win, book * b, page * p)
 	if(!p)
 		return;
 	
+#ifndef ANDROID
 	set_font(2);
+#endif
 	if(p->image) {
 		display_image(p->image);
 	}
@@ -752,14 +754,20 @@ static void display_page(window_info* win, book * b, page * p)
 		draw_string_zoomed(10*win->current_scale, i * line_sep, (unsigned char*)*l, 0, win->current_scale);
 	}
 	
+#ifdef ANDROID
+	glColor3f(0.585f,0.485f, 0.39f);
+#else
 	glColor3f(0.385f,0.285f, 0.19f);
+#endif
 	
 	safe_snprintf(str,sizeof(str),"%d",p->page_no);
 	if(b->type==1)
 		draw_string_zoomed(140*win->current_scale, b->max_lines * line_sep + 2,(unsigned char*)str, 0, win->current_scale);
 	else if(b->type==2)
 		draw_string_zoomed(110*win->current_scale, b->max_lines * line_sep + 2,(unsigned char*)str, 0, win->current_scale);
+#ifndef ANDROID
 	set_font(0);
+#endif
 }
 
 static void display_book(window_info* win, book * b, int type)
@@ -1031,7 +1039,9 @@ static void display_book_window(book *b)
 			ui_scale_book_handler(&windows_list.window[*p]);
 
 		set_window_handler(*p, ELW_HANDLER_DISPLAY, &display_book_handler);
+#ifndef ANDROID
 		set_window_handler(*p, ELW_HANDLER_MOUSEOVER, &mouseover_book_handler);
+#endif
 		set_window_handler(*p, ELW_HANDLER_CLICK, &click_book_handler);
 		set_window_handler(*p, ELW_HANDLER_UI_SCALE, &ui_scale_book_handler);
 		windows_list.window[*p].data=b;

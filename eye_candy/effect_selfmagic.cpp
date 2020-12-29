@@ -433,7 +433,7 @@ namespace ec
 			{
 				mover = new ParticleMover(this);
 				spawner = new FilledDiscSpawner(0.2);
-				const float sqrt_LOD= std::sqrt(LOD);
+				const float sqrt_LOD= std::sqrt((double)LOD);
 				size_scalar = 1.0;
 				for (int i = 0; i < LOD * 96; i++)
 				{

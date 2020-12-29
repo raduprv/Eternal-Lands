@@ -251,7 +251,11 @@ void read_key_config(void)
 	size_t i;
 	SDL_Keycode last_key_code_value = SDL_NUM_SCANCODES;
 
+#ifndef ANDROID
 	f = el_open_custom("key.ini");
+#else
+	f = el_open("key.ini");
+#endif
 	if (f)
 	{
 		while (el_fgets(line, sizeof(line), f))

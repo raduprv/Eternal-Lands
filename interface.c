@@ -38,6 +38,11 @@
 #include "3d_objects.h"
 #include "image_loading.h"
 #include "weather.h"
+#ifdef ANDROID
+// ANDROID_TODO use proper GLU
+#include "android_glu.h"
+#include "elconfig.h"
+#endif
 
 #define DEFAULT_CONTMAPS_SIZE 20
 
@@ -100,7 +105,19 @@ void get_world_x_y (short *scene_x, short *scene_y)
 	if (ati_click_workaround && bpp == 32)
 		mouse_z = ldexp (mouse_z, 8);
 	
+#ifndef ANDROID
 	gluUnProject (mouse_x, window_height-hud_y-mouse_y, mouse_z, model_mat, projection_mat, viewport, &sx, &sy, &sz);
+#else
+	// ANDROID_TODO use proper GLU
+	float temp_array[3];
+	temp_array[0]=sx;
+	temp_array[1]=sy;
+	temp_array[2]=sz;
+	glhUnProject (mouse_x, window_height-hud_y-mouse_y, mouse_z, model_mat, projection_mat, viewport, temp_array);
+	sx=temp_array[0];
+	sy=temp_array[1];
+	sz=temp_array[2];
+#endif
 	
 	*scene_x = (sx / 0.5);
 	*scene_y = (sy / 0.5);
@@ -683,6 +700,9 @@ static void draw_marks(marking *the_marks, int the_max_mark, int the_tile_map_si
 			if(!the_marks[i].server_side) glColor3f((float)the_marks[i].r/255,(float)the_marks[i].g/255,(float)the_marks[i].b/255);//glColor3f(0.4f,1.0f,0.0f);
 			else glColor3f(0.33f,0.6f,1.0f);
 			glDisable(GL_TEXTURE_2D);
+#ifdef ANDROID
+			glLineWidth(3);
+#endif
 			glBegin(GL_LINES);
 				glVertex2i(screen_x-9*mapmark_zoom,screen_y-9*mapmark_zoom);
 				glVertex2i(screen_x+6*mapmark_zoom,screen_y+6*mapmark_zoom);
@@ -690,6 +710,9 @@ static void draw_marks(marking *the_marks, int the_max_mark, int the_tile_map_si
 				glVertex2i(screen_x+6*mapmark_zoom,screen_y-9*mapmark_zoom);
 				glVertex2i(screen_x-9*mapmark_zoom,screen_y+6*mapmark_zoom);
 			glEnd();
+#ifdef ANDROID
+			glLineWidth(1);
+#endif
 				glEnable(GL_TEXTURE_2D);
 				if(!the_marks[i].server_side) glColor3f((float)the_marks[i].r/255,(float)the_marks[i].g/255,(float)the_marks[i].b/255);//glColor3f(0.2f,1.0f,0.0f);
 				else glColor3f(0.33f,0.6f,1.0f);
@@ -854,6 +877,9 @@ void draw_game_map (int map, int mouse_mini)
 
 			glColor3f(1.0f,1.0f,0.0f);
 			glDisable(GL_TEXTURE_2D);
+#ifdef ANDROID
+			glLineWidth(3);
+#endif
 			glBegin(GL_LINES);
 				glVertex2i(screen_x-9*mapmark_zoom,screen_y-9*mapmark_zoom);
 				glVertex2i(screen_x+6*mapmark_zoom,screen_y+6*mapmark_zoom);
@@ -861,6 +887,9 @@ void draw_game_map (int map, int mouse_mini)
 				glVertex2i(screen_x+6*mapmark_zoom,screen_y-9*mapmark_zoom);
 				glVertex2i(screen_x-9*mapmark_zoom,screen_y+6*mapmark_zoom);
 			glEnd();
+#ifdef ANDROID
+			glLineWidth(1);
+#endif
 		        glEnable(GL_TEXTURE_2D);
 		        glColor3f(1.0f,1.0f,0.0f);
 			draw_string_zoomed (screen_x, screen_y, (unsigned char*)input_text_line.data, 1, mapmark_zoom);
@@ -904,6 +933,9 @@ void draw_game_map (int map, int mouse_mini)
 		glColor3f(1.0f,0.0f,0.0f);
 		
 		glDisable(GL_TEXTURE_2D);
+#ifdef ANDROID
+		glLineWidth(3);
+#endif
 		glBegin(GL_LINES);
 
 		glVertex2i(screen_x-9*mapmark_zoom,screen_y-9*mapmark_zoom);
@@ -913,6 +945,9 @@ void draw_game_map (int map, int mouse_mini)
 		glVertex2i(screen_x-9*mapmark_zoom,screen_y+6*mapmark_zoom);
 
 		glEnd();
+#ifdef ANDROID
+		glLineWidth(1);
+#endif
 	}
 	
 	//ok, now let's draw our possition...
@@ -951,8 +986,13 @@ void draw_game_map (int map, int mouse_mini)
 		glColor3f (0.0f, 0.0f, 1.0f);
 		glDisable (GL_TEXTURE_2D);
 		glPushAttrib(GL_LINE_BIT);
+#ifdef ANDROID
+		// ANDROID_TODO if we include the GL_LINE_SMOOTH, the line is not drawn thicker
+		glLineWidth(6.0);
+#else
 		glLineWidth(2.0);
 		glEnable(GL_LINE_SMOOTH);
+#endif
 		glBegin (GL_LINES);
 
 		glVertex2i(screen_x-9*mapmark_zoom,screen_y-9*mapmark_zoom);
@@ -1197,7 +1237,9 @@ void destroy_all_root_windows ()
 	if (rules_root_win >= 0) destroy_window (rules_root_win);
 	if (opening_root_win >= 0) destroy_window (opening_root_win);
 	if (newchar_root_win >= 0) destroy_window (newchar_root_win);
+#ifndef ANDROID
 	if (update_root_win >= 0) destroy_window (update_root_win);
+#endif
 	if (langsel_rootwin >= 0) destroy_window (langsel_rootwin);
 }
 void hide_all_root_windows ()
@@ -1209,7 +1251,9 @@ void hide_all_root_windows ()
 	if (rules_root_win >= 0) hide_window (rules_root_win);
 	if (opening_root_win >= 0) hide_window (opening_root_win);
 	if (newchar_root_win >= 0) hide_window (newchar_root_win);
+#ifndef ANDROID
 	if (update_root_win >= 0) hide_window (update_root_win);
+#endif
 	if (langsel_rootwin >= 0) hide_window (langsel_rootwin);
 }
 
@@ -1222,7 +1266,9 @@ void resize_all_root_windows (Uint32 w, Uint32 h)
 	if (rules_root_win >= 0) resize_window (rules_root_win, w, h);
 	if (opening_root_win >= 0) resize_window (opening_root_win, w, h);
 	if (newchar_root_win >= 0) resize_window (newchar_root_win, w, h);
+#ifndef ANDROID
 	if (update_root_win >= 0) resize_window (update_root_win, w, h);
+#endif
 	if (langsel_rootwin >= 0) resize_window (langsel_rootwin, w, h);
 	if ((input_widget != NULL) && (input_widget->window_id != chat_win)) {
 		widget_resize (input_widget->window_id, input_widget->id, w-HUD_MARGIN_X, input_widget->len_y);

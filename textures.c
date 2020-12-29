@@ -1175,7 +1175,11 @@ static Uint32 open_for_coordinates_checks(const char* file_name,
 		return 0;
 	}
 
+#ifdef ANDROID
+	*file = el_open(buffer);
+#else
 	*file = el_open_custom(buffer);
+#endif
 
 	if (*file == 0)
 	{

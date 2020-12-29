@@ -1285,6 +1285,7 @@ int load_font_textures ()
 	// Force the selection of the base font.
 	add_multi_option("chat_font", "Type 1");
 	add_multi_option("name_font", "Type 1");
+#ifndef ANDROID
 	// Find what font's exist and load them
 	glob_pattern = malloc(strlen(datadir)+sizeof(texture_dir)+10+1); //+10 = font*.bmp*
 	sprintf(glob_pattern, "%s%sfont*.dds", datadir, texture_dir);
@@ -1333,6 +1334,7 @@ int load_font_textures ()
 	globfree(&glob_res);
 #endif //WINDOWS
 	free(glob_pattern);
+#endif// Android
 
 	//set the default font
 	cur_font_num = 0;

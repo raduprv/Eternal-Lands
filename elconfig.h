@@ -32,6 +32,10 @@ extern int write_ini_on_exit; /*< variable that determines if el.ini file is rew
 extern int gx_adjust;
 extern int gy_adjust;
 
+#ifdef ANDROID
+extern int textures_32bpp;
+#endif
+
 extern int video_mode_set;
 extern int no_adjust_shadows;
 extern int clouds_shadows; /*!< flag that indicates whether the shadows of clouds should be displayed or not */
@@ -104,6 +108,10 @@ int get_rotate_chat_log(void);
 void change_language(const char *new_lang);
 
 extern float get_global_scale(void);
+
+#ifdef ANDROID
+extern void set_scale_from_window_size(void);
+#endif
 
 /*!
  * \ingroup config

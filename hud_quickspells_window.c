@@ -246,6 +246,7 @@ CHECK_GL_ERRORS();
 	glDisable(GL_BLEND);	// Turn Blending Off
 	glDisable(GL_ALPHA_TEST);
 
+#ifndef ANDROID
 	if(quickspell_over!=-1 && mqb_data[quickspell_over])
 	{
 		int x = 0, y = 0;
@@ -270,6 +271,7 @@ CHECK_GL_ERRORS();
 		}
 		show_help(mqb_data[quickspell_over]->spell_name, x, y, win->current_scale);
 	}
+#endif
 	quickspell_over=-1;
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
@@ -411,7 +413,9 @@ void init_quickspell(void)
 		quickspell_win = create_window ("Quickspell", -1, 0, saved_quickspells_x, saved_quickspells_y, 0, 0, flags);
 		set_window_handler(quickspell_win, ELW_HANDLER_DISPLAY, &display_quickspell_handler);
 		set_window_handler(quickspell_win, ELW_HANDLER_CLICK, &click_quickspell_handler);
+#ifndef ANDROID
 		set_window_handler(quickspell_win, ELW_HANDLER_MOUSEOVER, &mouseover_quickspell_handler );
+#endif
 		set_window_handler(quickspell_win, ELW_HANDLER_UI_SCALE, &ui_scale_quickspell_handler );
 
 		if (quickspell_win >= 0 && quickspell_win < windows_list.num_windows)
@@ -670,3 +674,14 @@ void set_quickspell_options(unsigned int options, unsigned int position)
 	else
 		reset_quickspells();
 }
+
+#ifdef ANDROID
+// ANDROID_TODO clean this up - perhaps double tap to add not just tap?
+int remove_all_quickspells(void)
+{
+	size_t i;
+	for (i = num_quickspell_slots; i >= 1; i--)
+		remove_quickspell(i);
+	return 1;
+}
+#endif

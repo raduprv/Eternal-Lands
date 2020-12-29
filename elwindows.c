@@ -20,6 +20,24 @@
 #include "widgets.h"
 #include "sound.h"
 
+#ifdef ANDROID
+#include "achievements.h"
+#include "astrology.h"
+#include "buddy.h"
+#include "consolewin.h"
+#include "dialogues.h"
+#include "emotes.h"
+#include "encyclopedia.h"
+#include "gamewin.h"
+#include "items.h"
+#include "manufacture.h"
+#include "mapwin.h"
+#include "minimap.h"
+#include "spells.h"
+#include "stats.h"
+#include "tabs.h"
+#endif
+
 #define ELW_WIN_MAX 128
 
 windows_info	windows_list;	// the master list of windows
@@ -35,6 +53,11 @@ int	drag_in_window(int win_id, int x, int y, Uint32 flags, int dx, int dy);
 int	mouseover_window(int win_id, int x, int y);	// do mouseover processing for a window
 int	keypress_in_window(int win_id, int x, int y, SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_mod);	// keypress in the window
 
+#ifdef ANDROID
+int	multi_gesture_in_window(int win_id, Uint32 timestamp, float center_x, float center_y, float distance, float rotation);
+int	finger_motion_in_window(int win_id, Uint32 timestamp, float center_x, float center_y, float dx, float dy);
+#endif
+
 /*
  * The intent of the windows system is to create the window once
  * and then hide the window when you don't wantto use it.
@@ -42,6 +65,103 @@ int	keypress_in_window(int win_id, int x, int y, SDL_Keycode key_code, Uint32 ke
  * Note: In the handlers, all cursor coordinates are relative to the window
  *
  */
+
+#ifdef ANDROID
+void close_last_window(void)
+{
+	if (get_show_window(console_root_win))
+	{
+		hide_window(console_root_win);
+		show_window(game_root_win);
+		return;
+	}
+
+	if (achievements_close_all())
+		return;
+
+	if (get_show_window(elconfig_win))
+	{
+		hide_window(elconfig_win);
+		return;
+	}
+
+	if (get_show_window(dialogue_win))
+	{
+		hide_window(dialogue_win);
+		return;
+	}
+
+	if (get_show_window(tab_help_win))
+	{
+		hide_window(tab_help_win);
+		return;
+	}
+
+	if (get_show_window(astrology_win))
+	{
+		hide_window(astrology_win);
+		return;
+	}
+
+	if (get_show_window(tab_stats_win))
+	{
+		hide_window(tab_stats_win);
+		return;
+	}
+
+	if (get_show_window(map_root_win))
+	{
+		hide_window(map_root_win);
+		show_window(game_root_win);
+		return;
+	}
+
+ 	if (get_show_window(buddy_win))
+ 	{
+		hide_window(buddy_win);
+		return;
+	}
+
+	if (get_show_window(ground_items_win))
+	{
+		unsigned char protocol_name;
+		hide_window(ground_items_win);
+		protocol_name = S_CLOSE_BAG;
+		my_tcp_send(my_socket, &protocol_name, 1);
+		return;
+	}
+
+ 	if (get_show_window(emotes_win))
+ 	{
+		hide_window(emotes_win);
+		return;
+	}
+
+ 	if (get_show_window(items_win))
+ 	{
+		hide_window(items_win);
+		return;
+	}
+
+ 	if (get_show_window(manufacture_win))
+ 	{
+		hide_window(manufacture_win);
+		return;
+	}
+
+ 	if (get_show_window(sigil_win))
+ 	{
+		hide_window(sigil_win);
+		return;
+	}
+
+ 	if (get_show_window(minimap_win))
+ 	{
+		hide_window(minimap_win);
+		return;
+	}
+}
+#endif
 
 void update_window_scale(window_info *win, float scale_factor)
 {
@@ -178,6 +298,213 @@ void	display_windows(int level)
 	last_opaque_window_backgrounds = opaque_window_backgrounds;
 }
 
+#ifdef ANDROID
+void multi_gesture_in_windows(Uint32 timestamp, float center_x, float center_y, float distance, float rotation)
+{
+	int	done= 0;
+	int	id;
+	int	next_id;
+	int	first_win= -1;
+	int i;
+	int mx,my;
+
+	mx=center_x*window_width;
+	my=center_y*window_height;
+
+	// check each window in the proper order
+	if(windows_list.display_level > 0)
+	{
+		id= 9999;
+		while(done <= 0)
+		{
+			next_id= 0;
+			for (i=0; i<windows_list.num_windows; i++)
+			{
+				// only look at displayed windows
+				if (windows_list.window[i].displayed > 0)
+				{
+					// at this level?
+					if(windows_list.window[i].order == id)
+					{
+						/*
+						if (cm_try_activate && cm_show_if_active(i))
+							return;
+						*/
+						//SDL_Log("multi_gesture_in_windows before done, i: %i",i);
+
+						done= multi_gesture_in_window(i, timestamp, center_x, center_y, distance, rotation);
+						//SDL_Log("multi_gesture_in_windows We got multi gesture after done");
+						if(done > 0)
+						{
+							if(windows_list.window[i].displayed > 0)	select_window(i);	// select this window to the front
+							cm_post_show_check(0);
+							return;
+						}
+						if(first_win < 0 && mouse_in_window(i, mx, my))	first_win= i;
+					}
+					else if(windows_list.window[i].order < id && windows_list.window[i].order > next_id)
+					{
+						// try to find the next level
+						next_id= windows_list.window[i].order;
+					}
+				}
+			}
+			if(next_id <= 0)
+				break;
+			else
+				id= next_id;
+		}
+	}
+
+
+	// now check the background windows in the proper order
+	id= -9999;
+	while(done <= 0)
+	{
+		next_id= 0;
+		for(i=0; i<windows_list.num_windows; i++)
+		{
+			// only look at displayed windows
+			if(windows_list.window[i].displayed > 0)
+			{
+				// at this level?
+				if(windows_list.window[i].order == id)
+				{
+					done= multi_gesture_in_window(i, timestamp, center_x, center_y, distance, rotation);
+					if(done > 0)
+					{
+						//select_window(i);	// these never get selected
+						cm_post_show_check(0);
+						return;
+					}
+				}
+				else if(windows_list.window[i].order > id && windows_list.window[i].order < next_id)
+				{
+					// try to find the next level
+					next_id= windows_list.window[i].order;
+				}
+			}
+		}
+		if(next_id >= 0)
+			break;
+		else
+			id= next_id;
+	}
+
+	// nothing to click on, do a select instead
+	if(first_win >= 0)
+	{
+		select_window(first_win);
+	}
+
+}
+
+void finger_motion_in_windows(Uint32 timestamp, float center_x, float center_y, float dx, float dy)
+{
+	int	done= 0;
+	int	id;
+	int	next_id;
+	int	first_win= -1;
+	int i;
+	int mx,my;
+
+	//check for sane values
+	if(dy!=dy || dx!=dx)return;
+	if(dy<-1 || dy>1 || dx<-1 || dx>1)return;
+
+	mx=center_x*window_width;
+	my=center_y*window_height;
+
+	//SDL_Log("finger_motion_in_windows: dx: %f, dy: %f",dx,dy);
+
+	// check each window in the proper order
+	if(windows_list.display_level > 0)
+	{
+		id= 9999;
+		while(done <= 0)
+		{
+			next_id= 0;
+			for (i=0; i<windows_list.num_windows; i++)
+			{
+				// only look at displayed windows
+				if (windows_list.window[i].displayed > 0)
+				{
+					// at this level?
+					if(windows_list.window[i].order == id)
+					{
+						/*
+						if (cm_try_activate && cm_show_if_active(i))
+							return;
+						*/
+						//SDL_Log("multi_gesture_in_windows before done, i: %i",i);
+
+						done = finger_motion_in_window(i, timestamp, center_x, center_y, dx, dy);
+						//SDL_Log("multi_gesture_in_windows We got multi gesture after done");
+						if(done > 0)
+						{
+							if(windows_list.window[i].displayed > 0)	select_window(i);	// select this window to the front
+							cm_post_show_check(0);
+							return;
+						}
+						if(first_win < 0 && mouse_in_window(i, mx, my))	first_win= i;
+					}
+					else if(windows_list.window[i].order < id && windows_list.window[i].order > next_id)
+					{
+						// try to find the next level
+						next_id= windows_list.window[i].order;
+					}
+				}
+			}
+			if(next_id <= 0)
+				break;
+			else
+				id= next_id;
+		}
+	}
+
+
+	// now check the background windows in the proper order
+	id= -9999;
+	while(done <= 0)
+	{
+		next_id= 0;
+		for(i=0; i<windows_list.num_windows; i++)
+		{
+			// only look at displayed windows
+			if(windows_list.window[i].displayed > 0)
+			{
+				// at this level?
+				if(windows_list.window[i].order == id)
+				{
+					done = finger_motion_in_window(i, timestamp, center_x, center_y, dx, dy);
+					if(done > 0)
+					{
+						//select_window(i);	// these never get selected
+						cm_post_show_check(0);
+						return;
+					}
+				}
+				else if(windows_list.window[i].order > id && windows_list.window[i].order < next_id)
+				{
+					// try to find the next level
+					next_id= windows_list.window[i].order;
+				}
+			}
+		}
+		if(next_id >= 0)
+			break;
+		else
+			id= next_id;
+	}
+
+	// nothing to click on, do a select instead
+	if(first_win >= 0)
+	{
+		select_window(first_win);
+	}
+
+}
+#endif
 
 int	click_in_windows(int mx, int my, Uint32 flags)
 {
@@ -549,6 +876,13 @@ int	keypress_in_windows(int x, int y, SDL_Keycode key_code, Uint32 key_unicode, 
 	int	id;
 	int	next_id;
 	int i;
+
+#ifdef ANDROID
+	// It's done for the hardware keyboard, we need to start SDL_StartTextInput() if we get keys
+	// Except for 6 and 10, which for some reason are sent during init time
+	if (!SDL_IsTextInputActive() && (key_unicode != 6) && (key_unicode != 10))
+		SDL_StartTextInput();
+#endif
 
 	// check each window in the proper order
 	if(windows_list.display_level > 0)
@@ -1474,6 +1808,153 @@ int	mouse_in_window(int win_id, int x, int y)
 	return 1;
 }
 
+#ifdef ANDROID
+int	multi_gesture_in_window(int win_id, Uint32 timestamp, float center_x, float center_y, float distance, float rotation)
+{
+	window_info *win;
+	int	mx, my;
+	int x,y;
+	int	ret_val=0;
+	int scroll_pos = 0;
+
+
+	x=center_x*window_width;
+	y=center_y*window_height;
+
+	if(win_id < 0 || win_id >= windows_list.num_windows)	return -1;
+	if(windows_list.window[win_id].window_id != win_id)	return -1;
+	win = &windows_list.window[win_id];
+
+	//SDL_Log("multi_gesture_in_window: %f",rotation);
+	if (mouse_in_window (win_id, x, y) > 0)
+	{
+		mx = x - win->cur_x;
+		my = y - win->cur_y;
+
+		//SDL_Log("multi after if");
+
+		if(win->flags&ELW_SCROLLABLE) {
+			/* Adjust mouse y coordinates according to the scrollbar position */
+			scroll_pos = vscrollbar_get_pos(win->window_id, win->scroll_id);
+			my += scroll_pos;
+		} else {
+			scroll_pos = 0;
+		}
+
+		// use the handler if present
+		if(win->multi_gesture_handler)
+		{
+			glPushMatrix();
+			glTranslatef ((float)win->cur_x, (float)win->cur_y-scroll_pos, 0.0f);
+			ret_val = (*win->multi_gesture_handler)(win, timestamp, center_x,center_y,distance,rotation);
+			glPopMatrix();
+
+		}
+
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
+
+		return 1;
+	}
+
+	return 0;
+}
+
+
+int	finger_motion_in_window(int win_id, Uint32 timestamp, float center_x, float center_y, float dx, float dy)
+{
+	window_info *win;
+	int	mx, my;
+	int x,y;
+	int	ret_val=0;
+	int scroll_pos = 0;
+	int flags=0;
+	widget_list *W;
+
+
+	x=center_x*window_width;
+	y=center_y*window_height;
+
+	if(win_id < 0 || win_id >= windows_list.num_windows)	return -1;
+	if(windows_list.window[win_id].window_id != win_id)	return -1;
+	win = &windows_list.window[win_id];
+	W = win->widgetlist;
+
+	//SDL_Log("multi_gesture_in_window: %f",rotation);
+	if (mouse_in_window (win_id, x, y) > 0)
+	{
+		mx = x - win->cur_x;
+		my = y - win->cur_y;
+
+		//SDL_Log("multi after if");
+
+		if(win->flags&ELW_SCROLLABLE)
+			{
+				/* Adjust mouse y coordinates according to the scrollbar position */
+				scroll_pos = vscrollbar_get_pos(win->window_id, win->scroll_id);
+				my += scroll_pos;
+			}
+
+		// check the widgets
+		glPushMatrix();
+		glTranslatef((float)win->cur_x, (float)win->cur_y-scroll_pos, 0.0f);
+		while(W != NULL)
+		{
+			if(!(W->Flags&WIDGET_DISABLED) && !(W->Flags&WIDGET_CLICK_TRANSPARENT) &&  !(W->Flags&WIDGET_INVISIBLE) && mx > W->pos_x && mx <= W->pos_x + W->len_x && my > W->pos_y && my <= W->pos_y + W->len_y)
+			{
+				if(dx<-0.003)flags|=ELW_WHEEL_DOWN;
+				else
+				if(dx>0.003)flags|=ELW_WHEEL_UP;
+
+				SDL_Log("finger motion at widget dx: %f dy: %f",dx,dy);
+
+				if(flags && widget_handle_click (W, mx - W->pos_x, my - W->pos_y, flags))
+				{
+					// widget handled it
+					glPopMatrix ();
+					return 1;
+				}
+				else
+				if(!flags)
+					{
+						glPopMatrix();
+						return 1;//we sort of handled it, but not really
+					}
+			}
+			W = W->next;
+		}
+		glPopMatrix();
+
+		if(win->flags&ELW_SCROLLABLE)
+		{
+			if(dy<-0.005)vscrollbar_scroll_down_amount(win->window_id, win->scroll_id,dy*-1200);
+			else
+			if(dy>0.005)vscrollbar_scroll_up_amount(win->window_id, win->scroll_id,dy*1200);
+		}
+
+
+		// use the handler if present
+		if(win->finger_motion_handler)
+		{
+			glPushMatrix();
+			glTranslatef ((float)win->cur_x, (float)win->cur_y-scroll_pos, 0.0f);
+			ret_val = (*win->finger_motion_handler)(win, timestamp, center_x,center_y,dx,dy);
+			glPopMatrix();
+
+		}
+
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
+
+		return 1;
+	}
+
+	return 0;
+}
+#endif
+
 int	click_in_window(int win_id, int x, int y, Uint32 flags)
 {
 	window_info *win;
@@ -1738,6 +2219,10 @@ int	keypress_in_window(int win_id, int x, int y, SDL_Keycode key_code, Uint32 ke
 	int	mx, my;
 	int scroll_pos = 0;
    	widget_list *W;
+#ifdef ANDROID
+   	widget_list *last_keyboard_widget;
+	int input_widgets_no = 0;
+#endif
 
 	if(win_id < 0 || win_id >= windows_list.num_windows
 	|| windows_list.window[win_id].window_id != win_id) {
@@ -1745,6 +2230,39 @@ int	keypress_in_window(int win_id, int x, int y, SDL_Keycode key_code, Uint32 ke
 	}
 	win = &windows_list.window[win_id];
 	W = win->widgetlist;
+
+#ifdef ANDROID
+	// only onekeyboard widget?
+	if (!win->keypress_handler)
+	{
+		while (W != NULL)
+		{
+			if(!(W->Flags&WIDGET_DISABLED))
+			{
+
+				if(W->OnKey)
+				{
+					input_widgets_no++;
+					last_keyboard_widget=W;
+				}
+			}
+			W = W->next;
+		}
+	}
+
+	if (input_widgets_no == 1)
+	{
+		widget_handle_keypress (last_keyboard_widget, mx - W->pos_x, my - W->pos_y, key_code, key_unicode, key_mod);
+		//SDL_Log("Keypress in window, only widget: %c %s",unikey,win->window_name);
+		return 1;
+	}
+
+	if (win->keypress_handler)
+	{
+		//SDL_Log("Keypress in window, only widget: %i %i %s",unikey,key,win->window_name);
+		return (*win->keypress_handler) (win, mx, my, key_code, key_unicode, key_mod);
+	}
+#endif
 
 	if (mouse_in_window (win_id, x, y) > 0)
 	{
@@ -1873,6 +2391,17 @@ void	*set_window_handler(int win_id, int handler_id, int (*handler)() )
 			old_handler= (void *)windows_list.window[win_id].ui_scale_handler;
 			windows_list.window[win_id].ui_scale_handler=handler;
 			break;
+#ifdef ANDROID
+		case	ELW_HANDLER_MULTI_GESTURE:
+			old_handler= (void *)windows_list.window[win_id].multi_gesture_handler;
+			windows_list.window[win_id].multi_gesture_handler=handler;
+			break;
+
+		case	ELW_HANDLER_FINGER_MOTION:
+			old_handler= (void *)windows_list.window[win_id].finger_motion_handler;
+			windows_list.window[win_id].finger_motion_handler=handler;
+			break;
+#endif
 		default:
 			old_handler=NULL;
 	}

@@ -42,6 +42,11 @@ int cur_e3d_count;
 int e3d_count, e3d_total;
 #endif  //DEBUG
 
+#ifdef ANDROID
+int highlight_3d_object=-1;
+int highlight_3d_object_timestamp;
+#endif
+
 static int next_obj_3d = 0;
 
 #ifdef FASTER_MAP_LOAD
@@ -267,6 +272,10 @@ void draw_3d_objects(unsigned int object_type)
 	cur_e3d_count= 0;
 #endif  //DEBUG
 
+#ifdef ANDROID
+	if(highlight_3d_object_timestamp+1000<SDL_GetTicks())highlight_3d_object=-1;
+#endif
+
 	get_intersect_start_stop(main_bbox_tree, object_type, &start, &stop);
 	// nothing to draw?
 	if(start >= stop){
@@ -338,12 +347,29 @@ void draw_3d_objects(unsigned int object_type)
 		if(objects_list[l]->e3d_data->materials && (10000*objects_list[l]->e3d_data->materials[get_3dobject_material(j)].max_size)/(dist) < ((is_transparent)?15:10)) continue;
 #endif  //SIMPLE_LOD
 
+#ifdef ANDROID
+		if(l==highlight_3d_object)
+		{
+			glEnable(GL_BLEND);
+			glBlendFunc(GL_ONE, GL_SRC_ALPHA);
+
+			glColor4f(1.0f,1.0f,0.1f,0.75f);
+			draw_3d_object_detail(objects_list[l], get_3dobject_material(j), 1, 1, 1);
+			glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+			glDisable(GL_BLEND);
+		}
+		else
+#endif
 		draw_3d_object_detail(objects_list[l], get_3dobject_material(j), 1, 1, 1);
 
 #ifdef MAP_EDITOR2
 		if ((selected_3d_object == -1) && read_mouse_now && (get_cur_intersect_type(main_bbox_tree) == INTERSECTION_TYPE_DEFAULT))
 #else
+#ifdef ANDROID
+		if ((get_cur_intersect_type(main_bbox_tree) == INTERSECTION_TYPE_DEFAULT))
+#else
 		if (read_mouse_now && (get_cur_intersect_type(main_bbox_tree) == INTERSECTION_TYPE_DEFAULT))
+#endif
 #endif
 		{
 			anything_under_the_mouse(objects_list[l]->id, UNDER_MOUSE_3D_OBJ);

@@ -9,6 +9,9 @@
 #include <errno.h>
 #include <ctype.h>
 #include <time.h>
+#ifdef ANDROID
+#include <gl4eshint.h>
+#endif
 #include "astrology.h"
 #include "init.h"
 #include "2d_objects.h"
@@ -36,10 +39,14 @@
 #include "hud.h"
 #include "hud_statsbar_window.h"
 #include "hud_quickbar_window.h"
+#ifndef ANDROID
 #include "hud_indicators.h"
 #include "hud_timer.h"
+#endif
 #include "items.h"
+#ifndef ANDROID
 #include "item_lists.h"
+#endif
 #include "keys.h"
 #include "knowledge.h"
 #include "langselwin.h"
@@ -81,7 +88,9 @@
 #include "mines.h"
 #include "popup.h"
 #include "text_aliases.h"
+#ifndef ANDROID
 #include "user_menus.h"
+#endif
 #include "emotes.h"
 #include "image_loading.h"
 #include "main.h"
@@ -295,7 +304,9 @@ static void read_bin_cfg(void)
 	rz=cfg_mem.camera_z;
 	new_zoom_level=zoom_level=cfg_mem.zoom_level;
 
+#ifndef ANDROID
 	item_lists_set_active(cfg_mem.active_item_list);
+#endif
 
 	view_health_bar=cfg_mem.banner_settings & 1;
 	view_ether_bar=(cfg_mem.banner_settings >> 1) & 1;
@@ -334,20 +345,28 @@ static void read_bin_cfg(void)
 	sort_storage_categories = (cfg_mem.misc_bool_options >> 14) & 1;
 	disable_manuwin_keypress = (cfg_mem.misc_bool_options >> 15) & 1;
 	always_show_astro_details = (cfg_mem.misc_bool_options >> 16) & 1;
+#ifndef ANDROID
 	items_list_on_left = (cfg_mem.misc_bool_options >> 17) & 1;
+#endif
 	items_mod_click_any_cursor = (cfg_mem.misc_bool_options >> 18) & 1;
 	disable_storage_filter = (cfg_mem.misc_bool_options >> 19) & 1;
+#ifndef ANDROID
 	hud_timer_keep_state = (cfg_mem.misc_bool_options >> 20) & 1;
 	items_list_disable_find_list = (cfg_mem.misc_bool_options >> 21) & 1;
+#endif
 	lock_skills_selection = (cfg_mem.misc_bool_options >> 22) & 1;
 
+#ifndef ANDROID
 	set_options_user_menus(cfg_mem.user_menu_win_x, cfg_mem.user_menu_win_y, cfg_mem.user_menu_options);
+#endif
 
 	floating_counter_flags = cfg_mem.floating_counter_flags;
 
 	set_options_questlog(cfg_mem.questlog_flags);
 
+#ifndef ANDROID
 	set_settings_hud_indicators(cfg_mem.hud_indicators_options, cfg_mem.hud_indicators_position);
+#endif
 
 	if (have_additions)
 		set_quickspell_options(cfg_mem.quickspell_win_options, cfg_mem.quickspell_win_position);
@@ -516,7 +535,9 @@ void save_bin_cfg(void)
 	cfg_mem.banner_settings |= view_hp << 3;
 	cfg_mem.banner_settings |= view_ether << 4;
 
+#ifndef ANDROID
 	cfg_mem.active_item_list = item_lists_get_active();
+#endif
 
 	cfg_mem.quantity_selected=(quantities.selected<ITEM_EDIT_QUANT)?quantities.selected :0;
 
@@ -560,20 +581,28 @@ void save_bin_cfg(void)
 	cfg_mem.misc_bool_options |= sort_storage_categories << 14;
 	cfg_mem.misc_bool_options |= disable_manuwin_keypress << 15;
 	cfg_mem.misc_bool_options |= always_show_astro_details << 16;
+#ifndef ANDROID
 	cfg_mem.misc_bool_options |= items_list_on_left << 17;
+#endif
 	cfg_mem.misc_bool_options |= items_mod_click_any_cursor << 18;
 	cfg_mem.misc_bool_options |= disable_storage_filter << 19;
+#ifndef ANDROID
 	cfg_mem.misc_bool_options |= hud_timer_keep_state << 20;
 	cfg_mem.misc_bool_options |= items_list_disable_find_list << 21;
+#endif
 	cfg_mem.misc_bool_options |= lock_skills_selection << 22;
 
+#ifndef ANDROID
 	get_options_user_menus(&cfg_mem.user_menu_win_x, &cfg_mem.user_menu_win_y, &cfg_mem.user_menu_options);
+#endif
 
 	cfg_mem.floating_counter_flags = floating_counter_flags;
 
 	cfg_mem.questlog_flags = get_options_questlog();
 
+#ifndef ANDROID
 	get_settings_hud_indicators(&cfg_mem.hud_indicators_options, &cfg_mem.hud_indicators_position);
+#endif
 
 	get_quickspell_options(&cfg_mem.quickspell_win_options, &cfg_mem.quickspell_win_position);
 
@@ -604,16 +633,26 @@ void init_stuff(void)
 	int i;
 	char config_location[300];
 	const char * cfgdir;
+#ifdef ANDROID
+
+	strcpy(datadir,SDL_AndroidGetInternalStoragePath());
+	strcat(datadir,"/");
+	chdir(datadir);
+#else
 
 	if (chdir(datadir) != 0)
 	{
 		LOG_ERROR("%s() chdir(\"%s\") failed: %s\n", __FUNCTION__, datadir, strerror(errno));
 	}
+#endif
 
 	last_save_time = time(NULL);
 
+#ifndef ANDROID
+	// ANDROID_TODO restore these?
 	init_crc_tables();
 	init_zip_archives();
+#endif
 
 	// initialize the text buffers - needed early for logging
 	init_text_buffers ();
@@ -627,6 +666,15 @@ void init_stuff(void)
 
 	// Read the config file
 	read_config();
+#ifdef ANDROID
+	// ANDROID_TODO fix repeated setting of this path
+	strcpy(datadir,SDL_AndroidGetInternalStoragePath());//issue with cfg
+	strcat(datadir,"/");
+
+	// ANDROID TODO does this belong elsewhere?
+	if (textures_32bpp)
+		glHint(GL_NODOWNSAMPLING_HINT_GL4ES, 1);
+#endif
 
 	// Parse command line options
 	read_command_line();
@@ -730,10 +778,13 @@ void init_stuff(void)
 	load_entrable_list();
 	load_knowledge_list();
 	load_mines_config();
+#ifndef ANDROID
+	// ANDROID_TODO do we need thse if we have a mouse?
 	update_loading_win(load_cursors_str, 5);
 	load_cursors();
 	build_cursors();
 	change_cursor(CURSOR_ARROW);
+#endif
 	update_loading_win(bld_glow_str, 3);
 	build_glow_color_table();
 
@@ -849,6 +900,7 @@ void init_stuff(void)
 	olc_finish_init();
 #endif	//OLC
 
+#ifndef ANDROID
 	if(auto_update){
 		init_update();
 	}
@@ -859,6 +911,7 @@ void init_stuff(void)
 		start_custom_update();
 	}
 #endif  //CUSTOM_UPDATE
+#endif
 
 	have_rules=read_rules();
 	if(!have_rules){
@@ -912,6 +965,12 @@ void init_stuff(void)
 	else
 		turn_sound_off();
 #endif // NEW_SOUND
+#ifdef ANDROID
+
+	// ANDROID_TODO can we have these back?
+	has_accepted = 1;
+	have_saved_langsel = 1;
+#endif
 
 	// display something
 	destroy_loading_win();

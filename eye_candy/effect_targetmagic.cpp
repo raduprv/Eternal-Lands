@@ -398,7 +398,7 @@ namespace ec
 						break;
 				}
 
-				const float sqrt_LOD= std::sqrt(LOD);
+				const float sqrt_LOD= std::sqrt((double)LOD);
 				const coord_t size_scalar = 15 / (LOD + 5);
 				for (int i = 0; i < LOD * 100; i++)
 				{
@@ -784,7 +784,7 @@ namespace ec
 			case TargetMagicEffect::TELEPORT_TO_RANGE:
 			{
 				center = *(effect->targets[0]);
-				const float sqrt_LOD= std::sqrt(LOD);
+				const float sqrt_LOD= std::sqrt((double)LOD);
 				const coord_t size_scalar = 15 / (LOD + 5);
 				for (int i = 0; i < LOD * 3; i++)
 				{

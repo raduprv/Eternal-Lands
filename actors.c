@@ -32,6 +32,9 @@
 #ifdef	FSAA
 #include "fsaa/fsaa.h"
 #endif	/* FSAA */
+#ifdef ANDROID
+#include "android_glu.h"
+#endif
 
 #ifdef ELC
 #define DRAW_ORTHO_INGAME_NORMAL(x, y, z, our_string, max_lines)	draw_ortho_ingame_string(x, y, z, (const Uint8*)our_string, max_lines, INGAME_FONT_X_LEN*10.0, INGAME_FONT_Y_LEN*10.0)
@@ -480,7 +483,19 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 	glGetDoublev(GL_PROJECTION_MATRIX, proj);
 	glGetIntegerv(GL_VIEWPORT, view);
 	// Input adjusted healthbar_y value to scale hy according to actor scale
+
+#ifndef ANDROID
 	gluProject(healthbar_x, healthbar_y, healthbar_z * actor_id->scale * actors_defs[actor_id->actor_type].actor_scale + 0.02, model, proj, view, &hx, &hy, &hz);
+#else
+	float temp_array[3];
+	temp_array[0]=hx;
+	temp_array[1]=hy;
+	temp_array[2]=hz;
+	glhProject(healthbar_x, healthbar_y, healthbar_z * actor_id->scale * actors_defs[actor_id->actor_type].actor_scale + 0.02, model, proj, view, temp_array);
+	hx=temp_array[0];
+	hy=temp_array[1];
+	hz=temp_array[2];
+#endif
 
 	//Save World-view and Projection matrices to allow precise raster placement of quads
 	glPushMatrix();
@@ -1166,7 +1181,11 @@ void get_actors_in_range()
 
 				actors_list[i]->max_z = actors_list[i]->bbox.bbmax[Z];
 
+#ifdef ANDROID
+				if ((get_cur_intersect_type(main_bbox_tree) == INTERSECTION_TYPE_DEFAULT))
+#else
 				if (read_mouse_now && (get_cur_intersect_type(main_bbox_tree) == INTERSECTION_TYPE_DEFAULT))
+#endif
 				{
 					near_actors[no_near_actors].select = 1;
 				}

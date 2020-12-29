@@ -235,7 +235,11 @@ int display_knowledge_handler(window_info *win)
 	draw_string_small_zoomed(text_border,progress_top_y+3+gy_adjust,(unsigned char*)researching_str,1, win->current_scale);
 	draw_string_small_zoomed(text_border+(strlen(researching_str)+1)*win->small_font_len_x,progress_top_y+3+gy_adjust,(unsigned char*)research_string,1, win->current_scale);
 	draw_string_small_zoomed(progress_left_x+points_pos+gx_adjust,progress_top_y+3+gy_adjust,(unsigned char*)points_string,1, win->current_scale);
+#ifndef ANDROID
 	if (is_researching && mouse_over_progress_bar)
+#else
+	if(is_researching)
+#endif
 	{
 		char eta_string[20];
 		int eta_pos;
@@ -492,7 +496,9 @@ void fill_knowledge_win (int window_id)
 {
 	set_window_handler(window_id, ELW_HANDLER_DISPLAY, &display_knowledge_handler );
 	set_window_handler(window_id, ELW_HANDLER_CLICK, &click_knowledge_handler );
+#ifndef ANDROID
 	set_window_handler(window_id, ELW_HANDLER_MOUSEOVER, &mouseover_knowledge_handler );
+#endif
 	set_window_handler(window_id, ELW_HANDLER_RESIZE, &resize_knowledge_handler );
 
 	knowledge_scroll_id = vscrollbar_add_extended (window_id, knowledge_scroll_id, NULL, 0,  0, 0, 0, 0, 1.0, 0.77f, 0.57f, 0.39f, 0, 1, (knowledge_count+1)/2-displayed_book_rows);

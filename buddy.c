@@ -12,6 +12,9 @@
 #include "elconfig.h"
 #include "elwindows.h"
 #include "gamewin.h"
+#ifdef ANDROID
+#include "gl_init.h"
+#endif
 #include "hud.h"
 #include "icon_window.h"
 #include "init.h"
@@ -211,6 +214,29 @@ static int click_buddy_handler (window_info *win, int mx, int my, Uint32 flags)
 	}
 	return 1;
 }
+
+#ifdef ANDROID
+int finger_motion_buddy_handler(window_info *win, Uint32 timestamp, float fx, float fy, float dx, float dy)
+{
+	int x = window_width * fx-win->pos_x;
+	int y = window_height * fy-win->pos_y;
+
+	if (dx > 0)
+		return 0;
+
+	if (x > win->len_x-win->box_size)
+		return 0; // Clicked on the scrollbar. Let it fall through.
+
+	// clicked on a buddy's name
+	y /= win->small_font_len_y;
+	y += vscrollbar_get_pos(buddy_win,buddy_scroll_id);
+	if ((strlen(buddy_list[y].name) == 0) || (buddy_list[y].type > 0xFE))
+		return 0; // There's no name. Fall through.
+
+	display_buddy_change(&buddy_list[y]);
+	return 1;
+}
+#endif
 
 void init_buddy(void)
 {
@@ -656,6 +682,9 @@ static int display_accept_buddy(char *name)
 
 static int click_buddy_button_handler(widget_list *w, int mx, int my, Uint32 flags)
 {
+#ifdef ANDROID
+	SDL_StartTextInput();
+#endif
 	if(buddy_add_win < 0) {
 		buddy_add_win = display_buddy_add();
 	} else {
@@ -715,6 +744,9 @@ void display_buddy(void)
 			set_window_handler(buddy_win, ELW_HANDLER_DISPLAY, &display_buddy_handler );
 			set_window_handler(buddy_win, ELW_HANDLER_CLICK, &click_buddy_handler );
 			set_window_handler(buddy_win, ELW_HANDLER_UI_SCALE, &ui_scale_buddy_handler );
+#ifdef ANDROID
+			set_window_handler(buddy_win, ELW_HANDLER_FINGER_MOTION, (int (*)())&finger_motion_buddy_handler );
+#endif
 
 			buddy_scroll_id = vscrollbar_add_extended (buddy_win, buddy_scroll_id, NULL, 0, 0, 0, 0, 0, 1.0, 0.77f, 0.57f, 0.39f, 0, 1, 0);
 			buddy_button_id = button_add_extended(buddy_win, buddy_button_id, NULL, 0, 0, 0, 0, BUTTON_SQUARE, 1.0, 0.77f, 0.57f, 0.39f, buddy_add_str);

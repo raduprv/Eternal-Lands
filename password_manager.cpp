@@ -259,7 +259,12 @@ namespace Password_Manaager
 
 		widget_resize(win->window_id, scroll_id, win->box_size, height - win->box_size);
 		widget_move(win->window_id, scroll_id, width - win->box_size, win->box_size);
+#ifdef ANDROID
+// ANDROID_TODO fix in main client?
+		vscrollbar_set_bar_len(win->window_id, scroll_id, ((max_displayed > logins->size()) ?0: logins->size() - max_displayed));
+#else
 		vscrollbar_set_bar_len(win->window_id, scroll_id, ((logins->size() - max_displayed < 0) ?0: logins->size() - max_displayed));
+#endif
 
 		resize_window(window_id, width, height);
 		move_window(window_id, win->pos_id, win->pos_loc, window_width / 2 + ((window_width / 2 - width) / 2), (window_height - height) / 2);

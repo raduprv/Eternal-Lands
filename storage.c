@@ -13,12 +13,17 @@
 #include "init.h"
 #include "items.h"
 #include "item_info.h"
+#ifndef ANDROID
 #include "item_lists.h"
+#endif
 #include "misc.h"
 #include "multiplayer.h"
 #include "named_colours.h"
 #include "sound.h"
 #include "textures.h"
+#ifdef ANDROID
+#include "trade.h"
+#endif
 #include "translate.h"
 #include "widgets.h"
 #ifdef OPENGL_TRACE
@@ -26,7 +31,11 @@
 #endif
 
 #define STORAGE_CATEGORIES_SIZE 50
+#ifdef ANDROID
+#define STORAGE_CATEGORIES_DISPLAY 10
+#else
 #define STORAGE_CATEGORIES_DISPLAY 13
+#endif
 #define STORAGE_SCROLLBAR_CATEGORIES 1200
 #define STORAGE_SCROLLBAR_ITEMS 1201
 
@@ -93,7 +102,9 @@ static void select_item(int image_id, Uint16 item_id)
 	if (found_at < 0)
 	{
 		do_alert1_sound();
+#ifndef ANDROID
 		item_lists_reset_pickup_fail_time();
+#endif
 	}
 	else
 	{
@@ -124,9 +135,11 @@ static int find_category(int id);
 //
 static void category_updated(void)
 {
+#ifndef ANDROID
 	int i;
 	for (i=0; i<no_storage; i++)
 		update_category_maps(storage_items[i].image_id, storage_items[i].id, storage_categories[selected_category].id);
+#endif
 	if (selected_category == wanted_category)
 	{
 		select_item(wanted_image_id, wanted_item_id);
@@ -144,7 +157,9 @@ void pickup_storage_item(int image_id, Uint16 item_id, int cat_id)
 	if ((storage_win<0) || (find_category(cat_id) == -1))
 	{
 		do_alert1_sound();
+#ifndef ANDROID
 		item_lists_reset_pickup_fail_time();
+#endif
 		return;
 	}
 	wanted_category = find_category(cat_id);
@@ -424,7 +439,11 @@ static int ui_scale_storage_handler(window_info *win)
 	item_right_offset = (int)(0.5 + item_grid_left_offset + item_grid_size * item_box_size);
 
 	desc_box_top_offset = (int)(0.5 + 2 * border_size + item_grid_size * item_box_size);
+#ifdef ANDROID
+	desc_box_botton_offset = desc_box_top_offset;
+#else
 	desc_box_botton_offset = (int)(0.5 + desc_box_top_offset + 2 * border_size + 2 * win->small_font_len_y);
+#endif
 	desc_string_left_offset = (int)(0.5 + 2 * border_size);
 	desc_string_top_offset = (int)(0.5 + desc_box_top_offset + border_size);
 
@@ -580,12 +599,14 @@ int display_storage_handler(window_info * win)
 		glVertex2i(cat_right_offset, border_size);
 	glEnd();
 
+#ifndef ANDROID
 	glBegin(GL_LINE_LOOP);
 		glVertex2i(border_size, desc_box_top_offset);
 		glVertex2i(border_size, desc_box_botton_offset);
 		glVertex2i(desc_box_right_offset, desc_box_botton_offset);
 		glVertex2i(desc_box_right_offset, desc_box_top_offset);
 	glEnd();
+#endif
 	
 	if (view_only_storage)
 	{
@@ -602,6 +623,7 @@ int display_storage_handler(window_info * win)
 	glEnable(GL_TEXTURE_2D);
 
 	glColor3f(1.0f,1.0f,1.0f);
+#ifndef ANDROID
 	if (!disable_storage_filter && !mouse_over_titlebar)
 	{
 		if(filter_item_text_size > 0)
@@ -613,6 +635,7 @@ int display_storage_handler(window_info * win)
 		else if (show_help_text && mouse_over_storage)
 			show_help(storage_filter_help_str, 0, win->len_y + 10 + (help_text_line++) * win->small_font_len_y, win->current_scale);
 	}
+#endif
 
 	mouse_over_storage = mouse_over_titlebar = 0;
 
@@ -623,6 +646,7 @@ CHECK_GL_ERRORS();
 	return 1;
 }
 
+#ifndef ANDROID
 int click_storage_handler(window_info * win, int mx, int my, Uint32 flags)
 {
 	if(flags&ELW_WHEEL_UP) {
@@ -690,6 +714,69 @@ int click_storage_handler(window_info * win, int mx, int my, Uint32 flags)
 
 	return 1;
 }
+
+#else
+// Android/touch version
+#define ITEM_BANK 2
+int click_storage_handler(window_info * win, int mx, int my, Uint32 flags)
+{
+	if((my > cat_string_top_offset) && (my < (cat_string_top_offset + STORAGE_CATEGORIES_DISPLAY * cat_name_seperation)))
+	{
+		if(mx>border_size && mx<cat_right_offset){
+			int cat=-1;
+			cat=(my - cat_string_left_offset) / cat_name_seperation + vscrollbar_get_pos(storage_win, STORAGE_SCROLLBAR_CATEGORIES);
+			move_to_category(cat);
+			do_click_sound();
+			return 1;
+		}
+	}
+
+	if ((my > border_size) && (my<bottom_offset) && (mx > item_grid_left_offset) && (mx < item_right_offset))
+	{
+		int item_quantity=quantities.quantity[quantities.selected].val;
+		Uint8 str[10];
+
+		cur_item_over = get_mouse_pos_in_grid(mx, my, item_grid_size, item_grid_size, item_grid_left_offset, border_size, item_box_size, item_box_size)+vscrollbar_get_pos(storage_win, STORAGE_SCROLLBAR_ITEMS)*item_grid_size;
+
+		if(cur_item_over>=no_storage||cur_item_over<0||storage_items[cur_item_over].quantity<1)
+				return 1;
+
+		if(item_action_mode==ACTION_LOOK)
+		{
+			str[0]=LOOK_AT_STORAGE_ITEM;
+			*((Uint16*)(str+1))=SDL_SwapLE16(storage_items[cur_item_over].pos);
+
+			my_tcp_send(my_socket, str, 3);
+
+			active_storage_item=storage_items[cur_item_over].pos;
+			do_click_sound();
+			return 1;
+		}
+
+		if (get_show_window(trade_win))
+		{
+			//if(!item_list[pos].quantity)return 1;//no item here...
+			str[0]=PUT_OBJECT_ON_TRADE;
+			str[1]=ITEM_BANK;
+			str[2]=storage_items[cur_item_over].pos;
+			*((Uint32 *)(str+3))= SDL_SwapLE32(item_quantity);
+			my_tcp_send(my_socket,str,7);
+			do_drop_item_sound();
+
+			return 1;
+		}
+
+		//to do: check if trade window is open
+		str[0]=WITHDRAW_ITEM;
+		*((Uint16*)(str+1))=SDL_SwapLE16(storage_items[cur_item_over].pos);
+		*((Uint32*)(str+3))=SDL_SwapLE32(item_quantity);
+		my_tcp_send(my_socket, str, 6);
+		do_drop_item_sound();
+	}
+
+	return 1;
+}
+#endif
 
 int mouseover_storage_handler(window_info *win, int mx, int my)
 {
@@ -822,8 +909,10 @@ void display_storage_menu()
 		set_window_handler(storage_win, ELW_HANDLER_DISPLAY, &display_storage_handler);
 		set_window_handler(storage_win, ELW_HANDLER_POST_DISPLAY, &post_display_storage_handler);
 		set_window_handler(storage_win, ELW_HANDLER_CLICK, &click_storage_handler);
+#ifndef ANDROID
 		set_window_handler(storage_win, ELW_HANDLER_MOUSEOVER, &mouseover_storage_handler);
 		set_window_handler(storage_win, ELW_HANDLER_KEYPRESS, (int (*)())&keypress_storage_handler );
+#endif
 		set_window_handler(storage_win, ELW_HANDLER_UI_SCALE, &ui_scale_storage_handler );
 
 		cat_scrollbar_id = vscrollbar_add_extended(storage_win, STORAGE_SCROLLBAR_CATEGORIES, NULL, 0, 0, 0, 0, 0, 1.0, 0.77f, 0.57f, 0.39f, 0, 1, 

@@ -127,6 +127,9 @@ static int spell_border = 0;
 static int spell_text_y = 0;
 static int spell_engred_y = 0;
 static int cast2_button_id = 102;
+#ifdef ANDROID
+static int clear_quickbar_button_id = 103;
+#endif
 //sigil window
 static int sigil_grid_size = 0;
 static int sigil_border = 0;
@@ -1312,6 +1315,7 @@ static int click_spells_handler(window_info *win, int mx, int my, Uint32 flags){
 		//check spell icon
 		if(we_have_spell >= 0 && mx > spell_border && mx < spell_border + spell_grid_size &&
 				my > spell_engred_y && my < spell_engred_y + spell_grid_size) {
+#ifndef ANDROID
 			if(flags & ELW_LEFT_MOUSE) {
 				//cast spell
 				if (put_on_cast()) cast_handler();
@@ -1322,6 +1326,14 @@ static int click_spells_handler(window_info *win, int mx, int my, Uint32 flags){
 					add_quickspell();
 				}
 			}
+#else
+			if (put_on_cast())
+			{
+				prepare_for_cast();
+				add_quickspell();
+			}
+
+#endif
 		} else click_switcher_handler(win,mx,my,flags);
 	}
 	last_clicked = SDL_GetTicks();	
@@ -1831,6 +1843,9 @@ static int ui_scale_spells_handler(window_info *win)
 	int y;
 	int gy = 0;
 	widget_list *w_cast = NULL;
+#ifdef ANDROID
+	widget_list *w_clear = NULL;
+#endif
 
 	spell_grid_size = (int)(0.5 + win->current_scale * 33);
 	spell_border = (int)(0.5 + win->current_scale * 10);
@@ -1865,6 +1880,12 @@ static int ui_scale_spells_handler(window_info *win)
 	w_cast = widget_find(spell_win, cast2_button_id);
 	button_resize(win->window_id, cast2_button_id, 0, 0, win->current_scale);
 	widget_move(win->window_id, cast2_button_id, len_x - spell_border - w_cast->len_x, len_y - w_cast->len_y - spell_border);
+
+#ifdef ANDROID
+	w_clear = widget_find(spell_win, clear_quickbar_button_id);
+	button_resize(win->window_id, clear_quickbar_button_id, 0, 0, win->current_scale);
+	widget_move(win->window_id, clear_quickbar_button_id, len_x - spell_border - w_clear->len_x, spell_text_y + spell_border);
+#endif
 
 	resize_window(win->window_id, len_x, len_y);
 	return 1;
@@ -1948,7 +1969,9 @@ void display_sigils_menu()
 
 		set_window_handler(sigils_win, ELW_HANDLER_DISPLAY, &display_sigils_handler );
 		set_window_handler(sigils_win, ELW_HANDLER_CLICK, &click_sigils_handler );
+#ifndef ANDROID
 		set_window_handler(sigils_win, ELW_HANDLER_MOUSEOVER, &mouseover_sigils_handler );
+#endif
 		set_window_handler(sigils_win, ELW_HANDLER_UI_SCALE, &ui_scale_sigils_handler );
 
 		cast_button_id=button_add_extended(sigils_win, cast_button_id, NULL, 0, 0, 0, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, cast_str);
@@ -1979,6 +2002,11 @@ void display_sigils_menu()
 
 		cast2_button_id=button_add_extended(spell_win, cast2_button_id, NULL, 0, 0, 0, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, cast_str);
 		widget_set_OnClick(spell_win, cast2_button_id, cast_handler);
+
+#ifdef ANDROID
+		clear_quickbar_button_id=button_add_extended(spell_win, clear_quickbar_button_id, NULL, 0, 0, 0, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, "Clear Quickbar");
+		widget_set_OnClick(spell_win, clear_quickbar_button_id, remove_all_quickspells);
+#endif
 
 		if (spell_win >= 0 && spell_win < windows_list.num_windows)
 			ui_scale_spells_handler(&windows_list.window[spell_win]);

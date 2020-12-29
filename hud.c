@@ -33,7 +33,9 @@
 #include "tabs.h"
 #include "textures.h"
 #include "trade.h"
+#ifndef ANDROID
 #include "user_menus.h"
+#endif
 #include "url.h"
 
 
@@ -52,7 +54,9 @@ static hud_interface last_interface = HUD_INTERFACE_NEW_CHAR; //Current interfac
 /* called on client exit to free resources */
 void cleanup_hud(void)
 {
+#ifndef ANDROID
 	destroy_hud_indicators();
+#endif
 	destroy_icon_window();
 	destroy_window(misc_win);
 	destroy_window(stats_bar_win);
@@ -80,6 +84,10 @@ int show_exp(char *text, int len)
 // initialize anything related to the hud
 void init_hud_interface (hud_interface type)
 {
+#ifdef ANDROID
+	set_icon_spacing(8);
+#endif
+
 	if (type == HUD_INTERFACE_LAST)
 		type = last_interface;
 
@@ -102,10 +110,12 @@ void init_hud_interface (hud_interface type)
 		init_misc_display ();
 		init_quickbar ();
 		init_quickspell ();
+#ifndef ANDROID
 		init_hud_indicators (); 
 		ready_for_user_menus = 1;
 		if (enable_user_menus)
 			display_user_menus();
+#endif
 		if ((minimap_win < 0) && open_minimap_on_start)
 			view_window (&minimap_win, 0);
 	}
@@ -117,7 +127,9 @@ void show_moveable_hud_windows(void)
 {
 	if (quickbar_win >= 0) show_window (quickbar_win);
 	if (quickspell_win >= 0) show_window (quickspell_win);
+#ifndef ANDROID
 	show_hud_indicators_window();
+#endif
 }
 
 void show_hud_windows (void)
@@ -135,7 +147,9 @@ void hide_hud_windows (void)
 	if (misc_win >= 0) hide_window (misc_win);
 	if (quickbar_win >= 0) hide_window (quickbar_win);
 	if (quickspell_win >= 0) hide_window (quickspell_win);
+#ifndef ANDROID
 	hide_hud_indicators_window();
+#endif
 }
 
 void hide_moved_hud_windows(void)

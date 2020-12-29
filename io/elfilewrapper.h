@@ -17,6 +17,10 @@ typedef struct el_file_t el_file_t;
 
 typedef el_file_t* el_file_ptr;
 
+#ifdef ANDROID
+Uint32 do_file_exists(const char* file_name, const char* path, const Uint32 size, char* buffer);
+#endif
+
 /*!
  * \brief Inits the zip archive system.
  *
