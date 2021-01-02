@@ -39,8 +39,8 @@
 #include "hud.h"
 #include "hud_statsbar_window.h"
 #include "hud_quickbar_window.h"
-#ifndef ANDROID
 #include "hud_indicators.h"
+#ifndef ANDROID
 #include "hud_timer.h"
 #endif
 #include "items.h"

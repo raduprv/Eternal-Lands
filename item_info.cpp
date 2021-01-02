@@ -29,6 +29,9 @@
 #include "client_serv.h"
 #include "init.h"
 #include "items.h"
+#ifdef ANDROID
+#include "io/elfilewrapper.h"
+#endif
 #include "io/elpathwrapper.h"
 #include "text.h"
 #include "url.h"
@@ -231,6 +234,10 @@ namespace Item_Info
 		in.open(fname.c_str());
 		if (!in)
 		{
+#ifdef ANDROID
+			char tmp_str[256];
+			do_file_exists(item_info_filename.c_str(), datadir, sizeof(tmp_str), tmp_str);
+#endif
 			fname = std::string(datadir) + item_info_filename;
 			in.clear();
 			in.open(fname.c_str());

@@ -11,6 +11,9 @@
 #include "gamewin.h"
 #include "gl_init.h"
 #include "interface.h"
+#ifdef ANDROID
+#include "items.h"
+#endif
 #include "sound.h"
 
 //
@@ -314,7 +317,7 @@ namespace cm
 	// do the pre show checks and return the activation state, e.g. if mouse right-clicked
 	int Container::pre_show_check(Uint32 flags)
 	{
-		int cm_to_activate = flags & ELW_RIGHT_MOUSE;
+		int cm_to_activate = (flags & ELW_RIGHT_MOUSE) || (item_action_mode == ACTION_LOOK);
 		if (cm_to_activate && ((flags & KMOD_SHIFT) || (flags & KMOD_ALT) || (flags & KMOD_CTRL)))
 			cm_to_activate = 0;  // exclude right clicks with modifier keys pressed
 		menu_opened = false;

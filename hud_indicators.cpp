@@ -399,7 +399,7 @@ namespace Indicators
 		if (show)
 		{
 			if (indicators_win < 0)
-				init();
+				SDL_Log("not calling init()"); //init();
 			else
 				show_window(indicators_win);
 		}

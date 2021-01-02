@@ -2429,12 +2429,12 @@ void	*set_window_handler(int win_id, int handler_id, int (*handler)() )
 #ifdef ANDROID
 		case	ELW_HANDLER_MULTI_GESTURE:
 			old_handler= (void *)windows_list.window[win_id].multi_gesture_handler;
-			windows_list.window[win_id].multi_gesture_handler=handler;
+			windows_list.window[win_id].multi_gesture_handler=(int (*)(void *, unsigned in, float, float, float, float))handler;
 			break;
 
 		case	ELW_HANDLER_FINGER_MOTION:
 			old_handler= (void *)windows_list.window[win_id].finger_motion_handler;
-			windows_list.window[win_id].finger_motion_handler=handler;
+			windows_list.window[win_id].finger_motion_handler=(int (*)(void *, unsigned in, float, float, float, float))handler;
 			break;
 #endif
 		default:

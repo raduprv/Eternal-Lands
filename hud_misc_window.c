@@ -11,9 +11,7 @@
 #include "gamewin.h"
 #include "gl_init.h"
 #include "hud.h"
-#ifndef ANDROID
 #include "hud_indicators.h"
-#endif
 #include "hud_misc_window.h"
 #include "hud_quickbar_window.h"
 #include "hud_quickspells_window.h"
@@ -658,9 +656,7 @@ void init_misc_display(void)
 			cm_bool_line(cm_hud_id, CMH_ANACLOCK, &view_analog_clock, "view_analog_clock");
 			cm_bool_line(cm_hud_id, CMH_SECONDS, &show_game_seconds, "show_game_seconds");
 			cm_bool_line(cm_hud_id, CMH_FPS, &show_fps, "show_fps");
-#ifndef ANDROID
 			cm_bool_line(cm_hud_id, CMH_INDICATORS, &show_hud_indicators, "show_indicators");
-#endif
 			cm_bool_line(cm_hud_id, CMH_MINIMAP, &cm_minimap_shown, NULL);
 			cm_bool_line(cm_hud_id, CMH_RANGSTATS, &cm_rangstats_shown, NULL);
 			cm_bool_line(cm_hud_id, CMH_QUICKBM, &cm_quickbar_enabled, NULL);
