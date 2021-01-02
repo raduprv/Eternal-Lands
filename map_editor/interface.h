@@ -29,6 +29,13 @@ extern "C"
 #define tool_select 2
 #define tool_clone 3
 
+#define MAX_TOOLTIP_SIZE 256
+#define TOOLTIP_MOUSE_X_SHIFT 10
+#define TOOLTIP_MOUSE_Y_SHIFT 10
+
+extern int show_toolbar_tooltip;
+extern char tooltip_text[MAX_TOOLTIP_SIZE];
+
 extern int mouse_x;
 extern int mouse_y;
 extern int mouse_delta_x;

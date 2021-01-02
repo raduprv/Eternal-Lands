@@ -294,6 +294,12 @@ void draw_toolbar()
 	draw_2d_thing((float)128/255, (float)32/255, (float)160/255, (float)64/255, 448,0,480,32);
 
 	glEnd();
+
+	if (show_toolbar_tooltip)
+	{
+		glColor3f(1.0f, 1.0f, 1.0f);
+		draw_string(mouse_x + TOOLTIP_MOUSE_X_SHIFT, mouse_y + TOOLTIP_MOUSE_Y_SHIFT, (const unsigned char *) tooltip_text, 1);
+	}
 }
 
 void draw_3d_obj_info()

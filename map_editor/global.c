@@ -98,6 +98,9 @@ int right_click;
 int left_click;
 int middle_click;
 
+int show_toolbar_tooltip = 1;
+char tooltip_text[MAX_TOOLTIP_SIZE];
+
 int icons_text;
 
 float scene_mouse_x;

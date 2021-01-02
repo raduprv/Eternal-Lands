@@ -517,20 +517,58 @@ int HandleEvent(SDL_Event *event)
 
 #endif
     if(event->type==SDL_MOUSEMOTION)
-				{
-					mouse_x= event->motion.x;
-					mouse_y= event->motion.y;
+	{
+		mouse_x= event->motion.x;
+		mouse_y= event->motion.y;
 
-					mouse_delta_x= event->motion.xrel;
-					mouse_delta_y= event->motion.yrel;
-				}
-			else
-				{
-					// why was this here? whats broken by removing it?
-					//mouse_x= event->button.x;
-					//mouse_y= event->button.y;
-					mouse_delta_x= mouse_delta_y= 0;
-				}
+		mouse_delta_x= event->motion.xrel;
+		mouse_delta_y= event->motion.yrel;
+
+		if(mouse_x<15*32 && mouse_y<32) {
+			show_toolbar_tooltip = 1;
+			if(mouse_x>=0 && mouse_x<=31)
+				snprintf((char *) tooltip_text, sizeof(tooltip_text), "Mode Tile");
+			if(mouse_x>=32 && mouse_x<=63)
+				snprintf((char *) tooltip_text, sizeof(tooltip_text), "Mode 2D");
+			if(mouse_x>=64 && mouse_x<=95)
+				snprintf((char *) tooltip_text, sizeof(tooltip_text), "Mode 3D");
+			if(mouse_x>=96 && mouse_x<=127)
+				snprintf((char *) tooltip_text, sizeof(tooltip_text), "Mode Particles");
+#ifdef	EYE_CANDY
+			if(mouse_x>=128 && mouse_x<=160)
+				snprintf((char *) tooltip_text, sizeof(tooltip_text), "Mode Eye Candy");
+#endif	//EYE_CANDY
+			if(mouse_x>=160 && mouse_x<=191)
+				snprintf((char *) tooltip_text, sizeof(tooltip_text), "Mode Light");
+			if(mouse_x>=192 && mouse_x<=223)
+				snprintf((char *) tooltip_text, sizeof(tooltip_text), "Mode Height");
+			if(mouse_x>=224 && mouse_x<=255)
+				snprintf((char *) tooltip_text, sizeof(tooltip_text), "Mode Map");
+			if(mouse_x>=256 && mouse_x<=287)
+				snprintf((char *) tooltip_text, sizeof(tooltip_text), "Select");
+			if(mouse_x>=288 && mouse_x<=319)
+				snprintf((char *) tooltip_text, sizeof(tooltip_text), "Clone");
+			if(mouse_x>=320 && mouse_x<=351)
+				snprintf((char *) tooltip_text, sizeof(tooltip_text), "New Object");
+			if(mouse_x>=352 && mouse_x<=383)
+				snprintf((char *) tooltip_text, sizeof(tooltip_text), "Kill");
+			if(mouse_x>=384 && mouse_x<=415)
+				snprintf((char *) tooltip_text, sizeof(tooltip_text), "Save Map");
+			if(mouse_x>=416 && mouse_x<=447)
+				snprintf((char *) tooltip_text, sizeof(tooltip_text), "Open Map");
+			if (mouse_x >= 448 && mouse_x <= 479)
+				snprintf((char *) tooltip_text, sizeof(tooltip_text), "New Map");
+		} else {
+			show_toolbar_tooltip = 0;
+		}
+	}
+	else
+	{
+		// why was this here? whats broken by removing it?
+		//mouse_x= event->button.x;
+		//mouse_y= event->button.y;
+		mouse_delta_x= mouse_delta_y= 0;
+	}
 
 
 	if(event->type==SDL_MOUSEMOTION || event->type==SDL_MOUSEBUTTONDOWN || event->type==SDL_MOUSEBUTTONUP)
