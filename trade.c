@@ -196,19 +196,19 @@ static int display_trade_handler(window_info *win)
 			if(storage_available && others_trade_list[i].type==ITEM_BANK){
 				str[0]='S';
 				str[1]=0;
-			if (i & 1)
-			{
-				y_text = y_end;
-				valign = BOTTOM_LINE;
-			}
-			else
-			{
-				y_text = y_start;
-				valign = TOP_LINE;
-			}
-			draw_text(x_end - win->small_font_max_len_x/2, y_text, (const unsigned char*)str, strlen(str), win->font_category,
-				TDO_SHADOW, 1, TDO_FOREGROUND, 1.0, 1.0, 1.0, TDO_BACKGROUND, 0.0, 0.0, 0.0,
-				TDO_ZOOM, win->current_scale_small, TDO_VERTICAL_ALIGNMENT, valign, TDO_ALIGNMENT, RIGHT, TDO_END);
+				if (i & 1)
+				{
+					y_text = y_end;
+					valign = BOTTOM_LINE;
+				}
+				else
+				{
+					y_text = y_start;
+					valign = TOP_LINE;
+				}
+				draw_text(x_end - win->small_font_max_len_x/2, y_text, (const unsigned char*)str, strlen(str), win->font_category,
+					TDO_SHADOW, 1, TDO_FOREGROUND, 1.0, 1.0, 1.0, TDO_BACKGROUND, 0.0, 0.0, 0.0,
+					TDO_ZOOM, win->current_scale_small, TDO_VERTICAL_ALIGNMENT, valign, TDO_ALIGNMENT, RIGHT, TDO_END);
 			}
 		}
 	}
