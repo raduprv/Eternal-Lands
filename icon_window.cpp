@@ -749,7 +749,9 @@ extern "C" void init_icon_window(icon_window_mode icon_mode)
 		icons_win= create_window("Icons", -1, 0, 0, 0, 0, 0, ELW_USE_UISCALE|ELW_TITLE_NONE|ELW_SHOW_LAST);
 		set_window_handler(icons_win, ELW_HANDLER_DISPLAY, (int (*)())&display_icons_handler);
 		set_window_handler(icons_win, ELW_HANDLER_CLICK, (int (*)())&click_icons_handler);
+#ifndef ANDROID
 		set_window_handler(icons_win, ELW_HANDLER_MOUSEOVER, (int (*)())&mouseover_icons_handler);
+#endif
 		set_window_handler(icons_win, ELW_HANDLER_UI_SCALE, (int (*)())&ui_scale_icons_handler);
 	}
 

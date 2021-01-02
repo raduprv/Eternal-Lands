@@ -1272,7 +1272,11 @@ void resize_all_root_windows (Uint32 w, Uint32 h)
 	if (langsel_rootwin >= 0) resize_window (langsel_rootwin, w, h);
 	if ((input_widget != NULL) && (input_widget->window_id != chat_win)) {
 		widget_resize (input_widget->window_id, input_widget->id, w-HUD_MARGIN_X, input_widget->len_y);
+#ifdef ANDROID
+		move_input_widget(h);
+#else
 		widget_move (input_widget->window_id, input_widget->id, 0, h-input_widget->len_y-HUD_MARGIN_Y);
+#endif
 	}
 	resize_newchar_hud_window();
 }

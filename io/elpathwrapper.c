@@ -257,7 +257,7 @@ FILE * open_file_config_no_local(const char* filename, const char* mode)
 	}
 
 #ifdef ANDROID
-	SDL_Log("Config no local path: %s",locbuffer);
+	//SDL_Log("%s:%d path: %s", __FUNCTION__, __LINE__, locbuffer);
 #endif
 	return fopen(locbuffer, mode);
 }
@@ -309,7 +309,7 @@ FILE * open_file_data(const char* in_filename, const char* mode){
 	FILE* fp = NULL;
 #ifdef ANDROID
 	char str[1024];
-	SDL_Log("open_file_data OPEN FILE !!!!!! %s",in_filename);
+	//SDL_Log("open_file_data OPEN FILE !!!!!! %s",in_filename);
 #endif
 
 	safe_strncpy(filename, in_filename, sizeof(filename));

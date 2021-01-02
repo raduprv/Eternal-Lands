@@ -79,9 +79,15 @@ static int display_console_handler (window_info *win)
 {
 	static int msg = 0, offset = 0;
 
+#ifdef ANDROID
+	if ((get_tab_bar_y() + get_input_height()) != CONSOLE_Y_OFFSET)
+	{
+		CONSOLE_Y_OFFSET = get_tab_bar_y() + get_input_height();
+#else
 	if (get_tab_bar_y() != CONSOLE_Y_OFFSET)
 	{
 		CONSOLE_Y_OFFSET = get_tab_bar_y();
+#endif
 		resize_window(win->window_id, win->len_x, win->len_y);
 	}
 
@@ -218,7 +224,11 @@ static int resize_console_handler (window_info *win, int width, int height)
 	widget_resize (console_root_win, console_out_id, console_text_width, text_display_height);
 	widget_move (console_root_win, console_out_id, CONSOLE_TEXT_X_BORDER, CONSOLE_Y_OFFSET);
 	widget_resize (console_root_win, input_widget->id, console_active_width, input_widget->len_y);
+#ifdef ANDROID
+	move_input_widget(console_active_height);
+#else
 	widget_move (console_root_win, input_widget->id, 0, console_active_height - input_widget->len_y);
+#endif
 
 	nr_console_lines = (int) (text_display_height / (DEFAULT_FONT_Y_LEN * chat_zoom));
 	recalc_message_lines();
@@ -495,7 +505,11 @@ int input_field_resize(widget_list *w, Uint32 x, Uint32 y)
 	tf->nr_lines = rewrap_message(msg, w->size, w->len_x - 2 * tf->x_space, &tf->cursor);
 	if(use_windowed_chat != 2 || !get_show_window(chat_win)) {
 		window_info *win = &windows_list.window[w->window_id];
+#ifdef ANDROID
+		move_input_widget(win->len_y);
+#else
 		widget_move(input_widget->window_id, input_widget->id, 0, win->len_y - input_widget->len_y - HUD_MARGIN_Y);
+#endif
 	}
 
 	console_active_height = console_win->len_y - HUD_MARGIN_Y - input_widget->len_y - CONSOLE_SEP_HEIGHT - CONSOLE_Y_OFFSET;

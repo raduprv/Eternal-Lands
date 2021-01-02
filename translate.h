@@ -350,6 +350,9 @@ extern char
 		auto_get_all_str[30],
 		item_list_but_str[35],
 		inv_keeprow_str[30],
+#ifdef ANDROID
+		quantity_edit_touch_str[100],
+#endif
 		quantity_edit_str[100],
 		equip_here_str[100],
 		equip_str[20],
@@ -494,6 +497,9 @@ extern char
 		cm_hud_menu_str[270],
 		cm_banner_menu_str[240],
 		cm_title_menu_str[150],
+#ifdef ANDROID
+		cm_title_help_touch_str[50],
+#endif
 		cm_title_help_str[50],
 		cm_items_menu_str[150],
 		cm_storage_menu_str[90],

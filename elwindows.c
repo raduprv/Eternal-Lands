@@ -33,6 +33,7 @@
 #include "manufacture.h"
 #include "mapwin.h"
 #include "minimap.h"
+#include "questlog.h"
 #include "spells.h"
 #include "stats.h"
 #include "tabs.h"
@@ -116,8 +117,8 @@ void close_last_window(void)
 		return;
 	}
 
- 	if (get_show_window(buddy_win))
- 	{
+	if (get_show_window(buddy_win))
+	{
 		hide_window(buddy_win);
 		return;
 	}
@@ -131,32 +132,38 @@ void close_last_window(void)
 		return;
 	}
 
- 	if (get_show_window(emotes_win))
- 	{
+	if (get_show_window(emotes_win))
+	{
 		hide_window(emotes_win);
 		return;
 	}
 
- 	if (get_show_window(items_win))
- 	{
+	if (get_show_window(items_win))
+	{
 		hide_window(items_win);
 		return;
 	}
 
- 	if (get_show_window(manufacture_win))
- 	{
+	if (get_show_window(manufacture_win))
+	{
 		hide_window(manufacture_win);
 		return;
 	}
 
- 	if (get_show_window(sigil_win))
- 	{
+	if (get_show_window(sigil_win))
+	{
 		hide_window(sigil_win);
 		return;
 	}
 
- 	if (get_show_window(minimap_win))
- 	{
+	if (get_show_window(questlog_win))
+	{
+		hide_window(questlog_win);
+		return;
+	}
+
+	if (get_show_window(minimap_win))
+	{
 		hide_window(minimap_win);
 		return;
 	}
@@ -326,10 +333,8 @@ void multi_gesture_in_windows(Uint32 timestamp, float center_x, float center_y, 
 					// at this level?
 					if(windows_list.window[i].order == id)
 					{
-						/*
-						if (cm_try_activate && cm_show_if_active(i))
-							return;
-						*/
+						//if (cm_try_activate && cm_show_if_active(i))
+						//	return;
 						//SDL_Log("multi_gesture_in_windows before done, i: %i",i);
 
 						done= multi_gesture_in_window(i, timestamp, center_x, center_y, distance, rotation);
@@ -337,7 +342,7 @@ void multi_gesture_in_windows(Uint32 timestamp, float center_x, float center_y, 
 						if(done > 0)
 						{
 							if(windows_list.window[i].displayed > 0)	select_window(i);	// select this window to the front
-							cm_post_show_check(0);
+							//cm_post_show_check(0);
 							return;
 						}
 						if(first_win < 0 && mouse_in_window(i, mx, my))	first_win= i;
@@ -374,7 +379,7 @@ void multi_gesture_in_windows(Uint32 timestamp, float center_x, float center_y, 
 					if(done > 0)
 					{
 						//select_window(i);	// these never get selected
-						cm_post_show_check(0);
+						//cm_post_show_check(0);
 						return;
 					}
 				}
@@ -432,10 +437,8 @@ void finger_motion_in_windows(Uint32 timestamp, float center_x, float center_y, 
 					// at this level?
 					if(windows_list.window[i].order == id)
 					{
-						/*
-						if (cm_try_activate && cm_show_if_active(i))
-							return;
-						*/
+						//if (cm_try_activate && cm_show_if_active(i))
+						//	return;
 						//SDL_Log("multi_gesture_in_windows before done, i: %i",i);
 
 						done = finger_motion_in_window(i, timestamp, center_x, center_y, dx, dy);
@@ -443,7 +446,7 @@ void finger_motion_in_windows(Uint32 timestamp, float center_x, float center_y, 
 						if(done > 0)
 						{
 							if(windows_list.window[i].displayed > 0)	select_window(i);	// select this window to the front
-							cm_post_show_check(0);
+							//cm_post_show_check(0);
 							return;
 						}
 						if(first_win < 0 && mouse_in_window(i, mx, my))	first_win= i;
@@ -480,7 +483,7 @@ void finger_motion_in_windows(Uint32 timestamp, float center_x, float center_y, 
 					if(done > 0)
 					{
 						//select_window(i);	// these never get selected
-						cm_post_show_check(0);
+						//cm_post_show_check(0);
 						return;
 					}
 				}
@@ -503,6 +506,17 @@ void finger_motion_in_windows(Uint32 timestamp, float center_x, float center_y, 
 		select_window(first_win);
 	}
 
+}
+
+// return true if we click on the left part of the title bar
+int title_cm_clicked(window_info *win, int x, int y)
+{
+	int wx = x - win->cur_x;
+	int wy = y - win->cur_y;
+	if ((win->flags & ELW_TITLE_BAR) && (wy > -win->title_height) && (wy < 0) &&
+		(wx > 0) && (wx < (win->len_x / 5)) && cm_valid(win->cm_id))
+			return 1;
+	return 0;
 }
 #endif
 
@@ -532,7 +546,11 @@ int	click_in_windows(int mx, int my, Uint32 flags)
 					// at this level?
 					if(windows_list.window[i].order == id)
 					{
+#ifdef ANDROID
+						if ((cm_try_activate || title_cm_clicked(&windows_list.window[i], mx, my)) && cm_show_if_active(i))
+#else
 						if (cm_try_activate && cm_show_if_active(i))
+#endif
 							return 0;
 						done= click_in_window(i, mx, my, flags);
 						if(done > 0)
@@ -570,7 +588,11 @@ int	click_in_windows(int mx, int my, Uint32 flags)
 				// at this level?
 				if(windows_list.window[i].order == id)
 				{
+#ifdef ANDROID
+					if ((cm_try_activate || title_cm_clicked(&windows_list.window[i], mx, my)) && cm_show_if_active(i))
+#else
 					if (cm_try_activate && cm_show_if_active(i))
+#endif
 						return 0;
 					done= click_in_window(i, mx, my, flags);
 					if(done > 0)
@@ -978,6 +1000,11 @@ int	select_window_with (int win_id, int raise_parent, int raise_children)
 {
 	int	i, old;
 	
+#ifdef ANDROID
+	// ANDROID_TODO is there a better way to keep the cm window on top?
+	if (cm_window_shown() != CM_INIT_VALUE)
+		return 0;
+#endif
 	if (win_id < 0 || win_id >= windows_list.num_windows)	return -1;
 	if (windows_list.window[win_id].window_id != win_id)	return -1;
 	// never select background windows
@@ -1137,6 +1164,10 @@ int	create_window(const char *name, int pos_id, Uint32 pos_loc, int pos_x, int p
 		win->after_show_handler = NULL;
 		win->hide_handler = NULL;
 		win->ui_scale_handler = NULL;
+#ifdef ANDROID
+		win->multi_gesture_handler = NULL;
+		win->finger_motion_handler = NULL;
+#endif
 		
 		win->widgetlist = NULL;
 		
@@ -1346,7 +1377,11 @@ int	draw_window_title(window_info *win)
 	if (show_help_text && cm_valid(win->cm_id) && (cm_window_shown() == CM_INIT_VALUE) &&
 		mouse_x > win->cur_x && mouse_x < win->cur_x+win->len_x &&
 		mouse_y > win->cur_y-win->title_height && mouse_y < win->cur_y)
+#ifdef ANDROID
+		show_help(cm_title_help_touch_str, 0, win->len_y+10, win->current_scale);
+#else
 		show_help(cm_title_help_str, 0, win->len_y+10, win->current_scale);
+#endif
 	
 	glColor3f(1.0f,1.0f,1.0f);
 	//ok, now draw that shit...
@@ -1907,7 +1942,7 @@ int	finger_motion_in_window(int win_id, Uint32 timestamp, float center_x, float 
 				else
 				if(dx>0.003)flags|=ELW_WHEEL_UP;
 
-				SDL_Log("finger motion at widget dx: %f dy: %f",dx,dy);
+				//SDL_Log("finger motion at widget dx: %f dy: %f",dx,dy);
 
 				if(flags && widget_handle_click (W, mx - W->pos_x, my - W->pos_y, flags))
 				{

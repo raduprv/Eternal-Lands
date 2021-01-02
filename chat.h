@@ -33,6 +33,28 @@ extern int server_chat_separate;	/*!< if non-zero, show game messages in a diffe
 extern int mod_chat_separate;		/*!< for moderators and newbie helpers only: if non-zero, show mod chat in a different tab */
 extern int tab_bar_win;			 /*!< handler for the tab bar window */
 
+#ifdef ANDROID
+/*!
+ * \brief   Move he input widget to a consistant location
+ *
+ * If you want to move the input widget, call this function.
+ *
+ * \param window_height the height of the window containing the input window
+ *
+ * \callgraph
+ *
+*/
+void move_input_widget(int window_height);
+
+/*!
+ * \brief   Returns the height of the input widget
+ *
+ * \callgraph
+ *
+*/
+int get_input_height(void);
+
+#endif
 /*!
  * \brief   Moves the chat input widget to a different window
  *

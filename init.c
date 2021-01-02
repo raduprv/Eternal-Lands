@@ -88,9 +88,7 @@
 #include "mines.h"
 #include "popup.h"
 #include "text_aliases.h"
-#ifndef ANDROID
 #include "user_menus.h"
-#endif
 #include "emotes.h"
 #include "image_loading.h"
 #include "main.h"
@@ -356,17 +354,13 @@ static void read_bin_cfg(void)
 #endif
 	lock_skills_selection = (cfg_mem.misc_bool_options >> 22) & 1;
 
-#ifndef ANDROID
 	set_options_user_menus(cfg_mem.user_menu_win_x, cfg_mem.user_menu_win_y, cfg_mem.user_menu_options);
-#endif
 
 	floating_counter_flags = cfg_mem.floating_counter_flags;
 
 	set_options_questlog(cfg_mem.questlog_flags);
 
-#ifndef ANDROID
 	set_settings_hud_indicators(cfg_mem.hud_indicators_options, cfg_mem.hud_indicators_position);
-#endif
 
 	if (have_additions)
 		set_quickspell_options(cfg_mem.quickspell_win_options, cfg_mem.quickspell_win_position);
@@ -592,17 +586,13 @@ void save_bin_cfg(void)
 #endif
 	cfg_mem.misc_bool_options |= lock_skills_selection << 22;
 
-#ifndef ANDROID
 	get_options_user_menus(&cfg_mem.user_menu_win_x, &cfg_mem.user_menu_win_y, &cfg_mem.user_menu_options);
-#endif
 
 	cfg_mem.floating_counter_flags = floating_counter_flags;
 
 	cfg_mem.questlog_flags = get_options_questlog();
 
-#ifndef ANDROID
 	get_settings_hud_indicators(&cfg_mem.hud_indicators_options, &cfg_mem.hud_indicators_position);
-#endif
 
 	get_quickspell_options(&cfg_mem.quickspell_win_options, &cfg_mem.quickspell_win_position);
 

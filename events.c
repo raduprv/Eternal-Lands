@@ -29,6 +29,7 @@
 int last_mouse_x;
 int last_mouse_y;
 int last_mouse_flags;
+int back_on;
 #endif
 
 #ifdef OSX
@@ -201,6 +202,7 @@ int HandleEvent (SDL_Event *event)
 #ifdef ANDROID
 		case SDL_APP_TERMINATING:
 			SDL_Log("OS is terminating us...");
+			// ANDROID_TODO radu removed the save in the latest version - "might cause problems"
 			save_local_data(NULL, 0);
 			exit(1);
 			break;
@@ -281,6 +283,13 @@ int HandleEvent (SDL_Event *event)
 					keypress_in_windows (mouse_x, mouse_y, SDLK_UNKNOWN, unicode, KMOD_NONE);
 			}
 			break;
+#ifdef ANDROID
+
+		case SDL_KEYUP:
+			if (event->key.keysym.sym == SDLK_AC_BACK)
+				back_on = 0;
+			break;
+#endif
 
 		case SDL_KEYDOWN:
 			if (afk_time) 
@@ -294,6 +303,7 @@ int HandleEvent (SDL_Event *event)
 			{
 				last_SDL_KEYDOWN_return_value = 1;
 				close_last_window();
+				back_on = 1;
 				break;
 			}
 #endif
@@ -467,7 +477,9 @@ int HandleEvent (SDL_Event *event)
 				if (drag_windows (mouse_x, mouse_y, mouse_delta_x, mouse_delta_y) >= 0)
 				{
 					/* clicking title forces any context menu to close */
+#ifndef ANDROID
 					cm_post_show_check(1);
+#endif
 					return done;
 				}
 				if (drag_in_windows (mouse_x, mouse_y, flags, mouse_delta_x, mouse_delta_y) >= 0)

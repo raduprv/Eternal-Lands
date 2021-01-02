@@ -95,6 +95,9 @@ BBC News||#open_url http://news.bbc.co.uk/
 #include "hud_indicators.h"
 #include "icon_window.h"
 #include "init.h"
+#ifdef ANDROID
+#include "io/elfilewrapper.h"
+#endif
 #include "io/elpathwrapper.h"
 #include "translate.h"
 #include "user_menus.h"
@@ -285,6 +288,15 @@ namespace UserMenus
 			return;
 		}
 
+#ifdef ANDROID
+		// Force style and poition suitable for touch only
+		title_on = 0;
+		border_on = 0;
+		background_on = 1;
+		use_small_font = 1;
+		standard_window_position = 2;
+
+#endif
 		Uint32 win_flags = ELW_USE_UISCALE|ELW_SHOW_LAST|ELW_DRAGGABLE|ELW_SHOW|ELW_TITLE_NAME|ELW_ALPHA_BORDER|ELW_SWITCHABLE_OPAQUE;
 		
 		set_win_flag(&win_flags, ELW_TITLE_BAR, title_on);
@@ -555,6 +567,22 @@ namespace UserMenus
 		
 		delete_menus();
 
+#ifdef ANDROID
+		//  ANDROID_TODO needed to unpack from assest file, always unpack fresh by removing first
+		char tmp_str[256];
+		std::string filename("user_menus.txt");
+		remove((std::string(datadir) + filename).c_str());
+		if (do_file_exists(filename.c_str(), datadir, sizeof(tmp_str), tmp_str))
+		{
+			std::string line;
+			std::ifstream file(filename.c_str());
+			while (std::getline(file, line))
+			{
+				remove((std::string(datadir) + line).c_str());
+				do_file_exists(line.c_str(), datadir, sizeof(tmp_str), tmp_str);
+			}
+		}
+#endif
 		std::vector<std::string> filelist;
 		
 		std::vector<std::string> search_paths;

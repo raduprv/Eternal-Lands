@@ -936,27 +936,27 @@ static GLboolean el_init_GL_ARB_multitexture()
 	ELglActiveTexture = glActiveTexture;
 
 	r = ((ELglBindBufferARB = (PFNGLBINDBUFFERARBPROC)SDL_GL_GetProcAddress("glBindBuffer")) != NULL) && r;
-	SDL_Log("r: %i",r);
+	//SDL_Log("r: %i",r);
 	r = ((ELglBufferDataARB = (PFNGLBUFFERDATAARBPROC)SDL_GL_GetProcAddress("glBufferData")) != NULL) && r;
-	SDL_Log("r: %i",r);
+	//SDL_Log("r: %i",r);
 	r = ((ELglBufferSubDataARB = (PFNGLBUFFERSUBDATAARBPROC)SDL_GL_GetProcAddress("glBufferSubData")) != NULL) && r;
-	SDL_Log("r: %i",r);
+	//SDL_Log("r: %i",r);
 	r = ((ELglDeleteBuffersARB = (PFNGLDELETEBUFFERSARBPROC)SDL_GL_GetProcAddress("glDeleteBuffers")) != NULL) && r;
-	SDL_Log("r: %i",r);
+	//SDL_Log("r: %i",r);
 	r = ((ELglGenBuffersARB = (PFNGLGENBUFFERSARBPROC)SDL_GL_GetProcAddress("glGenBuffers")) != NULL) && r;
-	SDL_Log("r: %i",r);
+	//SDL_Log("r: %i",r);
 	r = ((ELglGetBufferParameterivARB = (PFNGLGETBUFFERPARAMETERIVARBPROC)SDL_GL_GetProcAddress("glGetBufferParameteriv")) != NULL) && r;
-	SDL_Log("r: %i",r);
+	//SDL_Log("r: %i",r);
 	r = ((ELglGetBufferPointervARB = (PFNGLGETBUFFERPOINTERVARBPROC)SDL_GL_GetProcAddress("glGetBufferPointerv")) != NULL) && r;
-	SDL_Log("r: %i",r);
+	//SDL_Log("r: %i",r);
 	r = ((ELglGetBufferSubDataARB = (PFNGLGETBUFFERSUBDATAARBPROC)SDL_GL_GetProcAddress("glGetBufferSubData")) != NULL) && r;
-	SDL_Log("r: %i",r);
+	//SDL_Log("r: %i",r);
 	r = ((ELglIsBufferARB = (PFNGLISBUFFERARBPROC)SDL_GL_GetProcAddress("glIsBuffer")) != NULL) && r;
-	SDL_Log("r: %i",r);
+	//SDL_Log("r: %i",r);
 	r = ((ELglMapBufferARB = (PFNGLMAPBUFFERARBPROC)SDL_GL_GetProcAddress("glMapBuffer")) != NULL) && r;
-	SDL_Log("r: %i",r);
+	//SDL_Log("r: %i",r);
 	r = ((ELglUnmapBufferARB = (PFNGLUNMAPBUFFERARBPROC)SDL_GL_GetProcAddress("glUnmapBuffer")) != NULL) && r;
-	SDL_Log("r: %i",r);
+	//SDL_Log("r: %i",r);
 
 
 	//return r;
@@ -1064,22 +1064,22 @@ static GLboolean el_init_GL_ARB_texture_compression()
 
 	ELglCompressedTexImage1DARB=glCompressedTexImage1D;
 
-	SDL_Log("Compression:");
+	//SDL_Log("Compression:");
 
 	r = ((ELglCompressedTexImage1DARB = (PFNGLCOMPRESSEDTEXIMAGE1DARBPROC)SDL_GL_GetProcAddress("glCompressedTexImage1DARB")) != NULL) && r;
-	SDL_Log("r: %i",r);
+	//SDL_Log("r: %i",r);
 	r = ((ELglCompressedTexImage2DARB = (PFNGLCOMPRESSEDTEXIMAGE2DARBPROC)SDL_GL_GetProcAddress("glCompressedTexImage2DARB")) != NULL) && r;
-	SDL_Log("r: %i",r);
+	//SDL_Log("r: %i",r);
 	r = ((ELglCompressedTexImage3DARB = (PFNGLCOMPRESSEDTEXIMAGE3DARBPROC)SDL_GL_GetProcAddress("glCompressedTexImage3DARB")) != NULL) && r;
-	SDL_Log("r: %i",r);
+	//SDL_Log("r: %i",r);
 	r = ((ELglCompressedTexSubImage1DARB = (PFNGLCOMPRESSEDTEXSUBIMAGE1DARBPROC)SDL_GL_GetProcAddress("glCompressedTexSubImage1DARB")) != NULL) && r;
-	SDL_Log("r: %i",r);
+	//SDL_Log("r: %i",r);
 	r = ((ELglCompressedTexSubImage2DARB = (PFNGLCOMPRESSEDTEXSUBIMAGE2DARBPROC)SDL_GL_GetProcAddress("glCompressedTexSubImage2DARB")) != NULL) && r;
-	SDL_Log("r: %i",r);
+	//SDL_Log("r: %i",r);
 	r = ((ELglCompressedTexSubImage3DARB = (PFNGLCOMPRESSEDTEXSUBIMAGE3DARBPROC)SDL_GL_GetProcAddress("glCompressedTexSubImage3DARB")) != NULL) && r;
-	SDL_Log("r: %i",r);
+	//SDL_Log("r: %i",r);
 	r = ((ELglGetCompressedTexImageARB = (PFNGLGETCOMPRESSEDTEXIMAGEARBPROC)SDL_GL_GetProcAddress("glGetCompressedTexImageARB")) != NULL) && r;
-	SDL_Log("r: %i",r);
+	//SDL_Log("r: %i",r);
 
 	ELglCompressedTexImage2D = glCompressedTexImage2D;
 

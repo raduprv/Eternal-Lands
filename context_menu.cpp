@@ -154,6 +154,9 @@ namespace cm
 			std::map<int, size_t> full_windows; // <window_id, cm_id>
 			bool menu_opened;
 			static int instance_count;
+#ifdef ANDROID
+			Uint32 last_close_time;
+#endif
 	};
 
 
@@ -196,6 +199,9 @@ namespace cm
 	// constructor - create the context menu window and initialise containers
 	Container::Container(void)
 		: cm_window_id(-1), active_window_id(-1), active_widget_id(-1), menu_opened(false)
+#ifdef ANDROID
+			, last_close_time(0)
+#endif
 	{
 		assert(instance_count++==0);
 		menus.resize(20,0);
@@ -324,6 +330,10 @@ namespace cm
 			select_window(cm_window_id);
 		else
 		{
+#ifdef ANDROID
+			if (get_show_window(cm_window_id))
+				last_close_time = SDL_GetTicks();
+#endif
 			hide_window(cm_window_id);
 			active_window_id = active_widget_id = -1;
 		}
@@ -390,6 +400,10 @@ namespace cm
 	{
 		if (!valid(cm_id))
 			return 0;
+#ifdef ANDROID
+		if ((window_id < 0) && (widget_id < 0) && (SDL_GetTicks() - last_close_time) < 500)
+			return 0;
+#endif
 		menu_opened = true;
 		active_window_id = window_id;
 		active_widget_id = widget_id;
@@ -473,6 +487,10 @@ namespace cm
 	Menu::Menu(const char *menu_list, int (*handler)(window_info *, int, int, int, int))
 		: border(5), text_border(5), line_sep(3), zoom(0.8), data_ptr(0), selection(-1), menu_has_bools(false)
 	{
+#ifdef ANDROID
+		// ANDROID_TODO this needs to be change on rescale too, and probably in the non-ANDROID client too
+		line_sep = scaled_value(9);
+#endif
 		set(menu_list, handler);
 		pre_show_handler = 0;
 		highlight_top.set(0.11f, 0.11f, 0.11f);
@@ -731,6 +749,32 @@ namespace cm
 	//  if an option is selected, toggle if a bool option and call any callback function
 	int Menu::click(window_info *win, int mx, int my, Uint32 flags)
 	{
+#ifdef ANDROID
+		// ANDROID_TODO common function with display()
+		if (selection < 0)
+		{
+			float currenty = border + line_sep;
+			float line_step = line_sep + scaled_value(DEFAULT_FONT_Y_LEN);
+			for (size_t i=0; i<menu_lines.size(); ++i)
+			{
+				// if the mouse is over a valid line, draw the highlight and select line
+				if (!menu_lines[i].is_grey && !menu_lines[i].is_separator &&
+				  (my > currenty) &&
+				  (my < currenty + line_step) &&
+				  (mx > border) &&
+				  (mx < width - border))
+				{
+					selection = i;
+					break;
+				}
+				if (menu_lines[i].is_separator)
+					currenty += scaled_value(DEFAULT_FONT_Y_LEN / 2.0);
+				else
+					currenty += line_step;
+			}
+		}
+
+#endif
 		if (selection < 0)
 			return 0;
 

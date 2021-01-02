@@ -221,6 +221,9 @@ char
 	auto_get_all_str[30],
 	item_list_but_str[35],
 	inv_keeprow_str[30],
+#ifdef ANDROID
+	quantity_edit_touch_str[100],
+#endif
 	quantity_edit_str[100],
 	equip_here_str[100],
 	equip_str[20],
@@ -359,6 +362,9 @@ char
 	cm_hud_menu_str[270],
 	cm_banner_menu_str[240],
 	cm_title_menu_str[150],
+#ifdef ANDROID
+	cm_title_help_touch_str[50],
+#endif
 	cm_title_help_str[50],
 	cm_items_menu_str[150],
 	cm_storage_menu_str[90],
@@ -1439,6 +1445,9 @@ void init_help()
 	add_xml_identifier(misc,"cachei",cache_items_str,"items",sizeof(cache_items_str));
 	add_xml_identifier(misc,"caches",cache_size_str,"Cache size",sizeof(cache_size_str));
 	add_xml_identifier (misc, "appropr_name", use_appropriate_name, "Use an appropriate name:\nPlease do not create a name that is obscene or offensive, contains more than 2 digits, is senseless or stupid (i.e. djrtq47fa), or is made with the intent of impersonating another player.\nTake into consideration that the name you choose does affect the atmosphere of the game. Inappropriate names can and will be locked.", sizeof (use_appropriate_name) );
+#ifdef ANDROID
+	add_xml_identifier(misc,"edit_quantity_touch",quantity_edit_touch_str,"Click selected category to edit",sizeof(quantity_edit_touch_str));
+#endif
 	add_xml_identifier(misc,"edit_quantity",quantity_edit_str,"Right-click on the quantity you wish to edit",sizeof(quantity_edit_str));
 	add_xml_identifier(misc,"equip_here",equip_here_str,"Place an item in these boxes to equip it",sizeof(equip_here_str));
 	add_xml_identifier(misc,"mod_click_item_help",mod_click_item_help_str,"Left-click +ctrl/+alt to drop/store all",sizeof(mod_click_item_help_str));
@@ -1631,6 +1640,9 @@ void init_help()
 	add_xml_identifier(misc, "cm_hud_menu", cm_hud_menu_str, "Show Stats\nShow Stats Bars\nShow Knowledge Bar\nShow Timer\nShow Digital Clock\nShow Analogue Clock\nShow Seconds\nShow FPS\nShow Indicators\nEnable Quickbar Menu\n--\nShow Minimap\nShow Ranging Stats\n--\nEnable Sound Effects\nEnable Music\n--\nCopy Location", sizeof(cm_hud_menu_str));
 	add_xml_identifier(misc, "cm_banner_menu", cm_banner_menu_str, "Show Names\nShow Health Bars\nShow Health Numbers\nShow Ether Bar\nShow Ether Numbers\nEnable Instance Mode\nShow Speech Bubbles\nEnable Banner Background\nSit Lock\nRanging Lock\n--\nDisable This Menu\n", sizeof(cm_banner_menu_str));
 	add_xml_identifier(misc, "cm_title_menu", cm_title_menu_str, "Hide Windows\nOpaque Background\nWindows On Top\n", sizeof(cm_title_menu_str));
+#ifdef ANDROID
+	add_xml_identifier(misc, "cm_title_help_touch", cm_title_help_touch_str, "Click left side of title bar for menu", sizeof(cm_title_help_touch_str));
+#endif
 	add_xml_identifier(misc, "cm_title_help", cm_title_help_str, "Right-click for window menu", sizeof(cm_title_help_str));
 	add_xml_identifier(misc, "cm_items_menu", cm_items_menu_str, "--\nUse Small Window\nManual Window Size\nItem Window On Drop\nAllow Equipment Swap\nAlt/Ctrl-click With Any Cursor\n--\nOpen Storage (View Only)", sizeof(cm_items_menu_str));
 	add_xml_identifier(misc, "cm_storage_menu", cm_storage_menu_str, "--\nPrint Items To Console\nSort Categories Alphabetically\nDisable item filter", sizeof(cm_storage_menu_str));

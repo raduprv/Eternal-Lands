@@ -88,11 +88,12 @@ static int cursors_tex;
 static int fps_default_width = 0;
 
 #ifdef ANDROID
-Uint32 last_finger_motion_timestamp=0;
-Uint32 last_finger_multi_gesture_timestamp=0;
-Uint32 last_click_timestamp=0;
-Uint32 cursor_check_ready=0;
-Uint32 do_cursor_check=0;
+static int text_widget_already_setup = 0;
+Uint32 last_finger_motion_timestamp = 0;
+Uint32 last_finger_multi_gesture_timestamp = 0;
+Uint32 last_click_timestamp = 0;
+Uint32 cursor_check_ready = 0;
+Uint32 do_cursor_check = 0;
 
 Uint32 horiz_touch_x_size;
 Uint32 horiz_touch_y_size;
@@ -104,25 +105,25 @@ Uint32 vert_touch_y_size;
 Uint32 vert_touch_x_start;
 Uint32 vert_touch_y_start;
 
-float left_arrow_u_start=0;
-float left_arrow_v_start=0;
-float left_arrow_u_end=(float)39/256;
-float left_arrow_v_end=(float)19/256;
+float left_arrow_u_start = 0;
+float left_arrow_v_start = 0;
+float left_arrow_u_end = (float)39 / 256;
+float left_arrow_v_end = (float)19 / 256;
 
-float right_arrow_u_start=(float)1/256;
-float right_arrow_v_start=(float)20/256;
-float right_arrow_u_end=(float)40/256;
-float right_arrow_v_end=(float)39/256;
+float right_arrow_u_start = (float)1 / 256;
+float right_arrow_v_start = (float)20 / 256;
+float right_arrow_u_end = (float)40 / 256;
+float right_arrow_v_end = (float)39 / 256;
 
-float down_arrow_u_start=(float)1/256;
-float down_arrow_v_start=(float)39/256;
-float down_arrow_u_end=(float)20/256;
-float down_arrow_v_end=(float)79/256;
+float down_arrow_u_start = (float)1 / 256;
+float down_arrow_v_start = (float)39 / 256;
+float down_arrow_u_end = (float)20 / 256;
+float down_arrow_v_end = (float)79 / 256;
 
-float up_arrow_u_start=(float)21/256;
-float up_arrow_v_start=(float)39/256;
-float up_arrow_u_end=(float)40/256;
-float up_arrow_v_end=(float)79/256;
+float up_arrow_u_start = (float)21 / 256;
+float up_arrow_v_start = (float)39 / 256;
+float up_arrow_u_end = (float)40 / 256;
+float up_arrow_v_end = (float)79 / 256;
 
 void draw_touch_area(window_info *win)
 {
@@ -131,37 +132,59 @@ void draw_touch_area(window_info *win)
 	int size_20 = (int)(0.5 + win->current_scale * 20);
 	int size_40 = (int)(0.5 + win->current_scale * 40);
 
-	horiz_touch_x_size = window_width/6;
+	horiz_touch_x_size = window_width / 6;
 	horiz_touch_y_size = (int)(0.5 + win->current_scale * 60);
 	horiz_touch_x_start = 0;
-	horiz_touch_y_start = window_height-(window_height/8)*2;
+	horiz_touch_y_start = window_height - (window_height / 8) * 2;
 
 	vert_touch_x_size = (int)(0.5 + win->current_scale * 50);
-	vert_touch_y_size = window_height/5;
+	vert_touch_y_size = window_height / 5;
 	vert_touch_x_start = 0;
-	vert_touch_y_start = window_height-(window_height/4)*2;
+	vert_touch_y_start = window_height - (window_height / 4) * 2;
 
+	horizontal_arrows_y = horiz_touch_y_start + (horiz_touch_y_size - size_20) / 2;
+	vertical_arrows_x = vert_touch_x_start + (vert_touch_x_size - size_20) / 2;
 
-	horizontal_arrows_y=horiz_touch_y_start+(horiz_touch_y_size-size_20)/2;
-	vertical_arrows_x=vert_touch_x_start+(vert_touch_x_size-size_20)/2;
+	if (!full_camera_bars)
+	{
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_ONE, GL_SRC_ALPHA);
+		glColor4f(0.0f, 0.0f, 0.4f, 0.25f);
+
+		glBegin(GL_LINE_LOOP);
+		glVertex2f(horiz_touch_x_start + 1, horiz_touch_y_start);
+		glVertex2f(horiz_touch_x_start + horiz_touch_x_size, horiz_touch_y_start);
+		glVertex2f(horiz_touch_x_start + horiz_touch_x_size, horiz_touch_y_start + horiz_touch_y_size);
+		glVertex2f(horiz_touch_x_start + 1, horiz_touch_y_start + horiz_touch_y_size);
+		glEnd();
+
+		glBegin(GL_LINE_LOOP);
+		glVertex2f(vert_touch_x_start + 1, vert_touch_y_start);
+		glVertex2f(vert_touch_x_start + vert_touch_x_size, vert_touch_y_start);
+		glVertex2f(vert_touch_x_start + vert_touch_x_size, vert_touch_y_start + vert_touch_y_size);
+		glVertex2f(vert_touch_x_start + 1, vert_touch_y_start + vert_touch_y_size);
+		glEnd();
+		glDisable(GL_BLEND);
+
+		return;
+	}
 
 	glEnable(GL_TEXTURE_2D);
-	glColor4f(1.0f,1.0f,1.0f,0.2f);
+	glColor4f(1.0f, 1.0f, 1.0f, 0.2f);
 	bind_texture(hud_text);
 
 	glEnable(GL_BLEND);
 	//glBlendFunc(GL_ONE, GL_SRC_ALPHA);
 	glBlendFunc(GL_ONE, GL_CONSTANT_COLOR);
 
-
-	glEnable(GL_ALPHA_TEST);//enable alpha filtering, so we have some alpha key
+	glEnable(GL_ALPHA_TEST); // enable alpha filtering, so we have some alpha key
 	glAlphaFunc(GL_GREATER, 0.09f);
 
 	glBegin(GL_QUADS);
-	draw_2d_thing(left_arrow_u_start, left_arrow_v_start, left_arrow_u_end, left_arrow_v_end, horiz_touch_x_start,horizontal_arrows_y,horiz_touch_x_start+size_40,horizontal_arrows_y+size_20);
-	draw_2d_thing(right_arrow_u_start, right_arrow_v_start, right_arrow_u_end, right_arrow_v_end, horiz_touch_x_start+horiz_touch_x_size-size_40,horizontal_arrows_y,horiz_touch_x_start+horiz_touch_x_size,horizontal_arrows_y+size_20);
-	draw_2d_thing(up_arrow_u_start, up_arrow_v_start, up_arrow_u_end, up_arrow_v_end, vertical_arrows_x,vert_touch_y_start,vertical_arrows_x+size_20,vert_touch_y_start+size_40);
-	draw_2d_thing(down_arrow_u_start, down_arrow_v_start, down_arrow_u_end, down_arrow_v_end, vertical_arrows_x,vert_touch_y_start+vert_touch_y_size-size_40,vertical_arrows_x+size_20,vert_touch_y_start+vert_touch_y_size);
+	draw_2d_thing(left_arrow_u_start, left_arrow_v_start, left_arrow_u_end, left_arrow_v_end, horiz_touch_x_start, horizontal_arrows_y, horiz_touch_x_start + size_40, horizontal_arrows_y + size_20);
+	draw_2d_thing(right_arrow_u_start, right_arrow_v_start, right_arrow_u_end, right_arrow_v_end, horiz_touch_x_start+horiz_touch_x_size - size_40, horizontal_arrows_y, horiz_touch_x_start + horiz_touch_x_size, horizontal_arrows_y + size_20);
+	draw_2d_thing(up_arrow_u_start, up_arrow_v_start, up_arrow_u_end, up_arrow_v_end, vertical_arrows_x, vert_touch_y_start, vertical_arrows_x + size_20, vert_touch_y_start + size_40);
+	draw_2d_thing(down_arrow_u_start, down_arrow_v_start, down_arrow_u_end, down_arrow_v_end, vertical_arrows_x, vert_touch_y_start + vert_touch_y_size - size_40, vertical_arrows_x + size_20, vert_touch_y_start + vert_touch_y_size);
 	glEnd();
 
 	glDisable(GL_TEXTURE_2D);
@@ -169,20 +192,20 @@ void draw_touch_area(window_info *win)
 	//glEnable(GL_BLEND);
 	glBlendFunc(GL_ONE, GL_SRC_ALPHA);
 
-	glColor4f(0.0f,0.0f,0.2f,0.75f);
+	glColor4f(0.0f, 0.0f, 0.2f, 0.75f);
 	glBegin(GL_QUADS);
-	glVertex3i(horiz_touch_x_start, horiz_touch_y_start+horiz_touch_y_size, 0);
+	glVertex3i(horiz_touch_x_start, horiz_touch_y_start + horiz_touch_y_size, 0);
 	glVertex3i(horiz_touch_x_start, horiz_touch_y_start, 0);
-	glVertex3i(horiz_touch_x_start+horiz_touch_x_size, horiz_touch_y_start, 0);
-	glVertex3i(horiz_touch_x_start+horiz_touch_x_size, horiz_touch_y_start+horiz_touch_y_size, 0);
+	glVertex3i(horiz_touch_x_start + horiz_touch_x_size, horiz_touch_y_start, 0);
+	glVertex3i(horiz_touch_x_start + horiz_touch_x_size, horiz_touch_y_start + horiz_touch_y_size, 0);
 
-	glVertex3i(vert_touch_x_start, vert_touch_y_start+vert_touch_y_size, 0);
+	glVertex3i(vert_touch_x_start, vert_touch_y_start + vert_touch_y_size, 0);
 	glVertex3i(vert_touch_x_start, vert_touch_y_start, 0);
-	glVertex3i(vert_touch_x_start+vert_touch_x_size, vert_touch_y_start, 0);
-	glVertex3i(vert_touch_x_start+vert_touch_x_size, vert_touch_y_start+vert_touch_y_size, 0);
+	glVertex3i(vert_touch_x_start + vert_touch_x_size, vert_touch_y_start, 0);
+	glVertex3i(vert_touch_x_start + vert_touch_x_size, vert_touch_y_start + vert_touch_y_size, 0);
 
 	glEnd();
-	glColor4f(1,1,1,1);
+	glColor4f(1, 1, 1, 1);
 
 	glDisable(GL_BLEND);
 }
@@ -664,6 +687,10 @@ static int click_game_handler(window_info *win, int mx, int my, Uint32 flags)
 	int closest_actor;
 	int size_20 = (int)(0.5 + win->current_scale * 20);
 
+	if (back_on)
+		return 0;
+
+	// ANDROID_TODO - not needed anymore?
 	if ((mx >= window_width - size_20) && (my < size_20))
 	{
 		int *window_id = get_winid("minimap"); // get a pointer to the window id variable
@@ -681,7 +708,7 @@ static int click_game_handler(window_info *win, int mx, int my, Uint32 flags)
 		if(time_now-last_click_timestamp<300)
 		{
 			SDL_StartTextInput();
-			input_widget_move_to_win(input_widget->window_id);
+			move_input_widget(window_height);
 		}
 
 		last_click_timestamp=time_now;
@@ -742,8 +769,10 @@ static int click_game_handler(window_info *win, int mx, int my, Uint32 flags)
 
 	if (!force_walk)
 	{
+#ifndef ANDROID
 		if (flag_right)
 		{
+#endif
 			if (!cm_banner_disabled)
 			{
 				/* show the banner control menu if right-clicked and over your actors banner */
@@ -774,8 +803,15 @@ static int click_game_handler(window_info *win, int mx, int my, Uint32 flags)
 					}
 					cm_show_direct(cm_id, -1, -1);
 					reset_cursor_time = SDL_GetTicks();
+#ifdef ANDROID
+					return 1;
+#endif
 				}
 			}
+#ifdef ANDROID
+		if (flag_right)
+		{
+#endif
 			if (item_dragged != -1 || use_item != -1 || object_under_mouse == -1
 					|| storage_item_dragged != -1
 					)
@@ -1633,7 +1669,11 @@ static int display_game_handler (window_info *win)
 		if (find_last_lines_time (&msg, &offset, filter, get_console_text_width()))
 		{
 			set_font(chat_font);	// switch to the chat font
+#ifdef ANDROID
+			draw_messages (get_tab_bar_x(), get_tab_bar_y() + get_input_height(), display_text_buffer, DISPLAY_TEXT_BUFFER_SIZE, filter, msg, offset, -1, get_console_text_width(), (int) (1 + lines_to_show * DEFAULT_FONT_Y_LEN * chat_zoom), chat_zoom, NULL);
+#else
 			draw_messages (get_tab_bar_x(), get_tab_bar_y(), display_text_buffer, DISPLAY_TEXT_BUFFER_SIZE, filter, msg, offset, -1, get_console_text_width(), (int) (1 + lines_to_show * DEFAULT_FONT_Y_LEN * chat_zoom), chat_zoom, NULL);
+#endif
 			set_font (0);	// switch to fixed
 		}
 	}
@@ -2266,7 +2306,13 @@ int text_input_handler (SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_mod
 	Uint8 ch = key_to_char (key_unicode);
 #ifdef ANDROID
 
-	input_widget_move_to_win(input_widget->window_id);
+	if (!text_widget_already_setup)
+	{
+			text_widget_already_setup = 1;
+			text_field *field = input_widget->widget_info;
+			widget_resize(input_widget->window_id, input_widget->id, input_widget->len_x, field->y_space * 2 + DEFAULT_FONT_Y_LEN * input_widget->size);
+			move_input_widget(window_height);
+	}
 #endif
 
 	if (root_key_to_input_field(key_code, key_unicode, key_mod))
@@ -2342,6 +2388,17 @@ int finger_motion_game_handler(window_info *win, Uint32 timestamp, float x, floa
 	// do not use the original timestamp, let's use the current time
 	timestamp = SDL_GetTicks();
 
+	if(back_on)
+	{
+		camera_rotation_speed = camera_rotation_speed * 0.5 + normal_camera_rotation_speed * dx * -0.20;
+		camera_rotation_deceleration = normal_camera_deceleration * 1E-3;
+
+		camera_tilt_speed = camera_tilt_speed * 0.5 + normal_camera_rotation_speed * dy * -0.20;
+		camera_tilt_deceleration = normal_camera_deceleration * 1E-3;
+
+		return 1;
+	}
+
 	if ((mx > horiz_touch_x_start) && (mx < horiz_touch_x_start + horiz_touch_x_size) &&
 		(my > horiz_touch_y_start) && (my < horiz_touch_y_start + horiz_touch_y_size))
 	{
@@ -2375,6 +2432,12 @@ static int keypress_game_handler (window_info *win, int mx, int my, SDL_Keycode 
 	{
 		return 1;
 	}
+#ifdef ANDROID
+	else if (key_code == SDLK_AC_BACK)
+	{
+		return 1; // don't handle this
+	}
+#endif
 	else if (KEY_DEF_CMP(K_TABCOMPLETE, key_code, key_mod) && input_text_line.len > 0)
 	{
 		do_tab_complete(&input_text_line);
@@ -2619,17 +2682,8 @@ void do_keypress(el_key_def key)
 static int show_game_handler (window_info *win) {
 	init_hud_interface (HUD_INTERFACE_GAME);
 	show_hud_windows();
-#ifndef ANDROID
 	if (use_windowed_chat == 1)
 		display_tab_bar();
-#else
-	if(use_windowed_chat == 1)
-	{
-		display_tab_bar();
-		hide_window(tab_bar_win);
-	}
-
-#endif
 	set_all_intersect_update_needed(main_bbox_tree); // redraw the scene
 	return 1;
 }

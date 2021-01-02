@@ -105,11 +105,13 @@ int items_list_on_left = 0;
 static const char *item_help_str = NULL;
 static const char *item_desc_str = NULL;
 static int mouse_over_but = -1;
+#ifndef ANDROID
 static size_t cm_stoall_but = CM_INIT_VALUE;
 static size_t cm_dropall_but = CM_INIT_VALUE;
 static size_t cm_mix_but = CM_INIT_VALUE;
 static size_t cm_getall_but = CM_INIT_VALUE;
 static size_t cm_itemlist_but = CM_INIT_VALUE;
+#endif
 static int mouseover_item_pos = -1;
 
 static void drop_all_handler();
@@ -774,7 +776,9 @@ int display_items_handler(window_info *win)
 		char *helpstr[NUMBUT] = { stoall_help_str, getall_help_str, ((disable_double_click) ?drpall_help_str :dcdrpall_help_str), mixoneall_help_str, itmlst_help_str };
 #endif
 		show_help(helpstr[mouse_over_but], 0, win->len_y+10, win->current_scale);
+#ifndef ANDROID
 		show_help(cm_help_options_str, 0, win->len_y+10+win->small_font_len_y, win->current_scale);
+#endif
 	}
 	// show help set in the mouse_over handler
 	else {
@@ -1272,7 +1276,11 @@ int mouseover_items_handler(window_info *win, int mx, int my) {
 		}
 	} else if(show_help_text && mx>quantity_x_offset && mx<quantity_x_offset+ITEM_EDIT_QUANT*quantity_width &&
 			my>quantity_y_offset && my<quantity_y_offset+6*quantity_height){
+#ifdef ANDROID
+		item_help_str = quantity_edit_touch_str;
+#else
 		item_help_str = quantity_edit_str;
+#endif
 	} else if (show_help_text && *inventory_item_string && (my > (win->len_y - text_y_offset))) {
 		item_help_str = (disable_double_click)?click_clear_str :double_click_clear_str;
 	}
@@ -1391,14 +1399,12 @@ int show_items_handler(window_info * win)
 
 	resize_window(win->window_id, win_x_len, win_y_len);
 
+#ifndef ANDROID
 	cm_remove_regions(items_win);
 	cm_add_region(cm_stoall_but, items_win, but_x_offset, wear_items_y_offset+but_y_off[0], but_len_x, but_len_y);
 	cm_add_region(cm_getall_but, items_win, but_x_offset, wear_items_y_offset+but_y_off[1], but_len_x, but_len_y);
 	cm_add_region(cm_dropall_but, items_win, but_x_offset, wear_items_y_offset+but_y_off[2], but_len_x, but_len_y);
 	cm_add_region(cm_mix_but, items_win, but_x_offset, wear_items_y_offset+but_y_off[3], but_len_x, but_len_y);
-#ifdef ANDROID
-	cm_add_region(cm_itemlist_but, items_win, but_x_offset, wear_items_y_offset+but_y_off[3], but_len_x, but_len_y);
-#else
 	cm_add_region(cm_itemlist_but, items_win, but_x_offset, wear_items_y_offset+but_y_off[4], but_len_x, but_len_y);
 #endif
 
@@ -1432,9 +1438,7 @@ void display_items_menu()
 
 		set_window_handler(items_win, ELW_HANDLER_DISPLAY, &display_items_handler );
 		set_window_handler(items_win, ELW_HANDLER_CLICK, &click_items_handler );
-#ifndef ANDROID
 		set_window_handler(items_win, ELW_HANDLER_MOUSEOVER, &mouseover_items_handler );
-#endif
 		set_window_handler(items_win, ELW_HANDLER_KEYPRESS, (int (*)())&keypress_items_handler );
 		set_window_handler(items_win, ELW_HANDLER_SHOW, &show_items_handler );
 		set_window_handler(items_win, ELW_HANDLER_UI_SCALE, &show_items_handler );
@@ -1446,6 +1450,25 @@ void display_items_menu()
 		cm_bool_line(windows_list.window[items_win].cm_id, ELW_CM_MENU_LEN+4, &allow_equip_swap, NULL);
 		cm_bool_line(windows_list.window[items_win].cm_id, ELW_CM_MENU_LEN+5, &items_mod_click_any_cursor, NULL);
 				
+#ifdef ANDROID
+		cm_add(windows_list.window[items_win].cm_id, "--\nStore all", NULL);
+		cm_grey_line(windows_list.window[items_win].cm_id, ELW_CM_MENU_LEN+9, 1);
+		cm_add(windows_list.window[items_win].cm_id, inv_keeprow_str, NULL);
+		cm_bool_line(windows_list.window[items_win].cm_id, ELW_CM_MENU_LEN+10, &items_stoall_nofirstrow, NULL);
+		cm_bool_line(windows_list.window[items_win].cm_id, ELW_CM_MENU_LEN+11, &items_stoall_nolastrow, NULL);
+
+		cm_add(windows_list.window[items_win].cm_id, "--\nDrop all", NULL);
+		cm_grey_line(windows_list.window[items_win].cm_id, ELW_CM_MENU_LEN+13, 1);
+		cm_add(windows_list.window[items_win].cm_id, inv_keeprow_str, NULL);
+		cm_bool_line(windows_list.window[items_win].cm_id, ELW_CM_MENU_LEN+14, &items_dropall_nofirstrow, NULL);
+		cm_bool_line(windows_list.window[items_win].cm_id, ELW_CM_MENU_LEN+15, &items_dropall_nolastrow, NULL);
+
+		cm_add(windows_list.window[items_win].cm_id, "--\n", NULL);
+		cm_add(windows_list.window[items_win].cm_id, auto_get_all_str, NULL);
+		cm_add(windows_list.window[items_win].cm_id, mix_all_str, NULL);
+		cm_bool_line(windows_list.window[items_win].cm_id, ELW_CM_MENU_LEN+17, &items_auto_get_all, NULL);
+		cm_bool_line(windows_list.window[items_win].cm_id, ELW_CM_MENU_LEN+18, &items_mix_but_all, NULL);
+#else
 		cm_stoall_but = cm_create(inv_keeprow_str, NULL);
 		cm_bool_line(cm_stoall_but, 0, &items_stoall_nofirstrow, NULL);
 		cm_bool_line(cm_stoall_but, 1, &items_stoall_nolastrow, NULL);
@@ -1462,7 +1485,7 @@ void display_items_menu()
 
 		cm_itemlist_but = cm_create(item_list_but_str, NULL);
 		cm_bool_line(cm_itemlist_but, 0, &items_list_on_left, NULL);
-
+#endif
 		show_items_handler(&windows_list.window[items_win]);
 
 	} else {

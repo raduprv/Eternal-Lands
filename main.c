@@ -74,9 +74,7 @@
 #include "textures.h"
 #include "update.h"
 #include "url.h"
-#ifndef ANDROID
 #include "user_menus.h"
-#endif
 #include "weather.h"
 #ifdef MEMORY_DEBUG
 #include "elmemory.h"
@@ -325,9 +323,9 @@ int start_rendering()
 #ifndef ANDROID
 	LOG_INFO("destroy_trade_log()");
 	destroy_trade_log();
+#endif
 	LOG_INFO("destroy_user_menus()");
 	destroy_user_menus();
-#endif
 	LOG_INFO("destroy_all_root_windows()");
 	destroy_all_root_windows();
 	LOG_INFO("SDL_RemoveTimer()");

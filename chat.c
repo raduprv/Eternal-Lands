@@ -90,6 +90,22 @@ int get_tabbed_chat_end_x(void)
 	return windows_list.window[tab_bar_win].cur_x + windows_list.window[tab_bar_win].len_x;
 }
 
+#ifdef ANDROID
+int get_input_height(void)
+{
+	if (input_widget == NULL)
+		return 0;
+	return widget_get_height(input_widget->window_id, input_widget->id);
+}
+
+void move_input_widget(int window_height)
+{
+	if (input_widget == NULL)
+		return;
+	widget_move(input_widget->window_id, input_widget->id, 0, get_tab_bar_y());
+}
+
+#endif
 void input_widget_move_to_win(int window_id)
 {
 	window_info *win = NULL;
@@ -119,7 +135,11 @@ void input_widget_move_to_win(int window_id)
 		}
 		widget_set_flags(input_widget->window_id, input_widget->id, flags);
 		widget_resize(input_widget->window_id, input_widget->id, win->len_x-HUD_MARGIN_X, tf->y_space*2+ceilf(DEFAULT_FONT_Y_LEN*input_widget->size*tf->nr_lines));
+#ifdef ANDROID
+		move_input_widget(win->len_y);
+#else
 		widget_move(input_widget->window_id, input_widget->id, 0, win->len_y-input_widget->len_y-HUD_MARGIN_Y);
+#endif
 	}
 }
 

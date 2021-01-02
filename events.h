@@ -38,6 +38,10 @@ enum {
 extern int osx_right_mouse_cam; /*!< flag indication whether the right mouse button should enable camera rotation */
 #endif
 
+#ifdef ANDROID
+extern int back_on; /*!< flag indicating whether the Android back key is pressd. */
+#endif
+
 /*!
  * \ingroup event_handle
  * \brief       main event handling routine

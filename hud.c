@@ -33,9 +33,7 @@
 #include "tabs.h"
 #include "textures.h"
 #include "trade.h"
-#ifndef ANDROID
 #include "user_menus.h"
-#endif
 #include "url.h"
 
 
@@ -85,7 +83,7 @@ int show_exp(char *text, int len)
 void init_hud_interface (hud_interface type)
 {
 #ifdef ANDROID
-	set_icon_spacing(8);
+	set_icon_spacing(7);
 #endif
 
 	if (type == HUD_INTERFACE_LAST)
@@ -112,10 +110,10 @@ void init_hud_interface (hud_interface type)
 		init_quickspell ();
 #ifndef ANDROID
 		init_hud_indicators (); 
+#endif
 		ready_for_user_menus = 1;
 		if (enable_user_menus)
 			display_user_menus();
-#endif
 		if ((minimap_win < 0) && open_minimap_on_start)
 			view_window (&minimap_win, 0);
 	}

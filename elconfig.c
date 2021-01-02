@@ -190,7 +190,12 @@ static int elconfig_free_widget_id= 2;
 static unsigned char elconf_description_buffer[400]= {0};
 #endif
 struct {
+#ifdef ANDROID
+	// ANDROID_TODO we use -1 to say no tab, then we have to trap usage as the widget still get added otherwise and target the wrong window
+	Sint32	tab;
+#else
 	Uint32	tab;
+#endif
 	Uint16	x;
 	Uint16	y;
 } elconfig_tabs[MAX_TABS];
@@ -217,6 +222,9 @@ int gy_adjust = 0;
 
 #ifdef ANDROID
 int textures_32bpp = 0;
+int full_camera_bars = 0;
+static int done_initial_config = 0;
+static int show_minimap_win = 0;
 #endif
 
 int you_sit= 0;
@@ -415,7 +423,9 @@ static void change_sky_var(int * var)
 void change_minimap_var(int * var)
 {
 	*var= !*var;
-	view_window(&minimap_win, 0);
+	open_minimap_on_start = *var;
+	if (game_root_win > -1)
+		display_minimap();
 }
 #endif
 
@@ -542,30 +552,6 @@ static void change_ui_scale(float *var, float *value)
 	if (input_widget != NULL)
 		input_widget_move_to_win(input_widget->window_id);
 }
-
-#ifdef ANDROID
-void set_scale_from_window_size(void)
-{
-	float new_value = get_global_scale();
-	if (window_width<640)
-		new_value = 0.5;
-	else if (window_width <= 1024)
-		new_value = 1;
-	else if (window_width <= 1280)
-		new_value = 1.3;
-	else if (window_width <= 1600)
-		new_value = 1.7;
-	else if (window_width <= 1920)
-		new_value = 2.3;
-	else if (window_width <= 2048)
-		new_value = 2.5;
-	else if (window_width <= 2560)
-		new_value = 2.8;
-	else
-		new_value = 3.0;
-	change_ui_scale(&ui_scale, &new_value);
-}
-#endif
 
 /*
  * The chat logs are created very early on in the client start up, before the
@@ -1145,6 +1131,43 @@ static void change_note_zoom (float *dest, float *value)
 	notepad_win_close_tabs ();
 }
 
+#ifdef ANDROID
+void set_scale_from_window_size(void)
+{
+	float new_value;
+	if (done_initial_config)
+		return;
+	done_initial_config = 1;
+
+	new_value = get_global_scale();
+	if (window_width<640)
+		new_value = 0.6;
+	else if (window_width <= 1024)
+		new_value = 1.1;
+	else if (window_width <= 1280)
+		new_value = 1.6;
+	else if (window_width <= 1600)
+		new_value = 1.7;
+	else if (window_width <= 2160)
+		new_value = 2.5;
+	else if (window_width <= 2560)
+		new_value = 2.9;
+	else
+		new_value = 3.2;
+	change_ui_scale(&ui_scale, &new_value);
+	set_var_unsaved("ui_scale", INI_FILE_VAR);
+
+	new_value = ui_scale * 0.8f;
+	change_chat_zoom(&chat_zoom, &new_value);
+	set_var_unsaved("chat_text_size", INI_FILE_VAR);
+	change_float(&name_zoom, &new_value);
+	set_var_unsaved("name_text_size", INI_FILE_VAR);
+	new_value = 0.7f * ui_scale * 0.8f;
+	change_float(&minimap_size_coefficient, &new_value);
+	set_var_unsaved("minimap_scale", INI_FILE_VAR);
+}
+
+#endif
 #endif
 #endif // def ELC
 
@@ -1318,9 +1341,14 @@ static void change_reflection(int *rf)
 }
 
 #ifdef ANDROID
+void change_camera_bars(int *ccb)
+{
+	*ccb = !*ccb;
+}
+
 void change_texture_bpp(int *tbpp)
 {
-	*tbpp= !*tbpp;
+	*tbpp = !*tbpp;
 }
 #endif
 
@@ -1794,7 +1822,10 @@ int check_var (char *str, var_name_type type)
 	i= find_var (str, type);
 	if (i < 0)
 	{
+#ifndef ANDROID
+		// ANDROID_TODO cut down on logged errors
 		LOG_WARNING("Can't find var '%s', type %d", str, type);
+#endif
 		return -1;
 	}
 
@@ -2089,7 +2120,8 @@ static void init_ELC_vars(void)
 
 	// HUD TAB
 #ifdef ANDROID
-//	add_var(OPT_BOOL,"show_minimap_win","minimap", &show_minimap_win, change_minimap_var,1,"Show Minimap", "Enable the minimap", HUD);
+	add_var(OPT_BOOL,"show_minimap_win","minimap", &show_minimap_win, change_minimap_var,0,"Open Minimap At Start Up", "Open the minimap at start up", HUD);
+	add_var(OPT_BOOL,"full_camera_bars","full_cam_bars",&full_camera_bars,change_camera_bars,1,"Draw camera bars","Shows the camera bars",HUD);
 #endif
 	add_var(OPT_BOOL,"show_fps","fps",&show_fps,change_var,1,"Show FPS","Show the current frames per second in the corner of the window",HUD);
 	add_var(OPT_BOOL,"view_analog_clock","analog",&view_analog_clock,change_var,1,"Analog Clock","Toggle the analog clock",HUD);
@@ -2099,10 +2131,10 @@ static void init_ELC_vars(void)
 	add_var(OPT_BOOL,"view_hud_timer","timer",&view_hud_timer,change_var,1,"Countdown/Stopwatch Timer","Timer controls: Right-click for menu. Shift-left-click to toggle mode. Left-click to start/stop. Mouse wheel to reset, up/down to change countdown start time (+ctrl/alt to change step).",HUD);
 #endif
 	add_var(OPT_BOOL,"show_game_seconds","show_game_seconds",&show_game_seconds,change_var,0,"Show Game Seconds","Show seconds on the digital clock. Note: the seconds displayed are computed on client side and synchronized with the server at each new minute.",HUD);
-#ifndef ANDROID
 	add_var(OPT_BOOL,"show_stats_in_hud","sstats",&show_stats_in_hud,change_var,0,"Stats In HUD","Toggle showing stats in the HUD",HUD);
 	add_var(OPT_BOOL,"show_statbars_in_hud","sstatbars",&show_statbars_in_hud,change_var,0,"StatBars In HUD","Toggle showing statbars in the HUD. Needs Stats in HUD",HUD);
 	add_var(OPT_BOOL,"show_action_bar","ssactionbar",&show_action_bar,change_show_action_bar,0,"Action Points Bar in HUD","Show the current action points level in a stats bar on the bottom HUD.",HUD);
+#ifndef ANDROID
 	add_var(OPT_BOOL,"show_indicators","showindicators",&show_hud_indicators,toggle_hud_indicators_window,1,"Show Status Indicators in HUD","Show status indicators for special day (left click to show day), harvesting, poision and message count (left click to zero). Right-click the window for settings.",HUD);
 	add_var(OPT_BOOL,"logo_click_to_url","logoclick",&logo_click_to_url,change_var,0,"Logo Click To URL","Toggle clicking the LOGO opening a browser window",HUD);
 	add_var(OPT_STRING,"logo_link", "logolink", LOGO_URL_LINK, change_string, 128, "Logo Link", "URL when clicking the logo", HUD);
@@ -2119,13 +2151,11 @@ static void init_ELC_vars(void)
 #ifndef ANDROID
 	add_var(OPT_BOOL,"relocate_quickbar", "requick", &quickbar_relocatable, change_quickbar_relocatable, 0,"Relocate Quickbar","Set whether you can move the quickbar",HUD);
 	add_var(OPT_BOOL,"relocate_quickspells", "requickspells", &quickspells_relocatable, change_quickspells_relocatable, 0,"Relocate Quick Spells","Set whether you can move the quick spells window",HUD);
+#endif
 	add_var(OPT_INT,"num_quickbar_slots","numqbslots",&num_quickbar_slots,change_int,6,"Number Of Quickbar Item Slots","Set the number of quick slots for inventory items. May be automatically reduced for low resolutions",HUD,1,MAX_QUICKBAR_SLOTS);
 	add_var(OPT_INT,"num_quickspell_slots","numqsslots",&num_quickspell_slots,change_int,6,"Number Of Quickbar Spell Slots","Set the number of quickbar slots for spells. May be automatically reduced for low resolutions",HUD,1,MAX_QUICKSPELL_SLOTS);
-#endif
 	add_var(OPT_INT,"max_food_level","maxfoodlevel",&max_food_level,change_int,45,"Maximum Food Level", "Set the maximum value displayed by the food level bar.",HUD,10,200);
-#ifndef ANDROID
 	add_var(OPT_INT,"wanted_num_recipe_entries","wantednumrecipeentries",&wanted_num_recipe_entries,change_num_recipe_entries,10,"Number of recipe entries", "Sets the number of entries available for the manufacturing window stored recipes.",HUD,4,max_num_recipe_entries);
-#endif
 	add_var(OPT_INT,"exp_log_threshold","explogthreshold",&exp_log_threshold,change_int,5000,"Log exp gain to console", "If you gain experience of this value or over, then a console message will be written.  Set the value to zero to disable completely.",HUD,0,INT_MAX);
 #ifndef ANDROID
 	add_var(OPT_STRING,"npc_mark_template","npcmarktemplate",npc_mark_str,change_string,sizeof(npc_mark_str)-1,"NPC map mark template","The template used when setting a map mark from the NPC dialogue (right click name). The %s is substituted for the NPC name.",HUD);
@@ -2136,9 +2166,7 @@ static void init_ELC_vars(void)
 	add_var(OPT_BOOL,"rotate_minimap","rotateminimap",&rotate_minimap,change_var,1,"Rotate Minimap","Toggle whether the minimap should rotate.",HUD);
 	add_var(OPT_BOOL,"pin_minimap","pinminimap",&pin_minimap,change_var,0,"Pin Minimap","Toggle whether the minimap ignores close-all-windows.",HUD);
 	add_var(OPT_BOOL, "continent_map_boundaries", "cmb", &show_continent_map_boundaries, change_var, 1, "Map Boundaries On Continent Map", "Show map boundaries on the continent map", HUD);
-#ifndef ANDROID
 	add_var(OPT_BOOL,"enable_user_menus", "user_menus", &enable_user_menus, toggle_user_menus, 0, "Enable User Menus","Create .menu files in your config directory.  First line is the menu name. After that, each line is a command using the format \"Menus Text || command || command\".  Prompt for input using \"command text <prompt text>\".",HUD);
-#endif
 	add_var(OPT_BOOL,"console_scrollbar_enabled", "console_scrollbar", &console_scrollbar_enabled, toggle_console_scrollbar, 1, "Show Console Scrollbar","If enabled, a scrollbar will be shown in the console window.",HUD);
 #if !defined(WINDOWS) && !defined(OSX) && !defined(ANDROID)
 	add_var(OPT_BOOL,"use_clipboard","uclb",&use_clipboard, change_var, 1, "Use Clipboard For Pasting", "Use CLIPBOARD for pasting (as e.g. GNOME does) or use PRIMARY cutbuffer (as xterm does)",HUD);
@@ -2161,7 +2189,9 @@ static void init_ELC_vars(void)
 
 
 	// CHAT TAB
-#ifndef ANDROID
+#ifdef ANDROID
+	add_var(OPT_MULTI,"windowed_chat", "winchat", &use_windowed_chat, change_windowed_chat, 1, "Chat Display Style", "How do you want your chat to be displayed?", CHAT, "Old behavior", "Tabbed chat", NULL);
+#else
 	add_var(OPT_MULTI,"windowed_chat", "winchat", &use_windowed_chat, change_windowed_chat, 1, "Chat Display Style", "How do you want your chat to be displayed?", CHAT, "Old behavior", "Tabbed chat", "Chat window", NULL);
 	add_var(OPT_BOOL,"local_chat_separate", "locsep", &local_chat_separate, change_separate_flag, 0, "Separate Local Chat", "Should local chat be separate?", CHAT);
 	// The forces that be want PMs always global, so that they're less likely to be ignored
@@ -2195,6 +2225,9 @@ static void init_ELC_vars(void)
 
 
 	// FONT TAB
+#ifdef ANDROID
+	add_var(OPT_BOOL_INI, "done_initial_config", "dic", &done_initial_config, change_var, 0, "Done initial config", "Set on first run allowing one-time configuration.", FONT);
+#endif
 	add_var(OPT_FLOAT,"name_text_size","nsize",&name_zoom,change_float,1,"Name Text Size","Set the size of the players name text",FONT,0.0,2.0,0.01);
 	add_var(OPT_FLOAT,"chat_text_size","csize",&chat_zoom,change_chat_zoom,1,"Chat Text Size","Sets the size of the normal text",FONT,0.0,FLT_MAX,0.01);
 #ifndef ANDROID
@@ -2215,7 +2248,7 @@ static void init_ELC_vars(void)
 	add_var(OPT_PASSWORD,"password","p",active_password_str,change_string,MAX_USERNAME_LENGTH,"Password","Put your password here",SERVER);
 #ifdef ANDROID
 	passmngr_enabled = 1;
-	log_chat=LOG_NONE;
+	log_chat = LOG_NONE;
 #else
 	add_var(OPT_BOOL,"passmngr_enabled","pme",&passmngr_enabled,change_var,0,"Enable Password Manager", "If enabled, user names and passwords are saved locally by the built-in password manager.  Multiple sets of details can be saved.  You can choose which details to use at the login screen.",SERVER);
 	add_var(OPT_MULTI,"log_chat","log",&log_chat,change_int,LOG_SERVER,"Log Messages","Log messages from the server (chat, harvesting events, GMs, etc)",SERVER,"Do not log chat", "Log chat only", "Log server messages", "Log server to srv_log.txt", NULL);
@@ -2676,6 +2709,10 @@ static int display_elconfig_handler(window_info *win)
 		// Update the widgets in case an option changed
 		// Actually that's ony the OPT_MULTI type widgets, the others are
 		// taken care of by their widget handlers
+#ifdef ANDROID
+		if (elconfig_tabs[our_vars.var[i]->widgets.tab_id].tab < 0)
+			continue;
+#endif
 		if ((our_vars.var[i]->type == OPT_MULTI) || (our_vars.var[i]->type == OPT_MULTI_H))
 			multiselect_set_selected (elconfig_tabs[our_vars.var[i]->widgets.tab_id].tab, our_vars.var[i]->widgets.widget_id, *(int *)our_vars.var[i]->var);
 	}
@@ -2891,6 +2928,10 @@ static void elconfig_populate_tabs(void)
 
 	for(i= 0; i < our_vars.no; i++) {
 		tab_id= our_vars.var[i]->widgets.tab_id;
+#if ANDROID
+		if (elconfig_tabs[tab_id].tab < 0)
+			continue;
+#endif
 		switch(our_vars.var[i]->type) {
 			case OPT_BOOL_INI:
 			case OPT_INT_INI:
@@ -3146,7 +3187,11 @@ void display_elconfig_win(void)
 		elconfig_tabs[HUD].tab= tab_add(elconfig_win, elconfig_tab_collection_id, ttab_hud, 0, 0, ELW_SCROLLABLE|ELW_USE_UISCALE);
 		elconfig_tabs[CHAT].tab= tab_add(elconfig_win, elconfig_tab_collection_id, ttab_chat, 0, 0, ELW_SCROLLABLE|ELW_USE_UISCALE);
 		elconfig_tabs[FONT].tab= tab_add(elconfig_win, elconfig_tab_collection_id, ttab_font, 0, 0, ELW_SCROLLABLE|ELW_USE_UISCALE);
-#ifndef ANDROID
+#ifdef ANDROID
+		elconfig_tabs[SERVER].tab= -1;
+		elconfig_tabs[AUDIO].tab= -1;
+		elconfig_tabs[VIDEO].tab= -1;
+#else
 		elconfig_tabs[SERVER].tab= tab_add(elconfig_win, elconfig_tab_collection_id, ttab_server, 0, 0, ELW_SCROLLABLE|ELW_USE_UISCALE);
 		elconfig_tabs[AUDIO].tab= tab_add(elconfig_win, elconfig_tab_collection_id, ttab_audio, 0, 0, ELW_SCROLLABLE|ELW_USE_UISCALE);
 		elconfig_tabs[VIDEO].tab= tab_add(elconfig_win, elconfig_tab_collection_id, ttab_video, 0, 0, ELW_SCROLLABLE|ELW_USE_UISCALE);
@@ -3157,7 +3202,9 @@ void display_elconfig_win(void)
 		elconfig_tabs[GFX].tab= tab_add(elconfig_win, elconfig_tab_collection_id, ttab_gfx, 0, 0, ELW_SCROLLABLE|ELW_USE_UISCALE);
 #endif
 		elconfig_tabs[CAMERA].tab= tab_add(elconfig_win, elconfig_tab_collection_id, ttab_camera, 0, 0, ELW_SCROLLABLE|ELW_USE_UISCALE);
-#ifndef ANDROID
+#ifdef ANDROID
+		elconfig_tabs[TROUBLESHOOT].tab= -1;
+#else
 		elconfig_tabs[TROUBLESHOOT].tab= tab_add(elconfig_win, elconfig_tab_collection_id, ttab_troubleshoot, 0, 0, ELW_SCROLLABLE|ELW_USE_UISCALE);
 #endif
 #ifdef DEBUG
@@ -3167,6 +3214,10 @@ void display_elconfig_win(void)
 
 		/* configure scrolling for tabs */
 		for (i=0; i<MAX_TABS; i++) {
+#ifdef ANDROID
+			if (elconfig_tabs[i].tab < 0)
+				continue;
+#endif
 			/* configure scrolling for any tabs that exceed the window length */
 			if(elconfig_tabs[i].y > (widget_get_height(elconfig_win, elconfig_tab_collection_id)-TAB_TAG_HEIGHT)) {
 				set_window_scroll_len(elconfig_tabs[i].tab, elconfig_tabs[i].y-widget_get_height(elconfig_win, elconfig_tab_collection_id)+TAB_TAG_HEIGHT);

@@ -34,6 +34,7 @@ extern int gy_adjust;
 
 #ifdef ANDROID
 extern int textures_32bpp;
+extern int full_camera_bars;
 #endif
 
 extern int video_mode_set;
