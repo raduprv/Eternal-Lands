@@ -75,6 +75,7 @@ static int resize_session_handler(window_info *win, int new_width, int new_heigh
 
 void fill_session_win(int window_id)
 {
+	set_window_custom_scale(window_id, &custom_scale_factors.stats);
 	set_window_handler(window_id, ELW_HANDLER_DISPLAY, &display_session_handler);
 	set_window_handler(window_id, ELW_HANDLER_CLICK, &click_session_handler );
 	set_window_handler(window_id, ELW_HANDLER_MOUSEOVER, &mouseover_session_handler );

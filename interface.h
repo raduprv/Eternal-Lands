@@ -116,7 +116,7 @@ extern float mapmark_zoom; /*!< scaling factor for the mapmark text */
  *
  * \callgraph
  */
-void read_mapinfo ();
+void read_mapinfo (void);
 
 
 /*!
@@ -126,7 +126,7 @@ void read_mapinfo ();
  *
  * \callgraph
  */
-void save_scene_matrix ();
+void save_scene_matrix (void);
 
 /*!
  * \ingroup interfaces
@@ -153,8 +153,6 @@ void get_world_x_y (short *scene_x, short *scene_y);
  */
 void get_old_world_x_y (short *scene_x, short *scene_y);
 
-//void check_menus_out_of_screen();
-
 /*!
  * \ingroup interfaces
  * \brief   Puts the client into 2D mode.
@@ -162,7 +160,7 @@ void get_old_world_x_y (short *scene_x, short *scene_y);
  *      Puts the client into 2D mode. Stores the current attributes for lighting and depth tests and then disables them, then stores the projection matrix and performs an orthographic projection and finally stores the modelview matrix.
  *
  */
-void Enter2DMode();
+void Enter2DMode(void);
 void Enter2DModeExtended(int width, int height);
 
 /*!
@@ -172,7 +170,7 @@ void Enter2DModeExtended(int width, int height);
  *      Puts the client back into 3D mode. Restores the modelview and projection matrices as well as the attributes, saved with \ref Enter2DMode and resets the viewport.
  *
  */
-void Leave2DMode();
+void Leave2DMode(void);
 
 /*!
  * \ingroup interfaces
@@ -232,7 +230,7 @@ int y_start,int x_end,int y_end);
  * \retval int  0, if there's no map available for the current place, else 1.
  * \callgraph
  */
-int switch_to_game_map();
+int switch_to_game_map(void);
 
 /*!
  * \ingroup interface_map
@@ -254,7 +252,7 @@ void draw_game_map (int map, int mouse_mini);
  *      Saves the user defined markings on maps. The markings are stored on a per map basis, i.e. each map gets its own save file, based on the maps .elm filename.
  *
  */
-void save_markings();
+void save_markings(void);
 
 /*!
  * \ingroup interfaces
@@ -266,7 +264,7 @@ void save_markings();
  *
  * \pre If the mouse is outside the map area, this function will return without performing any actions.
  */
-void delete_mark_on_map_on_mouse_position();
+void delete_mark_on_map_on_mouse_position(void);
 
 /*!
  * \ingroup interfaces
@@ -293,7 +291,7 @@ int put_mark_on_position(int map_x, int map_y, const char * name);
  *
  * \pre If the mouse is outside the map area, this function will return without performing any actions.
  */
-void put_mark_on_map_on_mouse_position();
+void put_mark_on_map_on_mouse_position(void);
 
 /*!
  * \ingroup interfaces
@@ -318,7 +316,7 @@ int put_mark_on_current_position(const char *name);
  *
  * \callgraph
  */
-void destroy_all_root_windows ();
+void destroy_all_root_windows (void);
 
 /*!
  * \ingroup interfaces
@@ -328,7 +326,7 @@ void destroy_all_root_windows ();
  *
  * \callgraph
  */
-void hide_all_root_windows ();
+void hide_all_root_windows (void);
 
 /*!
  * \ingroup interfaces
@@ -341,7 +339,8 @@ void hide_all_root_windows ();
  *
  * \callgraph
  */
-void resize_all_root_windows (Uint32 w, Uint32 h);
+void resize_all_root_windows (Uint32 ow, Uint32 w, Uint32 oh, Uint32 h);
+
 
 /*!
  * \ingroup interfaces

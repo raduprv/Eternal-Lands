@@ -1071,6 +1071,7 @@ void display_range_win(void)
 			our_root_win = game_root_win;
 		}
 		range_win = create_window(ranging_win_title_str, our_root_win, 0, ranging_win_x, ranging_win_y, range_win_x_len, range_win_y_len, ELW_USE_UISCALE|ELW_WIN_DEFAULT);
+		set_window_custom_scale(range_win, &custom_scale_factors.ranging);
 		set_window_handler(range_win, ELW_HANDLER_DISPLAY, &display_range_handler );
 		cm_add(windows_list.window[range_win].cm_id, cm_ranging_menu_str, cm_ranging_handler);
 	} else {

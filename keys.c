@@ -68,7 +68,7 @@ el_key_def K_ITEM7 = {SDLK_7, KMOD_LCTRL, "#K_ITEM7"};
 el_key_def K_ITEM8 = {SDLK_8, KMOD_LCTRL, "#K_ITEM8"};
 el_key_def K_ITEM9 = {SDLK_9, KMOD_LCTRL, "#K_ITEM9"};
 el_key_def K_ITEM10 = {SDLK_0, KMOD_LCTRL, "#K_ITEM10"};
-el_key_def K_ITEM11 = {SDLK_UNDERSCORE, KMOD_LCTRL, "#K_ITEM11"};
+el_key_def K_ITEM11 = {SDLK_MINUS, KMOD_LCTRL, "#K_ITEM11"};
 el_key_def K_ITEM12 = {SDLK_EQUALS, KMOD_LCTRL, "#K_ITEM12"};
 el_key_def K_SCREENSHOT = {SDLK_p, KMOD_LCTRL, "#K_SCREENSHOT"};
 el_key_def K_VIEWTEXTASOVERTEXT = {SDLK_o, KMOD_LALT, "#K_VIEWTEXTASOVERTEXT"};
@@ -89,7 +89,7 @@ el_key_def K_SPELL7 = {SDLK_7, KMOD_LALT, "#K_SPELL7"};
 el_key_def K_SPELL8 = {SDLK_8, KMOD_LALT, "#K_SPELL8"};
 el_key_def K_SPELL9 = {SDLK_9, KMOD_LALT, "#K_SPELL9"};
 el_key_def K_SPELL10 = {SDLK_0, KMOD_LALT, "#K_SPELL10"};
-el_key_def K_SPELL11 = {SDLK_UNDERSCORE, KMOD_LALT, "#K_SPELL11"};
+el_key_def K_SPELL11 = {SDLK_MINUS, KMOD_LALT, "#K_SPELL11"};
 el_key_def K_SPELL12 = {SDLK_EQUALS, KMOD_LALT, "#K_SPELL12"};
 el_key_def K_TABCOMPLETE = {SDLK_SPACE, KMOD_LCTRL, "#K_TABCOMPLETE"};
 el_key_def K_WINDOWS_ON_TOP = {SDLK_w, KMOD_LALT, "#K_WINDOWS_ON_TOP"};
@@ -115,6 +115,11 @@ el_key_def K_ECDEBUGWIN = { SDLK_c, KMOD_LALT|KMOD_LCTRL, "#K_ECDEBUGWIN"};
 el_key_def K_EMOTES = {SDLK_j, KMOD_LCTRL, "#K_EMOTES"};
 el_key_def K_RANGINGWIN = {SDLK_t, KMOD_LCTRL, "#K_RANGINGWIN"};
 el_key_def K_TARGET_CLOSE = {SDLK_t, KMOD_LALT, "#K_TARGET_CLOSE"};
+el_key_def K_WINSCALEUP = {SDLK_UP, KMOD_LCTRL, "#K_WINSCALEUP"};
+el_key_def K_WINSCALEDOWN = {SDLK_DOWN, KMOD_LCTRL, "#K_WINSCALEDOWN"};
+el_key_def K_WINSCALEDEF = {SDLK_HOME, KMOD_LCTRL, "#K_WINSCALEDEF"};
+el_key_def K_WINSCALEINIT = {SDLK_END, KMOD_LCTRL, "#K_WINSCALEINIT"};
+el_key_def K_SUMMONINGMENU = {SDLK_u, KMOD_LCTRL, "#K_SUMMONINGMENU"};
 
 // Remaining keys are not assigned to the keyboard but
 // can be redefined or used by the #keypress command.
@@ -185,11 +190,26 @@ static Uint32 CRC32(const char *data, int len)
 	return ~result;
 }
 
+// Using the key names from https://wiki.libsdl.org/SDL_Keycode,
+// we can convert a specified input from the key.ini (or defaults)
+// to the actual key code to use.
 static void add_to_key_def(el_key_def *key_def, char *name)
 {
-	SDL_Keycode key_code = SDL_GetKeyFromName(name);
+	SDL_Keycode key_code;
+	size_t i;
+
+	// the key names can contain spaces so we replace space with underscore
+	// when defining keys and convert them to real key name, here.
+	for (i=0; i<strlen(name); i++)
+		if (name[i] == '_')
+			name[i] = ' ';
+
+	// the key code is found from the key name...
+	key_code = SDL_GetKeyFromName(name);
 	if (key_code != SDLK_UNKNOWN)
 		key_def->key_code = key_code;
+
+	// ...any modifiers from this hash version of the string.
 	else
 	{
 		int len = strlen(name);
@@ -209,7 +229,7 @@ static void add_to_key_def(el_key_def *key_def, char *name)
 
 static void parse_key_line(const char *line)
 {
-	char kstr[100], t1[100], t2[100], t3[100], t4[100];
+	char kstr[100]="", t1[100]="", t2[100]="", t3[100]="", t4[100]="";
 	el_key_def key_def = {SDLK_UNKNOWN, KMOD_NONE, "Unassigned"};
 	int nkey = sscanf(line, " #K_%99s = %99s %99s %99s %99s", kstr, t1, t2, t3, t4);
 	size_t num_keys = sizeof(key_def_store)/sizeof(el_key_def *);

@@ -24,6 +24,7 @@
 #include "pawn/elpawn.h"
 #endif
 #include "textures.h"
+#include "actor_scripts.h"
 
 #ifdef ANDROID
 int last_mouse_x;
@@ -35,6 +36,21 @@ int back_on;
 #ifdef OSX
 int osx_right_mouse_cam = 0;
 #endif
+
+static const int min_fps = 3;
+
+static void enter_minimised_state(void)
+{
+	max_fps = min_fps;
+	//printf("entered minimised\n");
+}
+
+static void leave_minimised_state(void)
+{
+	max_fps = limit_fps;
+	update_all_actors(0);
+	//printf("left minimised\n");
+}
 
 // Convert from utf-8 to unicode, generated from the table here:
 // https://www.utf8-chartable.de/unicode-utf8-table.pl?htmlent=1
@@ -169,13 +185,13 @@ void check_minimised_or_restore_window(void)
 	Uint32 flags = SDL_GetWindowFlags(el_gl_window);
 	if (flags & (SDL_WINDOW_HIDDEN | SDL_WINDOW_MINIMIZED))
 	{
-		if (max_fps != 1)
-			max_fps = 1;
+		if (max_fps != min_fps)
+			enter_minimised_state();
 	}
 	else if (flags & (SDL_WINDOW_SHOWN | SDL_WINDOW_MAXIMIZED))
 	{
 		if (max_fps != limit_fps)
-			max_fps = limit_fps;
+			leave_minimised_state();
 	}
 }
 
@@ -196,6 +212,7 @@ int HandleEvent (SDL_Event *event)
 	static Uint32 last_gesture_time = 0;
 #endif
 	static Uint32 last_loss = 0;
+	static Uint32 last_gain = 0;
 	static Uint32 last_SDL_KEYDOWN_timestamp = 0;
 	static Uint32 last_SDL_KEYDOWN_return_value = 0;
 	static int el_input_focus = 1;
@@ -211,13 +228,13 @@ int HandleEvent (SDL_Event *event)
 		case SDL_APP_TERMINATING:
 			SDL_Log("OS is terminating us...");
 			// ANDROID_TODO radu removed the save in the latest version - "might cause problems"
-			save_local_data(NULL, 0);
+			save_local_data();
 			exit(1);
 			break;
 
 		case SDL_APP_WILLENTERBACKGROUND:
 			SDL_Log("App entered background");
-			save_local_data(NULL, 0);
+			save_local_data();
 			break;
 #endif
 
@@ -234,8 +251,10 @@ int HandleEvent (SDL_Event *event)
 			switch (event->window.event) {
 				case SDL_WINDOWEVENT_HIDDEN:
 				case SDL_WINDOWEVENT_MINIMIZED:
-					last_loss = SDL_GetTicks();
-					max_fps = 1;
+					if (clear_mod_keys_on_focus)
+						last_loss = SDL_GetTicks();
+					if (max_fps != min_fps)
+						enter_minimised_state();
 					break;
 				case SDL_WINDOWEVENT_SHOWN:
 				case SDL_WINDOWEVENT_EXPOSED:
@@ -246,12 +265,16 @@ int HandleEvent (SDL_Event *event)
 						last_loss = 0;
 						SDL_SetModState(KMOD_NONE);
 					}
-					max_fps = limit_fps;
+					last_gain = SDL_GetTicks();
+					if (max_fps != limit_fps)
+						leave_minimised_state();
 					break;
 				case SDL_WINDOWEVENT_LEAVE:
 				case SDL_WINDOWEVENT_FOCUS_LOST:
 #ifndef ANDROID
 					last_loss = SDL_GetTicks();
+					if (clear_mod_keys_on_focus)
+						last_loss = SDL_GetTicks();
 					el_input_focus = 0;
 #endif
 					break;
@@ -262,14 +285,18 @@ int HandleEvent (SDL_Event *event)
 						last_loss = 0;
 						SDL_SetModState(KMOD_NONE);
 					}
+					last_gain = SDL_GetTicks();
 					el_input_focus = 1;
 					break;
 				case SDL_WINDOWEVENT_RESIZED:
+				{
+					Uint32 old_window_width = window_width, old_window_height = window_height;
 					//printf("SDL_WINDOWEVENT_RESIZED\n");
 				 	window_width = event->window.data1;
 					window_height = event->window.data2;
-					resize_all_root_windows(window_width, window_height);
+					resize_all_root_windows(old_window_width, window_width, old_window_height, window_height);
 					break;
+				}
 				default:
 					//printf("untrapped SDL_WINDOWEVENT %x\n", event->window.event);
 					break;
@@ -282,6 +309,9 @@ int HandleEvent (SDL_Event *event)
 			break;
 
 		case SDL_TEXTINPUT:
+			if (afk_time) // if enabled...
+				last_action_time = cur_time;  // reset the AFK timer
+			cm_post_show_check(1); // forces any context menu to close
 			unicode = utf8_to_unicode(event->text.text);
 			//printf("SDL_TEXTINPUT text=[%s] len=%lu,%lu timestamp=%u\n", (unsigned char *)event->text.text, sizeof(event->text.text), strlen(event->text.text), event->key.timestamp);
 			//printf("UTF-8 udf8=(%x,%x) unicode=%x\n", event->text.text[0], event->text.text[1], unicode);
@@ -300,10 +330,20 @@ int HandleEvent (SDL_Event *event)
 #endif
 
 		case SDL_KEYDOWN:
-			if (afk_time) 
-				last_action_time = cur_time;	// Set the latest event... Don't let the modifiers ALT, CTRL and SHIFT change the state
-			if (event->key.keysym.mod == KMOD_NONE)
-				cm_post_show_check(1); /* any non-mod keypress forces any context menu to close */
+			// Don't let the modifiers GUI, ALT, CTRL and SHIFT change the state if only the key pressed
+			if ((event->key.keysym.sym != SDLK_LSHIFT) && (event->key.keysym.sym != SDLK_RSHIFT) &&
+				(event->key.keysym.sym != SDLK_LCTRL) && (event->key.keysym.sym != SDLK_RCTRL) &&
+				(event->key.keysym.sym != SDLK_LALT) && (event->key.keysym.sym != SDLK_RALT) &&
+				(event->key.keysym.sym != SDLK_LGUI) && (event->key.keysym.sym != SDLK_RGUI))
+			{
+				if (afk_time) // if enabled...
+					last_action_time = cur_time;  // reset the AFK timer
+				cm_post_show_check(1); // forces any context menu to close
+			}
+			// Don't use a TAB key dangling from system window switching.  By default this would toggle the map window.
+			if (last_gain && (event->key.keysym.sym == SDLK_TAB) && ((SDL_GetTicks() - last_gain) < 50))
+				break;
+			last_gain = 0;
 			//printf("SDL_KEYDOWN keycode=%u,[%s] mod=%u timestamp=%u\n", event->key.keysym.sym, SDL_GetKeyName(event->key.keysym.sym), event->key.keysym.mod, event->key.timestamp);
 			last_SDL_KEYDOWN_timestamp = event->key.timestamp;
 #ifdef ANDROID

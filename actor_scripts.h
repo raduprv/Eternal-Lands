@@ -96,6 +96,18 @@ void destroy_all_actors();
 
 /*!
  * \ingroup	network_actors
+ * \brief	The function destroys all actors then requests an update.
+ *
+ * 		The calls destroy_all_actors() then requests the server sends all actor informaiton.
+ *
+ * \param	If true, write message to the console, otherwise do it silently.
+ *
+ * \sa		destroy_all_actors
+ */
+void update_all_actors(int log_the_update);
+
+/*!
+ * \ingroup	network_actors
  * \brief	The function adds a command to the actor.
  *
  * 		This function is called whenever the client gets an ADD_ACTOR_COMMAND. It will add the command to the command queue (actor->que)

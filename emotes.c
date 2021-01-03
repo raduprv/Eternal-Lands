@@ -281,6 +281,7 @@ void display_emotes_menu(void)
 			our_root_win = game_root_win;
 		}
 		emotes_win= create_window("Emotes", our_root_win, 0, emotes_menu_x, emotes_menu_y, 0, 0, ELW_USE_UISCALE|ELW_WIN_DEFAULT);
+		set_window_custom_scale(emotes_win, &custom_scale_factors.emote);
 		set_window_handler(emotes_win, ELW_HANDLER_DISPLAY, &display_emotes_handler );
 		set_window_handler(emotes_win, ELW_HANDLER_CLICK, &click_emotes_handler );
 		set_window_handler(emotes_win, ELW_HANDLER_UI_SCALE, &ui_scale_emotes_handler );

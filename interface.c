@@ -88,7 +88,7 @@ int ati_click_workaround = 0;
 
 float mapmark_zoom=0.3f;
 
-void save_scene_matrix ()
+void save_scene_matrix (void)
 {
 	glGetDoublev (GL_MODELVIEW_MATRIX, model_mat);
 	glGetDoublev (GL_PROJECTION_MATRIX, projection_mat);
@@ -293,12 +293,12 @@ CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
 }
 
-void Enter2DMode()
+void Enter2DMode(void)
 {
 	Enter2DModeExtended(window_width, window_height);
 }
 
-void Leave2DMode()
+void Leave2DMode(void)
 {
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
@@ -514,7 +514,7 @@ static void read_cont_info(void)
 	}
 }
 
-void read_mapinfo ()
+void read_mapinfo (void)
 {
 	FILE *fin;
 	char line[256];
@@ -593,7 +593,7 @@ void read_mapinfo ()
 	continent_maps[imap].weather = 0;
 }
 
-int switch_to_game_map()
+int switch_to_game_map(void)
 {
 	char buffer[1024];
 	short int cur_cont;
@@ -1129,6 +1129,7 @@ int put_mark_on_position(int map_x, int map_y, const char * name)
 		memset(marks[max_mark].text,0,sizeof(marks[max_mark].text));
 		
 		my_strncp(marks[max_mark].text,name,sizeof(marks[max_mark].text));
+		rtrim_string(marks[max_mark].text); //remove trailing white space
 		marks[max_mark].text[strlen(marks[max_mark].text)]=0;
 
 		marks[max_mark].server_side=0;
@@ -1143,7 +1144,7 @@ int put_mark_on_position(int map_x, int map_y, const char * name)
 		return 1;
 }
 
-void put_mark_on_map_on_mouse_position()
+void put_mark_on_map_on_mouse_position(void)
 {
 	if (pf_get_mouse_position(mouse_x, mouse_y, &mark_x, &mark_y))
 		adding_mark = 1;
@@ -1160,7 +1161,7 @@ int put_mark_on_current_position(const char *name)
 	return 0;
 }
 
-void delete_mark_on_map_on_mouse_position()
+void delete_mark_on_map_on_mouse_position(void)
 {
 	int min_mouse_x = (window_width-hud_x)/6;
 	int min_mouse_y = 0;
@@ -1230,7 +1231,7 @@ void delete_mark_on_map_on_mouse_position()
 }
 
 
-void destroy_all_root_windows ()
+void destroy_all_root_windows (void)
 {
 	if (game_root_win >= 0) destroy_window (game_root_win);
 	if (console_root_win >= 0) destroy_window (console_root_win);
@@ -1244,7 +1245,7 @@ void destroy_all_root_windows ()
 #endif
 	if (langsel_rootwin >= 0) destroy_window (langsel_rootwin);
 }
-void hide_all_root_windows ()
+void hide_all_root_windows (void)
 {
 	if (game_root_win >= 0) hide_window (game_root_win);
 	if (console_root_win >= 0) hide_window (console_root_win);
@@ -1259,8 +1260,26 @@ void hide_all_root_windows ()
 	if (langsel_rootwin >= 0) hide_window (langsel_rootwin);
 }
 
-void resize_all_root_windows (Uint32 w, Uint32 h)
+static void move_windows_proportionally(Uint32 old_w, Uint32 w, Uint32 old_h, Uint32 h)
 {
+	size_t win_id;
+	for (win_id=0; win_id < windows_list.num_windows; win_id++)
+	{
+		window_info *win = &windows_list.window[win_id];
+		if (win->owner_drawn_title_bar || ((win->flags & ELW_TITLE_BAR) &&
+			((win->pos_id == game_root_win) || (win->pos_id == newchar_root_win) || (win->pos_id == -1))))
+		{
+			int new_x = (int)(0.5 + (float)w * ((float)win->cur_x + (float)win->len_x / 2.0f) / (float)old_w - (float)win->len_x / 2.0f);
+			int new_y = (int)(0.5 + (float)h * ((float)win->cur_y + (float)win->len_y / 2.0f) / (float)old_h - (float)win->len_y / 2.0f);
+			//printf("moving %s %d/%d -> %d/%d\n", win->window_name, win->cur_x, win->cur_y, new_x, new_y);
+			move_window(win->window_id, win->pos_id, win->pos_loc, new_x, new_y);
+		}
+	}
+}
+
+void resize_all_root_windows (Uint32 ow, Uint32 w, Uint32 oh, Uint32 h)
+{
+	move_windows_proportionally(ow, w, oh, h);
 	if (game_root_win >= 0) resize_window (game_root_win, w, h);
 	if (console_root_win >= 0) resize_window (console_root_win, w, h);
 	if (map_root_win >= 0) resize_window (map_root_win, w, h);

@@ -1231,6 +1231,7 @@ void fill_encyclopedia_win (int window_id)
 {
 	encyclopedia_win = window_id;
 
+	set_window_custom_scale(window_id, &custom_scale_factors.help);
 	set_window_handler (window_id, ELW_HANDLER_DISPLAY, &display_encyclopedia_handler);
 	set_window_handler (window_id, ELW_HANDLER_CLICK, &click_encyclopedia_handler);
 	set_window_handler (window_id, ELW_HANDLER_RESIZE, &resize_encyclopedia_handler);

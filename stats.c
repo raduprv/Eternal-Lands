@@ -881,6 +881,7 @@ int click_stats_handler(window_info *win, int mx, int my, Uint32 flags)
 void fill_stats_win (int window_id)
 {
         //set_window_color(window_id, ELW_COLOR_BORDER, 0.0f, 1.0f, 0.0f, 0.0f);
+        set_window_custom_scale(window_id, &custom_scale_factors.stats);
         set_window_handler(window_id, ELW_HANDLER_DISPLAY, &display_stats_handler );
         set_window_handler(window_id, ELW_HANDLER_CLICK, &click_stats_handler );
 }

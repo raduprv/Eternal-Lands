@@ -226,6 +226,8 @@ char
 #endif
 	quantity_edit_str[100],
 	equip_here_str[100],
+	items_text_toggle_help_str[50],
+	items_unequip_all_help_str[30],
 	equip_str[20],
 	mod_click_item_help_str[50],
 	multiuse_item_help_str[50],
@@ -236,6 +238,7 @@ char
 	itmlst_help_str[50],
 	mixoneall_help_str[50],
 	items_stack_str[100],
+	items_cannot_equip_str[100],
 	mixbut_empty_str[80],
 	mix_empty_str[50],
 	click_clear_str[50],
@@ -366,7 +369,7 @@ char
 	cm_title_help_touch_str[50],
 #endif
 	cm_title_help_str[50],
-	cm_items_menu_str[150],
+	cm_items_menu_str[190],
 	cm_storage_menu_str[90],
 	cm_astro_menu_str[80],
 	cm_ranging_menu_str[50],
@@ -464,7 +467,8 @@ char	name_too_long[75],
 	mod_cmd_str[5],
 	bc_cmd_str[5],
 	msg_accept_buddy_str[55],
-	local_save_str[80],
+	full_save_str[80],
+	local_only_save_str[40],
 	logconn_str[50],
 	time_warn_hour_str[75],
 	time_warn_sunrise_str[100],
@@ -500,7 +504,10 @@ char	name_too_long[75],
 	cmd_show_spell[20],
 	cmd_cast_spell[20],
 	cmd_reload_icons[20],
-	cmd_session_counters[20];
+	cmd_session_counters[20],
+	cmd_relogin[20],
+	cmd_disconnect[20],
+	cmd_disco[20];
 #endif
 
 /*! \name Errors */
@@ -646,6 +653,7 @@ char	reg_error_str[15],
 	client_ver_not_supported[100],
 	packet_overrun[50],
 	disconnected_from_server[100],
+	user_disconnect_str[20],
 	cant_change_map[100],
 	empty_map_str[100],
 	no_nomap_str[150],
@@ -1067,7 +1075,8 @@ void init_console()
 	add_xml_identifier(filter,"none",no_filters_str,"You are filtering nothing!",sizeof(no_filters_str));
 	add_xml_identifier(filter,"cur",filters_str,"You are currently filtering",sizeof(filters_str));
 	
-	add_xml_identifier(misc,"localsave",local_save_str,"Local files saved, asking server to save too...",sizeof(local_save_str));
+	add_xml_identifier(misc,"fullsave",full_save_str,"Local files saved, asking server to save too...",sizeof(full_save_str));
+	add_xml_identifier(misc,"localsaveonly",local_only_save_str,"Local files saved.",sizeof(local_only_save_str));
 	add_xml_identifier(misc,"log",logconn_str,"Logging raw connection data",sizeof(logconn_str));
 	add_xml_identifier(misc,"card",video_card_str,"Video card",sizeof(video_card_str));
 	add_xml_identifier(misc,"vendor",video_vendor_str,"Vendor ID",sizeof(video_vendor_str));
@@ -1159,6 +1168,9 @@ void init_console()
 	add_xml_identifier(cmd_grp,"cast_spell",cmd_cast_spell,"cast_spell",sizeof(cmd_cast_spell));
 	add_xml_identifier(cmd_grp,"session_counters",cmd_session_counters,"session_counters",sizeof(cmd_session_counters));
 	add_xml_identifier(cmd_grp,"reload_icons",cmd_reload_icons,"reload_icons",sizeof(cmd_reload_icons));
+	add_xml_identifier(cmd_grp,"relogin",cmd_relogin,"relogin",sizeof(cmd_relogin));
+	add_xml_identifier(cmd_grp,"disconnect",cmd_disconnect,"disconnect",sizeof(cmd_disconnect));
+	add_xml_identifier(cmd_grp,"disco",cmd_disco,"disco",sizeof(cmd_disco));
 }
 #endif
 
@@ -1239,6 +1251,7 @@ void init_errors()
 	add_xml_identifier(misc,"notsup",client_ver_not_supported,"This version is no longer supported, please update!",sizeof(client_ver_not_supported));
 	add_xml_identifier(misc,"packets",packet_overrun,"Packet overrun...data lost!",sizeof(packet_overrun));
 	add_xml_identifier(misc,"disconnect",disconnected_from_server,"Disconnected from server!",sizeof(disconnected_from_server));
+	add_xml_identifier(misc,"user_disconnect",user_disconnect_str,"Using #disconnect",sizeof(user_disconnect_str));
 	add_xml_identifier(misc,"stat",stat_no_invalid,"Server sent invalid stat number",sizeof(stat_no_invalid));
 	add_xml_identifier(misc,"ascii",not_ascii,"Not ASCII",sizeof(not_ascii));
 	add_xml_identifier(misc,"timer_lag",timer_lagging_behind,"The %s timer was lagging severely behind or had stopped, restarted it", sizeof(timer_lagging_behind));
@@ -1427,8 +1440,8 @@ void init_help()
 	add_xml_identifier(misc,"mix",mix_str,"Mix",sizeof(mix_str));
 	add_xml_identifier(misc,"mix_all",mixall_str,"Mix all",sizeof(mixall_str));
 	add_xml_identifier(misc,"clear",clear_str,"Clear",sizeof(clear_str));
-	add_xml_identifier(misc,"manu_add",manu_add_str,"Left-click or scrollwheel to add 1; or 10 with CTRL",sizeof(manu_add_str));
-	add_xml_identifier(misc,"manu_remove",manu_remove_str,"Left-click or scrollwheel to remove 1; or 10 with CTRL",sizeof(manu_remove_str));
+	add_xml_identifier(misc,"manu_add",manu_add_str,"Left-click or scrollwheel to add 1; or 10 with ALT",sizeof(manu_add_str));
+	add_xml_identifier(misc,"manu_remove",manu_remove_str,"Left-click or scrollwheel to remove 1; or 10 with ALT",sizeof(manu_remove_str));
 	add_xml_identifier(misc,"cast",cast_str,"Cast",sizeof(cast_str));
 	add_xml_identifier (misc, "invalid_spell", invalid_spell_str, "Invalid spell", sizeof (invalid_spell_str));
 	add_xml_identifier(misc,"connect",connect_to_server_str,"Connecting to Server...",sizeof(connect_to_server_str));
@@ -1450,6 +1463,8 @@ void init_help()
 #endif
 	add_xml_identifier(misc,"edit_quantity",quantity_edit_str,"Right-click on the quantity you wish to edit",sizeof(quantity_edit_str));
 	add_xml_identifier(misc,"equip_here",equip_here_str,"Place an item in these boxes to equip it",sizeof(equip_here_str));
+	add_xml_identifier(misc,"items_text_toggle_help",items_text_toggle_help_str,"Show/hide the text message panel",sizeof(items_text_toggle_help_str));
+	add_xml_identifier(misc,"items_unequip_all_help",items_unequip_all_help_str,"Unequip all items",sizeof(items_unequip_all_help_str));
 	add_xml_identifier(misc,"mod_click_item_help",mod_click_item_help_str,"Left-click +ctrl/+alt to drop/store all",sizeof(mod_click_item_help_str));
 	add_xml_identifier(misc,"multiuse_item_help",multiuse_item_help_str,"Left-click to use (+shift to use again)",sizeof(multiuse_item_help_str));
 	add_xml_identifier(misc,"equipment",equip_str,"Equipment",sizeof(equip_str));
@@ -1460,6 +1475,7 @@ void init_help()
 	add_xml_identifier(misc,"mixoneall_help",mixoneall_help_str,"Mix current manufacture recipe.",sizeof(mixoneall_help_str));
 	add_xml_identifier(misc,"itmlst_help",itmlst_help_str,"Show/hide item lists window.",sizeof(itmlst_help_str));
 	add_xml_identifier(misc,"items_stack",items_stack_str,"Client can't choose between multiple stacks, make a free slot and let the server do it!",sizeof(items_stack_str));
+	add_xml_identifier(misc,"items_cannot_equip",items_cannot_equip_str,"Cannot equip the item!",sizeof(items_cannot_equip_str));
 	add_xml_identifier(misc,"mixbut_empty",mixbut_empty_str,"Nothing to mix, add some items using the manufacture window.",sizeof(mixbut_empty_str));
 	add_xml_identifier(misc,"mix_empty_str",mix_empty_str,"Nothing to mix, add some items.",sizeof(mix_empty_str));
 	add_xml_identifier(misc,"click_clear",click_clear_str,"Click to clear message.",sizeof(click_clear_str));
@@ -1644,7 +1660,7 @@ void init_help()
 	add_xml_identifier(misc, "cm_title_help_touch", cm_title_help_touch_str, "Click left side of title bar for menu", sizeof(cm_title_help_touch_str));
 #endif
 	add_xml_identifier(misc, "cm_title_help", cm_title_help_str, "Right-click for window menu", sizeof(cm_title_help_str));
-	add_xml_identifier(misc, "cm_items_menu", cm_items_menu_str, "--\nUse Small Window\nManual Window Size\nItem Window On Drop\nAllow Equipment Swap\nAlt/Ctrl-click With Any Cursor\n--\nOpen Storage (View Only)", sizeof(cm_items_menu_str));
+	add_xml_identifier(misc, "cm_items_menu", cm_items_menu_str, "--\nUse Small Window\nManual Window Size\nItem Window On Drop\nAllow Equipment Swap\nAlt/Ctrl-click With Any Cursor\nButtons On Left\nEquipment Grid On Left\n--\nOpen Storage (View Only)", sizeof(cm_items_menu_str));
 	add_xml_identifier(misc, "cm_storage_menu", cm_storage_menu_str, "--\nPrint Items To Console\nSort Categories Alphabetically\nDisable item filter", sizeof(cm_storage_menu_str));
 	add_xml_identifier(misc, "cm_astro_menu", cm_astro_menu_str, "--\nPrint Details To Console\nAlways Print Details To Console", sizeof(cm_astro_menu_str));
 	add_xml_identifier(misc, "cm_ranging_menu", cm_ranging_menu_str, "--\nPrint To Console", sizeof(cm_ranging_menu_str));
@@ -2165,7 +2181,7 @@ void parse_groups(xmlNode * in, void * gPtr, int size, int type)
 #ifdef ELC
 	group_stat * stat=gPtr;
 #endif
-	int i;
+	size_t i;
 	xmlNode * cur = in->children?in->children:in;
 	for(;cur;cur=cur->next) {
 		if(cur->type==XML_ELEMENT_NODE) {

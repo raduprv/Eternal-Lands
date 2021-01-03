@@ -1475,6 +1475,7 @@ void display_manufacture_menu()
 		}
 		manufacture_win= create_window(win_manufacture, our_root_win, 0, manufacture_menu_x,
 			manufacture_menu_y, 0, 0, ELW_USE_UISCALE|ELW_WIN_DEFAULT);
+		set_window_custom_scale(manufacture_win, &custom_scale_factors.manufacture);
 
 		set_window_handler(manufacture_win, ELW_HANDLER_DISPLAY, &display_manufacture_handler );
 		set_window_handler(manufacture_win, ELW_HANDLER_CLICK, &click_manufacture_handler );
@@ -1507,6 +1508,7 @@ void display_manufacture_menu()
 		//Create a child window to show recipes in a dropdown panel
 		recipe_win= create_window("w_recipe", manufacture_win, 0, 0, 0, 0, 0,
 			ELW_USE_UISCALE|ELW_TITLE_NONE|ELW_SHOW|ELW_USE_BACKGROUND|ELW_ALPHA_BORDER|ELW_SWITCHABLE_OPAQUE|ELW_USE_BORDER|ELW_RESIZEABLE);
+		set_window_custom_scale(recipe_win, &custom_scale_factors.manufacture);
 		set_window_handler(recipe_win, ELW_HANDLER_DISPLAY, &recipe_dropdown_draw);
 		set_window_handler(recipe_win, ELW_HANDLER_CLICK, &recipe_dropdown_click_handler );
 #ifndef ANDROID

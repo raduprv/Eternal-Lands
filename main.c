@@ -271,7 +271,7 @@ int start_rendering()
 
 	//save all local data
 	LOG_INFO("save_local_date()");
-	save_local_data(NULL, 0);
+	save_local_data();
 
 #ifdef PAWN
 	LOG_INFO("cleanup_pawn()");

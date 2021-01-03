@@ -635,6 +635,7 @@ void display_trade_menu()
 		}
 		trade_win= create_window(win_trade, our_root_win, 0, trade_menu_x, trade_menu_y, 0, 0, ((ELW_USE_UISCALE|ELW_WIN_DEFAULT) & ~ELW_CLOSE_BOX));
 
+		set_window_custom_scale(trade_win, &custom_scale_factors.trade);
 		set_window_handler(trade_win, ELW_HANDLER_DISPLAY, &display_trade_handler );
 		set_window_handler(trade_win, ELW_HANDLER_CLICK, &click_trade_handler );
 #ifndef ANDROID

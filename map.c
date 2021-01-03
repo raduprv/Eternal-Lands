@@ -395,6 +395,7 @@ void load_marks_to_buffer(char* mapname, marking* buffer, int* max)
 			buffer[*max].server_side=0;
 			buffer[*max].server_side_id=-1;
 			text[strlen(text)-1] = '\0'; //remove the newline
+			rtrim_string(text); //remove trailing white space
 			if ((strstr(text, " ") == NULL) || (strstr(strstr(text, " ")+1, " ") == NULL)) {
  				LOG_ERROR("Bad map mark file=[%s] text=[%s]", marks_file, text);
 			}

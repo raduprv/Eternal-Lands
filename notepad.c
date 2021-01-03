@@ -743,6 +743,7 @@ static void open_note_tab_continued(int id)
 	int tab;
 
 	note_list[id].window = tab_add (notepad_win, note_tabcollection_id, note_list[id].name, 0, 1, ELW_USE_UISCALE);
+	set_window_custom_scale(note_list[id].window, &custom_scale_factors.info);
 	if (note_list[id].window < 0 || note_list[id].window > windows_list.num_windows)
 		return;
 	tab_win = &windows_list.window[note_list[id].window];
@@ -969,6 +970,7 @@ void fill_notepad_window(int window_id)
 {
 	int i;
 	notepad_win = window_id;
+	set_window_custom_scale(window_id, &custom_scale_factors.info);
 	set_window_handler(window_id, ELW_HANDLER_DISPLAY, &display_notepad_handler);
 	set_window_handler(window_id, ELW_HANDLER_CLICK, &click_buttonwin_handler);
 	set_window_handler(window_id, ELW_HANDLER_RESIZE, &resize_notepad_handler );
@@ -976,6 +978,7 @@ void fill_notepad_window(int window_id)
 	note_tabcollection_id = tab_collection_add (window_id, NULL, 0, 0, 0, 0);
 	widget_set_color (window_id, note_tabcollection_id, 0.77f, 0.57f, 0.39f);
 	main_note_tab_id = tab_add (window_id, note_tabcollection_id, tab_main, 0, 0, ELW_USE_UISCALE);
+	set_window_custom_scale(main_note_tab_id, &custom_scale_factors.info);
 	widget_set_color (window_id, main_note_tab_id, 0.77f, 0.57f, 0.39f);
 	set_window_handler(main_note_tab_id, ELW_HANDLER_CLICK, &click_buttonwin_handler);
 	set_window_handler(main_note_tab_id, ELW_HANDLER_RESIZE, &resize_buttonwin_handler);

@@ -22,6 +22,7 @@
 #include "pathfinder.h"
 #include "platform.h"
 #include "skeletons.h"
+#include "special_effects.h"
 #ifdef NEW_SOUND
 #include "sound.h"
 #endif // NEW_SOUND
@@ -1725,6 +1726,17 @@ void free_actor_data(int actor_index)
     ec_actor_delete(act);
 }
 
+//  Assumed LOCK_ACTORS_LISTS mutex already held
+static void destroy_actor_common(size_t actor_list_index)
+{
+	if ((actor_list_index >= max_actors) || (actors_list[actor_list_index] == NULL))
+		return; // return of not valid actor
+	free_actor_special_effect(actors_list[actor_list_index]->actor_id);
+	free_actor_data(actor_list_index);
+	free(actors_list[actor_list_index]);
+	actors_list[actor_list_index]=NULL;
+}
+
 void destroy_actor(int actor_id)
 {
 	int i;
@@ -1741,9 +1753,7 @@ void destroy_actor(int actor_id)
 
 				if (actor_id == yourself)
 					set_our_actor (NULL);
-                free_actor_data(i);
-				free(actors_list[i]);
-				actors_list[i]=NULL;
+				destroy_actor_common(i);
 				if(i==max_actors-1)max_actors--;
 				else {
 					//copy the last one down and fill in the hole
@@ -1757,9 +1767,7 @@ void destroy_actor(int actor_id)
 
                 if (attached_actor >= 0)
                 {
-                    free_actor_data(attached_actor);
-                    free(actors_list[attached_actor]);
-                    actors_list[attached_actor]=NULL;
+                    destroy_actor_common(attached_actor);
                     if(attached_actor==max_actors-1)max_actors--;
                     else {
                         //copy the last one down and fill in the hole
@@ -1785,9 +1793,7 @@ void destroy_all_actors()
 	set_our_actor (NULL);
 	for(i=0;i<max_actors;i++) {
 		if(actors_list[i]){
-            free_actor_data(i);
-			free(actors_list[i]);
-			actors_list[i]=NULL;
+			destroy_actor_common(i);
 		}
 	}
 	max_actors= 0;
@@ -1800,12 +1806,13 @@ void destroy_all_actors()
 
 
 
-void update_all_actors()
+void update_all_actors(int log_the_update)
 {
  	Uint8 str[40];
 
 	//we got a nasty error, log it
-	LOG_TO_CONSOLE(c_red2,resync_server);
+	if (log_the_update)
+		LOG_TO_CONSOLE(c_red2,resync_server);
 
 	destroy_all_actors();
 	str[0]=SEND_ME_MY_ACTORS;
@@ -2174,7 +2181,8 @@ void add_command_to_actor(int actor_id, unsigned char command)
 		if(k>MAX_CMD_QUEUE-2){
 			int i;
 			int k;
-			LOG_ERROR("Too much commands in the queue for actor %d (%s) => skip emotes!",
+			if (max_fps == limit_fps)
+				LOG_ERROR("Too much commands in the queue for actor %d (%s) => skip emotes!",
 					  act->actor_id, act->actor_name);
 			for(i=MAX_CMD_QUEUE-1;i>=0;i--) {
 				if(act->que[i]>=emote_cmd&&act->que[i]<wait_cmd) {
@@ -2192,14 +2200,17 @@ void add_command_to_actor(int actor_id, unsigned char command)
 				}
 			}
 			//if we are here no emotes have been skipped
-			LOG_ERROR("Too much commands in the queue for actor %d (%s) => resync!\n",
-					  act->actor_id, act->actor_name);
+			if (max_fps == limit_fps)
+			{
+				LOG_ERROR("Too much commands in the queue for actor %d (%s) => resync!\n",
+					act->actor_id, act->actor_name);
 #ifdef	ANIMATION_SCALING
-			LOG_ERROR("animation_scale: %f\n", act->animation_scale);
+				LOG_ERROR("animation_scale: %f\n", act->animation_scale);
 #endif	/* ANIMATION_SCALING */
-			for (i = 0; i < MAX_CMD_QUEUE; ++i)
-				LOG_ERROR("%dth command in the queue: %d\n", i, (int)act->que[i]);
-			update_all_actors();
+				for (i = 0; i < MAX_CMD_QUEUE; ++i)
+					LOG_ERROR("%dth command in the queue: %d\n", i, (int)act->que[i]);
+			}
+			update_all_actors(max_fps == limit_fps);
 		}
 	}
 	UNLOCK_ACTORS_LISTS();

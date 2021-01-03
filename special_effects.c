@@ -13,8 +13,8 @@
 #endif
 #include "eye_candy_wrapper.h"
 
-const float X_OFFSET = 0.25;
-const float Y_OFFSET = 0.25;
+static const float X_OFFSET = 0.25;
+static const float Y_OFFSET = 0.25;
 
 /* to do
  more effects
@@ -41,15 +41,36 @@ typedef struct {
 	Uint32 last_time;	//for timing length of effect especially while in console
 } special_effect;
 
-special_effect sfx_markers[NUMBER_OF_SPECIAL_EFFECTS];
+static special_effect sfx_markers[NUMBER_OF_SPECIAL_EFFECTS];
+static int initialsed = 0;
 
 int sfx_enabled = 1;
 
+/* TODO not used any more
 const static float dx = (TILESIZE_X / 6);
 const static float dy = (TILESIZE_Y / 6);
+*/
+
+static void initialise(void)
+{
+	size_t i;
+	for(i=0; i<NUMBER_OF_SPECIAL_EFFECTS; i++)
+		sfx_markers[i].active = 0;
+	initialsed = 1;
+}
+
+void free_actor_special_effect(int actor_id)
+{
+	size_t i;
+	if (!initialsed)
+		initialise();
+	for(i=0; i<NUMBER_OF_SPECIAL_EFFECTS; i++)
+		if (sfx_markers[i].active && (sfx_markers[i].owner != NULL) && (sfx_markers[i].owner->actor_id == actor_id))
+			sfx_markers[i].active = 0;
+}
 
 //Allocate a spot for a new special effect
-special_effect *get_free_special_effect() {
+static special_effect *get_free_special_effect() {
 	int i;
 	//find the first free slot
 	for(i = 0; i < NUMBER_OF_SPECIAL_EFFECTS; i++) {
@@ -61,7 +82,7 @@ special_effect *get_free_special_effect() {
 }
 
 // Initialize a new special effect
-void add_sfx(special_effect_enum effect, Uint16 playerid, int caster)
+static void add_sfx(special_effect_enum effect, Uint16 playerid, int caster)
 {
 	Uint8 str[70];
 	actor *this_actor = get_actor_ptr_from_id(playerid);
@@ -119,8 +140,9 @@ void add_sfx(special_effect_enum effect, Uint16 playerid, int caster)
 	m->caster = caster;							// should = 1 if caster of spell, 0 otherwise
 }
 
+/* TODO not used any more
 //basic shape template that allows for rotation and duplication
-void do_shape_spikes(float x, float y, float z, float center_offset_x, float center_offset_y, float base_offset_z, float a)
+static void do_shape_spikes(float x, float y, float z, float center_offset_x, float center_offset_y, float base_offset_z, float a)
 {
 	int i;
 	
@@ -148,9 +170,11 @@ void do_shape_spikes(float x, float y, float z, float center_offset_x, float cen
 CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
 }
+*/
 
+/* TODO not used any more
 //example halos moving in opposite directions, not yet optimized, and still just an example
-void do_double_spikes(float x, float y, float z, float center_offset_x, float center_offset_y, float base_offset_z, float a)
+static void do_double_spikes(float x, float y, float z, float center_offset_x, float center_offset_y, float base_offset_z, float a)
 {
 	int i;
 	
@@ -185,8 +209,9 @@ void do_double_spikes(float x, float y, float z, float center_offset_x, float ce
 CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
 }
+*/
 
-void draw_heal_effect(float x, float y, float z, float age)
+static void draw_heal_effect(float x, float y, float z, float age)
 {
 	float center_offset_y = TILESIZE_Y * 0.7f;
 	float top_z = 0;
@@ -253,7 +278,7 @@ CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
 }
 
-void draw_restoration_effect(float x, float y, float z, float age)
+static void draw_restoration_effect(float x, float y, float z, float age)
 {
 	float top_z = 0;
 	int i = 0;
@@ -322,7 +347,8 @@ CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
 }
 
-void draw_teleport_effect(float x, float y, float z, float age)
+/* TODO not used any more
+static void draw_teleport_effect(float x, float y, float z, float age)
 {
 	//adapted from RedBook
     float theta, phi, theta1, cosTheta, sinTheta, cosTheta1, sinTheta1;
@@ -411,8 +437,9 @@ void draw_teleport_effect(float x, float y, float z, float age)
 CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
 }
+*/
 
-void display_special_effect(special_effect *marker) {
+static void display_special_effect(special_effect *marker) {
 	
 	// (a) varies from 1..0 depending on the age of this marker
 	const float a = ((float)marker->timeleft) / ((float)marker->lifespan);
@@ -494,6 +521,9 @@ CHECK_GL_ERRORS();
 void display_special_effects(int do_render) {
 	int i; 
 
+	if (!initialsed)
+		initialise();
+
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
@@ -549,7 +579,10 @@ void parse_special_effect(special_effect_enum sfx, const Uint16 *data)
 	actor* target = NULL;
 	float x = 0.0f, y = 0.0f;
 	//float x1, y1, z1, x2, y2, z2;
-	
+
+	if (!initialsed)
+		initialise();
+
 	switch(sfx){
 		//player only
 		case	SPECIAL_EFFECT_SHIELD:

@@ -20,6 +20,7 @@
 #include "new_actors.h"
 #include "platform.h"
 #include "shadows.h"
+#include "special_effects.h"
 #include "textures.h"
 #include "translate.h"
 #include "vmath.h"
@@ -354,6 +355,7 @@ void remove_actor_attachment(int actor_id)
 			actors_list[i]->attachment_shift[0] = 0.0;
 			actors_list[i]->attachment_shift[1] = 0.0;
 			actors_list[i]->attachment_shift[2] = 0.0;
+			free_actor_special_effect(actors_list[att]->actor_id);
 			free_actor_data(att);
 			free(actors_list[att]);
 			actors_list[att]=NULL;
@@ -1679,6 +1681,9 @@ void add_actor_from_server (const char *in_data, int len)
 		actors_list[i]->calmodel=NULL;
 	}
 	update_actor_buffs(actor_id, buffs);
+
+	check_if_new_actor_last_summoned(actors_list[i]);
+
 	UNLOCK_ACTORS_LISTS();	//unlock it
 #ifdef EXTRA_DEBUG
 	ERR();
@@ -1761,3 +1766,104 @@ void transform_actor_local_position_to_absolute(actor *in_act, float *in_local_p
 	}
 }
 
+// Split the given string into basic name and, if any, guild parts.
+// For players, the size should be at least MAX_ACTOR_NAME
+// For non players, the size should be at least ACTOR_NAME_SIZE
+// Name format is <name part> then optional <space><colour character><guild past>
+static void split_name_and_guild(const char *full_name, char *name_part, char *guild_part, size_t parts_size)
+{
+		size_t i, ni=0, gi=0;
+		if ((full_name == NULL) || (name_part == NULL) || (guild_part == NULL) || (parts_size < strlen(full_name)))
+		{
+			LOG_ERROR("invalid parameters");
+			return;
+		}
+		name_part[0] = '\0';
+		guild_part[0] = '\0';
+
+		// get the name without any guild part
+		for (i=0; i<strlen(full_name); ni++, i++)
+		{
+			if (is_color(full_name[i]))
+			{
+				name_part[ni - ((ni==0) ?0: 1)] = '\0';
+				i++;
+				break;
+			}
+			else
+				name_part[ni] = full_name[i];
+		}
+		name_part[ni] = '\0';
+
+		// get the guild if any
+		for (; i<strlen(full_name); gi++, i++)
+		{
+			guild_part[gi] = full_name[i];
+		}
+		guild_part[gi] = '\0';
+}
+
+// A simple structure to hold state for the last summoned creature
+static struct last_summoned
+{
+	Uint32 summoned_time;
+	char summoned_name[256];
+	int actor_id;
+} last_summoned_var = {0, "", -1};
+
+
+// Store the time and the name of the last sucessful summons by the player
+void remember_new_summoned(const char *summoned_name)
+{
+	last_summoned_var.summoned_time = SDL_GetTicks();
+	safe_strncpy2(last_summoned_var.summoned_name, summoned_name, sizeof(summoned_name), strlen(summoned_name));
+	//printf("%u new summoned [%s]\n", last_summoned_var.summoned_time, last_summoned_var.summoned_name);
+}
+
+// Check if the new actor ....
+// 		has been created close in time to the last sucessful summons
+//		has the same name a the last sucessful summons
+//		has the same guild (if any) of the player
+// Must be called while we have the LOCK_ACTORS_LISTS() lock
+void check_if_new_actor_last_summoned(actor *new_actor)
+{
+	if (SDL_GetTicks() < last_summoned_var.summoned_time + 250)
+	{
+		actor *me = get_our_actor();
+		if (me)
+		{
+			char me_name_part[MAX_ACTOR_NAME] = "", me_guild_part[MAX_ACTOR_NAME] = "";
+			char summoned_name_part[ACTOR_DEF_NAME_SIZE] = "", summoned_guild_part[ACTOR_DEF_NAME_SIZE] = "";
+
+			split_name_and_guild(me->actor_name, me_name_part, me_guild_part, MAX_ACTOR_NAME);
+			split_name_and_guild(new_actor->actor_name, summoned_name_part, summoned_guild_part, ACTOR_DEF_NAME_SIZE);
+
+			if ((strcmp(last_summoned_var.summoned_name, summoned_name_part) == 0) &&
+					(strcmp(summoned_guild_part, me_guild_part) == 0))
+				last_summoned_var.actor_id = new_actor->actor_id;
+
+			//printf("%u %s id=%d wanted [%s/%s] got [%s/%s]\n", SDL_GetTicks(),
+			//	((last_summoned_var.actor_id == new_actor->actor_id) ?"MATCHED" : "NO MATCH"), new_actor->actor_id,
+			//	last_summoned_var.summoned_name, me_guild_part, summoned_name_part, summoned_guild_part);
+		}
+	}
+}
+
+// Return the id of the last sucessful summoned creature, if its still present
+int get_id_last_summoned(void)
+{
+	size_t i;
+	if (last_summoned_var.actor_id < 0)
+		return -1;
+
+	// check if the actor is still present
+	LOCK_ACTORS_LISTS();
+	for (i=0; i<max_actors; i++)
+		if (actors_list[i]->actor_id == last_summoned_var.actor_id)
+			break;
+	UNLOCK_ACTORS_LISTS();
+
+	if (i == max_actors)
+		last_summoned_var.actor_id = -1;
+	return last_summoned_var.actor_id;
+}

@@ -1967,6 +1967,7 @@ void display_sigils_menu()
 		}
 		sigils_win= create_window(win_sigils, our_root_win, 0, sigil_menu_x, sigil_menu_y, 0, 0, ELW_USE_UISCALE|ELW_WIN_DEFAULT);
 
+		set_window_custom_scale(sigils_win, &custom_scale_factors.spells);
 		set_window_handler(sigils_win, ELW_HANDLER_DISPLAY, &display_sigils_handler );
 		set_window_handler(sigils_win, ELW_HANDLER_CLICK, &click_sigils_handler );
 #ifndef ANDROID
@@ -1995,6 +1996,7 @@ void display_sigils_menu()
 		}
 		spell_win= create_window("Spells", our_root_win, 0, sigil_menu_x, sigil_menu_y, 0, 0, ELW_USE_UISCALE|ELW_WIN_DEFAULT);
 
+		set_window_custom_scale(spell_win, &custom_scale_factors.spells);
 		set_window_handler(spell_win, ELW_HANDLER_DISPLAY, &display_spells_handler );
 		set_window_handler(spell_win, ELW_HANDLER_CLICK, &click_spells_handler );
 		set_window_handler(spell_win, ELW_HANDLER_MOUSEOVER, &mouseover_spells_handler );
@@ -2024,6 +2026,7 @@ void display_sigils_menu()
 		}
 		spell_mini_win= create_window("Spells", our_root_win, 0, sigil_menu_x, sigil_menu_y, 0, 0, ELW_USE_UISCALE|ELW_WIN_DEFAULT);
 
+		set_window_custom_scale(spell_mini_win, &custom_scale_factors.spells);
 		set_window_handler(spell_mini_win, ELW_HANDLER_DISPLAY, &display_spells_mini_handler );
 		set_window_handler(spell_mini_win, ELW_HANDLER_CLICK, &click_spells_mini_handler );
 		set_window_handler(spell_mini_win, ELW_HANDLER_MOUSEOVER, &mouseover_spells_mini_handler );

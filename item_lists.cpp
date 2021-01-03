@@ -905,6 +905,7 @@ namespace ItemLists
 			filter[0] = '\0';
 
 			win_id = create_window(item_list_preview_title, win->window_id, 0, get_window_pos_x(win), 0, 0, 0, ELW_USE_UISCALE|ELW_WIN_DEFAULT|ELW_RESIZEABLE);
+			set_window_custom_scale(win_id, &custom_scale_factors.items);
 			set_window_handler(win_id, ELW_HANDLER_DISPLAY, (int (*)())&display_itemlist_handler );
 			set_window_handler(win_id, ELW_HANDLER_CLICK, (int (*)())&click_itemlist_handler );
 			set_window_handler(win_id, ELW_HANDLER_MOUSEOVER, (int (*)())&mouseover_itemlist_handler );

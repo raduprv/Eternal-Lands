@@ -52,6 +52,7 @@ extern int show_reflection; /*!< flag that indicates whether to display reflecti
 extern char lang[10]; /*!< contains the identifier for the current language. \todo Shouldn't this go into translate.h? */
 extern int auto_update; /*!<this flags signals whether or not autoupdates are performed at startup, or not. It requires a restart to have an effect. */
 extern int buddy_log_notice; /*!< whether to log buddy logged on/off notices to screen */
+extern int clear_mod_keys_on_focus; /*!< trouble shooting option to force mod keys up when gaining focus */
 
 #if !defined(WINDOWS) && !defined(OSX)
 extern int use_clipboard; /*!< whether to use CLIPBOARD or PRIMARY for pasting */
@@ -108,6 +109,12 @@ void display_elconfig_win(void);
 int get_rotate_chat_log(void);
 
 void change_language(const char *new_lang);
+
+void check_for_config_window_scale(void);
+
+void step_win_scale_factor(int increase, float *changed_window_custom_scale);
+
+void reset_win_scale_factor(int set_default, float *changed_window_custom_scale);
 
 extern float get_global_scale(void);
 

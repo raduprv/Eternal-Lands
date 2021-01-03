@@ -15,7 +15,7 @@ extern "C" {
 
 extern int port; /*!< the server port we use */
 extern unsigned char server_address[60]; /*!< the server address we use */
-extern int disconnected; /*!< indicates whether we are currently connected or not */
+extern volatile int disconnected; /*!< indicates whether we are currently connected or not */
 
 extern TCPsocket my_socket; /*!< our TCP socket to communiate with the server */
 
@@ -77,6 +77,14 @@ Uint32 diff_game_time_sec(Uint32 ref_time);
  * 
 */
 void enter_disconnected_state(const char *message);
+
+/*!
+ * \brief	Close connection and call enter_disconnected_state().
+ *
+ * \param	A message string, or NULL
+ *
+*/
+void force_server_disconnect(const char *message);
 
 /*!
  * \brief	Called from the main thread 500 ms timer, check if testing server connection.
