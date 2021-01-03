@@ -675,7 +675,8 @@ int HandleEvent(SDL_Event *event)
 #endif
 
 			if(check_interface_buttons()==1)tool_bar_click=1;
-			if(right_click==1 && cur_tool==tool_select && selected_tile!=255 && cur_mode==mode_tile)selected_tile=255;
+			if (right_click == 1 && cur_tool == tool_select && cur_mode == mode_tile)
+				selected_tile = 255;
 			if(right_click==1 && cur_tool==tool_select && selected_height!=-1 && cur_mode==mode_height)selected_height=-1;
 			if(right_click==1 && cur_tool==tool_select && selected_2d_object!=-1 && cur_mode==mode_2d)kill_2d_object(selected_2d_object);
 			if(right_click==1 && cur_tool==tool_select && selected_3d_object!=-1 && cur_mode==mode_3d)kill_3d_object(selected_3d_object);
@@ -692,13 +693,6 @@ int HandleEvent(SDL_Event *event)
 			}
 #endif
 			if(right_click==1 && cur_tool==tool_select && cur_mode==mode_particles && selected_particles_object!=-1)kill_particles_object(selected_particles_object);
-			if(right_click==1 && cur_mode==mode_tile && get_show_window(tiles_win))
-				{
-					cur_tool=tool_select;
-					selected_tile=0;
-				}
-
-			
 
 			if(!tool_bar_click)
 				{
