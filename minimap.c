@@ -569,7 +569,12 @@ static void decrease_zoom()
 static int click_minimap_handler(window_info * win, int mx, int my, Uint32 flags)
 {
 	int close_button_x = win->len_x/2 + title_len - 1;
+#ifdef ANDROID
+	// ANDROID_TODO this needs sorting in the main client
+	if(flags & ELW_LEFT_MOUSE)
+#else
 	if(left_click)
+#endif
 	{
 		//check for close button click
 		if((mx >=close_button_x) && (mx <=close_button_x + win->title_height) 

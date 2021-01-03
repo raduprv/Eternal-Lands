@@ -105,11 +105,11 @@ int items_list_on_left = 0;
 static const char *item_help_str = NULL;
 static const char *item_desc_str = NULL;
 static int mouse_over_but = -1;
-#ifndef ANDROID
 static size_t cm_stoall_but = CM_INIT_VALUE;
 static size_t cm_dropall_but = CM_INIT_VALUE;
 static size_t cm_mix_but = CM_INIT_VALUE;
 static size_t cm_getall_but = CM_INIT_VALUE;
+#ifndef ANDROID
 static size_t cm_itemlist_but = CM_INIT_VALUE;
 #endif
 static int mouseover_item_pos = -1;
@@ -873,6 +873,10 @@ static void equip_item(int item_pos_to_equip, int destination_pos)
 int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 {	
 	Uint8 str[100];
+#ifdef ANDROID
+	// ANDROID_TODO this needs sorting in the main client
+	int left_click = flags & ELW_LEFT_MOUSE;
+#endif
 	int right_click = flags & ELW_RIGHT_MOUSE;
 	int ctrl_on = flags & KMOD_CTRL;
 	int shift_on = flags & KMOD_SHIFT;
@@ -1399,12 +1403,12 @@ int show_items_handler(window_info * win)
 
 	resize_window(win->window_id, win_x_len, win_y_len);
 
-#ifndef ANDROID
 	cm_remove_regions(items_win);
 	cm_add_region(cm_stoall_but, items_win, but_x_offset, wear_items_y_offset+but_y_off[0], but_len_x, but_len_y);
 	cm_add_region(cm_getall_but, items_win, but_x_offset, wear_items_y_offset+but_y_off[1], but_len_x, but_len_y);
 	cm_add_region(cm_dropall_but, items_win, but_x_offset, wear_items_y_offset+but_y_off[2], but_len_x, but_len_y);
 	cm_add_region(cm_mix_but, items_win, but_x_offset, wear_items_y_offset+but_y_off[3], but_len_x, but_len_y);
+#ifndef ANDROID
 	cm_add_region(cm_itemlist_but, items_win, but_x_offset, wear_items_y_offset+but_y_off[4], but_len_x, but_len_y);
 #endif
 
@@ -1450,25 +1454,6 @@ void display_items_menu()
 		cm_bool_line(windows_list.window[items_win].cm_id, ELW_CM_MENU_LEN+4, &allow_equip_swap, NULL);
 		cm_bool_line(windows_list.window[items_win].cm_id, ELW_CM_MENU_LEN+5, &items_mod_click_any_cursor, NULL);
 				
-#ifdef ANDROID
-		cm_add(windows_list.window[items_win].cm_id, "--\nStore all", NULL);
-		cm_grey_line(windows_list.window[items_win].cm_id, ELW_CM_MENU_LEN+9, 1);
-		cm_add(windows_list.window[items_win].cm_id, inv_keeprow_str, NULL);
-		cm_bool_line(windows_list.window[items_win].cm_id, ELW_CM_MENU_LEN+10, &items_stoall_nofirstrow, NULL);
-		cm_bool_line(windows_list.window[items_win].cm_id, ELW_CM_MENU_LEN+11, &items_stoall_nolastrow, NULL);
-
-		cm_add(windows_list.window[items_win].cm_id, "--\nDrop all", NULL);
-		cm_grey_line(windows_list.window[items_win].cm_id, ELW_CM_MENU_LEN+13, 1);
-		cm_add(windows_list.window[items_win].cm_id, inv_keeprow_str, NULL);
-		cm_bool_line(windows_list.window[items_win].cm_id, ELW_CM_MENU_LEN+14, &items_dropall_nofirstrow, NULL);
-		cm_bool_line(windows_list.window[items_win].cm_id, ELW_CM_MENU_LEN+15, &items_dropall_nolastrow, NULL);
-
-		cm_add(windows_list.window[items_win].cm_id, "--\n", NULL);
-		cm_add(windows_list.window[items_win].cm_id, auto_get_all_str, NULL);
-		cm_add(windows_list.window[items_win].cm_id, mix_all_str, NULL);
-		cm_bool_line(windows_list.window[items_win].cm_id, ELW_CM_MENU_LEN+17, &items_auto_get_all, NULL);
-		cm_bool_line(windows_list.window[items_win].cm_id, ELW_CM_MENU_LEN+18, &items_mix_but_all, NULL);
-#else
 		cm_stoall_but = cm_create(inv_keeprow_str, NULL);
 		cm_bool_line(cm_stoall_but, 0, &items_stoall_nofirstrow, NULL);
 		cm_bool_line(cm_stoall_but, 1, &items_stoall_nolastrow, NULL);
@@ -1483,6 +1468,7 @@ void display_items_menu()
 		cm_getall_but = cm_create(auto_get_all_str, NULL);
 		cm_bool_line(cm_getall_but, 0, &items_auto_get_all, NULL);
 
+#ifndef ANDROID
 		cm_itemlist_but = cm_create(item_list_but_str, NULL);
 		cm_bool_line(cm_itemlist_but, 0, &items_list_on_left, NULL);
 #endif

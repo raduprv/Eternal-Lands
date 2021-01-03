@@ -187,6 +187,14 @@ int HandleEvent (SDL_Event *event)
 	Uint32 flags = KMOD_NONE;
 	SDL_Keymod  mod_key_status = 0;
 	Uint8 unicode = '\0';
+#ifdef ANDROID
+	static int finger_right_click = 0;
+	static int finger_left_click = 0;
+	static int finger_motion = 0;
+	static Uint32 last_mouse_down_start = 0;
+	static Uint32 last_mouse_down_delta = 0;
+	static Uint32 last_gesture_time = 0;
+#endif
 	static Uint32 last_loss = 0;
 	static Uint32 last_SDL_KEYDOWN_timestamp = 0;
 	static Uint32 last_SDL_KEYDOWN_return_value = 0;
@@ -319,14 +327,99 @@ int HandleEvent (SDL_Event *event)
 
 #ifdef ANDROID
 		case SDL_MULTIGESTURE:
+			finger_motion = 0;
+			last_mouse_down_start = 0;
+			last_gesture_time = SDL_GetTicks();
 			multi_gesture_in_windows(event->mgesture.timestamp, event->mgesture.x, event->mgesture.y, event->mgesture.dDist, event->mgesture.dTheta);
 			break;
 
 		case SDL_FINGERMOTION:
-			finger_motion_in_windows(event->tfinger.timestamp, event->tfinger.x, event->tfinger.y, event->tfinger.dx, event->tfinger.dy);
-			break;
-#endif
+			if (((SDL_GetTicks() - last_gesture_time) > 100) && ((SDL_GetTicks() - last_mouse_down_start) > 100))
+			{
+				int drag_x = (int)(event->tfinger.x * window_width + 0.5);
+				int drag_y = (int)(event->tfinger.y * window_height + 0.5);
+				int drag_dx = (int)(event->tfinger.dx * window_width + 0.5);
+				int drag_dy = (int)(event->tfinger.dy * window_height + 0.5);
 
+				if ((abs(drag_dx) > 0) || (abs(drag_dy) > 0))
+				{
+					if (drag_windows (drag_x, drag_y, drag_dx, drag_dy) >= 0)
+					{
+						last_mouse_down_start = 0;
+						finger_motion++;
+						return done;
+					}
+
+					if (drag_in_windows (drag_x, drag_y, ELW_LEFT_MOUSE, drag_dx, drag_dy) >= 0)
+					{
+						last_mouse_down_start = 0;
+						finger_motion++;
+						return done;
+					}
+				}
+
+				if ((abs(drag_dx) > 3) || (abs(drag_dy) > 3))
+				{
+					last_mouse_down_start = 0;
+					finger_motion++;
+					finger_motion_in_windows(event->tfinger.timestamp, event->tfinger.x, event->tfinger.y, event->tfinger.dx, event->tfinger.dy);
+				}
+			}
+			break;
+
+		case SDL_FINGERDOWN:
+			last_mouse_down_start = SDL_GetTicks();
+			last_mouse_down_delta = 0;
+			finger_left_click = finger_right_click = finger_motion = 0;
+			break;
+
+
+		case SDL_FINGERUP:
+			if (finger_motion)
+			{
+				finger_motion = 0;
+				end_drag_windows();
+			}
+
+			if (last_mouse_down_start <= 0)
+			{
+				finger_left_click = finger_right_click = 0;
+				break;
+			}
+
+			last_mouse_down_delta = SDL_GetTicks() - last_mouse_down_start;
+			last_mouse_down_start = 0;
+
+			if (last_mouse_down_delta > 250)
+			{
+				finger_left_click = 0;
+				finger_right_click++;
+			}
+			else
+				finger_left_click++;
+
+			if (finger_left_click)
+				flags |= ELW_LEFT_MOUSE;
+			if (finger_right_click)
+				flags |= ELW_RIGHT_MOUSE;
+
+			mouse_x = (int)(0.5 + window_width * event->tfinger.x);
+			mouse_y = (int)(0.5 + window_height * event->tfinger.y);
+
+			if (afk_time)
+				last_action_time = cur_time;	// Set the latest events - don't make mousemotion set the afk_time... (if you prefer that mouse motion sets/resets the afk_time, then move this one step below...
+
+			if ((finger_left_click == 1) || (finger_right_click == 1))
+			{
+				last_mouse_x = mouse_x;
+				last_mouse_y = mouse_y;
+				last_mouse_flags = flags;
+				click_in_windows (mouse_x, mouse_y, flags);
+			}
+
+			break;
+
+#else // ANDROID
 		case SDL_MOUSEBUTTONDOWN:
 		case SDL_MOUSEBUTTONUP:
 			// make sure the mouse button is our window, or else we ignore it
@@ -441,10 +534,8 @@ int HandleEvent (SDL_Event *event)
 					camera_rotation_speed = -1.0;
 
 				// the following variables have to be removed!
-#ifndef ANDROID
 				camera_rotation_duration = 0;
 				camera_tilt_duration = 0;
-#endif
 				if (fol_cam && !fol_cam_behind)
 				{
 					hold_camera += camera_kludge - last_kludge;
@@ -465,11 +556,6 @@ int HandleEvent (SDL_Event *event)
 
 			if ( left_click == 1 || right_click == 1 || middle_click == 1 || (flags & (ELW_WHEEL_UP | ELW_WHEEL_DOWN) ) )
 			{
-#ifdef ANDROID
-				last_mouse_x = mouse_x;
-				last_mouse_y = mouse_y;
-				last_mouse_flags = flags;
-#endif
 				click_in_windows (mouse_x, mouse_y, flags);
 			}
 			if (left_click >= 1)
@@ -477,9 +563,7 @@ int HandleEvent (SDL_Event *event)
 				if (drag_windows (mouse_x, mouse_y, mouse_delta_x, mouse_delta_y) >= 0)
 				{
 					/* clicking title forces any context menu to close */
-#ifndef ANDROID
 					cm_post_show_check(1);
-#endif
 					return done;
 				}
 				if (drag_in_windows (mouse_x, mouse_y, flags, mouse_delta_x, mouse_delta_y) >= 0)
@@ -488,6 +572,7 @@ int HandleEvent (SDL_Event *event)
 				}
 			}
 			break;
+#endif // ANDROID
 
 		case SDL_USEREVENT:
 			switch(event->user.code){
@@ -496,7 +581,8 @@ int HandleEvent (SDL_Event *event)
 				break;
 #ifdef ANDROID
 			case	EVENT_CURSOR_CALCULATION_COMPLETE:
-				click_in_windows (last_mouse_x, last_mouse_y, last_mouse_flags);
+				if (last_mouse_down_delta > 0)
+					click_in_windows (last_mouse_x, last_mouse_y, last_mouse_flags);
 				break;
 #endif
 			case	EVENT_UPDATE_PARTICLES:

@@ -567,22 +567,6 @@ namespace UserMenus
 		
 		delete_menus();
 
-#ifdef ANDROID
-		//  ANDROID_TODO needed to unpack from assest file, always unpack fresh by removing first
-		char tmp_str[256];
-		std::string filename("user_menus.txt");
-		remove((std::string(datadir) + filename).c_str());
-		if (do_file_exists(filename.c_str(), datadir, sizeof(tmp_str), tmp_str))
-		{
-			std::string line;
-			std::ifstream file(filename.c_str());
-			while (std::getline(file, line))
-			{
-				remove((std::string(datadir) + line).c_str());
-				do_file_exists(line.c_str(), datadir, sizeof(tmp_str), tmp_str);
-			}
-		}
-#endif
 		std::vector<std::string> filelist;
 		
 		std::vector<std::string> search_paths;
@@ -592,6 +576,25 @@ namespace UserMenus
 
 		for (size_t i=0; i<search_paths.size(); i++)
 		{
+#ifdef ANDROID
+			//  ANDROID_TODO needed to unpack from assest file, always unpack fresh by removing first
+			char tmp_str[256];
+			std::string list_filename("user_menus.txt");
+			std::string full_path = search_paths[i] + list_filename;
+			remove(full_path.c_str());
+			if (do_file_exists(list_filename.c_str(), search_paths[i].c_str(), sizeof(tmp_str), tmp_str))
+			{
+				std::string line;
+				std::ifstream file(full_path.c_str());
+				while (std::getline(file, line))
+				{
+					full_path = search_paths[i] + line;
+					remove(full_path.c_str());
+					do_file_exists(line.c_str(), search_paths[i].c_str(), sizeof(tmp_str), tmp_str);
+					filelist.push_back(full_path);
+				}
+			}
+#else
 			std::string glob_path = search_paths[i] + "*.menu";
 
 			// find all the menu files and build a list of path+filenames for later
@@ -613,6 +616,7 @@ namespace UserMenus
 					filelist.push_back(std::string(glob_res.gl_pathv[i]));
 				globfree(&glob_res);
 			}
+#endif
 #endif
 		}
 

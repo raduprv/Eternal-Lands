@@ -53,6 +53,9 @@ void clear_popup_window (INPUT_POPUP *ipu)
 {
 	text_field_clear (ipu->popup_win, ipu->popup_field);
 	hide_window (ipu->popup_win);
+#ifdef ANDROID
+	SDL_StopTextInput();
+#endif
 }
 
 void close_ipu (INPUT_POPUP *ipu)
@@ -63,6 +66,9 @@ void close_ipu (INPUT_POPUP *ipu)
 		clear_text_message_data (&ipu->popup_text);
 		free_text_message_data (&ipu->popup_text);
 		init_ipu(ipu, -1, 1, 1, 1, NULL, NULL);
+#ifdef ANDROID
+		SDL_StopTextInput();
+#endif
 	}
 }
 
@@ -258,10 +264,21 @@ void centre_popup_window(INPUT_POPUP *ipu)
 	}
 	else
 	{
+#ifdef ANDROID
+		move_window(win->window_id, win->pos_id,win->pos_loc, (window_width - win->len_x) / 2, (window_height - win->len_y) / 4);
+#else
 		move_window(win->window_id, win->pos_id,win->pos_loc, (window_width - win->len_x) / 2, (window_height - win->len_y) / 2);
+#endif
 	}
 }
 
+#ifdef ANDROID
+static int click_popup_input_handler(widget_list *w, int mx, int my, Uint32 flags)
+{
+	SDL_StartTextInput();
+	return 1;
+}
+#endif
 
 void display_popup_win (INPUT_POPUP *ipu, const char* label)
 {
@@ -291,6 +308,9 @@ void display_popup_win (INPUT_POPUP *ipu, const char* label)
 		// Input
 		ipu->popup_field = text_field_add_extended (ipu->popup_win, widget_id++, NULL, 0, 0, 0, 0,
 			ipu->text_flags, 1.0, 0.77f, 0.57f, 0.39f, &ipu->popup_text, 1, FILTER_ALL, 5, 5);
+#ifdef ANDROID
+		widget_set_OnClick(ipu->popup_win, ipu->popup_field, click_popup_input_handler);
+#endif
 
 		// Accept
 		ipu->popup_ok = button_add_extended (ipu->popup_win, widget_id++, NULL, 0, 0, 0, 0, 0, 1.0, 0.77f, 0.57f, 0.39f, button_okay);

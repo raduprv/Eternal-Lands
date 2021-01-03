@@ -46,7 +46,11 @@ static int buddy_menu_y_len=0;
 static int buddy_name_step_y = 0;
 static int request_box_start_x = 0;
 static int buddy_border_space = 0;
+#ifdef ANDROID
+static const int num_displayed_buddies = 9;
+#else
 static const int num_displayed_buddies = 16;
+#endif
 static int buddy_add_win = -1;
 
 static int buddy_change_win = -1;
@@ -214,29 +218,6 @@ static int click_buddy_handler (window_info *win, int mx, int my, Uint32 flags)
 	}
 	return 1;
 }
-
-#ifdef ANDROID
-int finger_motion_buddy_handler(window_info *win, Uint32 timestamp, float fx, float fy, float dx, float dy)
-{
-	int x = window_width * fx-win->pos_x;
-	int y = window_height * fy-win->pos_y;
-
-	if (dx > 0)
-		return 0;
-
-	if (x > win->len_x-win->box_size)
-		return 0; // Clicked on the scrollbar. Let it fall through.
-
-	// clicked on a buddy's name
-	y /= win->small_font_len_y;
-	y += vscrollbar_get_pos(buddy_win,buddy_scroll_id);
-	if ((strlen(buddy_list[y].name) == 0) || (buddy_list[y].type > 0xFE))
-		return 0; // There's no name. Fall through.
-
-	display_buddy_change(&buddy_list[y]);
-	return 1;
-}
-#endif
 
 void init_buddy(void)
 {
@@ -707,7 +688,11 @@ static int ui_scale_buddy_handler(window_info *win)
 {
 	int button_len_y = (int)(0.5 + win->current_scale * 20);
 	buddy_border_space = (int)(0.5 + win->current_scale * 5);
+#if ANDROID
+	buddy_name_step_y = (int)(0.5 + win->current_scale * 20);
+#else
 	buddy_name_step_y = (int)(0.5 + win->current_scale * 12);
+#endif
 
 	buddy_menu_x_len = win->box_size + MAX_USERNAME_LENGTH * win->small_font_len_x + 2 * buddy_border_space;
 	buddy_menu_y_len = button_len_y + 2* buddy_border_space + num_displayed_buddies * buddy_name_step_y;
@@ -727,6 +712,10 @@ static int ui_scale_buddy_handler(window_info *win)
 	if (buddy_change_win >= 0)
 		destroy_window(buddy_change_win);
 	buddy_add_win = buddy_change_win = -1;
+#ifdef ANDROID
+	// ANDROID_TODO needs fixing in the main client too
+	set_scrollbar_len();
+#endif
 
 	return 1;
 }
@@ -744,9 +733,6 @@ void display_buddy(void)
 			set_window_handler(buddy_win, ELW_HANDLER_DISPLAY, &display_buddy_handler );
 			set_window_handler(buddy_win, ELW_HANDLER_CLICK, &click_buddy_handler );
 			set_window_handler(buddy_win, ELW_HANDLER_UI_SCALE, &ui_scale_buddy_handler );
-#ifdef ANDROID
-			set_window_handler(buddy_win, ELW_HANDLER_FINGER_MOTION, (int (*)())&finger_motion_buddy_handler );
-#endif
 
 			buddy_scroll_id = vscrollbar_add_extended (buddy_win, buddy_scroll_id, NULL, 0, 0, 0, 0, 0, 1.0, 0.77f, 0.57f, 0.39f, 0, 1, 0);
 			buddy_button_id = button_add_extended(buddy_win, buddy_button_id, NULL, 0, 0, 0, 0, BUTTON_SQUARE, 1.0, 0.77f, 0.57f, 0.39f, buddy_add_str);

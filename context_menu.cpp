@@ -157,9 +157,6 @@ namespace cm
 			std::map<int, size_t> full_windows; // <window_id, cm_id>
 			bool menu_opened;
 			static int instance_count;
-#ifdef ANDROID
-			Uint32 last_close_time;
-#endif
 	};
 
 
@@ -202,9 +199,6 @@ namespace cm
 	// constructor - create the context menu window and initialise containers
 	Container::Container(void)
 		: cm_window_id(-1), active_window_id(-1), active_widget_id(-1), menu_opened(false)
-#ifdef ANDROID
-			, last_close_time(0)
-#endif
 	{
 		assert(instance_count++==0);
 		menus.resize(20,0);
@@ -317,7 +311,7 @@ namespace cm
 	// do the pre show checks and return the activation state, e.g. if mouse right-clicked
 	int Container::pre_show_check(Uint32 flags)
 	{
-		int cm_to_activate = (flags & ELW_RIGHT_MOUSE) || (item_action_mode == ACTION_LOOK);
+		int cm_to_activate = (flags & ELW_RIGHT_MOUSE);
 		if (cm_to_activate && ((flags & KMOD_SHIFT) || (flags & KMOD_ALT) || (flags & KMOD_CTRL)))
 			cm_to_activate = 0;  // exclude right clicks with modifier keys pressed
 		menu_opened = false;
@@ -333,10 +327,6 @@ namespace cm
 			select_window(cm_window_id);
 		else
 		{
-#ifdef ANDROID
-			if (get_show_window(cm_window_id))
-				last_close_time = SDL_GetTicks();
-#endif
 			hide_window(cm_window_id);
 			active_window_id = active_widget_id = -1;
 		}
@@ -403,10 +393,6 @@ namespace cm
 	{
 		if (!valid(cm_id))
 			return 0;
-#ifdef ANDROID
-		if ((window_id < 0) && (widget_id < 0) && (SDL_GetTicks() - last_close_time) < 500)
-			return 0;
-#endif
 		menu_opened = true;
 		active_window_id = window_id;
 		active_widget_id = widget_id;

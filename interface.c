@@ -48,9 +48,11 @@
 
 int mouse_x = 0;
 int mouse_y = 0;
+#ifndef ANDROID
 int right_click = 0;
 int middle_click = 0;
 int left_click = 0;
+#endif
 
 int have_a_map=0;
 int view_health_bar=1;

@@ -221,8 +221,8 @@ int gy_adjust = 0;
 #ifdef ANDROID
 int textures_32bpp = 0;
 int full_camera_bars = 0;
+int window_camera_controls = 0;
 static int done_initial_config = 0;
-static int show_minimap_win = 0;
 #endif
 
 int you_sit= 0;
@@ -416,16 +416,6 @@ static void change_sky_var(int * var)
 	*var= !*var;
 	skybox_update_colors();
 }
-
-#ifdef ANDROID
-void change_minimap_var(int * var)
-{
-	*var= !*var;
-	open_minimap_on_start = *var;
-	if (game_root_win > -1)
-		display_minimap();
-}
-#endif
 
 static void change_use_animation_program(int * var)
 {
@@ -1338,18 +1328,6 @@ static void change_reflection(int *rf)
 	update_fbos();
 }
 
-#ifdef ANDROID
-void change_camera_bars(int *ccb)
-{
-	*ccb = !*ccb;
-}
-
-void change_texture_bpp(int *tbpp)
-{
-	*tbpp = !*tbpp;
-}
-#endif
-
 static void change_frame_buffer(int *fb)
 {
 	if (*fb)
@@ -2118,8 +2096,8 @@ static void init_ELC_vars(void)
 
 	// HUD TAB
 #ifdef ANDROID
-	add_var(OPT_BOOL,"show_minimap_win","minimap", &show_minimap_win, change_minimap_var,0,"Open Minimap At Start Up", "Open the minimap at start up", HUD);
-	add_var(OPT_BOOL,"full_camera_bars","full_cam_bars",&full_camera_bars,change_camera_bars,1,"Draw camera bars","Shows the camera bars",HUD);
+	add_var(OPT_BOOL,"window_camera_control","window_cc",&window_camera_controls,change_var,1,"Use Full Window Camera Controls","Use Full Window Camera Controls",HUD);
+	add_var(OPT_BOOL,"full_camera_bars","full_cam_bars",&full_camera_bars,change_var,1,"Draw camera bars","Shows the camera bars",HUD);
 #endif
 	add_var(OPT_BOOL,"show_fps","fps",&show_fps,change_var,1,"Show FPS","Show the current frames per second in the corner of the window",HUD);
 	add_var(OPT_BOOL,"view_analog_clock","analog",&view_analog_clock,change_var,1,"Analog Clock","Toggle the analog clock",HUD);
@@ -2346,7 +2324,7 @@ static void init_ELC_vars(void)
 #ifdef ANDROID
 	add_var(OPT_INT,"limit_fps","lfps",&limit_fps,change_int,0,"Limit FPS","Limit the frame rate to reduce load on the system",GFX,0,INT_MAX);
 	add_var(OPT_FLOAT,"far_plane", "far_plane", &far_plane, change_projection_float, 100.0, "Maximum Viewing Distance", "Adjusts how far you can see.", GFX, 40.0, 200.0, 1.0);
-	add_var(OPT_BOOL,"textures_32bpp","t32bpp",&textures_32bpp,change_texture_bpp,1,"32 BPP textures","Slower, requires restart",GFX);
+	add_var(OPT_BOOL,"textures_32bpp","t32bpp",&textures_32bpp,change_var,1,"32 BPP textures","Slower, requires restart",GFX);
 
 	//add_var(OPT_MULTI_H,"far_plane","far_plane",&far_plane,change_max_view_distance,0,"Viewing distance","Sets the max viewing distance",GFX, "Low", "Medium", "High", "Highest", NULL);
 	add_var(OPT_FLOAT,"far_reflection_plane", "far_reflection_plane", &far_reflection_plane, change_projection_float, 100.0, "Maximum Reflection Distance", "Adjusts how far the reflections are displayed.", GFX, 0.0, 200.0, 1.0);

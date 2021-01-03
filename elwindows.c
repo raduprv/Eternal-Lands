@@ -507,17 +507,6 @@ void finger_motion_in_windows(Uint32 timestamp, float center_x, float center_y, 
 	}
 
 }
-
-// return true if we click on the left part of the title bar
-int title_cm_clicked(window_info *win, int x, int y)
-{
-	int wx = x - win->cur_x;
-	int wy = y - win->cur_y;
-	if ((win->flags & ELW_TITLE_BAR) && (wy > -win->title_height) && (wy < 0) &&
-		(wx > 0) && (wx < (win->len_x / 5)) && cm_valid(win->cm_id))
-			return 1;
-	return 0;
-}
 #endif
 
 int	click_in_windows(int mx, int my, Uint32 flags)
@@ -546,11 +535,7 @@ int	click_in_windows(int mx, int my, Uint32 flags)
 					// at this level?
 					if(windows_list.window[i].order == id)
 					{
-#ifdef ANDROID
-						if ((cm_try_activate || title_cm_clicked(&windows_list.window[i], mx, my)) && cm_show_if_active(i))
-#else
 						if (cm_try_activate && cm_show_if_active(i))
-#endif
 							return 0;
 						done= click_in_window(i, mx, my, flags);
 						if(done > 0)
@@ -588,11 +573,7 @@ int	click_in_windows(int mx, int my, Uint32 flags)
 				// at this level?
 				if(windows_list.window[i].order == id)
 				{
-#ifdef ANDROID
-					if ((cm_try_activate || title_cm_clicked(&windows_list.window[i], mx, my)) && cm_show_if_active(i))
-#else
 					if (cm_try_activate && cm_show_if_active(i))
-#endif
 						return 0;
 					done= click_in_window(i, mx, my, flags);
 					if(done > 0)
@@ -669,6 +650,11 @@ int	drag_in_windows(int mx, int my, Uint32 flags, int dx, int dy)
 			for(i=0; i < windows_list.num_windows; i++)
 			{
 				win = &(windows_list.window[i]);				
+#ifdef ANDROID
+				// skip if handling motion separately for this window
+				if (win->finger_motion_handler != NULL)
+					continue;
+#endif
 				// only look at displayed windows
 				if (win->displayed)
 				{
@@ -711,6 +697,11 @@ int	drag_in_windows(int mx, int my, Uint32 flags, int dx, int dy)
 		for (i=0; i<windows_list.num_windows; i++)
 		{
 			win = &(windows_list.window[i]);
+#ifdef ANDROID
+			// skip if handling motion separately for this window
+			if (win->finger_motion_handler != NULL)
+				continue;
+#endif
 			// only look at displayed windows
 			if(win->displayed)
 			{
@@ -773,6 +764,11 @@ int drag_windows (int mx, int my, int dx, int dy)
 			for(i=0; i<windows_list.num_windows; i++)
 			{
 				win = &(windows_list.window[i]);
+#ifdef ANDROID
+				// skip if handling motion separately for this window
+				if (win->finger_motion_handler != NULL)
+					continue;
+#endif
 				dragable = win->flags & ELW_DRAGGABLE;
 				resizeable = win->flags & ELW_RESIZEABLE;
 				// only look at displayed windows
@@ -828,6 +824,11 @@ int drag_windows (int mx, int my, int dx, int dy)
 		for (i=0; i<windows_list.num_windows; i++)
 		{
 			win = &(windows_list.window[i]);
+#ifdef ANDROID
+			// skip if handling motion separately for this window
+			if (win->finger_motion_handler != NULL)
+				continue;
+#endif
 			dragable = win->flags & ELW_DRAGGABLE;
 			resizeable = win->flags & ELW_RESIZEABLE;
 			// only look at displayed windows
@@ -878,7 +879,11 @@ int drag_windows (int mx, int my, int dx, int dy)
 	// dragged window is always on top
 	select_window (drag_id);
 	
+#ifdef ANDROID
+	if((dx != 0 || dy != 0))
+#else
 	if(left_click>1 && (dx != 0 || dy != 0))	// TODO: avoid globals?
+#endif
 	{
 		win = &(windows_list.window[drag_id]);
 		if (win->dragged)

@@ -690,27 +690,18 @@ static int click_game_handler(window_info *win, int mx, int my, Uint32 flags)
 	if (back_on)
 		return 0;
 
-	// ANDROID_TODO - not needed anymore?
-	if ((mx >= window_width - size_20) && (my < size_20))
-	{
-		int *window_id = get_winid("minimap"); // get a pointer to the window id variable
-		view_window(window_id, 0); // create or toggle the window
-		return 0;
-	}
-
 	// ignore clicks in touch window for now
-	if (((mx > horiz_touch_x_start) && (mx < horiz_touch_x_start + horiz_touch_x_size) &&
+	if (!window_camera_controls &&
+		(((mx > horiz_touch_x_start) && (mx < horiz_touch_x_start + horiz_touch_x_size) &&
 		(my > horiz_touch_y_start) && (my < horiz_touch_y_start + horiz_touch_y_size)) ||
 	    ((mx > vert_touch_x_start) && (mx < vert_touch_x_start + vert_touch_x_size) &&
-		(my > vert_touch_y_start) && (my < vert_touch_y_start + vert_touch_y_size)))
+		(my > vert_touch_y_start) && (my < vert_touch_y_start + vert_touch_y_size))))
 	{
-
 		if(time_now-last_click_timestamp<300)
 		{
 			SDL_StartTextInput();
 			move_input_widget(window_height);
 		}
-
 		last_click_timestamp=time_now;
 		return 0;
 	}
@@ -723,12 +714,12 @@ static int click_game_handler(window_info *win, int mx, int my, Uint32 flags)
 		return 0;
 	}
 
- 	if (!cursor_check_ready)
+	if (!cursor_check_ready)
 		return 0;
 
- 	// we have cursor, reset variables and go on
- 	do_cursor_check=0;
- 	cursor_check_ready=0;
+	// we have cursor, reset variables and go on
+	do_cursor_check=0;
+	cursor_check_ready=0;
 	mouseover_game_handler (win, mx, my);
 #endif
 
@@ -769,10 +760,8 @@ static int click_game_handler(window_info *win, int mx, int my, Uint32 flags)
 
 	if (!force_walk)
 	{
-#ifndef ANDROID
 		if (flag_right)
 		{
-#endif
 			if (!cm_banner_disabled)
 			{
 				/* show the banner control menu if right-clicked and over your actors banner */
@@ -809,8 +798,18 @@ static int click_game_handler(window_info *win, int mx, int my, Uint32 flags)
 				}
 			}
 #ifdef ANDROID
-		if (flag_right)
-		{
+			// activate/close the on-screen keyboard of we're near the top
+			// ANDROID_TODO instead, perhaps activate when the widget is clicked?
+			if ((window_camera_controls) && (my < (3 * (get_tab_bar_y() + get_input_height()))))
+			{
+				if (SDL_IsTextInputActive())
+					SDL_StopTextInput();
+				else
+					SDL_StartTextInput();
+				move_input_widget(window_height);
+			}
+			// for touch, we don't use the action switching and dragging if done differently - so return now
+			return 1;
 #endif
 			if (item_dragged != -1 || use_item != -1 || object_under_mouse == -1
 					|| storage_item_dragged != -1
@@ -1240,8 +1239,11 @@ static int click_game_handler(window_info *win, int mx, int my, Uint32 flags)
 		}
 	}
 
+#ifndef ANDROID
+	// ANDROID_TODO investigate why do this - the events code compares to == 1, perhaps thats while
 	left_click = 2;
 	right_click = 2;
+#endif
 	return 1;
 }
 
@@ -1703,7 +1705,8 @@ CHECK_GL_ERRORS();
 
 #ifdef ANDROID
 	//draw touch win
-	draw_touch_area(win);
+	if (!window_camera_controls)
+		draw_touch_area(win);
 #endif
 	if ((input_widget!= NULL) && (input_widget->window_id != win->window_id) && !get_show_window(chat_win))
 		input_widget_move_to_win(win->window_id);
@@ -2376,6 +2379,7 @@ int multi_gesture_game_handler(window_info *win, Uint32 timestamp, float x, floa
 
 int finger_motion_game_handler(window_info *win, Uint32 timestamp, float x, float y, float dx, float dy)
 {
+	int do_rotation = 0, do_tilt = 0;
 	int mx = window_width * x;
 	int my = window_height * y;
 
@@ -2399,19 +2403,35 @@ int finger_motion_game_handler(window_info *win, Uint32 timestamp, float x, floa
 		return 1;
 	}
 
-	if ((mx > horiz_touch_x_start) && (mx < horiz_touch_x_start + horiz_touch_x_size) &&
-		(my > horiz_touch_y_start) && (my < horiz_touch_y_start + horiz_touch_y_size))
+	// If we are using the full window camer controls
+	if (window_camera_controls)
+	{
+		// only adjust one conrol at a time
+		if (fabsf(dx) > fabsf(dy))
+			do_rotation = 1;
+		else
+			do_tilt = 1;
+	}
+	// else we are using the original camera control bars
+	else
+	{
+		if ((mx > horiz_touch_x_start) && (mx < horiz_touch_x_start + horiz_touch_x_size) &&
+			(my > horiz_touch_y_start) && (my < horiz_touch_y_start + horiz_touch_y_size))
+			do_rotation = 1;
+		else if ((mx > vert_touch_x_start) && (mx < vert_touch_x_start + vert_touch_x_size) &&
+			(my > vert_touch_y_start) && (my < vert_touch_y_start + vert_touch_y_size))
+			do_tilt = 1;
+	}
+
+	if (do_rotation)
 	{
 		if ((last_finger_motion_timestamp + 30 > timestamp) || (last_finger_multi_gesture_timestamp + 30 > timestamp))
 			return 1;
 		last_finger_motion_timestamp = timestamp;
 		camera_rotation_speed = camera_rotation_speed * 0.5 + normal_camera_rotation_speed * dx * -0.50;
 		camera_rotation_deceleration = normal_camera_deceleration * 1E-3;
-		return 1;
 	}
-
-	if ((mx > vert_touch_x_start) && (mx < vert_touch_x_start + vert_touch_x_size) &&
-		(my > vert_touch_y_start) && (my < vert_touch_y_start + vert_touch_y_size))
+	else if (do_tilt)
 	{
 		if ((last_finger_motion_timestamp + 30 > timestamp) || (last_finger_multi_gesture_timestamp + 30 > timestamp))
 			return 1;
