@@ -766,7 +766,7 @@ static void open_note_tab_continued(int id)
 	note_list[id].input = text_field_add_extended(note_list[id].window, note_widget_id++, NULL,
 		tf_x, tf_y, tf_width, tf_height,
 		TEXT_FIELD_BORDER|TEXT_FIELD_EDITABLE|TEXT_FIELD_CAN_GROW|TEXT_FIELD_SCROLLBAR,
-		note_zoom * tab_win->current_scale, 0.77f, 0.57f, 0.39f, &note_list[id].text, 1, FILTER_ALL, widget_space, widget_space);
+		note_zoom, 0.77f, 0.57f, 0.39f, &note_list[id].text, 1, FILTER_ALL, widget_space, widget_space);
 
 	tab = tab_collection_get_tab_nr (notepad_win, note_tabcollection_id, note_list[id].window);
 	tab_collection_select_tab (notepad_win, note_tabcollection_id, tab);

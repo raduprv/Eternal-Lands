@@ -361,6 +361,7 @@ extern char
 		equip_here_str[100],
 		items_text_toggle_help_str[50],
 		items_unequip_all_help_str[30],
+		items_doubleclick_unequip_all_help_str[50],
 		equip_str[20],
 		mod_click_item_help_str[50],
 		multiuse_item_help_str[50],

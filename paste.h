@@ -79,6 +79,14 @@ void process_copy(XSelectionRequestEvent* e);
  */
 void do_paste_to_text_field (widget_list *widget, const char* text);
 
+/*!
+ * \brief Initialise the copy/paste routines.
+ *
+ * Calls XSetErrorHandler().
+ */
+void init_x11_copy_paste(void);
+
+
 #ifdef __cplusplus
 } // extern "C"
 #endif

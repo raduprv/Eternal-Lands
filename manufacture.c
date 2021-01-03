@@ -14,6 +14,9 @@
 #include "init.h"
 #include "interface.h"
 #include "item_info.h"
+#if defined JSON_FILES
+#include "json_io.h"
+#endif
 #include "loginwin.h"
 #include "multiplayer.h"
 #include "textures.h"
@@ -25,7 +28,6 @@
 #include "gl_init.h"
 #endif
 
-#define NUM_MIX_SLOTS 6
 #define MIX_SLOT_OFFSET 36
 #define GRID_COLS 12
 #define GRID_ROWS 3
@@ -44,13 +46,6 @@ static int recipe_win= -1;
 static size_t cm_recipewin = CM_INIT_VALUE;
 
 enum { CMRIC_ADD=0, CMRIC_CLEAR, CMRIC_DELETE, CMRIC_SORT };
-
-typedef struct
-{
-	item items[NUM_MIX_SLOTS];
-	char *name;
-	int status;
-} recipe_entry;
 
 static size_t num_recipe_entries = 0;
 static size_t max_prev_num_recipe_entries = 0;
@@ -95,6 +90,27 @@ static int item_ids_match(Uint16 lid, Uint16 rid)
 		return 0;
 }
 
+static void copy_items_to_recipe_items(recipe_item *recipe_items, item *items, size_t items_offset)
+{
+	size_t j;
+	for (j=0; j<NUM_MIX_SLOTS; j++)
+	{
+		recipe_items[j].id = items[j+items_offset].id;
+		recipe_items[j].image_id = items[j+items_offset].image_id;
+		recipe_items[j].quantity = items[j+items_offset].quantity;
+	}
+}
+
+static void copy_recipe_items_to_items(item *items, size_t items_offset, recipe_item *recipe_items)
+{
+	size_t j;
+	for (j=0; j<NUM_MIX_SLOTS; j++)
+	{
+		items[j+items_offset].id = recipe_items[j].id;
+		items[j+items_offset].image_id = recipe_items[j].image_id;
+		items[j+items_offset].quantity = recipe_items[j].quantity;
+	}
+}
 
 /* called on client exit to free memory and clean up */
 void cleanup_manufacture(void)
@@ -140,10 +156,14 @@ static void save_recipe_names(void)
 	size_t i;
 	int errorflag = 0;
 
-	if (!recipe_names_changed)
+	safe_snprintf(fname, sizeof(fname), "recipes_%s.names",get_lowercase_username());
+
+	/* do not save if unchanged, unless the file does not exists and we have some recipes */
+	if (!(recipe_names_changed || (num_recipe_entries && (file_exists_config(fname) != 1))))
 		return;
 
-	safe_snprintf(fname, sizeof(fname), "recipes_%s.names",get_lowercase_username());
+	recipe_names_changed = 0;
+
 	fp = open_file_config(fname,"w");
 	if(fp == NULL)
 	{
@@ -259,7 +279,7 @@ void check_for_recipe_name(const char *name)
 		int num_match_ing = 0;
 		size_t recipe_item_index;
 		item last_mix_cpy[NUM_MIX_SLOTS];
-		item *recipe = recipes_store[recipe_index].items;
+		recipe_item *recipe = recipes_store[recipe_index].items;
 
 		// move on if already have name, no recipe or if the ingredient counts don't match
 		if (recipes_store[recipe_index].name != NULL)
@@ -346,7 +366,7 @@ void change_num_recipe_entries(int * var, int value)
  * saved recipes with set the uid properly.
  * Zero is the uid for sunflowers (image id 25) so don't change that.
  */
-static void fix_recipe_uids(item items[NUM_MIX_SLOTS])
+static void fix_recipe_uids(recipe_item items[NUM_MIX_SLOTS])
 {
 	int i;
 	for (i=0; i<NUM_MIX_SLOTS; i++)
@@ -363,6 +383,10 @@ void load_recipes (){
 	int logged = 0;
 	off_t file_size;
 	const size_t recipe_size = sizeof(item)*NUM_MIX_SLOTS;
+	int num_recipes_in_file = -1;
+#if defined JSON_FILES
+	int have_json_file = 0;
+#endif
 
 	if (recipes_loaded) {
 		/*
@@ -370,22 +394,32 @@ void load_recipes (){
 		 * this will take place when relogging after disconnection
 		 */
 		save_recipes();
-		save_recipe_names();
 		return;
 	}
 
-	safe_snprintf(fname, sizeof(fname), "recipes_%s.dat",get_lowercase_username());
-
-	/* get file length, if a valid length adjust the number of recipe slots if required */
-	file_size = get_file_size_config(fname);
-	if ((file_size > 0) && (file_size % recipe_size == 0))
+#if defined JSON_FILES
+	/* try to use the json file first ... */
+	safe_snprintf(fname, sizeof(fname), "%srecipes_%s.json", get_path_config(), get_lowercase_username());
+	if ((num_recipes_in_file = json_open_recipes(fname)) >= 0)
+		have_json_file = 1;
+	/* ... then try the old binary file if we fail */
+	else
 	{
-		int num_recipes_in_file = file_size / recipe_size - 1; // -1 as last is current in pipline
-		if ((num_recipes_in_file > wanted_num_recipe_entries) && (num_recipes_in_file < max_num_recipe_entries))
-		{
-			wanted_num_recipe_entries = num_recipes_in_file;
-			set_var_OPT_INT("wanted_num_recipe_entries", wanted_num_recipe_entries);
-		}
+#endif
+		safe_snprintf(fname, sizeof(fname), "recipes_%s.dat",get_lowercase_username());
+		/* get file length, if a valid length */
+		file_size = get_file_size_config(fname);
+		if ((file_size > 0) && (file_size % recipe_size == 0))
+			num_recipes_in_file = file_size / recipe_size - 1; // -1 as last is current in pipline
+#if defined JSON_FILES
+	}
+#endif
+
+	/* adjust the number of recipe slots if required */
+	if ((num_recipes_in_file > wanted_num_recipe_entries) && (num_recipes_in_file < max_num_recipe_entries))
+	{
+		wanted_num_recipe_entries = num_recipes_in_file;
+		set_var_OPT_INT("wanted_num_recipe_entries", wanted_num_recipe_entries);
 	}
 
 	/* allocate and initialise the recipe store */
@@ -398,6 +432,21 @@ void load_recipes (){
 	}
 	recipes_loaded=1;
 	init_recipe_names();
+
+#if defined JSON_FILES
+	if (have_json_file)
+	{
+		cur_recipe = json_load_recipes(recipes_store, num_recipe_entries);
+		if ((cur_recipe >= 0) && (cur_recipe < num_recipe_entries))
+		{
+			memcpy(manu_recipe.items, recipes_store[cur_recipe].items, sizeof(recipe_item) * NUM_MIX_SLOTS);
+			fix_recipe_uids(manu_recipe.items);
+		}
+		else
+			cur_recipe = 0;
+		return;
+	}
+#endif
 
 	/* if the file exists but is not a valid size, don't use it */
 	if ((file_size > 0) && (file_size % recipe_size != 0))
@@ -419,26 +468,32 @@ void load_recipes (){
 	/* attempt to read all the recipies we're expecting */
 	for (i=0; !feof(fp) && i<num_recipe_entries; i++)
 	{
-		if (fread (recipes_store[i].items,recipe_size,1, fp) != 1)
+		item current[NUM_MIX_SLOTS];
+		if (fread (current, recipe_size, 1, fp) != 1)
 		{
 			if (!logged)
 			{
 				LOG_ERROR("%s() fail during read of file [%s] : %s\n", __FUNCTION__, fname, strerror(errno));
 				logged = 1;
 			}
-			memset(recipes_store[i].items, 0, recipe_size);
+			memset(recipes_store[i].items, 0, sizeof(recipe_item) * NUM_MIX_SLOTS);
 			break;
 		}
+		copy_items_to_recipe_items(recipes_store[i].items, current, 0);
 		fix_recipe_uids(recipes_store[i].items);
 	}
 
 	/* if there is another, use it as the current recipe in the manufacturing pipeline */
 	if (!feof(fp))
 	{
-		if (fread (manu_recipe.items,recipe_size,1, fp) != 1)
-			memset(manu_recipe.items, 0, recipe_size);
+		item current[NUM_MIX_SLOTS];
+		if (fread (current,recipe_size,1, fp) != 1)
+			memset(manu_recipe.items, 0, sizeof(recipe_item) * NUM_MIX_SLOTS);
 		else
+		{
+			copy_items_to_recipe_items(manu_recipe.items, current, 0);
 			fix_recipe_uids(manu_recipe.items);
+		}
 	}
 	fclose (fp);
 
@@ -455,9 +510,26 @@ void save_recipes(){
 	if (!recipes_loaded)
 		return;
 
+#if defined JSON_FILES
+	/* save in json format always */
+	safe_snprintf(fname, sizeof(fname), "%srecipes_%s.json",get_path_config(), get_lowercase_username());
+	if (json_save_recipes(fname, recipes_store, num_recipe_entries, cur_recipe) < 0)
+	{
+		LOG_ERROR("%s: %s \"%s\"\n", reg_error_str, cant_open_file, fname);
+		return;
+	}
+
+	/* Only save the old binary file if it already exist.  Doing both provides backward compatibility with older clients */
+	safe_snprintf(fname, sizeof(fname), "recipes_%s.dat",get_lowercase_username());
+	if (file_exists_config(fname)!=1)
+		return;
+#endif
+
 	save_recipe_names();
 
+#if !defined JSON_FILES
 	safe_snprintf(fname, sizeof(fname), "recipes_%s.dat",get_lowercase_username());
+#endif
 	fp=open_file_config(fname,"wb");
 	if(fp == NULL){
 		LOG_ERROR("%s: %s \"%s\": %s\n", reg_error_str, cant_open_file, fname, strerror(errno));
@@ -466,7 +538,9 @@ void save_recipes(){
 
 	for (i=0; i<num_recipe_entries+1; i++)
 	{
-		item *store = (i<num_recipe_entries) ?recipes_store[i].items :manu_recipe.items;
+		item store[NUM_MIX_SLOTS];
+		recipe_item *current = (i<num_recipe_entries) ?recipes_store[i].items :manu_recipe.items;
+		copy_recipe_items_to_items(store, 0, current);
 		if (fwrite (store,sizeof(item)*NUM_MIX_SLOTS,1, fp) != 1)
 		{
 			LOG_ERROR("%s() fail during write of file [%s] : %s\n", __FUNCTION__, fname, strerror(errno));
@@ -557,15 +631,6 @@ void build_manufacture_list()
 
 }
 
-
-/* general copy recipe from pipeline function */
-static void copy_recipe_from_manu_list(item *this_item_store)
-{
-	size_t i;
-	for(i=MIX_SLOT_OFFSET; i<MIX_SLOT_OFFSET+NUM_MIX_SLOTS; i++)
-		this_item_store[i-MIX_SLOT_OFFSET]=manufacture_list[i];
-}
-
 static void use_recipe(int recipe_to_use)
 {
 	memcpy(&manu_recipe, &recipes_store[recipe_to_use], sizeof(recipe_entry));
@@ -605,28 +670,28 @@ static void draw_recipe_controls(window_info *win){
 
 //draws a NUM_MIX_SLOTSx1 grid of items+grid
 static int draw_production_pipe(window_info *win, int x, int y, int recipe_num){
-	int i,ofs,valid;
+	int i,valid;
 	Uint8 str[80];
-	item *the_list;
+	recipe_item *the_list;
+	recipe_item temp_list[NUM_MIX_SLOTS];
 
 	//if recipe_num is negative we draw the current manufacture_list, else a recipe
 	if (recipe_num<0) {
-		the_list=manufacture_list;
-		ofs=MIX_SLOT_OFFSET;
+		copy_items_to_recipe_items(temp_list, manufacture_list, MIX_SLOT_OFFSET);
+		the_list = temp_list;
 		valid=1;
 	} else {
 		the_list=recipes_store[recipe_num].items;
-		ofs=0;
 		valid=recipes_store[recipe_num].status;
 	}
 
 	glEnable(GL_TEXTURE_2D);
 	//ok, now let's draw the mixed objects
-	for(i=ofs;i<NUM_MIX_SLOTS+ofs;i++) {
+	for(i=0;i<NUM_MIX_SLOTS;i++) {
 		glColor3f(1.0f,1.0f,1.0f);
 		if(the_list[i].quantity > 0){
 			int x_start,y_start;
-			int use_large = (mouse_over_pipe_pos == i-ofs) && enlarge_text();
+			int use_large = (mouse_over_pipe_pos == i) && enlarge_text();
 			int y_offset = SLOT_SIZE - ((use_large) ?win->default_font_len_y :win->small_font_len_y);
 
 			//get the x and y
@@ -965,7 +1030,7 @@ static int recipe_controls_click_handler(window_info *win, int mx, int my, Uint3
 	} else
 	if (mx>wpx+win->small_font_len_x/2 && mx<wpx+lpx-win->small_font_len_x/2 && my>wpy && my<wpy+win->small_font_len_y){
 		//+ button
-		copy_recipe_from_manu_list(recipes_store[cur_recipe].items);
+		copy_items_to_recipe_items(recipes_store[cur_recipe].items, manufacture_list, MIX_SLOT_OFFSET);
 		clear_recipe_name(cur_recipe);
 		build_manufacture_list();
 		do_click_sound();
@@ -1019,7 +1084,7 @@ static int click_manufacture_handler(window_info *win, int mx, int my, Uint32 fl
 					manufacture_list[j].image_id=manufacture_list[pos].image_id;
 					manufacture_list[j].id=manufacture_list[pos].id;
 					manufacture_list[pos].quantity -= quantitytomove;
-					copy_recipe_from_manu_list(manu_recipe.items);
+					copy_items_to_recipe_items(manu_recipe.items, manufacture_list, MIX_SLOT_OFFSET);
 					do_click_sound();
 					return 1;
 				}
@@ -1036,7 +1101,7 @@ static int click_manufacture_handler(window_info *win, int mx, int my, Uint32 fl
 					manufacture_list[j].image_id=manufacture_list[pos].image_id;
 					manufacture_list[j].id=manufacture_list[pos].id;
 					manufacture_list[pos].quantity -= quantitytomove;
-					copy_recipe_from_manu_list(manu_recipe.items);
+					copy_items_to_recipe_items(manu_recipe.items, manufacture_list, MIX_SLOT_OFFSET);
 					do_click_sound();
 					return 1;
 				}
@@ -1074,7 +1139,7 @@ static int click_manufacture_handler(window_info *win, int mx, int my, Uint32 fl
 					manufacture_list[j].image_id=manufacture_list[MIX_SLOT_OFFSET+pos].image_id;
 					manufacture_list[j].id=manufacture_list[MIX_SLOT_OFFSET+pos].id;
 					manufacture_list[MIX_SLOT_OFFSET+pos].quantity -= quantitytomove;
-					copy_recipe_from_manu_list(manu_recipe.items);
+					copy_items_to_recipe_items(manu_recipe.items, manufacture_list, MIX_SLOT_OFFSET);
 					do_click_sound();
 					return 1;
 				}
@@ -1092,7 +1157,7 @@ static int click_manufacture_handler(window_info *win, int mx, int my, Uint32 fl
 					manufacture_list[j].image_id=manufacture_list[MIX_SLOT_OFFSET+pos].image_id;
 					manufacture_list[j].id=manufacture_list[MIX_SLOT_OFFSET+pos].id;
 					manufacture_list[MIX_SLOT_OFFSET+pos].quantity -= quantitytomove;
-					copy_recipe_from_manu_list(manu_recipe.items);
+					copy_items_to_recipe_items(manu_recipe.items, manufacture_list, MIX_SLOT_OFFSET);
 					do_click_sound();
 					return 1;
 				}

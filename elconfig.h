@@ -116,6 +116,8 @@ void step_win_scale_factor(int increase, float *changed_window_custom_scale);
 
 void reset_win_scale_factor(int set_default, float *changed_window_custom_scale);
 
+void update_highdpi_auto_scaling(void);
+
 extern float get_global_scale(void);
 
 #ifdef ANDROID

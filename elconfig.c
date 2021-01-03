@@ -287,6 +287,15 @@ static void consolidate_rotate_chat_log_status(void);
 static int elconfig_menu_x_len= 0;
 static int elconfig_menu_y_len= 0;
 static int is_mouse_over_option = 0;
+
+static int disable_auto_highdpi_scale = 0;
+static int delay_update_highdpi_auto_scaling = 0;
+// the elconfig local version of the font sizes, so we can auto scale if needed
+static float local_ui_scale = 1.0f;
+static float local_name_zoom = 1.0f;
+static float local_chat_zoom = 1.0f;
+static float local_note_zoom = 0.8f;
+static float local_minimap_size_coefficient = 0.7f;
 #endif
 
 void options_loaded(void)
@@ -405,6 +414,7 @@ static void change_minimap_scale(float * var, float * value)
 {
 	int shown = 0;
 	*var= *value;
+	minimap_size_coefficient = ((disable_auto_highdpi_scale)) ? *var : get_highdpi_scale() * *var;
 	if (minimap_win>=0)
 	{
 		shown = get_show_window(minimap_win);
@@ -509,18 +519,7 @@ static void change_signed_int(int * var, int value)
 
 static void change_float(float * var, float * value)
 {
-	if(var == &name_zoom){
-		if(*value > 2.0){
-			*value= 2.0;
-		}
-	}
-	/* Commented by Schmurk: if we can define bounds for parameters, why testing
-	 * if the value is over 0 here? */
-	//if(*value >= 0) {
 	*var= *value;
-	//} else {
-	// *var= 0;
-	//}
 }
 
 static void change_string(char * var, char * str, int len)
@@ -534,14 +533,15 @@ static void change_string(char * var, char * str, int len)
 static void change_ui_scale(float *var, float *value)
 {
 	*var= *value;
-	HUD_MARGIN_X = (int)ceilf(*var * 64.0);
+	ui_scale = ((disable_auto_highdpi_scale)) ? *var : get_highdpi_scale() * *var;
+	HUD_MARGIN_X = (int)ceilf(ui_scale * 64.0);
 	if (hud_x != 0)
 		hud_x = HUD_MARGIN_X;
-	HUD_MARGIN_Y = (int)ceilf(*var * 49.0);
+	HUD_MARGIN_Y = (int)ceilf(ui_scale * 49.0);
 	if (hud_y != 0)
 		hud_y = HUD_MARGIN_Y;
 
-	update_windows_scale(*var);
+	update_windows_scale(ui_scale);
 
 	if (input_widget != NULL)
 		input_widget_move_to_win(input_widget->window_id);
@@ -1147,18 +1147,28 @@ static void change_quickspells_relocatable (int *rel)
 	}
 }
 
+static void change_name_zoom(float * var, float * value)
+{
+	if(*value > 2.0){
+		*value= 2.0;
+	}
+	*var= *value;
+	name_zoom = ((disable_auto_highdpi_scale)) ? *var : get_highdpi_scale() * *var;
+}
+
 static void change_chat_zoom(float *dest, float *value)
 {
 	if (*value < 0.0f) {
 		return;
 	}
 	*dest= *value;
+	chat_zoom = ((disable_auto_highdpi_scale)) ? *dest : get_highdpi_scale() * *dest;
 	if (opening_root_win >= 0 || console_root_win >= 0 || chat_win >= 0 || game_root_win >= 0) {
 		if (opening_root_win >= 0) {
 			opening_win_update_zoom();
 		}
 		if (console_root_win >= 0) {
-			console_font_resize(*value);
+			console_font_resize(chat_zoom);
 		}
 		if (chat_win >= 0) {
 			chat_win_update_zoom();
@@ -1166,7 +1176,7 @@ static void change_chat_zoom(float *dest, float *value)
 	}
 	if(input_widget != NULL) {
 		text_field *tf= input_widget->widget_info;
-		widget_set_size(input_widget->window_id, input_widget->id, *value);
+		widget_set_size(input_widget->window_id, input_widget->id, chat_zoom);
 		if(use_windowed_chat != 2) {
 			widget_resize(input_widget->window_id, input_widget->id, input_widget->len_x, tf->y_space*2 + ceilf(DEFAULT_FONT_Y_LEN*input_widget->size*tf->nr_lines));
 		}
@@ -1178,6 +1188,7 @@ static void change_note_zoom (float *dest, float *value)
 	if (*value < 0.0f)
 		return;
 	*dest = *value;
+	note_zoom = ((disable_auto_highdpi_scale)) ? *dest : get_highdpi_scale() * *dest;
 	notepad_win_close_tabs ();
 }
 
@@ -1208,9 +1219,9 @@ void set_scale_from_window_size(void)
 	set_var_unsaved("ui_scale", INI_FILE_VAR);
 
 	new_value = ui_scale * 0.8f;
-	change_chat_zoom(&chat_zoom, &new_value);
+	change_chat_zoom(&local_chat_zoom, &new_value);
 	set_var_unsaved("chat_text_size", INI_FILE_VAR);
-	change_float(&name_zoom, &new_value);
+	change_float(&local_name_zoom, &new_value);
 	set_var_unsaved("name_text_size", INI_FILE_VAR);
 	new_value = 0.7f * ui_scale * 0.8f;
 	change_float(&minimap_size_coefficient, &new_value);
@@ -1218,7 +1229,25 @@ void set_scale_from_window_size(void)
 }
 
 #endif
-#endif
+
+void update_highdpi_auto_scaling(void)
+{
+	change_name_zoom(&local_name_zoom, &local_name_zoom);
+	change_chat_zoom(&local_chat_zoom, &local_chat_zoom);
+	change_note_zoom(&local_note_zoom, &local_note_zoom);
+	change_ui_scale(&local_ui_scale, &local_ui_scale);
+	change_minimap_scale(&local_minimap_size_coefficient, &local_minimap_size_coefficient);
+}
+
+static void change_disable_auto_highdpi_scale(int * var)
+{
+	*var= !*var;
+	if (!delay_update_highdpi_auto_scaling)
+		update_highdpi_auto_scaling();
+}
+
+#endif // MAP_EDITOR2
+
 #endif // def ELC
 
 static void change_dir_name (char *var, const char *str, int len)
@@ -2169,7 +2198,7 @@ static void init_ELC_vars(void)
 #endif
 	add_var(OPT_BOOL,"3d_map_markers","3dmarks",&marks_3d,change_3d_marks,1,"Enable 3D Map Markers","Shows user map markers in the game window",HUD);
 	add_var(OPT_BOOL,"item_window_on_drop","itemdrop",&item_window_on_drop,change_var,1,"Item Window On Drop","Toggle whether the item window shows when you drop items",HUD);
-	add_var(OPT_FLOAT,"minimap_scale", "minimapscale", &minimap_size_coefficient, change_minimap_scale, 0.7, "Minimap Scale", "Adjust the overall size of the minimap", HUD, 0.5, 1.5, 0.1);
+	add_var(OPT_FLOAT,"minimap_scale", "minimapscale", &local_minimap_size_coefficient, change_minimap_scale, 0.7, "Minimap Scale", "Adjust the overall size of the minimap", HUD, 0.5, 1.5, 0.1);
 	add_var(OPT_BOOL,"rotate_minimap","rotateminimap",&rotate_minimap,change_var,1,"Rotate Minimap","Toggle whether the minimap should rotate.",HUD);
 	add_var(OPT_BOOL,"pin_minimap","pinminimap",&pin_minimap,change_var,0,"Pin Minimap","Toggle whether the minimap ignores close-all-windows.",HUD);
 	add_var(OPT_BOOL, "continent_map_boundaries", "cmb", &show_continent_map_boundaries, change_var, 1, "Map Boundaries On Continent Map", "Show map boundaries on the continent map", HUD);
@@ -2235,17 +2264,18 @@ static void init_ELC_vars(void)
 #ifdef ANDROID
 	add_var(OPT_BOOL_INI, "done_initial_config", "dic", &done_initial_config, change_var, 0, "Done initial config", "Set on first run allowing one-time configuration.", FONT);
 #endif
-	add_var(OPT_FLOAT,"name_text_size","nsize",&name_zoom,change_float,1,"Name Text Size","Set the size of the players name text",FONT,0.0,2.0,0.01);
-	add_var(OPT_FLOAT,"chat_text_size","csize",&chat_zoom,change_chat_zoom,1,"Chat Text Size","Sets the size of the normal text",FONT,0.0,FLT_MAX,0.01);
+	add_var(OPT_BOOL,"disable_auto_highdpi_scale", "disautohighdpi", &disable_auto_highdpi_scale, change_disable_auto_highdpi_scale, 0, "Disable High-DPI auto scaling", "For systems with high-dpi support (e.g. OS X): When enabled, name, chat and notepad font values, and the user interface scaling factor are all automatically scaled using the system's scale factor.", FONT);
+	add_var(OPT_FLOAT,"name_text_size","nsize",&local_name_zoom,change_name_zoom,1,"Name Text Size","Set the size of the players name text",FONT,0.0,2.0,0.01);
+	add_var(OPT_FLOAT,"chat_text_size","csize",&local_chat_zoom,change_chat_zoom,1,"Chat Text Size","Sets the size of the normal text",FONT,0.0,FLT_MAX,0.01);
 #ifndef ANDROID
-	add_var(OPT_FLOAT,"note_text_size", "notesize", &note_zoom, change_note_zoom, 0.8, "Notepad Text Size","Sets the size of the text in the notepad", FONT, 0.0, FLT_MAX, 0.01);
+	add_var(OPT_FLOAT,"note_text_size", "notesize", &local_note_zoom, change_note_zoom, 0.8, "Notepad Text Size","Sets the size of the text in the notepad", FONT, 0.0, FLT_MAX, 0.01);
 #endif
 	add_var(OPT_FLOAT,"mapmark_text_size", "marksize", &mapmark_zoom, change_float, 0.3, "Mapmark Text Size","Sets the size of the mapmark text", FONT, 0.0, FLT_MAX, 0.01);
 #ifndef ANDROID
 	add_var(OPT_MULTI,"name_font","nfont",&name_font,change_int,0,"Name Font","Change the type of font used for the name",FONT, NULL);
 	add_var(OPT_MULTI,"chat_font","cfont",&chat_font,change_int,0,"Chat Font","Set the type of font used for normal text",FONT, NULL);
 #endif
-	add_var(OPT_FLOAT,"ui_scale","ui_scale",&ui_scale,change_ui_scale,1,"User interface scaling factor","Scale user interface by this factor, useful for high DPI displays.  Note: the options window will be rescaled after reopening.",FONT,0.75,3.0,0.01);
+	add_var(OPT_FLOAT,"ui_scale","ui_scale",&local_ui_scale,change_ui_scale,1,"User interface scaling factor","Scale user interface by this factor, useful for high DPI displays.  Note: the options window will be rescaled after reopening.",FONT,0.75,3.0,0.01);
 	add_var(OPT_INT,"cursor_scale_factor","cursor_scale_factor",&cursor_scale_factor ,change_cursor_scale_factor,cursor_scale_factor,"Mouse pointer scaling factor","The size of the mouse pointer is scaled by this factor",FONT, 1, max_cursor_scale_factor);
 	add_var(OPT_FLOAT,"trade_win_scale","tradewinscale",&custom_scale_factors.trade,change_win_scale_factor,1.0f,"Trade window scaling factor",win_scale_description,FONT,win_scale_min,win_scale_max,win_scale_step);
 	add_var(OPT_FLOAT,"item_win_scale","itemwinscale",&custom_scale_factors.items,change_win_scale_factor,1.0f,"Inventory window scaling factor",win_scale_description,FONT,win_scale_min,win_scale_max,win_scale_step);
@@ -2579,14 +2609,14 @@ int read_el_ini (void)
 		return 0;
 	}
 
-	delay_poor_man = 1;
+	delay_poor_man = delay_update_highdpi_auto_scaling = 1;
 	while ( fgets (line, sizeof (input_line), fin) )
 	{
 		if (line[0] == '#')
 			check_var (&(line[1]), INI_FILE_VAR);	//check only for the long strings
 	}
 	// we have to delay the poor man setting as its action can be over written depending on the ini file order
-	delay_poor_man = 0;
+	delay_poor_man = delay_update_highdpi_auto_scaling = 0;
 #ifdef	ELC
 	action_poor_man(&poor_man);
 #endif
