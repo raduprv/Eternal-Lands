@@ -738,6 +738,25 @@ static int keypress_dialogue_handler (window_info *win, int mx, int my, SDL_Keyc
 		return 0;
 	}
 
+	if (key_mod & KMOD_ALT)
+	{
+		if ((strlen(dialogue_repeat_str)>1) && (key_code == (Uint8)tolower(dialogue_repeat_str[1])))
+		{
+			send_repeat(win);
+			return 1;
+		}
+		if ((strlen(dialogue_copy_str)>1) && (key_code == (Uint8)tolower(dialogue_copy_str[1])))
+		{
+			do_copy();
+			return 1;
+		}
+	}
+
+	if((key_mod & KMOD_ALT) || (key_mod & KMOD_CTRL)) //Do not process Ctrl or Alt keypresses
+	{
+		return 0;
+	}
+
 	ch = key_to_char (key_unicode);
 
 	if(ch<'0' || ch>'z') // do not send special keys
@@ -753,26 +772,6 @@ static int keypress_dialogue_handler (window_info *win, int mx, int my, SDL_Keyc
 	else if(ch=='0') //0->9
 		ch=9;
 	else //out of range
-	{
-		return 0;
-	}
-	
-	// if not being used for responses, check for other use
-	if ((key_mod & KMOD_ALT) && ((MAX_RESPONSES-1<ch) || (dialogue_responces[ch].in_use == 0)))
-	{
-		if ((strlen(dialogue_repeat_str)>1) && (ch == (Uint8)dialogue_repeat_str[1]-87))
-		{
-			send_repeat(win);
-			return 1;
-		}
-		if ((strlen(dialogue_copy_str)>1) && (ch == (Uint8)dialogue_copy_str[1]-87))
-		{
-			do_copy();
-			return 1;
-		}
-	}
-
-	if((key_mod & KMOD_ALT) || (key_mod & KMOD_CTRL)) //Do not process Ctrl or Alt keypresses
 	{
 		return 0;
 	}
