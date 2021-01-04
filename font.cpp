@@ -1714,7 +1714,7 @@ printf("huh. not found\n");
 	{
 		// The font has not been loaded yet
 		Font font = Font(_options[idx]);
-		it = _fonts.insert(std::make_pair(key, font)).first;
+		it = _fonts.insert(std::make_pair(key, std::move(font))).first;
 	}
 #endif // TTF
 

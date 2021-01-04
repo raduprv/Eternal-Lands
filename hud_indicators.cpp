@@ -303,6 +303,9 @@ namespace Indicators
 	//
 	void Indicators_Container::init(void)
 	{
+		if (!FontManager::get_instance().is_initialized())
+			return;
+
 		std::pair<int,int> loc = get_default_location();
 
 		if (indicators.empty())

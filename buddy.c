@@ -706,6 +706,8 @@ static int ui_scale_buddy_handler(window_info *win)
 	set_scrollbar_len();
 #endif
 
+	set_scrollbar_len();
+
 	return 1;
 }
 
