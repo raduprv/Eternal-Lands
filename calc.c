@@ -61,7 +61,7 @@ double last_res=0;
 
 //XP table
 //using exp_lev from hud.c
-#define XPT_MAX 179
+#define XPT_MAX (MAX_EXP_LEVEL - 1)
 #define XPLDIFF(a,b) (exp_lev[b]-exp_lev[a])
 #define XPL(a) (exp_lev[a])
 
@@ -210,7 +210,7 @@ static int reduce_stack(CalcStack* cs)
 		calcpop(cs, 2);
 		if(cs1->value <= exp_lev[XPT_MAX]){
 			int i=0;
-			while(cs1->value >= exp_lev[i]) i++;
+			while ((i <= XPT_MAX) && (cs1->value >= exp_lev[i])) i++;
 			nt.type = CALCTOK_NUM;
 			nt.value = i-1;
 			calcpush(cs, &nt);

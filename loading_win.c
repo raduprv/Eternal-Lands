@@ -42,7 +42,6 @@ static Uint32 loading_texture_handle;
 static Uint32 use_snapshot = 0;
 static unsigned char text_buffer[255] = {0};
 static char version_str[250] = {0};
-static int version_width;
 static int progressbar_len = 0;
 static int progressbar_height = 0;
 
@@ -93,9 +92,10 @@ static int display_loading_win_handler(window_info *win)
 	// the last texture, so that the font will be loaded
 	last_texture = -1;
 	glColor3f (1.0, 1.0, 1.0);
-	draw_string_zoomed((win->len_x - version_width) / 2, (win->len_y * 2) / 3 - win->default_font_len_y - 2, (unsigned char*)version_str, 1, win->current_scale);
-	draw_string_small_zoomed((win->len_x - (get_string_width(text_buffer)*win->small_font_len_x)/12)/2,
-		(win->len_y*2)/3 + progressbar_height + 2, text_buffer, 1, win->current_scale);
+	draw_string_zoomed_centered(win->len_x / 2, (win->len_y * 2) / 3 - win->default_font_len_y - 2,
+		(const unsigned char*)version_str, 1, win->current_scale);
+	draw_string_small_zoomed_centered(win->len_x / 2, (win->len_y * 2) / 3 + progressbar_height + 2,
+		text_buffer, 1, win->current_scale);
 
 	glDisable(GL_TEXTURE_2D);
 #ifdef OPENGL_TRACE
@@ -175,7 +175,8 @@ int create_loading_win (int width, int height, int snapshot)
 		progressbar_len = (int)(0.5 + win->current_scale * 300);
 		progressbar_height = (int)(0.5 + win->current_scale * 20);
 		loading_win_progress_bar = progressbar_add_extended(loading_win, PROGRESSBAR_ID, NULL, (width - progressbar_len)/2, (height*2)/3,
-				progressbar_len, progressbar_height, 0, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, load_bar_colors);
+				progressbar_len, progressbar_height, 0, 1.0f, 0.0f, load_bar_colors);
+		widget_set_color(loading_win, loading_win_progress_bar, 0.0f, 0.0f, 0.0f);
 		if (!snapshot)
 		{
 			loading_texture_handle = load_texture_cached("./textures/login_back", tt_image);
@@ -183,7 +184,6 @@ int create_loading_win (int width, int height, int snapshot)
 			use_snapshot = 0;
 
 			get_version_string (version_str, sizeof (version_str));
-			version_width = (get_string_width ((unsigned char*)version_str) * win->default_font_len_x) / 12;
 		}
 	}
 
@@ -206,7 +206,10 @@ void update_loading_win (char *text, float progress_increase)
 		if (text != NULL && strlen(text) <= 255)
 		{
 			if (loading_win >= 0 && loading_win < windows_list.num_windows)
-				put_small_text_in_box_zoomed((unsigned char*)text, strlen(text), window_width, (char*)text_buffer, windows_list.window[loading_win].current_scale);
+			{
+				put_small_text_in_box_zoomed((unsigned char*)text, strlen(text),
+					window_width, text_buffer, windows_list.window[loading_win].current_scale);
+			}
 		}
 		// The loading window is supposed to display stuff while
 		// loading maps when the draw_scene loop is held up. Hence

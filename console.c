@@ -37,6 +37,7 @@
 #include "questlog.h"
 #include "sound.h"
 #include "spells.h"
+#include "stats.h"
 #include "tabs.h"
 #include "translate.h"
 #include "url.h"
@@ -215,7 +216,7 @@ struct compl_str {
 	enum compl_type type;
 };
 
-struct compl_str tab_complete(const text_message *input, unsigned int cursor_pos)
+static struct compl_str tab_complete(const text_message *input, unsigned int cursor_pos)
 {
 	static char last_complete[48] = {0};
 	static int have_last_complete = 0;
@@ -232,7 +233,7 @@ struct compl_str tab_complete(const text_message *input, unsigned int cursor_pos
 		if(!have_last_complete) {
 			if(cursor_pos > 0 &&
 				strmrchr(input_string, input_string+cursor_pos-1, ' ') != NULL) {
-				/* If we have a space in the input string, we're pretty certain 
+				/* If we have a space in the input string, we're pretty certain
 				 * it's not a PM-name, command or channel name. */
 				return_value.type = NAME;
 			} else if(*input_string == '/' || *input_string == *char_slash_str) {
@@ -250,7 +251,8 @@ struct compl_str tab_complete(const text_message *input, unsigned int cursor_pos
 		switch(return_value.type) {
 			case CHANNEL:
 				input_string++;
-				/* No break, increment twice for channel */
+                /* No break, increment twice for channel */
+				// Fallthrough
 			case NAME_PM:
 			case COMMAND:
 				input_string++;
@@ -275,7 +277,7 @@ struct compl_str tab_complete(const text_message *input, unsigned int cursor_pos
 
 			/* Isolate the word we're currently typing (and completing) */
 			for(i = 0;
-				i < sizeof(last_complete) && 
+				i+1 < sizeof(last_complete) &&
 				input_string[i] && i < cursor_pos &&
 				!isspace((unsigned char)input_string[i]);
 				i++) {
@@ -416,7 +418,7 @@ int test_for_console_command(char *text, int length)
 		/* Look for a matching command */
 		for(i = 0; i < command_count; i++) {
 			cmd_len = strlen(commands[i].command);
-			if(strlen(text) >= cmd_len && my_strncompare(text, commands[i].command, cmd_len) && (isspace(text[cmd_len]) || text[cmd_len] == '\0')) {
+			if(strlen(text) >= cmd_len && !strncasecmp(text, commands[i].command, cmd_len) && (isspace(text[cmd_len]) || text[cmd_len] == '\0')) {
 				/* Command matched */
 				if(commands[i].callback && commands[i].callback(text+cmd_len, length-cmd_len)) {
 					/* The command was handled and we don't want to send it to the server */
@@ -473,7 +475,7 @@ int add_emote(char *text, int len){
 	printf("Actor [%s] [%s]\n",text,id);
 	LOCK_ACTORS_LISTS();
 	for (j = 0; j < max_actors; j++){
-		if (!strncasecmp(actors_list[j]->actor_name, text, strlen(text)) && 
+		if (!strncasecmp(actors_list[j]->actor_name, text, strlen(text)) &&
 	  	   (actors_list[j]->actor_name[strlen(text)] == ' ' ||
 	    	   actors_list[j]->actor_name[strlen(text)] == '\0')){
 			act = actors_list[j];
@@ -507,7 +509,7 @@ int send_cmd(char *text, int len){
 	printf("Actor [%s] [%s]\n",text,id);
 	LOCK_ACTORS_LISTS();
 	for (j = 0; j < max_actors; j++){
-		if (!strncasecmp(actors_list[j]->actor_name, text, strlen(text)) && 
+		if (!strncasecmp(actors_list[j]->actor_name, text, strlen(text)) &&
 	  	   (actors_list[j]->actor_name[strlen(text)] == ' ' ||
 	    	   actors_list[j]->actor_name[strlen(text)] == '\0')){
 			act = actors_list[j];
@@ -545,7 +547,7 @@ int set_idle(char *text, int len){
 	printf("Actor [%s] [%s]\n",text,id);
 	LOCK_ACTORS_LISTS();
 	for (j = 0; j < max_actors; j++){
-		if (!strncasecmp(actors_list[j]->actor_name, text, strlen(text)) && 
+		if (!strncasecmp(actors_list[j]->actor_name, text, strlen(text)) &&
 	  	   (actors_list[j]->actor_name[strlen(text)] == ' ' ||
 	    	   actors_list[j]->actor_name[strlen(text)] == '\0')){
 				struct CalMixer *mixer;
@@ -557,7 +559,7 @@ int set_idle(char *text, int len){
 			while(*id){
 				int anim_id;
 				double anim_wg;
-				
+
 				anim_id=atoi(id);
 			id++;
 				while(*id!=' '&&*id!=0) id++;
@@ -565,7 +567,7 @@ int set_idle(char *text, int len){
 			id++;
 				while(*id!=' '&&*id!=0) id++;
 				printf("setting anim %i with weight %f\n",anim_id,anim_wg);
-				if(anim_wg<0) CalMixer_ClearCycle(mixer,actors_defs[act->actor_type].cal_frames[anim_id].anim_index, 0.0f);	
+				if(anim_wg<0) CalMixer_ClearCycle(mixer,actors_defs[act->actor_type].cal_frames[anim_id].anim_index, 0.0f);
 				else CalMixer_BlendCycle(mixer,actors_defs[act->actor_type].cal_frames[anim_id].anim_index,anim_wg, 0.1f);
 			}
 			printf("command added %s\n",id);
@@ -594,7 +596,7 @@ int set_action(char *text, int len){
 	printf("Actor [%s] [%s]\n",text,id);
 	LOCK_ACTORS_LISTS();
 	for (j = 0; j < max_actors; j++){
-		if (!strncasecmp(actors_list[j]->actor_name, text, strlen(text)) && 
+		if (!strncasecmp(actors_list[j]->actor_name, text, strlen(text)) &&
 	  	   (actors_list[j]->actor_name[strlen(text)] == ' ' ||
 	    	   actors_list[j]->actor_name[strlen(text)] == '\0')){
 				struct CalMixer *mixer;
@@ -605,7 +607,7 @@ int set_action(char *text, int len){
 			while(*id){
 				int anim_id;
 				double anim_wg;
-				
+
 				anim_id=atoi(id);
 			id++;
 				while(*id!=' '&&*id!=0) id++;
@@ -644,7 +646,7 @@ int horse_cmd(char* text, int len){
 	printf("Actor [%s] [%s] [%i]\n",text,id,atoi(id));
 	LOCK_ACTORS_LISTS();
 	for (j = 0; j < max_actors; j++){
-		if (!strncasecmp(actors_list[j]->actor_name, text, strlen(text)) && 
+		if (!strncasecmp(actors_list[j]->actor_name, text, strlen(text)) &&
 	  	   (actors_list[j]->actor_name[strlen(text)] == ' ' ||
 	    	   actors_list[j]->actor_name[strlen(text)] == '\0')){
 			act = actors_list[j];
@@ -676,7 +678,7 @@ int horse_cmd(char* text, int len){
 	UNLOCK_ACTORS_LISTS();
 
 	return 1;
-	
+
 }
 #endif
 
@@ -693,7 +695,7 @@ int set_neck(char *text, int len){
 	printf("Actor [%s] [%s]\n",text,id);
 	LOCK_ACTORS_LISTS();
 	for (j = 0; j < max_actors; j++){
-		if (!strncasecmp(actors_list[j]->actor_name, text, strlen(text)) && 
+		if (!strncasecmp(actors_list[j]->actor_name, text, strlen(text)) &&
 	  	   (actors_list[j]->actor_name[strlen(text)] == ' ' ||
 	    	   actors_list[j]->actor_name[strlen(text)] == '\0')){
 			act = actors_list[j];
@@ -738,8 +740,8 @@ int command_calc(char *text, int len)
 	res = calc_exp(text, &calcerr);
 	switch (calcerr){
 		case CALCERR_OK:
-			if (trunc(res)==res) safe_snprintf (str,sizeof(str), "%s = %.0f",text,res);
-			else safe_snprintf (str,sizeof(str), "%s = %.2f",text,res);
+			if (trunc(res)==res) safe_snprintf (str,sizeof(str), "%s = %.0lf",text,res);
+			else safe_snprintf (str,sizeof(str), "%s = %.2lf",text,res);
 			LOG_TO_CONSOLE (c_orange1, str);
 			break;
 		case CALCERR_SYNTAX:
@@ -788,7 +790,7 @@ int command_markpos(char *text, int len)
 	char *ptr = text;
 	char msg[512];
 	const char *usage = help_cmd_markpos_str;
-	
+
 	while (isspace(*ptr))
 		ptr++;
 	if (sscanf(ptr, "%d,%d ", &map_x, &map_y) != 2) {
@@ -841,7 +843,7 @@ int command_unmark_special(char *text, int len, int do_log)
 	if(*text) {
 		for (i = 0; i < max_mark; i ++)
 		{
-			if (my_strcompare(marks[i].text, text) && (marks[i].x != -1))
+			if (!strcasecmp(marks[i].text, text) && (marks[i].x != -1))
 			{
 				char str[512];
 				marks[i].x = marks[i].y = -1;
@@ -879,7 +881,7 @@ int command_mark_color(char *text, int len)
 
 	if(*text) {
 		int r=-1,g,b;
-		
+
 		if(sscanf(text,"%d %d %d",&r,&g,&b)==3) {
 			if(!(r>=0&&r<=255&&g>=0&&g<=255&&b>=0&&b<=255)) r=-1; //don't set color
 		} else {
@@ -895,7 +897,7 @@ int command_mark_color(char *text, int len)
 			//set color
 				curmark_r=r;
 				curmark_g=g;
-				curmark_b=b;			
+				curmark_b=b;
 		}
 	}
 	safe_snprintf (str, sizeof(str), "Current marker color is (RGB): %d %d %d", curmark_r,curmark_g,curmark_b);
@@ -1219,7 +1221,7 @@ int command_glinfo (const char *text, int len)
 	LOG_TO_CONSOLE (c_grey1, this_string);
 
 	free (this_string);
-	
+
 	return 1;
 }
 
@@ -1229,7 +1231,7 @@ int command_glinfo (const char *text, int len)
  */
 int knowledge_command(char *text, int len)
 {
-	char this_string[80], count_str[60];
+	char this_string[90], count_str[60];
 	char *cr;
 	int num_read = 0, num_total = 0;
 	int show_read = 1, show_unread = 1, show_help = 0;
@@ -1281,15 +1283,17 @@ int knowledge_command(char *text, int len)
 			safe_strncpy(this_string, knowledge_list[i].name, sizeof(this_string));
 			if ( (cr = strchr(this_string, '\n')) != NULL)
 				*cr = '\0';
-			// highlight books that have been read
+			if ((!knowledge_list[i].present) && (your_info.researching == i))
+				safe_strcat(this_string, knowledge_reading_book_tag, sizeof(this_string));
+			// highlight books that have been read, unread or being read
 			if (knowledge_list[i].present)
 			{
 				if (show_read)
-					LOG_TO_CONSOLE(c_grey1,this_string);
+					LOG_TO_CONSOLE((your_info.researching == i) ?c_green2 :c_grey1,this_string);
 				++num_read;
 			}
 			else if (show_unread)
-				LOG_TO_CONSOLE(c_grey2,this_string);
+				LOG_TO_CONSOLE((your_info.researching == i) ?c_green1 :c_grey2,this_string);
 			++num_total;
 		}
 	}
@@ -1322,7 +1326,7 @@ int command_msg(char *text, int len)
 
 	// find first space, then skip any spaces
 	text = getparams(text);
-	if(my_strncompare(text, "all", 3))
+	if(!strncasecmp(text, "all", 3))
 	{
 		print_all_messages();
 	}
@@ -1347,7 +1351,7 @@ int command_afk(char *text, int len)
 	}
 	if(!afk)
 	{
-		if (len > 0) 
+		if (len > 0)
 		{
 			safe_snprintf(afk_message, sizeof(afk_message), "%.*s", len, text);
 		}
@@ -1358,16 +1362,12 @@ int command_afk(char *text, int len)
 	}
 	return 1;
 }
-	
+
 int command_help(char *text, int len)
 {
 	// help can open the Enc!
 	if(auto_open_encyclopedia)
-	{
-		view_tab (&tab_help_win, &tab_help_collection_id, HELP_TAB_HELP);
-	}
-	// this use to return 0 - to fall thru and send it to the server
-	// but the server does not handle the command and Entropy says it never did
+		view_tab (MW_HELP, tab_help_collection_id, HELP_TAB_HELP);
 	return 1;
 }
 
@@ -1388,7 +1388,7 @@ int command_storage(char *text, int len)
 		int nb = len - i - 1;
 		if (nb > sizeof (storage_filter) - 1)
 			nb = sizeof (storage_filter) - 1;
-		my_strncp (storage_filter, text+i+1, nb+1);
+		safe_strncpy(storage_filter, text+i+1, nb+1);
 	}
 
 	if (have_storage_list)
@@ -1453,7 +1453,7 @@ static int command_cast_spell(char *text, int len)
 	int index = 0;
 	int valid_looking_message = 1;
 	Uint8 str[30];
-	
+
 	/* valid messages start with the CAST_SPELL message of 39 or 0x27 */
 	text = getparams(text);
 	if (!*text || strstr(text, "27")==NULL)
@@ -1461,7 +1461,7 @@ static int command_cast_spell(char *text, int len)
 	/* skip past everything until the CAST_SPELL message type */
 	else
 		text = strstr(text, "27");
-	
+
 	/* while we have hex digit pairs to process */
 	while (valid_looking_message && strlen(text)>0 && index<30)
 	{
@@ -1490,13 +1490,13 @@ static int command_cast_spell(char *text, int len)
 		if (valid_looking_message)
 			str[index++] = d[1] + 16*d[0];
 	}
-	
+
 	/* if we're now at the end of the text, we have some message bytes and it looks valid */
 	if (!*text && index && valid_looking_message)
 		send_spell(str, index);
 	else
 		LOG_TO_CONSOLE(c_red2, invalid_spell_string_str);
-	
+
 	return 1;
 }
 
@@ -1545,7 +1545,7 @@ int command_ckdata(char *text, int len)
 	/* calculate, display checksum if we're not matching */
 	if (*filename && el_file_exists(filename) && get_file_digest(filename, digest))
 	{
-		int i;	
+		int i;
 		for(i=0; i<DIGEST_LEN; i++)
 			sprintf(&digest_str[2*i], "%02x", (int)digest[i]);
 		digest_str[DIGEST_LEN*2] = 0;
@@ -1568,14 +1568,14 @@ int command_ckdata(char *text, int len)
 	/* if we have an expected value, compare then display an appropriate message */
 	if (*expected_digest_str)
 	{
-		if (my_strcompare(digest_str, expected_digest_str))
+		if (!strcasecmp(digest_str, expected_digest_str))
 			LOG_TO_CONSOLE(c_green2,"ckdata: File matches expected checksum");
 		else
 			LOG_TO_CONSOLE(c_red2,"ckdata: File does not match expected checksum");
 	}
-	
+
 	return 1;
-	
+
 } /* end command_ckdata() */
 
 
@@ -1593,6 +1593,32 @@ int command_keypress(char *text, int len)
 }
 
 
+//	Set the number of items to transfer
+//
+int command_quantity(char *text, int len)
+{
+	char str[80];
+	int calcerr;
+	double res;
+	text = getparams(text);
+	res = calc_exp(text, &calcerr);
+	if ((calcerr != CALCERR_OK) || (res < 1.0) || (res > (double)INT_MAX))
+		LOG_TO_CONSOLE(c_red1, um_invalid_command_str);
+	else
+	{
+		// set the quantity to the result of the calculation, truncated
+		quantities.selected = ITEM_EDIT_QUANT;
+		item_quantity = quantities.quantity[ITEM_EDIT_QUANT].val = (int)res;
+		if (trunc(res)==res)
+			safe_snprintf(str, sizeof(str), "%s: %s = %d", quantity_str, text, item_quantity);
+		else
+			safe_snprintf(str, sizeof(str), "%s: %s = %.2lf -> %d", quantity_str, text, res, item_quantity);
+		LOG_TO_CONSOLE(c_green1, str);
+	}
+	return 1;
+}
+
+
 void save_local_data(void)
 {
 	save_bin_cfg();
@@ -1600,7 +1626,7 @@ void save_local_data(void)
 	save_quickspells();
 	//Save recipes
 	save_recipes();
-	// save el.ini if asked
+	// save ini file if asked
 	if (write_ini_on_exit) write_el_ini ();
 	// save notepad contents if the file was loaded
 	if (notepad_loaded) notepad_save_file();
@@ -1613,6 +1639,9 @@ void save_local_data(void)
 	save_item_lists();
 #endif
 	save_channel_colors();
+#ifdef JSON_FILES
+	save_character_options();
+#endif
 }
 
 
@@ -1672,6 +1701,48 @@ static int command_change_pass(char *text, int len)
 	return 0;
 }
 
+static int command_reset_res(char *text, int len)
+{
+	restore_starting_video_mode();
+	LOG_TO_CONSOLE(c_yellow1, reset_res_str);
+	return 1;
+}
+
+static int command_set_res(char *text, int len)
+{
+	text = getparams(text);
+	if (*text)
+	{
+		int new_width = 0, new_height = 0;
+		new_width = atoi(text);
+		text = getparams(text);
+		if (*text)
+			new_height = atoi(text);
+		if ((new_width > 0) && (new_height > 0))
+		{
+			set_client_window_size(new_width, new_height);
+			LOG_TO_CONSOLE(c_yellow1, set_res_str);
+			return 1;
+		}
+	}
+	LOG_TO_CONSOLE(c_red1, um_invalid_command_str);
+	return 1;
+}
+
+static int command_save_res(char *text, int len)
+{
+	set_user_defined_video_mode();
+	LOG_TO_CONSOLE(c_yellow1, save_res_str);
+	return 1;
+}
+
+static int command_show_res(char *text, int len)
+{
+	char str[80];
+	safe_snprintf(str, sizeof(str), "%s %dx%d", show_res_str, window_width, window_height);
+	LOG_TO_CONSOLE(c_yellow1, str);
+	return 1;
+}
 
 #ifdef CONTEXT_MENUS_TEST
 int cm_test_window(char *text, int len);
@@ -1716,7 +1787,7 @@ add_command("horse", &horse_cmd);
 #ifdef NECK_ITEMS_DEBUG
 	add_command("set_neck", &set_neck);
 #endif
-	
+
 	add_command("emotes", &print_emotes);
 #ifdef EMOTES_DEBUG
 	add_command("add_emote", &add_emote);
@@ -1792,7 +1863,15 @@ add_command("horse", &horse_cmd);
 	add_command(cmd_relogin, &command_relogin);
 	add_command(cmd_disconnect, &command_disconnect);
 	add_command(cmd_disco, &command_disconnect);
+	add_command("q", &command_quantity);
+	add_command(quantity_str, &command_quantity);
 	add_command("change_pass", &command_change_pass);
+
+	add_command("reset_res", &command_reset_res);
+	add_command("set_res", &command_set_res);
+	add_command("save_res", &command_save_res);
+	add_command("show_res", &command_show_res);
+
 	command_buffer_offset = NULL;
 }
 

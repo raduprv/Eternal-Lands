@@ -268,36 +268,27 @@ extern "C" void update_eye_candy_position(float x, float y)
 
 extern "C" void add_eye_candy_point()
 {
-  int minimap_x_start=window_width/2-128;
-  int minimap_y_start;
-  float x_map_pos;
-  float y_map_pos;
-  int scale;
-  
-  if(window_width<window_height) scale=window_width/256;
-  else scale=window_height/256;
+  int x0, y0, y1, width, height;
+  get_minimap_dimensions(&x0, &y0, &width, &height);
+  y1 = y0 + height;
 
-  minimap_x_start/=scale;
-  minimap_y_start=10*scale;
-  
-  if(mouse_x<minimap_x_start || mouse_y<minimap_y_start
-  || mouse_x>minimap_x_start+256*scale || mouse_y>minimap_y_start+256*scale) return;
+  if (mouse_x < x0 || mouse_y < y0 || mouse_x > x0 + width || mouse_y > y1) return;
 
-  x_map_pos=((float)(mouse_x-minimap_x_start)/(float)scale);
-  y_map_pos=256-((mouse_y-minimap_y_start)/(float)scale);
-  const float z = -2.2f + tile_map[(int)(y_map_pos)*tile_map_size_x+(int)x_map_pos] * 0.2f;
-  x_map_pos = x_map_pos * 3 / (256 / tile_map_size_x);
-  y_map_pos = y_map_pos * 3 / (256 / tile_map_size_y);
+  float x = float(mouse_x - x0) * 3 * tile_map_size_x / width;
+  float y = float(y1 - mouse_y) * 3 * tile_map_size_y / height;
+  int x_tile = int(x) / 3;
+  int y_tile = int(y) / 3;
+  const float z = -2.2f + tile_map[y_tile*tile_map_size_x + x_tile] * 0.2f;
   
   if (left_click <= 1)
   {
-    const bool ret = find_bounds_index(x_map_pos, y_map_pos);
+    const bool ret = find_bounds_index(x, y);
     if (!ret)  // Didn't click on anything; create new.
     {
       if ((current_effect.bounds.elements.size() == 0) && (current_effect.position == ec::Vec3(-1.0, -1.0, 0.0)))
-        current_effect.position = ec::Vec3(x_map_pos, y_map_pos, z);
+        current_effect.position = ec::Vec3(x, y, z);
       else if (current_effect.bounds.elements.size() < 13)
-        current_effect.bounds.elements.insert(current_effect.bounds.elements.begin() + last_ec_index, angle_to(current_effect.position.x, current_effect.position.y, x_map_pos, y_map_pos));
+        current_effect.bounds.elements.insert(current_effect.bounds.elements.begin() + last_ec_index, angle_to(current_effect.position.x, current_effect.position.y, x, y));
       else
         ; // Can't add any more; too many already.
     }
@@ -305,10 +296,10 @@ extern "C" void add_eye_candy_point()
   else
   {
     if (last_ec_index == -1)  // Clicked on the center; drag it.
-      current_effect.position = ec::Vec3(x_map_pos, y_map_pos, z);
+      current_effect.position = ec::Vec3(x, y, z);
     else if (last_ec_index >= 0)      // Clicked on another point; drag it.
     {
-      const ec::SmoothPolygonElement new_angle = angle_to(current_effect.position.x, current_effect.position.y, x_map_pos, y_map_pos);
+      const ec::SmoothPolygonElement new_angle = angle_to(current_effect.position.x, current_effect.position.y, x, y);
       current_effect.bounds.elements.erase(current_effect.bounds.elements.begin() + last_ec_index);
       int i;
       for (i = 0; i < (int)current_effect.bounds.elements.size(); i++)
@@ -325,27 +316,16 @@ extern "C" void add_eye_candy_point()
 
 extern "C" void delete_eye_candy_point()
 {
-  int minimap_x_start=window_width/2-128;
-  int minimap_y_start;
-  float x_map_pos;
-  float y_map_pos;
-  int scale;
+  int x0, y0, y1, width, height;
+  get_minimap_dimensions(&x0, &y0, &width, &height);
+  y1 = y0 + height;
 
-  if(window_width<window_height) scale=window_width/256;
-  else scale=window_height/256;
+  if (mouse_x < x0 || mouse_y < y0 || mouse_x > x0 + width || mouse_y > y1) return;
 
-  minimap_x_start/=scale;
-  minimap_y_start=10*scale;
-  
-  if(mouse_x<minimap_x_start || mouse_y<minimap_y_start
-  || mouse_x>minimap_x_start+256*scale || mouse_y>minimap_y_start+256*scale) return;
+  float x = float(mouse_x - x0) * 3 * tile_map_size_x / width;
+  float y = float(y1 - mouse_y) * 3 * tile_map_size_y / height;
 
-  x_map_pos=((float)(mouse_x-minimap_x_start)/(float)scale);
-  y_map_pos=256-(((mouse_y-minimap_y_start))/(float)scale);
-  x_map_pos = x_map_pos * 3 / (256 / tile_map_size_x);
-  y_map_pos = y_map_pos * 3 / (256 / tile_map_size_y);
-
-  if (find_bounds_index(x_map_pos, y_map_pos))
+  if (find_bounds_index(x, y))
   {
     if (last_ec_index >= 0)  // Clicked on a bounds point; delete it
     {
@@ -441,16 +421,12 @@ extern "C" void draw_bounds_on_minimap()
 
 void draw_bound(EffectDefinition& eff, bool selected)
 {
-  int minimap_x_start=window_width/2-128;
-  int minimap_y_end;
-  int scale;
+  int x0, y0, y1, width, height, tile_size;
+  get_minimap_dimensions(&x0, &y0, &width, &height);
+  y1 = y0 + height;
+  tile_size = width / tile_map_size_x;
 
-  if(window_width<window_height) scale=window_width/256;
-  else scale=window_height/256;
-
-  minimap_x_start/=scale;
-  minimap_y_end=(10 + 256)*scale;
-  
+  int scale = min2i(window_width, window_height) / 256;
   glLineWidth(1.3 * scale);
   
   if (selected)
@@ -484,8 +460,8 @@ void draw_bound(EffectDefinition& eff, bool selected)
       else
         percent = (f + 2 * ec::PI - prev_iter->angle) / (next_iter->angle + (2 * ec::PI) - prev_iter->angle);
       const float dist = prev_iter->radius * (1.0 - percent) + next_iter->radius * percent;
-      const float temp_x = minimap_x_start + ((eff.position.x - dist * sin(f)) * scale) / 3 * (256 / tile_map_size_x);
-      const float temp_y = minimap_y_end - ((eff.position.y + dist * cos(f)) * scale) / 3 * (256 / tile_map_size_y);
+      const float temp_x = x0 + ((eff.position.x - dist * sin(f)) * tile_size) / 3;
+      const float temp_y = y1 - ((eff.position.y + dist * cos(f)) * tile_size) / 3;
       glVertex2f(temp_x, temp_y);
     }
   }
@@ -497,8 +473,8 @@ void draw_bound(EffectDefinition& eff, bool selected)
     glBegin(GL_QUADS);
     for (std::vector<ec::SmoothPolygonElement>::const_iterator iter = eff.bounds.elements.begin(); iter != eff.bounds.elements.end(); iter++)
     {
-      const float temp_x = minimap_x_start + ((eff.position.x - iter->radius * sin(iter->angle)) * scale) / 3 * (256 / tile_map_size_x);
-      const float temp_y = minimap_y_end - ((eff.position.y + iter->radius * cos(iter->angle)) * scale) / 3 * (256 / tile_map_size_y);
+      const float temp_x = x0 + ((eff.position.x - iter->radius * sin(iter->angle)) * tile_size) / 3;
+      const float temp_y = y1 - ((eff.position.y + iter->radius * cos(iter->angle)) * tile_size) / 3;
       glVertex2f(temp_x - 2.0 * scale, temp_y - 2.0 * scale);
       glVertex2f(temp_x - 2.0 * scale, temp_y + 2.0 * scale);
       glVertex2f(temp_x + 2.0 * scale, temp_y + 2.0 * scale);
@@ -506,8 +482,8 @@ void draw_bound(EffectDefinition& eff, bool selected)
     }
     
     glColor4f(1.0, 0.8, 0.6, 1.0);
-    const float temp_x = minimap_x_start + (eff.position.x * scale) / 3 * (256 / tile_map_size_x);
-    const float temp_y = minimap_y_end - (eff.position.y * scale) / 3 * (256 / tile_map_size_y);
+    const float temp_x = x0 + (eff.position.x * tile_size) / 3;
+    const float temp_y = y1 - (eff.position.y * tile_size) / 3;
     glVertex2f(temp_x - 2.0 * scale, temp_y - 2.0 * scale);
     glVertex2f(temp_x - 2.0 * scale, temp_y + 2.0 * scale);
     glVertex2f(temp_x + 2.0 * scale, temp_y + 2.0 * scale);

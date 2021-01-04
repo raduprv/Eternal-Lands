@@ -2,7 +2,16 @@
 
 -include make.conf
 
+TTF_CFLAGS = $(shell pkg-config SDL2_ttf --cflags)
+JSON_FILES_CFLAGS = -I nlohmann_json/single_include/
+ADDRSANITISER_CFLAGS=-fsanitize=address
+
 PNG_SCREENSHOT_LIBS = $(shell pkg-config libpng --libs)
+TTF_LIBS = $(shell pkg-config SDL2_ttf --libs)
+ADDRSANITISER_LIBS=-fsanitize=address
+PAWN_LIBS = -ldl
+
+PAWN_DEPS_DIR = .deps/pawn
 
 OPTIONS = -DLINUX -DELC $(foreach FEATURE, $(FEATURES), -D$(FEATURE)) -D_7ZIP_ST $(GIT_VERSION) \
 	$(shell pkg-config sdl2 --cflags) \
@@ -15,11 +24,12 @@ OPTIONS = -DLINUX -DELC $(foreach FEATURE, $(FEATURES), -D$(FEATURE)) -D_7ZIP_ST
 	$(shell pkg-config openal --cflags) \
 	$(shell pkg-config vorbis --cflags) \
 	$(shell pkg-config vorbisfile --cflags) \
-	$(shell pkg-config zlib --cflags)
+	$(shell pkg-config zlib --cflags) \
+	$(foreach FEATURE, $(FEATURES), $($(FEATURE)_CFLAGS))
 
-CFLAGS=$(PLATFORM) $(CWARN) -O0 -ggdb -pipe $(OPTIONS) -fno-strict-aliasing $(EXTRA_INCLUDES)
+CFLAGS=$(PLATFORM) $(CWARN) -O1 -ggdb -pipe $(OPTIONS) -fno-strict-aliasing $(EXTRA_INCLUDES)
 
-CXXFLAGS=$(PLATFORM) $(CXXWARN) -O0 -ggdb -pipe $(OPTIONS) -fno-strict-aliasing $(EXTRA_INCLUDES)
+CXXFLAGS=$(PLATFORM) $(CXXWARN) -O1 -ggdb -pipe $(OPTIONS) -fno-strict-aliasing $(EXTRA_INCLUDES)
 
 LDFLAGS=$(shell pkg-config sdl2 --libs) \
 	$(shell pkg-config libxml-2.0 --libs) \
@@ -51,16 +61,14 @@ MEMORY_DEBUG_COBJ = elmemory.o
 PAWN_COBJ = pawn/amx.o pawn/amxaux.o pawn/amxcons.o pawn/amxel.o \
 	pawn/amxfloat.o pawn/amxstring.o pawn/elpawn.o
 CUSTOM_UPDATE_COBJ = custom_update.o new_update.o
-#disabled it for now, made too much trouble
-#FSAA_COBJ = fsaa/fsaa_glx.o fsaa/fsaa.o
-FSAA_COBJ = fsaa/fsaa_dummy.o fsaa/fsaa.o
+FSAA_COBJ = fsaa/fsaa_glx.o fsaa/fsaa.o
 COBJS=2d_objects.o 3d_objects.o \
 	actor_scripts.o actors.o alphamap.o asc.o astrology.o \
-	bbox_tree.o books.o buddy.o buffs.o bags.o \
+	bbox_tree.o buddy.o buffs.o bags.o \
 	cache.o cal.o calc.o chat.o cluster.o colors.o console.o consolewin.o \
 	counters.o cursors.o dds.o ddsimage.o dialogues.o draw_scene.o eye_candy_debugwin.o \
 	el_memory.o elconfig.o elwindows.o encyclopedia.o errors.o events.o	\
-	filter.o font.o framebuffer.o frustum.o gamewin.o gl_init.o 	\
+	filter.o framebuffer.o frustum.o gamewin.o gl_init.o 	\
 	hud.o hud_misc_window.o hud_quickbar_window.o hud_statsbar_window.o hud_quickspells_window.o	\
 	help.o highlight.o ignore.o image_loading.o init.o interface.o items.o io/fileutil.o	\
 	io/e3d_io.o io/elc_io.o	io/map_io.o io/elpathwrapper.o io/xmlcallbacks.o \
@@ -84,9 +92,9 @@ COBJS=2d_objects.o 3d_objects.o \
 	$(foreach FEATURE, $(FEATURES), $($(FEATURE)_COBJ))
 
 JSON_FILES_CXXOBJ = json_io.o
-CXXOBJS=achievements.o actor_init.o cal3d_wrapper.o command_queue.o \
+CXXOBJS=achievements.o actor_init.o books.o cal3d_wrapper.o command_queue.o \
 	context_menu.o elloggingwrapper.o engine/logging.o exceptions/extendedexception.o \
-	hud_indicators.o hud_timer.o icon_window.o io/cal3d_io_wrapper.o item_info.o item_lists.o \
+	font.o hud_indicators.o hud_timer.o icon_window.o io/cal3d_io_wrapper.o item_info.o item_lists.o \
 	named_colours.o password_manager.o optimizer.o quest_log.o select.o \
 	sendvideoinfo.o trade_log.o user_menus.o xml/xmlhelper.o eye_candy_wrapper.o \
 	engine/hardwarebuffer.o xor_cipher.o \
@@ -134,7 +142,10 @@ $(EXE): $(OBJS)
 #recompile on Makefile or conf change
 #.depend $(OBJS): Makefile.linux make.conf
 
-DEPS_MAGIC := $(shell mkdir .deps .deps/io .deps/shader .deps/eye_candy .deps/exceptions .deps/xz .deps/xml .deps/fsaa .deps/engine > /dev/null 2>&1 || :)
+DEPS_DIRS = .deps .deps/io .deps/shader .deps/eye_candy .deps/exceptions .deps/xz .deps/xml \
+	.deps/fsaa .deps/engine \
+	$(foreach FEATURE, $(FEATURES), $($(FEATURE)_DEPS_DIR))
+DEPS_MAGIC := $(shell mkdir $(DEPS_DIRS) > /dev/null 2>&1 || :)
 
 $(COBJS): %.o: %.c Makefile.linux make.conf
 	@echo "  CC   $@"
@@ -190,14 +201,5 @@ make.conf: make.defaults
 	else \
 		cp $< $@; \
 	fi
-
-pawn_scripts/features.inc: make.conf
-	echo "#if defined _features_included" > $@; \
-	echo "\t#endinput" >> $@; \
-	echo "#endif" >> $@; \
-	echo "#define _features_included" >> $@; \
-	for feature in $(FEATURES); do \
-		echo "#define $$feature" >> $@; \
-	done
 
 -include $(DEP_FILES)

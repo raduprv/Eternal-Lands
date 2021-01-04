@@ -5,6 +5,10 @@
 #include "font.h"
 #include "gamewin.h"
 #include "help.h"
+#ifdef JSON_FILES
+#include "asc.h"
+#include "json_io.h"
+#endif
 #include "knowledge.h"
 #include "rules.h"
 #include "session.h"
@@ -14,31 +18,37 @@
 #include "url.h"
 #include "notepad.h"
 
-int tab_stats_win = -1;
+static unsigned tab_stat_selected = 0;
+static unsigned tab_help_selected = 0;
+static unsigned tab_info_selected = 0;
 int tab_stats_collection_id = 16;
-int tab_stats_x = 150;
-int tab_stats_y = 70;
-unsigned tab_selected = 0;
-
-int tab_help_win = -1;
 int tab_help_collection_id = 17;
-int tab_help_x = 150;
-int tab_help_y = 70;
-
-int tab_info_win = -1;
 int tab_info_collection_id = 18;
-int tab_info_x = 150;
-int tab_info_y = 70;
+static int tab_stat_scale_changed = 0;
+static int tab_help_scale_changed = 0;
+static int tab_info_scale_changed = 0;
 
-static int ui_scale_stats_handler(window_info *win)
+static int do_scale_stats_handler(window_info *win)
 {
 	int tab_tag_height = 0;
-	int new_width = (int)(0.5 + win->small_font_len_x * 72);
-	int new_height = (int)(0.5 + win->small_font_len_y * 24);
+	int new_width = 0;
+	int new_height = 0;
 	widget_list *w = widget_find (win->window_id, tab_stats_collection_id);
+	const tab_collection *col = (const tab_collection*)w->widget_info;
 
-	widget_set_size(win->window_id, tab_stats_collection_id, win->current_scale * DEFAULT_SMALL_RATIO);
-	tab_tag_height = tab_collection_calc_tab_height(win->current_scale * DEFAULT_SMALL_RATIO);
+	for (int i = 0; i < col->nr_tabs; ++i)
+	{
+		int id = col->tabs[i].content_id;
+		if (id >= 0 && id < windows_list.num_windows)
+		{
+			const window_info *win = &windows_list.window[id];
+			new_width = max2i(new_width, win->min_len_x);
+			new_height = max2i(new_height, win->min_len_y);
+		}
+	}
+
+	widget_set_size(win->window_id, tab_stats_collection_id, win->current_scale_small);
+	tab_tag_height = tab_collection_calc_tab_height(win->font_category, win->current_scale_small);
 	resize_window(win->window_id, new_width + 2*TAB_MARGIN, new_height + tab_tag_height + 2*TAB_MARGIN);
 	widget_resize(win->window_id, tab_stats_collection_id, new_width, new_height + tab_tag_height);
 
@@ -48,18 +58,48 @@ static int ui_scale_stats_handler(window_info *win)
 	return 1;
 }
 
+/*!
+ * This display handler is only used to react to font changes *after* the
+ * changes in the content windows have been handled. We cannot handle this in
+ * the font change handler itself, as it is called before the font change
+ * handlers of the child windows.
+ */
+static int display_stats_handler(window_info *win)
+{
+	if (!tab_stat_scale_changed)
+		return 0;
+	do_scale_stats_handler(win);
+	tab_stat_scale_changed = 0;
+	return 1;
+}
+
+static int ui_scale_stats_handler(window_info *win)
+{
+	tab_stat_scale_changed = 1;
+	return 1;
+}
+
+static int change_stats_font_handler(window_info* win, font_cat cat)
+{
+	if (cat != UI_FONT)
+		return 0;
+	tab_stat_scale_changed = 1;
+	return 1;
+}
+
 void display_tab_stats ()
 {
+	int tab_stats_win = get_id_MW(MW_STATS);
+
 	if (tab_stats_win < 0)
 	{
-		int our_root_win = -1;
-		if (!windows_on_top) {
-			our_root_win = game_root_win;
-		}
-		tab_stats_win = create_window (win_statistics, our_root_win, 0, tab_stats_x, tab_stats_y, 0, 0, ELW_USE_UISCALE|ELW_WIN_DEFAULT);
-		set_window_custom_scale(tab_stats_win, &custom_scale_factors.stats);
+		tab_stats_win = create_window (win_statistics, (not_on_top_now(MW_STATS) ?game_root_win : -1), 0, get_pos_x_MW(MW_STATS), get_pos_y_MW(MW_STATS), 0, 0, ELW_USE_UISCALE|ELW_WIN_DEFAULT);
+		set_id_MW(MW_STATS, tab_stats_win);
+		set_window_custom_scale(tab_stats_win, MW_STATS);
 		set_window_handler(tab_stats_win, ELW_HANDLER_UI_SCALE, &ui_scale_stats_handler );
-		tab_stats_collection_id = tab_collection_add_extended (tab_stats_win, tab_stats_collection_id, NULL, TAB_MARGIN, TAB_MARGIN, 0, 0, 0, DEFAULT_SMALL_RATIO, 0.77f, 0.57f, 0.39f, 3);
+		set_window_handler(tab_stats_win, ELW_HANDLER_DISPLAY, &display_stats_handler);
+		set_window_handler(tab_stats_win, ELW_HANDLER_FONT_CHANGE, &change_stats_font_handler);
+		tab_stats_collection_id = tab_collection_add_extended (tab_stats_win, tab_stats_collection_id, NULL, TAB_MARGIN, TAB_MARGIN, 0, 0, 0, DEFAULT_SMALL_RATIO, 3);
 
 		fill_stats_win (tab_add (tab_stats_win, tab_stats_collection_id, tab_statistics, 0, 0, ELW_USE_UISCALE));
 		fill_knowledge_win (tab_add (tab_stats_win, tab_stats_collection_id, tab_knowledge, 0, 0, ELW_USE_UISCALE));
@@ -67,9 +107,10 @@ void display_tab_stats ()
 		fill_session_win(tab_add(tab_stats_win, tab_stats_collection_id, tab_session, 0, 0, ELW_USE_UISCALE));
 
 		if ((tab_stats_win > -1) && (tab_stats_win < windows_list.num_windows))
-			ui_scale_stats_handler(&windows_list.window[tab_stats_win]);
+			do_scale_stats_handler(&windows_list.window[tab_stats_win]);
+		check_proportional_move(MW_STATS);
 
-		tab_collection_select_tab (tab_stats_win, tab_stats_collection_id, tab_selected & 0xf);
+		tab_collection_select_tab (tab_stats_win, tab_stats_collection_id, tab_stat_selected);
 	}
 	else
 	{
@@ -78,20 +119,27 @@ void display_tab_stats ()
 	}
 }
 
-static int ui_scale_help_handler(window_info *win)
+static int do_scale_help_handler(window_info *win)
 {
 	int tab_tag_height = 0;
-	int new_width = (int)(0.5 + win->small_font_len_x * 63);
-	int new_height = (int)(0.5 + win->small_font_len_y * 24);
+	int new_width = 0;
+	int new_height = 0;
 	widget_list *w = widget_find (win->window_id, tab_help_collection_id);
+	const tab_collection *col = (const tab_collection*)w->widget_info;
 
-	if ((int)(0.5 + win->default_font_len_x * 46) > new_width)
-		new_width = (int)(0.5 + win->default_font_len_x * 46);
-	if ((int)(0.5 + win->default_font_len_y * 20) > new_height)
-		new_height = (int)(0.5 + win->default_font_len_y * 20);
+	for (int i = 0; i < col->nr_tabs; ++i)
+	{
+		int id = col->tabs[i].content_id;
+		if (id >= 0 && id < windows_list.num_windows)
+		{
+			const window_info *win = &windows_list.window[id];
+			new_width = max2i(new_width, win->min_len_x);
+			new_height = max2i(new_height, win->min_len_y);
+		}
+	}
 
-	widget_set_size(win->window_id, tab_help_collection_id, win->current_scale * DEFAULT_SMALL_RATIO);
-	tab_tag_height = tab_collection_calc_tab_height(win->current_scale * DEFAULT_SMALL_RATIO);
+	widget_set_size(win->window_id, tab_help_collection_id, win->current_scale_small);
+	tab_tag_height = tab_collection_calc_tab_height(win->font_category, win->current_scale_small);
 	resize_window(win->window_id, new_width + 2*TAB_MARGIN, new_height + tab_tag_height + 2*TAB_MARGIN);
 	widget_resize(win->window_id, tab_help_collection_id, new_width, new_height + tab_tag_height);
 
@@ -101,15 +149,48 @@ static int ui_scale_help_handler(window_info *win)
 	return 1;
 }
 
+/*!
+ * This display handler is only used to react to font changes *after* the
+ * changes in the content windows have been handled. We cannot handle this in
+ * the font change handler itself, as it is called before the font change
+ * handlers of the child windows.
+ */
+static int display_help_handler(window_info *win)
+{
+	if (!tab_help_scale_changed)
+		return 0;
+	do_scale_help_handler(win);
+	tab_help_scale_changed = 0;
+	return 1;
+}
+
+static int ui_scale_help_handler(window_info* win, font_cat cat)
+{
+	tab_help_scale_changed = 1;
+	return 1;
+}
+
+static int change_help_font_handler(window_info* win, font_cat cat)
+{
+	if (cat != ENCYCLOPEDIA_FONT && cat != RULES_FONT && cat != UI_FONT)
+		return 0;
+	tab_help_scale_changed = 1;
+	return 1;
+}
 
 void display_tab_help ()
 {
+	int tab_help_win = get_id_MW(MW_HELP);
+
 	if (tab_help_win < 0)
 	{
-		tab_help_win = create_window (win_help, -1, 0, tab_help_x, tab_help_y, 0, 0, ELW_USE_UISCALE|ELW_WIN_DEFAULT);
-		set_window_custom_scale(tab_help_win, &custom_scale_factors.help);
+		tab_help_win = create_window (win_help, -1, 0, get_pos_x_MW(MW_HELP), get_pos_y_MW(MW_HELP), 0, 0, ELW_USE_UISCALE|ELW_WIN_DEFAULT);
+		set_id_MW(MW_HELP, tab_help_win);
+		set_window_custom_scale(tab_help_win, MW_HELP);
+		set_window_handler(tab_help_win, ELW_HANDLER_DISPLAY, &display_help_handler);
 		set_window_handler(tab_help_win, ELW_HANDLER_UI_SCALE, &ui_scale_help_handler );
-		tab_help_collection_id = tab_collection_add_extended (tab_help_win, tab_help_collection_id, NULL, TAB_MARGIN, TAB_MARGIN, 0, 0, 0, DEFAULT_SMALL_RATIO, 0.77f, 0.57f, 0.39f, 3);
+		set_window_handler(tab_help_win, ELW_HANDLER_FONT_CHANGE, &change_help_font_handler);
+		tab_help_collection_id = tab_collection_add_extended (tab_help_win, tab_help_collection_id, NULL, TAB_MARGIN, TAB_MARGIN, 0, 0, 0, DEFAULT_SMALL_RATIO, 3);
 
 		fill_help_win (tab_add (tab_help_win, tab_help_collection_id, tab_help, 0, 0, ELW_USE_UISCALE));
 		fill_skills_win (tab_add (tab_help_win, tab_help_collection_id, tab_skills, 0, 0, ELW_USE_UISCALE));
@@ -117,9 +198,10 @@ void display_tab_help ()
 		fill_rules_window(tab_add(tab_help_win, tab_help_collection_id, tab_rules, 0, 0, ELW_USE_UISCALE));
 
 		if ((tab_help_win > -1) && (tab_help_win < windows_list.num_windows))
-			ui_scale_help_handler(&windows_list.window[tab_help_win]);
+			do_scale_help_handler(&windows_list.window[tab_help_win]);
+		check_proportional_move(MW_HELP);
 
-		tab_collection_select_tab (tab_help_win, tab_help_collection_id, (tab_selected >> 4) & 0xf);
+		tab_collection_select_tab (tab_help_win, tab_help_collection_id, tab_help_selected);
 	}
 	else
 	{
@@ -128,15 +210,27 @@ void display_tab_help ()
 	}
 }
 
-static int ui_scale_info_handler(window_info *win)
+static int do_scale_info_handler(window_info *win)
 {
 	int tab_tag_height = 0;
 	int new_width = (int)(0.5 + win->current_scale * 500);
 	int new_height = (int)(0.5 + win->current_scale * 350);
 	widget_list *w = widget_find (win->window_id, tab_info_collection_id);
+	const tab_collection *col = (const tab_collection*)w->widget_info;
 
-	widget_set_size(win->window_id, tab_info_collection_id, win->current_scale * DEFAULT_SMALL_RATIO);
-	tab_tag_height = tab_collection_calc_tab_height(win->current_scale * DEFAULT_SMALL_RATIO);
+	for (int i = 0; i < col->nr_tabs; ++i)
+	{
+		int id = col->tabs[i].content_id;
+		if (id >= 0 && id < windows_list.num_windows)
+		{
+			const window_info *win = &windows_list.window[id];
+			new_width = max2i(new_width, win->min_len_x);
+			new_height = max2i(new_height, win->min_len_y);
+		}
+	}
+
+	widget_set_size(win->window_id, tab_info_collection_id, win->current_scale_small);
+	tab_tag_height = tab_collection_calc_tab_height(win->font_category, win->current_scale_small);
 	resize_window(win->window_id, new_width + 2*TAB_MARGIN, new_height + tab_tag_height + 2*TAB_MARGIN);
 	widget_resize(win->window_id, tab_info_collection_id, new_width, new_height + tab_tag_height);
 
@@ -146,26 +240,58 @@ static int ui_scale_info_handler(window_info *win)
 	return 1;
 }
 
+/*!
+ * This display handler is only used to react to font changes *after* the
+ * changes in the content windows have been handled. We cannot handle this in
+ * the font change handler itself, as it is called before the font change
+ * handlers of the child windows.
+ */
+static int display_info_handler(window_info *win)
+{
+	if (!tab_info_scale_changed)
+		return 0;
+	do_scale_info_handler(win);
+	tab_info_scale_changed = 0;
+	return 1;
+}
+
+static int ui_scale_info_handler(window_info *win)
+{
+	tab_info_scale_changed = 1;
+	return 1;
+}
+
+static int change_info_font_handler(window_info* win, font_cat cat)
+{
+	if (cat != win->font_category)
+		return 0;
+	tab_info_scale_changed = 1;
+	return 1;
+}
+
 void display_tab_info()
 {
+	int tab_info_win = get_id_MW(MW_INFO);
+
 	if (tab_info_win < 0)
 	{
-		int our_root_win = -1;
-		if (!windows_on_top)
-			our_root_win = game_root_win;
-
-		tab_info_win = create_window (tt_info, our_root_win, 0, tab_info_x, tab_info_y, 0, 0, ELW_USE_UISCALE|ELW_WIN_DEFAULT);
-		set_window_custom_scale(tab_info_win, &custom_scale_factors.info);
-		set_window_handler(tab_info_win, ELW_HANDLER_UI_SCALE, &ui_scale_info_handler );
-		tab_info_collection_id = tab_collection_add_extended (tab_info_win, tab_info_collection_id, NULL, TAB_MARGIN, TAB_MARGIN, 0, 0, 0, DEFAULT_SMALL_RATIO, 0.77f, 0.57f, 0.39f, 3);
+		tab_info_win = create_window (tt_info, (not_on_top_now(MW_INFO) ?game_root_win : -1), 0,
+			get_pos_x_MW(MW_INFO), get_pos_y_MW(MW_INFO), 0, 0, ELW_USE_UISCALE|ELW_WIN_DEFAULT);
+		set_id_MW(MW_INFO, tab_info_win);
+		set_window_custom_scale(tab_info_win, MW_INFO);
+		set_window_handler(tab_info_win, ELW_HANDLER_DISPLAY, &display_info_handler);
+		set_window_handler(tab_info_win, ELW_HANDLER_UI_SCALE, &ui_scale_info_handler);
+		set_window_handler(tab_info_win, ELW_HANDLER_FONT_CHANGE, &change_info_font_handler);
+		tab_info_collection_id = tab_collection_add_extended (tab_info_win, tab_info_collection_id, NULL, TAB_MARGIN, TAB_MARGIN, 0, 0, 0, DEFAULT_SMALL_RATIO, 3);
 
 		fill_notepad_window(tab_add(tab_info_win, tab_info_collection_id, win_notepad, 0, 0, ELW_USE_UISCALE));
 		fill_url_window(tab_add(tab_info_win, tab_info_collection_id, win_url_str, 0, 0, ELW_USE_UISCALE));
 
 		if ((tab_info_win > -1) && (tab_info_win < windows_list.num_windows))
-			ui_scale_info_handler(&windows_list.window[tab_info_win]);
+			do_scale_info_handler(&windows_list.window[tab_info_win]);
+		check_proportional_move(MW_INFO);
 
-		tab_collection_select_tab (tab_info_win, tab_info_collection_id, (tab_selected >> 8) & 0xf);
+		tab_collection_select_tab (tab_info_win, tab_info_collection_id, tab_info_selected);
 	}
 	else
 	{
@@ -177,18 +303,49 @@ void display_tab_info()
 /* get selected tabs when saved in cfg file */
 unsigned get_tab_selected(void)
 {
-	unsigned int old_tab_selected = tab_selected;
 	int tabnr;
-	tab_selected = 0;
+	unsigned int tab_flags = 0;
 
-	tabnr = tab_collection_get_tab(tab_stats_win, tab_stats_collection_id);
-	tab_selected |= ((tabnr < 0) ?old_tab_selected :tabnr) & 0xf;
+	tabnr = tab_collection_get_tab(get_id_MW(MW_STATS), tab_stats_collection_id);
+	tab_flags |= ((tabnr < 0) ?tab_stat_selected :tabnr) & 0xf;
 
-	tabnr = tab_collection_get_tab(tab_help_win, tab_help_collection_id);
-	tab_selected |= ((tabnr < 0) ?old_tab_selected :(tabnr<<4)) & 0xf0;
+	tabnr = tab_collection_get_tab(get_id_MW(MW_HELP), tab_help_collection_id);
+	tab_flags |= (((tabnr < 0) ?tab_help_selected :tabnr) << 4) & 0xf0;
 
-	tabnr = tab_collection_get_tab(tab_info_win, tab_info_collection_id);
-	tab_selected |= ((tabnr < 0) ?old_tab_selected :(tabnr<<8)) & 0xf00;
+	tabnr = tab_collection_get_tab(get_id_MW(MW_INFO), tab_info_collection_id);
+	tab_flags |= (((tabnr < 0) ?tab_info_selected :tabnr) << 8) & 0xf00;
 
-	return tab_selected;
+	return tab_flags;
 }
+
+/* set selected tabs when read from the cfg file */
+void set_tab_selected(unsigned int tab_flags)
+{
+	tab_stat_selected = tab_flags & 0xf;
+	tab_help_selected = (tab_flags >> 4) & 0xf;
+	tab_info_selected = (tab_flags >> 8) & 0xf;
+}
+
+#ifdef JSON_FILES
+/* write selected tabs to the client state file */
+void write_tab_selected(void)
+{
+	char window_dict_name[50];
+	int tabnr;
+	tabnr = tab_collection_get_tab(get_id_MW(MW_STATS), tab_stats_collection_id);
+	json_cstate_set_unsigned_int(get_dict_name_WM(MW_STATS, window_dict_name, sizeof(window_dict_name)), "selected_tab", (tabnr < 0) ?tab_stat_selected :tabnr);
+	tabnr = tab_collection_get_tab(get_id_MW(MW_HELP), tab_help_collection_id);
+	json_cstate_set_unsigned_int(get_dict_name_WM(MW_HELP, window_dict_name, sizeof(window_dict_name)), "selected_tab", (tabnr < 0) ?tab_help_selected :tabnr);
+	tabnr = tab_collection_get_tab(get_id_MW(MW_INFO), tab_info_collection_id);
+	json_cstate_set_unsigned_int(get_dict_name_WM(MW_INFO, window_dict_name, sizeof(window_dict_name)), "selected_tab", (tabnr < 0) ?tab_info_selected :tabnr);
+}
+
+/* read selected tabs from the client state file */
+void read_tab_selected(void)
+{
+	char window_dict_name[50];
+	tab_stat_selected = json_cstate_get_unsigned_int(get_dict_name_WM(MW_STATS, window_dict_name, sizeof(window_dict_name)), "selected_tab", 0);
+	tab_help_selected = json_cstate_get_unsigned_int(get_dict_name_WM(MW_HELP, window_dict_name, sizeof(window_dict_name)), "selected_tab", 0);
+	tab_info_selected = json_cstate_get_unsigned_int(get_dict_name_WM(MW_INFO, window_dict_name, sizeof(window_dict_name)), "selected_tab", 0);
+}
+#endif

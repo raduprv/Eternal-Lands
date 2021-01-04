@@ -1,5 +1,5 @@
-eternallands-sound (1.9.4-0ubuntu1) precise; urgency=low
+eternallands-sound (1.9.5.8-0ubuntu1) xenial; urgency=low
 
-  * Update for 1.9.4 client - fix warning sound types
+  * Development release
 
  -- Paul Broadhead <pjbroad@twinmoons.org.uk>  Mon, 10 Aug 2015 22:33:32 +0100

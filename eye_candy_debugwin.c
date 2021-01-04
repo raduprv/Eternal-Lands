@@ -1,7 +1,5 @@
 #ifdef ECDEBUGWIN
 
-#include "eye_candy_debugwin.h"
-
 #include "actors.h"
 #include "cal.h"
 #include "client_serv.h"
@@ -14,9 +12,6 @@
 #include "missiles.h"
 #include "skeletons.h"
 
-int ecdebug_win = -1;
-int ecdebug_win_x = 0;
-int ecdebug_win_y = 0;
 int ecdebug_win_width = 512;
 int ecdebug_win_height = 214;
 
@@ -252,13 +247,15 @@ int ecdw_clouds_handler();
 
 void display_ecdebugwin()
 {
+	int ecdebug_win = get_id_MW(MW_ECDEBUG);
+
 	if (ecdebug_win < 0) // create window
 	{
 		// init window
-		ecdebug_win = create_window("Eye Candy DEBUG", windows_on_top ? -1
-			: game_root_win, 0, ecdebug_win_x, ecdebug_win_y,
-			ecdebug_win_width, ecdebug_win_height, 
-			ELW_WIN_DEFAULT|ELW_TITLE_NAME);
+		ecdebug_win = create_window("Eye Candy DEBUG", (not_on_top_now(MW_ECDEBUG) ?game_root_win : -1),
+            0, get_pos_x_MW(MW_ECDEBUG), get_pos_y_MW(MW_ECDEBUG),
+			ecdebug_win_width, ecdebug_win_height, ELW_WIN_DEFAULT);
+		set_id_MW(MW_ECDEBUG, ecdebug_win);
 
 		// create tab collection
 		// 24 pixels offset down so we don't cover the [X] in the upper right corner
@@ -286,438 +283,437 @@ void display_ecdebugwin()
 		ecdw_restoration_button_id = button_add_extended(tab_self,
 			ecdw_restoration_button_id, 
 			NULL, button_x + button_x_shift * 0, button_y + button_y_shift * 0,
-			button_width, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, "Restoration");
+			button_width, 0, 0, 1.0f, "Restoration");
 		ecdw_shield_button_id = button_add_extended(tab_self,
 			ecdw_shield_button_id, 
 			NULL, button_x + button_x_shift * 0, button_y + button_y_shift * 1,
-			button_width, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, "Shield");
+			button_width, 0, 0, 1.0f, "Shield");
 		ecdw_coldshield_button_id = button_add_extended(tab_self,
 			ecdw_coldshield_button_id, 
 			NULL, button_x + button_x_shift * 0, button_y + button_y_shift * 2,
-			button_width, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, "Cold Shield");
+			button_width, 0, 0, 1.0f, "Cold Shield");
 		ecdw_heatshield_button_id = button_add_extended(tab_self,
 			ecdw_heatshield_button_id, 
 			NULL, button_x + button_x_shift * 0, button_y + button_y_shift * 3,
-			button_width, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, "Heat Shield");
+			button_width, 0, 0, 1.0f, "Heat Shield");
 		ecdw_radiationshield_button_id = button_add_extended(tab_self,
 			ecdw_radiationshield_button_id, 
 			NULL, button_x + button_x_shift * 1, button_y + button_y_shift * 0,
-			button_width, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, "Rad. Shield");
+			button_width, 0, 0, 1.0f, "Rad. Shield");
 		ecdw_heal_button_id = button_add_extended(tab_self,
 			ecdw_heal_button_id, 
 			NULL, button_x + button_x_shift * 1, button_y + button_y_shift * 1,
-			button_width, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, "Heal");
+			button_width, 0, 0, 1.0f, "Heal");
 		ecdw_b2g_button_id = button_add_extended(tab_self, ecdw_b2g_button_id, 
 		NULL, button_x + button_x_shift * 1, button_y + button_y_shift * 2,
-			button_width, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, "Bones2Gold");
+			button_width, 0, 0, 1.0f, "Bones2Gold");
 		ecdw_magic_immunity_button_id = button_add_extended(tab_self,
 			ecdw_magic_immunity_button_id, 
 			NULL, button_x + button_x_shift * 1, button_y + button_y_shift * 3,
-			button_width, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, "Magic Immu.");
+			button_width, 0, 0, 1.0f, "Magic Immu.");
 		ecdw_magic_protection_button_id = button_add_extended(tab_self,
 			ecdw_magic_protection_button_id, 
 			NULL, button_x + button_x_shift * 2, button_y + button_y_shift * 0,
-			button_width, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, "Magic Prot.");
+			button_width, 0, 0, 1.0f, "Magic Prot.");
 		ecdw_tptpr_button_id = button_add_extended(tab_self,
 			ecdw_tptpr_button_id, 
 			NULL, button_x + button_x_shift * 2, button_y + button_y_shift * 1,
-			button_width, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, "TP to PR");
+			button_width, 0, 0, 1.0f, "TP to PR");
 
 		// remote magic buttons
 		ecdw_remote_heal_button_id = button_add_extended(tab_remote,
 			ecdw_remote_heal_button_id, 
 			NULL, button_x + button_x_shift * 0, button_y + button_y_shift * 0,
-			button_width, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, "Remote Heal");
+			button_width, 0, 0, 1.0f, "Remote Heal");
 		ecdw_poison_button_id = button_add_extended(tab_remote,
 			ecdw_poison_button_id, 
 			NULL, button_x + button_x_shift * 0, button_y + button_y_shift * 1,
-			button_width, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, "Poison");
+			button_width, 0, 0, 1.0f, "Poison");
 		ecdw_harm_button_id = button_add_extended(tab_remote,
 			ecdw_harm_button_id, 
 			NULL, button_x + button_x_shift * 0, button_y + button_y_shift * 2,
-			button_width, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, "Harm");
+			button_width, 0, 0, 1.0f, "Harm");
 		ecdw_mana_drain_button_id = button_add_extended(tab_remote,
 			ecdw_mana_drain_button_id, 
 			NULL, button_x + button_x_shift * 0, button_y + button_y_shift * 3,
-			button_width, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, "Drain Mana");
+			button_width, 0, 0, 1.0f, "Drain Mana");
 		ecdw_life_drain_button_id = button_add_extended(tab_remote,
 			ecdw_life_drain_button_id, 
 			NULL, button_x + button_x_shift * 1, button_y + button_y_shift * 0,
-			button_width, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, "Life Drain");
+			button_width, 0, 0, 1.0f, "Life Drain");
 		ecdw_tptr_button_id = button_add_extended(tab_remote,
 			ecdw_tptr_button_id, 
 			NULL, button_x + button_x_shift * 1, button_y + button_y_shift * 1,
-			button_width, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, "TP to R");
+			button_width, 0, 0, 1.0f, "TP to R");
 		ecdw_remote_smite_summons_button_id = button_add_extended(tab_remote,
 			ecdw_remote_smite_summons_button_id, 
 			NULL, button_x + button_x_shift * 1, button_y + button_y_shift * 2,
-			button_width, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, "Smite Summons");
+			button_width, 0, 0, 1.0f, "Smite Summons");
 
 		// harv effect buttons
 		ecdw_harv_rare_stone_button_id = button_add_extended(tab_harv,
 			ecdw_harv_rare_stone_button_id, 
 			NULL, button_x + button_x_shift * 0, button_y + button_y_shift * 0,
-			button_width, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, "Rare Stone");
+			button_width, 0, 0, 1.0f, "Rare Stone");
 		ecdw_harv_goldbag_button_id = button_add_extended(tab_harv,
 			ecdw_harv_goldbag_button_id, 
 			NULL, button_x + button_x_shift * 0, button_y + button_y_shift * 1,
-			button_width, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, "Gold Bag");
+			button_width, 0, 0, 1.0f, "Gold Bag");
 		ecdw_harv_bee_button_id = button_add_extended(tab_harv,
 			ecdw_harv_bee_button_id, 
 			NULL, button_x + button_x_shift * 0, button_y + button_y_shift * 2,
-			button_width, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, "Bees");
+			button_width, 0, 0, 1.0f, "Bees");
 		ecdw_harv_radon_button_id = button_add_extended(tab_harv,
 			ecdw_harv_radon_button_id, 
 			NULL, button_x + button_x_shift * 0, button_y + button_y_shift * 3,
-			button_width, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, "Radon");
+			button_width, 0, 0, 1.0f, "Radon");
 		ecdw_harv_cavern_wall_button_id = button_add_extended(tab_harv,
 			ecdw_harv_cavern_wall_button_id, 
 			NULL, button_x + button_x_shift * 1, button_y + button_y_shift * 0,
-			button_width, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, "Cavern Wall");
+			button_width, 0, 0, 1.0f, "Cavern Wall");
 		ecdw_harv_mother_nature_button_id = button_add_extended(tab_harv,
 			ecdw_harv_mother_nature_button_id, 
 			NULL, button_x + button_x_shift * 1, button_y + button_y_shift * 1,
-			button_width, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, "Mother Nature");
+			button_width, 0, 0, 1.0f, "Mother Nature");
 		ecdw_harv_queen_button_id = button_add_extended(tab_harv,
 			ecdw_harv_queen_button_id, 
 			NULL, button_x + button_x_shift * 1, button_y + button_y_shift * 2,
-			button_width, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, "Queen");
+			button_width, 0, 0, 1.0f, "Queen");
 		ecdw_harv_tool_break_button_id = button_add_extended(tab_harv,
 			ecdw_harv_tool_break_button_id, 
 			NULL, button_x + button_x_shift * 1, button_y + button_y_shift * 3,
-			button_width, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, "Tool break");
+			button_width, 0, 0, 1.0f, "Tool break");
 
 		// level up effect buttons
 		ecdw_level_up_oa_button_id = button_add_extended(tab_lvlup,
 			ecdw_level_up_oa_button_id, 
 			NULL, button_x + button_x_shift / 2 * 0, button_y + button_y_shift
-				* 0, button_width / 2, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, "OA");
+				* 0, button_width / 2, 0, 0, 1.0f, "OA");
 		ecdw_level_up_att_button_id = button_add_extended(tab_lvlup,
 			ecdw_level_up_att_button_id, 
 			NULL, button_x + button_x_shift / 2 * 0, button_y + button_y_shift
-				* 1, button_width / 2, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, "ATT");
+				* 1, button_width / 2, 0, 0, 1.0f, "ATT");
 		ecdw_level_up_def_button_id = button_add_extended(tab_lvlup,
 			ecdw_level_up_def_button_id, 
 			NULL, button_x + button_x_shift / 2 * 0, button_y + button_y_shift
-				* 2, button_width / 2, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, "DEF");
+				* 2, button_width / 2, 0, 0, 1.0f, "DEF");
 		ecdw_level_up_har_button_id = button_add_extended(tab_lvlup,
 			ecdw_level_up_har_button_id, 
 			NULL, button_x + button_x_shift / 2 * 0, button_y + button_y_shift
-				* 3, button_width / 2, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, "HAR");
+				* 3, button_width / 2, 0, 0, 1.0f, "HAR");
 		ecdw_level_up_alc_button_id = button_add_extended(tab_lvlup,
 			ecdw_level_up_alc_button_id, 
 			NULL, button_x + button_x_shift / 2 * 1, button_y + button_y_shift
-				* 0, button_width / 2, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, "ALC");
+				* 0, button_width / 2, 0, 0, 1.0f, "ALC");
 		ecdw_level_up_mag_button_id = button_add_extended(tab_lvlup,
 			ecdw_level_up_mag_button_id, 
 			NULL, button_x + button_x_shift / 2 * 1, button_y + button_y_shift
-				* 1, button_width / 2, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, "MAG");
+				* 1, button_width / 2, 0, 0, 1.0f, "MAG");
 		ecdw_level_up_pot_button_id = button_add_extended(tab_lvlup,
 			ecdw_level_up_pot_button_id, 
 			NULL, button_x + button_x_shift / 2 * 1, button_y + button_y_shift
-				* 2, button_width / 2, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, "POT");
+				* 2, button_width / 2, 0, 0, 1.0f, "POT");
 		ecdw_level_up_sum_button_id = button_add_extended(tab_lvlup,
 			ecdw_level_up_sum_button_id, 
 			NULL, button_x + button_x_shift / 2 * 1, button_y + button_y_shift
-				* 3, button_width / 2, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, "SUM");
+				* 3, button_width / 2, 0, 0, 1.0f, "SUM");
 		ecdw_level_up_man_button_id = button_add_extended(tab_lvlup,
 			ecdw_level_up_man_button_id, 
 			NULL, button_x + button_x_shift / 2 * 2, button_y + button_y_shift
-				* 0, button_width / 2, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, "MAN");
+				* 0, button_width / 2, 0, 0, 1.0f, "MAN");
 		ecdw_level_up_cra_button_id = button_add_extended(tab_lvlup,
 			ecdw_level_up_cra_button_id, 
 			NULL, button_x + button_x_shift / 2 * 2, button_y + button_y_shift
-				* 1, button_width / 2, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, "CRA");
+				* 1, button_width / 2, 0, 0, 1.0f, "CRA");
 		ecdw_level_up_eng_button_id = button_add_extended(tab_lvlup,
 			ecdw_level_up_eng_button_id, 
 			NULL, button_x + button_x_shift / 2 * 2, button_y + button_y_shift
-				* 2, button_width / 2, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, "ENG");
+				* 2, button_width / 2, 0, 0, 1.0f, "ENG");
 		ecdw_level_up_tai_button_id = button_add_extended(tab_lvlup,
 			ecdw_level_up_tai_button_id, 
 			NULL, button_x + button_x_shift / 2 * 2, button_y + button_y_shift
-				* 3, button_width / 2, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, "TAI");
+				* 3, button_width / 2, 0, 0, 1.0f, "TAI");
 		ecdw_level_up_ran_button_id = button_add_extended(tab_lvlup,
 			ecdw_level_up_ran_button_id, 
 			NULL, button_x + button_x_shift / 2 * 3, button_y + button_y_shift
-				* 0, button_width / 2, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, "RAN");
+				* 0, button_width / 2, 0, 0, 1.0f, "RAN");
 
 		// mines effect buttons
 		ecdw_mine_high_exp_detonate_button_id = button_add_extended(tab_mines,
 			ecdw_mine_high_exp_detonate_button_id, 
 			NULL, button_x + button_x_shift * 0, button_y + button_y_shift * 0,
-			button_width, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, "High exp. Mine");
+			button_width, 0, 0, 1.0f, "High exp. Mine");
 		ecdw_mine_small_detonate_button_id = button_add_extended(tab_mines,
 			ecdw_mine_small_detonate_button_id, 
 			NULL, button_x + button_x_shift * 0, button_y + button_y_shift * 1,
-			button_width, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, "Small Mine");
+			button_width, 0, 0, 1.0f, "Small Mine");
 		ecdw_mine_medium_detonate_button_id = button_add_extended(tab_mines,
 			ecdw_mine_medium_detonate_button_id, 
 			NULL, button_x + button_x_shift * 0, button_y + button_y_shift * 2,
-			button_width, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, "Medium Mine");
+			button_width, 0, 0, 1.0f, "Medium Mine");
 		ecdw_mine_trap_detonate_button_id = button_add_extended(tab_mines,
 			ecdw_mine_trap_detonate_button_id, 
 			NULL, button_x + button_x_shift * 0, button_y + button_y_shift * 3,
-			button_width, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, "Trap");
+			button_width, 0, 0, 1.0f, "Trap");
 		ecdw_mine_caltrop_detonate_button_id = button_add_extended(tab_mines,
 			ecdw_mine_caltrop_detonate_button_id, 
 			NULL, button_x + button_x_shift * 1, button_y + button_y_shift * 0,
-			button_width, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, "Caltrop");
+			button_width, 0, 0, 1.0f, "Caltrop");
 		ecdw_mine_poisoned_caltrop_detonate_button_id = button_add_extended(
 			tab_mines, ecdw_mine_poisoned_caltrop_detonate_button_id, 
 			NULL, button_x + button_x_shift * 1, button_y + button_y_shift * 1,
-			button_width, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, "Pois. Caltrop");
+			button_width, 0, 0, 1.0f, "Pois. Caltrop");
 		ecdw_mine_mana_drainer_detonate_button_id = button_add_extended(
 			tab_mines, ecdw_mine_mana_drainer_detonate_button_id, 
 			NULL, button_x + button_x_shift * 1, button_y + button_y_shift * 2,
-			button_width, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, "Mana Drainer");
+			button_width, 0, 0, 1.0f, "Mana Drainer");
 		ecdw_mine_mana_burner_detonate_button_id = button_add_extended(
 			tab_mines, ecdw_mine_mana_burner_detonate_button_id, 
 			NULL, button_x + button_x_shift * 1, button_y + button_y_shift * 3,
-			button_width, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, "Mana Burner");
+			button_width, 0, 0, 1.0f, "Mana Burner");
 		ecdw_mine_uninvisibilizer_detonate_button_id = button_add_extended(
 			tab_mines, ecdw_mine_uninvisibilizer_detonate_button_id, 
 			NULL, button_x + button_x_shift * 2, button_y + button_y_shift * 0,
-			button_width, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, "Uninvis.");
+			button_width, 0, 0, 1.0f, "Uninvis.");
 		ecdw_mine_magic_immunity_removal_detonate_button_id
 			= button_add_extended(tab_mines,
 				ecdw_mine_magic_immunity_removal_detonate_button_id, 
 				NULL, button_x + button_x_shift * 2, button_y + button_y_shift
-					* 1, button_width, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f,
-				"Mag. Immu. Rem.");
+					* 1, button_width, 0, 0, 1.0f, "Mag. Immu. Rem.");
 
 		// breath effect buttons
 		ecdw_breathe_fire_button_id = button_add_extended(tab_breath,
 			ecdw_breathe_fire_button_id, 
 			NULL, button_x + button_x_shift * 0, button_y + button_y_shift * 0,
-			button_width, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, "Fire");
+			button_width, 0, 0, 1.0f, "Fire");
 		ecdw_breathe_ice_button_id = button_add_extended(tab_breath,
 			ecdw_breathe_ice_button_id, 
 			NULL, button_x + button_x_shift * 0, button_y + button_y_shift * 1,
-			button_width, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, "Ice");
+			button_width, 0, 0, 1.0f, "Ice");
 		ecdw_breathe_magic_button_id = button_add_extended(tab_breath,
 			ecdw_breathe_magic_button_id, 
 			NULL, button_x + button_x_shift * 0, button_y + button_y_shift * 2,
-			button_width, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, "Magic");
+			button_width, 0, 0, 1.0f, "Magic");
 		ecdw_breathe_poison_button_id = button_add_extended(tab_breath,
 			ecdw_breathe_poison_button_id, 
 			NULL, button_x + button_x_shift * 0, button_y + button_y_shift * 3,
-			button_width, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, "Poison");
+			button_width, 0, 0, 1.0f, "Poison");
 		ecdw_breathe_lightning_button_id = button_add_extended(tab_breath,
 			ecdw_breathe_lightning_button_id, 
 			NULL, button_x + button_x_shift * 1, button_y + button_y_shift * 0,
-			button_width, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, "Lightning");
+			button_width, 0, 0, 1.0f, "Lightning");
 		ecdw_breathe_wind_button_id = button_add_extended(tab_breath,
 			ecdw_breathe_wind_button_id, 
 			NULL, button_x + button_x_shift * 1, button_y + button_y_shift * 1,
-			button_width, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, "Wind");
+			button_width, 0, 0, 1.0f, "Wind");
 
 		// summon effect buttons
 		ecdw_summon_rabbit_button_id = button_add_extended(tab_summon,
 			ecdw_summon_rabbit_button_id, 
 			NULL, button_x + button_x_shift * 0, button_y + button_y_shift * 0,
-			button_width, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, "Rabbit");
+			button_width, 0, 0, 1.0f, "Rabbit");
 		ecdw_summon_rat_button_id = button_add_extended(tab_summon,
 			ecdw_summon_rat_button_id, 
 			NULL, button_x + button_x_shift * 0, button_y + button_y_shift * 1,
-			button_width, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, "Rat");
+			button_width, 0, 0, 1.0f, "Rat");
 		ecdw_summon_beaver_button_id = button_add_extended(tab_summon,
 			ecdw_summon_beaver_button_id, 
 			NULL, button_x + button_x_shift * 0, button_y + button_y_shift * 2,
-			button_width, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, "Beaver");
+			button_width, 0, 0, 1.0f, "Beaver");
 		ecdw_summon_skunk_button_id = button_add_extended(tab_summon,
 			ecdw_summon_skunk_button_id, 
 			NULL, button_x + button_x_shift * 0, button_y + button_y_shift * 3,
-			button_width, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, "Skunk");
+			button_width, 0, 0, 1.0f, "Skunk");
 		ecdw_summon_racoon_button_id = button_add_extended(tab_summon,
 			ecdw_summon_racoon_button_id, 
 			NULL, button_x + button_x_shift * 1, button_y + button_y_shift * 0,
-			button_width, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, "Racoon");
+			button_width, 0, 0, 1.0f, "Racoon");
 		ecdw_summon_deer_button_id = button_add_extended(tab_summon,
 			ecdw_summon_deer_button_id, 
 			NULL, button_x + button_x_shift * 1, button_y + button_y_shift * 1,
-			button_width, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, "Deer");
+			button_width, 0, 0, 1.0f, "Deer");
 		ecdw_summon_green_snake_button_id = button_add_extended(tab_summon,
 			ecdw_summon_green_snake_button_id, 
 			NULL, button_x + button_x_shift * 1, button_y + button_y_shift * 2,
-			button_width, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, "Green Snake");
+			button_width, 0, 0, 1.0f, "Green Snake");
 		ecdw_summon_red_snake_button_id = button_add_extended(tab_summon,
 			ecdw_summon_red_snake_button_id, 
 			NULL, button_x + button_x_shift * 1, button_y + button_y_shift * 3,
-			button_width, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, "Red Snake");
+			button_width, 0, 0, 1.0f, "Red Snake");
 		ecdw_summon_brown_snake_button_id = button_add_extended(tab_summon,
 			ecdw_summon_brown_snake_button_id, 
 			NULL, button_x + button_x_shift * 2, button_y + button_y_shift * 0,
-			button_width, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, "Brown Snake");
+			button_width, 0, 0, 1.0f, "Brown Snake");
 		ecdw_summon_fox_button_id = button_add_extended(tab_summon,
 			ecdw_summon_fox_button_id, 
 			NULL, button_x + button_x_shift * 2, button_y + button_y_shift * 1,
-			button_width, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, "Fox");
+			button_width, 0, 0, 1.0f, "Fox");
 		ecdw_summon_boar_button_id = button_add_extended(tab_summon,
 			ecdw_summon_boar_button_id, 
 			NULL, button_x + button_x_shift * 2, button_y + button_y_shift * 2,
-			button_width, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, "Boar");
+			button_width, 0, 0, 1.0f, "Boar");
 		ecdw_summon_wolf_button_id = button_add_extended(tab_summon,
 			ecdw_summon_wolf_button_id, 
 			NULL, button_x + button_x_shift * 2, button_y + button_y_shift * 3,
-			button_width, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, "Wolf");
+			button_width, 0, 0, 1.0f, "Wolf");
 		// summon effects tab #2
 		ecdw_summon_skeleton_button_id = button_add_extended(tab_summon2,
 			ecdw_summon_skeleton_button_id, 
 			NULL, button_x + button_x_shift * 0, button_y + button_y_shift * 0,
-			button_width, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, "Skeleton");
+			button_width, 0, 0, 1.0f, "Skeleton");
 		ecdw_summon_small_garg_button_id = button_add_extended(tab_summon2,
 			ecdw_summon_small_garg_button_id, 
 			NULL, button_x + button_x_shift * 0, button_y + button_y_shift * 1,
-			button_width, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, "Small Garg");
+			button_width, 0, 0, 1.0f, "Small Garg");
 		ecdw_summon_medium_garg_button_id = button_add_extended(tab_summon2,
 			ecdw_summon_medium_garg_button_id, 
 			NULL, button_x + button_x_shift * 0, button_y + button_y_shift * 2,
-			button_width, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, "Medium Garg");
+			button_width, 0, 0, 1.0f, "Medium Garg");
 		ecdw_summon_large_garg_button_id = button_add_extended(tab_summon2,
 			ecdw_summon_large_garg_button_id, 
 			NULL, button_x + button_x_shift * 0, button_y + button_y_shift * 3,
-			button_width, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, "Large Garg");
+			button_width, 0, 0, 1.0f, "Large Garg");
 		ecdw_summon_puma_button_id = button_add_extended(tab_summon2,
 			ecdw_summon_puma_button_id, 
 			NULL, button_x + button_x_shift * 1, button_y + button_y_shift * 0,
-			button_width, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, "Puma");
+			button_width, 0, 0, 1.0f, "Puma");
 		ecdw_summon_fem_gob_button_id = button_add_extended(tab_summon2,
 			ecdw_summon_fem_gob_button_id, 
 			NULL, button_x + button_x_shift * 1, button_y + button_y_shift * 1,
-			button_width, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, "Fem Gob");
+			button_width, 0, 0, 1.0f, "Fem Gob");
 		ecdw_summon_polar_bear_button_id = button_add_extended(tab_summon2,
 			ecdw_summon_polar_bear_button_id, 
 			NULL, button_x + button_x_shift * 1, button_y + button_y_shift * 2,
-			button_width, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, "Polar Bear");
+			button_width, 0, 0, 1.0f, "Polar Bear");
 		ecdw_summon_bear_button_id = button_add_extended(tab_summon2,
 			ecdw_summon_bear_button_id, 
 			NULL, button_x + button_x_shift * 1, button_y + button_y_shift * 3,
-			button_width, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, "Bear");
+			button_width, 0, 0, 1.0f, "Bear");
 		ecdw_summon_armed_male_gob_button_id = button_add_extended(tab_summon2,
 			ecdw_summon_armed_male_gob_button_id, 
 			NULL, button_x + button_x_shift * 2, button_y + button_y_shift * 0,
-			button_width, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, "Armed M Gob");
+			button_width, 0, 0, 1.0f, "Armed M Gob");
 		ecdw_summon_armed_skeleton_button_id = button_add_extended(tab_summon2,
 			ecdw_summon_armed_skeleton_button_id, 
 			NULL, button_x + button_x_shift * 2, button_y + button_y_shift * 1,
-			button_width, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, "Armed Skel");
+			button_width, 0, 0, 1.0f, "Armed Skel");
 		ecdw_summon_fem_orc_button_id = button_add_extended(tab_summon2,
 			ecdw_summon_fem_orc_button_id, 
 			NULL, button_x + button_x_shift * 2, button_y + button_y_shift * 2,
-			button_width, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, "Fem Orc");
+			button_width, 0, 0, 1.0f, "Fem Orc");
 		ecdw_summon_male_orc_button_id = button_add_extended(tab_summon2,
 			ecdw_summon_male_orc_button_id, 
 			NULL, button_x + button_x_shift * 2, button_y + button_y_shift * 3,
-			button_width, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, "Male Orc");
+			button_width, 0, 0, 1.0f, "Male Orc");
 		// summon effects tab #3
 		ecdw_summon_armed_fem_orc_button_id = button_add_extended(tab_summon3,
 			ecdw_summon_armed_fem_orc_button_id, 
 			NULL, button_x + button_x_shift * 0, button_y + button_y_shift * 0,
-			button_width, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, "Armed Fem Orc");
+			button_width, 0, 0, 1.0f, "Armed Fem Orc");
 		ecdw_summon_armed_male_orc_button_id = button_add_extended(tab_summon3,
 			ecdw_summon_armed_male_orc_button_id, 
 			NULL, button_x + button_x_shift * 0, button_y + button_y_shift * 1,
-			button_width, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, "Armed M Orc");
+			button_width, 0, 0, 1.0f, "Armed M Orc");
 		ecdw_summon_cyclops_button_id = button_add_extended(tab_summon3,
 			ecdw_summon_cyclops_button_id, 
 			NULL, button_x + button_x_shift * 0, button_y + button_y_shift * 2,
-			button_width, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, "Cyclops");
+			button_width, 0, 0, 1.0f, "Cyclops");
 		ecdw_summon_fluffy_button_id = button_add_extended(tab_summon3,
 			ecdw_summon_fluffy_button_id, 
 			NULL, button_x + button_x_shift * 0, button_y + button_y_shift * 3,
-			button_width, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, "Fluffy");
+			button_width, 0, 0, 1.0f, "Fluffy");
 		ecdw_summon_phantom_warrior_button_id = button_add_extended(
 			tab_summon3, ecdw_summon_phantom_warrior_button_id, 
 			NULL, button_x + button_x_shift * 1, button_y + button_y_shift * 0,
-			button_width, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, "Phantom W");
+			button_width, 0, 0, 1.0f, "Phantom W");
 		ecdw_summon_mchim_button_id = button_add_extended(tab_summon3,
 			ecdw_summon_mchim_button_id, 
 			NULL, button_x + button_x_shift * 1, button_y + button_y_shift * 1,
-			button_width, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, "M Chim");
+			button_width, 0, 0, 1.0f, "M Chim");
 		ecdw_summon_yeti_button_id = button_add_extended(tab_summon3,
 			ecdw_summon_yeti_button_id, 
 			NULL, button_x + button_x_shift * 1, button_y + button_y_shift * 2,
-			button_width, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, "Yeti");
+			button_width, 0, 0, 1.0f, "Yeti");
 		ecdw_summon_achim_button_id = button_add_extended(tab_summon3,
 			ecdw_summon_achim_button_id, 
 			NULL, button_x + button_x_shift * 1, button_y + button_y_shift * 3,
-			button_width, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, "A Chim");
+			button_width, 0, 0, 1.0f, "A Chim");
 		ecdw_summon_giant_button_id = button_add_extended(tab_summon3,
 			ecdw_summon_giant_button_id, 
 			NULL, button_x + button_x_shift * 2, button_y + button_y_shift * 0,
-			button_width, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, "Giant");
+			button_width, 0, 0, 1.0f, "Giant");
 		ecdw_summon_giant_snake_button_id = button_add_extended(tab_summon3,
 			ecdw_summon_giant_snake_button_id, 
 			NULL, button_x + button_x_shift * 2, button_y + button_y_shift * 1,
-			button_width, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, "Sslessar");
+			button_width, 0, 0, 1.0f, "Sslessar");
 		ecdw_summon_spider_button_id = button_add_extended(tab_summon3,
 			ecdw_summon_spider_button_id, 
 			NULL, button_x + button_x_shift * 2, button_y + button_y_shift * 2,
-			button_width, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, "Spider");
+			button_width, 0, 0, 1.0f, "Spider");
 		ecdw_summon_tiger_button_id = button_add_extended(tab_summon3,
 			ecdw_summon_tiger_button_id, 
 			NULL, button_x + button_x_shift * 2, button_y + button_y_shift * 3,
-			button_width, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, "Tiger");
+			button_width, 0, 0, 1.0f, "Tiger");
 
 		// misc effect buttons
 		ecdw_alert_button_id = button_add_extended(tab_misc,
 			ecdw_alert_button_id, 
 			NULL, button_x + button_x_shift * 0, button_y + button_y_shift * 0,
-			button_width, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, "Alert");
+			button_width, 0, 0, 1.0f, "Alert");
 		ecdw_wind_leaves_button_id = button_add_extended(tab_misc,
 			ecdw_wind_leaves_button_id, 
 			NULL, button_x + button_x_shift * 0, button_y + button_y_shift * 1,
-			button_width, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, "wind leaves");
+			button_width, 0, 0, 1.0f, "wind leaves");
 		ecdw_clouds_button_id = button_add_extended(tab_misc,
 			ecdw_clouds_button_id, 
 			NULL, button_x + button_x_shift * 0, button_y + button_y_shift * 2,
-			button_width, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, "clouds");
+			button_width, 0, 0, 1.0f, "clouds");
 		ecdw_ongoing_magic_immunity_button_id = button_add_extended(tab_misc,
 			ecdw_ongoing_magic_immunity_button_id, 
 			NULL, button_x + button_x_shift * 1, button_y + button_y_shift * 0,
-			button_width, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, "OG Mag Immu");
+			button_width, 0, 0, 1.0f, "OG Mag Immu");
 		ecdw_ongoing_magic_protection_button_id = button_add_extended(tab_misc,
 			ecdw_ongoing_magic_protection_button_id, 
 			NULL, button_x + button_x_shift * 1, button_y + button_y_shift * 1,
-			button_width, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, "OG Mag Prot");
+			button_width, 0, 0, 1.0f, "OG Mag Prot");
 		ecdw_ongoing_poison_button_id = button_add_extended(tab_misc,
 			ecdw_ongoing_poison_button_id, 
 			NULL, button_x + button_x_shift * 1, button_y + button_y_shift * 2,
-			button_width, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, "OG Poison");
+			button_width, 0, 0, 1.0f, "OG Poison");
 		ecdw_ongoing_shield_button_id = button_add_extended(tab_misc,
 			ecdw_ongoing_shield_button_id, 
 			NULL, button_x + button_x_shift * 1, button_y + button_y_shift * 3,
-			button_width, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, "OG Shield");
+			button_width, 0, 0, 1.0f, "OG Shield");
 		ecdw_ongoing_harvesting_button_id = button_add_extended(tab_misc,
 			ecdw_ongoing_harvesting_button_id, 
 			NULL, button_x + button_x_shift * 2, button_y + button_y_shift * 0,
-			button_width, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, "OG Harvest");
+			button_width, 0, 0, 1.0f, "OG Harvest");
 		ecdw_ongoing_clear_button_id = button_add_extended(tab_misc,
 			ecdw_ongoing_clear_button_id, 
 			NULL, button_x + button_x_shift * 2, button_y + button_y_shift * 3,
-			button_width, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, "clear OG");
+			button_width, 0, 0, 1.0f, "clear OG");
 
 		// arrow effect buttons
 		ecdw_normal_arrow_button_id = button_add_extended(tab_arrows,
 			ecdw_normal_arrow_button_id, 
 			NULL, button_x + button_x_shift * 0, button_y + button_y_shift * 0,
-			button_width, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, "normal");
+			button_width, 0, 0, 1.0f, "normal");
 		ecdw_magic_arrow_button_id = button_add_extended(tab_arrows,
 			ecdw_magic_arrow_button_id, 
 			NULL, button_x + button_x_shift * 0, button_y + button_y_shift * 1,
-			button_width, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, "magic");
+			button_width, 0, 0, 1.0f, "magic");
 		ecdw_fire_arrow_button_id = button_add_extended(tab_arrows,
 			ecdw_fire_arrow_button_id, 
 			NULL, button_x + button_x_shift * 0, button_y + button_y_shift * 2,
-			button_width, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, "fire");
+			button_width, 0, 0, 1.0f, "fire");
 		ecdw_ice_arrow_button_id = button_add_extended(tab_arrows,
 			ecdw_ice_arrow_button_id, 
 			NULL, button_x + button_x_shift * 0, button_y + button_y_shift * 3,
-			button_width, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, "ice");
+			button_width, 0, 0, 1.0f, "ice");
 		ecdw_explosive_arrow_button_id = button_add_extended(tab_arrows,
 			ecdw_explosive_arrow_button_id, 
 			NULL, button_x + button_x_shift * 1, button_y + button_y_shift * 0,
-			button_width, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, "explosive");
+			button_width, 0, 0, 1.0f, "explosive");
 
 		// add button handlers
 

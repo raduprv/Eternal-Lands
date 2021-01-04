@@ -24,7 +24,6 @@
 #include "special_effects.h"
 
 
-int map_root_win = -1;
 static int showing_continent = 0;
 #ifdef DEBUG_MAP_SOUND
 extern int cur_tab_map;
@@ -55,12 +54,12 @@ static int click_map_handler (window_info *win, int mx, int my, Uint32 flags)
 	Uint32 ctrl_on = flags & KMOD_CTRL;
 	Uint32 left_click = flags & ELW_LEFT_MOUSE;
 	Uint32 right_click = flags & ELW_RIGHT_MOUSE;
-	float scale = (float) (win->len_x-hud_x) / 300.0f;
 
 	if (hud_click(win, mx, my, flags))
 		return 1;
 
-	if (left_click && mx > 0 && mx < 50*scale && my > 0 && my < 55*scale)
+	if (left_click && mx > small_map_screen_x_left && mx < small_map_screen_x_right
+		&& my > small_map_screen_y_top && my < small_map_screen_y_bottom)
 	{
 		showing_continent = !showing_continent;
 		inspect_map_text = 0;
@@ -83,19 +82,13 @@ static int click_map_handler (window_info *win, int mx, int my, Uint32 flags)
 	{
 		if (left_click)
 		{
-			int min_mouse_x = (window_width-hud_x)/6;
-			int min_mouse_y = 0;
-			
-			int max_mouse_x = min_mouse_x+((window_width-hud_x)/1.5);
-			int max_mouse_y = window_height - hud_y;
-			
-			int screen_map_width = max_mouse_x - min_mouse_x;
-			int screen_map_height = max_mouse_y - min_mouse_y;
+			int screen_map_width = main_map_screen_x_right - main_map_screen_x_left;
+			int screen_map_height = main_map_screen_y_bottom - main_map_screen_y_top;
 
 			int i;
 			/* Convert mouse coordinates to map coordinates (stolen from pf_get_mouse_position()) */
-			int m_px = ((mx-min_mouse_x) * 512) / screen_map_width;
-			int m_py = 512 - ((my * 512) / screen_map_height);
+			int m_px = ((mx-main_map_screen_x_left) * 512) / screen_map_width;
+			int m_py = 512 - ((my-main_map_screen_y_top) * 512) / screen_map_height;
 
 			/* Check if we clicked on a map */
 			for(i = 0; continent_maps[i].name != NULL; i++) {
@@ -119,7 +112,7 @@ static int click_map_handler (window_info *win, int mx, int my, Uint32 flags)
 			}
 		}
 	}
-	
+
 	return 1;
 }
 
@@ -127,10 +120,8 @@ static int display_map_handler (window_info * win)
 {
 	draw_hud_interface (win);
 	Leave2DMode ();
-	if(reload_tab_map && map_root_win >= 0 && windows_list.window[map_root_win].displayed){
-		//need to reload the BMP
-		switch_to_game_map();
-	}
+	if(reload_tab_map && windows_list.window[win->window_id].displayed)
+		switch_to_game_map(); //need to reload the BMP
 	draw_game_map (!showing_continent, mouse_over_minimap);
 	Enter2DMode ();
 	CHECK_GL_ERRORS ();
@@ -143,21 +134,13 @@ static int display_map_handler (window_info * win)
 
 static int mouseover_map_handler (window_info *win, int mx, int my)
 {
-	float scale = (float) (win->len_x-hud_x) / 300.0f;
-
 	if (hud_mouse_over(win, mx, my))
 		return 1;
 
-	if (mx > 0 && mx < 50*scale && my > 0 && my < 55*scale)
-	{
-		mouse_over_minimap = 1;
-	}
-	else
-	{
-		mouse_over_minimap = 0;
-	}
+	mouse_over_minimap = (mx > small_map_screen_x_left && mx < small_map_screen_x_right
+		&& my > small_map_screen_y_top && my < small_map_screen_y_bottom);
 	return mouse_over_minimap;
-}	
+}
 
 static int keypress_map_handler (window_info *win, int mx, int my, SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_mod)
 {
@@ -166,9 +149,9 @@ static int keypress_map_handler (window_info *win, int mx, int my, SDL_Keycode k
 		int i;
 
 		// if text wrapping just keep the text until the wrap.
-		for (i = 0; i < input_text_line.len; i++) 
+		for (i = 0; i < input_text_line.len; i++)
 		{
-			if (input_text_line.data[i] == '\n') 
+			if (input_text_line.data[i] == '\n')
 			{
 				input_text_line.data[i] = '\0';
 				break;
@@ -207,11 +190,10 @@ static int keypress_map_handler (window_info *win, int mx, int my, SDL_Keycode k
 	}
 	else
 	{
-		reset_tab_completer();
 		if (key_unicode == '`' || KEY_DEF_CMP(K_CONSOLE, key_code, key_mod))
 		{
-			hide_window (map_root_win);
-			show_window (console_root_win);
+			hide_window (win->window_id);
+			show_window_MW(MW_CONSOLE);
 		}
 		else if ( !text_input_handler (key_code, key_unicode, key_mod) )
 		{
@@ -225,8 +207,7 @@ static int keypress_map_handler (window_info *win, int mx, int my, SDL_Keycode k
 
 static int show_map_handler (window_info *win)
 {
-	hide_window(book_win);
-	hide_window(paper_win);
+	close_book_window();
 	hide_window(tab_bar_win);
 	return 1;
 }
@@ -235,6 +216,7 @@ static int resize_map_root_handler(window_info *win, int width, int height)
 {
 	if (get_show_window(win->window_id))
 		init_hud_interface (HUD_INTERFACE_GAME);
+	reload_tab_map = 1;
 	return 1;
 }
 
@@ -246,10 +228,12 @@ static int hide_map_handler (window_info * win)
 
 void create_map_root_window (int width, int height)
 {
+	int map_root_win = get_id_MW(MW_TABMAP);
 	if (map_root_win < 0)
 	{
 		map_root_win = create_window ("Map", -1, -1, 0, 0, width, height, ELW_USE_UISCALE|ELW_TITLE_NONE|ELW_SHOW_LAST);
-	
+		set_id_MW(MW_TABMAP, map_root_win);
+
 		set_window_handler (map_root_win, ELW_HANDLER_DISPLAY, &display_map_handler);
 		set_window_handler (map_root_win, ELW_HANDLER_KEYPRESS, (int (*)())&keypress_map_handler);
 		set_window_handler (map_root_win, ELW_HANDLER_CLICK, &click_map_handler);

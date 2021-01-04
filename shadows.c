@@ -601,11 +601,34 @@ CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
 }
 
+void setup_cloud_texturing(void)
+{
+	ELglActiveTextureARB(detail_unit);
+	if (!dungeon && clouds_shadows)
+	{
+		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE);
+		glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB, GL_MODULATE);
+		glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_RGB, GL_PREVIOUS);
+		glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_RGB, GL_SRC_COLOR);
+		glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE1_RGB, GL_TEXTURE);
+		glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND1_RGB, GL_SRC_COLOR);
+		glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA, GL_REPLACE);
+		glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_ALPHA, GL_PREVIOUS);
+		glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_ALPHA, GL_SRC_ALPHA);
+	}
+	else
+	{
+		glDisable(GL_TEXTURE_2D);
+		glBindTexture(GL_TEXTURE_2D, 0);
+	}
+	ELglActiveTextureARB(base_unit);
+}
+
 void draw_sun_shadowed_scene(int any_reflection)
 {
 	if(use_shadow_mapping)
 		{
-            reset_material();
+			reset_material();
 
 			shadow_unit=GL_TEXTURE0_ARB;
 			base_unit=GL_TEXTURE1_ARB;
@@ -618,10 +641,7 @@ void draw_sun_shadowed_scene(int any_reflection)
 			glEnable(depth_texture_target);
 			setup_shadow_mapping();
 
-			ELglActiveTextureARB(detail_unit);
-			glDisable(GL_TEXTURE_2D);
-			glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-			glBindTexture(GL_TEXTURE_2D,0);
+			setup_cloud_texturing();
 
 			ELglClientActiveTextureARB(base_unit);
 			ELglActiveTextureARB(base_unit);
@@ -685,9 +705,10 @@ void draw_sun_shadowed_scene(int any_reflection)
 		}
 	else
 		{
-
 			glNormal3f(0.0f,0.0f,1.0f);
 			if(any_reflection)draw_lake_tiles();
+
+			setup_cloud_texturing();
 
 			draw_tile_map();
 #ifdef MAP_EDITOR2

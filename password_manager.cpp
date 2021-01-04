@@ -32,6 +32,7 @@ extern "C"
 {
 	static int display_pm_handler(window_info *win);
 	static int ui_scale_pm_handler(window_info *win);
+	static int change_pm_font_handler(window_info *win, font_cat cat);
 	static int click_pm_handler(window_info *win, int mx, int my, Uint32 flags);
 	static int mouseover_pm_handler(window_info *win, int mx, int my);
 	static int click_show_password(widget_list *w, int mx, int my, Uint32 flags);
@@ -44,8 +45,8 @@ namespace Password_Manaager
 	class Login
 	{
 		public:
-			Login(std::string &the_name, std::string &the_password)
-				{ user_name = the_name; clear_password = the_password; }
+			Login(const std::string& the_name, const std::string& the_password):
+				user_name(the_name), clear_password(the_password) {}
 			const std::string & get_name(void) const { return user_name; }
 			const std::string & get_password(void) const { return clear_password; }
 			static bool sort_compare(const Login &a, const Login &b);
@@ -75,14 +76,14 @@ namespace Password_Manaager
 				{ load(); }
 			void load(void);
 			void set_details(void) const;
-			void add(std::string user_name, std::string password);
+			void add(const std::string& user_name, const std::string& password);
 			void pending_change(const char * old_and_new_password);
 			void confirm_change(void);
 			size_t size(void) const { return logins.size(); }
 			std::vector<Login>::const_iterator begin() const { return logins.begin(); }
 			std::vector<Login>::const_iterator end() const { return logins.end(); }
 		private:
-			bool common_add(std::string user_name, std::string password);
+			bool common_add(const std::string& user_name, const std::string& password);
 			void save(void);
 			std::string pending_old_and_new_password;
 			std::vector<Login> logins;
@@ -93,7 +94,7 @@ namespace Password_Manaager
 	//	Add if the specified username/password are valid and new or modified.
 	//	Return true if added.
 	//
-	bool Logins::common_add(std::string user_name, std::string password)
+	bool Logins::common_add(const std::string& user_name, const std::string& password)
 	{
 		if ((user_name.size() >= MAX_USERNAME_LENGTH) || (password.size()  >= MAX_USERNAME_LENGTH))
 		{
@@ -120,7 +121,7 @@ namespace Password_Manaager
 
 	//	Add a single new username/password pair if valid and new, then save.  Not used when loading from file.
 	//
-	void Logins::add(std::string user_name, std::string password)
+	void Logins::add(const std::string& user_name, const std::string& password)
 	{
 		if (common_add(user_name, password))
 		{
@@ -220,6 +221,7 @@ namespace Password_Manaager
 			int click(Logins *logins, window_info *win, int mx, int my, Uint32 flags);
 			int mouseover(Logins *logins, window_info *win, int mx, int my);
 			int ui_scale(Logins *logins, window_info *win);
+			int change_font(Logins *logins, window_info *win, eternal_lands::FontManager::Category cat);
 			void toggle_show_password(Logins *logins, widget_list *w);
 			void resize(Logins *logins) { ui_scale(logins, &windows_list.window[window_id]); }
 		private:
@@ -240,34 +242,48 @@ namespace Password_Manaager
 		size_t max_available = static_cast<size_t>(0.8 * window_height - 2 * border_y + username_sep_y) / (username_sep_y + win->default_font_len_y);
 		max_displayed = std::min(max_available, logins->size());
 		int height = 2 * border_y + max_displayed * win->default_font_len_y + (max_displayed - 1) * username_sep_y;
-		int width = 2 * border_x + win->default_font_len_x * (MAX_USERNAME_LENGTH - 1) + win->box_size;
+		int width = 2 * border_x + win->default_font_max_len_x * (MAX_USERNAME_LENGTH - 1) + win->box_size;
 		if (show_passwords)
-			width += border_x + win->default_font_len_x * (MAX_USERNAME_LENGTH - 1);
+			width += border_x + win->default_font_max_len_x * (MAX_USERNAME_LENGTH - 1);
 		height = std::max(height, 4 * win->box_size);
 
+		int y_box, y_label;
 		if (checkbox_id > 0)
 			widget_destroy(win->window_id, checkbox_id);
 		if (checkbox_label_id > 0)
 			widget_destroy(win->window_id, checkbox_label_id);
-		checkbox_id = checkbox_add_extended(win->window_id,  2, NULL, border_x, height,
-			win->box_size, win->box_size, 0, win->current_scale,  0.77f, 0.57f, 0.39f, &show_passwords);
-		checkbox_label_id = label_add_extended(window_id, 3, NULL, 2 * border_x + win->box_size, height, 0, win->current_scale, 0.77f, 0.57f, 0.39f, show_passwords_str);
+		if (win->box_size >= win->default_font_len_y)
+		{
+			y_box = height;
+			y_label = height + (win->box_size - win->default_font_len_y) / 2;
+		}
+		else
+		{
+			y_box = height + (win->default_font_len_y - win->box_size) / 2;
+			y_label = height;
+		}
+		checkbox_id = checkbox_add_extended(win->window_id, 2, NULL, border_x, y_box,
+			win->box_size, win->box_size, 0, win->current_scale, &show_passwords);
+		checkbox_label_id = label_add_extended(window_id, 3, NULL, 2 * border_x + win->box_size, y_label, 0, win->current_scale, show_passwords_str);
 		widget_set_OnClick(window_id, checkbox_id, (int (*)())&click_show_password);
 		widget_set_OnClick(window_id, checkbox_label_id, (int (*)())&click_show_password);
-		height += win->box_size + border_y;
+		height += std::max(win->box_size, win->default_font_len_y) + border_y;
 		width = std::max(width, 4 * border_x + 2 * win->box_size + widget_get_width(win->window_id, checkbox_label_id));
 
 		widget_resize(win->window_id, scroll_id, win->box_size, height - win->box_size);
 		widget_move(win->window_id, scroll_id, width - win->box_size, win->box_size);
-#ifdef ANDROID
-// ANDROID_TODO fix in main client?
-		vscrollbar_set_bar_len(win->window_id, scroll_id, ((max_displayed > logins->size()) ?0: logins->size() - max_displayed));
-#else
-		vscrollbar_set_bar_len(win->window_id, scroll_id, ((logins->size() - max_displayed < 0) ?0: logins->size() - max_displayed));
-#endif
+		vscrollbar_set_bar_len(win->window_id, scroll_id, ((logins->size() < max_displayed) ?0: logins->size() - max_displayed));
 
 		resize_window(window_id, width, height);
 		move_window(window_id, win->pos_id, win->pos_loc, window_width / 2 + ((window_width / 2 - width) / 2), (window_height - height) / 2);
+		return 1;
+	}
+
+	int Window::change_font(Logins *logins, window_info *win, eternal_lands::FontManager::Category cat)
+	{
+		if (cat != win->font_category)
+			return 0;
+		ui_scale(logins, win);
 		return 1;
 	}
 
@@ -354,7 +370,7 @@ namespace Password_Manaager
 				glColor3f(1.0f, 1.0f, 1.0f);
 			draw_string_zoomed (border_x, border_y + y, (const unsigned char*)curr->get_name().c_str(), 1, win->current_scale);
 			if (show_passwords)
-				draw_string_zoomed (2 * border_x + win->default_font_len_x * (MAX_USERNAME_LENGTH - 1), border_y + y, (const unsigned char*)curr->get_password().c_str(), 1, win->current_scale);
+				draw_string_zoomed (2 * border_x + win->default_font_max_len_x * (MAX_USERNAME_LENGTH - 1), border_y + y, (const unsigned char*)curr->get_password().c_str(), 1, win->current_scale);
 			y += win->default_font_len_y + username_sep_y;
 		}
 		mouse_over_line = -1;
@@ -373,7 +389,8 @@ namespace Password_Manaager
 			set_window_handler (window_id, ELW_HANDLER_CLICK, (int (*)())&click_pm_handler);
 			set_window_handler (window_id, ELW_HANDLER_SHOW, (int (*)())&ui_scale_pm_handler);
 			set_window_handler (window_id, ELW_HANDLER_UI_SCALE, (int (*)())&ui_scale_pm_handler);
-			scroll_id = vscrollbar_add_extended (window_id, 1, NULL, 0, 0, 0, 0, 0, 1.0, 0.77f, 0.57f, 0.39f, 0, 1, 0);
+			set_window_handler (window_id, ELW_HANDLER_FONT_CHANGE, (int (*)())&change_pm_font_handler);
+			scroll_id = vscrollbar_add_extended (window_id, 1, NULL, 0, 0, 0, 0, 0, 1.0, 0, 1, 0);
 			if (window_id >=0 && window_id < windows_list.num_windows)
 				ui_scale_pm_handler(&windows_list.window[window_id]);
 		}
@@ -395,6 +412,7 @@ static Password_Manaager::Window * pm_window = 0;
 
 static int display_pm_handler(window_info *win) { return pm_window->display(logins, win); }
 static int ui_scale_pm_handler(window_info *win) { return pm_window->ui_scale(logins, win); }
+static int change_pm_font_handler(window_info *win, font_cat cat) { return pm_window->change_font(logins, win, cat); }
 static int click_pm_handler(window_info *win, int mx, int my, Uint32 flags) { return pm_window->click(logins, win, mx, my, flags); }
 static int mouseover_pm_handler(window_info *win, int mx, int my) { return pm_window->mouseover(logins, win, mx, my); }
 static int click_show_password(widget_list *w, int mx, int my, Uint32 flags) { pm_window->toggle_show_password(logins, w); return 1; }

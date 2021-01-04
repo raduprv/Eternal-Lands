@@ -35,10 +35,6 @@ typedef struct
    unsigned char type;
 }_buddy;
 
-int buddy_win=-1;
-int buddy_menu_x=150;
-int buddy_menu_y=70;
-
 static int buddy_scroll_id = 0;
 static int buddy_button_id = 1;
 static int buddy_menu_x_len=0;
@@ -137,18 +133,18 @@ static int display_buddy_handler(window_info *win)
 	//Draw a button for the requests
 	if(!queue_isempty(buddy_request_queue)) {
 		glDisable(GL_TEXTURE_2D);
-		//glColor3f(0.77f, 0.59f, 0.39f);
+		//glColor3fv(gui_color);
 		glColor3f(0.3, 1, 0.3);
 		glBegin(GL_LINE_LOOP);
-			glVertex2i(request_box_start_x - win->small_font_len_x, 0);
+			glVertex2i(request_box_start_x - win->small_font_max_len_x, 0);
 			glVertex2i(request_box_start_x, win->small_font_len_y + 1);
 			glVertex2i(win->len_x - win->box_size - 1, win->small_font_len_y + 1);
 			glVertex2i(win->len_x - win->box_size - 1, 0);
 		glEnd();
 		glEnable(GL_TEXTURE_2D);
-		draw_string_small_zoomed(request_box_start_x + win->small_font_len_x + gx_adjust, 2 + gy_adjust, (unsigned char*)buddy_request_str, 1, win->current_scale);
+		draw_string_small_zoomed(request_box_start_x + win->small_font_max_len_x, 0, (unsigned char*)buddy_request_str, 1, win->current_scale);
 	}
-	glColor3f(0.77f, 0.57f, 0.39f);
+	glColor3fv(gui_color);
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
@@ -163,10 +159,10 @@ static int click_buddy_handler (window_info *win, int mx, int my, Uint32 flags)
 
 	// scroll the winow with the mouse wheel
 	if(flags & ELW_WHEEL_UP) {
-		vscrollbar_scroll_up(buddy_win,buddy_scroll_id);
+		vscrollbar_scroll_up(win->window_id, buddy_scroll_id);
 		return 1;
 	} else if(flags & ELW_WHEEL_DOWN) {
-		vscrollbar_scroll_down(buddy_win,buddy_scroll_id);
+		vscrollbar_scroll_down(win->window_id, buddy_scroll_id);
 		return 1;
 	}
 
@@ -177,7 +173,7 @@ static int click_buddy_handler (window_info *win, int mx, int my, Uint32 flags)
 	if(x > (win->len_x - win->box_size)) {
 		//Clicked on the scrollbar. Let it fall through.
 		return 0;
-	} else if(!queue_isempty(buddy_request_queue) && mx > (request_box_start_x - win->small_font_len_x) && y < (win->small_font_len_y + 1)) {
+	} else if(!queue_isempty(buddy_request_queue) && mx > (request_box_start_x - win->small_font_max_len_x) && y < (win->small_font_len_y + 1)) {
 		//Clicked on the requests button
 		while(!queue_isempty(buddy_request_queue)) {
 			char *name = queue_pop(buddy_request_queue);
@@ -186,12 +182,16 @@ static int click_buddy_handler (window_info *win, int mx, int my, Uint32 flags)
 		}
 		return 1;
 	}
-	
+
+	if (y < 0)
+        // Clicked above the names
+        return 0;
+
 	// clicked on a buddy's name
 	y /= buddy_name_step_y;
 	if (y >= num_displayed_buddies)
 		return 0;
-	y += vscrollbar_get_pos(buddy_win,buddy_scroll_id);
+	y += vscrollbar_get_pos(win->window_id, buddy_scroll_id);
 	if((strlen(buddy_list[y].name) == 0)||(buddy_list[y].type > 0xFE)) {
 		//There's no name. Fall through.
 		return 0;
@@ -275,40 +275,17 @@ static int click_change_buddy_handler(widget_list *w, int mx, int my, Uint32 fla
 	return 1;
 }
 
-void split_long_show_help(window_info *win, const char *str, int x, int y)
+static void split_long_show_help(window_info *win, const char *str, int x, int y)
 {
-	size_t max_width = (int)(0.5 + win->len_x / win->small_font_len_x);
 	size_t str_len = strlen(str);
-	size_t last_space_in_index = 0;
-	size_t last_space_out_index = 0;
-	size_t in_index = 0;
-	size_t out_index = 0;
-	size_t num_lines = 0;
-	char *tmp_str = (char *)malloc(str_len + 1);
-	
-	while (in_index < str_len)
-	{
-		tmp_str[out_index] = str[in_index];
-		if (tmp_str[out_index] == ' ')
-		{
-			last_space_in_index = in_index;
-			last_space_out_index = out_index;
-		}
-		if ((++out_index > max_width) && last_space_out_index)
-		{
-			tmp_str[last_space_out_index] = '\0';
-			in_index = last_space_in_index;
-			last_space_out_index = out_index = 0;
-			show_help(tmp_str, x, y + num_lines++ * win->small_font_len_y, win->current_scale);
-		}
-		in_index++;
-	}
+	unsigned char *tmp = malloc(str_len + 5);
 
-	tmp_str[out_index] = '\0';
-	show_help(tmp_str, x, y + num_lines++ * win->small_font_len_y, win->current_scale);
-	free(tmp_str);
+	put_small_text_in_box_zoomed((const unsigned char*)str, str_len, win->len_x,
+		tmp, win->current_scale);
+	show_help((const char*)tmp, x, y, win->current_scale);
+
+	free(tmp);
 }
-
 
 static int name_onmouseover_handler(widget_list *widget, int mx, int my)
 {
@@ -335,8 +312,8 @@ static int display_accept_buddy_handler(window_info *win)
 {
 	if(win != NULL) {
 		int i;
-		
-		glColor3f(0.77f, 0.57f, 0.39f);
+
+		glColor3fv(gui_color);
 		for(i = 0; i < MAX_ACCEPT_BUDDY_WINDOWS; i++) {
 			if(accept_windows[i].window_id == win->window_id) {
 				draw_string_small_zoomed(buddy_border_space, buddy_border_space, (unsigned char*)accept_windows[i].text, 2, win->current_scale);
@@ -434,28 +411,30 @@ int display_buddy_add(void)
 		int label_width = 0;
 		int win_x_len = 0;
 		int win_y_len = 0;
+		int cw;
 
 		/* Create the window */
-		buddy_add_win = create_window(buddy_add_str, buddy_win, 0, buddy_menu_x_len/2, buddy_menu_y_len/4, 0, 0, ELW_USE_UISCALE|ELW_WIN_DEFAULT);
+		buddy_add_win = create_window(buddy_add_str, get_id_MW(MW_BUDDY), 0, buddy_menu_x_len/2, buddy_menu_y_len/4, 0, 0, ELW_USE_UISCALE|ELW_WIN_DEFAULT);
 		if (buddy_add_win <=0 || buddy_add_win >= windows_list.num_windows)
 			return -1;
 		win = &windows_list.window[buddy_add_win];
-		set_window_custom_scale(buddy_add_win, &custom_scale_factors.buddy);
+		set_window_custom_scale(buddy_add_win, MW_BUDDY);
 
 		/* Add name input and label */
+		cw = get_avg_char_width_zoom(UI_FONT, win->current_scale);
 		label_id = label_add_extended(buddy_add_win, label_id, NULL,
-			buddy_border_space, buddy_border_space, 0, win->current_scale, 0.77f, 0.57f, 0.39f, buddy_name_str);
+			buddy_border_space, buddy_border_space, 0, win->current_scale, buddy_name_str);
 		label_width = widget_get_width(buddy_add_win, label_id);
 		input_id = pword_field_add_extended(buddy_add_win, input_id, NULL,
 			2 * buddy_border_space + label_width, buddy_border_space,
-			MAX_USERNAME_LENGTH * win->default_font_len_x, win->default_font_len_y + buddy_border_space,
-			P_TEXT, win->current_scale, 0.77f, 0.57f, 0.39f, buddy_name_buffer, MAX_USERNAME_LENGTH);
+			MAX_USERNAME_LENGTH * cw, win->default_font_len_y + buddy_border_space,
+			P_TEXT, win->current_scale, buddy_name_buffer, MAX_USERNAME_LENGTH);
 		widget_set_OnMouseover(buddy_add_win, label_id, name_onmouseover_handler);
 		widget_set_OnMouseover(buddy_add_win, input_id, name_onmouseover_handler);
 		widget_set_OnKey(buddy_add_win, input_id, (int (*)())name_input_keypress_handler);
 
 		/* Add "Add buddy" button */
-		button_id = button_add_extended(buddy_add_win, button_id, NULL, 0, 0, 0, 0, 0, win->current_scale, 0.77f, 0.57f, 0.39f, buddy_add_str);
+		button_id = button_add_extended(buddy_add_win, button_id, NULL, 0, 0, 0, 0, 0, win->current_scale, buddy_add_str);
 		widget_set_OnClick(buddy_add_win, button_id, click_add_buddy_handler);
 
 		/* Resize window and centre button */
@@ -490,20 +469,20 @@ static int display_buddy_change(_buddy *buddy)
 	}
 
 	/* Create the window */
-	buddy_change_win = create_window(buddy_change_str, buddy_win, 0, buddy_menu_x_len/2, buddy_menu_y_len/4, 0, 0, ELW_USE_UISCALE|ELW_WIN_DEFAULT);
+	buddy_change_win = create_window(buddy_change_str, get_id_MW(MW_BUDDY), 0, buddy_menu_x_len/2, buddy_menu_y_len/4, 0, 0, ELW_USE_UISCALE|ELW_WIN_DEFAULT);
 	if (buddy_change_win <=0 || buddy_change_win >= windows_list.num_windows)
 		return -1;
 	win = &windows_list.window[buddy_change_win];
-	set_window_custom_scale(buddy_change_win, &custom_scale_factors.buddy);
+	set_window_custom_scale(buddy_change_win, MW_BUDDY);
 
 	/* Add name label and name */
 	label_id = label_add_extended(buddy_change_win, label_id, NULL,
-		buddy_border_space, buddy_border_space, 0, win->current_scale, 0.77f, 0.57f, 0.39f, buddy_name_str);
+		buddy_border_space, buddy_border_space, 0, win->current_scale, buddy_name_str);
 	tmp_width = widget_get_width(buddy_change_win, label_id);
 	name_id = label_add_extended(buddy_change_win, name_id, NULL,
-		2 * buddy_border_space + tmp_width, buddy_border_space, 0, win->current_scale, 0.77f, 0.57f, 0.39f, buddy_to_change);
+		2 * buddy_border_space + tmp_width, buddy_border_space, 0, win->current_scale, buddy_to_change);
 
-	buddy_change_x_len = 3 * buddy_border_space + tmp_width + MAX_USERNAME_LENGTH * win->default_font_len_x + win->box_size;
+	buddy_change_x_len = 3 * buddy_border_space + tmp_width + MAX_USERNAME_LENGTH * win->default_font_max_len_x + win->box_size;
 	buddy_change_y_len = 2 * buddy_border_space + widget_get_height(buddy_change_win, name_id);
 
 	buddy_type_input_id = -1;
@@ -515,17 +494,20 @@ static int display_buddy_change(_buddy *buddy)
 
 		/* Add type label and input widget */
 		type_label_id = label_add_extended(buddy_change_win, type_label_id, NULL,
-			buddy_border_space, buddy_change_y_len, 0, win->current_scale, 0.77f, 0.57f, 0.39f, buddy_type_str);
+			buddy_border_space, buddy_change_y_len, 0, win->current_scale, buddy_type_str);
 		tmp_width = widget_get_width(buddy_change_win, type_label_id);
 
 		buddy_type_input_id = multiselect_add(buddy_change_win, NULL,
 			2 * buddy_border_space + tmp_width, buddy_change_y_len, buddy_change_x_len - tmp_width - 3 * buddy_border_space);
 		for (i=0; i<num_type_labels; i++)
+		{
 			multiselect_button_add_extended(buddy_change_win, buddy_type_input_id,
-				0, i * 25 * win->current_scale, 0, type_labels_text[i], DEFAULT_SMALL_RATIO * win->current_scale, i==0);
+				0, i * 25 * win->current_scale, 0, type_labels_text[i],
+				win->current_scale_small, i==0);
+		}
 		multiselect_set_selected(buddy_change_win, buddy_type_input_id, buddy->type);
 
-		widget_set_OnMouseover(buddy_change_win, label_id, type_onmouseover_handler);
+		widget_set_OnMouseover(buddy_change_win, type_label_id, type_onmouseover_handler);
 		widget_set_OnMouseover(buddy_change_win, buddy_type_input_id, type_onmouseover_handler);
 
 		if ((3 * buddy_border_space + tmp_width + widget_get_width(buddy_change_win, buddy_type_input_id)) > buddy_change_x_len)
@@ -536,8 +518,9 @@ static int display_buddy_change(_buddy *buddy)
 	/* Delete buddy checkbox and label */
 	checkbox_id = checkbox_add(buddy_change_win, NULL, 0, 0, win->default_font_len_y, win->default_font_len_y, &buddy_delete);
 	checkbox_label_id = label_add_extended(buddy_change_win, checkbox_label_id, NULL,
-		0, 0, 0, win->current_scale, 0.77f, 0.59f, 0.39f, buddy_delete_str);
+		0, 0, 0, win->current_scale, buddy_delete_str);
 	widget_set_OnClick(buddy_change_win, checkbox_label_id, click_delete_checkbox_label);
+	widget_set_OnMouseover(buddy_change_win, checkbox_id, delete_onmouseover_handler);
 	widget_set_OnMouseover(buddy_change_win, checkbox_label_id, delete_onmouseover_handler);
 	tmp_width = widget_get_width(buddy_change_win, checkbox_id) + buddy_border_space + widget_get_width(buddy_change_win, checkbox_label_id);
 	widget_move(buddy_change_win, checkbox_id, (buddy_change_x_len - tmp_width) / 2, buddy_change_y_len);
@@ -547,7 +530,7 @@ static int display_buddy_change(_buddy *buddy)
 
 	/* Change button */
 	change_button_id = button_add_extended(buddy_change_win, change_button_id, NULL,
-		0, 0, 0, 0, 0, win->current_scale, 0.77f, 0.57f, 0.39f, buddy_change_str);
+		0, 0, 0, 0, 0, win->current_scale, buddy_change_str);
 	widget_set_OnClick(buddy_change_win, change_button_id, click_change_buddy_handler);
 	widget_move(buddy_change_win, change_button_id,
 		(buddy_change_x_len - widget_get_width(buddy_change_win, change_button_id)) / 2, buddy_change_y_len);
@@ -586,12 +569,13 @@ static int ui_scale_accept_handler(window_info *win)
 		return 0;
 
 	safe_snprintf(string, sizeof(string), buddy_wants_to_add_str, accept_windows[current_window].name);
-	put_small_colored_text_in_box_zoomed(c_blue1, (unsigned char*)string, strlen(string),
-		win_width - 2 * buddy_border_space, accept_windows[current_window].text, win->current_scale);
+	put_small_colored_text_in_box_zoomed(c_blue1, (const unsigned char*)string, strlen(string),
+		win_width - 2 * buddy_border_space, (unsigned char*) accept_windows[current_window].text,
+		win->current_scale);
 
 	widget_resize(win->window_id, accept_windows[current_window].checkbox, win->small_font_len_y, win->small_font_len_y);
 	widget_move(win->window_id, accept_windows[current_window].checkbox, buddy_border_space, win_height);
-	widget_set_size(win->window_id, label_id, win->current_scale* DEFAULT_SMALL_RATIO);
+	widget_set_size(win->window_id, label_id, win->current_scale_small);
 	widget_move(win->window_id, label_id, 2 * buddy_border_space + win->small_font_len_y, win_height);
 	win_height += widget_get_height(win->window_id, accept_windows[current_window].checkbox) + 2 * buddy_border_space;
 
@@ -628,7 +612,7 @@ static int display_accept_buddy(char *name)
 
 	safe_snprintf(accept_windows[current_window].name, sizeof (accept_windows[current_window].name), "%s", name);
 
-	accept_windows[current_window].window_id = create_window(buddy_accept_str, buddy_win, 0,
+	accept_windows[current_window].window_id = create_window(buddy_accept_str, get_id_MW(MW_BUDDY), 0,
 		buddy_menu_x_len/2, buddy_menu_y_len/4, 0, 0, (ELW_USE_UISCALE|ELW_WIN_DEFAULT) ^ ELW_CLOSE_BOX);
 	set_window_handler(accept_windows[current_window].window_id, ELW_HANDLER_DISPLAY, &display_accept_buddy_handler);
 	set_window_handler(accept_windows[current_window].window_id, ELW_HANDLER_UI_SCALE, &ui_scale_accept_handler );
@@ -645,16 +629,16 @@ static int display_accept_buddy(char *name)
 	{
 		accept_windows[current_window].checkbox = checkbox_add(win->window_id, NULL,
 			0, 0, win->small_font_len_y, win->small_font_len_y, NULL);
+		widget_unset_color(win->window_id, accept_windows[current_window].checkbox);
 		label_id = label_add_extended(win->window_id, label_id, NULL,
-			0, 0, 0, win->current_scale * DEFAULT_SMALL_RATIO, -1, -1, -1, buddy_add_to_list_str);
+			0, 0, 0, win->current_scale_small, buddy_add_to_list_str);
+		widget_unset_color(win->window_id, label_id);
 		widget_set_OnClick(win->window_id, label_id, click_accept_checkbox_label);
 	}
 
 	/* Add buttons */
-	yes_button = button_add_extended(win->window_id, yes_button, NULL,
-		0, 0, 0, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, yes_str);
-	no_button = button_add_extended(win->window_id, no_button, NULL,
-		0, 0, 0, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, no_str);
+	yes_button = button_add_extended(win->window_id, yes_button, NULL, 0, 0, 0, 0, 0, 1.0f, yes_str);
+	no_button = button_add_extended(win->window_id, no_button, NULL, 0, 0, 0, 0, 0, 1.0f, no_str);
 	widget_set_OnClick(win->window_id, yes_button, click_accept_yes);
 	widget_set_OnClick(win->window_id, no_button, click_accept_no);
 
@@ -683,23 +667,26 @@ static void set_scrollbar_len(void)
 	for (i = 0; i < MAX_BUDDY; i++)
 		if (buddy_list[i].type != 0xff)
 			num_buddies++;
-	vscrollbar_set_bar_len(buddy_win, buddy_scroll_id, ((num_buddies - num_displayed_buddies < 0) ?0: num_buddies - num_displayed_buddies));
+	vscrollbar_set_bar_len(get_id_MW(MW_BUDDY), buddy_scroll_id, ((num_buddies - num_displayed_buddies < 0) ?0: num_buddies - num_displayed_buddies));
 }
 
 static int ui_scale_buddy_handler(window_info *win)
 {
-	int button_len_y = (int)(0.5 + win->current_scale * 20);
+	int button_len_y = win->default_font_len_y + 4*win->current_scale;
 	buddy_border_space = (int)(0.5 + win->current_scale * 5);
 #if ANDROID
-	buddy_name_step_y = (int)(0.5 + win->current_scale * 20);
+	buddy_name_step_y = 1.5 * get_line_height(win->font_category, win->current_scale_small);
 #else
-	buddy_name_step_y = (int)(0.5 + win->current_scale * 12);
+	buddy_name_step_y = get_line_height(win->font_category, win->current_scale_small);
 #endif
 
-	buddy_menu_x_len = win->box_size + MAX_USERNAME_LENGTH * win->small_font_len_x + 2 * buddy_border_space;
+	buddy_menu_x_len = win->box_size + MAX_USERNAME_LENGTH * win->small_font_max_len_x + 2 * buddy_border_space;
 	buddy_menu_y_len = button_len_y + 2* buddy_border_space + num_displayed_buddies * buddy_name_step_y;
 
-	request_box_start_x = buddy_menu_x_len - win->box_size - (int)(0.5 + (strlen(buddy_request_str) + 2) * win->small_font_len_x);
+	request_box_start_x = buddy_menu_x_len - win->box_size
+		- get_string_width_zoom((const unsigned char*)buddy_request_str,
+			win->font_category, win->current_scale_small)
+		- 2 * win->small_font_max_len_x;
 
 	resize_window(win->window_id, buddy_menu_x_len, buddy_menu_y_len);
 
@@ -722,27 +709,37 @@ static int ui_scale_buddy_handler(window_info *win)
 	return 1;
 }
 
+static int change_buddy_font_handler(window_info *win, font_cat cat)
+{
+	if (cat != UI_FONT)
+		return 0;
+	return ui_scale_buddy_handler(win);
+}
+
 void display_buddy(void)
 {
+	int buddy_win = get_id_MW(MW_BUDDY);
+
 	if(buddy_win < 0)
 		{
-			int our_root_win = -1;
-			if (!windows_on_top) {
-				our_root_win = game_root_win;
-			}
-			buddy_win = create_window(win_buddy, our_root_win, 0, buddy_menu_x, buddy_menu_y, 0, 0, ELW_USE_UISCALE|ELW_WIN_DEFAULT);
+			buddy_win = create_window(win_buddy, (not_on_top_now(MW_BUDDY) ?game_root_win : -1), 0,
+				get_pos_x_MW(MW_BUDDY), get_pos_y_MW(MW_BUDDY), 0, 0, ELW_USE_UISCALE|ELW_WIN_DEFAULT);
+			set_id_MW(MW_BUDDY, buddy_win);
 
-			set_window_custom_scale(buddy_win, &custom_scale_factors.buddy);
+			set_window_custom_scale(buddy_win, MW_BUDDY);
 			set_window_handler(buddy_win, ELW_HANDLER_DISPLAY, &display_buddy_handler );
 			set_window_handler(buddy_win, ELW_HANDLER_CLICK, &click_buddy_handler );
 			set_window_handler(buddy_win, ELW_HANDLER_UI_SCALE, &ui_scale_buddy_handler );
+			set_window_handler(buddy_win, ELW_HANDLER_FONT_CHANGE, &change_buddy_font_handler);
 
-			buddy_scroll_id = vscrollbar_add_extended (buddy_win, buddy_scroll_id, NULL, 0, 0, 0, 0, 0, 1.0, 0.77f, 0.57f, 0.39f, 0, 1, 0);
-			buddy_button_id = button_add_extended(buddy_win, buddy_button_id, NULL, 0, 0, 0, 0, BUTTON_SQUARE, 1.0, 0.77f, 0.57f, 0.39f, buddy_add_str);
+			buddy_scroll_id = vscrollbar_add_extended (buddy_win, buddy_scroll_id, NULL, 0, 0, 0, 0, 0, 1.0, 0, 1, 0);
+			buddy_button_id = button_add_extended(buddy_win, buddy_button_id, NULL, 0, 0, 0, 0,
+				BUTTON_SQUARE|BUTTON_VCENTER_CONTENT, 1.0, buddy_add_str);
 			widget_set_OnClick(buddy_win, buddy_button_id, click_buddy_button_handler);
 
 			if (buddy_win >=0 && buddy_win < windows_list.num_windows)
 				ui_scale_buddy_handler(&windows_list.window[buddy_win]);
+			check_proportional_move(MW_BUDDY);
 		}
 	else
 		{

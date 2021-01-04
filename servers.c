@@ -1,6 +1,7 @@
 #include <string.h>
 #include "servers.h"
 #include "asc.h"
+#include "elconfig.h"
 #include "errors.h"
 #include "gl_init.h"
 #include "misc.h"
@@ -59,7 +60,7 @@ void set_server_details()
 	num = find_server_from_id(id);
 	if (num == -1)
 	{
-		// Oops... what they they specify on the command line?
+		// Oops... what did they specify on the command line?
 		LOG_ERROR("Server profile not found in servers.lst for server: %s. Failover to server: main.", id);
 		// Failover to the main server
 		num = find_server_from_id("main");
@@ -86,12 +87,12 @@ void set_server_details()
 		
 		mkdir_tree(get_path_config(), 0);
 		// First, try to copy the ini file out of $CONF/main
-		safe_snprintf(src, sizeof(src), "%smain/el.ini", get_path_config_base());
-		safe_snprintf(dest, sizeof(dest), "%sel.ini", get_path_config());
+		safe_snprintf(src, sizeof(src), "%smain/%s", get_path_config_base(), ini_filename);
+		safe_snprintf(dest, sizeof(dest), "%s%s", get_path_config(), ini_filename);
 		copy_file(src, dest);
 		// Secondly, try to copy the ini file out of $CONF (this will fail without harm if above succeeds)
-		safe_snprintf(src, sizeof(src), "%s/el.ini", get_path_config_base());
-		safe_snprintf(dest, sizeof(dest), "%sel.ini", get_path_config());
+		safe_snprintf(src, sizeof(src), "%s/%s", get_path_config_base(), ini_filename);
+		safe_snprintf(dest, sizeof(dest), "%s%s", get_path_config(), ini_filename);
 		copy_file(src, dest);
 	}
 }
@@ -296,7 +297,7 @@ void draw_server_sel_interface (int len_x, int len_y)
 /*	Possibly use this box to display the list of files updated?
 	
 	glDisable(GL_TEXTURE_2D);
-	glColor3f(0.77f,0.57f,0.39f);
+	glColor3fv(gui_color);
 	glBegin(GL_LINES);
 	glVertex3i(diff + 30 * window_ratio, 50 * window_ratio, 0);
 	glVertex3i(len_x - (diff + 30 * window_ratio) - 20, 50 * window_ratio, 0);
@@ -372,7 +373,7 @@ void create_server_sel_root_window (int width, int height)
 		
 		server_sel_root_win = create_window("Server Selection", -1, -1, 0, 0, width, height, ELW_TITLE_NONE|ELW_SHOW_LAST);
 
-//		server_sel_root_connect_id = button_add_extended(server_sel_root_win, server_sel_root_connect_id, NULL, (width - connect_width) /2, height - (160 * window_ratio), connect_width, connect_height, 0, 1.0f, 1.0f, 1.0f, 1.0f, "Connect");
+//		server_sel_root_connect_id = button_add_extended(server_sel_root_win, server_sel_root_connect_id, NULL, (width - connect_width) /2, height - (160 * window_ratio), connect_width, connect_height, 0, 1.0f, "Connect");
 
 		set_window_handler (server_sel_root_win, ELW_HANDLER_DISPLAY, &display_server_sel_root_handler);
 		set_window_handler (server_sel_root_win, ELW_HANDLER_CLICK, &click_server_sel_root_handler);

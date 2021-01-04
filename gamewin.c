@@ -18,9 +18,6 @@
 #include "elconfig.h"
 #include "emotes.h"
 #include "events.h"
-#ifdef ECDEBUGWIN
-#include "eye_candy_debugwin.h"
-#endif
 #include "eye_candy_wrapper.h"
 #include "gl_init.h"
 #include "highlight.h"
@@ -85,7 +82,34 @@ static int ranging_lock = 0;
 #ifdef NEW_CURSOR
 static int cursors_tex;
 #endif // NEW_CURSOR
+static int fps_center_x = 0;
 static int fps_default_width = 0;
+static int action_mode = ACTION_WALK;
+static int last_action_mode = ACTION_WALK;
+
+// Set the game root window action mode
+void set_gamewin_action_mode(int new_mode)
+{
+	action_mode = new_mode;
+}
+
+// save the current mode so it can be restored later
+void save_gamewin_action_mode(void)
+{
+	last_action_mode = action_mode;
+}
+
+// return the last saved action mode
+int retrieve_gamewin_action_mode(void)
+{
+	return last_action_mode;
+}
+
+// Get the game root window action mode
+int get_gamewin_action_mode(void)
+{
+	return action_mode;
+}
 
 #ifdef ANDROID
 static int text_widget_already_setup = 0;
@@ -289,7 +313,7 @@ void draw_special_cursors(void)
 		ret_color[2]=0.0f;
 		ret_color[3]=ret_alpha;
 	}
-	
+
 	glPushAttrib(GL_ENABLE_BIT);
 	glDisable(GL_LIGHTING);
 	glDisable(GL_DEPTH_TEST);
@@ -309,21 +333,21 @@ void draw_special_cursors(void)
 #ifdef NEW_CURSOR
 		glColor4f(1,1,1,1);
 		bind_texture(cursors_tex);
-		if (big_cursors /* && !sdl_cursors */) {
-			float x = (current_cursor%8)/8.0;
-			float y = (1-current_cursor/8 + 5)/8.0;
+		if(big_cursors){
+			float u_start = (32.0f/256.0f) * ((current_cursor + 8) % 8) + 0.5f / 256.0f;
+			float u_end = u_start + (31.0f/256.0f);
+			float v_start = (32.0f/256.0f) * ((current_cursor + 8) / 8) + 0.5f / 256.0f;
+			float v_end = v_start + (31.0f/256.0f);
 			glBegin(GL_QUADS);
-			glTexCoord2f(x,y);					glVertex2f(0,32);
-			glTexCoord2f(x+0.125f,y);			glVertex2f(32,32);
-			glTexCoord2f(x+0.125f,y+0.125f);	glVertex2f(32,0);
-			glTexCoord2f(x,y+0.125f);			glVertex2f(0,0);
+			draw_2d_thing(u_start, v_start, u_end, v_end, 0, 0, 32, 32);
 			glEnd();
-		} else /* if (!sdl_cursors) */ {
+		} else {
+			float u_start = (16.0f/256.0f) * (current_cursor % 16) + 0.5f / 256.0f;
+			float u_end = u_start + (15.0f/256.0f);
+			float v_start = (16.0f/256.0f) * (current_cursor / 16) + 0.5f / 256.0f;
+			float v_end = v_start + (15.0f/256.0f);
 			glBegin(GL_QUADS);
-			glTexCoord2f(current_cursor/16.0,15.0/16.0);		glVertex2f(10,26);
-			glTexCoord2f((current_cursor+1.0)/16.0,15.0/16.0);	glVertex2f(26,26);
-			glTexCoord2f((current_cursor+1.0)/16.0,16.0/16.0);	glVertex2f(26,10);
-			glTexCoord2f(current_cursor/16.0,16.0/16.0);		glVertex2f(10,10);
+			draw_2d_thing(u_start, v_start, u_end, v_end, 10, 10, 26, 26);
 			glEnd();
 		}
 #endif // NEW_CURSOR
@@ -334,53 +358,53 @@ void draw_special_cursors(void)
 
 		ret_x += ret_zoom;
 		glBegin(GL_TRIANGLES);
-		
+
 		glVertex2f(ret_x,ret_y);
 		glVertex2f(ret_x+RET_LEN,ret_y-RET_WID);
 		glVertex2f(ret_x+ret_out,ret_y);
-		
+
 		glVertex2f(ret_x,ret_y);
 		glVertex2f(ret_x+RET_LEN,ret_y+RET_WID);
 		glVertex2f(ret_x+ret_out,ret_y);
-		
+
 		ret_x -= ret_zoom*2;
-		
+
 		glVertex2f(ret_x,ret_y);
 		glVertex2f(ret_x-RET_LEN,ret_y-RET_WID);
 		glVertex2f(ret_x-ret_out,ret_y);
-		
+
 		glVertex2f(ret_x,ret_y);
 		glVertex2f(ret_x-RET_LEN,ret_y+RET_WID);
 		glVertex2f(ret_x-ret_out,ret_y);
-		
+
 		ret_x += ret_zoom;
 		ret_y -= ret_zoom;
-		
+
 		glVertex2f(ret_x,ret_y);
 		glVertex2f(ret_x-RET_WID,ret_y-RET_LEN);
 		glVertex2f(ret_x,ret_y-ret_out);
-		
+
 		glVertex2f(ret_x,ret_y);
 		glVertex2f(ret_x+RET_WID,ret_y-RET_LEN);
 		glVertex2f(ret_x,ret_y-ret_out);
-		
+
 		ret_y += ret_zoom*2;
-		
+
 		glVertex2f(ret_x,ret_y);
 		glVertex2f(ret_x-RET_WID,ret_y+RET_LEN);
 		glVertex2f(ret_x,ret_y+ret_out);
-		
+
 		glVertex2f(ret_x,ret_y);
 		glVertex2f(ret_x+RET_WID,ret_y+RET_LEN);
 		glVertex2f(ret_x,ret_y+ret_out);
-		
+
 		glEnd();
 		ret_y -= ret_zoom;
-		
+
 		glColor4f(0.0,0.0,0.0,ret_alpha);
-		
+
 		ret_x += ret_zoom;
-		glBegin(GL_LINE_LOOP);       
+		glBegin(GL_LINE_LOOP);
 		glVertex2f(ret_x,ret_y);
 		glVertex2f(ret_x+RET_LEN,ret_y-RET_WID);
 		glVertex2f(ret_x+ret_out,ret_y);
@@ -393,7 +417,7 @@ void draw_special_cursors(void)
 		glVertex2f(ret_x-ret_out,ret_y);
 		glVertex2f(ret_x-RET_LEN,ret_y+RET_WID);
 		glEnd();
-		
+
 		ret_x += ret_zoom;
 		ret_y -= ret_zoom;
 		glBegin(GL_LINE_LOOP);
@@ -402,9 +426,9 @@ void draw_special_cursors(void)
 		glVertex2f(ret_x,ret_y-ret_out);
 		glVertex2f(ret_x+RET_WID,ret_y-RET_LEN);
 		glEnd();
-		
+
 		ret_y += ret_zoom*2;
-		glBegin(GL_LINE_LOOP);       
+		glBegin(GL_LINE_LOOP);
 		glVertex2f(ret_x,ret_y);
 		glVertex2f(ret_x-RET_WID,ret_y+RET_LEN);
 		glVertex2f(ret_x,ret_y+7);
@@ -425,14 +449,14 @@ void draw_special_cursors(void)
 			glVertex2f(ret_x,ret_y);
 			glVertex2f(ret_x-RET_LEN,ret_y-RET_WID);
 			glVertex2f(ret_x-ret_out,ret_y);
-			
+
 			glVertex2f(ret_x,ret_y);
 			glVertex2f(ret_x-RET_LEN,ret_y+RET_WID);
 			glVertex2f(ret_x-ret_out,ret_y);
 			glEnd();
-			
+
 			glColor4f(0.0,0.0,0.0,ret_alpha);
-			
+
 			glBegin(GL_LINE_LOOP);
 			glVertex2f(ret_x,ret_y);
 			glVertex2f(ret_x-RET_LEN,ret_y-RET_WID);
@@ -446,20 +470,20 @@ void draw_special_cursors(void)
 		glColor4f(1,1,1,1);
 		bind_texture(cursors_tex);
 		if(big_cursors){
-			float x = (current_cursor%8)/8.0;
-			float y = (1-current_cursor/8 + 5)/8.0;
+			float u_start = (32.0f/256.0f) * ((current_cursor + 8) % 8) + 0.5f / 256.0f;
+			float u_end = u_start + (31.0f/256.0f);
+			float v_start = (32.0f/256.0f) * ((current_cursor + 8) / 8) + 0.5f / 256.0f;
+			float v_end = v_start + (31.0f/256.0f);
 			glBegin(GL_QUADS);
-			glTexCoord2f(x,y);					glVertex2f(0,32);
-			glTexCoord2f(x+0.125f,y);			glVertex2f(32,32);
-			glTexCoord2f(x+0.125f,y+0.125f);	glVertex2f(32,0);
-			glTexCoord2f(x,y+0.125f);			glVertex2f(0,0);
+			draw_2d_thing(u_start, v_start, u_end, v_end, 0, 0, 32, 32);
 			glEnd();
 		} else {
+			float u_start = (16.0f/256.0f) * (current_cursor % 16) + 0.5f / 256.0f;
+			float u_end = u_start + (15.0f/256.0f);
+			float v_start = (16.0f/256.0f) * (current_cursor / 16) + 0.5f / 256.0f;
+			float v_end = v_start + (15.0f/256.0f);
 			glBegin(GL_QUADS);
-			glTexCoord2f(current_cursor/16.0,14.0/16.0);		glVertex2f(0,16);
-			glTexCoord2f((current_cursor+1.0)/16.0,14.0/16.0);	glVertex2f(16,16);
-			glTexCoord2f((current_cursor+1.0)/16.0,15.0/16.0);	glVertex2f(16,0);
-			glTexCoord2f(current_cursor/16.0,15.0/16.0);		glVertex2f(0,0);
+			draw_2d_thing(u_start, v_start, u_end, v_end, 0, 0, 16, 16);
 			glEnd();
 		}
 	}
@@ -502,7 +526,7 @@ static void toggle_first_person()
 		first_person = 1;
 		fol_cam = 0;
 	} else {
-		first_person = 0;    
+		first_person = 0;
 		if (rx < -90) {rx = -90;}
 	}
 	++adjust_view;
@@ -582,7 +606,7 @@ static int mouseover_game_handler (window_info *win, int mx, int my)
 		{
 			elwin_mouse = CURSOR_EYE;
 		}
-		else 
+		else
 		{
 			elwin_mouse = CURSOR_TALK;
 		}
@@ -610,7 +634,7 @@ static int mouseover_game_handler (window_info *win, int mx, int my)
 		{
 			elwin_mouse = CURSOR_WAND;
 		}
-		else 
+		else
 		{
 			elwin_mouse = CURSOR_EYE;
 		}
@@ -652,6 +676,7 @@ static int mouseover_game_handler (window_info *win, int mx, int my)
 #ifdef ANDROID
 	current_cursor = elwin_mouse;
 #endif
+
 	return 1;
 }
 
@@ -981,7 +1006,7 @@ static int click_game_handler(window_info *win, int mx, int my, Uint32 flags)
 			if (spell_result==2)
 			{
 				short x, y;
-		
+
 				if(use_old_clicker)
 					get_old_world_x_y (&x, &y);
 				else
@@ -990,7 +1015,7 @@ static int click_game_handler(window_info *win, int mx, int my, Uint32 flags)
 				// check to see if the coordinates are OUTSIDE the map
 				if (y < 0 || x < 0 || x >= tile_map_size_x*6 || y >= tile_map_size_y*6)
 					return 1;
-			
+
 				move_to(x,y,0);
 				return 1;
 			}
@@ -1008,7 +1033,7 @@ static int click_game_handler(window_info *win, int mx, int my, Uint32 flags)
 					}
 				}
 			}
-			
+
 			break;
 		}
 
@@ -1024,7 +1049,7 @@ static int click_game_handler(window_info *win, int mx, int my, Uint32 flags)
 			*((int *)(str+1)) = SDL_SwapLE32((int)object_under_mouse);
 			my_tcp_send (my_socket, str, 5);
 			return 1;
-			
+
 			break;
 		}
 
@@ -1076,7 +1101,7 @@ static int click_game_handler(window_info *win, int mx, int my, Uint32 flags)
 					clear_dialogue_responses();
 				return 1;
 			}
-			
+
 			str[0] = USE_MAP_OBJECT;
 			*((int *)(str+1)) = SDL_SwapLE32((int)object_under_mouse);
 			if (use_item != -1 && current_cursor == CURSOR_USE_WITEM)
@@ -1088,7 +1113,7 @@ static int click_game_handler(window_info *win, int mx, int my, Uint32 flags)
 					use_item = -1;
 					action_mode = ACTION_WALK;
 				}
-			} 
+			}
 			else
 			{
 				*((int *)(str+5)) = SDL_SwapLE32((int)-1);
@@ -1210,11 +1235,11 @@ static int click_game_handler(window_info *win, int mx, int my, Uint32 flags)
 			if (enable_client_aiming) {
 				if (flag_ctrl) {
 					float target[3];
-                    
+
 					target[0] = x * 0.5 + 0.25;
 					target[1] = y * 0.5 + 0.25;
 					target[2] = get_tile_height(x, y) + 1.2f;
-                    
+
 					missiles_aim_at_xyz(yourself, target);
 					add_command_to_actor(yourself, aim_mode_reload);
 					missiles_fire_a_to_xyz(yourself, target);
@@ -1279,8 +1304,8 @@ void return_to_gamewin_common(void)
 		toggle_have_mouse();
 		keep_grabbing_mouse=0;
 	}
-	hide_window (map_root_win);
-	hide_window (console_root_win);
+	hide_window_MW(MW_TABMAP);
+	hide_window_MW(MW_CONSOLE);
 	show_window (game_root_win);
 	show_hud_windows();
 }
@@ -1290,27 +1315,8 @@ static void draw_ingame_interface(window_info *win)
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
-#ifdef	OLD_CLOSE_BAG
-	// watch for closing a bag
-	if(ground_items_win >= 0)
-		{
-			int	old_view= view_ground_items;
-
-			view_ground_items= get_show_window(ground_items_win);
-			// watch for telling the server we need to close the bag
-			if(old_view && !view_ground_items)
-				{
-					unsigned char protocol_name;
-
-					protocol_name= S_CLOSE_BAG;
-					my_tcp_send(my_socket,&protocol_name,1);
-				}
-		}
-#endif	//OLD_CLOSE_BAG
-
 	draw_hud_interface(win);
 	display_spells_we_have();
-
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
@@ -1334,11 +1340,11 @@ static int display_game_handler (window_info *win)
 
 	for(i=0; i<max_actors; i++)
 	{
-        	if(actors_list[i] && actors_list[i]->actor_id == yourself) 
+        	if(actors_list[i] && actors_list[i]->actor_id == yourself)
 			break;
 	}
 	if(i > max_actors) return 1;//we still don't have ourselves
-	
+
 #ifdef CLUSTER_INSIDES
 	current_cluster = get_actor_cluster();
 #endif // CLUSTER_INSIDES
@@ -1386,7 +1392,7 @@ static int display_game_handler (window_info *win)
 	{
 		read_mouse_now = 0;
 	}
-	
+
 	// This window is a bit special since it's not fully 2D
 	Leave2DMode ();
 	glPushMatrix ();
@@ -1481,7 +1487,7 @@ static int display_game_handler (window_info *win)
 	if (!is_day)
 		weather_init_lightning_light();
 
-//#ifndef ANDROID
+#ifndef ANDROID
 // is this really a problem? ANDROID_TODO
 	if (!dungeon && shadows_on && (is_day || lightning_falling))
 	{
@@ -1489,8 +1495,8 @@ static int display_game_handler (window_info *win)
 		if (use_fog && any_reflection) blend_reflection_fog();
 		draw_sun_shadowed_scene (any_reflection);
 	}
-	else 
-//#endif
+	else
+#endif
 	{
 		glNormal3f (0.0f,0.0f,1.0f);
 		if (any_reflection) {
@@ -1498,6 +1504,7 @@ static int display_game_handler (window_info *win)
 			draw_lake_tiles ();
 		}
 
+		setup_cloud_texturing();
 		draw_tile_map();
 		CHECK_GL_ERRORS ();
 		display_2d_objects();
@@ -1593,10 +1600,10 @@ static int display_game_handler (window_info *win)
 				}
 			}
 		}
-		else 
+		else
 		{
 			times_FPS_below_3 = 0;
-			
+
 			if(shadows_were_disabled){
 				shadows_on = 1;
 				shadows_were_disabled=0;
@@ -1610,6 +1617,7 @@ static int display_game_handler (window_info *win)
 	}
 	if (show_fps)
 	{
+		int fps_y;
 #ifdef	DEBUG
 		int y_cnt = 10;
 		actor *me = get_our_actor ();
@@ -1650,14 +1658,26 @@ static int display_game_handler (window_info *win)
 #else	//DEBUG
 		glColor3f (1.0f, 1.0f, 1.0f);
 #endif	//DEBUG
-		fps_default_width = 9 * win->default_font_len_x;
+
+		if (fps_default_width == 0)
+		{
+			fps_default_width = get_string_width_zoom((const unsigned char*)"FPS: ",
+					win->font_category, win->current_scale)
+				+ 3 * get_max_digit_width_zoom(UI_FONT, win->current_scale)
+				+ win->default_font_max_len_x;
+			fps_center_x = win->len_x - hud_x - win->default_font_max_len_x -
+				3 * get_max_digit_width_zoom(UI_FONT, win->current_scale);
+		}
+
+		fps_y = 4 * win->current_scale;
 		if (max_fps != limit_fps)
 			safe_snprintf ((char*)str, sizeof(str), "FPS: -");
 		else
 			safe_snprintf ((char*)str, sizeof(str), "FPS: %i", fps[0]);
-		draw_string_zoomed (win->len_x - hud_x - fps_default_width, 4 * win->current_scale, str, 1, win->current_scale);
+		draw_string_zoomed_centered_around(fps_center_x, fps_y, str, 4, win->current_scale);
 		safe_snprintf((char*)str, sizeof(str), "UVP: %d", use_animation_program);
-		draw_string_zoomed (win->len_x - hud_x - fps_default_width, (4 + SMALL_FONT_Y_LEN) * win->current_scale, str, 1, win->current_scale);
+		draw_string_zoomed_centered_around(fps_center_x, fps_y + win->default_font_len_y,
+			str, 4, win->current_scale);
 	}
 	else
 		fps_default_width = 0;
@@ -1665,27 +1685,31 @@ static int display_game_handler (window_info *win)
 
 	CHECK_GL_ERRORS ();
 	/* Draw the chat text */
-	if (use_windowed_chat != 2)
+	if (is_chat_shown() && (use_windowed_chat != 2))
 	{
 		int msg, offset, filter;
 		filter = use_windowed_chat == 1 ? current_filter : FILTER_ALL;
-		if (find_last_lines_time (&msg, &offset, filter, get_console_text_width()))
+		if (find_last_lines_time(&msg, &offset, filter, get_console_text_width()))
 		{
-			set_font(chat_font);	// switch to the chat font
 #ifdef ANDROID
-			draw_messages (get_tab_bar_x(), get_tab_bar_y() + get_input_height(), display_text_buffer, DISPLAY_TEXT_BUFFER_SIZE, filter, msg, offset, -1, get_console_text_width(), (int) (1 + lines_to_show * DEFAULT_FONT_Y_LEN * chat_zoom), chat_zoom, NULL);
+			draw_messages(get_tab_bar_x(), get_tab_bar_y() + get_input_height(), display_text_buffer,
+				DISPLAY_TEXT_BUFFER_SIZE, filter, msg, offset, -1,
+				get_console_text_width(), 1 + get_text_height(get_lines_to_show(), CHAT_FONT, 1.0),
+				CHAT_FONT, 1.0, NULL);
 #else
-			draw_messages (get_tab_bar_x(), get_tab_bar_y(), display_text_buffer, DISPLAY_TEXT_BUFFER_SIZE, filter, msg, offset, -1, get_console_text_width(), (int) (1 + lines_to_show * DEFAULT_FONT_Y_LEN * chat_zoom), chat_zoom, NULL);
+			draw_messages(get_tab_bar_x(), get_tab_bar_y(), display_text_buffer,
+				DISPLAY_TEXT_BUFFER_SIZE, filter, msg, offset, -1,
+				get_console_text_width(), 1 + get_text_height(get_lines_to_show(), CHAT_FONT, 1.0),
+				CHAT_FONT, 1.0, NULL);
 #endif
-			set_font (0);	// switch to fixed
 		}
 	}
-	
+
 	anything_under_the_mouse (0, UNDER_MOUSE_NO_CHANGE);
 	CHECK_GL_ERRORS ();
 
 	draw_ingame_interface (win);
-	
+
 	CHECK_GL_ERRORS ();
 
 	Leave2DMode ();
@@ -1709,7 +1733,7 @@ CHECK_GL_ERRORS();
 	if (!window_camera_controls)
 		draw_touch_area(win);
 #endif
-	if ((input_widget!= NULL) && (input_widget->window_id != win->window_id) && !get_show_window(chat_win))
+	if ((input_widget!= NULL) && (input_widget->window_id != win->window_id) && !get_show_window(get_id_MW(MW_CHAT)))
 		input_widget_move_to_win(win->window_id);
 
 	return 1;
@@ -1764,149 +1788,56 @@ int string_input(char *text, size_t maxlen, SDL_Keycode key_code, Uint32 key_uni
 	return 0;
 }
 
-void hide_all_windows(){
+void hide_all_windows()
+{
 	/* Note: We don't watch for if a window is otherwise closed; alt+d to reopen only cares about the last
 	 * time it hid windows itself. If you alt+d to reopen windows, manually close them all, and alt+d
 	 * again, it'll reopen the same ones.
 	 */
-	static unsigned int were_open = 0;	//Currently up to 14 windows are managed by this function.
-	//If you add more windows, you must ensure that the int is at least 'windows' bits long.
-	if (get_show_window(ground_items_win) > 0 || get_show_window(items_win) > 0 || get_show_window(buddy_win) > 0 ||
-		get_show_window(manufacture_win) > 0 || get_show_window(elconfig_win) > 0 || get_show_window(sigil_win) > 0 ||
-		get_show_window(tab_stats_win) > 0 || get_show_window(tab_help_win) > 0 || get_show_window(storage_win) > 0 ||
-		get_show_window(dialogue_win) > 0 || get_show_window(questlog_win) > 0 || (get_show_window(minimap_win) > 0 && !pin_minimap)
-		|| get_show_window(tab_info_win) > 0 || get_show_window(emotes_win) > 0 || get_show_window(range_win) > 0
-	){	//Okay, hide the open ones.
-		if (get_window_showable(ground_items_win) > 0){
-			unsigned char protocol_name;
+	int any_open = 0;
+	enum managed_window_enum i;
 
-			hide_window (ground_items_win);
-			protocol_name= S_CLOSE_BAG;
-			my_tcp_send(my_socket,&protocol_name,1);
+	// control the minimap only if it is not pinned
+	if (pin_minimap)
+		clear_hideable_MW(MW_MINIMAP);
+	else
+		set_hideable_MW(MW_MINIMAP);
+
+	// check if any of the windows are shown, we will hide them all if so
+	for (i = 0; i < MW_MAX; i++)
+	{
+		if (!is_hideable_MW(i))
+			continue;
+		if (get_show_window_MW(i) > 0)
+		{
+			any_open = 1;
+			break;
 		}
-		if (get_window_showable(items_win) > 0){
-			hide_window (items_win);
-			were_open |= 1<<0;
-		} else {
-			were_open &= ~(1<<0);
-		}
-		if (get_window_showable(buddy_win) > 0){
-			hide_window (buddy_win);
-			were_open |= 1<<1;
-		} else {
-			were_open &= ~(1<<1);
-		}
-		if (get_window_showable(manufacture_win) > 0){
-			hide_window (manufacture_win);
-			were_open |= 1<<2;
-		} else {
-			were_open &= ~(1<<2);
-		}
-		if (get_window_showable(elconfig_win) > 0){
-			hide_window (elconfig_win);
-			were_open |= 1<<3;
-		} else {
-			were_open &= ~(1<<3);
-		}
-		if (get_window_showable(sigil_win) > 0){
-			hide_window (sigil_win);
-			were_open |= 1<<4;
-		} else {
-			were_open &= ~(1<<4);
-		}
-		if (get_window_showable(tab_stats_win) > 0){
-			hide_window (tab_stats_win);
-			were_open |= 1<<5;
-		} else {
-			were_open &= ~(1<<5);
-		}
-		if (get_window_showable(tab_help_win) > 0){
-			hide_window (tab_help_win);
-			were_open |= 1<<6;
-		} else {
-			were_open &= ~(1<<6);
-		}
-		if (get_window_showable(dialogue_win) > 0){
-			hide_window (dialogue_win);
-		}
-		if (get_window_showable(range_win)){
-			hide_window (range_win);
-			were_open |= 1<<7;
-		} else {
-			were_open &= ~(1<<7);
-		}
-		if (get_window_showable(minimap_win) > 0 && !pin_minimap){
-			hide_window (minimap_win);
-			were_open |= 1<<8;
-		} else {
-			were_open &= ~(1<<8);
-		}
-		if (get_window_showable(tab_info_win) > 0){
-			hide_window (tab_info_win);
-			were_open |= 1<<9;
-		} else {
-			were_open &= ~(1<<9);
-		}
-		if (get_window_showable(storage_win) > 0){
-			hide_window (storage_win);
-			if (view_only_storage)
-				were_open |= 1<<10;
+	}
+
+	for (i = 0; i < MW_MAX; i++)
+	{
+		if (!is_hideable_MW(i))
+			continue;
+		// at least one is shown so we hide them all
+		if (any_open)
+		{
+			// mark any that are open, so we re-open them next time
+			if (get_window_showable(get_id_MW(i)) > 0)
+			{
+				set_was_open_MW(i); // do first so overrideable in handler
+				hide_window_MW(i);
+				if (i == MW_BAGS)  // too many edge case to reopen a bag so close it fully
+					client_close_bag();
+			}
 			else
-				were_open &= ~(1<<10);
-		} else {
-			were_open &= ~(1<<10);
+				clear_was_open_MW(i);
 		}
-		if (get_window_showable(emotes_win) > 0){
-			hide_window (emotes_win);
-			were_open |= 1<<11;
-		} else {
-			were_open &= ~(1<<11);
-		}
-		if (get_window_showable(questlog_win) > 0){
-			hide_window (questlog_win);
-			were_open |= 1<<12;
-		} else {
-			were_open &= ~(1<<12);
-		}
-	} else {	//None were open, restore the ones that were open last time the key was pressed
-		if (were_open & 1<<0){
-			show_window (items_win);
-		}
-		if (were_open & 1<<1){
-			show_window (buddy_win);
-		}
-		if (were_open & 1<<2){
-			show_window (manufacture_win);
-		}
-		if (were_open & 1<<3){
-			show_window (elconfig_win);
-		}
-		if (were_open & 1<<4){
-			show_window (sigil_win);
-		}
-		if (were_open & 1<<5){
-			show_window (tab_stats_win);
-		}
-		if (were_open & 1<<6){
-			show_window (tab_help_win);
-		}
-		if (were_open & 1<<7){
-			show_window (range_win);
-		}
-		if (were_open & 1<<8){
-			show_window (minimap_win );
-		}
-		if (were_open & 1<<9){
-			show_window (tab_info_win);
-		}
-		if (view_only_storage && (were_open & 1<<10)){
-			show_window (storage_win );
-		}
-		if (were_open & 1<<11){
-			show_window (emotes_win);
-		}
-		if (were_open & 1<<12){
-			show_window (questlog_win);
+		// non were shown so we re-open any hidden last time
+		else
+		{
+			if (was_open_MW(i))
+				show_window_MW(i);
 		}
 	}
 }
@@ -1915,7 +1846,7 @@ void hide_all_windows(){
 static void toggle_sit_stand()
 {
 	Uint8 str[4];
-	//Send message to server...	
+	//Send message to server...
 	str[0]=SIT_DOWN;
 	str[1]=!you_sit;
 	my_tcp_send(my_socket,str,2);
@@ -1923,11 +1854,13 @@ static void toggle_sit_stand()
 
 void switch_action_mode(int mode)
 {
-	item_action_mode = qb_action_mode = action_mode = mode;
+	action_mode = mode;
+	set_quickbar_action_mode(mode);
+	set_items_action_mode(mode);
 }
 
 
-// keypress handler common to all in-game root windows (game_root_win, 
+// keypress handler common to all in-game root windows (game_root_win,
 // console_root_win, and map_root_win)
 int keypress_root_common (SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_mod)
 {
@@ -1938,7 +1871,7 @@ int keypress_root_common (SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_m
 	Uint32 _cur_time= SDL_GetTicks();
 	Uint16 shift_on = key_mod & KMOD_SHIFT;
 #endif
-	
+
 	if(check_quit_or_fullscreen(key_code, key_mod))
 	{
 		return 1;
@@ -2149,80 +2082,46 @@ int keypress_root_common (SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_m
 	{
 		toggle_ranging_lock();
 	}
-	// open or close windows
+	// open or close tabbed windows
 	else if (KEY_DEF_CMP(K_STATS, key_code, key_mod))
 	{
-		view_tab (&tab_stats_win, &tab_stats_collection_id, STATS_TAB_STATS);
-	}
-	else if (KEY_DEF_CMP(K_QUESTLOG, key_code, key_mod))
-	{
-		view_window (&questlog_win, 0);
+		view_tab(MW_STATS, tab_stats_collection_id, STATS_TAB_STATS);
 	}
 	else if (KEY_DEF_CMP(K_SESSION, key_code, key_mod))
 	{
-		view_tab (&tab_stats_win, &tab_stats_collection_id, STATS_TAB_SESSION);
+		view_tab(MW_STATS, tab_stats_collection_id, STATS_TAB_SESSION);
 	}
 	else if (KEY_DEF_CMP(K_COUNTERS, key_code, key_mod))
 	{
-		view_tab (&tab_stats_win, &tab_stats_collection_id, STATS_TAB_COUNTERS);
-	}
-	else if (KEY_DEF_CMP(K_OPTIONS, key_code, key_mod))
-	{
-		view_window (&elconfig_win, 0);
+		view_tab(MW_STATS, tab_stats_collection_id, STATS_TAB_COUNTERS);
 	}
 	else if (KEY_DEF_CMP(K_KNOWLEDGE, key_code, key_mod))
 	{
-		view_tab (&tab_stats_win, &tab_stats_collection_id, STATS_TAB_KNOWLEDGE);
+		view_tab(MW_STATS, tab_stats_collection_id, STATS_TAB_KNOWLEDGE);
 	}
 	else if (KEY_DEF_CMP(K_ENCYCLOPEDIA, key_code, key_mod))
 	{
-		view_tab (&tab_help_win, &tab_help_collection_id, HELP_TAB_ENCYCLOPEDIA);
+		view_tab(MW_HELP, tab_help_collection_id, HELP_TAB_ENCYCLOPEDIA);
 	}
 	else if (KEY_DEF_CMP(K_HELP, key_code, key_mod))
 	{
-		view_tab(&tab_help_win, &tab_help_collection_id, HELP_TAB_HELP);
+		view_tab(MW_HELP, tab_help_collection_id, HELP_TAB_HELP);
 	}
 	else if (KEY_DEF_CMP(K_HELPSKILLS, key_code, key_mod))
 	{
-		view_tab(&tab_help_win, &tab_help_collection_id, HELP_TAB_SKILLS);
+		view_tab(MW_HELP, tab_help_collection_id, HELP_TAB_SKILLS);
 	}
 	else if (KEY_DEF_CMP(K_RULES, key_code, key_mod))
 	{
-		view_tab(&tab_help_win, &tab_help_collection_id, HELP_TAB_RULES);
+		view_tab(MW_HELP, tab_help_collection_id, HELP_TAB_RULES);
 	}
 	else if (KEY_DEF_CMP(K_NOTEPAD, key_code, key_mod))
 	{
-		view_tab(&tab_info_win, &tab_info_collection_id, INFO_TAB_NOTEPAD);
+		view_tab(MW_INFO, tab_info_collection_id, INFO_TAB_NOTEPAD);
 	}
-	else if (KEY_DEF_CMP(K_MINIMAP, key_code, key_mod))
+	else if (KEY_DEF_CMP(K_BROWSERWIN, key_code, key_mod))
 	{
-		view_window (&minimap_win, 0);
-	}
-#ifdef ECDEBUGWIN
-	else if (KEY_DEF_CMP(K_ECDEBUGWIN, key_code, key_mod))
-	{
-		view_window (&ecdebug_win, 0);
-	}
-#endif // ECDEBUGWIN
-	else if (KEY_DEF_CMP(K_SIGILS, key_code, key_mod))
-	{
-		view_window (&sigil_win, -1);
-	}
-	else if (KEY_DEF_CMP(K_EMOTES, key_code, key_mod))
-	{
-		view_window (&emotes_win, -1);
-	}
-	else if (KEY_DEF_CMP(K_MANUFACTURE, key_code, key_mod))
-	{
-		view_window (&manufacture_win, -1);
-	}
-	else if (KEY_DEF_CMP(K_ITEMS, key_code, key_mod))
-	{
-		view_window (&items_win, -1);
-	}
-	else if (KEY_DEF_CMP(K_BUDDY, key_code, key_mod))
-	{
-		display_buddy();
+		view_tab(MW_INFO, tab_info_collection_id, INFO_TAB_URLWIN);
 	}
 	// set action modes
 	else if (KEY_DEF_CMP(K_WALK, key_code, key_mod))
@@ -2239,7 +2138,7 @@ int keypress_root_common (SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_m
 	}
 	else if (KEY_DEF_CMP(K_AFK, key_code, key_mod))
 	{
-		if (!afk) 
+		if (!afk)
 		{
 			go_afk ();
 			last_action_time = cur_time - afk_time;
@@ -2248,10 +2147,6 @@ int keypress_root_common (SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_m
 		{
 			go_ifk ();
 		}
-	}
-	else if (KEY_DEF_CMP(K_RANGINGWIN, key_code, key_mod))
-	{
-		view_window(&range_win, -1);
 	}
 	else if (KEY_DEF_CMP(K_TARGET_CLOSE, key_code, key_mod))
 	{
@@ -2264,10 +2159,6 @@ int keypress_root_common (SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_m
 	else if (KEY_DEF_CMP(K_BROWSER, key_code, key_mod))
 	{
 		open_last_seen_url();
-	}
-	else if (KEY_DEF_CMP(K_BROWSERWIN, key_code, key_mod))
-	{
-		view_tab(&tab_info_win, &tab_info_collection_id, INFO_TAB_URLWIN);
 	}
 	else if (key_code == SDLK_ESCAPE)
 	{
@@ -2298,13 +2189,22 @@ int keypress_root_common (SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_m
 	}
 	else if (KEY_DEF_CMP(K_REPEATSPELL, key_code, key_mod))	// REPEAT spell command
 	{
-		if ( !get_show_window (trade_win) )
+		if ( !get_show_window_MW(MW_TRADE) )
 		{
 			repeat_spell();
 		}
 	}
 	else
 	{
+		enum managed_window_enum i;
+		for (i = 0; i < MW_MAX; i++)
+		{
+			if (match_keydef_MW(i, key_code, key_mod))
+			{
+				view_window(i);
+				return 1;
+			}
+		}
 		return 0; // nothing we can handle
 	}
 
@@ -2320,7 +2220,7 @@ int text_input_handler (SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_mod
 	{
 			text_widget_already_setup = 1;
 			text_field *field = input_widget->widget_info;
-			widget_resize(input_widget->window_id, input_widget->id, input_widget->len_x, field->y_space * 2 + DEFAULT_FONT_Y_LEN * input_widget->size);
+			widget_resize(input_widget->window_id, input_widget->id, input_widget->len_x, get_input_height());
 			move_input_widget(window_height);
 	}
 #endif
@@ -2329,7 +2229,7 @@ int text_input_handler (SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_mod
 	{
 		return 1;
 	}
-	// The following should only be reached when we hit an invalid key 
+	// The following should only be reached when we hit an invalid key
 	// combo or for any reason we don't have a valid input_widget.
 	else if (is_printable (ch) && input_text_line.len < MAX_TEXT_MESSAGE_LENGTH)
 	{
@@ -2465,10 +2365,6 @@ static int keypress_game_handler (window_info *win, int mx, int my, SDL_Keycode 
 		return 1; // don't handle this
 	}
 #endif
-	else if (KEY_DEF_CMP(K_TABCOMPLETE, key_code, key_mod) && input_text_line.len > 0)
-	{
-		do_tab_complete(&input_text_line);
-	}
 	else if (KEY_DEF_CMP(K_TURNLEFT, key_code, key_mod))
 	{
 		//Moved delay to my_tcp_send
@@ -2569,7 +2465,7 @@ static int keypress_game_handler (window_info *win, int mx, int my, SDL_Keycode 
 		{
 			if (have_mouse) {toggle_have_mouse(); keep_grabbing_mouse=1;}
 			hide_window (game_root_win);
-			show_window (map_root_win);
+			show_window_MW(MW_TABMAP);
 		}
 	}
 	else if (key_code == SDLK_F6)
@@ -2603,15 +2499,14 @@ static int keypress_game_handler (window_info *win, int mx, int my, SDL_Keycode 
 	{
 		if (object_under_mouse != -1 && thing_under_the_mouse == UNDER_MOUSE_3D_OBJ && objects_list[object_under_mouse])
 		{
-			run_pawn_map_function ("play_with_object_pos", "ii", object_under_mouse, key & ELW_SHIFT ? 1: 0);
+			run_pawn_map_function("play_with_object_pos", "ii", object_under_mouse, key_mod & KMOD_SHIFT ? 1: 0);
 		}
 		else
 		{
-			run_pawn_server_function ("pawn_test", "s", "meep!");
+			run_pawn_server_function("pawn_test", "s", "meep!");
 		}
 	}
 #endif
-
 	else if (key_code == SDLK_F8)
 	{
 		static int ison = 0;
@@ -2677,12 +2572,11 @@ static int keypress_game_handler (window_info *win, int mx, int my, SDL_Keycode 
 	{
 		Uint8 ch = key_to_char (key_unicode);
 
-		reset_tab_completer();
 		if (ch == '`' || KEY_DEF_CMP(K_CONSOLE, key_code, key_mod))
 		{
 			if (have_mouse) {toggle_have_mouse(); keep_grabbing_mouse=1;}
 			hide_window (game_root_win);
-			show_window (console_root_win);
+			show_window_MW(MW_CONSOLE);
 		}
 		// see if the common text handler can deal with it
 		else if ( !text_input_handler (key_code, key_unicode, key_mod) )
@@ -2691,7 +2585,7 @@ static int keypress_game_handler (window_info *win, int mx, int my, SDL_Keycode 
 			return 0;
 		}
 	}
-	
+
 	// we handled it, return 1 to let the window manager know
 	return 1;
 }
@@ -2710,7 +2604,12 @@ static int show_game_handler (window_info *win) {
 	init_hud_interface (HUD_INTERFACE_GAME);
 	show_hud_windows();
 	if (use_windowed_chat == 1)
-		display_tab_bar();
+	{
+		if (is_chat_shown())
+			display_tab_bar();
+		else
+			hide_window(tab_bar_win);
+	}
 	set_all_intersect_update_needed(main_bbox_tree); // redraw the scene
 	return 1;
 }
@@ -2722,19 +2621,37 @@ static int resize_game_root_handler(window_info *win, int width, int height)
 		init_hud_interface (HUD_INTERFACE_GAME);
 		set_all_intersect_update_needed(main_bbox_tree); // redraw the scene
 	}
+	// Recalculate FPS width
+	fps_default_width = 0;
+	return 1;
+}
+
+static int ui_scale_game_root_handler(window_info* win)
+{
+	// Recalculate FPS width
+	fps_default_width = 0;
+	return 1;
+}
+
+static int change_game_root_font_handler(window_info *win, font_cat cat)
+{
+	if (cat != UI_FONT)
+		return 0;
+	ui_scale_game_root_handler(win);
 	return 1;
 }
 
 void create_game_root_window (int width, int height)
 {
 #ifdef ANDROID
+	// ANDROID_TODO - make this an option
 	hud_x=0;
 	hud_y=0;
 #endif
 	if (game_root_win < 0)
 	{
 		game_root_win = create_window ("Game", -1, -1, 0, 0, width, height, ELW_USE_UISCALE|ELW_TITLE_NONE|ELW_SHOW_LAST);
-		
+
 		set_window_handler (game_root_win, ELW_HANDLER_DISPLAY, &display_game_handler);
 		set_window_handler (game_root_win, ELW_HANDLER_CLICK, &click_game_handler);
 #ifndef ANDROID
@@ -2748,16 +2665,24 @@ void create_game_root_window (int width, int height)
 		set_window_handler (game_root_win, ELW_HANDLER_AFTER_SHOW, &update_have_display);
 		set_window_handler (game_root_win, ELW_HANDLER_HIDE, &update_have_display);
 		set_window_handler (game_root_win, ELW_HANDLER_RESIZE, &resize_game_root_handler);
+		set_window_handler (game_root_win, ELW_HANDLER_UI_SCALE, &ui_scale_game_root_handler);
+		set_window_handler (game_root_win, ELW_HANDLER_FONT_CHANGE, &change_game_root_font_handler);
 
-		if(input_widget == NULL) {
+		if (input_widget == NULL)
+		{
+			int input_height = get_input_height();
 			Uint32 id;
+
 			if (dark_channeltext == 1)
 				set_text_message_color (&input_text_line, 0.6f, 0.6f, 0.6f);
 			else if (dark_channeltext == 2)
 				set_text_message_color (&input_text_line, 0.16f, 0.16f, 0.16f);
 			else
 				set_text_message_color (&input_text_line, 1.0f, 1.0f, 1.0f);
-			id = text_field_add_extended(game_root_win, 42, NULL, 0, height-INPUT_HEIGHT-hud_y, width-hud_x, INPUT_HEIGHT, INPUT_DEFAULT_FLAGS, chat_zoom, 0.77f, 0.57f, 0.39f, &input_text_line, 1, FILTER_ALL, INPUT_MARGIN, INPUT_MARGIN);
+			id = text_field_add_extended(game_root_win, 42, NULL,
+				0, height-input_height-hud_y, width-hud_x, input_height,
+				INPUT_DEFAULT_FLAGS, CHAT_FONT, 1.0,
+				&input_text_line, 1, FILTER_ALL, INPUT_MARGIN, INPUT_MARGIN);
 			input_widget = widget_find(game_root_win, id);
 			input_widget->OnResize = input_field_resize;
 		}

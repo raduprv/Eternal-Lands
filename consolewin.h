@@ -14,18 +14,12 @@
 extern "C" {
 #endif
 
-/*! \name windows handlers
- * @{ */
-extern int console_root_win; /*!< handler for the console window */
-/*! @} */
-
 extern int locked_to_console; /*!< indicates whether the console win is locked. Used when we don't have any maps. */
 extern int console_scrollbar_enabled;  /*!< config option, if true, a scroll bar is displayed for the console */
 
 
 void clear_console (void);
 void toggle_console_scrollbar(int *enable);
-void console_font_resize(float fond_size);
 int get_console_text_width(void);
 int get_total_nr_lines(void);
 

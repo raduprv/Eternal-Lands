@@ -35,6 +35,8 @@
 #include <ctype.h>
 #define MKDIR(file) mkdir(file)
 #else // !WINDOWS
+#include <dirent.h>
+#include <fnmatch.h>
 #include <unistd.h>
 /*
 MAX_PATH is generally 256 on Windows. We'll set it to something a lot higher for *nix, but won't expect to need it.
@@ -57,15 +59,15 @@ Theoretically safe, unless someone has a HOME that has a really long path. Such 
  * the default; this isn't really intended for just using a different name if you din't like "elc"
  */
 #ifdef CONFIGDIR
-const static char* cfgdirname = CONFIGDIR;
+static const char* cfgdirname = CONFIGDIR;
 #elif defined(OSX)
-const static char* cfgdirname = "Library/Application\ Support/Eternal\ Lands";
+static const char* cfgdirname = "Library/Application\ Support/Eternal\ Lands";
 #elif defined(WINDOWS)
-const static char* cfgdirname = "Eternal Lands";
+static const char* cfgdirname = "Eternal Lands";
 #elif defined(ANDROID)
-const static char* cfgdirname = "conf_and_logs";
+static const char* cfgdirname = "conf_and_logs";
 #else /* *nix */
-const static char* cfgdirname = ".elc";
+static const char* cfgdirname = ".elc";
 #endif // platform check
 
 
@@ -101,7 +103,7 @@ const char * get_path_config_base(void)
 	 *
 	 * FIXME: A handler should be coded for Windows 98 backwards compatability!!
 	 */
-	if (SUCCEEDED(SHGetFolderPath(NULL, CSIDL_PERSONAL|CSIDL_FLAG_CREATE, NULL, 0, locbuffer)) && 
+	if (SUCCEEDED(SHGetFolderPath(NULL, CSIDL_PERSONAL|CSIDL_FLAG_CREATE, NULL, 0, locbuffer)) &&
 			(strlen(locbuffer) < MAX_PATH + 5))
 	{
 		if (pwd[0] != '\0')
@@ -140,7 +142,7 @@ const char * get_path_config_base(void)
 	safe_snprintf (locbuffer, sizeof(locbuffer), "%s/%s/", getenv("HOME"), cfgdirname);
 	if (!mkdir_tree (locbuffer, 0))
 	{
-		// Failed to create a configuration direction in the home directory, 
+		// Failed to create a configuration direction in the home directory,
 		// try in the current directory and hope that succeeds.
 		safe_snprintf (locbuffer, sizeof (locbuffer), "%s/", cfgdirname);
 		mkdir_tree (locbuffer, 1);
@@ -162,10 +164,10 @@ const char * get_path_config(void)
 	// Check if we have selected a server yet, otherwise return the base config dir
 #ifndef MAP_EDITOR
 	safe_snprintf(locbuffer, sizeof(locbuffer), "%s%s/", get_path_config_base(), get_server_dir());
-#else 
+#else
 	safe_snprintf(locbuffer, sizeof(locbuffer), "%s/", get_path_config_base());
 #endif //!MAP_EDITOR
-	
+
 	return locbuffer;
 }
 
@@ -178,7 +180,7 @@ const char * get_path_updates(void)
 	}
 
 	safe_snprintf(locbuffer, sizeof(locbuffer), "%supdates/%d_%d_%d/", get_path_config_base(), VER_MAJOR, VER_MINOR, VER_RELEASE);
-	
+
 	return locbuffer;
 }
 
@@ -191,14 +193,14 @@ const char * get_path_custom(void)
 	}
 
 	safe_snprintf(locbuffer, sizeof(locbuffer), "%scustom/", get_path_config_base());
-	
+
 	return locbuffer;
 }
 
 char * check_custom_dir(char * in_file)
 {
 	char dir[10] = "custom/";
-	
+
 	// Check if there is an extra "custom/" on the front of this filename
 	if (strncmp(in_file, dir, strlen(dir)) == 0)
 	{
@@ -239,12 +241,12 @@ FILE * open_file_config_no_local(const char* filename, const char* mode)
 
 	if (strlen(cfgdir) + strlen(filename) + 1 > MAX_PATH)
 		return NULL;
-	
+
 	strcpy(locbuffer, cfgdir);
 	strcat(locbuffer, filename);
 	if (strchr (mode, 'w'))
 	{
-		// Requested file for writing, try to create a directory structure 
+		// Requested file for writing, try to create a directory structure
 		// if necessary
 		if (!mkdir_tree (locbuffer, 0))
 		{
@@ -266,7 +268,7 @@ FILE * open_file_data_temp(const char* filename, const char* mode)
 {
 	char locbuffer[MAX_PATH];
 	const char * cfgdir = get_path_config();
-	
+
 	if (strlen(cfgdir) + strlen(filename) + 2 < MAX_PATH)
 	{
 		safe_snprintf(locbuffer, sizeof(locbuffer), "%s/%s", cfgdir, filename);
@@ -278,7 +280,7 @@ FILE * open_file_data_temp(const char* filename, const char* mode)
 FILE * open_file_data_updates(char* filename, const char* mode, int custom){
 	char locbuffer[MAX_PATH];
 	const char * updatepath = custom ? get_path_custom() : get_path_updates();
-	
+
 	if (custom) filename = check_custom_dir(filename);
 	if (strlen(updatepath) + strlen(filename) + 1 < MAX_PATH)
 	{
@@ -394,8 +396,8 @@ int normalize_path (const char* path, char* norm_path, int size, int relative_on
 			if (sep - idx == 2 && path[idx] == '.' && path[idx+1] == '.')
 			{
 				// Drats, we need to go one directory up. Strictly speaking
-				// this is only valid if the current path actually exists, but 
-				// we'll simply remove the last directory (if any) from our 
+				// this is only valid if the current path actually exists, but
+				// we'll simply remove the last directory (if any) from our
 				// normalized path.
 				if (n_idx > 1 || (n_idx == 1 && norm_path[0] != '/'))
 				{
@@ -477,7 +479,7 @@ int mkdir_tree (const char *path, int relative_only)
 		// let's assume the root directory exists...
 		slash++;
 #endif // WINDOWS
-	
+
 	while (slash)
 	{
 		// watch for hidden ..
@@ -540,8 +542,8 @@ int file_copy(const char* from_file, char* to_file)
 	{
 		ch = getc(in);
 		if((fe = ferror(in))) {
-			LOG_ERROR("unable to copy %s to %s, read error",from_file, to_file);			
-			clearerr(in);			
+			LOG_ERROR("unable to copy %s to %s, read error",from_file, to_file);
+			clearerr(in);
 			break;
 		} else {
 			if(!feof(in))
@@ -551,7 +553,7 @@ int file_copy(const char* from_file, char* to_file)
 				clearerr(out);
 				break;
 			}
-		}		
+		}
 	}
 	fclose (in);
 	fclose(out);
@@ -577,7 +579,7 @@ int move_file_to_updates(const char* from_file, char* to_file, int custom)
 	}
 	strcpy(locbuftmp, cfgdir);
 	strcat(locbuftmp, from_file);
-	
+
 	strcpy(locbufupd, updatesdir);
 	strcat(locbufupd, to_file);
 
@@ -587,14 +589,14 @@ int move_file_to_updates(const char* from_file, char* to_file, int custom)
 
 	// Remove the file if it exists first (important under Windows)
 	remove(locbufupd);
-	
+
 	retval = rename(locbuftmp, locbufupd);
 	if(retval == 18) {
 		// special case - moving a file between drives or partitions is not allowed
 		retval = file_copy(locbuftmp, locbufupd);
 		if (retval)
 			return retval;
-		else		
+		else
 			return remove(locbuftmp);
 	}
 	return retval;
@@ -629,7 +631,7 @@ int file_md5_check(FILE * fp, const unsigned char * md5)
 	int res = 0;
 	int length;
 	unsigned char buffer[1024];
-	
+
 	memset (digest, 0, sizeof (digest));
 	if (fp != NULL)
 	{
@@ -707,7 +709,7 @@ void file_check_datadir(void)
 		char pwd[MAX_PATH];
 		if (getcwd(pwd, MAX_PATH) == NULL)
 			pwd[0] = '\0';
-		LOG_WARNING("Didn't find your data_dir, using the current directory instead. Please correct this in your el.ini . Given data_dir was: \"%s\". Using \"%s\".\n", datadir, pwd);
+		LOG_WARNING("Didn't find your data_dir, using the current directory instead. Please correct this in your %s. Given data_dir was: \"%s\". Using \"%s\".\n", ini_filename, datadir, pwd);
 		strcpy(datadir, "./");
 	}
 #ifdef WINDOWS
@@ -829,3 +831,105 @@ int check_configdir(void)
 	return dir_exists(get_path_config());
 }
 
+int search_files_and_apply(const char* base_path, const char *pattern, void (*fn)(const char*),
+	int max_depth)
+{
+	int nr_found = 0;
+	char full_path[512];
+
+#ifdef WINDOWS
+	char full_pattern[512];
+	struct _finddata_t c_file;
+	long hFile;
+
+	// First get the matching files
+	safe_snprintf(full_pattern, sizeof(full_pattern), "%s/%s", base_path, pattern);
+	if ((hFile = _findfirst(full_pattern, &c_file)) != -1L)
+	{
+		errno = 0;
+		do
+		{
+			if (!(c_file.attrib & _A_SUBDIR))
+			{
+				safe_snprintf(full_path, sizeof(full_path), "%s/%s", base_path, c_file.name);
+				fn(full_path);
+				++nr_found;
+			}
+		} while (_findnext(hFile, &c_file) == 0);
+		if (errno != ENOENT)
+		{
+			LOG_ERROR("Failed to read directory %s: %s\n", base_path, strerror(errno));
+			return nr_found;
+		}
+		if (_findclose(hFile))
+		{
+			LOG_ERROR("Failed to close directory %s: %s\n", base_path, strerror(errno));
+			return nr_found;
+		}
+	}
+
+	// Now find the subdirectories, and recurse into them
+	if ((hFile = _findfirst(base_path, &c_file)) != -1L)
+	{
+		errno = 0;
+		do
+		{
+			if ((c_file.attrib & _A_SUBDIR) && max_depth > 0)
+			{
+				safe_snprintf(full_path, sizeof(full_path), "%s/%s", base_path, c_file.name);
+				nr_found += search_files_and_apply(full_path, pattern, fn, max_depth-1);
+			}
+		} while (_findnext(hFile, &c_file) == 0);
+		if (errno != ENOENT)
+			LOG_ERROR("Failed to read directory %s: %s\n", base_path, strerror(errno));
+		else if (_findclose(hFile))
+			LOG_ERROR("Failed to close directory %s: %s\n", base_path, strerror(errno));
+	}
+	else
+	{
+		LOG_ERROR("Failed to open directory %s: %s\n", base_path, strerror(errno));
+	}
+
+	return nr_found;
+#else
+	DIR *dir = opendir(base_path);
+	if (!dir)
+	{
+		LOG_ERROR("Failed to open directory %s: %s\n", base_path, strerror(errno));
+		return 0;
+	}
+
+	while (1)
+	{
+		struct dirent *entry;
+
+		errno = 0;
+		entry = readdir(dir);
+		if (!entry)
+		{
+			if (errno)
+				LOG_ERROR("Failed to read directory %s: %s\n", base_path, strerror(errno));
+			break;
+		}
+
+		if (entry->d_type == DT_DIR && max_depth > 0 && strcmp(entry->d_name, ".") != 0
+			&& strcmp(entry->d_name, "..") != 0)
+		{
+			safe_snprintf(full_path, sizeof(full_path), "%s/%s", base_path, entry->d_name);
+			nr_found += search_files_and_apply(full_path, pattern, fn, max_depth-1);
+		}
+		else if (entry->d_type == DT_REG && fnmatch(pattern, entry->d_name, 0) == 0)
+		{
+			safe_snprintf(full_path, sizeof(full_path), "%s/%s", base_path, entry->d_name);
+			fn(full_path);
+			++nr_found;
+		}
+		// FIXME? Symbolic links are not handled
+	}
+
+	if (closedir(dir))
+		LOG_ERROR("Failed to close directory %s: %s", base_path, strerror(errno));
+#endif
+
+	return nr_found;
+}

@@ -75,7 +75,7 @@ void load_harvestable_list()
 		if (fscanf(f, "%254s", strLine) != 1)
 			break;
 		my_tolower(strLine);
-		my_strncp(harvestable_objects[nr_harvestable_objects], strLine,
+		safe_strncpy(harvestable_objects[nr_harvestable_objects], strLine,
 			OBJ_NAME_SIZE);
 		nr_harvestable_objects++;
 		if (!fgets(strLine, sizeof(strLine), f))
@@ -123,7 +123,7 @@ void load_entrable_list(void)
 			break;
 		my_tolower(strLine);
 		off = *strLine == '/' ? 1 : 0;
-		my_strncp(entrable_objects[nr_entrable_objects], strLine+off,
+		safe_strncpy(entrable_objects[nr_entrable_objects], strLine+off,
 			OBJ_NAME_SIZE);
 		nr_entrable_objects++;
 		if (!fgets(strLine, sizeof(strLine), f))

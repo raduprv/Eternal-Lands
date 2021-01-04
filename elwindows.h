@@ -14,6 +14,12 @@
 extern "C" {
 #endif
 
+//! The default color for GUI elements
+extern const GLfloat gui_color[3];
+extern const GLfloat gui_invert_color[3];
+extern const GLfloat gui_bright_color[3];
+extern const GLfloat gui_dull_color[3];
+
 /*!
  * \name Title bar & other constants
  */
@@ -21,7 +27,7 @@ extern "C" {
 #define	ELW_TITLE_HEIGHT	16
 #define	ELW_BOX_SIZE		20
 #define ELW_TITLE_SIZE 35
-#define ELW_CM_MENU_LEN		3
+#define ELW_CM_MENU_LEN		4
 /*! @} */
 
 /*!
@@ -63,12 +69,14 @@ typedef	struct	{
 	 */
 	/*! @{ */
 	float current_scale;
+	float current_scale_small;
 	float *custom_scale;
 	int box_size;
 	int title_height;
-	int small_font_len_x;
+	font_cat font_category;
+	int small_font_max_len_x;
 	int small_font_len_y;
-	int default_font_len_x;
+	int default_font_max_len_x;
 	int default_font_len_y;
 
 	/*!
@@ -94,6 +102,7 @@ typedef	struct	{
 	int (*multi_gesture_handler)(void *win, Uint32 timestamp, float x, float y, float distance, float rotation);	/*!< handle touch based multi gestures */
 	int (*finger_motion_handler)(void *win, Uint32 timestamp, float x, float y, float dx, float dy);	/*!< handle touch based multi gestures */
 #endif
+	int (*font_change_handler)(); /*!< executed when font settings are changed */
 	/*! @} */
 
 	/*
@@ -222,9 +231,10 @@ typedef	struct	{
 #define	ELW_HANDLER_PRE_DISPLAY	12
 #define	ELW_HANDLER_POST_DISPLAY	13
 #define ELW_HANDLER_UI_SCALE 14
+#define ELW_HANDLER_FONT_CHANGE 15
 #ifdef ANDROID
-#define	ELW_HANDLER_MULTI_GESTURE	15
-#define	ELW_HANDLER_FINGER_MOTION	16
+#define	ELW_HANDLER_MULTI_GESTURE	16
+#define	ELW_HANDLER_FINGER_MOTION	17
 #endif
 /*! @} */
 
@@ -253,47 +263,142 @@ typedef	struct	{
 	int	display_level;
 } windows_info;
 
-/*!
- * set of window custom scale factors
- */
-typedef struct {
-	float trade;
-	float items;
-	float bags;
-	float spells;
-	float storage;
-	float manufacture;
-	float emote;
-	float questlog;
-	float info;
-	float buddy;
-	float stats;
-	float help;
-	float ranging;
-	float achievements;
-	float dialogue;
-} custom_scale_factors_def;
-
-extern custom_scale_factors_def custom_scale_factors; /*!<* window custom scale factors */
 extern	windows_info	windows_list; /*!< global variable defining the list of windows */
 extern int windows_on_top; /*!< global variable for whether windows appear on top of the console */
 extern int top_SWITCHABLE_OPAQUE_window_drawn; /*!< the id of the top opaque switchable window */
 extern int opaque_window_backgrounds;
 
+/*!
+ * \name managed window definitions, used to specify which window to access
+ */
+/*! @{ */
+enum managed_window_enum
+{
+	MW_TRADE = 0,
+	MW_ITEMS,
+	MW_BAGS,
+	MW_SPELLS,
+	MW_STORAGE,
+	MW_MANU,
+	MW_EMOTE,
+	MW_QUESTLOG,
+	MW_INFO,
+	MW_BUDDY,
+	MW_STATS,
+	MW_HELP,
+	MW_RANGING,
+	MW_ACHIEVE,
+	MW_DIALOGUE,
+	MW_QUICKBAR,
+	MW_QUICKSPELLS,
+	MW_CONFIG,
+	MW_MINIMAP,
+	MW_ASTRO,
+	MW_TABMAP,
+	MW_CONSOLE,
+	MW_CHAT,
+#ifdef ECDEBUGWIN
+	MW_ECDEBUG,
+#endif
+	MW_MAX
+};
+/*! @} */
+
+/*!
+ * \name window creation and open functions, defined here to limit includes
+ */
+/*! @{ */
+void display_trade_menu(void);
+void display_items_menu(void);
+void display_sigils_menu(void);
+void display_storage_menu(void);
+void display_manufacture_menu(void);
+void display_emotes_menu(void);
+void display_questlog(void);
+void display_tab_info(void);
+void display_buddy(void);
+void display_tab_stats(void);
+void display_tab_help(void);
+void display_range_win(void);
+void display_elconfig_win(void);
+void display_minimap(void);
+#ifdef ECDEBUGWIN
+void display_ecdebugwin(void);
+#endif
+/*! @} */
+
+
 // windows manager function
+
+/*!
+ * \name managed window access function
+ */
+/*! @{ */
+int get_id_MW(enum managed_window_enum managed_win);
+void set_id_MW(enum managed_window_enum managed_win, int win_id);
+void set_pos_MW(enum managed_window_enum managed_win, int pos_x, int pos_y);
+int get_pos_x_MW(enum managed_window_enum managed_win);
+int get_pos_y_MW(enum managed_window_enum managed_win);
+int on_top_responsive_MW(enum managed_window_enum managed_win);
+int not_on_top_now(enum managed_window_enum managed_win);
+void clear_was_open_MW(enum managed_window_enum managed_win);
+void set_was_open_MW(enum managed_window_enum managed_win);
+int was_open_MW(enum managed_window_enum managed_win);
+int is_hideable_MW(enum managed_window_enum managed_win);
+void clear_hideable_MW(enum managed_window_enum managed_win);
+void set_hideable_MW(enum managed_window_enum managed_win);
+void call_display_MW(enum managed_window_enum managed_win);
+int match_keydef_MW(enum managed_window_enum managed_win, SDL_Keycode key_code, Uint16 key_mod);
+float * get_scale_WM(enum managed_window_enum managed_win);
+void set_save_pos_MW(enum managed_window_enum managed_win, int *pos_x, int *pos_y);
+int * get_scale_flag_MW(void);
+void toggle_window_MW(enum managed_window_enum managed_win);
+int get_window_showable_MW(enum managed_window_enum managed_win);
+enum managed_window_enum get_by_name_MW(const char *name);
+const char *get_dict_name_WM(enum managed_window_enum managed_win, char *buf, size_t buf_len);
+/*! @} */
+
+/*!
+ * \ingroup windows
+ * \brief Check if the specified window has pending adjustments and position proportionably
+ *
+ * \param managed_win		the index of the window in the managed window array
+ *
+ * \callgraph
+ */
+void check_proportional_move(enum managed_window_enum managed_win);
+
+/*!
+ * \ingroup windows
+ * \brief Adjust window positions proportionally using the supplied ratios
+ *
+ * \param pos_ratio_x		the ratio of the new window width over the old width
+ * \param pos_ratio_y		the ratio of the new window height over the old height
+ *
+ * \callgraph
+ */
+void move_windows_proportionally(float pos_ratio_x, float pos_ratio_y);
+
+/*!
+ * \ingroup windows
+ * \brief Adjusts window positions proportionally using window sizes from config
+ *
+ * \callgraph
+ */
+void restore_window_proportionally(void);
 
 /*!
  * \ingroup elwindows
  * \brief   Set the window custom scale factor
  *
- *      This value is multipled by the global scale value to
+ *      This value is multiplied by the global scale value to
  * determine the specific scale used for this window.
  *
  * \param win_id    the id of the window to select
- * \param scale_factor     pointer to the scaling factor
+ * \param managed_win in index of the manage window which stores the scale
  * \callgraph
  */
-void set_window_custom_scale(int win_id, float *new_scale);
+void set_window_custom_scale(int win_id, enum managed_window_enum managed_win);
 
 /*!
  * \ingroup elwindows
@@ -310,7 +415,7 @@ void update_windows_custom_scale(float *changed_window_custom_scale);
  *
  *      Update scale settings for all windows
  *
- * \param scale_factor     the scaling factor 
+ * \param scale_factor     the scaling factor
  * \callgraph
  */
 void update_windows_scale(float scale_factor);
@@ -326,6 +431,16 @@ void update_windows_scale(float scale_factor);
  * \callgraph
  */
 void update_window_scale(window_info *win, float scale_factor);
+
+/*!
+ * \ingroup elwindows
+ * \brief Handle a change in fonts
+ *
+ * Handle a change in font or text size for font category \a cat, in all windows.
+ *
+ * \param cat The font category that was changed,
+ */
+void change_windows_font(font_cat cat);
 
 /*!
  * \ingroup elwindows
@@ -742,7 +857,7 @@ int		mouse_in_window(int win_id, int x, int y);	// is a coord in the window?
  * \param flags     the window flags of the window. They will be given to the \ref window_info::click_handler that handles the actual click event.
  * \retval int      -1, if either \a win_id < 0, or \a win_id is greater than \ref windows_info::num_windows,
  *                  of if \a win_id is not equal the \ref window_info::window_id of the given at index \a win_id into the \ref windows_list array.
- *                  1 (true), if the cursor is actualy inside the window, 
+ *                  1 (true), if the cursor is actualy inside the window,
  *                  else 0 (false).
  * \callgraph
  *
@@ -820,11 +935,36 @@ int get_window_scroll_pos(int win_id);
 
 /*!
  * \ingroup elwindows
+ * \brief   Set the font category
+ *
+ * Set the font category for the text within the window with ID \a id window
+ * to \a cat.
+ *
+ * \param win_id The ID of the  window
+ * \param cat    The new font category
+ * \return 1 if the font category was sucessfully set, 0 on failure
+ */
+int set_window_font_category(int win_id, font_cat cat);
+
+/*!
+ * \ingroup elwindows
+ * \brief Get the content width of a window
+ *
+ * Get the content width of the window with identifier \a window_id. For non-scrollable windows,
+ * this is the normal window width. For scrollable windows, the width of the scrollbar is subtracted.
+ *
+ * \param window_id The ID of the window
+ * \return The content width of the window in pixels
+ */
+int get_window_content_width(int window_id);
+
+/*!
+ * \ingroup elwindows
  * \brief   The callback for context menu clicks
  *
  *      Called when an option is selected from the title context menu.  If
  *	the user window wants to use their own callback, they should still
- *  call this function to implement the title menu options. 
+ *  call this function to implement the title menu options.
  *
  * \param win    	Pointer to the windows structure
  * \param widget_id	The id of the widget clicked to open the menu or -1.
@@ -844,6 +984,16 @@ int cm_title_handler(window_info *win, int widget_id, int mx, int my, int option
 //int	display_handler(window_info *win);
 //int	click_handler(window_info *win);
 //int	mouseover_handler(window_info *win);
+
+
+/*!
+ * \name managed window wrapper functions
+ */
+/*! @{ */
+static inline void hide_window_MW(enum managed_window_enum managed_win) { hide_window(get_id_MW(managed_win)); }
+static inline void show_window_MW(enum managed_window_enum managed_win) { show_window(get_id_MW(managed_win)); }
+static inline int get_show_window_MW(enum managed_window_enum managed_win) { return get_show_window(get_id_MW(managed_win)); }
+/*! @} */
 
 #ifdef __cplusplus
 } // extern "C"

@@ -45,13 +45,10 @@ namespace ec
 				> MAX_DRAW_DISTANCE_SQUARED)
 			{
 				//Find everything that sees this as a neighbor and delete the references to this.
-				for (std::vector<CloudParticle*>::iterator iter =
-					incoming_neighbors.begin(); iter
-					!= incoming_neighbors.end(); iter++)
-					(*iter)->remove_neighbor(this);
-				for (std::vector<CloudParticle*>::iterator iter =
-					neighbors.begin(); iter != neighbors.end(); iter++)
-					(*iter)->remove_incoming_neighbor(this);
+				for (auto incoming: incoming_neighbors)
+					incoming->remove_neighbor(this);
+				for (auto neighbor: neighbors)
+					neighbor->remove_incoming_neighbor(this);
 				return false;
 			}
 		}
@@ -87,7 +84,7 @@ namespace ec
 				next_iter = effect->particles.begin();
 				offset = randint((int)effect->particles.size());
 				for (int j = 0; j < offset; j++)
-					next_iter++;
+					++next_iter;
 				next = (CloudParticle*)next_iter->first;
 				if (next != this)
 					break;
@@ -119,7 +116,7 @@ namespace ec
 				iter = eff->particles.begin();
 				offset = randint((int)eff->particles.size());
 				for (int j = 0; j < offset; j++)
-					iter++;
+					++iter;
 				neighbor = (CloudParticle*)iter->first;
 				if (neighbor != this)
 					break;
@@ -137,7 +134,7 @@ namespace ec
 				std::map<coord_t, CloudParticle*>::iterator iter =
 					neighbors_map.begin();
 				for (int j = 0; j < (int)neighbors_map.size() - 1; j++)
-					iter++;
+					++iter;
 				neighbors_map.erase(iter);
 			}
 			neighbors_map[distsquared] = neighbor;
@@ -147,18 +144,16 @@ namespace ec
 		// Set our color based on how deep into the cloud we are, based on our neighbors.  Also rebuild the neighbors vector.
 		coord_t distsquaredsum = 0;
 		Vec3 centerpoint(0.0, 0.0, 0.0);
-		for (std::vector<CloudParticle*>::iterator iter = neighbors.begin(); iter
-			!= neighbors.end(); iter++)
-			(*iter)->remove_incoming_neighbor(this);
+		for (auto neighbor: neighbors)
+			neighbor->remove_incoming_neighbor(this);
 		neighbors.clear();
 
-		for (std::map<coord_t, CloudParticle*>::iterator iter =
-			neighbors_map.begin(); iter != neighbors_map.end(); iter++)
+		for (const auto& iter: neighbors_map)
 		{
-			distsquaredsum += iter->first;
-			centerpoint += iter->second->pos; //Should really be (pos - iter->second->pos); will correct this below for speed.
-			neighbors.push_back(iter->second);
-			iter->second->add_incoming_neighbor(this);
+			distsquaredsum += iter.first;
+			centerpoint += iter.second->pos; //Should really be (pos - iter->second->pos); will correct this below for speed.
+			neighbors.push_back(iter.second);
+			iter.second->add_incoming_neighbor(this);
 		}
 		centerpoint = (pos * 20) - centerpoint;
 		Vec3 new_normal = centerpoint;
@@ -219,7 +214,7 @@ namespace ec
 				next_iter = effect->particles.begin();
 				offset = randint((int)effect->particles.size());
 				for (int j = 0; j < offset; j++)
-					next_iter++;
+					++next_iter;
 				next = (CloudParticle*)next_iter->first;
 				if ((next != this) && (next != p))
 					break;
@@ -293,13 +288,12 @@ namespace ec
 		}
 
 		// Load one neighbor for each one.  It'll get more on its own.
-		for (std::map<Particle*, bool>::iterator iter = particles.begin(); iter
-			!= particles.end(); iter++)
+		for (std::map<Particle*, bool>::iterator iter = particles.begin(); iter != particles.end(); ++iter)
 		{
 			CloudParticle* p = (CloudParticle*)iter->first;
 			CloudParticle* next;
 			std::map<Particle*, bool>::iterator iter2 = iter;
-			iter2++;
+			++iter2;
 			if (iter2 != particles.end())
 				next = (CloudParticle*)iter2->first;
 			else
@@ -371,13 +365,12 @@ namespace ec
 			}
 
 			// Load one neighbor for each one.  It'll get more on its own.
-			for (std::map<Particle*, bool>::iterator iter = particles.begin(); iter
-				!= particles.end(); iter++)
+			for (std::map<Particle*, bool>::iterator iter = particles.begin(); iter != particles.end(); ++iter)
 			{
 				CloudParticle* p = (CloudParticle*)iter->first;
 				CloudParticle* next;
 				std::map<Particle*, bool>::iterator iter2 = iter;
-				iter2++;
+				++iter2;
 				if (iter2 != particles.end())
 					next = (CloudParticle*)iter2->first;
 				else

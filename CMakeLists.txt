@@ -1,7 +1,7 @@
 # CMAKE file for Eternal Lands
 #
 # Create a build sub-directory and move into it
-# 
+#
 # To build a normal release version
 #   cmake <path to source>
 #
@@ -9,25 +9,29 @@
 #   cmake -DCMAKE_BUILD_TYPE=debug <path to source>
 #
 # To specify a non-default exec name include -DEXEC, for example "-DEXEC=el.$(uname -m).linux.bin"
-# To enable local CPU architecture optimisation include "-DMARCHNATIVE=1"
-# To enable runtime GCC address sanitization include -DADDRSANITISER=1
+# To enable local CPU architecture optimisation include "-DMARCHNATIVE=On"
+# To enable runtime GCC address sanitization include -DADDRSANITISER=On
 #
 # Example if located in source directory:
 #   mkdir -p build && cd build
-#   cmake -DCMAKE_BUILD_TYPE=debug -DEXEC=el.$(uname -m).linux.bin -DMARCHNATIVE=1 -DADDRSANITISER=1 ..
+#   cmake -DCMAKE_BUILD_TYPE=debug -DEXEC=el.$(uname -m).linux.bin -DMARCHNATIVE=On -DADDRSANITISER=On ..
 #   make
 #
 # Example for windows using msys2
 #   cmake -G "MSYS Makefiles" -DCMAKE_INCLUDE_PATH="/mingw64/local/include" -DCMAKE_LIBRARY_PATH="/mingw64/local/lib" ..
 
-cmake_minimum_required(VERSION 3.0.2)
+cmake_minimum_required(VERSION 3.5.0)
 
 project (Eternal-Lands)
 
-# standard options that also set source files to build
-set(CUSTOM_UPDATE 1)			# allows autoupdating of custom look information
-set(FSAA 1)						# Adds support for full screen anti-aliasing using OpenGL multisampling.
-set(JSON_FILES 0)				# switch existing binary user config files to JSON format
+# standard options, some that also set source files to build
+OPTION(CUSTOM_UPDATE "Allows autoupdating of custom look information" On)
+OPTION(FSAA "Adds support for full screen anti-aliasing using OpenGL multisampling." On)
+OPTION(JSON_FILES "Switch existing binary user config files to JSON format." On)
+OPTION(LOCAL_NLOHMANN_JSON "Enable if you want to use an embedded copy of nlohmann_json, placed in the nlohmann_json sub-directory of the source." Off)
+OPTION(MARCHNATIVE "Enable -march=native compiler flag, for when not building a portable executable." Off)
+OPTION(ADDRSANITISER "Enable the gcc address sanitisation options to do run-time checking." Off)
+OPTION(TTF "Add the ability to use True Type system fonts." On)
 
 # standard options
 add_definitions(
@@ -47,6 +51,8 @@ add_definitions(
 	-DMIDDLE_MOUSE_PASTE			# Paste using the middle mouse button from the primary buffer on X systems
 	# new for 1.9.4 release
 	-DNEW_EYES						# Support for different eye colors, needs new data files
+	# proposed for next release
+	-DNEW_CURSOR					# New coloured cursors made by Emajekral (Experimental).  An old unused feature. Derive cursor2.dss from http://users.on.net/~gingerman/sky_cursor-textures.zip (cursor2.bmp + alpha).
 )
 
 
@@ -88,7 +94,6 @@ add_definitions(
 
 # Other options (Experimental, unfinished, defunct or otherwise unknown)
 add_definitions(
-#	-DNEW_CURSOR					# New coloured cursors made by Emajekral (Experimental) Extract http://users.on.net/~gingerman/sky_cursor-textures.zip into datadir/textures/
 #	-DPAWN							# Experimental, not for release, will need server support to function properly. This *will* eat your cat. You've been warned. Enables the Pawn abstract machine.
 #	-DUID							# use unique ID sent from server for custom looks. (INCOMPLETE)
 #	-DUSE_ACTORS_OPTIMIZER			# Enables actor optimizations
@@ -102,31 +107,39 @@ add_definitions(
 set(SD "")
 
 # Get compiler flags for used libraries
-include(FindPkgConfig)
-pkg_check_modules(SDL2 sdl2)
-if (NOT SDL2_INCLUDE_DIRS)
-	include(cmake/FindSDL2.cmake)
-endif()
-include(FindLibXml2)
+include(cmake/FindSDL2.cmake)
 include(cmake/FindSDL2_image.cmake)
 include(cmake/FindSDL2_net.cmake)
 set(OpenGL_GL_PREFERENCE LEGACY)
-include(FindOpenGL)
-include(FindOpenAL)
-include(FindZLIB)
-include(FindPNG)
-include(FindX11)
+find_package(OpenGL REQUIRED)
+find_package(OpenAL REQUIRED)
+find_package(ZLIB REQUIRED)
+find_package(PNG REQUIRED)
+find_package(LibXml2 REQUIRED)
+if (CMAKE_SYSTEM_NAME MATCHES "Linux")
+	find_package(X11 REQUIRED)
+endif()
 if (CMAKE_SYSTEM_NAME MATCHES "Windows")
-	include(FindIconv)
+	find_package(Iconv REQUIRED)
 endif()
 # these definitions were re-used from Xapher's opengl client
 include(cmake/FindVorbis.cmake)
 include(cmake/FindVorbisFile.cmake)
 include(cmake/FindCal3d.cmake)
+if (TTF)
+	include(cmake/FindSDL2TTF.cmake)
+endif()
 
-# requird the nlohmann_json package if building for json files
-if (JSON_FILES EQUAL 1)
-	find_package(nlohmann_json 3.2.0 REQUIRED)
+# require the nlohmann_json package if building for json files
+if (JSON_FILES)
+	# if enabled use a local copy of the package
+	if (LOCAL_NLOHMANN_JSON)
+		set(JSON_BuildTests OFF CACHE INTERNAL "")
+		set(JSON_Install OFF CACHE INTERNAL "")
+		add_subdirectory(nlohmann_json)
+	else()
+		find_package(nlohmann_json REQUIRED)
+	endif()
 endif()
 
 # set the paths to header files
@@ -135,11 +148,11 @@ include_directories(${SD} ${SD}io ${SD}shader ${SD}xz ${SD}engine ${SD}exception
 # list the C source files
 set(SOURCES
 	${SD}2d_objects.c ${SD}3d_objects.c ${SD}actors.c ${SD}actor_scripts.c ${SD}alphamap.c ${SD}asc.c
-	${SD}astrology.c ${SD}bags.c ${SD}bbox_tree.c ${SD}books.c ${SD}buddy.c ${SD}buffs.c ${SD}cache.c ${SD}cal.c
+	${SD}astrology.c ${SD}bags.c ${SD}bbox_tree.c ${SD}buddy.c ${SD}buffs.c ${SD}cache.c ${SD}cal.c
 	${SD}calc.c ${SD}chat.c ${SD}cluster.c ${SD}colors.c ${SD}console.c ${SD}consolewin.c ${SD}counters.c
 	${SD}cursors.c ${SD}dds.c ${SD}ddsimage.c ${SD}dialogues.c ${SD}draw_scene.c ${SD}elconfig.c ${SD}el_memory.c
 	${SD}elwindows.c ${SD}emotes.c ${SD}encyclopedia.c ${SD}errors.c ${SD}events.c ${SD}eye_candy_debugwin.c
-	${SD}filter.c ${SD}font.c ${SD}framebuffer.c ${SD}frustum.c ${SD}gamewin.c ${SD}gl_init.c ${SD}hash.c ${SD}help.c
+	${SD}filter.c ${SD}framebuffer.c ${SD}frustum.c ${SD}gamewin.c ${SD}gl_init.c ${SD}hash.c ${SD}help.c
 	${SD}highlight.c ${SD}hud.c ${SD}hud_misc_window.c ${SD}hud_quickbar_window.c ${SD}hud_quickspells_window.c
 	${SD}hud_statsbar_window.c ${SD}ignore.c ${SD}image.c ${SD}image_loading.c ${SD}init.c ${SD}interface.c
 	${SD}items.c ${SD}keys.c ${SD}knowledge.c ${SD}langselwin.c ${SD}lights.c ${SD}list.c ${SD}load_gl_extensions.c
@@ -160,8 +173,8 @@ set(SOURCES
 
 # list the C++ source files
 set(SOURCES ${SOURCES}
-	${SD}achievements.cpp ${SD}actor_init.cpp ${SD}cal3d_wrapper.cpp ${SD}command_queue.cpp ${SD}context_menu.cpp
-	${SD}elloggingwrapper.cpp ${SD}hud_indicators.cpp ${SD}hud_timer.cpp ${SD}icon_window.cpp
+	${SD}achievements.cpp ${SD}actor_init.cpp  ${SD}books.cpp ${SD}cal3d_wrapper.cpp ${SD}command_queue.cpp ${SD}context_menu.cpp
+	${SD}elloggingwrapper.cpp  ${SD}font.cpp ${SD}hud_indicators.cpp ${SD}hud_timer.cpp ${SD}icon_window.cpp
 	${SD}io/cal3d_io_wrapper.cpp ${SD}item_info.cpp ${SD}item_lists.cpp ${SD}named_colours.cpp
 	${SD}optimizer.cpp ${SD}password_manager.cpp ${SD}quest_log.cpp ${SD}select.cpp ${SD}sendvideoinfo.cpp
 	${SD}trade_log.cpp ${SD}user_menus.cpp ${SD}xor_cipher.cpp ${SD}engine/hardwarebuffer.cpp ${SD}engine/logging.cpp
@@ -178,24 +191,24 @@ set(SOURCES ${SOURCES}
 )
 
 # if CUSTOM_UPDATE wanted add the define and additional source modules
-if (CUSTOM_UPDATE EQUAL 1)
+if (CUSTOM_UPDATE)
 	add_definitions(-DCUSTOM_UPDATE)
 	set(SOURCES ${SOURCES} ${SD}custom_update.c ${SD}new_update.c)
 endif()
 
 # if JSON_FILES wanted add the define and additional source modules
-if (JSON_FILES EQUAL 1)
+if (JSON_FILES)
 	add_definitions(-DJSON_FILES)
 	set(SOURCES ${SOURCES} ${SD}json_io.cpp )
 endif()
 
 # if FSAA wanted add the define and additional source modules
-if (FSAA EQUAL 1)
+if (FSAA)
 	add_definitions(-DFSAA)
 	if (CMAKE_SYSTEM_NAME MATCHES "Windows")
 		set(SOURCES ${SOURCES} ${SD}fsaa/fsaa_wgl.c ${SD}fsaa/fsaa.c)
 	else()
-		set(SOURCES ${SOURCES} ${SD}fsaa/fsaa_dummy.c ${SD}fsaa/fsaa.c)
+		set(SOURCES ${SOURCES} ${SD}fsaa/fsaa_glx.c ${SD}fsaa/fsaa.c)
 	endif()
 endif()
 
@@ -205,18 +218,22 @@ if (MARCHNATIVE)
 	set(EXTRA_CXX_FLAGS "${EXTRA_CXX_FLAGS} -march=native")
 endif()
 
-# if enabled, include the gcc address sanitisation options, please report andthing you find
+# if enabled, include the gcc address sanitisation options, please report anything you find
 if (ADDRSANITISER)
 	set(EXTRA_C_FLAGS "${EXTRA_C_FLAGS} -fsanitize=address")
 	set(EXTRA_CXX_FLAGS "${EXTRA_CXX_FLAGS} -fsanitize=address")
-	set(EXTRA_LD_FLAGS "${EXTRA_LD_FLAGS} -fsanitize=address")
+	set(EXTRA_LD_FLAGS "${EXTRA_LD_FLAGS} -fsanitize=address -static-libasan")
+endif()
+
+if (TTF)
+	add_definitions(-DTTF)
 endif()
 
 # set the compiler flags for DEBUG and RELEASE builds
-set(CMAKE_C_FLAGS "${EXTRA_C_FLAGS} -Wall -Wdeclaration-after-statement -D_GNU_SOURCE=1 -D_REENTRANT")
+set(CMAKE_C_FLAGS "${EXTRA_C_FLAGS} -Wall -Wdeclaration-after-statement -W -Wno-unused-parameter -Wno-sign-compare -D_GNU_SOURCE=1 -D_REENTRANT")
 set(CMAKE_C_FLAGS_DEBUG "-Og -ggdb -pipe -fno-strict-aliasing")
 set(CMAKE_C_FLAGS_RELEASE "-O3 -fomit-frame-pointer -ffast-math -pipe -fno-strict-aliasing")
-set(CMAKE_CXX_FLAGS "${EXTRA_CXX_FLAGS} -Wall -D_GNU_SOURCE=1 -D_REENTRANT")
+set(CMAKE_CXX_FLAGS "${EXTRA_CXX_FLAGS} -Wall -D_GNU_SOURCE=1 -W -Wno-unused-parameter -Wno-sign-compare -Wno-cast-function-type -D_REENTRANT -std=c++11")
 set(CMAKE_CXX_FLAGS_DEBUG "-Og -ggdb -pipe -fno-strict-aliasing")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3 -fomit-frame-pointer -ffast-math -pipe -fno-strict-aliasing")
 
@@ -263,7 +280,7 @@ string(STRIP "${EXTRA_LD_FLAGS}" EXTRA_LD_FLAGS)
 add_executable(${EXEC} ${SOURCES})
 
 # if JSON_FILES wanted define dependancies
-if (JSON_FILES EQUAL 1)
+if (JSON_FILES)
 	set(EXTRA_TARGET_LINK nlohmann_json::nlohmann_json)
 	set(EXTRA_TARGET_INCLUDE nlohmann_json::nlohmann_json)
 else()
@@ -308,6 +325,10 @@ target_include_directories(${EXEC} SYSTEM PUBLIC
 	${EXTRA_TARGET_INCLUDE}
 )
 
+if (TTF)
+	target_link_libraries(${EXEC} ${SDL2TTF_LIBRARY})
+	target_include_directories(${EXEC} SYSTEM PUBLIC ${SDL2TTF_INCLUDE_DIR})
+endif()
 
 install(
 	TARGETS ${EXEC} RUNTIME DESTINATION bin

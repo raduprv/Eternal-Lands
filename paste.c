@@ -13,37 +13,6 @@ void do_paste(const Uint8* buffer)
 	paste_in_input_field(buffer);
 }
 
-void do_paste_to_text_field(widget_list *widget, const char* text)
-{
-	text_field *tf;
-	int bytes = strlen(text);
-	text_message* msg;
-	int p;
-
-	if ((widget == NULL) || (widget->widget_info == NULL))
-		return;
-
-	// if not editable, don't allow paste
-	if (!(widget->Flags & TEXT_FIELD_EDITABLE))
-		return;
-
-	tf = (text_field *) widget->widget_info;
-	msg = &tf->buffer[tf->msg];
-
-	// if can't grow and would over fill, just use what we can
-	if ((msg->len + bytes >= msg->size) && !(widget->Flags & TEXT_FIELD_CAN_GROW))
-		bytes = msg->size - msg->len - 1;
-
-	resize_text_message_data (msg, msg->len + bytes);
-
-	p = tf->cursor;
-	memmove (&msg->data[p + bytes], &msg->data[p], msg->len - p + 1);
-	memcpy (&msg->data[p], text, bytes);
-	msg->len += bytes;
-	tf->cursor += bytes;
-	text_field_find_cursor_line (tf);
-}
-
 #if defined OSX
 
 void start_paste(widget_list *widget)
@@ -58,7 +27,7 @@ void start_paste(widget_list *widget)
 	//require_noerr( err, CantCreateClipboard );
 
   	err = PasteboardGetItemIdentifier( gClipboard, 1, &itemID );
-	err = PasteboardCopyItemFlavorData( gClipboard, itemID, CFSTR("com.apple.traditional-mac-plain-text"), &flavorData );
+	err = PasteboardCopyItemFlavorData( gClipboard, itemID, CFSTR("public.utf8-plain-text"), &flavorData );
 
 	int flavorDataSize = CFDataGetLength(flavorData);
 	flavorText=(char*)malloc(flavorDataSize+1);
@@ -77,7 +46,7 @@ void start_paste(widget_list *widget)
 	}
 	else
 	{
-		do_paste_to_text_field(widget, flavorText);
+		widget_handle_paste(widget, flavorText);
 	}
 
 	free(flavorText);
@@ -98,7 +67,7 @@ void copy_to_clipboard(const char* text)
 
 	// add text data to the pasteboard
 	err = PasteboardPutItemFlavor( gClipboard, (PasteboardItemID)1,
-		CFSTR("com.apple.traditional-mac-plain-text"), textData, 0 );
+		CFSTR("public.utf8-plain-text"), textData, 0 );
 	CFRelease(textData);
 	CFRelease( gClipboard );
 }
@@ -118,7 +87,7 @@ void start_paste(widget_list *widget)
 				if (widget == NULL)
 					do_paste((Uint8 *)text);
 				else
-					do_paste_to_text_field(widget, text);
+					widget_handle_paste(widget, text);
 			}
 			else
 				LOG_TO_CONSOLE(c_red3, "Paste error: GlobalLock()");
@@ -200,7 +169,7 @@ void processpaste(Display *dpy, Window window, Atom atom)
 		}
 		else
 		{
-			do_paste_to_text_field(paste_to_widget, (const char*) value);
+			widget_handle_paste(paste_to_widget, (const char*) value);
 			paste_to_widget = NULL;
 		}
 	}

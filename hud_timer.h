@@ -8,7 +8,7 @@ extern "C" {
 void update_hud_timer(void);
 int get_height_of_timer(void);
 void set_mouse_over_timer(void);
-int display_timer(window_info *win, int base_y_start);
+int display_timer(window_info *win, int base_y_start, int tooltip_sep);
 int ui_scale_timer(window_info *win);
 int mouse_is_over_timer(window_info *win, int mx, int my);
 int mouse_click_timer(Uint32 flags);

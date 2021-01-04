@@ -10,7 +10,7 @@
 #include "hud.h"
 #include "init.h"
 #include "loginwin.h"
-#if defined JSON_FILES
+#ifdef JSON_FILES
 #include "json_io.h"
 #endif
 #include "manufacture.h"
@@ -26,7 +26,6 @@
 #include "translate.h"
 
 #define NUM_COUNTERS 15
-#define MAX(a,b) (a > b ? a : b)
 
 /* Counter IDs */
 enum {
@@ -84,18 +83,16 @@ static int name_x_start = 0;
 static int name_x_end = 0;
 static int session_x_start = 0;
 static int session_x_end = 0;
-static int session_x_num_start = 0;
 static int total_x_start = 0;
-static int total_x_num_start = 0;
 static int total_x_end = 0;
 static int space_y = 0;
 static int step_y = 0;
 
 // put these in translate module
-static const char *name_str = "Name";
-static const char *session_str = "This Session";
-static const char *total_str = "Total";
-static const char *totals_str = "Totals:";
+static const unsigned char *name_str = (const unsigned char*)"Name";
+static const unsigned char *session_str = (const unsigned char*)"This Session";
+static const unsigned char *total_str = (const unsigned char*)"Total";
+static const unsigned char *totals_str = (const unsigned char*)"Totals:";
 
 static const char *cat_str[NUM_COUNTERS] = { "Kills", "Deaths", "Harvests", "Alchemy", "Crafting", "Manufacturing",
 	"Potions", "Spells", "Summons", "Engineering", "Breakages", "Events", "Tailoring", "Crit Fails", "Used Items" };
@@ -148,18 +145,18 @@ int counters_scroll_id = 16;
 
 void increment_counter(int counter_id, const char *name, int quantity, int extra);
 
-int display_counters_handler(window_info *win);
-int click_counters_handler(window_info *win, int mx, int my, Uint32 extra);
-int mouseover_counters_handler(window_info *win, int mx, int my);
+static int display_counters_handler(window_info *win);
+static int click_counters_handler(window_info *win, int mx, int my, Uint32 extra);
+static int mouseover_counters_handler(window_info *win, int mx, int my);
 
 static size_t cm_counters = CM_INIT_VALUE;
 static int cm_selected_entry = -1;
 static int cm_selected_id = -1;
 static int cm_entry_count = -1;
 static int cm_floating_flag = 0;
-unsigned int floating_counter_flags = 0;		/* persisted in el.cfg file */
-int floating_session_counters = 0;				/* persisted in el.ini */
-int enable_used_item_counter = 0;				/* persisted in el.ini */
+unsigned int floating_counter_flags = 0;		/* persisted in cfg file */
+int floating_session_counters = 0;			/* persisted in ini file */
+int enable_used_item_counter = 0;			/* persisted in ini file */
 
 int sort_counter_func(const void *a, const void *b)
 {
@@ -172,18 +169,20 @@ int sort_counter_func(const void *a, const void *b)
 		ca = a;
 		cb = b;
 	}
-	
+
 	switch (abs(sort_by[sort_counter_id-1])) {
 	case TOTAL:
 		if (ca->n_total < cb->n_total)
 			return -1;
 		if (ca->n_total > cb->n_total)
 			return 1;
+		// fallthrough
 	case SESSION:
 		if (ca->n_session < cb->n_session)
 			return -1;
 		if (ca->n_session > cb->n_session)
 			return 1;
+		// fallthrough
 	case NAME:
 		return strcasecmp(ca->name, cb->name);
 	}
@@ -227,7 +226,7 @@ void load_counters(void)
 		entries[i] = 0;
 		sort_by[i] = 0;
 	}
-	
+
 	/* allocate and set misc event matching strings */
 	search_str = malloc (sizeof (char *) * num_search_str);
 	search_len = malloc (sizeof (size_t) * num_search_str);
@@ -245,17 +244,22 @@ void load_counters(void)
 
 	counters_initialized = 1;
 
-#if defined JSON_FILES
-	// try to load the counters json file
-	safe_snprintf(filename, sizeof(filename), "%scounters_%s.json", get_path_config(), get_lowercase_username());
-	if (json_load_counters(filename, cat_str, entries, NUM_COUNTERS, counters) >= 0)
+#ifdef JSON_FILES
+	if (get_use_json_user_files())
 	{
-		LEAVE_DEBUG_MARK("load counters");
-		return;
+		USE_JSON_DEBUG("Loading json file");
+		// try to load the counters json file
+		safe_snprintf(filename, sizeof(filename), "%scounters_%s.json", get_path_config(), get_lowercase_username());
+		if (json_load_counters(filename, cat_str, entries, NUM_COUNTERS, counters) >= 0)
+		{
+			LEAVE_DEBUG_MARK("load counters");
+			return;
+		}
 	}
+	USE_JSON_DEBUG("Loading binary file");
 #endif
 
-	// if there is no json file, try to load the old binary format
+	// if there is no json file, or json use disabled, try to load the old binary format
 	safe_snprintf(filename, sizeof(filename), "counters_%s.dat", get_lowercase_username());
 	LOG_DEBUG("Open counters file '%s'", filename);
 	if (!(f = open_file_config(filename, "rb"))) {
@@ -315,29 +319,25 @@ void flush_counters(void)
 	Uint8 io_counter_id;
 	Uint8 io_name_len;
 	char filename[256];
-	
+
 	if (!counters_initialized) {
 		return;
 	}
 
-#if defined JSON_FILES
-	// save the json file
-	safe_snprintf(filename, sizeof(filename), "%scounters_%s.json", get_path_config(), get_lowercase_username());
-	if (json_save_counters(filename, cat_str, entries, NUM_COUNTERS, (const struct Counter **)counters) < 0)
+#ifdef JSON_FILES
+	if (get_use_json_user_files())
 	{
-		LOG_ERROR("%s: %s \"%s\"\n", reg_error_str, cant_open_file, filename);
+		USE_JSON_DEBUG("Saving json file");
+		// save the json file
+		safe_snprintf(filename, sizeof(filename), "%scounters_%s.json", get_path_config(), get_lowercase_username());
+		if (json_save_counters(filename, cat_str, entries, NUM_COUNTERS, (const struct Counter **)counters) < 0)
+			LOG_ERROR("%s: %s \"%s\"\n", reg_error_str, cant_open_file, filename);
 		return;
 	}
-
-	// we have written the json file, only write the binary file if one already exists
-	// this is to maintain backwards comatibility until the next forced version release
-	safe_snprintf(filename, sizeof(filename), "counters_%s.dat", get_lowercase_username());
-	if (file_exists_config(filename)!=1)
-		return;
-#else
-	safe_snprintf(filename, sizeof(filename), "counters_%s.dat", get_lowercase_username());
+	USE_JSON_DEBUG("Saving binary file");
 #endif
 
+	safe_snprintf(filename, sizeof(filename), "counters_%s.dat", get_lowercase_username());
 	LOG_DEBUG("Open counters file '%s'", filename);
 	if (!(f = open_file_config(filename, "wb"))) {
 		return;
@@ -356,7 +356,7 @@ void flush_counters(void)
 
 			LOG_DEBUG("Writing counter '%s'",
 				counters[i][j].name);
-			
+
 			fwrite(&io_counter_id, sizeof(io_counter_id), 1, f);
 			fwrite(&io_name_len, sizeof(io_name_len), 1, f);
 			fwrite(counters[i][j].name, io_name_len, 1, f);
@@ -395,7 +395,7 @@ void cleanup_counters(void)
 		search_str = NULL;
 		search_len = NULL;
 	}
-	
+
 	clear_now_harvesting();
 	counters_initialized = 0;
 }
@@ -425,7 +425,7 @@ void increment_counter(int counter_id, const char *name, int quantity, int extra
 		LOG_ERROR("Counter ID %d out of bounds. NUM_COUNTERS %d", counter_id, NUM_COUNTERS);
 		return;
 	}
-	
+
 	/* Look for an existing entry. */
 	for (j = 0; j < entries[i]; j++) {
 		if ((name && strcasecmp(counters[i][j].name, name)) || counters[i][j].extra != extra) {
@@ -451,9 +451,11 @@ void increment_counter(int counter_id, const char *name, int quantity, int extra
 
 	if (floating_session_counters && (floating_counter_flags & (1 << i)))
 	{
-		char str[128];
-		safe_snprintf(str, sizeof(str), "%s: %u", name, counters[i][j].n_session);
+		size_t buf_len = strlen(name) + 20; // room for " : [+/-]4294967296\0"
+		char *str = malloc(buf_len);
+		safe_snprintf(str, buf_len, "%s: %u", name, counters[i][j].n_session);
 		add_floating_message(yourself, str, FLOATINGMESSAGE_NORTH, 0.3, 0.3, 1.0, 1500);
+		free(str);
 	}
 
 	sort_counter(counter_id);
@@ -565,7 +567,7 @@ void print_session_counters(const char *category)
 static int cm_counters_handler(window_info *win, int widget_id, int mx, int my, int option)
 {
 	struct Counter *the_entry = NULL;
-	
+
 	// if the number of entries has changed, we could be about to use the wrong entry, don't use it
 	// if a entry index is invalid, don't use it
 	if ((cm_entry_count == entries[cm_selected_id]) &&
@@ -579,7 +581,7 @@ static int cm_counters_handler(window_info *win, int widget_id, int mx, int my, 
 			{
 				int i;
 				if (the_entry->name != NULL)
-					free(the_entry->name);	
+					free(the_entry->name);
 				// move the entries up, replacing the deleted one
 				for (i=cm_selected_entry+1; i<entries[cm_selected_id]; i++)
 				{
@@ -639,37 +641,52 @@ static int cm_counters_handler(window_info *win, int widget_id, int mx, int my, 
 	return 1;
 }
 
+static void set_content_widths(window_info *win)
+{
+	float zoom = win->current_scale_small;
+	int gap_x = win->small_font_max_len_x / 2;
+	int max_button_width = 0;
+	int button_height = (int)(0.5 + win->current_scale_small * 2*BUTTONRADIUS);
+	int button_sep = (int)(0.5 + win->current_scale_small * 2);
+	int i;
+
+	for (i=0; i<NUM_COUNTERS; i++)
+	{
+		int width = calc_button_width((const unsigned char*)cat_str[i], win->font_category, zoom);
+		if (width > max_button_width)
+			max_button_width = width;
+	}
+
+	left_panel_width = 2 * gap_x + max_button_width;
+
+	name_x_start = left_panel_width + gap_x;
+	name_x_end = name_x_start + get_string_width_zoom(name_str, win->font_category, zoom);
+
+	total_x_end = win->len_x - win->box_size - gap_x;
+	total_x_start = total_x_end - get_string_width_zoom(total_str, win->font_category, zoom);
+
+	session_x_end = total_x_end - 12 * win->small_font_max_len_x;
+	session_x_start = session_x_end - get_string_width_zoom(session_str, win->font_category, zoom);
+
+	win->min_len_x = name_x_end + 2 * 12 * win->small_font_max_len_x + win->box_size + gap_x;
+	win->min_len_y = 2 * gap_x + (NUM_COUNTERS - 1) * button_sep + NUM_COUNTERS * button_height;
+}
 
 static int resize_counters_handler(window_info *win, int new_width, int new_height)
 {
+	int gap_x = win->small_font_max_len_x / 2;
 	size_t i;
-	int max_label_len = 0;
 	int current_selected;
 	int butt_y[NUM_COUNTERS] = {0, 1, 6, 7, 8, 9, 10, 11, 12, 13, 2, 5, 14, 3, 4 };
-	int gap_x = win->small_font_len_x / 2;
 
-	for (i=0; i<NUM_COUNTERS; i++)
-		if (strlen(cat_str[i]) > max_label_len)
-			max_label_len = strlen(cat_str[i]);
+	set_content_widths(win);
 
-	left_panel_width = 2 * gap_x + max_label_len * win->small_font_len_x + 2 * (int)(DEFAULT_SMALL_RATIO * win->current_scale * BUTTONRADIUS);
-	name_x_start = left_panel_width + gap_x;
-	name_x_end = name_x_start + (int)(0.5 + win->small_font_len_x * (float)strlen(name_str));
-
-	total_x_end = win->len_x - win->box_size - gap_x;
-	total_x_start = total_x_end - (int)(0.5 + win->small_font_len_x * (float)strlen(total_str));
-	total_x_num_start = total_x_end - (int)(0.5 + win->small_font_len_x * 11);
-
-	session_x_end = total_x_num_start - (int)(0.5 + win->small_font_len_x);
-	session_x_start = session_x_end - (int)(0.5 + win->small_font_len_x * (float)strlen(session_str));
-	session_x_num_start = session_x_end - (int)(0.5 + win->small_font_len_x * 11);
-
-	margin_y_len = win->small_font_len_y * 1.5;
-	space_y = win->small_font_len_y / 2;
-	step_y = win->small_font_len_y;
+	step_y = get_line_height(win->font_category, win->current_scale_small);
+	margin_y_len = 1.5 * step_y;
+	space_y = 0.5 * step_y;
 	NUM_LINES = (int)((new_height - 2 * margin_y_len - 2 * space_y) / step_y);
 
-	// for now, destory then re-create the buttons as there is no clear way to resize them
+	// for now, destroy then re-create the buttons as there is no clear way to resize them
 	if (multiselect_id >= 0)
 	{
 		current_selected = multiselect_get_selected(win->window_id, multiselect_id);
@@ -681,7 +698,7 @@ static int resize_counters_handler(window_info *win, int new_width, int new_heig
 
 	widget_resize(win->window_id, counters_scroll_id, win->box_size, win->len_y - 2 * margin_y_len);
 	widget_move(win->window_id, counters_scroll_id, win->len_x - win->box_size, margin_y_len);
-	vscrollbar_set_bar_len(win->window_id, counters_scroll_id, MAX(0, entries[current_selected] - NUM_LINES));
+	vscrollbar_set_bar_len(win->window_id, counters_scroll_id, max2i(0, entries[current_selected] - NUM_LINES));
 
 	cm_remove_regions(win->window_id);
 	cm_add_region(cm_counters, win->window_id, left_panel_width, (margin_y_len + space_y),
@@ -689,24 +706,45 @@ static int resize_counters_handler(window_info *win, int new_width, int new_heig
 
 	multiselect_id = multiselect_add(win->window_id, NULL, gap_x, gap_x, left_panel_width - 2 * gap_x);
 	for (i=0; i<NUM_COUNTERS; i++)
+	{
 		multiselect_button_add_extended(win->window_id, multiselect_id,
-			0, (int)((new_height - gap_x) / NUM_COUNTERS) * butt_y[i], 0, cat_str[i], DEFAULT_SMALL_RATIO * win->current_scale, i==0);
+			0, (int)((new_height - gap_x) / NUM_COUNTERS) * butt_y[i], 0, cat_str[i], win->current_scale_small, i==0);
+	}
 
 	multiselect_set_selected(win->window_id, multiselect_id, current_selected);
 
 	return 0;
 }
 
+int ui_scale_font_handler(window_info *win)
+{
+	set_content_widths(win);
+	return 1;
+}
+
+int change_counters_font_handler(window_info *win, font_cat cat)
+{
+	if (cat != win->font_category)
+		return 0;
+	set_content_widths(win);
+	return 1;
+}
+
 void fill_counters_win(int window_id)
 {
-	set_window_custom_scale(window_id, &custom_scale_factors.stats);
+	set_window_custom_scale(window_id, MW_STATS);
 	set_window_handler(window_id, ELW_HANDLER_DISPLAY, &display_counters_handler);
 	set_window_handler(window_id, ELW_HANDLER_CLICK, &click_counters_handler);
 	set_window_handler(window_id, ELW_HANDLER_MOUSEOVER, &mouseover_counters_handler);
 	set_window_handler(window_id, ELW_HANDLER_RESIZE, &resize_counters_handler);
+	set_window_handler(window_id, ELW_HANDLER_UI_SCALE, &ui_scale_font_handler);
+	set_window_handler(window_id, ELW_HANDLER_FONT_CHANGE, &change_counters_font_handler);
 
 	counters_scroll_id = vscrollbar_add_extended(window_id, counters_scroll_id, NULL, 0, 0, 0, 0, 0,
-		1.0f, 0.77f, 0.57f, 0.39f, 0, 1, 0);
+		1.0f, 0, 1, 0);
+
+	if (window_id >= 0 && window_id < windows_list.num_windows)
+		set_content_widths(&windows_list.window[window_id]);
 
 	if (cm_counters == CM_INIT_VALUE)
 	{
@@ -716,36 +754,35 @@ void fill_counters_win(int window_id)
 	}
 }
 
-int display_counters_handler(window_info *win)
+static int display_counters_handler(window_info *win)
 {
 	int i, j, n, x, y;
 	int scroll;
 	int total, session_total;
-	char buffer[32];
+	unsigned char buffer[32];
 
 	i = multiselect_get_selected(win->window_id, multiselect_id);
 	selected_counter_id = i + 1;
 
 	if (selected_counter_id != last_selected_counter_id) {
-		vscrollbar_set_bar_len(win->window_id, counters_scroll_id, MAX(0, entries[i] - NUM_LINES));
+		vscrollbar_set_bar_len(win->window_id, counters_scroll_id, max2i(0, entries[i] - NUM_LINES));
 		vscrollbar_set_pos(win->window_id, counters_scroll_id, 0);
 		last_selected_counter_id = selected_counter_id;
 		selected_entry = -1;
 	}
 
 	x = left_panel_width;
-	y = (int)(0.5 + win->current_scale * 8);
-	
+
 	glDisable(GL_TEXTURE_2D);
-	glColor3f(0.77f, 0.57f, 0.39f);
+	glColor3fv(gui_color);
 	glBegin(GL_LINES);
-	
+
 	glVertex3i(x, 0, 0);
 	glVertex3i(x, win->len_y, 0);
-	
+
 	glVertex3i(x, margin_y_len, 0);
 	glVertex3i(win->len_x, margin_y_len, 0);
-	
+
 	glVertex3i(x, win->len_y-margin_y_len, 0);
 	glVertex3i(win->len_x, win->len_y-margin_y_len, 0);
 
@@ -756,15 +793,20 @@ int display_counters_handler(window_info *win)
 
 	if (mouseover_name) glColor3f(0.6f, 0.6f, 0.6f);
 	else glColor3f(1.0f, 1.0f, 1.0f);
-	draw_string_small_zoomed(x, y, (unsigned char*)name_str, 1, win->current_scale);
+	draw_text(x, margin_y_len, name_str, strlen((const char*)name_str), win->font_category,
+		TDO_ZOOM, win->current_scale_small, TDO_VERTICAL_ALIGNMENT, BOTTOM_LINE, TDO_END);
 
 	if (mouseover_session) glColor3f(0.6f, 0.6f, 0.6f);
 	else glColor3f(1.0f, 1.0f, 1.0f);
-	draw_string_small_zoomed(session_x_start, y, (unsigned char*)session_str, 1, win->current_scale);
+	draw_text(session_x_end, margin_y_len, session_str, strlen((const char*)session_str),
+		win->font_category, TDO_ZOOM, win->current_scale_small, TDO_ALIGNMENT, RIGHT,
+		TDO_VERTICAL_ALIGNMENT, BOTTOM_LINE, TDO_END);
 
 	if (mouseover_total) glColor3f(0.6f, 0.6f, 0.6f);
 	else glColor3f(1.0f, 1.0f, 1.0f);
-	draw_string_small_zoomed(total_x_start, y, (unsigned char*)total_str, 1, win->current_scale);
+	draw_text(total_x_end, margin_y_len, total_str, strlen((const char*)total_str), win->font_category,
+		TDO_ZOOM, win->current_scale_small, TDO_ALIGNMENT, RIGHT, TDO_VERTICAL_ALIGNMENT, BOTTOM_LINE,
+		TDO_END);
 
 	if (counters_scroll_id != -1) {
 		scroll = vscrollbar_get_pos(win->window_id, counters_scroll_id);
@@ -774,7 +816,7 @@ int display_counters_handler(window_info *win)
 
 	if (cm_window_shown() != cm_counters)
 		cm_selected_entry = -1;
-	
+
 	for (j = scroll, n = 0, y = margin_y_len + space_y; j < entries[i]; j++, n++) {
 		int mouse_over_this_entry = ((mouseover_entry_y >= y) && (mouseover_entry_y < y+step_y));
 
@@ -787,7 +829,7 @@ int display_counters_handler(window_info *win)
 		}
 
 		if (cm_selected_entry == j)
-			glColor3f(0.77f, 0.57f, 0.39f);
+			glColor3fv(gui_color);
 		else if ((selected_counter_id == KILLS || selected_counter_id == DEATHS) && counters[i][j].extra)
 			glColor3f(0.8f, 0.2f, 0.2f);
 		else if (selected_entry == j)
@@ -801,32 +843,29 @@ int display_counters_handler(window_info *win)
 			glColor3f(0.25f, 0.25f, 0.25f);
 
 		/* draw first so left padding does not overwrite name */
-		safe_snprintf(buffer, sizeof(buffer), "%11u", counters[i][j].n_session);
-		draw_string_small_zoomed(session_x_num_start, y, (unsigned char*)buffer, 1, win->current_scale);
-		safe_snprintf(buffer, sizeof(buffer), "%11u", counters[i][j].n_total);
-		draw_string_small_zoomed(total_x_num_start, y, (unsigned char*)buffer, 1, win->current_scale);
+		safe_snprintf((char*)buffer, sizeof(buffer), "%u", counters[i][j].n_session);
+		draw_string_small_zoomed_right(session_x_end, y, buffer, 1, win->current_scale);
+		safe_snprintf((char*)buffer, sizeof(buffer), "%u", counters[i][j].n_total);
+		draw_string_small_zoomed_right(total_x_end, y, buffer, 1, win->current_scale);
 
-		if (counters[i][j].name) {
-			float max_name_x;
-			float font_ratio = win->small_font_len_x/12.0;
-			safe_snprintf(buffer, sizeof(buffer), "%u", counters[i][j].n_session);
-			max_name_x = session_x_end - name_x_start - (get_string_width((unsigned char*)buffer) * font_ratio);
-			/* if the name would overlap the session total, truncate it */
-			if ((get_string_width((unsigned char*)counters[i][j].name) * font_ratio) > max_name_x) {
-				const char *append_str = "... ";
-				size_t dest_max_len = strlen(counters[i][j].name) + strlen(append_str) + 1;
-				char *used_name = (char *)malloc(dest_max_len);
-				truncated_string(used_name, counters[i][j].name, dest_max_len, append_str, max_name_x, font_ratio);
-				draw_string_small_zoomed(x, y, (unsigned char*)used_name, 1, win->current_scale);
+		if (counters[i][j].name)
+		{
+			float max_width;
+			float zoom = win->current_scale_small;
+			safe_snprintf((char*)buffer, sizeof(buffer), "%u", counters[i][j].n_session);
+			max_width = session_x_end - name_x_start
+				- get_string_width_zoom(buffer, win->font_category, zoom);
+
+			draw_string_zoomed_ellipsis_font(x, y, (const unsigned char*)counters[i][j].name,
+				max_width, 1, win->font_category, win->current_scale_small);
+			if (get_string_width_zoom((unsigned char*)counters[i][j].name, win->font_category, zoom) > max_width)
+			{
 				/* if the mouse is over this line and its truncated, tooltip to full name */
 				if (mouseover_entry_y >= y && mouseover_entry_y < y+step_y) {
 					show_help(counters[i][j].name, -TAB_MARGIN, win->len_y+10+TAB_MARGIN, win->current_scale);
 					counters_show_win_help = 0;
 				}
-				free(used_name);
 			}
-			else
-				draw_string_small_zoomed(x, y, (unsigned char*)counters[i][j].name, 1, win->current_scale);
 		}
 		y += step_y;
 	}
@@ -840,25 +879,31 @@ int display_counters_handler(window_info *win)
 
 	glColor3f(1.0f, 1.0f, 1.0f);
 
-	draw_string_small_zoomed(x, win->len_y - (margin_y_len - space_y), (unsigned char*)totals_str, 1, win->current_scale);
+	draw_text(x, win->len_y - margin_y_len/2, totals_str, strlen((const char*)totals_str),
+		win->font_category, TDO_ZOOM, win->current_scale_small, TDO_VERTICAL_ALIGNMENT, CENTER_LINE,
+		TDO_END);
 
 	for (j = 0, total = 0, session_total = 0; j < entries[i]; j++) {
 		total += counters[i][j].n_total;
 		session_total += counters[i][j].n_session;
 	}
 
-	safe_snprintf(buffer, sizeof(buffer), "%11u", session_total);
-	draw_string_small_zoomed(session_x_num_start, win->len_y - (margin_y_len - space_y), (unsigned char*)buffer, 1, win->current_scale);
+	safe_snprintf((char*)buffer, sizeof(buffer), "%u", session_total);
+	draw_text(session_x_end, win->len_y - margin_y_len/2, buffer, strlen((const char*)buffer),
+		win->font_category, TDO_ZOOM, win->current_scale_small, TDO_ALIGNMENT, RIGHT,
+		TDO_VERTICAL_ALIGNMENT, CENTER_LINE, TDO_END);
 
-	safe_snprintf(buffer, sizeof(buffer), "%11u", total);
-	draw_string_small_zoomed(total_x_num_start, win->len_y - (margin_y_len - space_y), (unsigned char*)buffer, 1, win->current_scale);
+	safe_snprintf((char*)buffer, sizeof(buffer), "%u", total);
+	draw_text(total_x_end, win->len_y - margin_y_len/2, buffer, strlen((const char*)buffer),
+		win->font_category, TDO_ZOOM, win->current_scale_small, TDO_ALIGNMENT, RIGHT,
+		TDO_VERTICAL_ALIGNMENT, CENTER_LINE, TDO_END);
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
 	return 1;
 }
 
-int click_counters_handler(window_info *win, int mx, int my, Uint32 extra)
+static int click_counters_handler(window_info *win, int mx, int my, Uint32 extra)
 {
 	 if (mx > left_panel_width && my > margin_y_len && my < win->len_y - margin_y_len) {
 		if (extra&ELW_WHEEL_UP) {
@@ -904,7 +949,7 @@ int click_counters_handler(window_info *win, int mx, int my, Uint32 extra)
 	return 1;
 }
 
-int mouseover_counters_handler(window_info *win, int mx, int my)
+static int mouseover_counters_handler(window_info *win, int mx, int my)
 {
 	mouseover_name = mouseover_session = mouseover_total = 0;
 	mouseover_entry_y = -1;
@@ -920,7 +965,7 @@ int mouseover_counters_handler(window_info *win, int mx, int my)
 		}
 		return 0;
 	}
-	
+
 	if (mx >= name_x_start && mx <= name_x_end) {
 		mouseover_name = 1;
 		return 0;
@@ -951,14 +996,14 @@ const char *strip_actor_name (const char *actor_name)
 	if (is_color (actor_name[0])) {
 		actor_name++;
 	}
-	
+
 	/* copy the name minus the guild tag */
 	for (i = 0; actor_name[i] && i < sizeof(buf); i++) {
 		if (is_color (actor_name[i]))
 			break;
 		buf[i] = actor_name[i];
 	}
-	
+
 	/* strip trailing spaces */
 	while (i>0 && buf[i-1] == ' ')
 		i--;
@@ -975,7 +1020,7 @@ static void increment_kill_counter(actor *me, actor *them)
 {
 	int x1, y1, x2, y2;
 	static int face_offsets[8][2] = {{0,1},{1,1},{1,0},{1,-1},{0,-1},{-1,-1},{-1,0},{-1,1}};
-	
+
 	if (!them->async_fighting || !me->async_fighting) {
 		return;
 	}
@@ -992,7 +1037,7 @@ static void increment_kill_counter(actor *me, actor *them)
 	if ((them->async_x_tile_pos != x1 || them->async_y_tile_pos != y1) && (them->async_x_tile_pos != x2 || them->async_y_tile_pos != y1) && (them->async_x_tile_pos != x1 || them->async_y_tile_pos != y2) && (them->async_x_tile_pos != x2 || them->async_y_tile_pos != y2)) {
 		return;
 	}
-	
+
 	/* Now, we should always have non players actors here */
 /* 	increment_counter(KILLS, strip_actor_name(them->actor_name), 1,	(them->is_enhanced_model && (them->kind_of_actor == HUMAN || them->kind_of_actor == PKABLE_HUMAN))); */
 	increment_counter(KILLS, strip_actor_name(them->actor_name), 1,	0);
@@ -1015,7 +1060,7 @@ void increment_death_counter(actor *a)
 	if (!me) {
 		return;
 	}
-	
+
 	if (a == me) {
 		/* If we have intercepted a message from the server that telling us that
 		 * we have been killed by someone, the counter has already been incremented */
@@ -1045,32 +1090,32 @@ void increment_death_counter(actor *a)
 
 			for (i = 0; i < max_actors; i++) {
 				them = actors_list[i];
-				
+
 				if (!them->async_fighting ||
 					// PK deaths are handled with text messages from the server now
 					(them->is_enhanced_model && (them->kind_of_actor == HUMAN ||
 												 them->kind_of_actor == PKABLE_HUMAN))) {
 					continue;
 				}
-				
+
 				/* get the coords of the tile they're facing */
 				x1 = them->async_x_tile_pos + face_offsets[((int)them->async_z_rot)/45][0];
 				y1 = them->async_y_tile_pos + face_offsets[((int)them->async_z_rot)/45][1];
-				
+
 				/* get the coords of the next tile they're facing (necessary for Chimerans) */
 				x2 = x1 + face_offsets[((int)them->async_z_rot)/45][0];
 				y2 = y1 + face_offsets[((int)them->async_z_rot)/45][1];
-				
+
 				/* continue if our actor is not on one of these tiles */
 				if ((me->async_x_tile_pos != x1 || me->async_y_tile_pos != y1) && (me->async_x_tile_pos != x2 || me->async_y_tile_pos != y2)) {
 					continue;
 				}
-				
+
 				increment_counter(DEATHS, strip_actor_name(them->actor_name), 1, 0);
 				found_death_reason = 1;
 			}
 		}
-		
+
 		if (!found_death_reason) {
 			/* count deaths while we were poisoned - possibily in adition to another possible reason */
 			if (we_are_poisoned()) {
@@ -1162,7 +1207,7 @@ void counters_set_spell_name(int spell_id, char *name, int len)
 {
 	if (!spell_names[spell_id+1]) {
 		int i, j;
-		
+
 		spell_names[spell_id+1] = malloc(len+1);
 		safe_strncpy(spell_names[spell_id + 1], name, len + 1);
 
@@ -1243,14 +1288,14 @@ void reset_session_counters(void)
 void catch_counters_text(const char* text)
 {
 	size_t text_len = strlen(text);
-	
+
 	//printf("%s: [%s]\n", __FUNCTION__, text);
-	
+
 	if (!counters_initialized)
 		return;
-	
+
 	/* Your xxx ... */
-	if (my_strncompare(text, "Your ", 5))
+	if (!strncasecmp(text, "Your ", 5))
 	{
 		int i;
 		char *mess_ends[] = {" has been destroyed", " broke, sorry!"};
@@ -1275,22 +1320,22 @@ void catch_counters_text(const char* text)
 		safe_strncpy2(to_count_name, item_string, sizeof(to_count_name), to_count_name_len);
 		increment_counter(BREAKS, to_count_name, 1, 0);
 	}
-	
+
 	/* "<user name> found a/an/a[n] " */
-	else if (my_strncompare(text, search_str[0], search_len[0]))
+	else if (!strncasecmp(text, search_str[0], search_len[0]))
 	{
 		size_t start_from = search_len[0];
 		size_t could_not_carry_index = get_string_occurance(". What a pity ", text, text_len, 1);
 		while ((text_len > start_from) && (text[start_from] != ' '))
 			start_from++; /* move past the a/an/a[n] */
 		start_from++; /* move past the space */
-		
+
 		/* some death messages match so crudely exclude them but catch bags of gold */
 		if (strchr(&text[start_from], ',') != NULL)
 		{
 			char *gold_str = "bag of gold, getting ";
 			size_t gold_len = strlen(gold_str);
-			if (my_strncompare(&text[start_from], gold_str, gold_len))
+			if (!strncasecmp(&text[start_from], gold_str, gold_len))
 			{
 				int quanity = atoi(&text[start_from+gold_len]);
 				increment_counter(MISC_EVENTS, "Total gold coin from bags", quanity, 0);
@@ -1306,7 +1351,7 @@ void catch_counters_text(const char* text)
 			safe_strcat (to_count_name, " (lost)", sizeof(to_count_name));
 			increment_counter(MISC_EVENTS, to_count_name, 1, 0);
 		}
-		
+
 		/* otherwise, count the found thing */
 		else
 		{
@@ -1315,17 +1360,17 @@ void catch_counters_text(const char* text)
 			increment_counter(MISC_EVENTS, to_count_name, 1, 0);
 		}
 	}
-	
+
 	/* loose coin find */
-	else if (my_strncompare(text, "You found ", 10) && strstr(text, " coins."))
+	else if (!strncasecmp(text, "You found ", 10) && strstr(text, " coins."))
 	{
 		int quantity = atoi(&text[10]);
 		increment_counter(MISC_EVENTS, "Total loose gold coin", quantity, 0);
 		increment_counter(MISC_EVENTS, "Loose gold coin", 1, 0);
 	}
-	
+
 	/* extra harvest exp */
-	else if (my_strncompare(text, "You gained ", 11) && strstr(text, " extra harvesting exp."))
+	else if (!strncasecmp(text, "You gained ", 11) && strstr(text, " extra harvesting exp."))
 	{
 		int quantity = atoi(&text[11]);
 		increment_counter(MISC_EVENTS, "Total extra harvesting exp", quantity, 0);
@@ -1333,7 +1378,7 @@ void catch_counters_text(const char* text)
 	}
 
 	/* you hurt yourself */
-        else if (my_strncompare(text, "You hurt yourself, and lost ", 28) && strstr(text, " HPs."))
+        else if (!strncasecmp(text, "You hurt yourself, and lost ", 28) && strstr(text, " HPs."))
 	{
 		increment_counter(MISC_EVENTS, "You hurt yourself", 1, 0);
 	}
@@ -1343,7 +1388,7 @@ void catch_counters_text(const char* text)
 	{
 		int i;
 		for (i=1; i<num_search_str; i++)
-			if (my_strncompare(text, search_str[i], search_len[i]))
+			if (!strncasecmp(text, search_str[i], search_len[i]))
 			{
 				increment_counter(MISC_EVENTS, count_str[i], 1, 0);
 				if (i==1)
@@ -1371,7 +1416,7 @@ int chat_to_counters_command(const char *text, int len)
 	int old_entries[] = {0, 0};
 	size_t types[] = {BREAKS-1, MISC_EVENTS-1 };
 	size_t type;
-	
+
 	/* get any parameter text */
 	while(*text && !isspace(*text))
 		text++;
@@ -1416,7 +1461,7 @@ int chat_to_counters_command(const char *text, int len)
 	}
 	fclose(fp);
 
-	/* restore the session totals and free the old memory */	
+	/* restore the session totals and free the old memory */
 	for (type=0; type<2; type++)
 	{
 		int i,j;
@@ -1431,7 +1476,7 @@ int chat_to_counters_command(const char *text, int len)
 						(strcmp(old_counters[type][j].name, counters[types[type]][i].name) == 0))
 						counters[types[type]][i].n_session = old_counters[type][j].n_session;
 		}
-		
+
 		/* free any old memory */
 		if(old_counters[type])
 		{
@@ -1440,7 +1485,7 @@ int chat_to_counters_command(const char *text, int len)
 			free(old_counters[type]);
 		}
 	}
-	
+
 	return 1;
 }
 

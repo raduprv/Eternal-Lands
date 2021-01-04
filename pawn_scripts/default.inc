@@ -1,5 +1,5 @@
-#include <features>
-#include <console>
-#include <float>
-#include <string>
-#include <el>
+#include "features.inc"
+#include "console.inc"
+#include "float.inc"
+#include "string.inc"
+#include "el.inc"

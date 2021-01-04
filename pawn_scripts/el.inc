@@ -3,7 +3,7 @@
 #endif
 #define _el_included
 
-#include <client_serv>
+#include "client_serv.inc"
 
 native set_object_rotation (id, Float: rot_x, Float: rot_y, Float: rot_z);
 native rotate_object (id, Float: rot_x, Float: rot_y, Float: rot_z);

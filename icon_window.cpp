@@ -133,23 +133,21 @@ namespace IconWindow
 	{
 		public:
 			Window_Icon(int icon_id, int coloured_icon_id, const char * help_str, const char * window_name, const std::vector<CommandQueue::Line> *lines = 0)
-				: Basic_Icon(icon_id, coloured_icon_id, help_str, lines), window_id(0)
-				{ window_id = get_winid(window_name); }
+				: Basic_Icon(icon_id, coloured_icon_id, help_str, lines), managed_win(MW_MAX)
+				{ managed_win = get_by_name_MW(window_name); }
 			void update_highlight(void)
 			{
 				Basic_Icon::update_highlight();
-				if ( window_id &&  *window_id >= 0 && (windows_list.window[*window_id].displayed || windows_list.window[*window_id].reinstate) )
-					Basic_Icon::set_highlight(true);
+				Basic_Icon::set_highlight(get_window_showable_MW(managed_win));
 			}
 			void action(void)
 			{
-				if (window_id)
-					view_window(window_id, 0);
+				view_window(managed_win);
 				Basic_Icon::action();
 			}
 			~Window_Icon(void) {}
 		private:
-			int *window_id;
+			enum managed_window_enum managed_win;
 	};
 
 
@@ -197,7 +195,7 @@ namespace IconWindow
 			void update_highlight(void)
 			{
 				Basic_Icon::update_highlight();
-				if (action_mode == the_action_mode)
+				if (get_gamewin_action_mode() == the_action_mode)
 					Basic_Icon::set_highlight(true);
 			}
 			void action(void)
@@ -336,10 +334,12 @@ namespace IconWindow
 					value = (int)(0.5 + windows_list.window[icons_win].current_scale * value);
 				return value;
 			}
+			void set_state(const char *help_name, bool the_state);
 			static const int def_icon_size;
 		private:
 			class Busy { public: Busy(void) { busy = true; } ~Busy(void) { busy = false; } };
 			std::vector <Virtual_Icon *> icon_list;
+			std::vector <std::string> disabled_icon_list;
 			int mouse_over_icon;
 			static bool busy;
 			int display_icon_size;
@@ -470,6 +470,10 @@ namespace IconWindow
 		get_xml_field_string(help_name, "help_name", cur);
 		get_xml_field_string(help_text, "help_text", cur);
 		get_xml_field_string(param_name, "param_name", cur);
+
+		// if the icon is the list to disable, don't create it
+		if (std::find(disabled_icon_list.begin(), disabled_icon_list.end(), help_name) != disabled_icon_list.end())
+			return 0;
 
 		std::vector<CommandQueue::Line> *menu_lines_ptr = 0;
 		std::vector<CommandQueue::Line> menu_lines;
@@ -644,6 +648,25 @@ namespace IconWindow
 			LOG_ERROR("%s : Invalid mode for defaul icons\n", __PRETTY_FUNCTION__ );
 	}
 
+
+	//	Set the state if an icon in the window, reloading the icons if the state has changed.
+	//	If the state is set to false, the icon will not created when the icons are reloaded.
+	//
+	void Container::set_state(const char *help_name, bool the_state)
+	{
+		auto entry = std::find(disabled_icon_list.begin(), disabled_icon_list.end(), help_name);
+		if (!the_state && (entry == disabled_icon_list.end()))
+		{
+			disabled_icon_list.push_back(help_name);
+			reload_icon_window(0, 0);
+		}
+		else if (the_state && (entry != disabled_icon_list.end()))
+		{
+			disabled_icon_list.erase(entry);
+			reload_icon_window(0, 0);
+		}
+	}
+
 }
 
 
@@ -759,3 +782,5 @@ extern "C" void init_icon_window(icon_window_mode icon_mode)
 }
 
 extern "C" void destroy_icon_window(void) { action_icons.destroy(); }
+
+extern "C" void set_icon_state(const char *help_name, int enabled) { action_icons.set_state(help_name, enabled); }

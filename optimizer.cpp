@@ -200,10 +200,9 @@ bool optimize_vertex_cache_order(Uint32* tri_indices, const Uint32 offset,
 					new_score = cache_score[i] +
 						calc_new_score(v[index].remaining_tris.size());
 					v[index].score = new_score;
-					for (it = v[index].remaining_tris.begin();
-						it != v[index].remaining_tris.end(); it++)
+					for (auto tri: v[index].remaining_tris)
 					{
-						t[*it].score += new_score - old_score;
+						t[tri].score += new_score - old_score;
 					}
 				}
 			}

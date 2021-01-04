@@ -25,13 +25,13 @@ namespace JSON_IO
 {
 	static size_t get_json_indent(void)
 		{ return 0; } // 0 is compact, non-zero give pretty output, 4 for example
-	static int exit_error(const char *function, size_t line, std::string message, int error_code)
+	static int exit_error(const char *function, size_t line, const std::string& message, int error_code)
 		{ LOG_ERROR("%s:%ld %s", function, line, message.c_str()); return error_code; }
 	static void info_message(const char *function, size_t line, std::string message)
 		{ LOG_INFO("%s:%ld %s", function, line, message.c_str()); }
-	static void console_message(std::string file_type, std::string message)
-		{ std::string full_message = "Problem with " + file_type + ": " + message; LOG_TO_CONSOLE(c_red1, full_message.c_str()); }
-	static void file_format_error(std::string file_type)
+	static void console_message(const std::string& file_type, const std::string& message)
+		{ std::string full_message = "Problem with " + file_type + ": " + message; LOG_TO_CONSOLE(c_red3, full_message.c_str()); }
+	static void file_format_error(const std::string& file_type)
 		{ console_message(file_type, "File format error. " + file_type + " will not be saved until this is corrected."); }
 }
 
@@ -54,6 +54,7 @@ namespace JSON_IO_Recipes
 			bool opened;			// we have opened the file and populated the read_json object
 			bool parse_error;		// there was an error populating the json object
 			json read_json;			// the complete json object read from file
+			const char * class_name_str = "Recipes";
 	};
 
 
@@ -74,7 +75,7 @@ namespace JSON_IO_Recipes
 		catch (json::exception& e)
 		{
 			parse_error = true;
-			JSON_IO::file_format_error("Recipes");
+			JSON_IO::file_format_error(class_name_str);
 			return JSON_IO::exit_error(__PRETTY_FUNCTION__, __LINE__, e.what(), -1);
 		}
 
@@ -153,7 +154,10 @@ namespace JSON_IO_Recipes
 		JSON_IO::info_message(__PRETTY_FUNCTION__, __LINE__, " [" + std::string(file_name) + "]");
 
 		if (parse_error)
+		{
+			JSON_IO::file_format_error(class_name_str);
 			return JSON_IO::exit_error(__PRETTY_FUNCTION__, __LINE__, "Not saving, because we had a load error.  Fix the problem first.", -1);
+		}
 
 		json write_json;
 
@@ -209,6 +213,7 @@ namespace JSON_IO_Quickspells
 			int save(const char *file_name, Uint16 *spell_ids, size_t num_spell_id);
 		private:
 			bool parse_error;		// there was an error populating the json object
+			const char * class_name_str = "Quickspells";
 	};
 
 
@@ -232,7 +237,7 @@ namespace JSON_IO_Quickspells
 		catch (json::exception& e)
 		{
 			parse_error = true;
-			JSON_IO::file_format_error("Quickspells");
+			JSON_IO::file_format_error(class_name_str);
 			return JSON_IO::exit_error(__PRETTY_FUNCTION__, __LINE__, e.what(), -1);
 		}
 
@@ -254,7 +259,10 @@ namespace JSON_IO_Quickspells
 		JSON_IO::info_message(__PRETTY_FUNCTION__, __LINE__, " [" + std::string(file_name) + "]");
 
 		if (parse_error)
+		{
+			JSON_IO::file_format_error(class_name_str);
 			return JSON_IO::exit_error(__PRETTY_FUNCTION__, __LINE__, "Not saving, because we had a load error.  Fix the problem first.", -1);
+		}
 
 		json write_json;
 
@@ -291,6 +299,7 @@ namespace JSON_IO_Counters
 			int save(const char *file_name, const char **cat_str, const int *entries, size_t num_categories, const struct Counter **the_counters);
 		private:
 			bool parse_error;		// there was an error populating the json object
+			const char * class_name_str = "Counters";
 	};
 
 
@@ -315,7 +324,7 @@ namespace JSON_IO_Counters
 		catch (json::exception& e)
 		{
 			parse_error = true;
-			JSON_IO::file_format_error("Counters");
+			JSON_IO::file_format_error(class_name_str);
 			return JSON_IO::exit_error(__PRETTY_FUNCTION__, __LINE__, e.what(), -1);
 		}
 
@@ -359,7 +368,10 @@ namespace JSON_IO_Counters
 		JSON_IO::info_message(__PRETTY_FUNCTION__, __LINE__, " [" + std::string(file_name) + "]");
 
 		if (parse_error)
+		{
+			JSON_IO::file_format_error(class_name_str);
 			return JSON_IO::exit_error(__PRETTY_FUNCTION__, __LINE__, "Not saving, because we had a load error.  Fix the problem first.", -1);
+		}
 
 		json categories_list = json::array();
 		for (size_t i = 0; i < num_categories; i++)
@@ -411,6 +423,7 @@ namespace JSON_IO_Channel_Colours
 			int save(const char *file_name, const channelcolor *the_channel_colours, size_t max_channel_colours);
 		private:
 			bool parse_error;		// there was an error populating the json object
+			const char * class_name_str = "Channel Colours";
 	};
 
 
@@ -435,7 +448,7 @@ namespace JSON_IO_Channel_Colours
 		catch (json::exception& e)
 		{
 			parse_error = true;
-			JSON_IO::file_format_error("Channel Colours");
+			JSON_IO::file_format_error(class_name_str);
 			return JSON_IO::exit_error(__PRETTY_FUNCTION__, __LINE__, e.what(), -1);
 		}
 
@@ -464,7 +477,10 @@ namespace JSON_IO_Channel_Colours
 		JSON_IO::info_message(__PRETTY_FUNCTION__, __LINE__, " [" + std::string(file_name) + "]");
 
 		if (parse_error)
+		{
+			JSON_IO::file_format_error(class_name_str);
 			return JSON_IO::exit_error(__PRETTY_FUNCTION__, __LINE__, "Not saving, because we had a load error.  Fix the problem first.", -1);
+		}
 
 		json write_json;
 
@@ -492,6 +508,267 @@ namespace JSON_IO_Channel_Colours
 }
 
 
+namespace JSON_IO_Character_Options
+{
+	using json = nlohmann::json;
+
+
+	//	A Class to load and save the character options in json format.
+	//	Character options if present override values in the ini file.
+	//
+	class Character_Options
+	{
+		public:
+			Character_Options(void) : parse_error(false), loaded(false), modified(false) {}
+			void set_file_name(const char *file_name) { the_file_name = std::string(file_name); }
+			int load(void);
+			int save(void);
+			template <class TheType> TheType get(const char *var_name, TheType default_var_value) const;
+			template <class TheType> void set(const char *var_name, TheType value);
+			bool exists(const char *var_name) const;
+			void remove(const char *var_name);
+		private:
+			bool have_options_list(void) const { return ((json_data.find(ini_options_list_str) != json_data.end()) && json_data[ini_options_list_str].is_array()); }
+			bool parse_error;		// there was an error populating the json object
+			bool loaded;			// true if the file is already loaded
+			bool modified;			// if true, the object has been modified and needs to be saved
+			json json_data;			// the json object as read from file, or empty if no file
+			std::string the_file_name;
+			const char * class_name_str = "Character Options";
+			const char * ini_options_list_str = "ini_options";
+			const char * name_str = "name";
+			const char * value_str = "value";
+	};
+
+
+	//	Load the character options.
+	//	Return 0 or -1 on error.
+	//
+	int Character_Options::load(void)
+	{
+		if (loaded)
+			return 0;
+
+		JSON_IO::info_message(__PRETTY_FUNCTION__, __LINE__, " [" + the_file_name + "]");
+
+		std::ifstream in_file(the_file_name);
+		if (!in_file)
+			return JSON_IO::exit_error(__PRETTY_FUNCTION__, __LINE__, "Failed to open [" + the_file_name + "]", -1);
+
+		try
+		{
+			in_file >> json_data;
+		}
+		catch (json::exception& e)
+		{
+			parse_error = true;
+			JSON_IO::file_format_error(class_name_str);
+			return JSON_IO::exit_error(__PRETTY_FUNCTION__, __LINE__, e.what(), -1);
+		}
+
+		loaded = true;
+
+		return 0;
+	}
+
+
+	//	Save the character options.
+	//	Return 0, or -1 on error.
+	//
+	int Character_Options::save(void)
+	{
+		if (!modified)
+			return 0;
+
+		JSON_IO::info_message(__PRETTY_FUNCTION__, __LINE__, " [" + the_file_name + "]");
+
+		if (parse_error)
+		{
+			JSON_IO::file_format_error(class_name_str);
+			return JSON_IO::exit_error(__PRETTY_FUNCTION__, __LINE__, "Not saving, because we had a load error.  Fix the problem first.", -1);
+		}
+
+		std::ofstream out_file(the_file_name);
+		if (out_file)
+		{
+			out_file << std::setw(JSON_IO::get_json_indent()) << json_data << std::endl;
+			modified = false;
+			return 0;
+		}
+		else
+			return JSON_IO::exit_error(__PRETTY_FUNCTION__, __LINE__, "Failed to write json [" + the_file_name + "]", -1);
+	}
+
+
+	//	Return true if the specificed option exists for the character name
+	//
+	bool Character_Options::exists(const char *var_name) const
+	{
+		if (!have_options_list())
+			return false;
+
+		for (auto var : json_data[ini_options_list_str].items())
+			if (var.value()[name_str] == var_name)
+				return true;
+
+		return false;
+	}
+
+
+	//	Return true if the specificed option exists for the character name
+	//
+	void Character_Options::remove(const char *var_name)
+	{
+		if (!have_options_list())
+			return;
+
+		// cannot get .erase() to work so do it the hard way....
+		bool removed_var = false;
+		json new_options_list = json::array();
+		for (auto var : json_data[ini_options_list_str].items())
+			if (var.value()[name_str] == var_name)
+				removed_var = true;
+			else
+				new_options_list.push_back(var.value());
+		if (removed_var)
+		{
+			json_data[ini_options_list_str] = new_options_list;
+			modified = true;
+		}
+	}
+
+
+	//	Get the named value, if not found or invalid, the default value is returned.
+	//
+	template <class TheType> TheType Character_Options::get(const char *var_name, TheType default_value) const
+	{
+		if (!have_options_list())
+			return default_value;
+
+		for (auto var : json_data[ini_options_list_str].items())
+			if (var.value()[name_str] == var_name)
+				return var.value()[value_str];
+
+		return default_value;
+	}
+
+	//	Set the named value, creating the array if required
+	//
+	template <class TheType> void Character_Options::set(const char *var_name, TheType value)
+	{
+		modified = true;
+
+		if (!have_options_list())
+			json_data[ini_options_list_str] = json::array();
+
+		for (auto var : json_data[ini_options_list_str].items())
+			if (var.value()[name_str] == var_name)
+			{
+				var.value()[value_str] = value;
+				return;
+			}
+		json new_value;
+		new_value[name_str] = var_name;
+		new_value[value_str] = value;
+		json_data[ini_options_list_str].push_back(new_value);
+		return;
+	}
+}
+
+
+namespace JSON_IO_Client_State
+{
+	using json = nlohmann::json;
+
+	//	A Class to load and save the Client State.
+	//	The state is items we need to save for the user
+	//	but which are not options for them to set manually.
+	//
+	class Client_State
+	{
+		public:
+			Client_State(void) : parse_error(false) {}
+			int load(const char *file_name);
+			int save(const char *file_name);
+			template <class TheType> TheType get(const char *section_name, const char *var_name, TheType default_var_value) const;
+			template <class TheType> void set(const char *section_name, const char *var_name, TheType value);
+		private:
+			bool parse_error;		// there was an error populating the json object
+			const char * class_name_str = "Client State";
+			json state_read;
+			json state_write;
+	};
+
+
+	//	Load the Client State.
+	//	Return 0 on success or -1 on error.
+	//
+	int Client_State::load(const char *file_name)
+	{
+		JSON_IO::info_message(__PRETTY_FUNCTION__, __LINE__, " [" + std::string(file_name) + "]");
+
+		std::ifstream in_file(file_name);
+		if (!in_file)
+			return JSON_IO::exit_error(__PRETTY_FUNCTION__, __LINE__, "Failed to open [" + std::string(file_name) + "]", -1);
+
+		try
+		{
+			in_file >> state_read;
+		}
+		catch (json::exception& e)
+		{
+			parse_error = true;
+			JSON_IO::file_format_error(class_name_str);
+			return JSON_IO::exit_error(__PRETTY_FUNCTION__, __LINE__, e.what(), -1);
+		}
+
+		return 0;
+	}
+
+
+	//	Save the Client State.
+	//	Return 0, or -1 on error.
+	//
+	int Client_State::save(const char *file_name)
+	{
+		JSON_IO::info_message(__PRETTY_FUNCTION__, __LINE__, " [" + std::string(file_name) + "]");
+
+		if (parse_error)
+		{
+			JSON_IO::file_format_error(class_name_str);
+			return JSON_IO::exit_error(__PRETTY_FUNCTION__, __LINE__, "Not saving, because we had a load error.  Fix the problem first.", -1);
+		}
+
+		std::ofstream out_file(file_name);
+		if (out_file)
+		{
+			out_file << std::setw(JSON_IO::get_json_indent()) << state_write << std::endl;
+			return 0;
+		}
+		else
+			return JSON_IO::exit_error(__PRETTY_FUNCTION__, __LINE__, "Failed to write json [" + std::string(file_name) + "]", -1);
+	}
+
+
+	//	Get the named value, if not found or invalid, the default value is returned.
+	//
+	template <class TheType> TheType Client_State::get(const char *section_name, const char *var_name, TheType default_value) const
+	{
+		if (state_read.contains(section_name) && state_read[section_name].contains(var_name))
+			return state_read[section_name][var_name].get<TheType>();
+		return default_value;
+	}
+
+	//	Set the named value, creating the array if required
+	//
+	template <class TheType> void Client_State::set(const char *section_name, const char *var_name, TheType value)
+	{
+		state_write[section_name][var_name] = value;
+	}
+
+}
+
+
 //	The instance of the manufacture recipe object.
 static JSON_IO_Recipes::Recipes recipes;
 
@@ -504,6 +781,11 @@ static JSON_IO_Counters::Counters counters;
 //	The instance of the channel colours object.
 static JSON_IO_Channel_Colours::Channel_Colours channel_colours;
 
+//	The instance of the character options object.
+static JSON_IO_Character_Options::Character_Options character_options;
+
+//	The instance of the Client State ojbect.
+static JSON_IO_Client_State::Client_State cstate;
 
 //	The C interface
 //
@@ -534,4 +816,54 @@ extern "C"
 		{ return channel_colours.load(file_name, the_channel_colours, max_channel_colours); }
 	int json_save_channel_colours(const char *file_name, const channelcolor *the_channel_colours, size_t max_channel_colours)
 		{ return channel_colours.save(file_name, the_channel_colours, max_channel_colours); }
+
+	// character options
+	void json_character_options_set_file_name(const char *file_name)
+		{ character_options.set_file_name(file_name); }
+	int json_character_options_load_file(void)
+		{ return character_options.load(); }
+	int json_character_options_save_file(void)
+		{ return character_options.save(); }
+	int json_character_options_exists(const char *var_name)
+		{ return (character_options.exists(var_name)) ?1 :0; }
+	void json_character_options_remove(const char *var_name)
+		{ character_options.remove(var_name); }
+	int json_character_options_get_int(const char *var_name, int default_value )
+		{ return character_options.get(var_name, default_value); }
+	void json_character_options_set_int(const char *var_name, int value)
+		{ character_options.set(var_name, value); }
+	float json_character_options_get_float(const char *var_name, float default_value )
+		{ return character_options.get(var_name, default_value); }
+	void json_character_options_set_float(const char *var_name, float value)
+		{ character_options.set(var_name, value); }
+	int json_character_options_get_bool(const char *var_name, int default_value )
+		{ return (character_options.get(var_name, default_value)) ?1 :0; }
+	void json_character_options_set_bool(const char *var_name, int value)
+		{ character_options.set(var_name, static_cast<bool>(value)); }
+
+	// Client State
+	int json_load_cstate(const char *file_name)
+		{ return cstate.load(file_name); }
+	int json_save_cstate(const char *file_name)
+		{ return cstate.save(file_name); }
+	// get/set int
+	int json_cstate_get_int(const char *section_name, const char *var_name, int default_value)
+		{ return cstate.get(section_name, var_name, default_value); }
+	void json_cstate_set_int(const char *section_name, const char *var_name, int value)
+		{ cstate.set(section_name, var_name, value); }
+	// get/set unsigned int
+	unsigned int json_cstate_get_unsigned_int(const char *section_name, const char *var_name, unsigned int default_value)
+		{ return cstate.get(section_name, var_name, default_value); }
+	void json_cstate_set_unsigned_int(const char *section_name, const char *var_name, unsigned int value)
+		{ cstate.set(section_name, var_name, value); }
+	// get/set float
+	float json_cstate_get_float(const char *section_name, const char *var_name, float default_value)
+		{ return cstate.get(section_name, var_name, default_value); }
+	void json_cstate_set_float(const char *section_name, const char *var_name, float value)
+		{ cstate.set(section_name, var_name, value); }
+	// get_set bool
+	int json_cstate_get_bool(const char *section_name, const char *var_name, int default_value)
+		{ return ((cstate.get(section_name, var_name, static_cast<bool>(default_value))) ?1 :0); }
+	void json_cstate_set_bool(const char *section_name, const char *var_name, int value)
+		{ cstate.set(section_name, var_name, static_cast<bool>(value)); }
 }

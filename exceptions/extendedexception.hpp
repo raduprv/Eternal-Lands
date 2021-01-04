@@ -32,8 +32,6 @@ namespace eternal_lands
 			Uint32 m_line;
 			mutable std::string m_full_description;
 
-		protected:
-
 		public:
 			enum ExceptionCodes
 			{
@@ -51,26 +49,19 @@ namespace eternal_lands
 			/**
 			 * Default constructor.
 			 */
-			inline ExtendedException(): m_number(0), m_description(""), m_type(""),
-				m_file(""), m_function(""), m_line(0)
-			{
-			}
+			inline ExtendedException(): m_number(0), m_description(""), m_type(""), m_file(""),
+				m_function(""), m_line(0), m_full_description() {}
 
 			/**
 			 * Default constructor.
 			 */
-			inline ExtendedException(const Uint32 number, const std::string &description,
-				const char* type): m_number(number), m_description(description),
-				m_type(type), m_file(""), m_function(""), m_line(0)
-			{
-			}
+			ExtendedException(const Uint32 number, const std::string &description, const char* type=nullptr);
 
 			/**
 			 * Advanced constructor.
 			 */
-			ExtendedException(const Uint32 number, const std::string &description,
-				const char* type, const char* file, const char* function,
-				const Uint32 line);
+			ExtendedException(const Uint32 number, const std::string &description, const char* type,
+				const char* file, const char* function, const Uint32 line);
 
 			/**
 			 * Copy constructor.
@@ -80,14 +71,12 @@ namespace eternal_lands
 			/**
 			 * Assignment operator.
 			 */
-			void operator= (const ExtendedException &ee);
+			ExtendedException& operator=(const ExtendedException &ee) = default;
 
 			/*
-			 * Destrucor, needed for compatibility with std::exception.
+			 * Destructor, needed for compatibility with std::exception.
 			 */
-			virtual inline ~ExtendedException() throw()
-			{
-			}
+			virtual inline ~ExtendedException() throw() {}
 
 			/**
 			 * Returns a string with the full description of this error.
@@ -146,113 +135,6 @@ namespace eternal_lands
 
 	};
 
-	/**
-	 * Template struct which creates a distinct type for each exception code.
-	 */
-	template <Uint32 num>
-	struct ExceptionCodeType
-	{
-		enum
-		{
-			number = num
-		};
-	};
-
-	class ExceptionFactory
-	{
-		private:
-
-			/**
-			 * Private constructor, no construction.
-			 */
-			inline ExceptionFactory()
-			{
-			}
-
-		public:
-
-			static inline ExtendedException create(
-				ExceptionCodeType<ExtendedException::ec_duplicate_item> code,
-				const std::string &description, const char* file,
-				const char* function, unsigned int line)
-			{
-				return ExtendedException(code.number, description,
-					"duplicate_item", file, function, line);
-			}
-
-			static inline ExtendedException create(
-				ExceptionCodeType<ExtendedException::ec_file_not_found> code,
-				const std::string &description, const char* file,
-				const char* function, unsigned int line)
-			{
-				return ExtendedException(code.number, description,
-					"file_not_found", file, function, line);
-			}
-
-			static inline ExtendedException create(
-				ExceptionCodeType<ExtendedException::ec_item_not_found> code,
-				const std::string &description, const char* file,
-				const char* function, unsigned int line)
-			{
-				return ExtendedException(code.number, description,
-					"item_not_found", file, function, line);
-			}
-
-			static inline ExtendedException create(
-				ExceptionCodeType<ExtendedException::ec_io_error> code,
-				const std::string &description, const char* file,
-				const char* function, unsigned int line)
-			{
-				return ExtendedException(code.number, description, "io_error",
-					file, function, line);
-			}
-
-			static inline ExtendedException create(
-				ExceptionCodeType<ExtendedException::ec_invalid_parameter> code,
-				const std::string &description, const char* file,
-				const char* function, unsigned int line)
-			{
-				return ExtendedException(code.number, description,
-					"invalid_parameter", file, function, line);
-			}
-
-			static inline ExtendedException create(
-				ExceptionCodeType<ExtendedException::ec_opengl_error> code,
-				const std::string &description, const char* file,
-				const char* function, unsigned int line)
-			{
-				return ExtendedException(code.number, description, "opengl_error",
-					file, function, line);
-			}
-
-			static inline ExtendedException create(
-				ExceptionCodeType<ExtendedException::ec_zip_error> code,
-				const std::string &description, const char* file,
-				const char* function, unsigned int line)
-			{
-				return ExtendedException(code.number, description, "zip_error",
-					file, function, line);
-			}
-
-			static inline ExtendedException create(
-				ExceptionCodeType<ExtendedException::ec_internal_error> code,
-				const std::string &description, const char* file,
-				const char* function, unsigned int line)
-			{
-				return ExtendedException(code.number, description,
-					"internal_error", file, function, line);
-			}
-
-			static inline ExtendedException create(
-				ExceptionCodeType<ExtendedException::ec_not_implemented> code,
-				const std::string &description, const char* file,
-				const char* function, unsigned int line)
-			{
-				return ExtendedException(code.number, description,
-					"not_implemented", file, function, line);
-			}
-	};
-
 #define EXTENDED_EXCEPTION(num, description)	\
 	do	\
 	{	\
@@ -260,8 +142,7 @@ namespace eternal_lands
 	\
 		str << description;	\
 	\
-		throw eternal_lands::ExceptionFactory::create(	\
-			eternal_lands::ExceptionCodeType<eternal_lands::num>(), str.str(),	\
+		throw eternal_lands::ExtendedException(eternal_lands::num, str.str(), nullptr, \
 			__FILE__, __FUNCTION__, __LINE__);	\
 	}	\
 	while (false)
@@ -279,14 +160,13 @@ namespace eternal_lands
 	\
 			str << gluErrorString(gl_error);	\
 	\
-			throw eternal_lands::ExceptionFactory::create(	\
-				eternal_lands::ExceptionCodeType<eternal_lands::ExtendedException::ec_opengl_error>(),	\
-				str.str(), __FILE__, __FUNCTION__, __LINE__);	\
+			throw eternal_lands::ExceptionFactory::(eternal_lands::ExtendedException::ec_opengl_error, \
+				str.str(), nullptr, __FILE__, __FUNCTION__, __LINE__);	\
 		}	\
 	}	\
 	while (false)
 
-}
+} // namespace eternal_lands
 
 #define	CATCH_AND_LOG_EXCEPTIONS	\
 catch (std::exception &e)	\

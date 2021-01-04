@@ -83,7 +83,8 @@ void missiles_clear();
 /*!
  * \brief Adds a new missile
  * \param type the type of the missile
- * \param origin the origin of the missile
+ * \param origin the origin coordinates of the missile
+ * \param target the target coordinates of the missile
  * \param shift allows to tune if the missile should stop before or after the target
  * \param shot_type tells if the shot is missed, normal or critical (will be drawn diferently)
  */
@@ -178,22 +179,10 @@ void missiles_fire_xyz_to_b(float *origin, int actor_id);
  */
 void missiles_init_defs();
 
-/*!
- * Display ranging win
- */ 
-void display_range_win();
-/*!
- * Ranging win ID
- */
-extern int range_win;
-
 extern int range_total_shots;
 extern int range_success_hits;
 extern int range_critical_hits;
 
-extern int ranging_win_x;
-extern int ranging_win_y;
- 
 #ifdef __cplusplus
 } // extern "C"
 #endif

@@ -38,7 +38,7 @@
 typedef struct {
 	size_t alloc_size; /**< Current allocated size of buffer */
 	size_t current_size; /**< Current size used in buffer */
-	unsigned char data[0]; /**< Data placeholder */
+	unsigned char * data; /**< Data placeholder */
 } dbuffer_t;
 
 /**
@@ -50,7 +50,6 @@ typedef struct {
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 # define DBUFFER_ALIGN(x) (((x)+(DBUFFER_CHUNK_SIZE)-1)&~(DBUFFER_CHUNK_SIZE-1))
-# define DBUFFER_HDRSIZE (sizeof(size_t)+sizeof(size_t))
 
 # ifndef UNUSED_RESULT_DECL
 #  ifdef	__GNUC__
@@ -70,7 +69,12 @@ typedef struct {
  */
 static __inline__ void dbuffer_destroy( dbuffer_t *dbuf )
 {
-    free(dbuf);
+	if (NULL != dbuf)
+	{
+		if (NULL != dbuf->data)
+			free(dbuf->data);
+		free(dbuf);
+	}
 }
 
 /**
@@ -91,25 +95,31 @@ static __inline__ UNUSED_RESULT_DECL dbuffer_t *dbuffer_append_data( dbuffer_t *
 {
 	size_t next_alloc_size;
 
-	if ( NULL!= dbuf ) {
-
-		next_alloc_size = DBUFFER_ALIGN( dbuf->current_size+datalen+DBUFFER_HDRSIZE );
-		if (next_alloc_size>dbuf->alloc_size) {
-			dbuf = (dbuffer_t*)realloc((void*)dbuf, next_alloc_size);
-			if (NULL==dbuf)
-                return NULL;
+	if (NULL != dbuf) {
+		next_alloc_size = DBUFFER_ALIGN(dbuf->current_size + datalen);
+		if (next_alloc_size > dbuf->alloc_size) {
+			dbuf->data = (unsigned char *)realloc((void*)dbuf, next_alloc_size);
+			if (NULL == dbuf->data) {
+				dbuf->alloc_size = dbuf->current_size = 0;
+				return dbuf;
+			}
 			dbuf->alloc_size = next_alloc_size;
 		}
 	} else {
-        next_alloc_size = DBUFFER_ALIGN( datalen+DBUFFER_HDRSIZE );
-		dbuf = (dbuffer_t*)malloc( next_alloc_size );
-		if (NULL==dbuf)
-            return NULL;
+		dbuf = (dbuffer_t*)malloc(sizeof(dbuffer_t));
+		if (NULL == dbuf)
+			return NULL;
+		next_alloc_size = DBUFFER_ALIGN(datalen);
+		dbuf->data = (unsigned char *)malloc(next_alloc_size);
+		if (NULL == dbuf->data) {
+			free(dbuf);
+			return NULL;
+		}
 		dbuf->alloc_size = next_alloc_size;
-        dbuf->current_size = 0;
+		dbuf->current_size = 0;
 	}
-	if (data) {
-		memcpy( dbuf->data + dbuf->current_size, data, datalen );
+	if (NULL != data) {
+		memcpy(dbuf->data + dbuf->current_size, data, datalen);
 		dbuf->current_size += datalen;
 	}
 	return dbuf;

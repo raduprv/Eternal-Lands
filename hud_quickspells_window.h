@@ -16,7 +16,6 @@ typedef struct {
 	// including CAST_SPELL and len bytes, len will be byte 2
 } mqbdata;
 
-extern int quickspell_win; /*!< quickbar windows handler */
 extern int num_quickspell_slots;
 extern int quickspells_relocatable;
 extern mqbdata * mqb_data[MAX_QUICKSPELL_SLOTS+1];
@@ -31,6 +30,10 @@ void get_quickspell_options(unsigned int *options, unsigned int *position);
 void set_quickspell_options(unsigned int options, unsigned int position);
 #ifdef ANDROID
 int remove_all_quickspells(void);
+#endif
+#ifdef JSON_FILES
+void read_quickspell_options(const char *dict_name);
+void write_quickspell_options(const char *dict_name);
 #endif
 
 #ifdef __cplusplus

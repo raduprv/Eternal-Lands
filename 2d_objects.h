@@ -31,14 +31,20 @@ typedef struct
 	char file_name[128];    /*!< name of the file that contains the definition of the 2d object */
 #endif
 
-    /*! \name start and end coordinates of the texture @{ */
+    /*!
+	 * \name start and end coordinates of the texture
+	 * @{
+	 */
 	float u_start; /*!< start position of the u coordinate */
 	float u_end; /*!< end position of the u coordinate */
 	float v_start; /*!< start position of the v coordinate */
 	float v_end; /*!< end position of the v coordiante */
     /*! @} */
 
-    /*! \name size of the 2d object @{ */
+    /*!
+	 * \name size of the 2d object
+	 * @{
+	 */
 	float x_size; /*!< size in x direction */
 	float y_size; /*!< size in y direction */
     /*! @} */
@@ -61,13 +67,19 @@ typedef struct
 	char file_name[80];    /*!< name of the file that contains the definition of the 2d object */
 #endif
 
-    /*! \name position of the object @{ */
+    /*!
+	 * \name position of the object
+	 * @{
+	 */
 	float x_pos;
 	float y_pos;
 	float z_pos;
     /*! @} */
 
-    /*! \name rotation of the object @{ */
+    /*!
+	 * \name rotation of the object
+	 * @{
+	 */
 	float x_rot;
 	float y_rot;
 	float z_rot;
@@ -99,7 +111,7 @@ extern obj_2d *obj_2d_list[MAX_OBJ_2D]; /*!< The 2d object array - holds all 2d 
 
 extern float texture_scale; /*!< scaling factor for textures */
 
-/*
+/*!
  * \ingroup	display_2d
  * \brief	Displays the 2d object given by object_id
  *
@@ -138,13 +150,14 @@ int get_2d_bbox (int id, AABBOX* box);
  * \ingroup     load_2d
  * \brief       Adds a 2d object at the given location.
  *
- *              Adds a 2d object at the given location.
- *              It's usually called in the map loading process. Requires a location and rotation for the 2d object, that's loaded from the$
+ * Add a 2d object at the given location.
+ * This is usually called in the map loading process. Requires a location and
+ * rotation for the 2d object, that's loaded from the file \a file_name.
  *
  * \param       id_hint   Hint on the position of the object in the list. If
  *                        this spot is already taken, a vacant spot will be
  *                        chosen, but chances are that mouse click events on
- *                        object won;t work because of a wrong ID.
+ *                        object will not work because of a wrong ID.
  * \param       file_name The filename of the object we wish to add
  * \param       x_pos     The x position
  * \param       y_pos     The y position
@@ -152,7 +165,10 @@ int get_2d_bbox (int id, AABBOX* box);
  * \param       x_rot     The x rotation
  * \param       y_rot     The y rotation
  * \param       z_rot     The z rotation
+ * \param       dynamic   Whether this is a dynamic object
  * \retval int  Returns -1 on failure and the location in the obj_2d_list if it succeeds
+ * \note Parameter \a dynamic seems to be always 0 in the current code. It is also
+ * unclear whether it has any use at all.
  * \callgraph
  */
 int add_2d_obj(int id_hint, const char* file_name,
@@ -161,19 +177,22 @@ int add_2d_obj(int id_hint, const char* file_name,
 #else  // FASTER_MAP_LOAD
 /*!
  * \ingroup	load_2d
- * \brief	Adds a 2d object at the given location. 
- * 
+ * \brief	Adds a 2d object at the given location.
+ *
  * 		Adds a 2d object at the given location.
  * 		It's usually called in the map loading process. Requires a location and rotation for the 2d object, that's loaded from the file given by the first parameter
- * 		
+ *
  * \param	file_name The filename of the object we wish to add
- * \param	x_pos The x position
- * \param	y_pos The y position
- * \param	z_pos The z position
- * \param	x_rot The x rotation
- * \param	y_rot The y rotation
- * \param	z_rot The z rotation
+ * \param	x_pos     The x position
+ * \param	y_pos     The y position
+ * \param	z_pos     The z position
+ * \param	x_rot     The x rotation
+ * \param	y_rot     The y rotation
+ * \param	z_rot     The z rotation
+ * \param   dynamic   Whether this is a dynamic object
  * \retval int 	Returns -1 on failure and the location in the obj_2d_list if it succeeds
+ * \note Parameter \a dynamic seems to be always 0 in the current code. It is also
+ * unclear whether it has any use at all.
  * \callgraph
  */
 int add_2d_obj(char * file_name, float x_pos, float y_pos, float z_pos,
@@ -183,11 +202,11 @@ int add_2d_obj(char * file_name, float x_pos, float y_pos, float z_pos,
 /*!
  * \ingroup	load_2d
  * \brief	Show or hide one or more 2D map objects
- * 
+ *
  * 		Show or hide 2D map objects.
  *		This routine is usually under server control to allow dynamically enabling or disabling seeing objects
  *
- * \param	display_flag whether the objects are to be displayed or not
+ * \param	display whether the objects are to be displayed or not
  * \param	ptr pointer to an array of object ID's to be affected
  * \param	len the length in bytes of the array
  * \callgraph
@@ -201,7 +220,7 @@ void set_2d_object (Uint8 display, const void *ptr, int len);
  * 		Set the sate for 2D map objects.
  *		This routine is usually under server control to allow dynamically setting a state for an object, this is for future expansion
  *
- * \param	display_flag whether the objects are to be displayed or not
+ * \param	state The state to set for the object or objects
  * \param	ptr pointer to an array of object ID's to be affected
  * \param	len the length in bytes of the array
  * \callgraph

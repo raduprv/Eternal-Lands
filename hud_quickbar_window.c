@@ -4,6 +4,7 @@
 #include "elconfig.h"
 #include "elwindows.h"
 #include "font.h"
+#include "gamewin.h"
 #include "gl_init.h"
 #include "hud.h"
 #include "hud_quickbar_window.h"
@@ -17,16 +18,13 @@
 #include "spells.h"
 #include "textures.h"
 
-int	quickbar_win= -1;
-int quickbar_x = 100;
-int quickbar_y = 100;
 int quickbar_draggable=1;
 int quickbar_dir=HORIZONTAL;
 // with quickbar_relocatable off, the default will be docked to right hud
 int quickbar_relocatable=0;
 int num_quickbar_slots = 6;
-int qb_action_mode=ACTION_USE;
 int cm_quickbar_enabled = 0;
+int independant_quickbar_action_modes = 0;
 
 static size_t cm_quickbar_id = CM_INIT_VALUE;
 static int mouseover_quickbar_item_pos = -1;
@@ -34,6 +32,7 @@ static int item_quickbar_slot_size = -1;
 static int default_item_quickbar_x = -1;
 static int default_item_quickbar_y = -1;
 static int shown_quickbar_slots = -1;
+static int qb_action_mode=ACTION_USE;
 
 enum { CMQB_ENABLE=0, CMQB_SEP1, CMQB_RELOC, CMQB_DRAG, CMQB_FLIP, CMQB_SEP2, CMQB_RESET };
 
@@ -42,7 +41,7 @@ enum { CMQB_ENABLE=0, CMQB_SEP1, CMQB_RELOC, CMQB_DRAG, CMQB_FLIP, CMQB_SEP2, CM
 static void change_flags(int win_id, Uint32 flags)
 {
 	int order = windows_list.window[win_id].order;
-	
+
 	windows_list.window[win_id].flags = flags;
 	if ( (order > 0 && (flags & ELW_SHOW_LAST)) || (order < 0 && !(flags & ELW_SHOW_LAST)) )
 		windows_list.window[win_id].order = -order;
@@ -59,6 +58,7 @@ static Uint32 get_flags(int win_id)
 // returns try if the window is not in the default place, false if it is, even if it can be relocated
 static int is_relocated(void)
 {
+	int quickbar_win = get_id_MW(MW_QUICKBAR);
 	window_info *win = NULL;
 	if (quickbar_win < 0 || quickbar_win > windows_list.num_windows)
 		return 1;
@@ -78,7 +78,7 @@ static int get_quickbar_y_len(void)
 }
 
 
-/* get the base y coord of the quick bar if its in 
+/* get the base y coord of the quick bar if its in
    it's default place, otherwise return where the top would be */
 int get_quickbar_y_base(void)
 {
@@ -92,6 +92,7 @@ int get_quickbar_y_base(void)
 /*Enable/disable quickbar title bar and dragability*/
 static void toggle_quickbar_draggable(void)
 {
+	int quickbar_win = get_id_MW(MW_QUICKBAR);
 	Uint32 flags = get_flags(quickbar_win);
 	if (!quickbar_draggable)
 	{
@@ -100,7 +101,7 @@ static void toggle_quickbar_draggable(void)
 		change_flags (quickbar_win, flags);
 		quickbar_draggable = 1;
 	}
-	else 
+	else
 	{
 		flags |= ELW_SHOW_LAST;
 		flags &= ~(ELW_DRAGGABLE | ELW_TITLE_BAR);
@@ -155,8 +156,10 @@ static void flip_quickbar(int window_id)
 
 
 /*Return the quickbar to it's Built-in position*/
-static void reset_quickbar() 
+static void reset_quickbar()
 {
+	int quickbar_win = get_id_MW(MW_QUICKBAR);
+	limit_win_scale_to_default(get_scale_WM(MW_QUICKBAR));
 	quickbar_dir = VERTICAL;
 	quickbar_draggable = 0;
 	quickbar_relocatable = 0;
@@ -196,7 +199,9 @@ static void quickbar_item_description_help(window_info *win, int pos, int slot)
 		if (str != NULL)
 		{
 			int xpos = 0, ypos = 0;
-			int len_str = (strlen(str) + 1) * win->small_font_len_x;
+			const int tooltip_sep = (int)(0.5 + win->current_scale * 5);
+			int len_str = get_string_width_zoom((const unsigned char*)str,
+				win->font_category, win->current_scale_small) + tooltip_sep;
 			/* vertical place right (or left) and aligned with slot */
 			if (quickbar_dir==VERTICAL)
 			{
@@ -280,7 +285,10 @@ static int	click_quickbar_handler(window_info *win, int mx, int my, Uint32 flags
 	if(right_click) {
 		switch(qb_action_mode) {
 		case ACTION_WALK:
-			qb_action_mode=ACTION_LOOK;
+			if(item_dragged != -1)
+				item_dragged = -1;
+			else
+				qb_action_mode = ACTION_LOOK;
 			break;
 		case ACTION_LOOK:
 			qb_action_mode=ACTION_USE;
@@ -299,11 +307,12 @@ static int	click_quickbar_handler(window_info *win, int mx, int my, Uint32 flags
 			qb_action_mode=ACTION_WALK;
 		}
 		if (cm_quickbar_enabled)
-			cm_show_direct(cm_quickbar_id, quickbar_win, -1);
+			cm_show_direct(cm_quickbar_id, win->window_id, -1);
 		return 1;
 	}
-	
-	if(qb_action_mode==ACTION_USE_WITEM)	action_mode=ACTION_USE_WITEM;
+
+	if (qb_action_mode == ACTION_USE_WITEM)
+		set_gamewin_usewith_action();
 
 	// no in window check needed, already done
 	//see if we clicked on any item in the main category
@@ -360,7 +369,7 @@ static int	click_quickbar_handler(window_info *win, int mx, int my, Uint32 flags
 								//toggle draggable
 								toggle_quickbar_draggable();
 							}
-							else if ( (flags & trigger)== (ELW_LEFT_MOUSE | KMOD_SHIFT) && (get_flags (quickbar_win) & (ELW_TITLE_BAR | ELW_DRAGGABLE)) == (ELW_TITLE_BAR | ELW_DRAGGABLE) )
+							else if ( (flags & trigger)== (ELW_LEFT_MOUSE | KMOD_SHIFT) && (get_flags (win->window_id) & (ELW_TITLE_BAR | ELW_DRAGGABLE)) == (ELW_TITLE_BAR | ELW_DRAGGABLE) )
 							{
 								//toggle vertical/horisontal
 								flip_quickbar(win->window_id);
@@ -445,13 +454,11 @@ static int	click_quickbar_handler(window_info *win, int mx, int my, Uint32 flags
 
 static int	display_quickbar_handler(window_info *win)
 {
-	char str[80];
+	unsigned char str[80];
 	int y, i;
 	Uint32 _cur_time = SDL_GetTicks(); /* grab a snapshot of current time */
-	int ypos = -1, xpos = -1;
+	int xpos = -1;
 	const int scaled_2 = (int)(0.5 + win->current_scale * 2);
-	const int scaled_15 = (int)(0.5 + win->current_scale * 15);
-	const int scaled_25 = (int)(0.5 + win->current_scale * 25);
 	const int scaled_27 = (int)(0.5 + win->current_scale * 27);
 
 	update_shown_quickbar_slots(win);
@@ -467,6 +474,7 @@ static int	display_quickbar_handler(window_info *win)
 			float u_start,v_start,u_end,v_end;
 			int this_texture,cur_item,cur_pos;
 			int x_start,x_end,y_start,y_end, itmp;
+			float zoom;
 
 			// don't display an item that is in the proces of being moved after equipment swap
 			if (item_swap_in_progress(i))
@@ -512,13 +520,13 @@ static int	display_quickbar_handler(window_info *win)
 					cooldown = 0.0f;
 				else if (cooldown > 1.0f)
 					cooldown = 1.0f;
-				
+
 				glDisable(GL_TEXTURE_2D);
 				glEnable(GL_BLEND);
-				
+
 				glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 				glBegin(GL_TRIANGLE_FAN);
-					glColor4f(0.14f, 0.35f, 0.82f, 0.50f); 
+					glColor4f(0.14f, 0.35f, 0.82f, 0.50f);
 
 					glVertex2f(x_center, y_center);
 
@@ -555,34 +563,30 @@ static int	display_quickbar_handler(window_info *win)
 				glDisable(GL_BLEND);
 				glEnable(GL_TEXTURE_2D);
 			}
-			
-			safe_snprintf(str,sizeof(str),"%i",item_list[i].quantity);
+
+			safe_snprintf((char*)str, sizeof(str), "%d", item_list[i].quantity);
+			xpos = x_start;
+			zoom = (mouseover_quickbar_item_pos == i && enlarge_text())
+				? win->current_scale : win->current_scale_small;
 			if (quickbar_dir==VERTICAL)
 			{
-				int lenstr = strlen(str);
-				lenstr *= ((mouseover_quickbar_item_pos == i) && enlarge_text()) ?win->default_font_len_x :win->small_font_len_x;
-				xpos = ((x_start + lenstr + win->cur_x) > window_width) ?window_width - win->cur_x - lenstr :x_start;
-				ypos = y_end - scaled_15;
+				int lenstr = get_string_width_zoom(str, win->font_category, zoom);
+				xpos = min2i(xpos, window_width - win->cur_x - lenstr);
 			}
-			else
-			{
-				xpos = x_start;
-				ypos = (i & 1) ?(y_end - scaled_15) :(y_end - scaled_25);
-			}
-			if ((mouseover_quickbar_item_pos == i) && enlarge_text())
-				draw_string_shadowed_zoomed(xpos,ypos,(unsigned char*)str,1,1.0f,1.0f,1.0f,0.0f,0.0f,0.0f, win->current_scale);
-			else
-				draw_string_small_shadowed_zoomed(xpos,ypos,(unsigned char*)str,1,1.0f,1.0f,1.0f,0.0f,0.0f,0.0f, win->current_scale);
+
+			draw_text(xpos, y_end, str, strlen((const char*)str), win->font_category, TDO_SHADOW, 1,
+				TDO_FOREGROUND, 1.0, 1.0, 1.0, TDO_BACKGROUND, 0.0, 0.0, 0.0, TDO_ZOOM, zoom,
+				TDO_VERTICAL_ALIGNMENT, BOTTOM_LINE, TDO_END);
 		}
 	}
 	mouseover_quickbar_item_pos = -1;
-	
+
 	// Render the grid *after* the images. It seems impossible to code
-	// it such that images are rendered exactly within the boxes on all 
+	// it such that images are rendered exactly within the boxes on all
 	// cards
 	glDisable(GL_TEXTURE_2D);
 	glBegin(GL_LINES);
-	use_window_color(quickbar_win, ELW_COLOR_LINE);
+	use_window_color(win->window_id, ELW_COLOR_LINE);
 	//draw the grid
 	if(quickbar_dir==VERTICAL)
 		{
@@ -622,7 +626,7 @@ static int ui_scale_quickbar_handler(window_info *win)
 	{
 		resize_item_quickbar_window(win->window_id);
 		if (win->cur_x > window_width || win->cur_y > window_height)
-			move_window(quickbar_win, -1, 0, 100, 100);
+			move_window(win->window_id, -1, 0, 100, 100);
 	}
 	update_shown_quickbar_slots(win);
 	return 1;
@@ -631,6 +635,7 @@ static int ui_scale_quickbar_handler(window_info *win)
 
 void init_quickbar (void)
 {
+	int quickbar_win = get_id_MW(MW_QUICKBAR);
 	Uint32 flags = ELW_USE_UISCALE | ELW_USE_BACKGROUND | ELW_USE_BORDER;
 
 	if (!quickbar_relocatable)
@@ -639,14 +644,16 @@ void init_quickbar (void)
 		quickbar_draggable = 0;
 	}
 	if (quickbar_draggable)
-		flags |= ELW_TITLE_BAR | ELW_DRAGGABLE;	
+		flags |= ELW_TITLE_BAR | ELW_DRAGGABLE;
 
 	if (quickbar_win < 0)
 	{
-		quickbar_win = create_window ("Quickbar", -1, 0, quickbar_x, quickbar_y, 0, 0, flags);
+		quickbar_win = create_window ("Quickbar", -1, 0, get_pos_x_MW(MW_QUICKBAR), get_pos_y_MW(MW_QUICKBAR), 0, 0, flags);
 		if (quickbar_win < 0 || quickbar_win >= windows_list.num_windows)
 			return;
+		set_id_MW(MW_QUICKBAR, quickbar_win);
 
+		set_window_custom_scale(quickbar_win, MW_QUICKBAR);
 		ui_scale_quickbar_handler(&windows_list.window[quickbar_win]);
 
 		set_window_handler(quickbar_win, ELW_HANDLER_DISPLAY, &display_quickbar_handler);
@@ -727,4 +734,12 @@ int action_item_keys(SDL_Keycode key_code, Uint16 key_mod)
 			return 1;
 		}
 	return 0;
+}
+
+// Limit external setting of the action mode: Called due to an action keypress or action icon in the icon window.
+void set_quickbar_action_mode(int new_mode)
+{
+	// Only change the action mode if is one used by the window.
+	if (!independant_quickbar_action_modes && ((new_mode == ACTION_WALK) || (new_mode == ACTION_LOOK) || (new_mode == ACTION_USE) || (new_mode == ACTION_USE_WITEM)))
+		qb_action_mode = new_mode;
 }

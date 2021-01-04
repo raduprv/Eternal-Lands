@@ -12,6 +12,9 @@
 #ifdef ANDROID
 #include <gl4eshint.h>
 #endif
+#ifdef TTF
+#include <SDL2/SDL_ttf.h>
+#endif
 #include "astrology.h"
 #include "init.h"
 #include "2d_objects.h"
@@ -48,6 +51,9 @@
 #include "item_lists.h"
 #endif
 #include "keys.h"
+#ifdef JSON_FILES
+#include "json_io.h"
+#endif
 #include "knowledge.h"
 #include "langselwin.h"
 #include "lights.h"
@@ -97,7 +103,7 @@
 #include "custom_update.h"
 #endif  //CUSTOM_UPDATE
 
-#define	CFG_VERSION 7	// change this when critical changes to el.cfg are made that will break it
+#define	CFG_VERSION 7	// change this when critical changes to the cfg file are made that will break it
 
 char configdir[256]="./";
 #ifdef DATA_DIR
@@ -106,6 +112,10 @@ char datadir[256]=DATA_DIR;
 char datadir[256]="./";
 #endif //DATA_DIR
 
+static const char *cfg_filename = "el.cfg";
+#ifdef JSON_FILES
+static const char *client_state_filename = "client_state.json";
+#endif
 static int no_lang_in_config = 0;
 
 #ifndef FASTER_MAP_LOAD
@@ -125,7 +135,7 @@ static void load_harvestable_list(void)
 	{
 		if (fscanf (f, "%254s", strLine) != 1)
 			break;
-		my_strncp (harvestable_objects[i], strLine, sizeof (harvestable_objects[i]));
+		safe_strncpy(harvestable_objects[i], strLine, sizeof (harvestable_objects[i]));
 
 		i++;
 		if(!fgets(strLine, sizeof(strLine), f)) {
@@ -152,7 +162,7 @@ static void load_entrable_list(void)
 		{
 			if (fscanf (f, "%254s", strLine) != 1)
 				break;
-			my_strncp (entrable_objects[i], strLine, sizeof (entrable_objects[i]));
+			safe_strncpy(entrable_objects[i], strLine, sizeof (entrable_objects[i]));
 
 			i++;
 			if(!fgets(strLine, sizeof(strLine), f))break;
@@ -166,13 +176,14 @@ static void read_config(void)
 	// Set our configdir
 	const char * tcfg = get_path_config();
 
-	my_strncp (configdir, tcfg , sizeof(configdir));
+	safe_strncpy(configdir, tcfg , sizeof(configdir));
 
 	if ( !read_el_ini () )
 	{
 		// oops, the file doesn't exist, give up
-		const char *err_stg = "Failure reading el.ini";
-		fprintf(stderr, "%s\n", err_stg);
+		char err_stg[80];
+		safe_snprintf(err_stg, sizeof(err_stg), "Failure reading %s", ini_filename);
+		fprintf(stderr, "%s", err_stg);
 		LOG_ERROR(err_stg);
 		SDL_Quit ();
 		FATAL_ERROR_WINDOW(err_stg);
@@ -191,32 +202,182 @@ static void check_language(void)
 	}
 }
 
+#ifdef JSON_FILES
+static void load_cstate(void)
+{
+	char window_dict_name[50];
+
+	// get window positions
+	{
+		enum managed_window_enum i;
+		for (i = 0; i < MW_MAX; i++)
+		{
+			int pos_x = 0, pos_y = 0;
+			get_dict_name_WM(i, window_dict_name, sizeof(window_dict_name));
+			pos_x = json_cstate_get_int(window_dict_name, "pos_x", 0);
+			pos_y = json_cstate_get_int(window_dict_name, "pos_y", 0);
+			set_pos_MW(i, pos_x, pos_y);
+		}
+	}
+
+	zoom_level = json_cstate_get_float("camera", "zoom", 0.0f);
+	rx = json_cstate_get_float("camera", "x", 0.0f);
+	ry = json_cstate_get_float("camera", "y", 0.0f);
+	rz = json_cstate_get_float("camera", "z", 0.0f);
+
+	hud_timer_keep_state = json_cstate_get_bool("hud_timer", "keep_state", 0);
+
+	has_accepted = json_cstate_get_bool("login", "rules_accepted", 0);
+	have_saved_langsel = json_cstate_get_bool("login", "have_language", 0);
+
+	view_health_bar = json_cstate_get_bool("overhead", "view_health_bar", 0);
+	view_ether_bar = json_cstate_get_bool("overhead", "view_ether_bar", 0);
+	view_names = json_cstate_get_bool("overhead", "view_names", 0);
+	view_hp = json_cstate_get_bool("overhead", "view_hp", 0);
+	view_ether = json_cstate_get_bool("overhead", "view_ether", 0);
+
+	{
+		size_t i;
+		char str[20];
+		for(i = 0; i < ITEM_EDIT_QUANT; i++)
+		{
+			int curr_value;
+			safe_snprintf(str, sizeof(str), "%d", i);
+			curr_value = json_cstate_get_int("quantities", str, -1);
+			if (curr_value != -1)
+			{
+				quantities.quantity[i].val = curr_value;
+				safe_snprintf(quantities.quantity[i].str, sizeof(quantities.quantity[i].str), "%d", curr_value);
+				quantities.quantity[i].len = strlen(quantities.quantity[i].str);
+			}
+		}
+		quantities.selected = json_cstate_get_int("quantities", "selected", 0);
+	}
+
+	{
+		size_t i;
+		char str[20];
+		int watch_this_stats[MAX_WATCH_STATS];
+		for(i = 0; i < MAX_WATCH_STATS; i++)
+		{
+			safe_snprintf(str, sizeof(str), "%d", i);
+			watch_this_stats[i] = json_cstate_get_int("watched_stats", str, 0);
+		}
+		set_statsbar_watched_stats(watch_this_stats);
+		lock_skills_selection = json_cstate_get_bool("watched_stats", "lock_selection", 0);
+	}
+
+	read_tab_selected();
+
+	always_show_astro_details = json_cstate_get_bool(get_dict_name_WM(MW_ASTRO, window_dict_name, sizeof(window_dict_name)), "always_show_details", 0);
+
+	ground_items_visible_grid_rows = json_cstate_get_int(get_dict_name_WM(MW_BAGS, window_dict_name, sizeof(window_dict_name)), "rows", 0);
+	ground_items_visible_grid_cols = json_cstate_get_int(window_dict_name, "cols", 0);
+
+	dialogue_copy_excludes_responses = json_cstate_get_bool(get_dict_name_WM(MW_DIALOGUE, window_dict_name, sizeof(window_dict_name)), "copy_excludes_responses", 0);
+	dialogue_copy_excludes_newlines = json_cstate_get_bool(window_dict_name, "copy_excludes_newlines", 0);
+
+	floating_counter_flags = json_cstate_get_unsigned_int("counters_window", "floating_flags", 0);
+
+	read_settings_hud_indicators("hud_indicators_window");
+
+	item_lists_set_active(json_cstate_get_unsigned_int("item_lists_window", "active_list", 0));
+	items_list_disable_find_list = json_cstate_get_bool("item_lists_window", "disable_find", 0);
+	items_list_on_left = json_cstate_get_bool("item_lists_window", "on_left", 0);
+
+	use_small_items_window = json_cstate_get_bool(get_dict_name_WM(MW_ITEMS, window_dict_name, sizeof(window_dict_name)), "small_size", 0);
+	manual_size_items_window = json_cstate_get_bool(window_dict_name, "manual_size", 0);
+	allow_equip_swap = json_cstate_get_bool(window_dict_name, "allow_equip_swap", 0);
+	items_mix_but_all = json_cstate_get_bool(window_dict_name, "mix_all", 0);
+	items_stoall_nolastrow = json_cstate_get_bool(window_dict_name, "stoall_nolastrow", 0);
+	items_dropall_nolastrow = json_cstate_get_bool(window_dict_name, "dropall_nolastrow", 0);
+	items_stoall_nofirstrow = json_cstate_get_bool(window_dict_name, "stoall_nofirstrow", 0);
+	items_dropall_nofirstrow = json_cstate_get_bool(window_dict_name, "dropall_nofirstrow", 0);
+	items_auto_get_all = json_cstate_get_bool(window_dict_name, "auto_get_all", 0);
+	items_disable_text_block = json_cstate_get_bool(window_dict_name, "disable_text_block", 0);
+	items_buttons_on_left = json_cstate_get_bool(window_dict_name, "buttons_on_left", 0);
+	items_equip_grid_on_left = json_cstate_get_bool(window_dict_name, "equip_grid_on_left", 0);
+	items_mod_click_any_cursor = json_cstate_get_bool(window_dict_name, "mod_click_any_cursor", 0);
+
+	disable_manuwin_keypress = json_cstate_get_bool(get_dict_name_WM(MW_MANU, window_dict_name, sizeof(window_dict_name)), "disable_keypress", 0);
+
+	minimap_tiles_distance = json_cstate_get_int(get_dict_name_WM(MW_MINIMAP, window_dict_name, sizeof(window_dict_name)), "tiles_distance", 0);
+	open_minimap_on_start = json_cstate_get_bool(window_dict_name, "open_on_start", 0);
+
+	read_options_questlog(get_dict_name_WM(MW_QUESTLOG, window_dict_name, sizeof(window_dict_name)));
+
+	if(quickbar_relocatable > 0)
+	{
+		quickbar_dir = (json_cstate_get_bool(get_dict_name_WM(MW_QUICKBAR, window_dict_name, sizeof(window_dict_name)), "vertical", 0)) ?VERTICAL :HORIZONTAL;
+		quickbar_draggable = json_cstate_get_bool(window_dict_name, "draggable", 0);
+		if (quickbar_dir != HORIZONTAL)
+			quickbar_dir = VERTICAL;
+		if(quickbar_draggable != 1)
+			quickbar_draggable = 0;
+	}
+
+	read_quickspell_options(get_dict_name_WM(MW_QUICKSPELLS, window_dict_name, sizeof(window_dict_name)));
+
+	start_mini_spells = json_cstate_get_bool(get_dict_name_WM(MW_SPELLS, window_dict_name, sizeof(window_dict_name)), "start_mini", 0);
+
+	autoclose_storage_dialogue = json_cstate_get_bool(get_dict_name_WM(MW_STORAGE, window_dict_name, sizeof(window_dict_name)), "autoclose", 0);
+	auto_select_storage_option = json_cstate_get_bool(window_dict_name, "auto_select", 0);
+	sort_storage_categories = json_cstate_get_bool(window_dict_name, "sort_categories", 0);
+	disable_storage_filter = json_cstate_get_bool(window_dict_name, "disable_filter", 0);
+	sort_storage_items = json_cstate_get_bool(window_dict_name, "sort_items", 0);
+
+	read_options_user_menus("user_menus_window");
+
+	resize_root_window();
+}
+#endif
+
 static void read_bin_cfg(void)
 {
 	FILE *f = NULL;
 	bin_cfg cfg_mem;
 	int i;
-	const char *fname = "el.cfg";
 	size_t ret;
-	int have_additions = 1;
+	int have_quickspells = 1, have_chat_win = 1;
+
+
+#ifdef JSON_FILES
+	if (get_use_json_user_files())
+	{
+		char fname[128];
+		USE_JSON_DEBUG("Loading json file");
+		// try to load the json file
+		safe_snprintf(fname, sizeof(fname), "%s%s", get_path_config(), client_state_filename);
+		if (json_load_cstate(fname) >= 0)
+		{
+			load_cstate();
+			return;
+		}
+	}
+
+	// if there is no json file, or json use disabled, try to load the old binary format
+	USE_JSON_DEBUG("Loading binary file");
+#endif
 
 	memset(&cfg_mem, 0, sizeof(cfg_mem));	// make sure its clean
 
-	f=open_file_config_no_local(fname,"rb");
+	f=open_file_config_no_local(cfg_filename,"rb");
 	if(f == NULL)return;//no config file, use defaults
 	ret = fread(&cfg_mem,1,sizeof(cfg_mem),f);
 	fclose(f);
 
 	// If more options are added to the end of the structure, we can maintain backwards compatibility.
-	// If have_additions is not true, those options will remain set to zero as the file does not include them.
+	// For each addition we can check the size to see if its present and use it if so, otherwise use zeros.
 	// We only need to change the version number if we alter/remove older options.
 	// We still need to check the size is what is expected.
 
-	if (ret == sizeof(cfg_mem) - 2 * sizeof(unsigned int))
-		have_additions = 0;
+	if (ret == (sizeof(cfg_mem) - 2 * sizeof(int)))
+		have_chat_win = 0;
+	else if (ret == (sizeof(cfg_mem) - 2 * sizeof(int) - 2 * sizeof(unsigned int)))
+		have_quickspells = have_chat_win = 0;
 	else if (ret != sizeof(cfg_mem))
 	{
-		LOG_ERROR("%s() failed to read %s\n", __FUNCTION__, fname);
+		LOG_ERROR("%s() failed to read %s\n", __FUNCTION__, cfg_filename);
 		return;
 	}
 
@@ -225,66 +386,48 @@ static void read_bin_cfg(void)
 
 	//good, retrive the data
 	// TODO: move window save/restore into the window handler
-	items_menu_x=cfg_mem.items_menu_x;
-	items_menu_y=cfg_mem.items_menu_y;
+	set_pos_MW(MW_ITEMS, cfg_mem.items_menu_x, cfg_mem.items_menu_y);
 
-	ground_items_menu_x=cfg_mem.ground_items_menu_x & 0xFFFF;
-	ground_items_menu_y=cfg_mem.ground_items_menu_y & 0xFFFF;
+	set_pos_MW(MW_BAGS, cfg_mem.ground_items_menu_x & 0xFFFF, cfg_mem.ground_items_menu_y & 0xFFFF);
 	ground_items_visible_grid_cols = cfg_mem.ground_items_menu_x >> 16;
 	ground_items_visible_grid_rows = cfg_mem.ground_items_menu_y >> 16;
 
-	ranging_win_x=cfg_mem.ranging_win_x;
-	ranging_win_y=cfg_mem.ranging_win_y;
+	set_pos_MW(MW_RANGING, cfg_mem.ranging_win_x, cfg_mem.ranging_win_y);
 
-	trade_menu_x=cfg_mem.trade_menu_x;
-	trade_menu_y=cfg_mem.trade_menu_y;
+	set_pos_MW(MW_TRADE, cfg_mem.trade_menu_x, cfg_mem.trade_menu_y);
 
-	sigil_menu_x=cfg_mem.sigil_menu_x;
-	sigil_menu_y=cfg_mem.sigil_menu_y;
-	start_mini_spells=cfg_mem.start_mini_spells;
-	emotes_menu_x=cfg_mem.emotes_menu_x;
-	emotes_menu_y=cfg_mem.emotes_menu_y;
+	set_pos_MW(MW_SPELLS, cfg_mem.sigil_menu_x, cfg_mem.sigil_menu_y);
 
-	dialogue_menu_x=cfg_mem.dialogue_menu_x;
-	dialogue_menu_y=cfg_mem.dialogue_menu_y;
+	set_pos_MW(MW_EMOTE, cfg_mem.emotes_menu_x, cfg_mem.emotes_menu_y);
 
-	manufacture_menu_x=cfg_mem.manufacture_menu_x;
-	manufacture_menu_y=cfg_mem.manufacture_menu_y;
+	set_pos_MW(MW_DIALOGUE, cfg_mem.dialogue_menu_x, cfg_mem.dialogue_menu_y);
 
-	astrology_win_x = cfg_mem.astrology_win_x;
- 	astrology_win_y = cfg_mem.astrology_win_y;
+	set_pos_MW(MW_MANU, cfg_mem.manufacture_menu_x, cfg_mem.manufacture_menu_y);
 
-	tab_stats_x=cfg_mem.tab_stats_x;
-	tab_stats_y=cfg_mem.tab_stats_y;
+	set_pos_MW(MW_ASTRO, cfg_mem.astrology_win_x, cfg_mem.astrology_win_y);
 
-	elconfig_menu_x=cfg_mem.elconfig_menu_x;
-	elconfig_menu_y=cfg_mem.elconfig_menu_y;
+	set_pos_MW(MW_STATS, cfg_mem.tab_stats_x, cfg_mem.tab_stats_y);
 
-	tab_help_x=cfg_mem.tab_help_x;
-	tab_help_y=cfg_mem.tab_help_y;
+	set_pos_MW(MW_CONFIG, cfg_mem.elconfig_menu_x, cfg_mem.elconfig_menu_y);
 
-	storage_win_x=cfg_mem.storage_win_x;
-	storage_win_y=cfg_mem.storage_win_y;
+	set_pos_MW(MW_HELP, cfg_mem.tab_help_x, cfg_mem.tab_help_y);
 
-	buddy_menu_x=cfg_mem.buddy_menu_x;
-	buddy_menu_y=cfg_mem.buddy_menu_y;
+	set_pos_MW(MW_STORAGE, cfg_mem.storage_win_x, cfg_mem.storage_win_y);
 
-	questlog_menu_x=cfg_mem.questlog_win_x;
-	questlog_menu_y=cfg_mem.questlog_win_y;
+	set_pos_MW(MW_BUDDY, cfg_mem.buddy_menu_x, cfg_mem.buddy_menu_y);
 
-	minimap_win_x=cfg_mem.minimap_win_x;
-	minimap_win_y=cfg_mem.minimap_win_y;
+	set_pos_MW(MW_QUESTLOG, cfg_mem.questlog_win_x, cfg_mem.questlog_win_y);
+
+	set_pos_MW(MW_MINIMAP, cfg_mem.minimap_win_x, cfg_mem.minimap_win_y);
 	minimap_tiles_distance=cfg_mem.minimap_zoom;
 
-	tab_selected=cfg_mem.tab_selected;
+	set_tab_selected(cfg_mem.tab_selected);
 
-	tab_info_x=cfg_mem.tab_info_x;
-	tab_info_y=cfg_mem.tab_info_y;
+	set_pos_MW(MW_INFO, cfg_mem.tab_info_x, cfg_mem.tab_info_y);
 
 	if(quickbar_relocatable > 0)
 	{
-		quickbar_x = cfg_mem.quickbar_x;
-		quickbar_y = cfg_mem.quickbar_y;
+		set_pos_MW(MW_QUICKBAR, cfg_mem.quickbar_x, cfg_mem.quickbar_y);
 		quickbar_dir = cfg_mem.quickbar_flags & 0xFF;
 		quickbar_draggable = (cfg_mem.quickbar_flags & 0xFF00) >> 8;
 		if (quickbar_dir != HORIZONTAL)
@@ -323,9 +466,9 @@ static void read_bin_cfg(void)
 	}
 
 	if(zoom_level != 0.0f) resize_root_window();
-	
+
 	have_saved_langsel = cfg_mem.have_saved_langsel;
-	
+
 	use_small_items_window = cfg_mem.misc_bool_options & 1;
 	manual_size_items_window = (cfg_mem.misc_bool_options >> 1) & 1;
 	allow_equip_swap = (cfg_mem.misc_bool_options >> 2) & 1;
@@ -356,6 +499,7 @@ static void read_bin_cfg(void)
 	items_disable_text_block = (cfg_mem.misc_bool_options >> 23) & 1;
 	items_buttons_on_left = (cfg_mem.misc_bool_options >> 24) & 1;
 	items_equip_grid_on_left = (cfg_mem.misc_bool_options >> 25) & 1;
+	sort_storage_items = (cfg_mem.misc_bool_options >> 26) & 1;
 
 	set_options_user_menus(cfg_mem.user_menu_win_x, cfg_mem.user_menu_win_y, cfg_mem.user_menu_options);
 
@@ -365,9 +509,126 @@ static void read_bin_cfg(void)
 
 	set_settings_hud_indicators(cfg_mem.hud_indicators_options, cfg_mem.hud_indicators_position);
 
-	if (have_additions)
+	if (have_quickspells)
 		set_quickspell_options(cfg_mem.quickspell_win_options, cfg_mem.quickspell_win_position);
+
+	if (have_chat_win)
+		set_pos_MW(MW_CHAT, cfg_mem.chat_win_x, cfg_mem.chat_win_y);
 }
+
+#ifdef JSON_FILES
+static void save_cstate(void)
+{
+	char window_dict_name[50];
+
+	// save the window positions
+	{
+		enum managed_window_enum i;
+		for (i = 0; i < MW_MAX; i++)
+		{
+			int pos_x = 0, pos_y = 0;
+			get_dict_name_WM(i, window_dict_name, sizeof(window_dict_name));
+			set_save_pos_MW(i, &pos_x, &pos_y);
+			json_cstate_set_int(window_dict_name, "pos_x", pos_x);
+			json_cstate_set_int(window_dict_name, "pos_y", pos_y);
+		}
+	}
+
+	json_cstate_set_float("camera", "zoom", zoom_level);
+	json_cstate_set_float("camera", "x", rx);
+	json_cstate_set_float("camera", "y", ry);
+	json_cstate_set_float("camera", "z", rz);
+
+	json_cstate_set_bool("hud_timer", "keep_state", hud_timer_keep_state);
+
+	json_cstate_set_bool("login", "rules_accepted", has_accepted);
+	json_cstate_set_bool("login", "have_language", have_saved_langsel);
+
+	json_cstate_set_bool("overhead", "view_health_bar", view_health_bar);
+	json_cstate_set_bool("overhead", "view_ether_bar", view_ether_bar);
+	json_cstate_set_bool("overhead", "view_names", view_names);
+	json_cstate_set_bool("overhead", "view_hp", view_hp);
+	json_cstate_set_bool("overhead", "view_ether", view_ether);
+
+	{
+		size_t i;
+		char str[20];
+		for(i = 0; i < ITEM_EDIT_QUANT; i++)
+		{
+			safe_snprintf(str, sizeof(str), "%d", i);
+			json_cstate_set_int("quantities", str, quantities.quantity[i].val);
+		}
+		json_cstate_set_int("quantities", "selected", (quantities.selected<ITEM_EDIT_QUANT) ?quantities.selected :0);
+	}
+
+	{
+		size_t i;
+		char str[20];
+		int watch_this_stats[MAX_WATCH_STATS];
+		get_statsbar_watched_stats(watch_this_stats);
+		for(i = 0; i < MAX_WATCH_STATS; i++)
+		{
+			safe_snprintf(str, sizeof(str), "%d", i);
+			json_cstate_set_int("watched_stats", str, watch_this_stats[i]);
+		}
+		json_cstate_set_bool("watched_stats", "lock_selection", lock_skills_selection);
+	}
+
+	write_tab_selected();
+
+	json_cstate_set_bool(get_dict_name_WM(MW_ASTRO, window_dict_name, sizeof(window_dict_name)), "always_show_details", always_show_astro_details);
+
+	json_cstate_set_int(get_dict_name_WM(MW_BAGS, window_dict_name, sizeof(window_dict_name)), "rows", ground_items_visible_grid_rows);
+	json_cstate_set_int(window_dict_name, "cols", ground_items_visible_grid_cols);
+
+	json_cstate_set_bool(get_dict_name_WM(MW_DIALOGUE, window_dict_name, sizeof(window_dict_name)), "copy_excludes_responses", dialogue_copy_excludes_responses);
+	json_cstate_set_bool(window_dict_name, "copy_excludes_newlines", dialogue_copy_excludes_newlines);
+
+	json_cstate_set_unsigned_int("counters_window", "floating_flags", floating_counter_flags);
+
+	write_settings_hud_indicators("hud_indicators_window");
+
+	json_cstate_set_unsigned_int("item_lists_window", "active_list", item_lists_get_active());
+	json_cstate_set_bool("item_lists_window", "disable_find", items_list_disable_find_list);
+	json_cstate_set_bool("item_lists_window", "on_left", items_list_on_left);
+
+	json_cstate_set_bool(get_dict_name_WM(MW_ITEMS, window_dict_name, sizeof(window_dict_name)), "small_size", use_small_items_window);
+	json_cstate_set_bool(window_dict_name, "manual_size", manual_size_items_window);
+	json_cstate_set_bool(window_dict_name, "allow_equip_swap", allow_equip_swap);
+	json_cstate_set_bool(window_dict_name, "mix_all", items_mix_but_all);
+	json_cstate_set_bool(window_dict_name, "stoall_nolastrow", items_stoall_nolastrow);
+	json_cstate_set_bool(window_dict_name, "dropall_nolastrow", items_dropall_nolastrow);
+	json_cstate_set_bool(window_dict_name, "stoall_nofirstrow", items_stoall_nofirstrow);
+	json_cstate_set_bool(window_dict_name, "dropall_nofirstrow", items_dropall_nofirstrow);
+	json_cstate_set_bool(window_dict_name, "auto_get_all", items_auto_get_all);
+	json_cstate_set_bool(window_dict_name, "disable_text_block", items_disable_text_block);
+	json_cstate_set_bool(window_dict_name, "buttons_on_left", items_buttons_on_left);
+	json_cstate_set_bool(window_dict_name, "equip_grid_on_left", items_equip_grid_on_left);
+	json_cstate_set_bool(window_dict_name, "mod_click_any_cursor", items_mod_click_any_cursor);
+
+	json_cstate_set_bool(get_dict_name_WM(MW_MANU, window_dict_name, sizeof(window_dict_name)), "disable_keypress", disable_manuwin_keypress);
+
+	json_cstate_set_int(get_dict_name_WM(MW_MINIMAP, window_dict_name, sizeof(window_dict_name)), "tiles_distance", minimap_tiles_distance);
+	json_cstate_set_bool(window_dict_name, "open_on_start", open_minimap_on_start);
+
+	write_options_questlog(get_dict_name_WM(MW_QUESTLOG, window_dict_name, sizeof(window_dict_name)));
+
+	json_cstate_set_bool(get_dict_name_WM(MW_QUICKBAR, window_dict_name, sizeof(window_dict_name)), "vertical", (quickbar_dir == VERTICAL) ?1: 0);
+	json_cstate_set_bool(window_dict_name, "draggable", quickbar_draggable);
+
+	write_quickspell_options(get_dict_name_WM(MW_QUICKSPELLS, window_dict_name, sizeof(window_dict_name)));
+
+	json_cstate_set_bool(get_dict_name_WM(MW_SPELLS, window_dict_name, sizeof(window_dict_name)), "start_mini", start_mini_spells);
+
+	json_cstate_set_bool(get_dict_name_WM(MW_STORAGE, window_dict_name, sizeof(window_dict_name)), "autoclose", autoclose_storage_dialogue);
+	json_cstate_set_bool(window_dict_name, "auto_select", auto_select_storage_option);
+	json_cstate_set_bool(window_dict_name, "sort_categories", sort_storage_categories);
+	json_cstate_set_bool(window_dict_name, "disable_filter", disable_storage_filter);
+	json_cstate_set_bool(window_dict_name, "sort_items", sort_storage_items);
+
+	write_options_user_menus("user_menus_window");
+}
+#endif
 
 void save_bin_cfg(void)
 {
@@ -375,9 +636,24 @@ void save_bin_cfg(void)
 	bin_cfg cfg_mem;
 	int i;
 
-	f=open_file_config("el.cfg","wb");
+#ifdef JSON_FILES
+	if (get_use_json_user_files())
+	{
+		char fname[128];
+		USE_JSON_DEBUG("Saving json file");
+		// save the json file
+		save_cstate();
+		safe_snprintf(fname, sizeof(fname), "%s%s", get_path_config(), client_state_filename);
+		if (json_save_cstate(fname) < 0)
+			LOG_ERROR("%s: %s \"%s\"\n", reg_error_str, cant_open_file, fname);
+		return;
+	}
+	USE_JSON_DEBUG("Saving binary file");
+#endif
+
+	f=open_file_config(cfg_filename,"wb");
 	if(f == NULL){
-		LOG_ERROR("%s: %s \"el.cfg\": %s\n", reg_error_str, cant_open_file, strerror(errno));
+		LOG_ERROR("%s: %s \"%s\": %s\n", reg_error_str, cant_open_file, cfg_filename, strerror(errno));
 		return;//blah, whatever
 	}
 	memset(&cfg_mem, 0, sizeof(cfg_mem));	// make sure its clean
@@ -385,145 +661,47 @@ void save_bin_cfg(void)
 	cfg_mem.cfg_version_num=CFG_VERSION;	// set the version number
 	//good, retrive the data
 	// TODO: move window save/restore into the window handler
-	if(range_win >= 0) {
-		cfg_mem.ranging_win_x=windows_list.window[range_win].cur_x;
-		cfg_mem.ranging_win_y=windows_list.window[range_win].cur_y;
-	} else {
-		cfg_mem.ranging_win_x=ranging_win_x;
-		cfg_mem.ranging_win_y=ranging_win_y;
-	}
+	set_save_pos_MW(MW_RANGING, &cfg_mem.ranging_win_x, &cfg_mem.ranging_win_y);
 
-	if(tab_help_win >= 0) {
-		cfg_mem.tab_help_x=windows_list.window[tab_help_win].cur_x;
-		cfg_mem.tab_help_y=windows_list.window[tab_help_win].cur_y;
-	} else {
-		cfg_mem.tab_help_x=tab_help_x;
-		cfg_mem.tab_help_y=tab_help_y;
-	}
+	set_save_pos_MW(MW_CHAT, &cfg_mem.chat_win_x, &cfg_mem.chat_win_y);
 
-	if(items_win >= 0) {
-		cfg_mem.items_menu_x=windows_list.window[items_win].cur_x;
-		cfg_mem.items_menu_y=windows_list.window[items_win].cur_y;
-	} else {
-		cfg_mem.items_menu_x=items_menu_x;
-		cfg_mem.items_menu_y=items_menu_y;
-	}
+	set_save_pos_MW(MW_HELP, &cfg_mem.tab_help_x, &cfg_mem.tab_help_y);
 
-	if(ground_items_win >= 0) {
-		cfg_mem.ground_items_menu_x = windows_list.window[ground_items_win].cur_x;
-		cfg_mem.ground_items_menu_y = windows_list.window[ground_items_win].cur_y;
-	} else {
-		cfg_mem.ground_items_menu_x = ground_items_menu_x;
-		cfg_mem.ground_items_menu_y = ground_items_menu_y;
-	}
+	set_save_pos_MW(MW_ITEMS, &cfg_mem.items_menu_x, &cfg_mem.items_menu_y);
+
+	set_save_pos_MW(MW_BAGS, &cfg_mem.ground_items_menu_x, &cfg_mem.ground_items_menu_y);
 	cfg_mem.ground_items_menu_x |= ground_items_visible_grid_cols << 16;
 	cfg_mem.ground_items_menu_y |= ground_items_visible_grid_rows << 16;
 
-	if(trade_win >= 0) {
-		cfg_mem.trade_menu_x=windows_list.window[trade_win].cur_x;
-		cfg_mem.trade_menu_y=windows_list.window[trade_win].cur_y;
-	} else {
-		cfg_mem.trade_menu_x=trade_menu_x;
-		cfg_mem.trade_menu_y=trade_menu_y;
-	}
+	set_save_pos_MW(MW_TRADE, &cfg_mem.trade_menu_x, &cfg_mem.trade_menu_y);
 
 	cfg_mem.start_mini_spells=start_mini_spells;
-	if(sigil_win >= 0) {
-		cfg_mem.sigil_menu_x=windows_list.window[sigil_win].cur_x;
-		cfg_mem.sigil_menu_y=windows_list.window[sigil_win].cur_y;
-	} else {
-		cfg_mem.sigil_menu_x=sigil_menu_x;
-		cfg_mem.sigil_menu_y=sigil_menu_y;
-	}
-	if(emotes_win >= 0) {
-		cfg_mem.emotes_menu_x=windows_list.window[emotes_win].cur_x;
-		cfg_mem.emotes_menu_y=windows_list.window[emotes_win].cur_y;
-	} else {
-		cfg_mem.emotes_menu_x=emotes_menu_x;
-		cfg_mem.emotes_menu_y=emotes_menu_y;
-	}
-	if(dialogue_win >= 0) {
-		cfg_mem.dialogue_menu_x=windows_list.window[dialogue_win].cur_x;
-		cfg_mem.dialogue_menu_y=windows_list.window[dialogue_win].cur_y;
-	} else {
-		cfg_mem.dialogue_menu_x=dialogue_menu_x;
-		cfg_mem.dialogue_menu_y=dialogue_menu_y;
-	}
+	set_save_pos_MW(MW_SPELLS, &cfg_mem.sigil_menu_x, &cfg_mem.sigil_menu_y);
 
-	if(manufacture_win >= 0) {
-		cfg_mem.manufacture_menu_x=windows_list.window[manufacture_win].cur_x;
-		cfg_mem.manufacture_menu_y=windows_list.window[manufacture_win].cur_y;
-	} else {
-		cfg_mem.manufacture_menu_x=manufacture_menu_x;
-		cfg_mem.manufacture_menu_y=manufacture_menu_y;
-	}
+	set_save_pos_MW(MW_EMOTE, &cfg_mem.emotes_menu_x, &cfg_mem.emotes_menu_y);
 
-	if(astrology_win >= 0) {
- 		cfg_mem.astrology_win_x=windows_list.window[astrology_win].cur_x;
- 		cfg_mem.astrology_win_y=windows_list.window[astrology_win].cur_y;
- 	} else {
- 		cfg_mem.astrology_win_x=astrology_win_x;
- 		cfg_mem.astrology_win_y=astrology_win_y;
- 	}
+	set_save_pos_MW(MW_DIALOGUE, &cfg_mem.dialogue_menu_x, &cfg_mem.dialogue_menu_y);
 
-	if(elconfig_win >= 0) {
-		cfg_mem.elconfig_menu_x=windows_list.window[elconfig_win].cur_x;
-		cfg_mem.elconfig_menu_y=windows_list.window[elconfig_win].cur_y;
-	} else {
-		cfg_mem.elconfig_menu_x=elconfig_menu_x;
-		cfg_mem.elconfig_menu_y=elconfig_menu_y;
-	}
+	set_save_pos_MW(MW_MANU, &cfg_mem.manufacture_menu_x, &cfg_mem.manufacture_menu_y);
 
-	if(storage_win >= 0) {
-		cfg_mem.storage_win_x=windows_list.window[storage_win].cur_x;
-		cfg_mem.storage_win_y=windows_list.window[storage_win].cur_y;
-	} else {
-		cfg_mem.storage_win_x=storage_win_x;
-		cfg_mem.storage_win_y=storage_win_y;
-	}
+	set_save_pos_MW(MW_ASTRO, &cfg_mem.astrology_win_x, &cfg_mem.astrology_win_y);
 
-	if(tab_stats_win >= 0) {
-		cfg_mem.tab_stats_x=windows_list.window[tab_stats_win].cur_x;
-		cfg_mem.tab_stats_y=windows_list.window[tab_stats_win].cur_y;
-	} else {
-		cfg_mem.tab_stats_x=tab_stats_x;
-		cfg_mem.tab_stats_y=tab_stats_y;
-	}
+	set_save_pos_MW(MW_CONFIG, &cfg_mem.elconfig_menu_x, &cfg_mem.elconfig_menu_y);
 
-	if(buddy_win >= 0) {
-		cfg_mem.buddy_menu_x=windows_list.window[buddy_win].cur_x;
-		cfg_mem.buddy_menu_y=windows_list.window[buddy_win].cur_y;
-	} else {
-		cfg_mem.buddy_menu_x=buddy_menu_x;
-		cfg_mem.buddy_menu_y=buddy_menu_y;
-	}
+	set_save_pos_MW(MW_STORAGE, &cfg_mem.storage_win_x, &cfg_mem.storage_win_y);
 
-	if(questlog_win >= 0) {
-		cfg_mem.questlog_win_x=windows_list.window[questlog_win].cur_x;
-		cfg_mem.questlog_win_y=windows_list.window[questlog_win].cur_y;
-	} else {
-		cfg_mem.questlog_win_x=questlog_menu_x;
-		cfg_mem.questlog_win_y=questlog_menu_y;
-	}
+	set_save_pos_MW(MW_STATS, &cfg_mem.tab_stats_x, &cfg_mem.tab_stats_y);
 
-	if(minimap_win >= 0) {
-		cfg_mem.minimap_win_x=windows_list.window[minimap_win].cur_x;
-		cfg_mem.minimap_win_y=windows_list.window[minimap_win].cur_y;
-	} else {
-		cfg_mem.minimap_win_x=minimap_win_x;
-		cfg_mem.minimap_win_y=minimap_win_y;
-	}
+	set_save_pos_MW(MW_BUDDY, &cfg_mem.buddy_menu_x, &cfg_mem.buddy_menu_y);
+
+	set_save_pos_MW(MW_QUESTLOG, &cfg_mem.questlog_win_x, &cfg_mem.questlog_win_y);
+
+	set_save_pos_MW(MW_MINIMAP, &cfg_mem.minimap_win_x, &cfg_mem.minimap_win_y);
 	cfg_mem.minimap_zoom=minimap_tiles_distance;
 
 	cfg_mem.tab_selected=get_tab_selected();
 
-	if(tab_info_win >= 0) {
-		cfg_mem.tab_info_x=windows_list.window[tab_info_win].cur_x;
-		cfg_mem.tab_info_y=windows_list.window[tab_info_win].cur_y;
-	} else {
-		cfg_mem.tab_info_x=tab_info_x;
-		cfg_mem.tab_info_y=tab_info_y;
-	}
+	set_save_pos_MW(MW_INFO, &cfg_mem.tab_info_x, &cfg_mem.tab_info_y);
 
 	cfg_mem.banner_settings = 0;
 	cfg_mem.banner_settings |= view_health_bar;
@@ -538,12 +716,8 @@ void save_bin_cfg(void)
 
 	cfg_mem.quantity_selected=(quantities.selected<ITEM_EDIT_QUANT)?quantities.selected :0;
 
-	if (quickbar_win >= 0 && quickbar_relocatable > 0)
-	{
-		cfg_mem.quickbar_x = windows_list.window[quickbar_win].cur_x;
-		cfg_mem.quickbar_y = windows_list.window[quickbar_win].cur_y;
-		cfg_mem.quickbar_flags = quickbar_dir | (quickbar_draggable<<8);
-	}
+	set_save_pos_MW(MW_QUICKBAR, &cfg_mem.quickbar_x, &cfg_mem.quickbar_y);
+	cfg_mem.quickbar_flags = quickbar_dir | (quickbar_draggable<<8);
 
 	get_statsbar_watched_stats(cfg_mem.watch_this_stats);
 
@@ -557,9 +731,9 @@ void save_bin_cfg(void)
 	for(i=0;i<ITEM_EDIT_QUANT;i++){
 		cfg_mem.quantity[i]=quantities.quantity[i].val;
 	}
-	
+
 	cfg_mem.have_saved_langsel = have_saved_langsel;
-	
+
 	cfg_mem.misc_bool_options = 0;
 	cfg_mem.misc_bool_options |= use_small_items_window;
 	cfg_mem.misc_bool_options |= manual_size_items_window << 1;
@@ -591,6 +765,7 @@ void save_bin_cfg(void)
 	cfg_mem.misc_bool_options |= items_disable_text_block << 23;
 	cfg_mem.misc_bool_options |= items_buttons_on_left << 24;
 	cfg_mem.misc_bool_options |= items_equip_grid_on_left << 25;
+	cfg_mem.misc_bool_options |= sort_storage_items << 26;
 
 	get_options_user_menus(&cfg_mem.user_menu_win_x, &cfg_mem.user_menu_win_y, &cfg_mem.user_menu_options);
 
@@ -703,7 +878,17 @@ void init_stuff(void)
 
 	// initialize the fonts, but don't load the textures yet. Do that here
 	// because the messages need the font widths.
-	init_fonts();
+	if (!initialize_fonts())
+	{
+		// If we can't load fonts, we cant communicate with the user. Give up.
+		LOG_ERROR("%s\n", fatal_data_error);
+		fprintf(stderr, "%s:%d: %s\n", __FILE__, __LINE__, fatal_data_error);
+		SDL_Quit();
+		FATAL_ERROR_WINDOW(fatal_data_error);
+		exit(1);
+	}
+	// Update values for multi-selects that weren't fully initialized yet
+	check_deferred_options();
 
 	//Good, we should be in the right working directory - load all translatables from their files
 	load_translatables();
@@ -718,15 +903,6 @@ void init_stuff(void)
 #ifndef FASTER_MAP_LOAD
 	init_2d_obj_cache();
 #endif
-	//now load the font textures
-	if (load_font_textures () != 1)
-	{
-		LOG_ERROR("%s\n", fatal_data_error);
-		fprintf(stderr, "%s:%d: %s\n", __FILE__, __LINE__, fatal_data_error);
-		SDL_Quit();
-		FATAL_ERROR_WINDOW(fatal_data_error);
-		exit(1);
-	}
 
 	// read the continent map info
 	read_mapinfo();
@@ -775,7 +951,7 @@ void init_stuff(void)
 	load_knowledge_list();
 	load_mines_config();
 #ifndef ANDROID
-	// ANDROID_TODO do we need thse if we have a mouse?
+	// ANDROID_TODO do we need these if we have a mouse?
 	update_loading_win(load_cursors_str, 5);
 	load_cursors();
 	build_cursors();
@@ -922,6 +1098,7 @@ void init_stuff(void)
 	init_attribf();
 
 	init_statsinfo_array();
+	init_floating_messages();
 
 	//Read the books for i.e. the new char window
 	init_books();

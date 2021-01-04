@@ -26,15 +26,13 @@ SDL_Window *el_gl_window = NULL;
 static SDL_GLContext el_gl_context = NULL;
 static SDL_Surface *icon_bmp = NULL;
 static SDL_version el_gl_linked;
+static int log_next_window_resize = 0;
 
 int bpp = 0;
 int have_stencil = 1;
 int video_mode = 0;
 int video_user_width = 640;
 int video_user_height = 480;
-#ifdef WINDOWS
-int disable_window_adjustment = 0;
-#endif
 int full_screen = 0;
 
 int use_compiled_vertex_array = 0;
@@ -51,7 +49,7 @@ float far_plane = 100.0;   // LOD helper. Cull distant objects. Lower value == h
 float far_reflection_plane = 100.0;   // LOD helper. Cull distant reflected objects. Lower value == higher framerates.
 int gl_extensions_loaded = 0;
 
-static void setup_video_mode(int fs, int mode)
+static void get_window_size(int mode, int *width, int *height)
 {
 	/* Video mode 0 is user defined size (via video_user_width and video_user_height)
 	 * Video mode 1 and above are defined in the video_modes array where mode 1 is at position 0
@@ -66,103 +64,8 @@ static void setup_video_mode(int fs, int mode)
 	if (index < 0 || index >= video_modes_count)
 		index = 0;
 
-	if (fs) // Fullscreen
-	{
-		if (mode == 0)
-		{
-			window_width = video_user_width;
-			window_height = video_user_height;
-			bpp = 0;
-		} else {
-			window_width = video_modes[index].width;
-			window_height = video_modes[index].height;
-			bpp = video_modes[index].bpp;
-		}
-	} 
-	else // Windowed mode
-	{
-		int new_width = video_modes[index].width;
-		int new_height = video_modes[index].height;
-
-		if (mode == 0)
-		{
-			new_width = video_user_width;
-			new_height = video_user_height;
-		} 
-#ifdef WINDOWS
-		else if (!disable_window_adjustment)
-		{
-			// Window size magic:
-			// Try to get the work area and adjust the window to that size minus the border size
-
-			HWND hwnd;
-			HMONITOR monitor;
-			MONITORINFO monitorInfo;
-			int monitor_width = 0;
-			int monitor_height = 0;
-
-			hwnd = GetActiveWindow();
-			// Get the monitor closest to the window (if we already have one)
-			monitor = MonitorFromWindow(hwnd, MONITOR_DEFAULTTOPRIMARY);
-
-			// Get the size of the work area
-			monitorInfo.cbSize = sizeof(monitorInfo);
-			GetMonitorInfo(monitor, &monitorInfo);
-			monitor_width = monitorInfo.rcWork.right - monitorInfo.rcWork.left;
-			monitor_height = monitorInfo.rcWork.bottom - monitorInfo.rcWork.top;
-
-			// Clip the window size to the work area
-			if (new_width >= monitor_width)
-				new_width = monitor_width;
-			if (new_height >= monitor_height)
-				new_height = monitor_height;
-
-			// try to move the window to make everything visible
-			if (hwnd != NULL)
-			{
-				WINDOWPLACEMENT wpl;
-				int dx, dy;
-
-				wpl.length = sizeof(wpl);
-				GetWindowPlacement(hwnd, &wpl);
-
-				dx = wpl.rcNormalPosition.left + new_width - monitorInfo.rcWork.right;
-				dy = wpl.rcNormalPosition.top + new_height - monitorInfo.rcWork.bottom;
-
-				if (dx < 0) dx = 0;
-				if (dy < 0) dy = 0;
-
-				if (dx || dy) {
-					wpl.rcNormalPosition.left -= dx;
-					wpl.rcNormalPosition.top -= dy;
-					wpl.showCmd = SW_SHOWNORMAL;
-					SetWindowPlacement(hwnd, &wpl);
-				}
-			}
-
-			// Adjust the window size to fit into the border and title bar
-			new_width -= 2 * GetSystemMetrics(SM_CXFIXEDFRAME);
-			new_height -= 2 * GetSystemMetrics(SM_CYFIXEDFRAME) + GetSystemMetrics(SM_CYCAPTION);
-		}
-#endif
-
-		if (window_width != new_width || window_height != new_height)
-		{
-			char modestr[100];
-			char str[100];
-			safe_snprintf(modestr, sizeof(modestr), "%dx%d", new_width, new_height);
-			safe_snprintf(str, sizeof(str), window_size_adjusted_str, modestr);
-			LOG_TO_CONSOLE(c_yellow1,str);
-			LOG_DEBUG("%s",str);
-		}
-
-		window_width = new_width;
-		window_height = new_height;
-		bpp = 0; // autodetect
-	}
-#ifndef WINDOWS
-	bpp=0;//under X, we can't change the desktop BPP
-#endif
+	*width = (mode == 0) ?video_user_width :video_modes[index].width;
+	*height = (mode == 0) ?video_user_height :video_modes[index].height;
 }
 
 static void load_window_icon(void)
@@ -182,11 +85,12 @@ static void load_window_icon(void)
 
 void init_video(void)
 {
-	char str[400];
+	int target_width = 0, target_height = 0;
 	int rgb_size[3];
 	Uint32 flags;
 
-	setup_video_mode(full_screen, video_mode);
+	if (!full_screen)
+		get_window_size(video_mode, &target_width, &target_height);
 
 	if (SDL_Init(SDL_INIT_VIDEO) < 0)
 	{
@@ -271,11 +175,12 @@ void init_video(void)
 #ifdef	FSAA
 	if (fsaa > 1)
 	{
+		char str[400];
 		SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
 		SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, fsaa);
 		glDisable(GL_MULTISAMPLE);
 
-		el_gl_window = SDL_CreateWindow("Eternal Lands", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, (full_screen)?0:window_width, (full_screen)?0:window_height, flags);
+		el_gl_window = SDL_CreateWindow("Eternal Lands", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, target_width, target_height, flags);
 		if (el_gl_window == NULL)
 		{
 			safe_snprintf(str, sizeof(str), "Can't use fsaa mode x%d, disabling it.", fsaa);
@@ -291,7 +196,7 @@ void init_video(void)
 	//try to find a stencil buffer
 	if (el_gl_window == NULL)
 	{
-		el_gl_window = SDL_CreateWindow("Eternal Lands", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, (full_screen)?0:window_width, (full_screen)?0:window_height, flags);
+		el_gl_window = SDL_CreateWindow("Eternal Lands", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, target_width, target_height, flags);
 		if (el_gl_window == NULL)
 		{
 			LOG_TO_CONSOLE(c_red1,no_hardware_stencil_str);
@@ -303,7 +208,7 @@ void init_video(void)
             }
 			SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE,16);
 			SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE,0);
-			el_gl_window = SDL_CreateWindow("Eternal Lands", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, (full_screen)?0:window_width, (full_screen)?0:window_height, flags);
+			el_gl_window = SDL_CreateWindow("Eternal Lands", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, target_width, target_height, flags);
 			if (el_gl_window == NULL)
 			{
 				LOG_ERROR("%s: %s\n", fail_opengl_mode, SDL_GetError());
@@ -354,6 +259,9 @@ void init_video(void)
 
 	// get the windos size, these variables are used globaly
 	update_window_size_and_scale();
+	// even though no windows have been created, their starting position need to be adjusted
+	if (!full_screen)
+		move_windows_proportionally((float)window_width / (float)target_width, (float)window_height / (float)target_height);
 
 #ifdef ANDROID
 	set_scale_from_window_size();
@@ -960,20 +868,38 @@ void resize_root_window(void)
 
 int switch_video(int mode, int full_screen)
 {
-	Uint32 old_window_width = window_width, old_window_height = window_height;
-	video_mode=mode;
-	setup_video_mode(full_screen, mode);
-	SDL_RestoreWindow(el_gl_window);
+	video_mode = mode;
 	if (full_screen)
 		SDL_SetWindowFullscreen(el_gl_window, SDL_WINDOW_FULLSCREEN_DESKTOP);
 	else
 	{
-		SDL_SetWindowFullscreen(el_gl_window, 0);
-		SDL_SetWindowSize(el_gl_window, window_width, window_height);
+		int target_width, target_height;
+		get_window_size(mode, &target_width, &target_height);
+		set_client_window_size(target_width, target_height);
 	}
-	update_window_size_and_scale();
-	resize_all_root_windows(old_window_width, window_width, old_window_height, window_height);
 	return 1;
+}
+
+//	Set the window size as specified without changing the window mode.
+void set_client_window_size(int width, int height)
+{
+	// limit the window size to the actual available space
+#if SDL_VERSION_ATLEAST(2, 0, 5)
+	{
+		SDL_Rect rect;
+		int display_index = SDL_GetWindowDisplayIndex(el_gl_window);
+		int top, left, bottom, right;
+		SDL_GetWindowBordersSize(el_gl_window, &top, &left, &bottom, &right);
+		SDL_GetDisplayUsableBounds(display_index, &rect);
+		width = (width > (rect.w - left - right)) ?rect.w - left - right :width;
+		height = (height > (rect.h - top - bottom)) ?rect.h - top - bottom :height;
+	}
+#endif
+
+	log_next_window_resize = 1;
+	SDL_RestoreWindow(el_gl_window);
+	SDL_SetWindowFullscreen(el_gl_window, 0);
+	SDL_SetWindowSize(el_gl_window, width, height);
 }
 
 //	Get a single value for highhdpi scaling.
@@ -994,12 +920,24 @@ void highdpi_scale(int *width, int *height)
 //	You need to ration of SDL_GL_GetDrawableSize()/SDL_GetWindowSize() to scale the mouse location.
 void update_window_size_and_scale(void)
 {
+	float old_width = window_highdpi_scale_width, old_height = window_highdpi_scale_height;
 	int non_dpi_w, non_dpi_h;
 	SDL_GetWindowSize(el_gl_window, &non_dpi_w, &non_dpi_h);
 	SDL_GL_GetDrawableSize(el_gl_window, &window_width, &window_height);
 	window_highdpi_scale_width = (float)window_width / (float)non_dpi_w;
 	window_highdpi_scale_height = (float)window_height / (float)non_dpi_h;
-	update_highdpi_auto_scaling();
+	if ((old_width != window_highdpi_scale_width) || (old_height != window_highdpi_scale_height))
+		update_highdpi_auto_scaling();
+	if (log_next_window_resize)
+	{
+		char modestr[100];
+		char str[100];
+		safe_snprintf(modestr, sizeof(modestr), "%dx%d", window_width, window_height);
+		safe_snprintf(str, sizeof(str), window_size_adjusted_str, modestr);
+		LOG_TO_CONSOLE(c_yellow1, str);
+		LOG_DEBUG("%s",str);
+		log_next_window_resize = 0;
+	}
 }
 
 void toggle_full_screen(void)

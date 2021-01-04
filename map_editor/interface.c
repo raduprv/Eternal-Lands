@@ -71,7 +71,6 @@ int check_interface_buttons()
 #endif	//EYE_CANDY
 					if(cur_mode==mode_tile)
 						{
-							view_tiles_list=1;
 							display_tiles_list();
 							cur_tool=tool_select;
 							selected_tile=255;
@@ -619,7 +618,6 @@ int check_tiles_interface (window_info *win, int _x, int _y)
 
 	if (_x > win->len_x - 20 && mouse_y < 20)
 	{
-		view_tiles_list = 0;
 		return 0;
 	}
 	
@@ -726,213 +724,183 @@ void display_heights_list()
 	display_window(height_win);
 }
 
+void get_minimap_dimensions(int *x, int *y, int *width, int *height)
+{
+	int tile_size = min2i(window_width / tile_map_size_x, window_height / tile_map_size_y);
+	int w = tile_map_size_x * tile_size;
+	int h = tile_map_size_y * tile_size;
+
+	if (x)
+		*x = (window_width - w) / 2;
+	if (y)
+		*y = (window_height - h) / 2;
+	if (width)
+		*width = w;
+	if (height)
+		*height = h;
+}
 
 void check_mouse_minimap()
 {
-	int minimap_x_start=window_width/2-128;
-	int minimap_y_start;
-	int x_map_pos;
-	int y_map_pos;
-	int scale;
+	int x0, y0, y1, width, height;
+	get_minimap_dimensions(&x0, &y0, &width, &height);
+	y1 = y0 + height;
 
-	if(window_width<window_height) scale=window_width/256;
-	else scale=window_height/256;
+	if (mouse_x < x0 || mouse_y < y0 || mouse_x > x0 + width || mouse_y > y1)
+		return;
 
-	minimap_x_start/=scale;
-	minimap_y_start=10*scale;
-	
-	if(mouse_x<minimap_x_start || mouse_y<minimap_y_start
-	|| mouse_x>minimap_x_start+256*scale || mouse_y>minimap_y_start+256*scale) return;
-
-	x_map_pos=((float)(mouse_x-minimap_x_start)/(float)scale)*tile_map_size_x/256;
-	y_map_pos=tile_map_size_y-(((mouse_y-minimap_y_start))/(float)scale)*tile_map_size_y/256;
-	mx=x_map_pos*3;
-	my=y_map_pos*3;
-	minimap_on=0;
+	mx = (float)(mouse_x - x0) * 3 * tile_map_size_x / width;
+	my = (float)(y1 - mouse_y) * 3 * tile_map_size_y / height;
+	minimap_on = 0;
 }
 
 void draw_mouse_minimap()
 {
-	int minimap_x_start=window_width/2-128;
-	int minimap_y_start;
-	int x_map_pos;
-	int y_map_pos;
-	int x,y, scale;
+	int x0, y0, y1, width, height, x, y;
 
-	if(window_width<window_height) scale=window_width/256;
-	else scale=window_height/256;
+	get_minimap_dimensions(&x0, &y0, &width, &height);
+	y1 = y0 + height;
 
-	minimap_x_start/=scale;
-	minimap_y_start=10*scale;
-	
-	if(mouse_x<minimap_x_start || mouse_y<minimap_y_start
-	|| mouse_x>minimap_x_start+256*scale || mouse_y>minimap_y_start+256*scale)return;
+	if (mouse_x < x0 || mouse_y < y0 || mouse_x > x0 + width || mouse_y > y1)
+		return;
 
-	x_map_pos=((float)(mouse_x-minimap_x_start)/(float)scale)*tile_map_size_x/256;
-	y_map_pos=tile_map_size_y-(((mouse_y-minimap_y_start))/(float)scale)*tile_map_size_y/256;
-	mx=-x_map_pos*3;
-	my=-y_map_pos*3;
+	mx = (float)(mouse_x - x0) * 3 * tile_map_size_x / width;
+	my = (float)(y1 - mouse_y) * 3 * tile_map_size_y / height;
+	x = (int)(mx) / 3;
+	y = (int)(my) / 3;
 
-	for(x=-2;x!=2;x++){
-	  for(y=-2;y!=2;y++){
-	    if(y_map_pos+y>=0 && y_map_pos+y<tile_map_size_y && x_map_pos+x>=0 && x_map_pos+x<tile_map_size_x){
-	      tile_map[(int)(y_map_pos+y)*tile_map_size_x+(int)x_map_pos+x]=((cur_tool==tool_kill)?255:selected_tile);
-	      if(cur_tool==tool_kill || selected_tile == 0 || selected_tile == 20 || selected_tile == 21){
-		kill_height_map_at_texture_tile((int)(y_map_pos+y)*tile_map_size_x+(int)x_map_pos+x);
-	      }
-	    }
-	  }
-	}
-
-	map_has_changed=1;
-
-}
-
-//Generates a minimap and returns the texture's integer value
-GLuint generate_minimap()
-{
-	int x=0,y=0,i,j;
-	float scale=(float)256/tile_map_size_x;//Set the scale...
-	//img_struct * cur_img;
-	image_t* cur_img;
-	Uint32* ptr;
-	Sint32 s;
-	GLuint texture;
-	char map[256*256*4]={0};
-
-	if (scale >= 1.0f)
+	for (int xp = max2i(0, x-2); xp < min2i(tile_map_size_x, x + 2); x++)
 	{
-		s = scale;
-
-		for (y = 0; y < tile_map_size_y; y++)
+		for (int yp = max2i(0, y-2); yp < min2i(tile_map_size_y, y + 2); y++)
 		{
-			for (x = 0; x < tile_map_size_x; x++)
+			tile_map[y * tile_map_size_x + x] = ((cur_tool==tool_kill) ? 255 : selected_tile);
+			if (cur_tool==tool_kill || selected_tile == 0 || selected_tile == 20 || selected_tile == 21)
 			{
-				//Scale up
-				for (i = 0; i < scale; i++)
-				{
-					for (j = 0; j < scale; j++)
-					{
-						cur_img = &map_tiles[tile_map[x * tile_map_size_y + y]];
-
-						ptr = (Uint32*)(map + ((x * s + j) + (i + y * s) * 256) * 4);
-
-						if (cur_img->image == NULL)
-						{
-							*ptr = 0x00000000;
-						}
-						else
-						{
-							*ptr = *((Uint32 *)(cur_img->image + (((i+y*(int)scale)&(cur_img->height-1))*cur_img->width+((j+x*(int)scale)&(cur_img->width-1)))*4));
-						}
-					}
-				}
+				kill_height_map_at_texture_tile(yp * tile_map_size_x + xp);
 			}
 		}
 	}
 
-	//OK, now check the 3d objects... we want them all to show up as red dots...
-	scale=(float)3/scale;//Change the scale for 3d objects...
-	for (i = 0; i < MAX_OBJ_3D; i++)
-		{
-			if(objects_list[i] && objects_list[i]->blended!=20)
-				{
-					x=(float)objects_list[i]->x_pos/scale;
-					y=(float)objects_list[i]->y_pos/scale;
-
-					x&=255;//Just in case...
-					y&=255;
-					
-					*((Uint32*)(map+4*(x*256+y)))=0xFF0000F1;
-				}
-		}
-        
-	glGenTextures(1, &texture);
-
-        glBindTexture(GL_TEXTURE_2D, texture);
-
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-
-        if(have_arb_compression)
-                {
-                        if(have_s3_compression)
-                                glTexImage2D(GL_TEXTURE_2D, 0, COMPRESSED_RGBA_S3TC_DXT5_EXT, 256, 256, 0, GL_RGBA, GL_UNSIGNED_BYTE, map);
-                        else
-                                glTexImage2D(GL_TEXTURE_2D, 0, COMPRESSED_RGBA_ARB, 256, 256, 0, GL_RGBA, GL_UNSIGNED_BYTE, map);
-                }
-        else glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 256, 256, 0, GL_RGBA, GL_UNSIGNED_BYTE, map);
-
-        return texture;
+	map_has_changed=1;
 }
 
-
-GLuint minimap_tex;
 int map_has_changed=1;
+
+void generate_ground_tiles_texture(GLuint *texture)
+{
+	// Drawing full textures for individual tiles makes them much too small, so you cannot
+	// make out the details of the texture. With below constant, the map is divided into
+	// tile_text_frac x tile_text_frac full sized textures.
+	static const int tile_text_frac = 4;
+
+	unsigned char prev_text_id, *text_id;
+	int x0, y0, width, height, tile_size, m;
+	get_minimap_dimensions(&x0, &y0, &width, &height);
+	tile_size = width / tile_map_size_x;
+
+	m = min2i(tile_map_size_x, tile_map_size_y) / tile_text_frac;
+
+	text_id = tile_map;
+	prev_text_id = *text_id;
+	bind_texture(tile_list[prev_text_id]);
+	glBegin(GL_QUADS);
+	for (int i = 0, y = y0; i < tile_map_size_y; ++i, y += tile_size)
+	{
+		float ty0 = (float)(i%m) / m;
+		float ty1 = (float)(i%m + 1) / m;
+		for (int j = 0, x = x0; j < tile_map_size_x; ++j, x += tile_size, ++text_id)
+		{
+			if (*text_id < 255)
+			{
+				float tx0 = (float)(j%m) / m;
+				float tx1 = (float)(j%m+1) / m;
+				if (*text_id != prev_text_id)
+				{
+					glEnd();
+					prev_text_id = *text_id;
+					bind_texture(tile_list[prev_text_id]);
+					glBegin(GL_QUADS);
+				}
+
+				draw_2d_thing(tx0, ty0, tx1, ty1, x, y, x+tile_size, y+tile_size);
+			}
+		}
+	}
+	glEnd();
+
+	glDisable(GL_TEXTURE_2D);
+	glColor3f(1.0f, 0.0f, 0.0f);
+
+	// OK, now check the 3d objects... we want them all to show up as red dots...
+	glPointSize((float)min2i(window_width, window_height) / 256);
+	glBegin(GL_POINTS);
+	for (int i = 0; i < MAX_OBJ_3D; i++)
+	{
+		if (objects_list[i] && objects_list[i]->blended != 20)
+		{
+			int x = x0 + (tile_size * objects_list[i]->x_pos) / 3;
+			int y = y0 + (tile_size * objects_list[i]->y_pos) / 3;
+			glVertex2i(x, y);
+		}
+	}
+	glEnd();
+
+	glColor3f(1.0f, 1.0f, 1.0f);
+	glEnable(GL_TEXTURE_2D);
+	if (!*texture)
+		glGenTextures(1, texture);
+
+	glBindTexture(GL_TEXTURE_2D, *texture);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glReadBuffer(GL_BACK);
+	glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, x0, y0, width, height, 0);
+}
 
 void draw_minimap()
 {
-	int minimap_x_start=window_width/2-128;
-	int minimap_y_end;
-	int scale;//looks ugly if it's accurate :)...
-	float x_map_pos, y_map_pos;
-	
-	if(map_has_changed)
-	        {
-		        if(minimap_tex>0) glDeleteTextures(1,&minimap_tex);
-			minimap_tex=generate_minimap();
-		}
-	map_has_changed=0;
+	static const int marker_size = 7;
+	static GLuint ground_tiles_text = 0;
 
-	//We have the map, display the texture
-	
-	if((Uint32)last_texture!=minimap_tex)
-		{
-			glBindTexture(GL_TEXTURE_2D, minimap_tex);
-			last_texture=minimap_tex;
-		}
-	
-	if(window_width<window_height) scale=window_width/256;
-	else scale=window_height/256;
+	int x0, y0, x1, y1, width, height;
 
-        x_map_pos=(float)mx/(float)(tile_map_size_x*3.0f)*256.0f*scale;
-	y_map_pos=(float)my/(float)(tile_map_size_y*3.0f)*256.0f*scale;
-	
-	minimap_x_start/=scale*scale;
+	if (map_has_changed)
+	{
+		generate_ground_tiles_texture(&ground_tiles_text);
+		map_has_changed = 0;
+	}
 
-	glPushMatrix();
-	glScalef(scale,scale,scale);
-	
+	get_minimap_dimensions(&x0, &y0, &width, &height);
+	x1 = x0 + width;
+	y1 = y0 + height + x1-x1;
+	glBindTexture(GL_TEXTURE_2D, ground_tiles_text);
 	glBegin(GL_QUADS);
-
-	glTexCoord2f(0.0f, 0.0f); glVertex3i(minimap_x_start,10+256,0);
-	glTexCoord2f(1.0f, 0.0f); glVertex3i(minimap_x_start,10,0);
-	glTexCoord2f(1.0f, 1.0f); glVertex3i(minimap_x_start+256,10,0);
-	glTexCoord2f(0.0f, 1.0f); glVertex3i(minimap_x_start+256,10+256,0);
-	
+	draw_2d_thing(0.0f, 0.0f, 1.0f, 1.0f, x0, y0, x1, y1);
 	glEnd();
 
-	glPopMatrix();
-	
-	if(show_position_on_minimap)
-		{
-			glDisable(GL_TEXTURE_2D);
-			glColor3f(1.0f,0.0f,0.0f);
-	
-			minimap_x_start*=scale;
-			minimap_y_end=(10+256)*scale;
-	
-			glBegin(GL_LINES);
-			glVertex2i(minimap_x_start+x_map_pos-7,minimap_y_end-y_map_pos+7);
-			glVertex2i(minimap_x_start+x_map_pos+7,minimap_y_end-y_map_pos-7);
-	
-			glVertex2i(minimap_x_start+x_map_pos+7,minimap_y_end-y_map_pos+7);
-			glVertex2i(minimap_x_start+x_map_pos-7,minimap_y_end-y_map_pos-7);
-			glEnd();
-	
-			glColor3f(1.0f,1.0f,1.0f);
-			glEnable(GL_TEXTURE_2D);
-		}
+	if (show_position_on_minimap)
+	{
+		int tile_size = width / tile_map_size_x;
+		int x, y;
+
+		x = x0 + (int)(mx * tile_size) / 3;
+		y = y1 - (int)(my * tile_size) / 3;
+
+		glDisable(GL_TEXTURE_2D);
+		glColor3f(1.0f, 0.0f, 0.0f);
+
+		glLineWidth((float)min2i(window_width, window_height) / 256);
+		glBegin(GL_LINES);
+		glVertex2i(x - marker_size, y + marker_size);
+		glVertex2i(x + marker_size, y - marker_size);
+
+		glVertex2i(x + marker_size, y + marker_size);
+		glVertex2i(x - marker_size, y - marker_size);
+		glEnd();
+
+		glColor3f(1.0f, 1.0f, 1.0f);
+		glEnable(GL_TEXTURE_2D);
+	}
+
 #ifdef EYE_CANDY
 	draw_bounds_on_minimap();
 #endif
@@ -968,12 +936,6 @@ int new_map_display_handler ()
 	else 
 		glColor3f (1.0f, 1.0f, 1.0f);
 	draw_string (2, 5*17+2, (const unsigned char*) "Large      [128x128]", 1);
-
-	if (map_size == 4)
-		glColor3f (0.0f, 0.5f, 1.0f);
-	else 
-		glColor3f (1.0f, 1.0f, 1.0f);
-	draw_string (2, 6*17+2, (const unsigned char*) "Huge       [256x256]", 1);
 
 	glColor3f (1.0f, 1.0f, 1.0f);
 	draw_string (2, 8*17+2, (const unsigned char*) "   [Ok]    [Cancel]", 1);

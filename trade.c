@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include "trade.h"
 #include "asc.h"
+#include "cursors.h"
 #include "elwindows.h"
 #include "gamewin.h"
 #include "hud.h"
@@ -32,16 +33,13 @@
 #define ITEM_INFO_ROWS 4
 #define ITEM_BANK 2
 
-int trade_win=-1;
-int trade_menu_x=10;
-int trade_menu_y=20;
 int trade_you_accepted=0;
 int trade_other_accepted=0;
 
 static trade_item your_trade_list[MAX_ITEMS];
 static trade_item others_trade_list[MAX_ITEMS];
 static char other_player_trade_name[20];
-static char items_string[350]={0};
+static unsigned char items_string[350]={0};
 static size_t last_items_string_id = 0;
 static int no_view_my_items=0;
 static int trade_border = 0;
@@ -62,9 +60,9 @@ static int display_trade_handler(window_info *win)
 	int x_off = 0;
 	int i;
 	char str[20];
-	
+
 	//Draw the names in the accept boxes
-	
+
 	if(trade_you_accepted==1){
 		glColor3f(1.0f,1.0f,0.0f);
 	} else if(trade_you_accepted==2){
@@ -72,9 +70,9 @@ static int display_trade_handler(window_info *win)
 	} else {
 		glColor3f(1.0f,0.0f,0.0f);
 	}
-	
-	x_off = trade_border + ITEM_COLS / 2 * trade_gridsize - (strlen(accept_str) * win->small_font_len_x) / 2;
-	draw_string_small_zoomed(x_off, button_y_bot - win->default_font_len_y * 0.9, (unsigned char*)accept_str, 1, win->current_scale);
+
+	x_off = trade_border + ITEM_COLS / 2 * trade_gridsize;
+	draw_string_small_zoomed_centered(x_off, button_y_bot - win->default_font_len_y * 0.9, (unsigned char*)accept_str, 1, win->current_scale);
 
 	if(trade_other_accepted<=0){    // RED
 		glColor3f(1.0f,0.0f,0.0f);
@@ -83,32 +81,31 @@ static int display_trade_handler(window_info *win)
 	} else {    // all others default to GREEN
 		glColor3f(0.0f,1.0f,0.0f);
 	}
-	
-	x_off = trade_border + (ITEM_COLS + 1) * trade_gridsize + ITEM_COLS / 2 * trade_gridsize - (strlen(accept_str) * win->small_font_len_x) / 2;
-	draw_string_small_zoomed(x_off, button_y_bot - win->default_font_len_y * 0.9, (unsigned char*)accept_str, 1, win->current_scale);
-	
-	glColor3f(0.77f,0.57f,0.39f);	
-	
-	//Draw the trade session names
-	x_off = trade_border + ITEM_COLS / 2 * trade_gridsize - (strlen(you_str) * win->small_font_len_x) / 2;
-	draw_string_small_zoomed(x_off, trade_grid_start_y - win->small_font_len_y, (unsigned char*)you_str, 1, win->current_scale);
-	x_off = trade_border + (ITEM_COLS + 1) * trade_gridsize + ITEM_COLS / 2 * trade_gridsize - (strlen(other_player_trade_name) * win->small_font_len_x) / 2;
-	draw_string_small_zoomed(x_off, trade_grid_start_y - win->small_font_len_y, (unsigned char*)other_player_trade_name, 1, win->current_scale);
 
-	//Draw the X for aborting the trade
-	draw_string_zoomed(win->len_x - (win->box_size - win->box_size/5), win->box_size/10, (unsigned char*)"X", 1, win->current_scale);
-	
+	x_off = trade_border + (ITEM_COLS + 1) * trade_gridsize + ITEM_COLS / 2 * trade_gridsize;
+	draw_string_small_zoomed_centered(x_off, button_y_bot - win->default_font_len_y * 0.9, (unsigned char*)accept_str, 1, win->current_scale);
+
+	glColor3fv(gui_color);
+
+	//Draw the trade session names
+	x_off = trade_border + ITEM_COLS / 2 * trade_gridsize;
+	draw_string_small_zoomed_centered(x_off, trade_grid_start_y - win->small_font_len_y, (unsigned char*)you_str, 1, win->current_scale);
+	x_off = trade_border + (ITEM_COLS + 1) * trade_gridsize + ITEM_COLS / 2 * trade_gridsize;
+	draw_string_small_zoomed_centered(x_off, trade_grid_start_y - win->small_font_len_y, (unsigned char*)other_player_trade_name, 1, win->current_scale);
+
 	glColor3f(1.0f,1.0f,1.0f);
-	
+
 	//Now let's draw the goods on trade...
-	
+
 	for(i=MAX_ITEMS-1; i>=0; --i){
 		if(your_trade_list[i].quantity){
 			GLfloat u_start, v_start, u_end, v_end;
 			int x_start, x_end, y_start, y_end;
 			int cur_item;
-			int use_large;
 			GLuint this_texture;
+			int y_text;
+			float zoom;
+			ver_alignment valign;
 
 			cur_item=your_trade_list[i].image_id%25;
 			get_item_uv(cur_item, &u_start, &v_start, &u_end, &v_end);
@@ -127,13 +124,22 @@ static int display_trade_handler(window_info *win)
 			draw_2d_thing(u_start,v_start,u_end,v_end,x_start,y_start,x_end,y_end);
 			glEnd();
 
-			use_large = (mouse_over_your_trade_pos == i) && enlarge_text();
 			safe_snprintf(str, sizeof(str), "%i",your_trade_list[i].quantity);
-			y_end -= (i&1) ?trade_gridsize * 2/3 : trade_gridsize * 1/3;
-			if (use_large)
-				draw_string_shadowed_zoomed(x_start, y_end, (unsigned char*)str, 1, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, win->current_scale);
+			zoom = (mouse_over_your_trade_pos == i && enlarge_text())
+				? win->current_scale : win->current_scale_small;
+			if (i & 1)
+			{
+				y_text = y_start;
+				valign = TOP_LINE;
+			}
 			else
-				draw_string_small_shadowed_zoomed(x_start, y_end, (unsigned char*)str, 1, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, win->current_scale);
+			{
+				y_text = y_end;
+				valign = BOTTOM_LINE;
+			}
+			draw_text(x_start, y_text, (const unsigned char*)str, strlen(str), win->font_category,
+				TDO_SHADOW, 1, TDO_FOREGROUND, 1.0, 1.0, 1.0, TDO_BACKGROUND, 0.0, 0.0, 0.0,
+				TDO_ZOOM, zoom, TDO_VERTICAL_ALIGNMENT, valign, TDO_END);
 			//by doing the images in reverse, you can't cover up the digits>4
 			//also, by offsetting each one, numbers don't overwrite each other:
 			//before: 123456 in one box and 56 in the other could allow
@@ -150,8 +156,10 @@ static int display_trade_handler(window_info *win)
 			GLfloat u_start, v_start, u_end, v_end;
 			int x_start, x_end, y_start, y_end;
 			int cur_item;
-			int use_large;
 			GLuint this_texture;
+			int y_text;
+			float zoom;
+			ver_alignment valign;
 
 			cur_item=others_trade_list[i].image_id%25;
 			get_item_uv(cur_item, &u_start, &v_start, &u_end, &v_end);
@@ -172,28 +180,47 @@ static int display_trade_handler(window_info *win)
 			draw_2d_thing(u_start,v_start,u_end,v_end,x_start,y_start,x_end,y_end);
 			glEnd();
 
-			use_large = (mouse_over_others_trade_pos == i) && enlarge_text();
 			safe_snprintf(str, sizeof(str), "%i",others_trade_list[i].quantity);
-			y_end -= (i&1) ?trade_gridsize * 2/3 : trade_gridsize * 1/3;
-			if (use_large)
-				draw_string_shadowed_zoomed(x_start, y_end, (unsigned char*)str, 1, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, win->current_scale);
+			zoom = (mouse_over_others_trade_pos == i && enlarge_text())
+				? win->current_scale : win->current_scale_small;
+			if (i & 1)
+			{
+				y_text = y_start;
+				valign = TOP_LINE;
+			}
 			else
-				draw_string_small_shadowed_zoomed(x_start, y_end, (unsigned char*)str, 1, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, win->current_scale);
+			{
+				y_text = y_end;
+				valign = BOTTOM_LINE;
+			}
+			draw_text(x_start, y_text, (const unsigned char*)str, strlen(str), win->font_category,
+				TDO_SHADOW, 1, TDO_FOREGROUND, 1.0, 1.0, 1.0, TDO_BACKGROUND, 0.0, 0.0, 0.0,
+				TDO_ZOOM, zoom, TDO_VERTICAL_ALIGNMENT, valign, TDO_END);
 
 			if(storage_available && others_trade_list[i].type==ITEM_BANK){
-				str[0]='s';
-				str[1]='t';
-				str[2]='o';
-				str[3]=0;
-				draw_string_small_shadowed_zoomed(x_start,y_start-1,(unsigned char*)str,1,1.0f,1.0f,1.0f,0.0f,0.0f,0.0f, win->current_scale);
+				str[0]='S';
+				str[1]=0;
+				if (i & 1)
+				{
+					y_text = y_end;
+					valign = BOTTOM_LINE;
+				}
+				else
+				{
+					y_text = y_start;
+					valign = TOP_LINE;
+				}
+				draw_text(x_end - win->small_font_max_len_x/2, y_text, (const unsigned char*)str, strlen(str), win->font_category,
+					TDO_SHADOW, 1, TDO_FOREGROUND, 1.0, 1.0, 1.0, TDO_BACKGROUND, 0.0, 0.0, 0.0,
+					TDO_ZOOM, win->current_scale_small, TDO_VERTICAL_ALIGNMENT, valign, TDO_ALIGNMENT, RIGHT, TDO_END);
 			}
 		}
 	}
 	mouse_over_others_trade_pos = -1;
-	
+
 	glDisable(GL_TEXTURE_2D);
-	
-	glColor3f(0.77f,0.57f,0.39f);	
+
+	glColor3fv(gui_color);
 	// grids for goods on trade
 	rendergrid (ITEM_COLS, ITEM_ROWS, trade_border, trade_grid_start_y, trade_gridsize, trade_gridsize);
 	rendergrid (ITEM_COLS, ITEM_ROWS, trade_border + (ITEM_COLS + 1) * trade_gridsize, trade_grid_start_y, trade_gridsize, trade_gridsize);
@@ -205,7 +232,7 @@ static int display_trade_handler(window_info *win)
 		glVertex3i(button_x_right, button_y_bot, 0);
 		glVertex3i(button_x_left, button_y_bot, 0);
 	glEnd ();
-	
+
 	x_off = (ITEM_COLS + 1) * trade_gridsize;
 	glBegin (GL_LINE_LOOP);
 		glVertex3i(x_off + button_x_left, button_y_top, 0);
@@ -214,29 +241,27 @@ static int display_trade_handler(window_info *win)
 		glVertex3i(x_off + button_x_left, button_y_bot, 0);
 	glEnd ();
 
-
-	//Draw the border for the "X"
-	glBegin(GL_LINE_STRIP);
-		glVertex3i(win->len_x, win->box_size, 0);
-		glVertex3i(win->len_x - win->box_size, win->box_size, 0);
-		glVertex3i(win->len_x - win->box_size, 0, 0);
-	glEnd();
-	
 	//Draw the help text
 	if(show_help_text && show_abort_help)
-		show_help(abort_str,
-			win->len_x - (win->box_size - win->box_size / 5) / 2 - (win->small_font_len_x * strlen(abort_str)) / 2,
-			win->box_size + win->box_size/5, win->current_scale);
+	{
+		show_help_colored_scaled_centered((const unsigned char*)abort_str,
+			win->len_x - win->box_size / 2, win->box_size + win->box_size/5,
+			1.0f, 1.0f, 1.0f, win->current_scale);
+	}
 
 	glEnable(GL_TEXTURE_2D);
-	
+
 	//now, draw the inventory text, if any.
 	if (last_items_string_id != inventory_item_string_id)
-	{		
-		put_small_text_in_box_zoomed((unsigned char*)inventory_item_string, strlen(inventory_item_string), win->len_x - trade_border, items_string, win->current_scale);
+	{
+		put_small_text_in_box_zoomed((unsigned char*)inventory_item_string,
+			strlen(inventory_item_string), win->len_x - trade_border, items_string,
+			win->current_scale);
 		last_items_string_id = inventory_item_string_id;
 	}
-	draw_string_small_zoomed(trade_border/2, button_y_bot + trade_border, (unsigned char*)items_string, ITEM_INFO_ROWS, win->current_scale);
+	draw_string_small_zoomed(trade_border/2, button_y_bot + trade_border, items_string,
+		ITEM_INFO_ROWS, win->current_scale);
+
 #ifndef ANDROID
 	if (tool_tip_str != NULL)
 	{
@@ -252,6 +277,7 @@ CHECK_GL_ERRORS();
 	return 1;
 }
 
+
 #ifndef ANDROID
 static int click_trade_handler(window_info *win, int mx, int my, Uint32 flags)
 {
@@ -259,22 +285,20 @@ static int click_trade_handler(window_info *win, int mx, int my, Uint32 flags)
 	int left_click = flags & ELW_LEFT_MOUSE;
 	int right_click = flags & ELW_RIGHT_MOUSE;
 	int trade_quantity_storage_offset = 3; /* Offset of trade quantity in packet. Can be 3 or 4 */
-	
+
 	if ( !(left_click || right_click) ) return 0;
 
-	if(left_click && mx > win->len_x - win->box_size && my < win->box_size){
-		str[0]=EXIT_TRADE;
-		my_tcp_send(my_socket,str,1);
-
-		hide_window(trade_win);
-		return 1;
-	}
-	
 	if(right_click) {
-		item_dragged=
-		storage_item_dragged=-1;
+		if ((item_dragged == -1) && (storage_item_dragged == -1) && is_gamewin_look_action()) {
+			clear_gamewin_look_action();
+			return 1;
+		}
+		if ((item_dragged != -1) || (storage_item_dragged != -1)) {
+			item_dragged = storage_item_dragged = -1;
+			return 1;
+		}
 	}
-	
+
 	if(left_click && item_dragged!=-1){
 		str[0]=PUT_OBJECT_ON_TRADE;
 		str[1]=ITEM_INVENTORY;
@@ -299,10 +323,10 @@ static int click_trade_handler(window_info *win, int mx, int my, Uint32 flags)
 	} else if(mx > trade_border && mx < trade_border + ITEM_COLS * trade_gridsize &&
 				my > trade_grid_start_y && my < trade_grid_start_y + ITEM_ROWS * trade_gridsize){
 		int pos=get_mouse_pos_in_grid (mx, my, ITEM_COLS, ITEM_ROWS, trade_border, trade_grid_start_y, trade_gridsize, trade_gridsize);
-		
+
 		if (pos >= 0 && your_trade_list[pos].quantity)
 		{
-			if(action_mode==ACTION_LOOK || right_click) {
+			if(right_click || is_gamewin_look_action()) {
 				str[0]=LOOK_AT_TRADE_ITEM;
 				str[1]=pos;
 				str[2]=0;//your trade
@@ -324,7 +348,7 @@ static int click_trade_handler(window_info *win, int mx, int my, Uint32 flags)
 
 		if (pos >= 0 && others_trade_list[pos].quantity)
 		{
-			if(action_mode==ACTION_LOOK || right_click){
+			if(right_click || is_gamewin_look_action()){
 				str[0]=LOOK_AT_TRADE_ITEM;
 				str[1]=pos;
 				str[2]=1;//their trade
@@ -332,7 +356,7 @@ static int click_trade_handler(window_info *win, int mx, int my, Uint32 flags)
 			} else if (left_click && storage_available){
 				if(others_trade_list[pos].type==ITEM_BANK)
 					others_trade_list[pos].type=ITEM_INVENTORY;
-				else 
+				else
 					others_trade_list[pos].type=ITEM_BANK;
 			}
 		}
@@ -356,7 +380,7 @@ static int click_trade_handler(window_info *win, int mx, int my, Uint32 flags)
 			my_tcp_send(my_socket, str, MAX_ITEMS + 1);
 			do_click_sound();
 		}
-		
+
 		return 1;
 	}
 
@@ -386,7 +410,7 @@ int click_trade_handler(window_info *win, int mx, int my, Uint32 flags)
 	{
 		str[0]=EXIT_TRADE;
 		my_tcp_send(my_socket, str, 1);
-		hide_window(trade_win);
+		hide_window(get_id_MW(MW_TRADE));
 		return 1;
 	}
 
@@ -396,7 +420,7 @@ int click_trade_handler(window_info *win, int mx, int my, Uint32 flags)
 		int pos = get_mouse_pos_in_grid (mx, my, ITEM_COLS, ITEM_ROWS, trade_border, trade_grid_start_y, trade_gridsize, trade_gridsize);
 		if ((pos >= 0) && your_trade_list[pos].quantity)
 		{
-			if(action_mode == ACTION_LOOK || right_click)
+			if(is_gamewin_look_action() || right_click)
 			{
 				str[0] = LOOK_AT_TRADE_ITEM;
 				str[1] = pos;
@@ -422,7 +446,7 @@ int click_trade_handler(window_info *win, int mx, int my, Uint32 flags)
 			trade_grid_start_y, trade_gridsize, trade_gridsize);
 		if ((pos >= 0) && others_trade_list[pos].quantity)
 		{
-			if ((action_mode == ACTION_LOOK) || right_click)
+			if (is_gamewin_look_action() || right_click)
 			{
 				str[0] = LOOK_AT_TRADE_ITEM;
 				str[1] = pos;
@@ -481,6 +505,7 @@ int click_trade_handler(window_info *win, int mx, int my, Uint32 flags)
 
 static int mouseover_trade_handler(window_info *win, int mx, int my)
 {
+	int check_for_eye = 0;
 	int pos = -1;
 	trade_item *over_item = NULL;
 
@@ -500,6 +525,7 @@ static int mouseover_trade_handler(window_info *win, int mx, int my)
 	{
 		over_item = &your_trade_list[pos];
 		mouse_over_your_trade_pos = pos;
+		check_for_eye = 1;
 	}
 	else {
 		pos = get_mouse_pos_in_grid(mx, my, ITEM_COLS, ITEM_ROWS, trade_border + (ITEM_COLS + 1) * trade_gridsize, trade_grid_start_y,
@@ -508,11 +534,19 @@ static int mouseover_trade_handler(window_info *win, int mx, int my)
 		{
 			over_item = &others_trade_list[pos];
 			mouse_over_others_trade_pos = pos;
+			check_for_eye = 1;
 		}
 	}
 
 	if (show_item_desc_text && (over_item != NULL) && item_info_available() && (get_item_count(over_item->id, over_item->image_id) == 1))
 		tool_tip_str = get_item_description(over_item->id, over_item->image_id);
+
+	/* if we're over an occupied slot and the eye cursor function is active, show the eye cursor */
+	if (check_for_eye && is_gamewin_look_action())
+	{
+		elwin_mouse = CURSOR_EYE;
+		return 1;
+	}
 
 	return 0;
 }
@@ -522,7 +556,7 @@ void get_trade_partner_name (const Uint8 *player_name, int len)
 	int i;
 
 	storage_available = player_name[0];
-	
+
 	for (i = 0; i+1 < len; i++)
 		other_player_trade_name[i] = player_name[i+1];
 	other_player_trade_name[i] = '\0';
@@ -547,11 +581,11 @@ void get_your_trade_objects (const Uint8 *data)
 	trade_other_accepted=0;
 
 	//we have to close the manufacture window, otherwise bad things can happen.
-	hide_window(manufacture_win);
-	hide_window(sigil_win);
+	hide_window_MW(MW_MANU);
+	hide_window_MW(MW_SPELLS);
 	//Open the inventory window
 	display_items_menu();
-	view_window(&trade_win, -1);
+	view_window(MW_TRADE);
 }
 
 void put_item_on_trade (const Uint8 *data)
@@ -626,25 +660,36 @@ static int ui_scale_trade_handler(window_info *win)
 	return 1;
 }
 
+static int close_trade_handler(window_info *win)
+{
+	// User click the close button, abort the trade
+	unsigned char msg = EXIT_TRADE;
+	my_tcp_send(my_socket, &msg, 1);
+	return 1;
+}
+
 void display_trade_menu()
 {
-	if(trade_win < 0){
-		int our_root_win = -1;
-		if (!windows_on_top) {
-			our_root_win = game_root_win;
-		}
-		trade_win= create_window(win_trade, our_root_win, 0, trade_menu_x, trade_menu_y, 0, 0, ((ELW_USE_UISCALE|ELW_WIN_DEFAULT) & ~ELW_CLOSE_BOX));
+	int trade_win = get_id_MW(MW_TRADE);
 
-		set_window_custom_scale(trade_win, &custom_scale_factors.trade);
+	if(trade_win < 0){
+		trade_win = create_window(win_trade, (not_on_top_now(MW_TRADE) ?game_root_win : -1), 0,
+			get_pos_x_MW(MW_TRADE), get_pos_y_MW(MW_TRADE), 0, 0, ELW_USE_UISCALE|ELW_WIN_DEFAULT);
+		set_id_MW(MW_TRADE, trade_win);
+
+		set_window_custom_scale(trade_win, MW_TRADE);
 		set_window_handler(trade_win, ELW_HANDLER_DISPLAY, &display_trade_handler );
 		set_window_handler(trade_win, ELW_HANDLER_CLICK, &click_trade_handler );
 #ifndef ANDROID
 		set_window_handler(trade_win, ELW_HANDLER_MOUSEOVER, &mouseover_trade_handler );
 #endif
+		set_window_handler(trade_win, ELW_HANDLER_CLOSE, &close_trade_handler );
 		set_window_handler(trade_win, ELW_HANDLER_UI_SCALE, &ui_scale_trade_handler );
 
 		if (trade_win >= 0 && trade_win < windows_list.num_windows)
 			ui_scale_trade_handler(&windows_list.window[trade_win]);
+		check_proportional_move(MW_TRADE);
+
 	} else {
 		show_window(trade_win);
 		select_window(trade_win);

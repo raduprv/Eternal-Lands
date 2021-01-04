@@ -29,7 +29,7 @@ int add_to_ignore_list(char *name, char save_name)
 	for(i=0;i<MAX_IGNORES;i++)
 		{
 			if(ignore_list[i].used)
-				if(my_strcompare(ignore_list[i].name,name))return -1;//already in the list
+				if (!strcasecmp(ignore_list[i].name, name))return -1;//already in the list
 		}
 
 	//ok, find a free spot
@@ -38,7 +38,7 @@ int add_to_ignore_list(char *name, char save_name)
 			if(!ignore_list[i].used)
 				{
 					//excellent, a free spot
-					my_strcp(ignore_list[i].name,name);
+					safe_strncpy(ignore_list[i].name, name, sizeof(ignore_list[i].name));
 					//add to the global ignore file, if the case
 					if(save_name)
 						{
@@ -70,7 +70,7 @@ int remove_from_ignore_list(char *name)
 	for(i=0;i<MAX_IGNORES;i++)
 		{
 			if(!found && ignore_list[i].used)
-				if(my_strcompare(ignore_list[i].name,name))
+				if (!strcasecmp(ignore_list[i].name, name))
 					{
 						ignore_list[i].used=0;
 						found = 1;
@@ -107,7 +107,7 @@ int check_if_ignored (const char *name)
 
 	for (i = 0; i < MAX_IGNORES; i++)
 	{
-		if (ignore_list[i].used && my_strcompare(ignore_list[i].name, name))
+		if (ignore_list[i].used && !strcasecmp(ignore_list[i].name, name))
 			return 1;	// yep, ignored
 	}
 	return 0;	// nope
@@ -257,7 +257,7 @@ int pre_check_if_ignored (const char *input_text, int len, Uint8 channel)
 		if (channel == CHAT_PERSONAL || channel == CHAT_MODPM)
 		{
 			//memorise the name
-			my_strcp (last_pm_from, name);
+			safe_strncpy(last_pm_from, name, sizeof(last_pm_from));
 		}
 		return 0;
 	}

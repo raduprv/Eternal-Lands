@@ -659,23 +659,6 @@ void clone_particles_object(int object_id) {
 
 ////////////////////////////////////////////////////////////////////////////
 ////////////tile things/////////////////////////////////////////////////////
-void load_all_tiles()
-{
-	int i;
-	char str[80];
-
-	memset(map_tiles, 0, sizeof(map_tiles));
-
-	for(i = 0; i < 255; i++)
-	{
-		snprintf(str, sizeof(str), "./3dobjects/tile%i.dds", i);
-
-		tiles_no = i;
-
-		load_image_data(str, 1, 1, 1, 0, &map_tiles[i]);
-	}
-}
-
 void move_tile()
 {
 	float x_start,y_start;

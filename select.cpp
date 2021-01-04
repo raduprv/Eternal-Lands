@@ -115,8 +115,7 @@ static inline void update_selection(Uint8 *color)
 	}
 	index = 0;
 	count = 0;
-#ifdef	USE_BOOST
-	BOOST_FOREACH(IndexMap::value_type it, indices)
+	for (const auto& it: indices)
 	{
 		if (it.second > count)
 		{
@@ -124,16 +123,6 @@ static inline void update_selection(Uint8 *color)
 			count = it.second;
 		}
 	}
-#else	/* USE_BOOST */
-	for (it = indices.begin(); it != indices.end(); it++)
-	{
-		if (it->second > count)
-		{
-			index = it->first;
-			count = it->second;
-		}
-	}
-#endif	/* USE_BOOST */
 	if (count > 0)
 	{
 		thing_under_the_mouse = selections[index].type;

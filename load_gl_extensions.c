@@ -4,7 +4,9 @@
 #include <SDL.h>
 #include "load_gl_extensions.h"
 #include "client_serv.h"
+#ifndef MAP_EDITOR
 #include "text.h"
+#endif
 #include "errors.h"
 #include "gl_init.h"
 

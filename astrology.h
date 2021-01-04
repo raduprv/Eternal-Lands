@@ -5,9 +5,6 @@
 extern "C" {
 #endif
 
-extern int astrology_win_x;
-extern int astrology_win_y;
-extern int astrology_win;
 extern int always_show_astro_details;
 
 /*!

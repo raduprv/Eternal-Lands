@@ -1576,7 +1576,7 @@ void play_music(int list)
 	{
 		if (fscanf (fp, "%254s", strLine) == 1)
 		{
-			my_strncp (playlist[i].file_name, strLine, MAX_PLAYLIST_FILENAME);
+			safe_strncpy(playlist[i].file_name, strLine, MAX_PLAYLIST_FILENAME);
 			playlist[i].min_x = 0;
 			playlist[i].min_y = 0;
 			playlist[i].max_x = 10000;
@@ -1622,13 +1622,13 @@ int display_song_name()
 		}
 		for (; i < comments->comments; ++i)
 		{
-			if ((artist == NULL) && (comments->comment_lengths[i] > 6) && (my_strncompare(comments->user_comments[i],"artist", 6)))
+			if ((artist == NULL) && (comments->comment_lengths[i] > 6) && (!strncasecmp(comments->user_comments[i],"artist", 6)))
 			{
 				artist = comments->user_comments[i] + 7;
 				if(title)
 					break;
 			}
-			else if ((title == NULL) && (comments->comment_lengths[i] > 6) && (my_strncompare(comments->user_comments[i],"title", 5)))
+			else if ((title == NULL) && (comments->comment_lengths[i] > 6) && (!strncasecmp(comments->user_comments[i],"title", 5)))
 			{
 				title = comments->user_comments[i] + 6;
 				if(artist)
@@ -4529,7 +4529,7 @@ int add_to_sound_warnings_list(const char * text)
 	{
 		if (warnings_list[i].sound >= 0)
 		{
-			if (my_strcompare (warnings_list[i].string, right))
+			if (!strcasecmp(warnings_list[i].string, right))
 				return -1; // Already in the list
 		}
 	}

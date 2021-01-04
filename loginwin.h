@@ -29,7 +29,7 @@ const char * get_lowercase_username(void);
 const char * get_password(void);
 void set_username(const char * new_username);
 void set_password(const char * new_password);
-int valid_username_pasword(void);
+int valid_username_password(void);
 /*! @} */
 
 /*!

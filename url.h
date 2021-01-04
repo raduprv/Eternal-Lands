@@ -19,7 +19,7 @@ void destroy_url_list(void);
 
 /*!
  * \ingroup url
- * \brief   Implements the #url command.
+ * \brief   Implements the \#url command.
  *
  * \param text any text that follows the command
  * \param len the number of characters in the string.
@@ -37,7 +37,7 @@ void open_last_seen_url(void);
 /*!
  * \ingroup url
  * \brief   Saves the number of URL for comparison later using num_new_url().
- * 
+ *
  */
 void save_url_count(void);
 

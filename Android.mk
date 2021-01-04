@@ -7,8 +7,9 @@ LOCAL_MODULE := main
 SDL_PATH := ../SDL2
 SDL_IMAGE_PATH := ../SDL2_image
 SDL_NET_PATH := ../SDL2_net
+#SDL_TTF_PATH := ../SDL2_ttf
 GLSHIM_PATH := ../glshim
-CAL3D_PATH := ../cal3d
+CAL3D_PATH := ../cal3d/src/
 LIBXML2_PATH := ../libxml2
 EXTRAS_PATH := ../extras
 GL4ES_PATH := ../downloads/gl4es/
@@ -16,11 +17,12 @@ GL4ES_PATH := ../downloads/gl4es/
 LOCAL_C_INCLUDES := $(LOCAL_PATH)/$(SDL_PATH)/include \
 $(LOCAL_PATH)/$(SDL_IMAGE_PATH) \
 $(LOCAL_PATH)/$(SDL_NET_PATH) \
+#$(LOCAL_PATH)/$(SDL_TTF_PATH) \
 $(LOCAL_PATH)/$(GLSHIM_PATH) \
 $(LOCAL_PATH)/$(CAL3D_PATH) \
 $(LOCAL_PATH)/$(LIBXML2_PATH)/include/ \
 $(LOCAL_PATH)/$(EXTRAS_PATH)/ \
-$(LOCAL_PATH)/$(GL4ES_PATH)/include/ \
+$(LOCAL_PATH)/$(GL4ES_PATH)/include/
 
 LOCAL_CFLAGS := \
 	-O3 -fsigned-char \
@@ -34,7 +36,8 @@ LOCAL_CFLAGS := \
 	-DFUZZY_PATHS \
 	-DBANDWIDTH_SAVINGS \
 	-DANIMATION_SCALING \
-	-DGIT_VERSION=\"1.9.5.20210102\" 
+	-DGIT_VERSION=\"1.9.5.20210104\"
+#	-DTTF \
 
 # Add your application source files here...
 LOCAL_SRC_FILES := \
@@ -51,7 +54,6 @@ LOCAL_SRC_FILES := \
 	astrology.c \
 	bags.c \
 	bbox_tree.c \
-	books.c \
 	books/fontdef.c \
 	books/parser.c \
 	books/symbols.c \
@@ -81,7 +83,6 @@ LOCAL_SRC_FILES := \
 	errors.c \
 	events.c \
 	filter.c \
-	font.c \
 	framebuffer.c \
 	frustum.c \
 	fsaa/fsaa.c \
@@ -187,6 +188,7 @@ LOCAL_SRC_FILES := \
 	\
 	achievements.cpp \
 	actor_init.cpp \
+	books.cpp \
 	cal3d_wrapper.cpp \
 	command_queue.cpp \
 	context_menu.cpp \
@@ -221,6 +223,7 @@ LOCAL_SRC_FILES := \
 	eye_candy/math_cache.cpp \
 	eye_candy/orbital_mover.cpp \
 	eye_candy_wrapper.cpp \
+	font.cpp \
 	hud_indicators.cpp \
 	icon_window.cpp \
 	io/cal3d_io_wrapper.cpp \
@@ -243,7 +246,6 @@ LOCAL_SHARED_LIBRARIES := \
 	cal3d \
 	libxml2
 
-#LOCAL_LDLIBS := -lz -lGLESv1_CM -llog
 LOCAL_LDLIBS := -lz -llog
 
 include $(BUILD_SHARED_LIBRARY)
