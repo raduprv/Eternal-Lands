@@ -127,12 +127,18 @@ static void toggle_selected_box(int which)
 
 static int select_username_box()
 {
+#ifdef ANDROID
+	SDL_StartTextInput();
+#endif
 	toggle_selected_box(username_field_id);
 	return 1;
 }
 
 static int select_password_box()
 {
+#ifdef ANDROID
+	SDL_StartTextInput();
+#endif
 	toggle_selected_box(password_field_id);
 	return 1;
 }
@@ -412,21 +418,21 @@ static int click_login_handler (window_info *win, int mx, int my, Uint32 flags)
 
 	if (left_click == 0) return 0;
 
+#ifdef ANDROID
+	// make sure the various flags are set
+	// ANDROID_TODO: simply enabing the handler does not work, requiring two clicks
+	mouseover_login_handler(win, mx, my);
+#endif
+
 	// check to see if we clicked on the username box
 	if (mx >= username_bar_x && mx <= username_bar_x + username_bar_x_len && my >= username_bar_y && my <= username_bar_y + username_bar_y_len)
 	{
 		select_username_box();
-#ifdef ANDROID
-		SDL_StartTextInput();
-#endif
 	}
 	// check to see if we clicked on the password box
 	else if (mx >= password_bar_x && mx <= password_bar_x + password_bar_x_len && my >= password_bar_y && my <= password_bar_y + password_bar_y_len)
 	{
 		select_password_box();
-#ifdef ANDROID
-		SDL_StartTextInput();
-#endif
 	}
 	// check to see if we clicked login select button
 	else if (mx >= passmngr_button_x && mx <= passmngr_button_x + passmngr_button_size && my >= passmngr_button_y && my <= passmngr_button_y + passmngr_button_size)
@@ -444,9 +450,6 @@ static int click_login_handler (window_info *win, int mx, int my, Uint32 flags)
 	if (log_in_button_selected)
 	{
 		log_in_error_str[0] = '\0';
-#ifdef ANDROID
-		SDL_StopTextInput();
-#endif
 		set_username(input_username_str);
 		set_password(input_password_str);
 		passmngr_destroy_window();

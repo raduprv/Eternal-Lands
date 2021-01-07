@@ -17,15 +17,15 @@ GL4ES_PATH := ../downloads/gl4es/
 LOCAL_C_INCLUDES := $(LOCAL_PATH)/$(SDL_PATH)/include \
 $(LOCAL_PATH)/$(SDL_IMAGE_PATH) \
 $(LOCAL_PATH)/$(SDL_NET_PATH) \
-#$(LOCAL_PATH)/$(SDL_TTF_PATH) \
 $(LOCAL_PATH)/$(GLSHIM_PATH) \
 $(LOCAL_PATH)/$(CAL3D_PATH) \
 $(LOCAL_PATH)/$(LIBXML2_PATH)/include/ \
 $(LOCAL_PATH)/$(EXTRAS_PATH)/ \
 $(LOCAL_PATH)/$(GL4ES_PATH)/include/
+#$(LOCAL_PATH)/$(SDL_TTF_PATH) \
 
 LOCAL_CFLAGS := \
-	-O3 -fsigned-char \
+	-O3 -fsigned-char -frtti \
 	-DANDROID \
 	-DUSE_INLINE \
 	-DELC \

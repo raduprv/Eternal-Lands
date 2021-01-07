@@ -325,12 +325,16 @@ void centre_popup_window(INPUT_POPUP *ipu)
 	if ((ipu->parent > -1) && (ipu->parent < windows_list.num_windows))
 	{
 		window_info *pwin = &windows_list.window[ipu->parent];
+#ifdef ANDROID
+		move_window(win->window_id, win->pos_id,win->pos_loc, win->pos_x + (pwin->len_x - win->len_x) / 2, win->pos_y + (pwin->len_y - win->len_y) / 5);
+#else
 		move_window(win->window_id, win->pos_id,win->pos_loc, win->pos_x + (pwin->len_x - win->len_x) / 2, win->pos_y + (pwin->len_y - win->len_y) / 2);
+#endif
 	}
 	else
 	{
 #ifdef ANDROID
-		move_window(win->window_id, win->pos_id,win->pos_loc, (window_width - win->len_x) / 2, (window_height - win->len_y) / 4);
+		move_window(win->window_id, win->pos_id,win->pos_loc, (window_width - win->len_x) / 2, (window_height - win->len_y) / 5);
 #else
 		move_window(win->window_id, win->pos_id,win->pos_loc, (window_width - win->len_x) / 2, (window_height - win->len_y) / 2);
 #endif
@@ -338,7 +342,7 @@ void centre_popup_window(INPUT_POPUP *ipu)
 }
 
 #ifdef ANDROID
-static int click_popup_input_handler(widget_list *w, int mx, int my, Uint32 flags)
+static int click_input_handler(widget_list *w, int mx, int my, Uint32 flags)
 {
 	SDL_StartTextInput();
 	return 1;
@@ -374,13 +378,14 @@ void display_popup_win (INPUT_POPUP *ipu, const char* label)
 		// Input
 		ipu->popup_field = text_field_add_extended(ipu->popup_win, widget_id++, NULL, 0, 0, 0, 0,
 			ipu->text_flags, win->font_category, 1.0, &ipu->popup_text, 1, FILTER_ALL, 5, 5);
-#ifdef ANDROID
-		widget_set_OnClick(ipu->popup_win, ipu->popup_field, click_popup_input_handler);
-#endif
 		widget_set_flags(win->window_id, ipu->popup_field, WIDGET_DISABLED);
 		ipu->popup_line = pword_field_add_extended(ipu->popup_win, widget_id++,
 			NULL, 0, 0, 0, 0, P_TEXT, 1.0, ipu->popup_line_text, ipu->maxlen);
 		widget_set_flags(win->window_id, ipu->popup_line, WIDGET_DISABLED);
+#ifdef ANDROID
+		widget_set_OnClick(ipu->popup_win, ipu->popup_field, click_input_handler);
+		widget_set_OnClick(ipu->popup_win, ipu->popup_line, click_input_handler);
+#endif
 
 		// Accept
 		ipu->popup_ok = button_add_extended (ipu->popup_win, widget_id++, NULL, 0, 0, 0, 0, 0, 1.0, button_okay);
@@ -836,6 +841,9 @@ static void open_note_tab_continued(int id)
 		TEXT_FIELD_BORDER|TEXT_FIELD_EDITABLE|TEXT_FIELD_CAN_GROW|TEXT_FIELD_SCROLLBAR,
 		NOTE_FONT, tab_win->current_scale, &note_list[id].text,
 		1, FILTER_ALL, widget_space, widget_space);
+#ifdef ANDROID
+		widget_set_OnClick(note_list[id].window, note_list[id].input, click_input_handler);
+#endif
 
 	tab = tab_collection_get_tab_nr (notepad_win, note_tabcollection_id, note_list[id].window);
 	tab_collection_select_tab (notepad_win, note_tabcollection_id, tab);

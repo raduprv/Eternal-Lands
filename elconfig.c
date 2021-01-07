@@ -1401,7 +1401,7 @@ void set_scale_from_window_size(void)
 	change_float(&font_scales[NAME_FONT], &new_value);
 	set_var_unsaved("name_text_size", INI_FILE_VAR);
 	new_value = 0.7f * local_ui_scale * 0.8f;
-	change_float(&minimap_size_coefficient, &new_value);
+	change_minimap_scale(&local_minimap_size_coefficient, &new_value);
 	set_var_unsaved("minimap_scale", INI_FILE_VAR);
 }
 
@@ -2698,10 +2698,10 @@ static void init_ELC_vars(void)
 	add_var(OPT_BOOL,"logo_click_to_url","logoclick",&logo_click_to_url,change_var,0,"Logo Click To URL","Toggle clicking the LOGO opening a browser window",HUD);
 	add_var(OPT_STRING,"logo_link", "logolink", LOGO_URL_LINK, change_string, sizeof(LOGO_URL_LINK),
 		"Logo Link", "URL when clicking the logo", HUD);
+#endif
 	add_var(OPT_BOOL,"show_help_text","shelp",&show_help_text,change_var,1,"Help Text","Enable tooltips.",HUD);
 	add_var(OPT_BOOL,"always_enlarge_text","aetext",&always_enlarge_text,change_var,1,"Always Enlarge Text","Some text can be enlarged by pressing ALT or CTRL, often only while the mouse is over it.  Setting this option effectively locks the ALT/CTRL state to on.",HUD);
 	add_var(OPT_BOOL,"show_item_desc_text","showitemdesctext",&show_item_desc_text,change_var,1,"Item Description Text","Enable item description tooltips. Needs item_info.txt file.",HUD);
-#endif
 	add_var(OPT_BOOL,"use_alpha_border", "aborder", &use_alpha_border, change_var, 1,"Alpha Border","Toggle the use of alpha borders",HUD);	//ADVVID);
 	add_var(OPT_BOOL,"use_alpha_banner", "abanner", &use_alpha_banner, change_var, 0,"Alpha Behind Name/Health Text","Toggle the use of an alpha background to name/health banners",HUD);
 	add_var(OPT_BOOL,"cm_banner_disabled", "cmbanner", &cm_banner_disabled, change_var, 0,"Disable Name/Health Text Context Menu","Disable the context menu on your players name/health banner.",HUD);
@@ -2842,6 +2842,15 @@ static void init_ELC_vars(void)
 		 "Set the type of font used for drawing the encycloepdia and ingame help",
 		 FONT, NULL);
 #endif
+#ifdef ANDROID
+	{
+		// initialise the fonts - ANDROID_TODO improve
+		size_t i;
+		for (i = 0; i < NR_FONT_CATS; i++)
+			font_idxs[i] = 0;
+	}
+#endif
+
 	add_var(OPT_FLOAT,"mapmark_text_size", "marksize", &font_scales[MAPMARK_FONT], change_text_zoom, 1.0, "Mapmark Text Size","Sets the size of the mapmark text", FONT, 0.1, 2.0, 0.01);
 	add_var(OPT_FLOAT,"ui_scale","ui_scale",&local_ui_scale,change_ui_scale,1,"User interface scaling factor","Scale user interface by this factor, useful for high DPI displays.  Note: the options window will be rescaled after reopening.",FONT,0.75,3.0,0.01);
 	add_var(OPT_INT,"cursor_scale_factor","cursor_scale_factor",&cursor_scale_factor ,change_cursor_scale_factor,cursor_scale_factor,"Mouse pointer scaling factor","The size of the mouse pointer is scaled by this factor",FONT, 1, max_cursor_scale_factor);
@@ -3900,7 +3909,11 @@ void display_elconfig_win(void)
 
 		elconf_scale = ui_scale * elconf_custom_scale;
 		CHECKBOX_SIZE = ELCONFIG_SCALED_VALUE(15);
+#ifdef ANDROID
+		SPACING = ELCONFIG_SCALED_VALUE(10);
+#else
 		SPACING = ELCONFIG_SCALED_VALUE(5);
+#endif
 		LONG_DESC_SPACE = SPACING +
 			MAX_LONG_DESC_LINES * get_line_height(CONFIG_FONT, elconf_scale * DEFAULT_SMALL_RATIO);
 		TAB_TAG_HEIGHT = tab_collection_calc_tab_height(CONFIG_FONT, elconf_scale);

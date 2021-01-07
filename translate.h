@@ -517,9 +517,6 @@ extern char
 		cm_hud_menu_str[270],
 		cm_banner_menu_str[240],
 		cm_title_menu_str[150],
-#ifdef ANDROID
-		cm_title_help_touch_str[50],
-#endif
 		cm_title_help_str[50],
 		cm_items_menu_str[190],
 		cm_storage_menu_str[110],

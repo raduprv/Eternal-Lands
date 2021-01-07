@@ -491,7 +491,11 @@ static int ui_scale_storage_handler(window_info *win)
 
 	cat_string_left_offset = (int)(0.5 + 2 * border_size);
 	cat_string_top_offset = (int)(0.5 + 2 * border_size);
+#ifdef ANDROID
+	storage_categories_display = (scrollbar_len - 2*border_size) / (win->small_font_len_y * 1.25);
+#else
 	storage_categories_display = (scrollbar_len - 2*border_size) / win->small_font_len_y;
+#endif
 	cat_name_separation = (int)(0.5 + (scrollbar_len - 2*border_size) / storage_categories_display);
 	cat_right_offset = (int)(0.5 + 3 * border_size + max_cat_width);
 
@@ -537,8 +541,8 @@ int storage_item_dragged=-1;
 
 static int post_display_storage_handler(window_info * win)
 {
-	if (cur_item_over !=- 1 && mouse_in_window(win->window_id, mouse_x, mouse_y) == 1
-		&& active_storage_item != storage_items[cur_item_over].pos)
+	if ((cur_item_over !=- 1) && (mouse_in_window(win->window_id, mouse_x, mouse_y) == 1) &&
+		(active_storage_item != storage_items[cur_item_over].pos)  && (storage_items[cur_item_over].quantity > 0))
 	{
 		float zoom = enlarge_text() ? win->current_scale : win->current_scale_small;
 		float line_height = enlarge_text() ? win->default_font_len_y : win->small_font_len_y;
@@ -793,6 +797,9 @@ int click_storage_handler(window_info * win, int mx, int my, Uint32 flags)
 #define ITEM_BANK 2
 int click_storage_handler(window_info * win, int mx, int my, Uint32 flags)
 {
+	// As the mouse jumps for touch, cur_item_over becomes invalid so always recalculate
+	cur_item_over = -1;
+
 	if((my > cat_string_top_offset) && (my < (cat_string_top_offset + storage_categories_display * cat_name_separation)))
 	{
 		if(mx>border_size && mx<cat_right_offset){
@@ -814,8 +821,10 @@ int click_storage_handler(window_info * win, int mx, int my, Uint32 flags)
 		if(cur_item_over>=no_storage||cur_item_over<0||storage_items[cur_item_over].quantity<1)
 				return 1;
 
-		if(is_gamewin_look_action())
+		if(is_gamewin_look_action() && !(show_item_desc_text && item_info_available() &&
+			(get_item_count(storage_items[cur_item_over].id, storage_items[cur_item_over].image_id) == 1)))
 		{
+			// ANDROID_TODO this clashes with item_info and stays active too long
 			str[0]=LOOK_AT_STORAGE_ITEM;
 			*((Uint16*)(str+1))=SDL_SwapLE16(storage_items[cur_item_over].pos);
 

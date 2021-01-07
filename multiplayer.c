@@ -609,6 +609,10 @@ void send_login_info()
 	if (!valid_username_password())
 		return;
 
+#ifdef ANDROID
+	SDL_StopTextInput();
+#endif
+
 	local_username_str = get_username();
 	local_password_str = get_password();
 	username_len = strlen(local_username_str);

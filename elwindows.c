@@ -21,21 +21,8 @@
 
 #ifdef ANDROID
 #include "achievements.h"
-#include "astrology.h"
-#include "buddy.h"
-#include "consolewin.h"
-#include "dialogues.h"
-#include "emotes.h"
-#include "encyclopedia.h"
+#include "books.h"
 #include "gamewin.h"
-#include "items.h"
-#include "manufacture.h"
-#include "mapwin.h"
-#include "minimap.h"
-#include "questlog.h"
-#include "spells.h"
-#include "stats.h"
-#include "tabs.h"
 #endif
 
 #define ELW_WIN_MAX 128
@@ -141,49 +128,10 @@ void close_last_window(void)
 		return;
 	}
 
-	if (achievements_close_all())
-		return;
-
-	if (get_show_window(get_id_MW(MW_CONFIG)))
-	{
-		hide_window(get_id_MW(MW_CONFIG));
-		return;
-	}
-
-	if (get_show_window(get_id_MW(MW_DIALOGUE)))
-	{
-		hide_window(get_id_MW(MW_DIALOGUE));
-		return;
-	}
-
-	if (get_show_window(get_id_MW(MW_HELP)))
-	{
-		hide_window(get_id_MW(MW_HELP));
-		return;
-	}
-
-	if (get_show_window(get_id_MW(MW_ASTRO)))
-	{
-		hide_window(get_id_MW(MW_ASTRO));
-		return;
-	}
-
-	if (get_show_window(get_id_MW(MW_STATS)))
-	{
-		hide_window(get_id_MW(MW_STATS));
-		return;
-	}
-
 	if (get_show_window(get_id_MW(MW_TABMAP)))
 	{
 		hide_window(get_id_MW(MW_TABMAP));
 		show_window(game_root_win);
-		return;
-	}
-
-	if (get_show_window(get_id_MW(MW_BUDDY)))
-	{
-		hide_window(get_id_MW(MW_BUDDY));
 		return;
 	}
 
@@ -196,40 +144,26 @@ void close_last_window(void)
 		return;
 	}
 
-	if (get_show_window(get_id_MW(MW_EMOTE)))
+	if (achievements_close_all())
+		return;
+
+	if (book_window_is_open())
 	{
-		hide_window(get_id_MW(MW_EMOTE));
+		close_book_window();
 		return;
 	}
 
-	if (get_show_window(get_id_MW(MW_ITEMS)))
 	{
-		hide_window(get_id_MW(MW_ITEMS));
-		return;
-	}
-
-	if (get_show_window(get_id_MW(MW_MANU)))
-	{
-		hide_window(get_id_MW(MW_MANU));
-		return;
-	}
-
-	if (get_show_window(get_id_MW(MW_SPELLS)))
-	{
-		hide_window(get_id_MW(MW_SPELLS));
-		return;
-	}
-
-	if (get_show_window(get_id_MW(MW_QUESTLOG)))
-	{
-		hide_window(get_id_MW(MW_QUESTLOG));
-		return;
-	}
-
-	if (get_show_window(get_id_MW(MW_MINIMAP)))
-	{
-		hide_window(get_id_MW(MW_MINIMAP));
-		return;
+		size_t i;
+		enum managed_window_enum hide_list[] = {
+			MW_ASTRO, MW_BUDDY, MW_CONFIG, MW_DIALOGUE, MW_EMOTE, MW_HELP, MW_INFO,
+			MW_ITEMS, MW_MANU, MW_QUESTLOG, MW_RANGING, MW_SPELLS, MW_STATS, MW_STORAGE };
+		for (i = 0; i < sizeof(hide_list)/sizeof(enum managed_window_enum); i++)
+			if (get_show_window(get_id_MW(hide_list[i])))
+			{
+				hide_window(get_id_MW(hide_list[i]));
+				return;
+			}
 	}
 }
 #endif
@@ -315,6 +249,10 @@ void update_windows_scale(float scale_factor)
 
 static void move_window_proportionally(int win_id, float pos_ratio_x, float pos_ratio_y)
 {
+#ifdef ANDROID
+	// ANDROID_TODO the window is fixed to do not change it
+	return;
+#endif
 	window_info *win = NULL;
 	int new_x, new_y;
 	if (win_id < 0 || win_id >= windows_list.num_windows)
@@ -327,6 +265,10 @@ static void move_window_proportionally(int win_id, float pos_ratio_x, float pos_
 
 void move_windows_proportionally(float pos_ratio_x, float pos_ratio_y)
 {
+#ifdef ANDROID
+	// ANDROID_TODO the window is fixed to do not change it
+	return;
+#endif
 	enum managed_window_enum i;
 	for (i = 0; i < MW_MAX; i++)
 	{
@@ -355,6 +297,10 @@ void move_windows_proportionally(float pos_ratio_x, float pos_ratio_y)
 // fixed when we save the managed window information as JSON.
 void restore_window_proportionally(void)
 {
+#ifdef ANDROID
+	// ANDROID_TODO the window is fixed to do not change it
+	return;
+#endif
 	if (!full_screen)
 	{
 		int index = video_mode - 1;
@@ -375,6 +321,10 @@ void restore_window_proportionally(void)
 
 void check_proportional_move(enum managed_window_enum managed_win)
 {
+#ifdef ANDROID
+	// ANDROID_TODO the window is fixed to do not change it
+	return;
+#endif
 	if (managed_win >= MW_MAX)
 		return;
 	if (managed_windows.list[managed_win].prop_pos && ((managed_windows.list[managed_win].pos_ratio_x != 1.0f) || (managed_windows.list[managed_win].pos_ratio_y != 1.0f)))
@@ -1779,11 +1729,7 @@ int	draw_window_title(window_info *win)
 	if (show_help_text && cm_valid(win->cm_id) && (cm_window_shown() == CM_INIT_VALUE) &&
 		mouse_x > win->cur_x && mouse_x < win->cur_x+win->len_x &&
 		mouse_y > win->cur_y-win->title_height && mouse_y < win->cur_y)
-#ifdef ANDROID
-		show_help(cm_title_help_touch_str, 0, win->len_y+10, win->current_scale);
-#else
 		show_help(cm_title_help_str, 0, win->len_y+10, win->current_scale);
-#endif
 
 	glColor3f(1.0f,1.0f,1.0f);
 	//ok, now draw it...
