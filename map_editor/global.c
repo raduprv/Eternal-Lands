@@ -98,8 +98,26 @@ int right_click;
 int left_click;
 int middle_click;
 
-int show_toolbar_tooltip = 1;
-char tooltip_text[MAX_TOOLTIP_SIZE];
+int toolbar_mouseover = 0;
+char toolbar_tooltip_text[MAX_TOOLTIP_SIZE];
+
+toolbar_button toolbar[TOOLBAR_MAX_BUTTON] = {
+		{ (float)64/255,  0.0f,          (float)96/255,  (float)32/255, 0,   0, 32,  32, "Mode Tile"      },
+		{ (float)32/255,  0.0f,          (float)64/255,  (float)32/255, 32,  0, 64,  32, "Mode 2D"        },
+		{ 0.0f,           0.0f,          (float)32/255,  (float)32/255, 64,  0, 96,  32, "Mode 3D"        },
+		{ (float)192/255, (float)32/255, (float)224/255, (float)64/255, 96,  0, 128, 32, "Mode Particles" },
+		{ (float)224/255, (float)32/255, (float)255/255, (float)64/255, 128, 0, 160, 32, "Mode Eye Candy" },
+		{ (float)96/255,  0.0f,          (float)128/255, (float)32/255, 160, 0, 192, 32, "Mode Light"     },
+		{ (float)160/255, (float)32/255, (float)192/255, (float)64/255, 192, 0, 224, 32, "Mode Height"    },
+		{ (float)128/255, 0.0f,          (float)160/255, (float)32/255, 224, 0, 256, 32, "Mode Map"       },
+		{ 0.0f,           (float)32/255, (float)32/255,  (float)64/255, 256, 0, 288, 32, "Select"         },
+		{ (float)32/255,  (float)32/255, (float)64/255,  (float)64/255, 288, 0, 320, 32, "Clone"          },
+		{ (float)224/255, 0.0f,          (float)256/255, (float)32/255, 320, 0, 352, 32, "New Object"     },
+		{ (float)192/255, 0.0f,          (float)224/255, (float)32/255, 352, 0, 384, 32, "Kill"           },
+		{ (float)64/255,  (float)32/255, (float)96/255,  (float)64/255, 384, 0, 416, 32, "Save Map"       },
+		{ (float)96/255,  (float)32/255, (float)128/255, (float)64/255, 416, 0, 448, 32, "Open Map"       },
+		{ (float)128/255, (float)32/255, (float)160/255, (float)64/255, 448, 0, 480, 32, "New Map"        }
+};
 
 int icons_text;
 
@@ -130,6 +148,7 @@ float x_tile_menu_offset=64;
 float y_tile_menu_offset=128;
 char view_new_map_menu=0;
 int view_grid=0;
+int view_tooltips=1;
 
 #if defined(SDL2)
 Uint16 mod_key_status;

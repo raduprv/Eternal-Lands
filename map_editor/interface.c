@@ -186,24 +186,30 @@ void Leave2DMode()
 	glPopAttrib();
 }
 
-
+void draw_toolbar_button(toolbar_button button)
+{
+	draw_2d_thing(
+		button.u_start, button.v_start,
+		button.u_end,   button.v_end,
+		button.x_start, button.y_start,
+		button.x_end,   button.y_end
+	);
+}
 
 void draw_2d_thing(float u_start,float v_start,float u_end,float v_end,int x_start,int y_start,int x_end,int y_end)
-		{
+{
+	glTexCoord2f(u_start,v_end);
+	glVertex3i(x_start,y_end,0);
 
-			glTexCoord2f(u_start,v_end);
-			glVertex3i(x_start,y_end,0);
+	glTexCoord2f(u_start,v_start);
+	glVertex3i(x_start,y_start,0);
 
-			glTexCoord2f(u_start,v_start);
-			glVertex3i(x_start,y_start,0);
+	glTexCoord2f(u_end,v_start);
+	glVertex3i(x_end,y_start,0);
 
-			glTexCoord2f(u_end,v_start);
-			glVertex3i(x_end,y_start,0);
-
-			glTexCoord2f(u_end,v_end);
-			glVertex3i(x_end,y_end,0);
-
-		}
+	glTexCoord2f(u_end,v_end);
+	glVertex3i(x_end,y_end,0);
+}
 
 void draw_toolbar()
 {
@@ -216,89 +222,82 @@ void draw_toolbar()
 	glColor3f(1.0f,1.0f,1.0f);
 	else if(!view_tile && cur_mode!=mode_tile)glColor3f(0.3f,0.3f,0.3f);
 	else glColor3f(0.0f,1.0f,1.0f);
-	draw_2d_thing((float)64/255, 0.0f, (float)96/255, (float)32/255, 0,0,32,32);
+	draw_toolbar_button(toolbar[TOOLBAR_BUTTON_MODE_TILE]);
 
 	if(cur_mode!=mode_2d && view_2d)
 	glColor3f(1.0f,1.0f,1.0f);
 	else if(!view_2d && cur_mode!=mode_2d)glColor3f(0.3f,0.3f,0.3f);
 	else glColor3f(0.0f,1.0f,1.0f);
-	draw_2d_thing((float)32/255, 0.0f,(float)64/255, (float)32/255, 32,0,64,32);
+	draw_toolbar_button(toolbar[TOOLBAR_BUTTON_MODE_2D]);
 
 	if(cur_mode!=mode_3d && view_3d)
 	glColor3f(1.0f,1.0f,1.0f);
 	else if(!view_3d && cur_mode!=mode_3d)glColor3f(0.3f,0.3f,0.3f);
 	else glColor3f(0.0f,1.0f,1.0f);
-	draw_2d_thing(0, 0.0f, (float)32/255, (float)32/255, 64,0,96,32);
+	draw_toolbar_button(toolbar[TOOLBAR_BUTTON_MODE_3D]);
 
 	if(cur_mode!=mode_particles && view_particles)
 	glColor3f(1.0f,1.0f,1.0f);
 	else if(!view_particles && cur_mode!=mode_particles)glColor3f(0.3f,0.3f,0.3f);
 	else glColor3f(0.0f,1.0f,1.0f);
-	draw_2d_thing((float)192/255, (float)32/255, (float)224/255, (float)64/255, 96,0,128,32);
+	draw_toolbar_button(toolbar[TOOLBAR_BUTTON_MODE_PARTICLES]);
 
 #ifdef	EYE_CANDY
 	if(cur_mode!=mode_eye_candy && view_eye_candy)
 	glColor3f(1.0f,1.0f,1.0f);
 	else if(!view_eye_candy && cur_mode!=mode_eye_candy)glColor3f(0.3f,0.3f,0.3f);
 	else glColor3f(0.0f,1.0f,1.0f);
-	draw_2d_thing((float)224/255, (float)32/255, (float)255/255, (float)64/255, 128,0,160,32);
+	draw_toolbar_button(toolbar[TOOLBAR_BUTTON_MODE_EYE_CANDY]);
 #endif	//EYE_CANDY
 
 	if(cur_mode!=mode_light && view_light)
 	glColor3f(1.0f,1.0f,1.0f);
 	else if(!view_light && cur_mode!=mode_light)glColor3f(0.3f,0.3f,0.3f);
 	else glColor3f(0.0f,1.0f,1.0f);
-	draw_2d_thing((float)96/255, 0.0f,(float)128/255, (float)32/255, 160,0,192,32);
+	draw_toolbar_button(toolbar[TOOLBAR_BUTTON_MODE_LIGHT]);
 
 	if(cur_mode!=mode_height && view_height)
 	glColor3f(1.0f,1.0f,1.0f);
 	else if(!view_height && cur_mode!=mode_height)glColor3f(0.3f,0.3f,0.3f);
 	else glColor3f(0.0f,1.0f,1.0f);
-	draw_2d_thing((float)160/255, (float)32/255, (float)192/255, (float)64/255, 192,0,224,32);
-
+	draw_toolbar_button(toolbar[TOOLBAR_BUTTON_MODE_HEIGHT]);
 
 	if(cur_mode!=mode_map)
 	glColor3f(1.0f,1.0f,1.0f);
 	else glColor3f(0.0f,1.0f,1.0f);
-	draw_2d_thing((float)128/255, 0.0f, (float)160/255, (float)32/255, 224,0,256,32);
-
+	draw_toolbar_button(toolbar[TOOLBAR_BUTTON_MODE_MAP]);
 
 	if(cur_tool!=tool_select)
 	glColor3f(1.0f,1.0f,1.0f);
 	else glColor3f(0.0f,1.0f,1.0f);
-	draw_2d_thing(0, (float)32/255, (float)32/255, (float)64/255, 256,0,288,32);
+	draw_toolbar_button(toolbar[TOOLBAR_BUTTON_TOOL_SELECT]);
 
 	if(cur_tool!=tool_clone)
 	glColor3f(1.0f,1.0f,1.0f);
 	else glColor3f(0.0f,1.0f,1.0f);
-	draw_2d_thing((float)32/255, (float)32/255, (float)64/255, (float)64/255, 288,0,320,32);
+	draw_toolbar_button(toolbar[TOOLBAR_BUTTON_TOOL_CLONE]);
 
 	if(cur_tool!=tool_new)
 	glColor3f(1.0f,1.0f,1.0f);
 	else glColor3f(0.0f,1.0f,1.0f);
-	draw_2d_thing((float)224/255, 0.0f, (float)256/255, (float)32/255, 320,0,352,32);
+	draw_toolbar_button(toolbar[TOOLBAR_BUTTON_TOOL_NEW]);
 
 	if(cur_tool!=tool_kill)
 	glColor3f(1.0f,1.0f,1.0f);
 	else glColor3f(0.0f,1.0f,1.0f);
-	draw_2d_thing((float)192/255, 0.0f, (float)224/255, (float)32/255, 352,0,384,32);
+	draw_toolbar_button(toolbar[TOOLBAR_BUTTON_TOOL_KILL]);
 
 	glColor3f(1.0f,1.0f,1.0f);
-	//save
-	draw_2d_thing((float)64/255, (float)32/255, (float)96/255, (float)64/255, 384,0,416,32);
-
-	//open
-	draw_2d_thing((float)96/255, (float)32/255, (float)128/255, (float)64/255, 416,0,448,32);
-
-	//new
-	draw_2d_thing((float)128/255, (float)32/255, (float)160/255, (float)64/255, 448,0,480,32);
+	draw_toolbar_button(toolbar[TOOLBAR_BUTTON_SAVE_MAP]);
+	draw_toolbar_button(toolbar[TOOLBAR_BUTTON_OPEN_MAP]);
+	draw_toolbar_button(toolbar[TOOLBAR_BUTTON_NEW_MAP]);
 
 	glEnd();
 
-	if (show_toolbar_tooltip)
+	if (toolbar_mouseover && view_tooltips)
 	{
 		glColor3f(1.0f, 1.0f, 1.0f);
-		draw_string(mouse_x + TOOLTIP_MOUSE_X_SHIFT, mouse_y + TOOLTIP_MOUSE_Y_SHIFT, (const unsigned char *) tooltip_text, 1);
+		draw_string(mouse_x + TOOLTIP_MOUSE_X_SHIFT, mouse_y + TOOLTIP_MOUSE_Y_SHIFT, (const unsigned char *) toolbar_tooltip_text, 1);
 	}
 }
 

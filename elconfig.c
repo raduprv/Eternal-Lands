@@ -2992,6 +2992,7 @@ void init_vars(void)
 	add_var(OPT_BOOL,"show_position_on_minimap","spos",&show_position_on_minimap, change_var, 0,"Show Pos","Show position on the minimap",HUD);
 	add_var(OPT_SPECINT,"auto_save","asv",&auto_save_time, set_auto_save_interval, 0,"Auto Save","Auto Save",HUD,0,INT_MAX);
 	add_var(OPT_BOOL,"show_grid","sgrid",&view_grid, change_var, 0, "Show Grid", "Show grid",HUD);
+	add_var(OPT_BOOL,"show_tooltips","stooltips",&view_tooltips, change_var, 0, "Show Tooltips", "Show tooltips",HUD);
 	add_var(OPT_BOOL,"show_reflections","srefl",&show_mapeditor_reflections, change_var, 0, "Show reflections", "Show reflections, disabling improves editor performance",HUD);
 #endif
 #ifndef MAP_EDITOR
