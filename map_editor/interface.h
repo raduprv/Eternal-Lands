@@ -36,41 +36,6 @@ extern "C"
 #define TOOLBAR_BUTTON_WIDTH 32
 #define TOOLBAR_BUTTON_HEIGHT 32
 
-#define TOOLBAR_MAX_BUTTON 15
-
-#define TOOLBAR_BUTTON_MODE_TILE 0
-#define TOOLBAR_BUTTON_MODE_2D 1
-#define TOOLBAR_BUTTON_MODE_3D 2
-#define TOOLBAR_BUTTON_MODE_PARTICLES 3
-#define TOOLBAR_BUTTON_MODE_EYE_CANDY 4
-#define TOOLBAR_BUTTON_MODE_LIGHT 5
-#define TOOLBAR_BUTTON_MODE_HEIGHT 6
-#define TOOLBAR_BUTTON_MODE_MAP 7
-#define TOOLBAR_BUTTON_TOOL_SELECT 8
-#define TOOLBAR_BUTTON_TOOL_CLONE 9
-#define TOOLBAR_BUTTON_TOOL_NEW 10
-#define TOOLBAR_BUTTON_TOOL_KILL 11
-#define TOOLBAR_BUTTON_SAVE_MAP 12
-#define TOOLBAR_BUTTON_OPEN_MAP 13
-#define TOOLBAR_BUTTON_NEW_MAP 14
-
-typedef struct {
-	float u_start;
-	float v_start;
-	float u_end;
-	float v_end;
-	int x_start;
-	int y_start;
-	int x_end;
-	int y_end;
-	const char * tooltip;
-} toolbar_button;
-
-extern toolbar_button toolbar[];
-
-extern int toolbar_mouseover;
-extern char toolbar_tooltip_text[MAX_TOOLTIP_SIZE];
-
 extern int mouse_x;
 extern int mouse_y;
 extern int mouse_delta_x;
@@ -128,6 +93,7 @@ extern int map_has_changed;
 extern int show_position_on_minimap;
 
 int check_interface_buttons();
+void check_toolbar_mouseover(void);
 void get_world_x_y();
 void Enter2DMode();
 void Leave2DMode();

@@ -525,17 +525,7 @@ int HandleEvent(SDL_Event *event)
 		mouse_delta_x= event->motion.xrel;
 		mouse_delta_y= event->motion.yrel;
 
-		if(mouse_x<TOOLBAR_MAX_BUTTON*TOOLBAR_BUTTON_WIDTH && mouse_y<TOOLBAR_BUTTON_HEIGHT) {
-			toolbar_mouseover = 1;
-			for (int i=0; i<TOOLBAR_MAX_BUTTON; i++) {
-				if (toolbar[i].x_start >= 0 && mouse_x < toolbar[i].x_end) {
-					snprintf((char *) toolbar_tooltip_text, sizeof(toolbar_tooltip_text), toolbar[i].tooltip);
-					break;
-				}
-			}
-		} else {
-			toolbar_mouseover = 0;
-		}
+		check_toolbar_mouseover();
 	}
 	else
 	{

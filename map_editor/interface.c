@@ -4,10 +4,64 @@
 #include <math.h>
 #include "../asc.h"
 
+static int toolbar_mouseover = 0;
+
+typedef enum
+{
+	TOOLBAR_BUTTON_MODE_TILE,
+	TOOLBAR_BUTTON_MODE_2D,
+	TOOLBAR_BUTTON_MODE_3D,
+	TOOLBAR_BUTTON_MODE_PARTICLES,
+#ifdef EYE_CANDY
+	TOOLBAR_BUTTON_MODE_EYE_CANDY,
+#endif
+	TOOLBAR_BUTTON_MODE_LIGHT,
+	TOOLBAR_BUTTON_MODE_HEIGHT,
+	TOOLBAR_BUTTON_MODE_MAP,
+	TOOLBAR_BUTTON_TOOL_SELECT,
+	TOOLBAR_BUTTON_TOOL_CLONE,
+	TOOLBAR_BUTTON_TOOL_NEW,
+	TOOLBAR_BUTTON_TOOL_KILL,
+	TOOLBAR_BUTTON_SAVE_MAP,
+	TOOLBAR_BUTTON_OPEN_MAP,
+	TOOLBAR_BUTTON_NEW_MAP,
+	TOOLBAR_MAX_BUTTON
+} toolbar_button_idx;
+
+typedef struct {
+	float u_start;
+	float v_start;
+	float u_end;
+	float v_end;
+	const char* tooltip;
+} toolbar_button;
+
+static toolbar_button toolbar[TOOLBAR_MAX_BUTTON] = {
+		{ (float)64/255,  0.0f,          (float)96/255,  (float)32/255, "Mode Tile"      },
+		{ (float)32/255,  0.0f,          (float)64/255,  (float)32/255, "Mode 2D"        },
+		{ 0.0f,           0.0f,          (float)32/255,  (float)32/255, "Mode 3D"        },
+		{ (float)192/255, (float)32/255, (float)224/255, (float)64/255, "Mode Particles" },
+#ifdef EYE_CANDY
+		{ (float)224/255, (float)32/255, (float)255/255, (float)64/255, "Mode Eye Candy" },
+#endif
+		{ (float)96/255,  0.0f,          (float)128/255, (float)32/255, "Mode Light"     },
+		{ (float)160/255, (float)32/255, (float)192/255, (float)64/255, "Mode Height"    },
+		{ (float)128/255, 0.0f,          (float)160/255, (float)32/255, "Mode Map"       },
+		{ 0.0f,           (float)32/255, (float)32/255,  (float)64/255, "Select"         },
+		{ (float)32/255,  (float)32/255, (float)64/255,  (float)64/255, "Clone"          },
+		{ (float)224/255, 0.0f,          (float)256/255, (float)32/255, "New Object"     },
+		{ (float)192/255, 0.0f,          (float)224/255, (float)32/255, "Kill"           },
+		{ (float)64/255,  (float)32/255, (float)96/255,  (float)64/255, "Save Map"       },
+		{ (float)96/255,  (float)32/255, (float)128/255, (float)64/255, "Open Map"       },
+		{ (float)128/255, (float)32/255, (float)160/255, (float)64/255, "New Map"        }
+};
+
 int show_position_on_minimap=0;
 
 int check_interface_buttons()
 {
+	toolbar_button_idx idx;
+
 #ifdef EYE_CANDY
 	if ((minimap_on) && (cur_mode==mode_eye_candy) && (eye_candy_confirmed))
 	{
@@ -17,114 +71,177 @@ int check_interface_buttons()
 		  last_ec_index = -2;
 	}
 #endif
-	if((left_click!=1 && right_click!=1) || mouse_x>=15*32 || mouse_y>=32)return -1;//no interface buttons were selected
-	if(left_click==1)
-		{
+	if ((left_click!=1 && right_click!=1)
+		|| mouse_x >= TOOLBAR_MAX_BUTTON * TOOLBAR_BUTTON_WIDTH || mouse_y >= TOOLBAR_BUTTON_HEIGHT)
+	{
+		return -1;//no interface buttons were selected
+	}
+
+	idx = mouse_x / TOOLBAR_BUTTON_WIDTH;
+	if (left_click == 1)
+	{
 #ifdef EYE_CANDY
-			eye_candy_done_adding_effect();
+		eye_candy_done_adding_effect();
 #endif
-			if(mouse_x>=0 && mouse_x<=31)cur_mode=mode_tile;
-			if(mouse_x>=32 && mouse_x<=63)cur_mode=mode_2d;
-			if(mouse_x>=64 && mouse_x<=95)cur_mode=mode_3d;
-			if(mouse_x>=96 && mouse_x<=127)cur_mode=mode_particles;
-#ifdef	EYE_CANDY
-			if(mouse_x>=128 && mouse_x<=160)cur_mode=mode_eye_candy;
-#endif	//EYE_CANDY
-			if(mouse_x>=160 && mouse_x<=191)cur_mode=mode_light;
-			if(mouse_x>=192 && mouse_x<=223)cur_mode=mode_height;
-			if(mouse_x>=224 && mouse_x<=255)cur_mode=mode_map;
-			if(mouse_x>=256 && mouse_x<=287)cur_tool=tool_select;
-			if(mouse_x>=288 && mouse_x<=319)cur_tool=tool_clone;
-			if(mouse_x>=320 && mouse_x<=351)
-				{
-					if(cur_mode==mode_3d)
-						{
-							SDL_Event event;
-							open_3d_obj();
-							while (SDL_PollEvent (&event));	//clears all the events
-							left_click=2;
-						}
-					if(cur_mode==mode_2d)
-						{
-							SDL_Event event;
-							open_2d_obj();
-							while (SDL_PollEvent (&event));	//clears all the events
-							left_click=2;
-						}
-					if(cur_mode==mode_particles)
-						{
-							SDL_Event event;
-							open_particles_obj();
-							while (SDL_PollEvent (&event));	//clears all the events
-							left_click=2;
-						}
-#ifdef	EYE_CANDY
-					if(cur_mode==mode_eye_candy)
-						{
-							SDL_Event event;
-//#ifdef LINUX
-							open_eye_candy_obj();
-//#endif
-							while (SDL_PollEvent (&event));	//clears all the events
-							left_click=2;
-						}
-#endif	//EYE_CANDY
-					if(cur_mode==mode_tile)
-						{
-							display_tiles_list();
-							cur_tool=tool_select;
-							selected_tile=255;
-						}
-					if(cur_mode==mode_height)
-						{
-							display_heights_list();
-							cur_tool=tool_select;
-							selected_height=-1;
-						}
-					if(cur_mode==mode_light)
-						{
-							cur_tool=tool_select;
-							selected_light=add_light(scene_mouse_x,scene_mouse_y,3.0f,1.0f,1.0f,1.0f,1.0f,0);
-						}
-				}
-			if(mouse_x>=352 && mouse_x<=383)cur_tool=tool_kill;
-			if(mouse_x>=384 && mouse_x<=415)
-				{
-					SDL_Event event;
-					save_map_file();
-					while (SDL_PollEvent (&event));	//clears all the events
-					left_click=2;
-				}
-			if(mouse_x>=416 && mouse_x<=447)
-				{
-					SDL_Event event;
-					open_map_file();
-					while (SDL_PollEvent (&event));	//clears all the events
-					left_click=2;
-				}
 
-			if(mouse_x>=448 && mouse_x<=479)
-				{
-					display_new_map_menu ();
-				}
-
-		}
-	else if(right_click==1)
+		switch (idx)
+		{
+			case TOOLBAR_BUTTON_MODE_TILE:
+				cur_mode = mode_tile;
+				break;
+			case TOOLBAR_BUTTON_MODE_2D:
+				cur_mode = mode_2d;
+				break;
+			case TOOLBAR_BUTTON_MODE_3D:
+				cur_mode = mode_3d;
+				break;
+			case TOOLBAR_BUTTON_MODE_PARTICLES:
+				cur_mode = mode_particles;
+				break;
+#ifdef	EYE_CANDY
+			case TOOLBAR_BUTTON_MODE_EYE_CANDY:
+				cur_mode = mode_eye_candy;
+				break;
+#endif	//EYE_CANDY
+			case TOOLBAR_BUTTON_MODE_LIGHT:
+				cur_mode = mode_light;
+				break;
+			case TOOLBAR_BUTTON_MODE_HEIGHT:
+				cur_mode = mode_height;
+				break;
+			case TOOLBAR_BUTTON_MODE_MAP:
+				cur_mode = mode_map;
+				break;
+			case TOOLBAR_BUTTON_TOOL_SELECT:
+				cur_tool = tool_select;
+				break;
+			case TOOLBAR_BUTTON_TOOL_CLONE:
+				cur_tool = tool_clone;
+				break;
+			case TOOLBAR_BUTTON_TOOL_NEW:
 			{
-				if(mouse_x>=0 && mouse_x<=31)view_tile=!view_tile;
-				if(mouse_x>=32 && mouse_x<=63)view_2d=!view_2d;
-				if(mouse_x>=64 && mouse_x<=95)view_3d=!view_3d;
-				if(mouse_x>=96 && mouse_x<=127) {
-				  if(shift_on)view_particle_handles=!view_particle_handles;
-				  else view_particles=!view_particles;
+				if (cur_mode == mode_3d)
+				{
+					SDL_Event event;
+					open_3d_obj();
+					while (SDL_PollEvent (&event));	//clears all the events
+					left_click = 2;
 				}
-				if(mouse_x>=160 && mouse_x<=191)view_light=!view_light;
-				if(mouse_x>=192 && mouse_x<=223)view_height=!view_height;
-			}
-	return 1;
+				else if (cur_mode == mode_2d)
+				{
+					SDL_Event event;
+					open_2d_obj();
+					while (SDL_PollEvent (&event));	//clears all the events
+					left_click = 2;
+				}
+				else if(cur_mode == mode_particles)
+				{
+					SDL_Event event;
+					open_particles_obj();
+					while (SDL_PollEvent (&event));	//clears all the events
+					left_click = 2;
+				}
+#ifdef	EYE_CANDY
+				else if(cur_mode == mode_eye_candy)
+				{
+					SDL_Event event;
+//#ifdef LINUX
+					open_eye_candy_obj();
+//#endif
+					while (SDL_PollEvent (&event));	//clears all the events
+					left_click = 2;
+				}
+#endif	//EYE_CANDY
+				else if (cur_mode == mode_tile)
+				{
+					display_tiles_list();
+					cur_tool = tool_select;
+					selected_tile=255;
+				}
+				else if (cur_mode == mode_height)
+				{
+					display_heights_list();
+					cur_tool = tool_select;
+					selected_height = -1;
+				}
+				else if (cur_mode == mode_light)
+				{
+					cur_tool=tool_select;
+					selected_light=add_light(scene_mouse_x,scene_mouse_y,3.0f,1.0f,1.0f,1.0f,1.0f,0);
+				}
 
+				break;
+			}
+			case TOOLBAR_BUTTON_TOOL_KILL:
+				cur_tool = tool_kill;
+				break;
+			case TOOLBAR_BUTTON_SAVE_MAP:
+			{
+				SDL_Event event;
+				save_map_file();
+				while (SDL_PollEvent (&event));	//clears all the events
+				left_click=2;
+
+				break;
+			}
+			case TOOLBAR_BUTTON_OPEN_MAP:
+			{
+				SDL_Event event;
+				open_map_file();
+				while (SDL_PollEvent (&event));	//clears all the events
+				left_click = 2;
+
+				break;
+			}
+			case TOOLBAR_BUTTON_NEW_MAP:
+				display_new_map_menu();
+				break;
+			case TOOLBAR_MAX_BUTTON:
+				// Not a button, sould not get here anyway
+				break;
+		}
+	}
+	else if (right_click == 1)
+	{
+		switch (idx)
+		{
+			case TOOLBAR_BUTTON_MODE_TILE:
+				view_tile = !view_tile;
+				break;
+			case TOOLBAR_BUTTON_MODE_2D:
+				view_2d = !view_2d;
+				break;
+			case TOOLBAR_BUTTON_MODE_3D:
+				view_3d = !view_3d;
+				break;
+			case TOOLBAR_BUTTON_MODE_PARTICLES:
+				if(shift_on)
+					view_particle_handles = !view_particle_handles;
+				else
+					view_particles = !view_particles;
+				break;
+			case TOOLBAR_BUTTON_MODE_LIGHT:
+				view_light = !view_light;
+				break;
+			case TOOLBAR_BUTTON_MODE_HEIGHT:
+				view_height = !view_height;
+				break;
+			default:
+				// ignore
+				break;
+		}
+	}
+
+	return 1;
 }
 
+void check_toolbar_mouseover(void)
+{
+	if (mouse_x < TOOLBAR_MAX_BUTTON * TOOLBAR_BUTTON_WIDTH && mouse_y < TOOLBAR_BUTTON_HEIGHT)
+		toolbar_mouseover = mouse_x / TOOLBAR_BUTTON_WIDTH;
+	else
+		toolbar_mouseover = -1;
+}
 
 void get_world_x_y()
 {
@@ -186,13 +303,18 @@ void Leave2DMode()
 	glPopAttrib();
 }
 
-void draw_toolbar_button(toolbar_button button)
+void draw_toolbar_button(toolbar_button_idx idx)
 {
+	const toolbar_button *button = toolbar + idx;
+	int x_start = idx * TOOLBAR_BUTTON_WIDTH;
+	int x_end = (idx+1) * TOOLBAR_BUTTON_WIDTH;
+	int y_start = 0;
+	int y_end = TOOLBAR_BUTTON_HEIGHT;
 	draw_2d_thing(
-		button.u_start, button.v_start,
-		button.u_end,   button.v_end,
-		button.x_start, button.y_start,
-		button.x_end,   button.y_end
+		button->u_start, button->v_start,
+		button->u_end,   button->v_end,
+		x_start,         y_start,
+		x_end,           y_end
 	);
 }
 
@@ -222,82 +344,83 @@ void draw_toolbar()
 	glColor3f(1.0f,1.0f,1.0f);
 	else if(!view_tile && cur_mode!=mode_tile)glColor3f(0.3f,0.3f,0.3f);
 	else glColor3f(0.0f,1.0f,1.0f);
-	draw_toolbar_button(toolbar[TOOLBAR_BUTTON_MODE_TILE]);
+	draw_toolbar_button(TOOLBAR_BUTTON_MODE_TILE);
 
 	if(cur_mode!=mode_2d && view_2d)
 	glColor3f(1.0f,1.0f,1.0f);
 	else if(!view_2d && cur_mode!=mode_2d)glColor3f(0.3f,0.3f,0.3f);
 	else glColor3f(0.0f,1.0f,1.0f);
-	draw_toolbar_button(toolbar[TOOLBAR_BUTTON_MODE_2D]);
+	draw_toolbar_button(TOOLBAR_BUTTON_MODE_2D);
 
 	if(cur_mode!=mode_3d && view_3d)
 	glColor3f(1.0f,1.0f,1.0f);
 	else if(!view_3d && cur_mode!=mode_3d)glColor3f(0.3f,0.3f,0.3f);
 	else glColor3f(0.0f,1.0f,1.0f);
-	draw_toolbar_button(toolbar[TOOLBAR_BUTTON_MODE_3D]);
+	draw_toolbar_button(TOOLBAR_BUTTON_MODE_3D);
 
 	if(cur_mode!=mode_particles && view_particles)
 	glColor3f(1.0f,1.0f,1.0f);
 	else if(!view_particles && cur_mode!=mode_particles)glColor3f(0.3f,0.3f,0.3f);
 	else glColor3f(0.0f,1.0f,1.0f);
-	draw_toolbar_button(toolbar[TOOLBAR_BUTTON_MODE_PARTICLES]);
+	draw_toolbar_button(TOOLBAR_BUTTON_MODE_PARTICLES);
 
 #ifdef	EYE_CANDY
 	if(cur_mode!=mode_eye_candy && view_eye_candy)
 	glColor3f(1.0f,1.0f,1.0f);
 	else if(!view_eye_candy && cur_mode!=mode_eye_candy)glColor3f(0.3f,0.3f,0.3f);
 	else glColor3f(0.0f,1.0f,1.0f);
-	draw_toolbar_button(toolbar[TOOLBAR_BUTTON_MODE_EYE_CANDY]);
+	draw_toolbar_button(TOOLBAR_BUTTON_MODE_EYE_CANDY);
 #endif	//EYE_CANDY
 
 	if(cur_mode!=mode_light && view_light)
 	glColor3f(1.0f,1.0f,1.0f);
 	else if(!view_light && cur_mode!=mode_light)glColor3f(0.3f,0.3f,0.3f);
 	else glColor3f(0.0f,1.0f,1.0f);
-	draw_toolbar_button(toolbar[TOOLBAR_BUTTON_MODE_LIGHT]);
+	draw_toolbar_button(TOOLBAR_BUTTON_MODE_LIGHT);
 
 	if(cur_mode!=mode_height && view_height)
 	glColor3f(1.0f,1.0f,1.0f);
 	else if(!view_height && cur_mode!=mode_height)glColor3f(0.3f,0.3f,0.3f);
 	else glColor3f(0.0f,1.0f,1.0f);
-	draw_toolbar_button(toolbar[TOOLBAR_BUTTON_MODE_HEIGHT]);
+	draw_toolbar_button(TOOLBAR_BUTTON_MODE_HEIGHT);
 
 	if(cur_mode!=mode_map)
 	glColor3f(1.0f,1.0f,1.0f);
 	else glColor3f(0.0f,1.0f,1.0f);
-	draw_toolbar_button(toolbar[TOOLBAR_BUTTON_MODE_MAP]);
+	draw_toolbar_button(TOOLBAR_BUTTON_MODE_MAP);
 
 	if(cur_tool!=tool_select)
 	glColor3f(1.0f,1.0f,1.0f);
 	else glColor3f(0.0f,1.0f,1.0f);
-	draw_toolbar_button(toolbar[TOOLBAR_BUTTON_TOOL_SELECT]);
+	draw_toolbar_button(TOOLBAR_BUTTON_TOOL_SELECT);
 
 	if(cur_tool!=tool_clone)
 	glColor3f(1.0f,1.0f,1.0f);
 	else glColor3f(0.0f,1.0f,1.0f);
-	draw_toolbar_button(toolbar[TOOLBAR_BUTTON_TOOL_CLONE]);
+	draw_toolbar_button(TOOLBAR_BUTTON_TOOL_CLONE);
 
 	if(cur_tool!=tool_new)
 	glColor3f(1.0f,1.0f,1.0f);
 	else glColor3f(0.0f,1.0f,1.0f);
-	draw_toolbar_button(toolbar[TOOLBAR_BUTTON_TOOL_NEW]);
+	draw_toolbar_button(TOOLBAR_BUTTON_TOOL_NEW);
 
 	if(cur_tool!=tool_kill)
 	glColor3f(1.0f,1.0f,1.0f);
 	else glColor3f(0.0f,1.0f,1.0f);
-	draw_toolbar_button(toolbar[TOOLBAR_BUTTON_TOOL_KILL]);
+	draw_toolbar_button(TOOLBAR_BUTTON_TOOL_KILL);
 
 	glColor3f(1.0f,1.0f,1.0f);
-	draw_toolbar_button(toolbar[TOOLBAR_BUTTON_SAVE_MAP]);
-	draw_toolbar_button(toolbar[TOOLBAR_BUTTON_OPEN_MAP]);
-	draw_toolbar_button(toolbar[TOOLBAR_BUTTON_NEW_MAP]);
+	draw_toolbar_button(TOOLBAR_BUTTON_SAVE_MAP);
+	draw_toolbar_button(TOOLBAR_BUTTON_OPEN_MAP);
+	draw_toolbar_button(TOOLBAR_BUTTON_NEW_MAP);
 
 	glEnd();
 
-	if (toolbar_mouseover && view_tooltips)
+	if (toolbar_mouseover >= 0 && toolbar_mouseover < TOOLBAR_MAX_BUTTON && view_tooltips)
 	{
 		glColor3f(1.0f, 1.0f, 1.0f);
-		draw_string(mouse_x + TOOLTIP_MOUSE_X_SHIFT, mouse_y + TOOLTIP_MOUSE_Y_SHIFT, (const unsigned char *) toolbar_tooltip_text, 1);
+		draw_string(mouse_x + TOOLTIP_MOUSE_X_SHIFT, mouse_y + TOOLTIP_MOUSE_Y_SHIFT,
+			(const unsigned char *) toolbar[toolbar_mouseover].tooltip, 1);
 	}
 }
 
