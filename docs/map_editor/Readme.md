@@ -21,7 +21,7 @@
 
 ![Image of Mode Particles](images/mode-particles.png) Mode Particles
 
-![Image of Mode Eye Candy](images/mode-eye-candy.png) Mode Eye Candy <sup>1</sup>
+![Image of Mode Eye Candy](images/mode-eye-candy.png) Mode Eye Candy [<sup>1</sup>](#footnotes)
 
 ![Image of Mode Light](images/mode-light.png) Mode Light
 
@@ -141,4 +141,5 @@ This also works in the regular map mode.
 
 ---
 
+###### Footnotes
 <sup>1</sup> Functionality under review
