@@ -11,7 +11,7 @@
 
 static int toolbar_mouseover = 0;
 static int toolbar_button_width = UNSCALED_TOOLBAR_BUTTON_WIDTH;
-static int toolbar_button_height = UNSCALED_TOOLBAR_BUTTON_HEIGHT;
+int toolbar_button_height = UNSCALED_TOOLBAR_BUTTON_HEIGHT;
 
 typedef enum
 {
