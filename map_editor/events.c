@@ -125,6 +125,7 @@ int HandleEvent(SDL_Event *event)
                     case SDLK_F12:      zoom_level=3.75f; window_resize(); break;
                     case SDLK_TAB:      heights_3d=!heights_3d; break;
                     case SDLK_g:        view_grid=!view_grid; break;
+                    case SDLK_t:        view_tooltips=!view_tooltips; break;
 
                     // FIXME what this?
                     case SDLK_ESCAPE:   done = 1; break;
@@ -517,20 +518,32 @@ int HandleEvent(SDL_Event *event)
 
 #endif
     if(event->type==SDL_MOUSEMOTION)
-				{
-					mouse_x= event->motion.x;
-					mouse_y= event->motion.y;
+	{
+		mouse_x= event->motion.x;
+		mouse_y= event->motion.y;
 
-					mouse_delta_x= event->motion.xrel;
-					mouse_delta_y= event->motion.yrel;
+		mouse_delta_x= event->motion.xrel;
+		mouse_delta_y= event->motion.yrel;
+
+		if(mouse_x<TOOLBAR_MAX_BUTTON*TOOLBAR_BUTTON_WIDTH && mouse_y<TOOLBAR_BUTTON_HEIGHT) {
+			toolbar_mouseover = 1;
+			for (int i=0; i<TOOLBAR_MAX_BUTTON; i++) {
+				if (toolbar[i].x_start >= 0 && mouse_x < toolbar[i].x_end) {
+					snprintf((char *) toolbar_tooltip_text, sizeof(toolbar_tooltip_text), toolbar[i].tooltip);
+					break;
 				}
-			else
-				{
-					// why was this here? whats broken by removing it?
-					//mouse_x= event->button.x;
-					//mouse_y= event->button.y;
-					mouse_delta_x= mouse_delta_y= 0;
-				}
+			}
+		} else {
+			toolbar_mouseover = 0;
+		}
+	}
+	else
+	{
+		// why was this here? whats broken by removing it?
+		//mouse_x= event->button.x;
+		//mouse_y= event->button.y;
+		mouse_delta_x= mouse_delta_y= 0;
+	}
 
 
 	if(event->type==SDL_MOUSEMOTION || event->type==SDL_MOUSEBUTTONDOWN || event->type==SDL_MOUSEBUTTONUP)
