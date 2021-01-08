@@ -4,7 +4,14 @@
 #include <math.h>
 #include "../asc.h"
 
+#define TOOLTIP_MOUSE_X_SHIFT 10
+#define TOOLTIP_MOUSE_Y_SHIFT 10
+#define UNSCALED_TOOLBAR_BUTTON_WIDTH 32
+#define UNSCALED_TOOLBAR_BUTTON_HEIGHT 32
+
 static int toolbar_mouseover = 0;
+static int toolbar_button_width = UNSCALED_TOOLBAR_BUTTON_WIDTH;
+static int toolbar_button_height = UNSCALED_TOOLBAR_BUTTON_HEIGHT;
 
 typedef enum
 {
@@ -58,6 +65,13 @@ static toolbar_button toolbar[TOOLBAR_MAX_BUTTON] = {
 
 int show_position_on_minimap=0;
 
+void set_toolbar_button_size(void)
+{
+	float scale = get_global_scale();
+	toolbar_button_width = (int)(UNSCALED_TOOLBAR_BUTTON_WIDTH*scale + 0.5);
+	toolbar_button_height = (int)(UNSCALED_TOOLBAR_BUTTON_HEIGHT*scale + 0.5);
+}
+
 int check_interface_buttons()
 {
 	toolbar_button_idx idx;
@@ -72,12 +86,12 @@ int check_interface_buttons()
 	}
 #endif
 	if ((left_click!=1 && right_click!=1)
-		|| mouse_x >= TOOLBAR_MAX_BUTTON * TOOLBAR_BUTTON_WIDTH || mouse_y >= TOOLBAR_BUTTON_HEIGHT)
+		|| mouse_x >= TOOLBAR_MAX_BUTTON * toolbar_button_width || mouse_y >= toolbar_button_height)
 	{
 		return -1;//no interface buttons were selected
 	}
 
-	idx = mouse_x / TOOLBAR_BUTTON_WIDTH;
+	idx = mouse_x / toolbar_button_width;
 	if (left_click == 1)
 	{
 #ifdef EYE_CANDY
@@ -237,8 +251,8 @@ int check_interface_buttons()
 
 void check_toolbar_mouseover(void)
 {
-	if (mouse_x < TOOLBAR_MAX_BUTTON * TOOLBAR_BUTTON_WIDTH && mouse_y < TOOLBAR_BUTTON_HEIGHT)
-		toolbar_mouseover = mouse_x / TOOLBAR_BUTTON_WIDTH;
+	if (mouse_x < TOOLBAR_MAX_BUTTON * toolbar_button_width && mouse_y < toolbar_button_height)
+		toolbar_mouseover = mouse_x / toolbar_button_width;
 	else
 		toolbar_mouseover = -1;
 }
@@ -306,10 +320,10 @@ void Leave2DMode()
 void draw_toolbar_button(toolbar_button_idx idx)
 {
 	const toolbar_button *button = toolbar + idx;
-	int x_start = idx * TOOLBAR_BUTTON_WIDTH;
-	int x_end = (idx+1) * TOOLBAR_BUTTON_WIDTH;
+	int x_start = idx * toolbar_button_width;
+	int x_end = (idx+1) * toolbar_button_width;
 	int y_start = 0;
-	int y_end = TOOLBAR_BUTTON_HEIGHT;
+	int y_end = toolbar_button_height;
 	draw_2d_thing(
 		button->u_start, button->v_start,
 		button->u_end,   button->v_end,

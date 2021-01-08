@@ -161,6 +161,7 @@ void init_stuff()
 	init_fonts();
 	icons_text=load_texture_cached("./textures/gamebuttons.bmp", tt_gui);
 	buttons_text=load_texture_cached("./textures/buttons.bmp", tt_gui);
+	set_toolbar_button_size();
 	//get the application home dir
 
 	have_multitexture=0;//debug only

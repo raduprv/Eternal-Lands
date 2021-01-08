@@ -615,12 +615,12 @@ static void change_int(int * var, int value)
 	if(value>=0) *var= value;
 }
 
-#ifdef ELC
-
 static void change_float(float * var, float * value)
 {
 	*var= *value;
 }
+
+#ifdef ELC
 
 static void change_string(char* var, const char* str, int len)
 {
@@ -2994,6 +2994,8 @@ void init_vars(void)
 	add_var(OPT_BOOL,"show_grid","sgrid",&view_grid, change_var, 0, "Show Grid", "Show grid",HUD);
 	add_var(OPT_BOOL,"show_tooltips","stooltips",&view_tooltips, change_var, 0, "Show Tooltips", "Show tooltips",HUD);
 	add_var(OPT_BOOL,"show_reflections","srefl",&show_mapeditor_reflections, change_var, 0, "Show reflections", "Show reflections, disabling improves editor performance",HUD);
+	add_var(OPT_FLOAT, "ui_scale", "ui_scale", &ui_scale, change_float, 1, "User interface scaling factor",
+		"Scale user interface by this factor, useful for high DPI displays.", FONT, 0.75, 3.0, 0.01);
 #endif
 #ifndef MAP_EDITOR
 	add_var (OPT_BOOL, "use_frame_buffer", "fb", &use_frame_buffer, change_frame_buffer, 0, "Toggle Frame Buffer Support", "Toggle frame buffer support. Used for reflection and shadow mapping.", VIDEO);
