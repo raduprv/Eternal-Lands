@@ -140,10 +140,6 @@ static int keypress_console_handler (window_info *win, int mx, int my, SDL_Keyco
 			console_text_changed = 1;
 		}
 	}
-	else if (KEY_DEF_CMP(K_TABCOMPLETE, key_code, key_mod) && input_text_line.len > 0)
-	{
-		do_tab_complete(&input_text_line);
-	}
 	else if (key_mod & KMOD_ALT && key_code == SDLK_PAGEUP && total_nr_lines > nr_console_lines + scroll_up_lines)
 	{
 		scroll_up_lines = total_nr_lines - nr_console_lines;
@@ -183,7 +179,6 @@ static int keypress_console_handler (window_info *win, int mx, int my, SDL_Keyco
 	{
 		Uint8 ch = key_to_char (key_unicode);
 
-		reset_tab_completer();
 		if ((ch == '`' || KEY_DEF_CMP(K_CONSOLE, key_code, key_mod)) && !locked_to_console)
 		{
 			return_to_gamewin_common();

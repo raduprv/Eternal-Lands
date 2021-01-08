@@ -32,6 +32,26 @@ void set_options_user_menus(int win_x, int win_y, int options);
 void get_options_user_menus(int *win_x, int *win_y, int *options);
 
 
+#ifdef JSON_FILES
+/*!
+ * \ingroup user_menus
+ * \brief Read the user menus position and options.
+ *
+ * \param dict_name			the dictionary name to read the information
+ */
+void read_options_user_menus(const char *dict_name);
+
+
+/*!
+ * \ingroup user_menus
+ * \brief Write the user menus position and options.
+ *
+ * \param dict_name			the dictionary name to write the information
+ */
+void write_options_user_menus(const char *dict_name);
+#endif
+
+
 /*!
  * \ingroup user_menus
  * \brief Open the user menus window.

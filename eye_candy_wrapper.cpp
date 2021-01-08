@@ -145,48 +145,48 @@ void ec_heartbeat()
 	idle_cycles_this_second = 0;
 	general_obstructions_list.clear();
 	fire_obstructions_list.clear();
-	for (ec_object_obstructions::iterator iter = object_obstructions.begin(); iter != object_obstructions.end(); iter++)
+	for (auto obstruction: object_obstructions)
 	{
-		(*iter)->center.x = (*iter)->obj3d->x_pos;
-		(*iter)->center.y = (*iter)->obj3d->z_pos;
-		(*iter)->center.z = -(*iter)->obj3d->y_pos;
-		const float dist_squared = ((*iter)->center - ec::Vec3(-camera_x, -camera_z, camera_y)).magnitude_squared();
+		obstruction->center.x = obstruction->obj3d->x_pos;
+		obstruction->center.y = obstruction->obj3d->z_pos;
+		obstruction->center.z = -obstruction->obj3d->y_pos;
+		const float dist_squared = (obstruction->center - ec::Vec3(-camera_x, -camera_z, camera_y)).magnitude_squared();
 		if (dist_squared> MAX_OBSTRUCT_DISTANCE_SQUARED)
 			continue;
 		/*
-		 (*iter)->center.x += X_OFFSET;
-		 (*iter)->center.y += 0;
-		 (*iter)->center.z -= Y_OFFSET;
+		 obstruction->center.x += X_OFFSET;
+		 obstruction->center.y += 0;
+		 obstruction->center.z -= Y_OFFSET;
 		 */
-		(*iter)->sin_rot_x = sin((*iter)->obj3d->x_rot * (ec::PI / 180));
-		(*iter)->cos_rot_x = cos((*iter)->obj3d->x_rot * (ec::PI / 180));
-		(*iter)->sin_rot_y = sin((*iter)->obj3d->z_rot * (ec::PI / 180));
-		(*iter)->cos_rot_y = cos((*iter)->obj3d->z_rot * (ec::PI / 180));
-		(*iter)->sin_rot_z = sin(-((*iter)->obj3d->y_rot * (ec::PI / 180)));
-		(*iter)->cos_rot_z = cos(-((*iter)->obj3d->y_rot * (ec::PI / 180)));
-		(*iter)->sin_rot_x2 = sin(-(*iter)->obj3d->x_rot * (ec::PI / 180));
-		(*iter)->cos_rot_x2 = cos(-(*iter)->obj3d->x_rot * (ec::PI / 180));
-		(*iter)->sin_rot_y2 = sin(-(*iter)->obj3d->z_rot * (ec::PI / 180));
-		(*iter)->cos_rot_y2 = cos(-(*iter)->obj3d->z_rot * (ec::PI / 180));
-		(*iter)->sin_rot_z2 = sin(((*iter)->obj3d->y_rot * (ec::PI / 180)));
-		(*iter)->cos_rot_z2 = cos(((*iter)->obj3d->y_rot * (ec::PI / 180)));
-		general_obstructions_list.push_back((*iter)->obstruction);
-		if ((*iter)->fire_related)
-			fire_obstructions_list.push_back((*iter)->obstruction);
+		obstruction->sin_rot_x = sin(obstruction->obj3d->x_rot * (ec::PI / 180));
+		obstruction->cos_rot_x = cos(obstruction->obj3d->x_rot * (ec::PI / 180));
+		obstruction->sin_rot_y = sin(obstruction->obj3d->z_rot * (ec::PI / 180));
+		obstruction->cos_rot_y = cos(obstruction->obj3d->z_rot * (ec::PI / 180));
+		obstruction->sin_rot_z = sin(-(obstruction->obj3d->y_rot * (ec::PI / 180)));
+		obstruction->cos_rot_z = cos(-(obstruction->obj3d->y_rot * (ec::PI / 180)));
+		obstruction->sin_rot_x2 = sin(-obstruction->obj3d->x_rot * (ec::PI / 180));
+		obstruction->cos_rot_x2 = cos(-obstruction->obj3d->x_rot * (ec::PI / 180));
+		obstruction->sin_rot_y2 = sin(-obstruction->obj3d->z_rot * (ec::PI / 180));
+		obstruction->cos_rot_y2 = cos(-obstruction->obj3d->z_rot * (ec::PI / 180));
+		obstruction->sin_rot_z2 = sin((obstruction->obj3d->y_rot * (ec::PI / 180)));
+		obstruction->cos_rot_z2 = cos((obstruction->obj3d->y_rot * (ec::PI / 180)));
+		general_obstructions_list.push_back(obstruction->obstruction);
+		if (obstruction->fire_related)
+			fire_obstructions_list.push_back(obstruction->obstruction);
 	}
 #ifndef MAP_EDITOR
-	for (ec_actor_obstructions::iterator iter = actor_obstructions.begin(); iter != actor_obstructions.end(); iter++)
+	for (auto obstruction: actor_obstructions)
 	{
-		(*iter)->center.x = (*iter)->obstructing_actor->x_pos;
-		(*iter)->center.y = ec_get_z((*iter)->obstructing_actor);
-		(*iter)->center.z = -(*iter)->obstructing_actor->y_pos;
-		const float dist_squared = ((*iter)->center - ec::Vec3(-camera_x, -camera_z, camera_y)).magnitude_squared();
+		obstruction->center.x = obstruction->obstructing_actor->x_pos;
+		obstruction->center.y = ec_get_z(obstruction->obstructing_actor);
+		obstruction->center.z = -obstruction->obstructing_actor->y_pos;
+		const float dist_squared = (obstruction->center - ec::Vec3(-camera_x, -camera_z, camera_y)).magnitude_squared();
 		if (dist_squared> MAX_OBSTRUCT_DISTANCE_SQUARED)
 			continue;
-		(*iter)->center.x += X_OFFSET;
-		(*iter)->center.y += Y_OFFSET;
-		(*iter)->center.z -= 0.25;
-		general_obstructions_list.push_back((*iter)->obstruction);
+		obstruction->center.x += X_OFFSET;
+		obstruction->center.y += Y_OFFSET;
+		obstruction->center.z -= 0.25;
+		general_obstructions_list.push_back(obstruction->obstruction);
 	}
 	// Last but not least... the actor.
 	self_actor.center.x = -camera_x;
@@ -355,8 +355,8 @@ extern "C" void ec_idle()
 	force_idle = false;
 
 	const std::vector<std::string> ec_errors = ec::logger.fetch();
-	for (std::vector<std::string>::const_iterator iter = ec_errors.begin(); iter != ec_errors.end(); iter++)
-		LOG_ERROR(iter->c_str());
+	for (const auto& error: ec_errors)
+		LOG_ERROR(error.c_str());
 
 	if (ec::get_error_status())
 	{
@@ -768,11 +768,11 @@ extern "C" void ec_add_object_obstruction(object3d* obj3d, e3d_object *e3dobj, f
 
 extern "C" void ec_remove_obstruction_by_object3d(object3d* obj3d)
 {
-	for (ec_object_obstructions::iterator iter = object_obstructions.begin(); iter != object_obstructions.end(); iter++)
+	for (ec_object_obstructions::iterator iter = object_obstructions.begin(); iter != object_obstructions.end(); ++iter)
 	{
 		if ((*iter)->obj3d == obj3d)
 		{
-			for (std::vector<ec::Obstruction*>::iterator iter2 = general_obstructions_list.begin(); iter2 != general_obstructions_list.end(); iter2++)
+			for (std::vector<ec::Obstruction*>::iterator iter2 = general_obstructions_list.begin(); iter2 != general_obstructions_list.end(); ++iter2)
 			{
 				if (*iter2 == (*iter)->obstruction)
 				{
@@ -780,7 +780,7 @@ extern "C" void ec_remove_obstruction_by_object3d(object3d* obj3d)
 					break;
 				}
 			}
-			for (std::vector<ec::Obstruction*>::iterator iter2 = fire_obstructions_list.begin(); iter2 != fire_obstructions_list.end(); iter2++)
+			for (std::vector<ec::Obstruction*>::iterator iter2 = fire_obstructions_list.begin(); iter2 != fire_obstructions_list.end(); ++iter2)
 			{
 				if (*iter2 == (*iter)->obstruction)
 				{
@@ -798,11 +798,11 @@ extern "C" void ec_remove_obstruction_by_object3d(object3d* obj3d)
 
 extern "C" void ec_remove_obstruction_by_e3d_object(e3d_object* e3dobj)
 {
-	for (ec_object_obstructions::iterator iter = object_obstructions.begin(); iter != object_obstructions.end(); iter++)
+	for (ec_object_obstructions::iterator iter = object_obstructions.begin(); iter != object_obstructions.end(); ++iter)
 	{
 		if ((*iter)->e3dobj == e3dobj)
 		{
-			for (std::vector<ec::Obstruction*>::iterator iter2 = general_obstructions_list.begin(); iter2 != general_obstructions_list.end(); iter2++)
+			for (std::vector<ec::Obstruction*>::iterator iter2 = general_obstructions_list.begin(); iter2 != general_obstructions_list.end(); ++iter2)
 			{
 				if (*iter2 == (*iter)->obstruction)
 				{
@@ -810,7 +810,7 @@ extern "C" void ec_remove_obstruction_by_e3d_object(e3d_object* e3dobj)
 					break;
 				}
 			}
-			for (std::vector<ec::Obstruction*>::iterator iter2 = fire_obstructions_list.begin(); iter2 != fire_obstructions_list.end(); iter2++)
+			for (std::vector<ec::Obstruction*>::iterator iter2 = fire_obstructions_list.begin(); iter2 != fire_obstructions_list.end(); ++iter2)
 			{
 				if (*iter2 == (*iter)->obstruction)
 				{
@@ -1822,8 +1822,8 @@ extern "C" void ec_launch_targetmagic_heal_summoned(ec_reference reference, floa
 	}
 	cast_reference->position = ec::Vec3(start_x, start_z, -start_y);
 	std::vector<ec::Vec3*> target_ptrs;
-	for (std::vector<ec::Vec3>::iterator iter = cast_reference->targets.begin(); iter != cast_reference->targets.end(); iter++)
-		target_ptrs.push_back(&(*iter));
+	for (auto& target: cast_reference->targets)
+		target_ptrs.push_back(&target);
 	cast_reference->effect = new ec::TargetMagicEffect(&eye_candy, &cast_reference->dead, &cast_reference->position, target_ptrs, ec::TargetMagicEffect::HEAL_SUMMONED, &general_obstructions_list, LOD);
 	eye_candy.push_back_effect(cast_reference->effect);
 }
@@ -1838,8 +1838,8 @@ extern "C" void ec_launch_targetmagic_smite_summoned(ec_reference reference, flo
 	}
 	cast_reference->position = ec::Vec3(start_x, start_z, -start_y);
 	std::vector<ec::Vec3*> target_ptrs;
-	for (std::vector<ec::Vec3>::iterator iter = cast_reference->targets.begin(); iter != cast_reference->targets.end(); iter++)
-		target_ptrs.push_back(&(*iter));
+	for (auto& target: cast_reference->targets)
+		target_ptrs.push_back(&target);
 	cast_reference->effect = new ec::TargetMagicEffect(&eye_candy, &cast_reference->dead, &cast_reference->position, target_ptrs, ec::TargetMagicEffect::SMITE_SUMMONED, &general_obstructions_list, LOD);
 	eye_candy.push_back_effect(cast_reference->effect);
 }
@@ -1916,11 +1916,11 @@ extern "C" void ec_actor_delete(actor* _actor)
 				(*iter2) = NULL;
 		}
 	}
-	for (ec_actor_obstructions::iterator iter = actor_obstructions.begin(); iter != actor_obstructions.end(); iter++)
+	for (ec_actor_obstructions::iterator iter = actor_obstructions.begin(); iter != actor_obstructions.end(); ++iter)
 	{
 		if ((*iter)->obstructing_actor == _actor)
 		{
-			for (std::vector<ec::Obstruction*>::iterator iter2 = general_obstructions_list.begin(); iter2 != general_obstructions_list.end(); iter2++)
+			for (std::vector<ec::Obstruction*>::iterator iter2 = general_obstructions_list.begin(); iter2 != general_obstructions_list.end(); ++iter2)
 			{
 				if (*iter2 == (*iter)->obstruction)
 				{

@@ -256,11 +256,9 @@ namespace ec
 					return true;
 				}
 				std::vector<WindEffect::WindNeighbor>::iterator iter;
-				for (iter = wind_effect->neighbors.begin(); iter
-					!= wind_effect->neighbors.end(); iter++)
+				for (iter = wind_effect->neighbors.begin(); iter != wind_effect->neighbors.end(); ++iter)
 				{
-					if ((angle > iter->start_angle) && (angle
-						<= iter->end_angle))
+					if ((angle > iter->start_angle) && (angle <= iter->end_angle))
 						break;
 				}
 				if (iter == wind_effect->neighbors.end())
@@ -450,20 +448,17 @@ namespace ec
 	void WindEffect::set_pass_off(std::vector<Effect*> pass_off_to)
 	{
 		std::vector<WindEffect*> new_vec;
-		for (std::vector<Effect*>::iterator iter = pass_off_to.begin(); iter
-			!= pass_off_to.end(); iter++)
-			new_vec.push_back((WindEffect*)(*iter));
+		for (auto effect: pass_off_to)
+			new_vec.push_back((WindEffect*)effect);
 		set_pass_off(new_vec);
 	}
 
 	void WindEffect::set_pass_off(std::vector<WindEffect*> pass_off_to)
 	{
 		// Get the max extents for each neighbor.
-		for (std::vector<WindEffect*>::iterator iter = pass_off_to.begin(); iter
-			!= pass_off_to.end(); iter++)
+		for (auto eff: pass_off_to)
 		{
 			WindNeighbor n;
-			WindEffect* eff = *iter;
 			n.neighbor = eff;
 			const coord_t dist = (center - eff->center).magnitude();
 			const angle_t angle = center.angle_to(eff->center);

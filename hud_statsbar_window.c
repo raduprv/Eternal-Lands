@@ -20,8 +20,6 @@ int show_last_health_change_always = 0;
 int max_food_level = 45;
 int lock_skills_selection = 0;
 
-#define MAX_WATCH_STATS	5	/*!< max number of stats watchable in hud */
-
 static int actual_num_disp_stats=1;
 static int exp_bar_text_len = 0;
 static int stats_bar_text_len = 0;

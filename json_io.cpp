@@ -25,13 +25,13 @@ namespace JSON_IO
 {
 	static size_t get_json_indent(void)
 		{ return 0; } // 0 is compact, non-zero give pretty output, 4 for example
-	static int exit_error(const char *function, size_t line, std::string message, int error_code)
+	static int exit_error(const char *function, size_t line, const std::string& message, int error_code)
 		{ LOG_ERROR("%s:%ld %s", function, line, message.c_str()); return error_code; }
 	static void info_message(const char *function, size_t line, std::string message)
 		{ LOG_INFO("%s:%ld %s", function, line, message.c_str()); }
-	static void console_message(std::string file_type, std::string message)
+	static void console_message(const std::string& file_type, const std::string& message)
 		{ std::string full_message = "Problem with " + file_type + ": " + message; LOG_TO_CONSOLE(c_red3, full_message.c_str()); }
-	static void file_format_error(std::string file_type)
+	static void file_format_error(const std::string& file_type)
 		{ console_message(file_type, "File format error. " + file_type + " will not be saved until this is corrected."); }
 }
 
@@ -676,6 +676,99 @@ namespace JSON_IO_Character_Options
 }
 
 
+namespace JSON_IO_Client_State
+{
+	using json = nlohmann::json;
+
+	//	A Class to load and save the Client State.
+	//	The state is items we need to save for the user
+	//	but which are not options for them to set manually.
+	//
+	class Client_State
+	{
+		public:
+			Client_State(void) : parse_error(false) {}
+			int load(const char *file_name);
+			int save(const char *file_name);
+			template <class TheType> TheType get(const char *section_name, const char *var_name, TheType default_var_value) const;
+			template <class TheType> void set(const char *section_name, const char *var_name, TheType value);
+		private:
+			bool parse_error;		// there was an error populating the json object
+			const char * class_name_str = "Client State";
+			json state_read;
+			json state_write;
+	};
+
+
+	//	Load the Client State.
+	//	Return 0 on success or -1 on error.
+	//
+	int Client_State::load(const char *file_name)
+	{
+		JSON_IO::info_message(__PRETTY_FUNCTION__, __LINE__, " [" + std::string(file_name) + "]");
+
+		std::ifstream in_file(file_name);
+		if (!in_file)
+			return JSON_IO::exit_error(__PRETTY_FUNCTION__, __LINE__, "Failed to open [" + std::string(file_name) + "]", -1);
+
+		try
+		{
+			in_file >> state_read;
+		}
+		catch (json::exception& e)
+		{
+			parse_error = true;
+			JSON_IO::file_format_error(class_name_str);
+			return JSON_IO::exit_error(__PRETTY_FUNCTION__, __LINE__, e.what(), -1);
+		}
+
+		return 0;
+	}
+
+
+	//	Save the Client State.
+	//	Return 0, or -1 on error.
+	//
+	int Client_State::save(const char *file_name)
+	{
+		JSON_IO::info_message(__PRETTY_FUNCTION__, __LINE__, " [" + std::string(file_name) + "]");
+
+		if (parse_error)
+		{
+			JSON_IO::file_format_error(class_name_str);
+			return JSON_IO::exit_error(__PRETTY_FUNCTION__, __LINE__, "Not saving, because we had a load error.  Fix the problem first.", -1);
+		}
+
+		std::ofstream out_file(file_name);
+		if (out_file)
+		{
+			out_file << std::setw(JSON_IO::get_json_indent()) << state_write << std::endl;
+			return 0;
+		}
+		else
+			return JSON_IO::exit_error(__PRETTY_FUNCTION__, __LINE__, "Failed to write json [" + std::string(file_name) + "]", -1);
+	}
+
+
+	//	Get the named value, if not found or invalid, the default value is returned.
+	//
+	template <class TheType> TheType Client_State::get(const char *section_name, const char *var_name, TheType default_value) const
+	{
+		if (state_read.contains(section_name) && state_read[section_name].contains(var_name))
+			return state_read[section_name][var_name].get<TheType>();
+		return default_value;
+	}
+
+	//	Set the named value, creating the array if required
+	//
+	template <class TheType> void Client_State::set(const char *section_name, const char *var_name, TheType value)
+	{
+		state_write[section_name][var_name] = value;
+	}
+
+}
+
+
 //	The instance of the manufacture recipe object.
 static JSON_IO_Recipes::Recipes recipes;
 
@@ -690,6 +783,9 @@ static JSON_IO_Channel_Colours::Channel_Colours channel_colours;
 
 //	The instance of the character options object.
 static JSON_IO_Character_Options::Character_Options character_options;
+
+//	The instance of the Client State ojbect.
+static JSON_IO_Client_State::Client_State cstate;
 
 //	The C interface
 //
@@ -744,4 +840,30 @@ extern "C"
 		{ return (character_options.get(var_name, default_value)) ?1 :0; }
 	void json_character_options_set_bool(const char *var_name, int value)
 		{ character_options.set(var_name, static_cast<bool>(value)); }
+
+	// Client State
+	int json_load_cstate(const char *file_name)
+		{ return cstate.load(file_name); }
+	int json_save_cstate(const char *file_name)
+		{ return cstate.save(file_name); }
+	// get/set int
+	int json_cstate_get_int(const char *section_name, const char *var_name, int default_value)
+		{ return cstate.get(section_name, var_name, default_value); }
+	void json_cstate_set_int(const char *section_name, const char *var_name, int value)
+		{ cstate.set(section_name, var_name, value); }
+	// get/set unsigned int
+	unsigned int json_cstate_get_unsigned_int(const char *section_name, const char *var_name, unsigned int default_value)
+		{ return cstate.get(section_name, var_name, default_value); }
+	void json_cstate_set_unsigned_int(const char *section_name, const char *var_name, unsigned int value)
+		{ cstate.set(section_name, var_name, value); }
+	// get/set float
+	float json_cstate_get_float(const char *section_name, const char *var_name, float default_value)
+		{ return cstate.get(section_name, var_name, default_value); }
+	void json_cstate_set_float(const char *section_name, const char *var_name, float value)
+		{ cstate.set(section_name, var_name, value); }
+	// get_set bool
+	int json_cstate_get_bool(const char *section_name, const char *var_name, int default_value)
+		{ return ((cstate.get(section_name, var_name, static_cast<bool>(default_value))) ?1 :0); }
+	void json_cstate_set_bool(const char *section_name, const char *var_name, int value)
+		{ cstate.set(section_name, var_name, static_cast<bool>(value)); }
 }

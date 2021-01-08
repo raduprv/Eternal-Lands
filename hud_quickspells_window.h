@@ -28,6 +28,10 @@ int get_quickspell_y_base(void);
 void add_quickspell(void);
 void get_quickspell_options(unsigned int *options, unsigned int *position);
 void set_quickspell_options(unsigned int options, unsigned int position);
+#ifdef JSON_FILES
+void read_quickspell_options(const char *dict_name);
+void write_quickspell_options(const char *dict_name);
+#endif
 
 #ifdef __cplusplus
 } // extern "C"

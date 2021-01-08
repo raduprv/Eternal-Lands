@@ -423,7 +423,7 @@ static int int_zero_func(void)
 }
 #endif
 
-static __inline__ void check_option_var(char* name);
+static __inline__ void check_option_var(const char* name);
 
 static __inline__ void destroy_shadow_mapping(void)
 {
@@ -622,12 +622,9 @@ static void change_float(float * var, float * value)
 	*var= *value;
 }
 
-static void change_string(char * var, char * str, int len)
+static void change_string(char* var, const char* str, int len)
 {
-	while(*str && len--){
-		*var++= *str++;
-	}
-	*var= 0;
+	safe_strncpy(var, str, len);
 }
 
 static void change_ui_scale(float *var, float *value)
@@ -2021,7 +2018,7 @@ void change_language(const char *new_lang)
 	}
 }
 
-static __inline__ void check_option_var(char* name)
+static __inline__ void check_option_var(const char* name)
 {
 	int i;
 	int value_i;
@@ -2638,7 +2635,8 @@ static void init_ELC_vars(void)
 	add_var(OPT_BOOL,"show_last_health_change_always","slhca",&show_last_health_change_always,change_var,0,"Always Show The Last Health Change", "Enable to always show the last health change.  Otherwise, it is only shown when the mouse is over the health bar.",HUD);
 	add_var(OPT_BOOL,"show_indicators","showindicators",&show_hud_indicators,toggle_hud_indicators_window,1,"Show Status Indicators in HUD","Show status indicators for special day (left click to show day), harvesting, poision and message count (left click to zero). Right-click the window for settings.",HUD);
 	add_var(OPT_BOOL,"logo_click_to_url","logoclick",&logo_click_to_url,change_var,0,"Logo Click To URL","Toggle clicking the LOGO opening a browser window",HUD);
-	add_var(OPT_STRING,"logo_link", "logolink", LOGO_URL_LINK, change_string, 128, "Logo Link", "URL when clicking the logo", HUD);
+	add_var(OPT_STRING,"logo_link", "logolink", LOGO_URL_LINK, change_string, sizeof(LOGO_URL_LINK),
+		"Logo Link", "URL when clicking the logo", HUD);
 	add_var(OPT_BOOL,"show_help_text","shelp",&show_help_text,change_var,1,"Help Text","Enable tooltips.",HUD);
 	add_var(OPT_BOOL,"always_enlarge_text","aetext",&always_enlarge_text,change_var,1,"Always Enlarge Text","Some text can be enlarged by pressing ALT or CTRL, often only while the mouse is over it.  Setting this option effectively locks the ALT/CTRL state to on.",HUD);
 	add_var(OPT_BOOL,"show_item_desc_text","showitemdesctext",&show_item_desc_text,change_var,1,"Item Description Text","Enable item description tooltips. Needs item_info.txt file.",HUD);
@@ -2655,7 +2653,10 @@ static void init_ELC_vars(void)
 	add_var(OPT_INT,"max_food_level","maxfoodlevel",&max_food_level,change_int,45,"Maximum Food Level", "Set the maximum value displayed by the food level bar.",HUD,10,200);
 	add_var(OPT_INT,"wanted_num_recipe_entries","wantednumrecipeentries",&wanted_num_recipe_entries,change_num_recipe_entries,10,"Number of recipe entries", "Sets the number of entries available for the manufacturing window stored recipes.",HUD,4,max_num_recipe_entries);
 	add_var(OPT_INT,"exp_log_threshold","explogthreshold",&exp_log_threshold,change_int,5000,"Log exp gain to console", "If you gain experience of this value or over, then a console message will be written.  Set the value to zero to disable completely.",HUD,0,INT_MAX);
-	add_var(OPT_STRING,"npc_mark_template","npcmarktemplate",npc_mark_str,change_string,sizeof(npc_mark_str)-1,"NPC map mark template","The template used when setting a map mark from the NPC dialogue (right click name). The %s is substituted for the NPC name.",HUD);
+	add_var(OPT_STRING, "npc_mark_template", "npcmarktemplate", npc_mark_str, change_string,
+		sizeof(npc_mark_str), "NPC map mark template",
+		"The template used when setting a map mark from the NPC dialogue (right click name). The %s is substituted for the NPC name.",
+		HUD);
 	add_var(OPT_BOOL,"3d_map_markers","3dmarks",&marks_3d,change_3d_marks,1,"Enable 3D Map Markers","Shows user map markers in the game window",HUD);
 	add_var(OPT_BOOL,"item_window_on_drop","itemdrop",&item_window_on_drop,change_var,1,"Item Window On Drop","Toggle whether the item window shows when you drop items",HUD);
 	add_var(OPT_FLOAT,"minimap_scale", "minimapscale", &local_minimap_size_coefficient, change_minimap_scale, 0.7, "Minimap Scale", "Adjust the overall size of the minimap", HUD, 0.5, 1.5, 0.1);
@@ -2709,7 +2710,8 @@ static void init_ELC_vars(void)
 	add_var(OPT_INT,"time_warning_sun","warn_s",&time_warn_s,change_int,-1,"Time warning for dawn/dusk","If set to -1, there will be no warning given. Otherwise, you will get a notification in console this many minutes before sunrise/sunset",CHAT, -1, 30);
 	add_var(OPT_INT,"time_warning_day","warn_d",&time_warn_d,change_int,-1,"Time warning for new #day","If set to -1, there will be no warning given. Otherwise, you will get a notification in console this many minutes before the new day",CHAT, -1, 30);
 	add_var(OPT_SPECINT,"auto_afk_time","afkt",&afk_time_conf,set_afk_time,5,"AFK Time","The idle time in minutes before the AFK auto message",CHAT,0,INT_MAX);
-	add_var(OPT_STRING,"afk_message","afkm",afk_message,change_string,127,"AFK Message","Set the AFK message",CHAT);
+	add_var(OPT_STRING, "afk_message", "afkm", afk_message, change_string, sizeof(afk_message),
+		"AFK Message", "Set the AFK message", CHAT);
 	add_var(OPT_BOOL, "afk_local", "afkl", &afk_local, change_var, 0, "Save Local Chat Messages When AFK", "When you go AFK, local chat messages are counted and saved as well as PMs", CHAT);
 #ifdef NEW_SOUND
 	add_var(OPT_BOOL, "afk_snd_warning", "afks", &afk_snd_warning, change_var, 0, "Play AFK Message Sound", "When you go AFK, a sound is played when you receive a message or trade request", CHAT);
@@ -2717,7 +2719,6 @@ static void init_ELC_vars(void)
 	add_var(OPT_BOOL,"use_global_ignores","gign",&use_global_ignores,change_var,1,"Global Ignores","Global ignores is a list with people that are well known for being nasty, so we put them into a list (global_ignores.txt). Enable this to load that list on startup.",CHAT);
 	add_var(OPT_BOOL,"save_ignores","sign",&save_ignores,change_var,1,"Save Ignores","Toggle saving of the local ignores list on exit.",CHAT);
 	add_var(OPT_BOOL, "use_global_filters", "gfil", &use_global_filters, change_global_filters, 1, "Global Filter", "Toggle the use of global text filters.", CHAT);
-	/* add_var(OPT_STRING,"text_filter_replace","trepl",text_filter_replace,change_string,127,"Text Filter","The word to replace bad text with",CHAT); */
 	add_var(OPT_BOOL,"caps_filter","caps",&caps_filter,change_var,1,"Caps Filter","Toggle the caps filter",CHAT);
 	add_var(OPT_BOOL,"show_timestamp","timestamp",&show_timestamp,change_var,0,"Show Time Stamps","Toggle time stamps for chat messages",CHAT);
 	add_var(OPT_MULTI_H,"dark_channeltext","dark_channeltext",&dark_channeltext,change_dark_channeltext,0,"Channel Text Color","Display the channel text in a darker color for better reading on bright maps ('Dark' may be unreadable in F1 screen)",CHAT, "Normal", "Medium", "Dark", NULL);
@@ -2729,7 +2730,7 @@ static void init_ELC_vars(void)
 #ifdef TTF
 	add_var(OPT_BOOL, "use_ttf", "ttf", &use_ttf, change_use_ttf, 1, "Use TTF",
 			"Toggle the use of True Type fonts for text rendering", FONT);
-	add_var(OPT_STRING, "ttf_directory", "ttfdir", ttf_directory, change_string, TTF_DIR_SIZE,
+	add_var(OPT_STRING, "ttf_directory", "ttfdir", ttf_directory, change_string, sizeof(ttf_directory),
 		"TTF directory", "Scan this directory and its direct subdirectories for True Type fonts. This is only used when 'Use TTF' is enabled. Changes to this option only take effect after a restart of the client.", FONT);
 #endif
 	add_var(OPT_FLOAT,"ui_text_size","uisize",&font_scales[UI_FONT],change_text_zoom,1,"UI Text Size","Set the size of the text in the user interface",FONT,0.8,1.2,0.01);
@@ -2783,15 +2784,19 @@ static void init_ELC_vars(void)
 
 
 	// SERVER TAB
-	add_var(OPT_STRING,"username","u",active_username_str,change_string,MAX_USERNAME_LENGTH,"Username","Your user name here",SERVER);
-	add_var(OPT_PASSWORD,"password","p",active_password_str,change_string,MAX_USERNAME_LENGTH,"Password","Put your password here",SERVER);
-	add_var(OPT_STRING,"server","s",active_server_str,change_string,MAX_SERVER_LENGTH,"Server","Put your server here",SERVER);
+	add_var(OPT_STRING,"username", "u", active_username_str, change_string, sizeof(active_username_str),
+		"Username", "Your user name here", SERVER);
+	add_var(OPT_PASSWORD, "password", "p", active_password_str, change_string, sizeof(active_password_str),
+		"Password", "Put your password here", SERVER);
+	add_var(OPT_STRING,"server","s",active_server_str,change_string,sizeof(active_server_str),"Server","Put your server here",SERVER);
 	add_var(OPT_BOOL,"passmngr_enabled","pme",&passmngr_enabled,change_var,0,"Enable Password Manager", "If enabled, user names and passwords are saved locally by the built-in password manager.  Multiple sets of details can be saved.  You can choose which details to use at the login screen.",SERVER);
 	add_var(OPT_MULTI,"log_chat","log",&log_chat,change_int,LOG_SERVER,"Log Messages","Log messages from the server (chat, harvesting events, GMs, etc)",SERVER,"Do not log chat", "Log chat only", "Log server messages", "Log server to srv_log.txt", NULL);
 	add_var(OPT_BOOL,"rotate_chat_log","rclog",&rotate_chat_log_config_var,change_rotate_chat_log,0,"Rotate Chat Log File","Tag the chat/server message log files with year and month. You will still need to manage deletion of the old files. Requires a client restart.",SERVER);
 	add_var(OPT_BOOL,"buddy_log_notice", "buddy_log_notice", &buddy_log_notice, change_var, 1, "Log Buddy Sign On/Off", "Toggle whether to display notices when people on your buddy list log on or off", SERVER);
-	add_var(OPT_STRING,"language","lang",lang,change_string,8,"Language","Wah?",SERVER);
-	add_var(OPT_STRING,"browser","b",browser_name,change_string,70,"Browser","Location of your web browser (Windows users leave blank to use default browser)",SERVER);
+	add_var(OPT_STRING,"language", "lang", lang, change_string, sizeof(lang), "Language", "Wah?", SERVER);
+	add_var(OPT_STRING, "browser", "b", browser_name, change_string, sizeof(browser_name), "Browser",
+		"Location of your web browser (Windows users leave blank to use default browser)",
+		SERVER);
 	add_var(OPT_BOOL,"write_ini_on_exit", "wini", &write_ini_on_exit, change_var, 1,"Save INI","Save options when you quit",SERVER);
 	add_var(OPT_STRING,"data_dir","dir",datadir,change_dir_name,90,"Data Directory","Place were we keep our data. Can only be changed with a Client restart.",SERVER);
 	add_var(OPT_BOOL,"serverpopup","spu",&use_server_pop_win,change_var,1,"Use Special Text Window","Toggles whether server messages from channel 255 are displayed in a pop up window.",SERVER);
@@ -2811,7 +2816,8 @@ static void init_ELC_vars(void)
 	// AUDIO TAB
 #ifdef NEW_SOUND
 	add_var(OPT_BOOL,"disable_sound", "nosound", &no_sound, disable_sound, 0, "Disable Sound & Music System", "Disable all of the sound effects and music processing", AUDIO);
-	add_var(OPT_STRING,"sound_device", "snddev", sound_device, change_string, 30, "Sound Device", "Device used for playing sounds & music", AUDIO);
+	add_var(OPT_STRING, "sound_device", "snddev", sound_device, change_string, sizeof(sound_device),
+		"Sound Device", "Device used for playing sounds & music", AUDIO);
 	add_var(OPT_BOOL,"enable_sound", "sound", &sound_on, toggle_sounds, 0, "Enable Sound Effects", "Turn sound effects on/off", AUDIO);
 	add_var(OPT_FLOAT,"sound_gain", "sgain", &sound_gain, change_sound_level, 1, "Overall Sound Effects Volume", "Adjust the overall sound effects volume", AUDIO, 0.0, 1.0, 0.1);
 	add_var(OPT_FLOAT,"crowd_gain", "crgain", &crowd_gain, change_sound_level, 1, "Crowd Sounds Volume", "Adjust the crowd sound effects volume", AUDIO, 0.0, 1.0, 0.1);

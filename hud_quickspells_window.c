@@ -730,3 +730,24 @@ void set_quickspell_options(unsigned int options, unsigned int position)
 	else
 		reset_quickspells();
 }
+
+
+#ifdef JSON_FILES
+void read_quickspell_options(const char *dict_name)
+{
+	if (quickspells_relocatable)
+	{
+		quickspells_dir = (json_cstate_get_bool(dict_name, "vertical", 1) == VERTICAL) ?VERTICAL : HORIZONTAL;
+		quickspells_moveable = json_cstate_get_bool(dict_name, "movable", 0);
+	}
+	else
+		reset_quickspells();
+}
+
+
+void write_quickspell_options(const char *dict_name)
+{
+	json_cstate_set_bool(dict_name, "vertical", (quickspells_dir == VERTICAL) ?1 :0);
+	json_cstate_set_bool(dict_name, "movable", quickspells_moveable);
+}
+#endif

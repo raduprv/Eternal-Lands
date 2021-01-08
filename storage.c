@@ -6,6 +6,7 @@
 #include "asc.h"
 #include "context_menu.h"
 #include "dialogues.h"
+#include "elloggingwrapper.h"
 #include "elwindows.h"
 #include "filter.h"
 #include "gamewin.h"
@@ -322,6 +323,13 @@ void get_storage_items (const Uint8 *in_data, int len)
 	int cat, pos;
 	int idx;
 	int plen;
+	int min_len = 2;
+
+	if (len < min_len)
+	{
+		LOG_WARNING("Got incomplete storage items update from the server");
+		return;
+	}
 
 	if (item_uid_enabled)
 		plen=10;
@@ -330,6 +338,14 @@ void get_storage_items (const Uint8 *in_data, int len)
 
 	if (in_data[0] == 255)
 	{
+		// We expect a single full update packet
+		min_len += plen;
+		if (len < min_len)
+		{
+			LOG_WARNING("Got incomplete storage items update from the server");
+			return;
+		}
+
 		// It's just an update - make sure we're in the right category
 		idx = 2;
 		active_storage_item = SDL_SwapLE16(*((Uint16*)(&in_data[idx+6])));

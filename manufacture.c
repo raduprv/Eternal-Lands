@@ -103,6 +103,7 @@ static void copy_recipe_items_to_items(item *items, size_t items_offset, recipe_
 	size_t j;
 	for (j=0; j<NUM_MIX_SLOTS; j++)
 	{
+		memset(&items[j+items_offset], 0, sizeof(item));
 		items[j+items_offset].id = recipe_items[j].id;
 		items[j+items_offset].image_id = recipe_items[j].image_id;
 		items[j+items_offset].quantity = recipe_items[j].quantity;

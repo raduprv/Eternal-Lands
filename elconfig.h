@@ -140,8 +140,6 @@ void set_ready_for_user_files(void);
 int get_use_json_user_files(void);
 void load_character_options(void);
 void save_character_options(void);
-#define USE_JSON_DEBUG(message) {}
-//#define USE_JSON_DEBUG(message) {printf("%s:%d %s\n", __FUNCTION__, __LINE__, message);}
 #endif
 
 /*!

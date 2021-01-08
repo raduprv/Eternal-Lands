@@ -6,7 +6,7 @@ extern "C" {
 #endif
 
 /*!
- * \name External infoterface function for password manager.
+ * \name External interface function for password manager.
  */
 /*! @{ */
 void passmngr_open_window(void);

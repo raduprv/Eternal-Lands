@@ -72,8 +72,8 @@ static managed_window_def managed_windows =
 	.list[MW_RANGING] = { .id = -1, .pos_x = 10, .pos_y = 20, .prop_pos = 1, .pos_ratio_x = 1.0f, .pos_ratio_y = 1.0f, .on_top = 1, .icon_name = "range", .hideable = 1, .was_open = 0, .scale = 1.0f, .key_def = &K_RANGINGWIN, .display = display_range_win, .toggle = NULL, .showable = NULL },
 	.list[MW_ACHIEVE] = { .id = -1, .pos_x = 0, .pos_y = 0, .prop_pos = 0, .pos_ratio_x = 1.0f, .pos_ratio_y = 1.0f, .on_top = 0, .icon_name = "achievements", .hideable = 0, .was_open = 0, .scale = 1.0f, .key_def = NULL, .display = NULL, .toggle = NULL, .showable = NULL },
 	.list[MW_DIALOGUE] = { .id = -1, .pos_x = 1, .pos_y = 1, .prop_pos = 1, .pos_ratio_x = 1.0f, .pos_ratio_y = 1.0f, .on_top = 0, .icon_name = "dialogue", .hideable = 1, .was_open = 0, .scale = 1.0f, .key_def = NULL, .display = NULL, .toggle = NULL, .showable = NULL },
-	.list[MW_QUICKBAR] = { .id = -1, .pos_x = 100, .pos_y = 100, .prop_pos = 0, .pos_ratio_x = 1.0f, .pos_ratio_y = 1.0f, .on_top = 0, .icon_name = "quickbar", .hideable = 0, .was_open = 0, .scale = 1.0f, .key_def = NULL, .display = NULL, .toggle = NULL, .showable = NULL },
-	.list[MW_QUICKSPELLS] = { .id = -1, .pos_x = 10, .pos_y = 20, .prop_pos = 0, .pos_ratio_x = 1.0f, .pos_ratio_y = 1.0f, .on_top = 0, .icon_name = "quickspells", .hideable = 0, .was_open = 0, .scale = 1.0f, .key_def = NULL, .display = NULL, .toggle = NULL, .showable = NULL },
+	.list[MW_QUICKBAR] = { .id = -1, .pos_x = 100, .pos_y = 100, .prop_pos = 1, .pos_ratio_x = 1.0f, .pos_ratio_y = 1.0f, .on_top = 0, .icon_name = "quickbar", .hideable = 0, .was_open = 0, .scale = 1.0f, .key_def = NULL, .display = NULL, .toggle = NULL, .showable = NULL },
+	.list[MW_QUICKSPELLS] = { .id = -1, .pos_x = 10, .pos_y = 20, .prop_pos = 1, .pos_ratio_x = 1.0f, .pos_ratio_y = 1.0f, .on_top = 0, .icon_name = "quickspells", .hideable = 0, .was_open = 0, .scale = 1.0f, .key_def = NULL, .display = NULL, .toggle = NULL, .showable = NULL },
 	.list[MW_CONFIG] = { .id = -1, .pos_x = 10, .pos_y = 10, .prop_pos = 1, .pos_ratio_x = 1.0f, .pos_ratio_y = 1.0f, .on_top = 1, .icon_name = "opts", .hideable = 1, .was_open = 0, .scale = 1.0f, .key_def = &K_OPTIONS, .display = display_elconfig_win, .toggle = NULL, .showable = NULL },
 	.list[MW_MINIMAP] = { .id = -1, .pos_x = 5, .pos_y = 20, .prop_pos = 1, .pos_ratio_x = 1.0f, .pos_ratio_y = 1.0f, .on_top = 1, .icon_name = "minimap", .hideable = 1, .was_open = 0, .scale = 1.0f, .key_def = &K_MINIMAP, .display = display_minimap, .toggle = NULL, .showable = NULL },
 	.list[MW_ASTRO] = { .id = -1, .pos_x = 10, .pos_y = 20, .prop_pos = 1, .pos_ratio_x = 1.0f, .pos_ratio_y = 1.0f, .on_top = 1, .icon_name = "astro", .hideable = 0, .was_open = 0, .scale = 1.0f, .key_def = NULL, .display = NULL, .toggle = NULL, .showable = NULL },
@@ -267,6 +267,15 @@ enum managed_window_enum get_by_name_MW(const char *name)
 		if (strcmp(managed_windows.list[i].icon_name, name) == 0)
 			return i;
 	return MW_MAX;
+}
+
+const char *get_dict_name_WM(enum managed_window_enum managed_win, char *buf, size_t buf_len)
+{
+	if (managed_win < MW_MAX)
+		safe_snprintf(buf, buf_len, "%s_window", managed_windows.list[managed_win].icon_name);
+	else
+		safe_strncpy(buf, "unknown_window", buf_len);
+	return buf;
 }
 
 int get_id_MW(enum managed_window_enum managed_win)

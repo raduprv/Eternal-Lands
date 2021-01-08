@@ -88,7 +88,7 @@ namespace ItemLists
 	{
 		public:
 			List(void) : format_error(false) {}
-			bool set(std::string save_name);
+			bool set(const std::string& save_name);
 			const std::string & get_name(void) const { return name; }
 			void set_name(const char *new_name) { name = new_name; }
 			size_t get_num_items(void) const { return image_ids.size(); }
@@ -298,7 +298,7 @@ namespace ItemLists
 	// If there is nothing in the inventory, then return
 	// value is false, the caller should delete the object.
 	//
-	bool List::set(std::string save_name)
+	bool List::set(const std::string& save_name)
 	{
 		name = save_name;
 		for (size_t i=0; i<ITEM_NUM_ITEMS-ITEM_NUM_WEAR; i++)

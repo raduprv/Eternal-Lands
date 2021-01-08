@@ -127,6 +127,30 @@ unsigned int get_options_questlog(void);
 void set_options_questlog(unsigned int cfg_options);
 
 
+#ifdef JSON_FILES
+/*!
+ * \ingroup quest_window
+ * \brief Write the questlog options to the client state file.
+ *
+ *      Write the questlog options to the client state file.
+ *
+ * \callgraph
+ */
+void write_options_questlog(const char *dict_name);
+
+
+/*!
+ * \ingroup quest_window
+ * \brief Read the questlog options from the client state file.
+ *
+ *      Read the questlog options from the client state file.
+ *
+ * \callgraph
+ */
+void read_options_questlog(const char *dict_name);
+#endif
+
+
 /*!
  * \ingroup quest_window
  * \brief  Draw a context menu like highlight.

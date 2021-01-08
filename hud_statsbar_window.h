@@ -7,6 +7,8 @@
 extern "C" {
 #endif
 
+#define MAX_WATCH_STATS	5	/*!< max number of stats watchable in hud */
+
 extern int stats_bar_win; /*!< the window id for the stats bar of the bottom HUD */
 extern int show_action_bar; /*!< saved in the ini file, the action points stats bar is display when true */
 extern int show_last_health_change_always; /*!< saved in the ini file, the the last health change is always display when true */

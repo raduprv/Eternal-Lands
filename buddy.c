@@ -688,6 +688,8 @@ static int ui_scale_buddy_handler(window_info *win)
 		destroy_window(buddy_change_win);
 	buddy_add_win = buddy_change_win = -1;
 
+	set_scrollbar_len();
+
 	return 1;
 }
 

@@ -45,8 +45,8 @@ namespace Password_Manaager
 	class Login
 	{
 		public:
-			Login(std::string &the_name, std::string &the_password)
-				{ user_name = the_name; clear_password = the_password; }
+			Login(const std::string& the_name, const std::string& the_password):
+				user_name(the_name), clear_password(the_password) {}
 			const std::string & get_name(void) const { return user_name; }
 			const std::string & get_password(void) const { return clear_password; }
 			static bool sort_compare(const Login &a, const Login &b);
@@ -76,14 +76,14 @@ namespace Password_Manaager
 				{ load(); }
 			void load(void);
 			void set_details(void) const;
-			void add(std::string user_name, std::string password);
+			void add(const std::string& user_name, const std::string& password);
 			void pending_change(const char * old_and_new_password);
 			void confirm_change(void);
 			size_t size(void) const { return logins.size(); }
 			std::vector<Login>::const_iterator begin() const { return logins.begin(); }
 			std::vector<Login>::const_iterator end() const { return logins.end(); }
 		private:
-			bool common_add(std::string user_name, std::string password);
+			bool common_add(const std::string& user_name, const std::string& password);
 			void save(void);
 			std::string pending_old_and_new_password;
 			std::vector<Login> logins;
@@ -94,7 +94,7 @@ namespace Password_Manaager
 	//	Add if the specified username/password are valid and new or modified.
 	//	Return true if added.
 	//
-	bool Logins::common_add(std::string user_name, std::string password)
+	bool Logins::common_add(const std::string& user_name, const std::string& password)
 	{
 		if ((user_name.size() >= MAX_USERNAME_LENGTH) || (password.size()  >= MAX_USERNAME_LENGTH))
 		{
@@ -121,7 +121,7 @@ namespace Password_Manaager
 
 	//	Add a single new username/password pair if valid and new, then save.  Not used when loading from file.
 	//
-	void Logins::add(std::string user_name, std::string password)
+	void Logins::add(const std::string& user_name, const std::string& password)
 	{
 		if (common_add(user_name, password))
 		{

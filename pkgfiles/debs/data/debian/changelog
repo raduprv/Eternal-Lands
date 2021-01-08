@@ -1,7 +1,5 @@
-eternallands-data (1.9.5.1-0ubuntu1) trusty; urgency=low
+eternallands-data (1.9.5.8-2ubuntu1) xenial; urgency=low
 
-  * 1.9.5 release, see CHANGES file at
-      https://github.com/raduprv/Eternal-Lands/blob/master/CHANGES
-  * 1.9.5.1 Updated item.info.txt and el.ini files
+  * Development release
 
  -- Paul Broadhead <pjbroad@twinmoons.org.uk>  Sun, 27 May 2018 15:53:56 +0100

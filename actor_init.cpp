@@ -469,9 +469,9 @@ extern "C" void cal_render_actor_shader(actor *act, Uint32 use_lightning, Uint32
 
 	assert(im);
 
-	for (IntMap::iterator it = im->begin(); it != im->end(); it++)
+	for (const auto& it: *im)
 	{
-		render_mesh_shader(a, act, it->first, it->second, use_glow);
+		render_mesh_shader(a, act, it.first, it.second, use_glow);
 	}
 }
 
@@ -808,9 +808,9 @@ extern "C" void set_transformation_buffers(actor* act)
 
 	assert(im);
 
-	for (it = im->begin(); it != im->end(); it++)
+	for (auto& it: *im)
 	{
-		set_transformation_buffer(a, act, it->first, it->second);
+		set_transformation_buffer(a, act, it.first, it.second);
 	}
 }
 

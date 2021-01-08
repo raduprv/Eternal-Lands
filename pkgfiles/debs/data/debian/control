@@ -2,15 +2,15 @@ Source: eternallands-data
 Section: games
 Priority: optional
 Maintainer: Paul Broadhead <pjbroad@twinmoons.org.uk>
-Build-Depends: debhelper (>= 5)
-Standards-Version: 3.9.6
+Build-Depends: debhelper (>= 9)
+Standards-Version: 3.9.7
 Homepage: http://www.eternal-lands.com
 
 Package: eternallands-data
 Architecture: all
-Depends: ${misc:Depends}, wget (>>1), unzip (>>2), findutils (>>4), eternallands (>=1.9.5.0)
-Recommends: eternallands-sound (>=1.6.0)
-Suggests: eternallands-music (>=1.6.0)
+Depends: ${misc:Depends}, wget (>>1), unzip (>>2), findutils (>>4), eternallands (>=1.9.5)
+Recommends: eternallands-sound (>=1.9.5)
+Suggests: eternallands-music (>=1.9.5)
 Description: data package for Eternal Lands, a free MMORPG
  Eternal Lands is a free to play, graphical MMORPG (massively-multi-player
  online role-playing game).  Different from other role-playing games, there are

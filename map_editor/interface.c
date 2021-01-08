@@ -71,7 +71,6 @@ int check_interface_buttons()
 #endif	//EYE_CANDY
 					if(cur_mode==mode_tile)
 						{
-							view_tiles_list=1;
 							display_tiles_list();
 							cur_tool=tool_select;
 							selected_tile=255;
@@ -619,7 +618,6 @@ int check_tiles_interface (window_info *win, int _x, int _y)
 
 	if (_x > win->len_x - 20 && mouse_y < 20)
 	{
-		view_tiles_list = 0;
 		return 0;
 	}
 	

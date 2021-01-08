@@ -2024,10 +2024,6 @@ static int keypress_game_handler (window_info *win, int mx, int my, SDL_Keycode 
 	{
 		return 1;
 	}
-	else if (KEY_DEF_CMP(K_TABCOMPLETE, key_code, key_mod) && input_text_line.len > 0)
-	{
-		do_tab_complete(&input_text_line);
-	}
 	else if (KEY_DEF_CMP(K_TURNLEFT, key_code, key_mod))
 	{
 		//Moved delay to my_tcp_send
@@ -2235,7 +2231,6 @@ static int keypress_game_handler (window_info *win, int mx, int my, SDL_Keycode 
 	{
 		Uint8 ch = key_to_char (key_unicode);
 
-		reset_tab_completer();
 		if (ch == '`' || KEY_DEF_CMP(K_CONSOLE, key_code, key_mod))
 		{
 			if (have_mouse) {toggle_have_mouse(); keep_grabbing_mouse=1;}

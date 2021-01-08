@@ -14,7 +14,6 @@ extern "C" {
 
 extern int have_storage_list; /*!< Flag indicating if we can use a cached responce to \#storage */
 extern int use_global_filters; /*!< global flag, indicating whether global filtering is used or not */
-extern char text_filter_replace[]; /*!< string, that contains the word to replace each entry in \see filter_list with */
 extern int caps_filter; /*!< global flag, indicating whether filter of caps is enabled or not */
 extern char storage_filter[128]; /*!< string to use as filter when using the \#storage \<name\> command */
 
@@ -60,9 +59,11 @@ int filter_storage_text (char * input_text, int len, int size);
 
 /*!
  * \ingroup actors_utils
- * \brief   filters the \a input_text of occurrences of words in filter_list and replaces them with the string currently stored in text_filter_replace.
+ * \brief   filters the \a input_text of occurrences of words in filter_list and replaces them with
+ * 	the associated replacement
  *
- *      Filters the \a input_text of occurrences of words in filter_list and replaces them with the string currently stored in text_filter_replace.
+ *      Filters the \a input_text of occurrences of words in filter_list and replaces them with the
+ *      associated replcement
  *
  * \param input_text    the text to filter
  * \param len           the length of \a input_text

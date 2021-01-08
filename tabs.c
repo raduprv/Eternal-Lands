@@ -5,6 +5,10 @@
 #include "font.h"
 #include "gamewin.h"
 #include "help.h"
+#ifdef JSON_FILES
+#include "asc.h"
+#include "json_io.h"
+#endif
 #include "knowledge.h"
 #include "rules.h"
 #include "session.h"
@@ -14,7 +18,9 @@
 #include "url.h"
 #include "notepad.h"
 
-unsigned tab_selected = 0;
+static unsigned tab_stat_selected = 0;
+static unsigned tab_help_selected = 0;
+static unsigned tab_info_selected = 0;
 int tab_stats_collection_id = 16;
 int tab_help_collection_id = 17;
 int tab_info_collection_id = 18;
@@ -104,7 +110,7 @@ void display_tab_stats ()
 			do_scale_stats_handler(&windows_list.window[tab_stats_win]);
 		check_proportional_move(MW_STATS);
 
-		tab_collection_select_tab (tab_stats_win, tab_stats_collection_id, tab_selected & 0xf);
+		tab_collection_select_tab (tab_stats_win, tab_stats_collection_id, tab_stat_selected);
 	}
 	else
 	{
@@ -195,7 +201,7 @@ void display_tab_help ()
 			do_scale_help_handler(&windows_list.window[tab_help_win]);
 		check_proportional_move(MW_HELP);
 
-		tab_collection_select_tab (tab_help_win, tab_help_collection_id, (tab_selected >> 4) & 0xf);
+		tab_collection_select_tab (tab_help_win, tab_help_collection_id, tab_help_selected);
 	}
 	else
 	{
@@ -285,7 +291,7 @@ void display_tab_info()
 			do_scale_info_handler(&windows_list.window[tab_info_win]);
 		check_proportional_move(MW_INFO);
 
-		tab_collection_select_tab (tab_info_win, tab_info_collection_id, (tab_selected >> 8) & 0xf);
+		tab_collection_select_tab (tab_info_win, tab_info_collection_id, tab_info_selected);
 	}
 	else
 	{
@@ -297,18 +303,49 @@ void display_tab_info()
 /* get selected tabs when saved in cfg file */
 unsigned get_tab_selected(void)
 {
-	unsigned int old_tab_selected = tab_selected;
 	int tabnr;
-	tab_selected = 0;
+	unsigned int tab_flags = 0;
 
 	tabnr = tab_collection_get_tab(get_id_MW(MW_STATS), tab_stats_collection_id);
-	tab_selected |= ((tabnr < 0) ?old_tab_selected :tabnr) & 0xf;
+	tab_flags |= ((tabnr < 0) ?tab_stat_selected :tabnr) & 0xf;
 
-	tabnr = tab_collection_get_tab(get_id_MW(MW_STATS), tab_help_collection_id);
-	tab_selected |= ((tabnr < 0) ?old_tab_selected :(tabnr<<4)) & 0xf0;
+	tabnr = tab_collection_get_tab(get_id_MW(MW_HELP), tab_help_collection_id);
+	tab_flags |= (((tabnr < 0) ?tab_help_selected :tabnr) << 4) & 0xf0;
 
 	tabnr = tab_collection_get_tab(get_id_MW(MW_INFO), tab_info_collection_id);
-	tab_selected |= ((tabnr < 0) ?old_tab_selected :(tabnr<<8)) & 0xf00;
+	tab_flags |= (((tabnr < 0) ?tab_info_selected :tabnr) << 8) & 0xf00;
 
-	return tab_selected;
+	return tab_flags;
 }
+
+/* set selected tabs when read from the cfg file */
+void set_tab_selected(unsigned int tab_flags)
+{
+	tab_stat_selected = tab_flags & 0xf;
+	tab_help_selected = (tab_flags >> 4) & 0xf;
+	tab_info_selected = (tab_flags >> 8) & 0xf;
+}
+
+#ifdef JSON_FILES
+/* write selected tabs to the client state file */
+void write_tab_selected(void)
+{
+	char window_dict_name[50];
+	int tabnr;
+	tabnr = tab_collection_get_tab(get_id_MW(MW_STATS), tab_stats_collection_id);
+	json_cstate_set_unsigned_int(get_dict_name_WM(MW_STATS, window_dict_name, sizeof(window_dict_name)), "selected_tab", (tabnr < 0) ?tab_stat_selected :tabnr);
+	tabnr = tab_collection_get_tab(get_id_MW(MW_HELP), tab_help_collection_id);
+	json_cstate_set_unsigned_int(get_dict_name_WM(MW_HELP, window_dict_name, sizeof(window_dict_name)), "selected_tab", (tabnr < 0) ?tab_help_selected :tabnr);
+	tabnr = tab_collection_get_tab(get_id_MW(MW_INFO), tab_info_collection_id);
+	json_cstate_set_unsigned_int(get_dict_name_WM(MW_INFO, window_dict_name, sizeof(window_dict_name)), "selected_tab", (tabnr < 0) ?tab_info_selected :tabnr);
+}
+
+/* read selected tabs from the client state file */
+void read_tab_selected(void)
+{
+	char window_dict_name[50];
+	tab_stat_selected = json_cstate_get_unsigned_int(get_dict_name_WM(MW_STATS, window_dict_name, sizeof(window_dict_name)), "selected_tab", 0);
+	tab_help_selected = json_cstate_get_unsigned_int(get_dict_name_WM(MW_HELP, window_dict_name, sizeof(window_dict_name)), "selected_tab", 0);
+	tab_info_selected = json_cstate_get_unsigned_int(get_dict_name_WM(MW_INFO, window_dict_name, sizeof(window_dict_name)), "selected_tab", 0);
+}
+#endif

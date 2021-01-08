@@ -29,6 +29,9 @@
 #include "init.h"
 #include "loginwin.h"
 #include "io/elpathwrapper.h"
+#ifdef JSON_FILES
+#include "json_io.h"
+#endif
 #include "multiplayer.h"
 #include "notepad.h"
 #include "paste.h"
@@ -190,7 +193,7 @@ void Quest_Title_Request::request(void)
 //
 class QuestCompare {
 	public:
-		bool operator()(const Quest x, const Quest y) const
+		bool operator()(const Quest& x, const Quest& y) const
 		{
 			if (x.get_id() == Quest::UNSET_ID)
 				return true;
@@ -248,6 +251,10 @@ class Quest_List
 		void recalc_num_shown(void);
 		unsigned int get_options(void) const;
 		void set_options(unsigned int options);
+#ifdef JSON_FILES
+		void write_options(const char *dict_name) const;
+		void read_options(const char *dict_name);
+#endif
 		void set_highlighted(Uint16 id) { highlighted_id = id; }
 		Uint16 get_highlighted(void) const { return highlighted_id; }
 		void clear_highlighted(void) { set_highlighted(Quest::UNSET_ID); }
@@ -761,6 +768,24 @@ void Quest_List::set_options(unsigned int options)
 	hide_completed = (options >> 1) & 1;
 	list_left_of_entries = (options >> 2) & 1;
 }
+
+
+#ifdef JSON_FILES
+void Quest_List::write_options(const char *dict_name) const
+{
+	json_cstate_set_bool(dict_name, "no_auto_open", no_auto_open);
+	json_cstate_set_bool(dict_name, "hide_completed", hide_completed);
+	json_cstate_set_bool(dict_name, "list_left_of_entries", list_left_of_entries);
+}
+
+
+void Quest_List::read_options(const char *dict_name)
+{
+	no_auto_open = json_cstate_get_bool(dict_name, "no_auto_open", 0);
+	hide_completed = json_cstate_get_bool(dict_name, "hide_completed", 0);
+	list_left_of_entries = json_cstate_get_bool(dict_name, "list_left_of_entries", 0);
+}
+#endif
 
 
 //	Check the title request queue, remove stalled requests, request new ones.
@@ -2176,3 +2201,17 @@ extern "C" void set_options_questlog(unsigned int cfg_options)
 {
 	questlist.set_options(cfg_options);
 }
+
+
+#ifdef JSON_FILES
+extern "C" void write_options_questlog(const char *dict_name)
+{
+	questlist.write_options(dict_name);
+}
+
+
+extern "C" void read_options_questlog(const char *dict_name)
+{
+	questlist.read_options(dict_name);
+}
+#endif
