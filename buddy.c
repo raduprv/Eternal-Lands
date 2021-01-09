@@ -701,10 +701,6 @@ static int ui_scale_buddy_handler(window_info *win)
 	if (buddy_change_win >= 0)
 		destroy_window(buddy_change_win);
 	buddy_add_win = buddy_change_win = -1;
-#ifdef ANDROID
-	// ANDROID_TODO needs fixing in the main client too
-	set_scrollbar_len();
-#endif
 
 	set_scrollbar_len();
 

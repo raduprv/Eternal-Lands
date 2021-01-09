@@ -821,19 +821,26 @@ int click_storage_handler(window_info * win, int mx, int my, Uint32 flags)
 		if(cur_item_over>=no_storage||cur_item_over<0||storage_items[cur_item_over].quantity<1)
 				return 1;
 
-		if(is_gamewin_look_action() && !(show_item_desc_text && item_info_available() &&
-			(get_item_count(storage_items[cur_item_over].id, storage_items[cur_item_over].image_id) == 1)))
+		if(is_gamewin_look_action())
 		{
-			// ANDROID_TODO this clashes with item_info and stays active too long
-			str[0]=LOOK_AT_STORAGE_ITEM;
-			*((Uint16*)(str+1))=SDL_SwapLE16(storage_items[cur_item_over].pos);
+			if ((show_item_desc_text && item_info_available() &&
+				(get_item_count(storage_items[cur_item_over].id, storage_items[cur_item_over].image_id) == 1)))
+				return 1;
+			else
+			{
+				str[0]=LOOK_AT_STORAGE_ITEM;
+				*((Uint16*)(str+1))=SDL_SwapLE16(storage_items[cur_item_over].pos);
 
-			my_tcp_send(my_socket, str, 3);
+				my_tcp_send(my_socket, str, 3);
 
-			active_storage_item=storage_items[cur_item_over].pos;
-			do_click_sound();
-			return 1;
+				active_storage_item=storage_items[cur_item_over].pos;
+				do_click_sound();
+				return 1;
+			}
 		}
+
+		if (view_only_storage)
+			return 1;
 
 		if (get_show_window(get_id_MW(MW_TRADE)))
 		{
@@ -1026,6 +1033,7 @@ void display_storage_menu()
 		vscrollbar_set_pos(storage_win, STORAGE_SCROLLBAR_ITEMS, 0);
 	}
 
+	cur_item_over = -1;
 	storage_text[0] = '\0';
 	set_window_name("", "");
 

@@ -417,7 +417,7 @@ namespace Indicators
 		if (show)
 		{
 			if (indicators_win < 0)
-				SDL_Log("not calling init()"); //init();
+				init();
 			else
 				show_window(indicators_win);
 		}

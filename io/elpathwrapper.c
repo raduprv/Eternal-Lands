@@ -223,11 +223,11 @@ FILE *open_file_config (const char* filename, const char* mode)
 		return NULL;
 	}
 
-	SDL_Log("open_file_config: we try the ./%s",filename);
+	//SDL_Log("open_file_config: we try the ./%s",filename);
 	char pwd[MAX_PATH];
 	chdir(datadir);
 	getcwd(pwd, MAX_PATH);
-	SDL_Log("cur path is %s",pwd);
+	//SDL_Log("cur path is %s",pwd);
 #endif
 	//Not there? okay, try the current directory
 	return fopen(filename, mode);

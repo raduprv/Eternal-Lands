@@ -583,6 +583,11 @@ int main(int argc, char **argv)
 	olc_shutdown();
 #endif	//OLC
 
+#ifdef ANDROID
+	// ANDROID_TODO - if restarted, static structures ate not reinitialised so exit fully.
+	exit(0);
+#endif
+
 #ifndef WINDOWS
 	// attempt to restart if requested
 	if(restart_required > 0){

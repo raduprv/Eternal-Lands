@@ -1342,11 +1342,19 @@ static int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 		{
 			if (!item_list[pos].quantity)
 				return 1; // no item here...
-			str[0] = DEPOSITE_ITEM;
-			str[1] = item_list[pos].pos;
-			*((Uint32*)(str + 2)) = SDL_SwapLE32(item_quantity);
-			my_tcp_send(my_socket, str, 6);
-			do_drop_item_sound();
+			if (!view_only_storage)
+			{
+				str[0] = DEPOSITE_ITEM;
+				str[1] = item_list[pos].pos;
+				*((Uint32*)(str + 2)) = SDL_SwapLE32(item_quantity);
+				my_tcp_send(my_socket, str, 6);
+				do_drop_item_sound();
+			}
+			else
+			{
+				drop_fail_time = SDL_GetTicks();
+				do_alert1_sound();
+			}
 			return 1;
 		}
 

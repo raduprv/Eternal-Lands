@@ -270,6 +270,8 @@ int textures_32bpp = 0;
 int full_camera_bars = 0;
 int window_camera_controls = 0;
 static int done_initial_config = 0;
+#define MIN_UI_SCALE 0.6f
+#define MAX_UI_SCALE 3.2f
 #endif
 
 int you_sit= 0;
@@ -1379,7 +1381,7 @@ void set_scale_from_window_size(void)
 
 	new_value = local_ui_scale;
 	if (window_width<640)
-		new_value = 0.6;
+		new_value = MIN_UI_SCALE;
 	else if (window_width <= 1024)
 		new_value = 1.1;
 	else if (window_width <= 1280)
@@ -1391,7 +1393,7 @@ void set_scale_from_window_size(void)
 	else if (window_width <= 2560)
 		new_value = 2.9;
 	else
-		new_value = 3.2;
+		new_value = MAX_UI_SCALE;
 	change_ui_scale(&local_ui_scale, &new_value);
 	set_var_unsaved("ui_scale", INI_FILE_VAR);
 
@@ -2852,7 +2854,11 @@ static void init_ELC_vars(void)
 #endif
 
 	add_var(OPT_FLOAT,"mapmark_text_size", "marksize", &font_scales[MAPMARK_FONT], change_text_zoom, 1.0, "Mapmark Text Size","Sets the size of the mapmark text", FONT, 0.1, 2.0, 0.01);
+#ifdef ANDROID
+	add_var(OPT_FLOAT,"ui_scale","ui_scale",&local_ui_scale,change_ui_scale,1,"User interface scaling factor","Scale user interface by this factor, useful for high DPI displays.  Note: the options window will be rescaled after reopening.",FONT,MIN_UI_SCALE,MAX_UI_SCALE,0.01);
+#else
 	add_var(OPT_FLOAT,"ui_scale","ui_scale",&local_ui_scale,change_ui_scale,1,"User interface scaling factor","Scale user interface by this factor, useful for high DPI displays.  Note: the options window will be rescaled after reopening.",FONT,0.75,3.0,0.01);
+#endif
 	add_var(OPT_INT,"cursor_scale_factor","cursor_scale_factor",&cursor_scale_factor ,change_cursor_scale_factor,cursor_scale_factor,"Mouse pointer scaling factor","The size of the mouse pointer is scaled by this factor",FONT, 1, max_cursor_scale_factor);
 	add_var(OPT_BOOL,"disable_window_scaling_controls","disablewindowscalingcontrols", get_scale_flag_MW(), change_var, 0, "Disable Window Scaling Controls", "If you do not want to use keys or mouse+scrollwheel to scale individual windows, set this option.", FONT);
 	add_var(OPT_FLOAT,"trade_win_scale","tradewinscale",get_scale_WM(MW_TRADE),change_win_scale_factor,1.0f,"Trade window scaling factor",win_scale_description,FONT,win_scale_min,win_scale_max,win_scale_step);
@@ -3980,10 +3986,8 @@ void display_elconfig_win(void)
 		{
 			/* configure scrolling for any tabs that exceed the window length */
 			int window_height = widget_get_height(elconfig_win, elconfig_tab_collection_id) -TAB_TAG_HEIGHT;
-
 			if (elconfig_tabs[i].tab < 0)
 				continue;
-
 			if (elconfig_tabs[i].y > window_height)
 			{
 				set_window_scroll_len(elconfig_tabs[i].tab, elconfig_tabs[i].y - window_height);

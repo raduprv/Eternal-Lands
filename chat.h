@@ -56,12 +56,10 @@ extern int enable_chat_show_hide;	/*!< config option to enable show/hide of the 
  *
  * If you want to move the input widget, call this function.
  *
- * \param window_height the height of the window containing the input window
- *
  * \callgraph
  *
 */
-void move_input_widget(int window_height);
+void move_input_widget(void);
 
 /*!
  * \brief   Returns the height of the input widget

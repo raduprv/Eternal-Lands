@@ -39,7 +39,7 @@ extern int osx_right_mouse_cam; /*!< flag indication whether the right mouse but
 #endif
 
 #ifdef ANDROID
-extern int back_on; /*!< flag indicating whether the Android back key is pressd. */
+extern int back_on; /*!< flag indicating whether the Android back key is pressed. */
 #endif
 
 /*!

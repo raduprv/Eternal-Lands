@@ -725,7 +725,7 @@ static int click_game_handler(window_info *win, int mx, int my, Uint32 flags)
 		if(time_now-last_click_timestamp<300)
 		{
 			SDL_StartTextInput();
-			move_input_widget(window_height);
+			move_input_widget();
 		}
 		last_click_timestamp=time_now;
 		return 0;
@@ -831,9 +831,9 @@ static int click_game_handler(window_info *win, int mx, int my, Uint32 flags)
 					SDL_StopTextInput();
 				else
 					SDL_StartTextInput();
-				move_input_widget(window_height);
+				move_input_widget();
 			}
-			// for touch, we don't use the action switching and dragging if done differently - so return now
+			// for touch, we don't use the action switching and dragging is done differently - so return now
 			return 1;
 #endif
 			if (item_dragged != -1 || use_item != -1 || object_under_mouse == -1
@@ -1266,7 +1266,7 @@ static int click_game_handler(window_info *win, int mx, int my, Uint32 flags)
 	}
 
 #ifndef ANDROID
-	// ANDROID_TODO investigate why do this - the events code compares to == 1, perhaps thats while
+	// ANDROID_TODO investigate why do this - the events code compares to == 1, perhaps thats why
 	left_click = 2;
 	right_click = 2;
 #endif
@@ -2221,7 +2221,7 @@ int text_input_handler (SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_mod
 			text_widget_already_setup = 1;
 			text_field *field = input_widget->widget_info;
 			widget_resize(input_widget->window_id, input_widget->id, input_widget->len_x, get_input_height());
-			move_input_widget(window_height);
+			move_input_widget();
 	}
 #endif
 

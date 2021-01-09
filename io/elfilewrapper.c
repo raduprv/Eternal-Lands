@@ -580,12 +580,14 @@ static Uint32 file_exists_path(const char* file_name, const char* extra_path)
 			return 1;
 		}
 	}
+
 #ifndef ANDROID
 	if (do_file_exists(file_name, get_path_updates(), sizeof(str), str) == 1)
 	{
 		return 1;
 	}
 #endif
+
 	init_key(file_name, &key, sizeof(str), str);
 
 	CHECK_AND_LOCK_MUTEX(zip_mutex);
@@ -827,12 +829,14 @@ static el_file_ptr file_open(const char* file_name, const char* extra_path)
 			return xz_gz_file_open(str);
 		}
 	}
+
 #ifndef ANDROID
 	if (do_file_exists(file_name, get_path_updates(), sizeof(str), str) == 1)
 	{
 		return xz_gz_file_open(str);
 	}
 #endif
+
 	init_key(file_name, &key, sizeof(str), str);
 
 	CHECK_AND_LOCK_MUTEX(zip_mutex);

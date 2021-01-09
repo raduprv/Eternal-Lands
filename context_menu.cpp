@@ -317,7 +317,7 @@ namespace cm
 	// do the pre show checks and return the activation state, e.g. if mouse right-clicked
 	int Container::pre_show_check(Uint32 flags)
 	{
-		int cm_to_activate = (flags & ELW_RIGHT_MOUSE);
+		int cm_to_activate = flags & ELW_RIGHT_MOUSE;
 		if (cm_to_activate && ((flags & KMOD_SHIFT) || (flags & KMOD_ALT) || (flags & KMOD_CTRL)))
 			cm_to_activate = 0;  // exclude right clicks with modifier keys pressed
 		menu_opened = false;

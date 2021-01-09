@@ -36,7 +36,7 @@ LOCAL_CFLAGS := \
 	-DFUZZY_PATHS \
 	-DBANDWIDTH_SAVINGS \
 	-DANIMATION_SCALING \
-	-DGIT_VERSION=\"1.9.5.20210104\"
+	-DGIT_VERSION=\"1.9.5.20210109\"
 #	-DTTF \
 
 # Add your application source files here...

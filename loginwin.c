@@ -465,12 +465,8 @@ static int click_login_handler (window_info *win, int mx, int my, Uint32 flags)
 		passmngr_destroy_window();
 		if (last_display == -1)
 		{
-#ifndef ANDROID
 			create_rules_root_window (win->len_x, win->len_y, newchar_root_win, 15);
 			show_window (rules_root_win);
-#else
-			show_window (newchar_root_win);
-#endif
 		}
 		else
 		{

@@ -1298,7 +1298,7 @@ void resize_all_root_windows (Uint32 ow, Uint32 w, Uint32 oh, Uint32 h)
 	if ((input_widget != NULL) && (input_widget->window_id != get_id_MW(MW_CHAT))) {
 		widget_resize (input_widget->window_id, input_widget->id, w-HUD_MARGIN_X, input_widget->len_y);
 #ifdef ANDROID
-		move_input_widget(h);
+		move_input_widget();
 #else
 		widget_move (input_widget->window_id, input_widget->id, 0, h-input_widget->len_y-HUD_MARGIN_Y);
 #endif

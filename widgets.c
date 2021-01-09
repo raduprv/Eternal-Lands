@@ -3046,6 +3046,7 @@ static int text_field_click(widget_list *w, int mx, int my, Uint32 flags)
 		/* We deselected some text, click was handled */
 		return 1;
 #endif
+
 	if ( (w->Flags & TEXT_FIELD_EDITABLE) == 0)
 		return 0;
 

@@ -227,7 +227,7 @@ static int resize_console_handler (window_info *win, int width, int height)
 	widget_move (win->window_id, console_out_id, CONSOLE_TEXT_X_BORDER, CONSOLE_Y_OFFSET);
 	widget_resize (win->window_id, input_widget->id, console_active_width, input_widget->len_y);
 #ifdef ANDROID
-	move_input_widget(console_active_height);
+	move_input_widget();
 #else
 	widget_move (win->window_id, input_widget->id, 0, console_active_height - input_widget->len_y);
 #endif
@@ -495,6 +495,7 @@ void create_console_root_window (int width, int height)
 			CHAT_FONT, 1.0);
 
 #ifndef ANDROID
+		// ANDROID_TODO put back scrollbar?
 		if (console_scrollbar_enabled && (console_root_win >= 0) && (console_root_win < windows_list.num_windows))
 		{
 			create_console_scrollbar(&windows_list.window[console_root_win]);
@@ -520,7 +521,7 @@ int input_field_resize(widget_list *w, Uint32 x, Uint32 y)
 	if(use_windowed_chat != 2 || !get_show_window(get_id_MW(MW_CHAT))) {
 		window_info *win = &windows_list.window[w->window_id];
 #ifdef ANDROID
-		move_input_widget(win->len_y);
+		move_input_widget();
 #else
 		widget_move(input_widget->window_id, input_widget->id, 0, win->len_y - input_widget->len_y - HUD_MARGIN_Y);
 #endif

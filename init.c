@@ -1138,12 +1138,6 @@ void init_stuff(void)
 	else
 		turn_sound_off();
 #endif // NEW_SOUND
-#ifdef ANDROID
-
-	// ANDROID_TODO can we have these back?
-	has_accepted = 1;
-	have_saved_langsel = 1;
-#endif
 
 	// display something
 	destroy_loading_win();

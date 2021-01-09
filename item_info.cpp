@@ -20,7 +20,6 @@
 #include <string>
 #include <sstream>
 #include <vector>
-// ANDROID_TODO fix this in none ANDROID version
 #include <cctype>
 #include <map>
 #include <functional>

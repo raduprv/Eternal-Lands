@@ -306,13 +306,12 @@ namespace UserMenus
 		}
 
 #ifdef ANDROID
-		// Force style and poition suitable for touch only
+		// Force style and position suitable for touch
 		title_on = 0;
 		border_on = 0;
 		background_on = 1;
 		use_small_font = 1;
 		standard_window_position = 2;
-
 #endif
 		Uint32 win_flags = ELW_USE_UISCALE|ELW_SHOW_LAST|ELW_DRAGGABLE|ELW_SHOW|ELW_TITLE_NAME|ELW_ALPHA_BORDER|ELW_SWITCHABLE_OPAQUE;
 

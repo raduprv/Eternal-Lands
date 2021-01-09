@@ -161,7 +161,7 @@ int get_tabbed_chat_end_x(void)
 }
 
 #ifdef ANDROID
-void move_input_widget(int window_height)
+void move_input_widget(void)
 {
 	if (input_widget == NULL)
 		return;
@@ -201,7 +201,7 @@ void input_widget_move_to_win(int window_id)
 		widget_resize(input_widget->window_id, input_widget->id,
 			win->len_x - HUD_MARGIN_X, 2 * tf->y_space + text_height);
 #ifdef ANDROID
-		move_input_widget(win->len_y);
+		move_input_widget();
 #else
 		widget_move(input_widget->window_id, input_widget->id, 0, win->len_y-input_widget->len_y-HUD_MARGIN_Y);
 #endif

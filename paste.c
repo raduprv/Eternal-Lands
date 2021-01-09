@@ -126,6 +126,7 @@ void copy_to_clipboard(const char* text)
 }
 
 #elif defined ANDROID
+// ANDROID_TODO can we have copy/paste back?
 int use_clipboard = 0;
 
 void copy_to_clipboard(const char* text)
