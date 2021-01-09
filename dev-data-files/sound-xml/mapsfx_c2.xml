@@ -1,4 +1,4 @@
-<map id="50" name="Idaloran">
+<map id="8" name="Idaloran">
 	<boundary_def location="Forest lower left quadrant">
 		<background>Forest03</background>
 		<time_of_day_flags>0x007e</time_of_day_flags>	
@@ -96,7 +96,7 @@
 	</walk_boundary_def>	
 </map>
 
-<map id="55" name="Idaloran Caves">
+<map id="9" name="Idaloran Caves">
 <walk_boundary_def location="Wooden platform">
 <sound>Wood 2Foot</sound>
 <point1>157,49</point1>
@@ -104,7 +104,7 @@
 </walk_boundary_def>
 </map>
 
-<map id="56" name="Idaloran Mines">
+<map id="11" name="Idaloran Mines">
 <walk_boundary_def location="Wooden platform">
 <sound>Wood 2Foot</sound>
 <point1>278,116</point1>
@@ -124,14 +124,14 @@
 </walk_boundary_def>
 </map>
 
-<map id="70" name="Anitora">
+<map id="0" name="Anitora">
 	<boundary_def>
 		<background>Waves01</background>
 		<time_of_day_flags>0xffff</time_of_day_flags>
 		<is_default>1</is_default>
 	</boundary_def>
 </map>
-<map id="91" name="Bethel">
+<map id="42" name="Bethel">
 	<boundary_def>
 		<background>Desert01</background>
 		<time_of_day_flags>0xffff</time_of_day_flags>
@@ -166,7 +166,7 @@
 	</walk_boundary_def>	
 </map>
 
-<map id="93" name="Bethel caves">
+<map id="43" name="Bethel caves">
 <walk_boundary_def location="Rocks around hole in ground">
 <sound>Stone 2Foot</sound>
 <point1>153,105</point1>
@@ -174,7 +174,7 @@
 </walk_boundary_def>
 </map>
 
-<map id="92" name="Bethel insides">
+<map id="44" name="Bethel insides">
 <walk_boundary_def location="Stone walk with stairs">
 <sound>Stone 2Foot</sound>
 <point1>25,53</point1>
@@ -188,7 +188,7 @@
 </walk_boundary_def>
 </map>
 
-<map id="90" name="Bethel misc">
+<map id="45" name="Bethel misc">
 <walk_boundary_def location="Wooden platform">
 <sound>Wood 2Foot</sound>
 <point1>175,53</point1>
@@ -196,7 +196,7 @@
 </walk_boundary_def>
 </map>
 
-<map id="51" name="Sedicolis">
+<map id="64" name="Sedicolis">
 	<boundary_def>
 		<background>Meadow01</background>
 		<time_of_day_flags>0x007e</time_of_day_flags>
@@ -221,7 +221,7 @@
 	</walk_boundary_def>	
 </map>
 
-<map id="52" name="Sedicolis insides">
+<map id="65" name="Sedicolis insides">
 <walk_boundary_def location="Wooden stairs">
 <sound>Wood 2Foot</sound>
 <point1>47,27</point1>
@@ -258,7 +258,7 @@
 <point2>82,52</point2>
 </walk_boundary_def>
 </map>
-<map id="119" name="Melinis">
+<map id="66" name="Melinis">
 	<boundary_def>
 		<background>Desert01</background>
 		<time_of_day_flags>0xffff</time_of_day_flags>
@@ -288,7 +288,7 @@
 	</walk_boundary_def>	
 </map>
 
-<map id="120" name="Melinis insides">
+<map id="68" name="Melinis insides">
 <walk_boundary_def location="wooden bridge in sewers">
 <sound>Wood 2Foot</sound>
 <point1>206,156</point1>
@@ -296,7 +296,7 @@
 </walk_boundary_def>
 </map>
 
-<map id="121" name="Melinis caves">
+<map id="67" name="Melinis caves">
 <walk_boundary_def location="elevated area in a lava cave">
 <sound>Stone 2Foot</sound>
 <point1>34,34</point1>
@@ -407,7 +407,7 @@
 </map>
 
 
-<map id="81" name="Palon vertas">
+<map id="69" name="Palon vertas">
 	<boundary_def>
 		<background>Meadow01</background>
 		<time_of_day_flags>0x007e</time_of_day_flags>
@@ -450,7 +450,7 @@
 </map>
 
 
-<map id="82" name="Palon vertas Underground">
+<map id="70" name="Palon vertas Underground">
 <walk_boundary_def location="Lava bridge">
 <sound>Stone 2Foot</sound>
 <point1>41,294</point1>
@@ -495,7 +495,7 @@
 </map>
 
 
-<map id="84" name="Palon vertas cave">
+<map id="73" name="Palon vertas cave">
 <walk_boundary_def location="Wooden platform">
 <sound>Wood 2Foot</sound>
 <point1>52,96</point1>
@@ -503,7 +503,7 @@
 </walk_boundary_def>
 </map>
 
-<map id="83" name="Palon vertas insides">
+<map id="72" name="Palon vertas insides">
 <walk_boundary_def location="Fountain walk">
 <sound>Stone 2Foot</sound>
 <point1>294,343</point1>
@@ -518,7 +518,7 @@
 </map>
 
 
-<map id="138" name="Thelinor">
+<map id="74" name="Thelinor">
 	<boundary_def>
 		<background>Swamp Day</background>
 		<point1>0,0</point1>
@@ -599,7 +599,7 @@
 	</walk_boundary_def>	
 </map>
 
-<map id="139" name="Thelinor Insides">
+<map id="76" name="Thelinor Insides">
 <walk_boundary_def location="dirt tile in tent">
 <sound>Dirt 2Foot</sound>
 <point1>31,31</point1>
@@ -619,7 +619,7 @@
 </walk_boundary_def>
 </map>
 
-<map id="140" name="Thelinor caves">
+<map id="75" name="Thelinor caves">
 <walk_boundary_def location="minor dirt above rock tile">
 <sound>Dirt 2Foot</sound>
 <point1>20,42</point1>
@@ -701,7 +701,7 @@
 
 
 
-<map id="135" name="Irsis">
+<map id="77" name="Irsis">
 	<boundary_def>
 		<background>Meadow01</background>
 		<point1>255,55</point1>
@@ -814,7 +814,7 @@
 	</walk_boundary_def>	
 </map>
 
-<map id="136" name="Irsis insides">
+<map id="78" name="Irsis insides">
 <walk_boundary_def location="Dirt area">
 <sound>Dirt 2Foot</sound>
 <point1>84,42</point1>
@@ -852,7 +852,7 @@
 </walk_boundary_def>
 </map>
 
-<map id="104" name="Emerald Valley">
+<map id="79" name="Emerald Valley">
 	<boundary_def>
 		<background>Forest01</background>
 		<point1>0,0</point1>
@@ -951,7 +951,7 @@
 </walk_boundary_def>
 </map>
 
-<map id="106" name="Emerald valley insides">
+<map id="81" name="Emerald valley insides">
 <walk_boundary_def location="Stone staircase">
 <sound>Stone 2Foot</sound>
 <point1>150,79</point1>
@@ -965,7 +965,7 @@
 </walk_boundary_def>
 </map>
 
-<map id="105" name="Emerald valley cave">
+<map id="80" name="Emerald valley cave">
 <walk_boundary_def location="Train tracks over empty space">
 <sound>Wood 2Foot</sound>
 <point1>142,32</point1>
@@ -991,7 +991,7 @@
 </walk_boundary_def>
 </map>
 
-<map id="78" name="Kusamura">
+<map id="82" name="Kusamura">
 	<boundary_def>
 		<background>Forest04</background>
 		<point1>304,0</point1>
@@ -1071,7 +1071,7 @@
 	
 </map>
 
-<map id="80" name="Kusamura insides">
+<map id="83" name="Kusamura insides">
 <walk_boundary_def location="Wooden bridge">
 <sound>Wood 2Foot</sound>
 <point1>35,71</point1>
@@ -1079,7 +1079,7 @@
 </walk_boundary_def>
 </map>
 
-<map id="79" name="Kusamura temple">
+<map id="84" name="Kusamura temple">
 <walk_boundary_def location="Stone stairs">
 <sound>Stone 2Foot</sound>
 <point1>95,39</point1>
@@ -1099,7 +1099,7 @@
 </walk_boundary_def>
 </map>
 
-<map id="116" name="Zirakinbar">
+<map id="12" name="Zirakinbar">
 	<boundary_def>
 		<background>Meadow01</background>
 		<point1>0,0</point1>
@@ -1184,7 +1184,7 @@
 	</walk_boundary_def>	
 </map>
 
-<map id="117" name="Zirakinbar insides">
+<map id="14" name="Zirakinbar insides">
 <walk_boundary_def location="Wooden platform">
 <sound>Wood 2Foot</sound>
 <point1>48,24</point1>
@@ -1248,7 +1248,7 @@
 </walk_boundary_def>
 </map>
 
-<map id="118" name="Zirakinbar caves">
+<map id="13" name="Zirakinbar caves">
 <walk_boundary_def location="Stone path across water">
 <sound>Stone 2Foot</sound>
 <point1>157,30</point1>
@@ -1304,7 +1304,7 @@
 </walk_boundary_def>
 </map>
 
-<map id="128" name="Willowvine">
+<map id="15" name="Willowvine">
 	<boundary_def>
 		<background>Forest04</background>		
 		<time_of_day_flags>0x007e</time_of_day_flags>
@@ -1372,7 +1372,7 @@
 </walk_boundary_def>
 </map>
 
-<map id="137" name="Willowvine insides">
+<map id="17" name="Willowvine insides">
 <walk_boundary_def location="bridge in evil temple">
 <sound>Wood 2Foot</sound>
 <point1>65,312</point1>
@@ -1386,7 +1386,7 @@
 </walk_boundary_def>
 </map>
 
-<map id="129" name="Willowvine cave">
+<map id="16" name="Willowvine cave">
 <walk_boundary_def location="Stone Bridge">
 <sound>Stone 2Foot</sound>
 <point1>39,123</point1>
@@ -1395,7 +1395,7 @@
 </map>
 
 
-<map id="109" name="Aeth Aelfan">
+<map id="18" name="Aeth Aelfan">
 	<boundary_def>
 		<background>Forest04</background>		
 		<time_of_day_flags>0x007e</time_of_day_flags>
@@ -1517,7 +1517,7 @@
 
 
 
-<map id="110" name="Aeth Aelfan insides">
+<map id="20" name="Aeth Aelfan insides">
 <walk_boundary_def location="Stone platform">
 <sound>Stone 2Foot</sound>
 <point1>340,339</point1>
@@ -1537,7 +1537,7 @@
 </walk_boundary_def>
 </map>
 
-<map id="111" name="Aeth Aelfan cave1">
+<map id="21" name="Aeth Aelfan cave1">
 <walk_boundary_def location="Wooden boat">
 <sound>Wood 2Foot</sound>
 <point1>249,31</point1>
@@ -1637,7 +1637,7 @@
 </walk_boundary_def>
 </map>
 
-<map id="112" name="Aeth Aelfan cave2">
+<map id="22" name="Aeth Aelfan cave2">
 <walk_boundary_def location="Dirt splotch on rock">
 <sound>Dirt 2Foot</sound>
 <point1>28,34</point1>
@@ -1658,7 +1658,7 @@
 </map>
 
 
-<map id="114" name="Aeth Aelfan fortress">
+<map id="19" name="Aeth Aelfan fortress">
 <walk_boundary_def location="Wooden platform on rock tiles">
 <sound>Wood 2Foot</sound>
 <point1>156,97</point1>
@@ -1698,7 +1698,7 @@
 
 
 
-<map id="57" name="Egratia">
+<map id="24" name="Egratia">
 	<boundary_def>
 		<background>Meadow01</background>
 		<point1>0,134</point1>
@@ -1737,7 +1737,7 @@
 </map>
 
 
-<map id="58" name="Egratia temple">
+<map id="25" name="Egratia temple">
 <walk_boundary_def location="Dirt on stone tiles">
 <sound>Dirt 2Foot</sound>
 <point1>46,59</point1>
@@ -1759,7 +1759,7 @@
 </walk_boundary_def>
 </map>
 
-<map id="107" name="Arius">
+<map id="26" name="Arius">
 	<boundary_def>
 		<background>Meadow01</background>	
 		<time_of_day_flags>0x007e</time_of_day_flags>
@@ -1877,7 +1877,7 @@
 		<point2>46,39</point2>
 	</walk_boundary_def>	
 </map>
-<map id="108" name="Arius Insides">
+<map id="27" name="Arius Insides">
 <walk_boundary_def location="steps with no floor tiles">
 <sound>Stone 2Foot</sound>
 <point1>270,66</point1>
@@ -1890,7 +1890,7 @@
 <point2>245,83</point2>
 </walk_boundary_def>
 </map>
-<map id="130" name="North Redmoon">
+<map id="28" name="North Redmoon">
 	<boundary_def>
 		<background>Forest04</background>
 		<point1>0,0</point1>
@@ -1940,7 +1940,7 @@
 		<point2>366,312</point2>
 	</walk_boundary_def>		
 </map>
-<map id="132" name="North Redmoon mountains">
+<map id="31" name="North Redmoon mountains">
 	<boundary_def>
 		<background>Wind01</background>
 		<time_of_day_flags>0xffff</time_of_day_flags>
@@ -1952,7 +1952,7 @@
 		<point2>383,383</point2>
 	</walk_boundary_def>	
 </map>
-<map id="74" name="South Redmoon">
+<map id="32" name="South Redmoon">
 	<boundary_def>
 		<background>Forest03</background>
 		<point1>0,0</point1>
@@ -1995,7 +1995,7 @@
 		<point4>68,306</point4>			
 	</walk_boundary_def>	
 </map>
-<map id="75" name="South Redmoon insides">
+<map id="33" name="South Redmoon insides">
 <walk_boundary_def location="Stone Arc">
 <sound>Stone 2Foot</sound>
 <point1>304,270</point1>
@@ -2022,7 +2022,7 @@
 <point4>107,147</point4>
 </walk_boundary_def>
 </map>
-<map id="76" name="South Redmoon mountains">
+<map id="34" name="South Redmoon mountains">
 	<boundary_def>
 		<background>Winter Wind</background>
 		<time_of_day_flags>0xffff</time_of_day_flags>
@@ -2034,7 +2034,7 @@
 		<point2>191,191</point2>
 	</walk_boundary_def>	
 </map>
-<map id="101" name="Hurquin">
+<map id="35" name="Hurquin">
 	<boundary_def>
 		<background>Forest02</background>	
 		<time_of_day_flags>0x007e</time_of_day_flags>
@@ -2083,7 +2083,7 @@
 </map>
 
 
-<map id="103" name="Hurquin insides">
+<map id="37" name="Hurquin insides">
 <walk_boundary_def location="Small Board 1">
 <sound>Wood 2Foot</sound>
 <point1>156,112</point1>
@@ -2113,7 +2113,7 @@
 
 
 
-<map id="94" name="Trassian">
+<map id="38" name="Trassian">
 	<boundary_def>
 		<background>Winter Wind</background>
 		<time_of_day_flags>0xffff</time_of_day_flags>
@@ -2151,7 +2151,7 @@
 </map>
 
 
-<map id="96" name="Trassian caves">
+<map id="39" name="Trassian caves">
 <walk_boundary_def location="boat in cave">
 <sound>Wood 2Foot</sound>
 <point1>43,702</point1>
@@ -2329,7 +2329,7 @@
 </walk_boundary_def>
 </map>
 
-<map id="66" name="Imbroglio lava maze">
+<map id="55" name="Imbroglio lava maze">
 <walk_boundary_def location="entire map">
 <sound>Stone 2Foot</sound>
 <point1>0,0</point1>
@@ -2337,7 +2337,7 @@
 </walk_boundary_def>
 </map>
 
-<map id="88" name="Hulda">
+<map id="41" name="Hulda">
 	<boundary_def>
 		<background>Winter Wind</background>
 		<time_of_day_flags>0xffff</time_of_day_flags>
@@ -2346,7 +2346,7 @@
 </map>
 
 
-<map id="97" name="IOTF">
+<map id="46" name="IOTF">
 	<boundary_def>
 		<background>Winter Wind</background>
 		<time_of_day_flags>0xffff</time_of_day_flags>
@@ -2365,7 +2365,7 @@
 </map>
 
 
-<map id="98" name="IOTF insides">
+<map id="47" name="IOTF insides">
 <walk_boundary_def location="Island">
 <sound>Dirt 2Foot</sound>
 <point1>175,85</point1>
@@ -2401,7 +2401,7 @@
 </walk_boundary_def>
 </map>
 
-<map id="59" name="Imbroglio">
+<map id="48" name="Imbroglio">
 	<boundary_def>
 		<background>Winter Wind</background>
 		<time_of_day_flags>0xffff</time_of_day_flags>
@@ -2439,7 +2439,7 @@
 	</walk_boundary_def>
 </map>
 
-<map id="67" name="Irinveron">
+<map id="56" name="Irinveron">
 	<boundary_def>
 		<background>Winter Wind</background>
 		<time_of_day_flags>0xffff</time_of_day_flags>
@@ -2462,7 +2462,7 @@
 	</walk_boundary_def>	
 </map>
 
-<map id="99" name="Glacmor">
+<map id="59" name="Glacmor">
 	<boundary_def>
 		<background>Winter Wind</background>
 		<time_of_day_flags>0xffff</time_of_day_flags>
@@ -2505,7 +2505,7 @@
 		<point2>348,72</point2>
 	</walk_boundary_def>	
 </map>
-<map id="100" name="Glacmor insides">
+<map id="60" name="Glacmor insides">
 	<walk_boundary_def location="top floor restaurant">
 		<sound>Dirt 2Foot</sound>
 		<point1>137,66</point1>
@@ -2517,7 +2517,7 @@
 		<point2>283,137</point2>
 	</walk_boundary_def>
 </map>
-<map id="85" name="Iscalrith">
+<map id="61" name="Iscalrith">
 	<boundary_def>
 		<background>Winter Wind</background>
 		<time_of_day_flags>0xffff</time_of_day_flags>
@@ -2578,7 +2578,7 @@
 </walk_boundary_def>
 </map>
 
-<map id="87" name="Iscalrith insides">
+<map id="63" name="Iscalrith insides">
 <walk_boundary_def location="Cave with Walkway - Obelisk">
 <sound>Stone 2Foot</sound>
 <point1>536,140</point1>
@@ -2611,7 +2611,7 @@
 </map>
 
 
-<map id="71" name="c2 docks irilion">
+<map id="1" name="c2 docks irilion">
 <walk_boundary_def location="Bridge over water">
 <sound>Wood 2Foot</sound>
 <point1>65,43</point1>
@@ -2625,7 +2625,7 @@
 </walk_boundary_def>
 </map>
 
-<map id="72" name="c2 portals room">
+<map id="3" name="c2 portals room">
 <walk_boundary_def location="entire portals room">
 <sound>Stone 2Foot</sound>
 <point1>0,0</point1>
@@ -2633,7 +2633,7 @@
 </walk_boundary_def>
 </map>
 
-<map id="73" name="the underworld">
+<map id="4" name="the underworld">
 <boundary_def>
 	<background>Atmosphere Underworld</background>
 	<time_of_day_flags>0xffff</time_of_day_flags>
