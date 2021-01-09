@@ -1,0 +1,331 @@
+<!DOCTYPE dt [
+	<!ENTITY snds_enviro SYSTEM "snds_enviro.xml">
+	<!ENTITY snds_particle SYSTEM "snds_particle.xml">
+	<!ENTITY snds_actor SYSTEM "snds_actor.xml">
+	<!ENTITY snds_client SYSTEM "snds_client.xml">
+	<!ENTITY mapsfx_c1 SYSTEM "mapsfx_c1.xml">
+	<!ENTITY mapsfx_c2 SYSTEM "mapsfx_c2.xml">
+	<!ENTITY tilesfx SYSTEM "tilesfx.xml">
+]>
+<!-- This is the config file for EL's sound effects.
+
+	There are several elements to be aware of.
+	
+	Firstly, the whole config is to be contained within <sound_config> tags.
+	Sounds are defined with <sound> tags.
+	There can also be map areas, particles and spell effects defined. These elements are linked to a
+	previously defined sound for the system to work.
+	Individual maps are defined inside <map> tags. Maps contain boundary definitions within <boundary_def>
+	tags. Boundary definitions are linked to background and/or crowd sounds.
+	Particle sounds are defined with <particle> tags.
+	Spell effects are defined with <effect> tags.
+	
+	Sounds, maps, particles and effects can also be linked via included files. Includes are not allowed
+	within any of the <sound>, <map>, <particle> or <effect> tags. Sounds may be placed anywhere in the
+	config, but they must be initialised before they they are referenced or they will not work.
+	Defaults can be configured for background and crowd sounds.
+-->
+<sound_config>
+	<!-- Environmental background sounds -->
+	&snds_enviro;
+	<!-- Particle sounds -->
+	&snds_particle;
+	<!-- Actor sounds -->
+	&snds_actor;
+	<!-- Client sounds -->
+	<!-- Item sounds -->
+	&snds_client;
+	
+	<!-- Other sounds -->
+	<sound name = "Beehive">
+		<variant>
+			<main_sound>sound/beehive.ogg</main_sound>
+		</variant>
+		<distance>35</distance>
+		<priority>3</priority>
+		<type>environmental</type>
+	</sound>
+	<!-- Magic sounds -->
+	<sound name = "Heal">
+		<variant>
+			<main_sound>sound/magic03.ogg</main_sound>
+		</variant>
+		<distance>35</distance>
+		<priority>3</priority>
+		<type>actor</type>
+	</sound>
+	<sound name = "Drain">
+		<variant>
+			<main_sound>sound/magic01.ogg</main_sound>
+		</variant>
+		<distance>35</distance>
+		<priority>3</priority>
+		<type>actor</type>
+	</sound>
+	<sound name = "Harm">
+		<variant>
+			<main_sound>sound/magic04.ogg</main_sound>
+		</variant>
+		<distance>35</distance>
+		<priority>3</priority>
+		<type>actor</type>
+	</sound>
+	<sound name = "Shield">
+		<variant>
+			<main_sound>sound/magic02.ogg</main_sound>
+		</variant>
+		<distance>35</distance>
+		<priority>3</priority>
+		<type>actor</type>
+	</sound>	
+	<!-- Define some defaults
+		Defaults can be configured for background sounds and the crowd sound. Only one default crowd sound can
+		be defined, but up to 8 background sounds. These 8 background sounds can take time_of_day flags, which
+		are the same as those for sounds. They can also take a map_type. Currently the only map_types are
+		0 (outside) and 1 (dungeon). Hopefully types will be expanded in the client and this will have more use.
+		Each of the 8 background sounds must have a unique set of map type and time_of_day flags. There can be
+		no overlap in the time_of_day flags for any 1 map type.
+	
+	<defaults>
+		<background>
+			<sound>Forest02</sound>
+			<time_of_day_flags>0x007e</time_of_day_flags>
+			<map_type>0</map_type>
+		</background>
+		<background>
+			<sound>DarkForest</sound>
+			<time_of_day_flags>0x0f81</time_of_day_flags>
+			<map_type>0</map_type>
+		</background>
+	-->
+	<defaults>
+		<crowd>Crowd01</crowd>
+		<walking>Walk</walking>
+	</defaults>
+
+	<!-- Example of a map definition
+	<map id="map number" name="map name (not used)">
+		<boundary_def>
+			<background>The background sound to link to</background>
+			<crowd>The crowd sound to link to</crowd>
+			<time_of_day_flags>Bitwise check against in-game time. Each bit is a 30 min block</time_of_day_flags>
+			<is_default>1 or 0, max of 4 defaults per map</is_default>
+		</boundary_def>
+		<boundary_def location="(the location is optional, just to help you know what you've done)">
+			<background>The background sound to link to</background>
+			<crowd>The crowd sound to link to</crowd>
+			<point1>A comma seperated list of the x and y coordinates for this point of the boundary</point1>
+			<point2>100, 100</point2>
+			<point3>120, 150</point3>
+			<point4>150, 0</point4>
+		</boundary_def>
+	</map>
+	-->
+
+	&mapsfx_c1;
+	&mapsfx_c2;
+	
+	<!-- Example of a particle definition
+	<particle>
+		<file>This is the name of the file of the particle associated with the sound (without the .part)</file>
+		<sound>This is the sound to link to the file above</sound>
+	</particle>
+	-->
+	<particle>
+		<file>teleporter</file>
+		<sound>Teleporter</sound>
+	</particle>
+	<particle>
+		<file>teleport_in</file>
+		<sound>Teleport_in</sound>
+	</particle>
+	<particle>
+		<file>teleport_out</file>
+		<sound>Teleport_out</sound>
+	</particle>
+	<particle>
+		<file>fountain</file>
+		<sound>Fountain</sound>
+	</particle>
+	<particle>
+		<file>waterfall</file>
+		<sound>Waterfall</sound>
+	</particle>
+	<particle>
+		<file>waterfall_big</file>
+		<sound>Waterfall</sound>
+	</particle>
+	<particle>
+		<file>watefall_straight</file>
+		<sound>Waterfall</sound>
+	</particle>
+	<particle>
+		<file>fire_big</file>
+		<sound>FireBig</sound>
+	</particle>
+	<particle>
+		<file>fire_small</file>
+		<sound>Fireplace</sound>
+	</particle>
+
+	<particle>
+		<file>bag_in</file>
+		<sound>BagCreate</sound>
+	</particle>
+	<particle>
+		<file>bag_out</file>
+		<sound>BagRemove</sound>
+	</particle>
+
+
+	<!-- Valid effects (these numbers correspond with those defined in the client and can be found
+			in client_serv.h
+		
+		== Spells ==
+		POISON							0
+		REMOTE_HEAL						1
+		HARM							2	
+		SHIELD							3
+		RESTORATION						4
+		SMITE_SUMMONINGS				5
+		CLOAK							6		Invisibility spell
+		HEAL_SUMMONED					9
+		MANA_DRAIN						10
+		TELEPORT_TO_RANGE				11
+		HEAL							12
+		MAKE_PLAYER_GLOW				24		"Who doesn't see me" spell
+		
+		== General event effects ==
+		DECLOAK							7		Person coming out of invisibility
+		INVASION_BEAMING				8		Invasion occuring at that location
+		HARVEST_RARE_STONE				13
+		HARVEST_MN_EXP_BLESSING			14
+		HARVEST_MN_MONEY_BLESSING		15
+		HARVEST_WALL_COLLAPSE			16
+		HARVEST_BEES					17
+		HARVEST_RADON					18
+		HARVEST_TOOL_BREAKS				19
+		HARVEST_TELEPORT_NEXUS			20
+		HARVEST_MOTHER_NATURE_PISSED	21
+		MANUFACTURE_TOOL_BREAKS			22
+		MANUFACTURE_RARE_ITEM			23
+		
+		== Summoning events ==
+		SUMMON_RABBIT					25
+		SUMMON_RAT						26
+		SUMMON_BEAVER					27
+		SUMMON_SKUNK					28
+		SUMMON_RACOON					29
+		SUMMON_DEER						30
+		SUMMON_GREEN_SNAKE				31
+		SUMMON_RED_SNAKE				32
+		SUMMON_BROWN_SNAKE				33
+		SUMMON_FOX						34
+		SUMMON_BOAR						35
+		SUMMON_WOLF						36
+		SUMMON_SKELETON					37
+		SUMMON_SMAL_GARG				38
+		SUMMON_MEDIUM_GARG				39
+		SUMMON_BIG_GARG					40
+		SUMMON_PUMA						41
+		SUMMON_FEM_GOBLIN				42
+		SUMMON_POLAR_BEAR				43
+		SUMMON_BEAR						44
+		SUMMON_ARMED_MALE_GOB			45
+		SUMMON_ARMED_SKELETON			46
+		SUMMON_FEMALE_ORC				47
+		SUMMON_MALE_ORC					48
+		SUMMON_ARMED_FEM_ORC			49
+		SUMMON_ARMED_MALE_ORC			50
+		SUMMON_CYCLOP					51
+		SUMMON_FLUFFY_RABBIT			52
+		SUMMON_PHANTOM_WARRIOR			53
+		SUMMON_MOUNTAIN_CHIM			54
+		SUMMON_YETI						55
+		SUMMON_ARCTIC_CHIM				56
+		SUMMON_GIANT					57
+		SUMMON_GIANT_SNAKE				58
+		SUMMON_SPIDER					59
+		SUMMON_TIGER					60
+		
+		== Example of an effect definition ==
+		<effect>
+			<id>This is the id from the list above</id>
+			<sound>This is the sound to link to the id</sound>
+		</effect>
+	-->
+	<effect>
+		<id>1</id>
+		<sound>Heal</sound>
+	</effect>
+	<effect>
+		<id>4</id>
+		<sound>Heal</sound>
+	</effect>
+	<effect>
+		<id>10</id>
+		<sound>Drain</sound>
+	</effect>	
+	<effect>
+		<id>12</id>
+		<sound>Heal</sound>
+	</effect>
+	<effect>
+		<id>2</id>
+		<sound>Harm</sound>
+	</effect>
+	<effect>
+		<id>3</id>
+		<sound>Shield</sound>
+	</effect>
+	<effect>
+		<id>16</id>
+		<sound>Cavern Wall</sound>
+	</effect>	
+	
+	<!-- Define some "Use item" sounds. These sounds are linked to the item's image ID. Image_ids tag can
+		contain a comma delimited list of image id's.
+		
+		<item>
+			<image_ids>0,1,2</image_ids>
+			<sound>Eat</sound>
+		</item>
+	-->
+	<item>
+		<image_ids>0,2,63</image_ids>
+		<sound>Eat Crunchy</sound>
+	</item>
+	<item>
+		<image_ids>1,74,319</image_ids>
+		<sound>Eat Soft</sound>
+	</item>
+	<item>
+		<image_ids>4,8,20,21,22,23,24,146,147,148</image_ids>
+		<sound>Read</sound>
+	</item>
+	<item>
+		<image_ids>10,11,12,13,14,15,16,17,18,19,150,151,152,155,156,157,242,243,244,245,367,368,369,371</image_ids>
+		<sound>Drink</sound>
+	</item>
+	
+	<!-- Include some tile (walking) sound effects -->
+	
+	&tilesfx;
+	
+	<!-- Spell effect sounds
+	
+		Spell effect sounds are played when you are affected by a spell (poisoned etc).
+		The ID is the ID for the spell, sent from the server.
+		<spell_effect id="2">Poison</spell_effect>
+	-->
+	<sound name = "Poison">
+		<variant>
+		<main_sound>sound/poison.ogg</main_sound>
+		</variant>
+		<distance>35</distance>
+		<priority>3</priority>
+		<loops>0</loops>
+		<type>client</type>
+	</sound>
+	<spell_effect id="2">Poison</spell_effect>
+</sound_config>
