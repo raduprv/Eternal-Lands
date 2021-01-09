@@ -420,7 +420,7 @@ static int display_langsel_handler(window_info *win)
 		}
 
 		/* if required, change the zoom based on a reasonable limit of using all the main window */
-		if ((font_zoom * max_str_width) > (sizefrac * window_width))
+		if (max_str_width > (sizefrac * window_width))
 		{
 			font_zoom = sizefrac * window_width / max_str_width;
 			max_str_width = get_string_width_zoom(longest_string, win->font_category, font_zoom);

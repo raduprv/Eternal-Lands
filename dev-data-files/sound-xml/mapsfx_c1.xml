@@ -1,0 +1,1240 @@
+<map id="0" name="Isla Prima">
+	<boundary_def>
+		<background>Forest02</background>
+		<time_of_day_flags>0x007e</time_of_day_flags>
+		<is_default>1</is_default>
+	</boundary_def>
+	<boundary_def>
+		<background>Forest Night01</background>
+		<time_of_day_flags>0x0f81</time_of_day_flags>
+		<is_default>1</is_default>
+	</boundary_def>		
+	<walk_boundary_def location="IP Docks">
+	  <sound>Wood 2Foot</sound>
+	  <point1>12,11</point1>
+	  <point2>12,35</point2>
+	  <point3>35,35</point3>
+	  <point4>35,11</point4>
+ 	</walk_boundary_def>	
+	<walk_boundary_def location="IP Bridge">
+	  <sound>Stone 2Foot</sound>
+	  <point1>137,68</point1>
+	  <point2>138,86</point2>
+	  <point3>143,86</point3>
+	  <point4>142,68</point4>
+ 	</walk_boundary_def>
+	<boundary_def>
+		<background>Lake01</background>
+		<point1>42,78</point1>
+		<point2>44,106</point2>
+		<point3>70,106</point3>
+		<point4>73,78</point4>
+	</boundary_def>
+	<boundary_def>
+		<background>Lake01</background>
+		<point1>76,48</point1>
+		<point2>76,84</point2>
+		<point3>170,84</point3>
+		<point4>170,48</point4>
+	</boundary_def>
+
+	<boundary_def>
+		<background>Lake01</background>
+		<point1>10,17</point1>
+		<point2>10,40</point2>
+		<point3>46,40</point3>
+		<point4>46,17</point4>
+	</boundary_def>
+	<boundary_def>
+		<background>Waves01</background>
+		<point1>0,0</point1>
+		<point2>0,191</point2>
+		<point3>34,191</point3>
+		<point4>15,0</point4>
+	</boundary_def>	
+	<boundary_def>
+		<background>Waves01</background>
+		<point1>25,175</point1>
+		<point2>25,191</point2>
+		<point3>191,191</point3>
+		<point4>191,175</point4>
+	</boundary_def>
+	<boundary_def>
+		<background>Waves01</background>
+		<point1>176,136</point1>
+		<point2>150,175</point2>
+		<point3>191,175</point3>
+		<point4>191,136</point4>
+	</boundary_def>
+	<boundary_def>
+		<background>Waves01</background>
+		<point1>176,0</point1>
+		<point2>176,136</point2>
+		<point3>191,136</point3>
+		<point4>191,0</point4>
+	</boundary_def>
+	<boundary_def>
+		<background>Waves01</background>
+		<point1>15,0</point1>
+		<point2>17,38</point2>
+		<point3>191,38</point3>
+		<point4>191,0</point4>
+	</boundary_def>		
+</map>
+<map id="1" name="Whitestone">
+	<boundary_def>
+		<background>Forest02</background>
+		<time_of_day_flags>0x007e</time_of_day_flags>
+		<is_default>1</is_default>
+	</boundary_def>
+	<boundary_def>
+		<background>Forest Night01</background>
+		<time_of_day_flags>0x0f81</time_of_day_flags>
+		<is_default>1</is_default>
+	</boundary_def>	
+	<walk_boundary_def location="Lakeside Docks">
+	  <sound>Wood 2Foot</sound>
+	  <point1>695,133</point1>
+	  <point2>695,184</point2>
+	  <point3>707,184</point3>
+	  <point4>736,134</point4>
+ 	</walk_boundary_def>
+	<walk_boundary_def location="Lakeside Docks2">
+	  <sound>Wood 2Foot</sound>
+	  <point1>612,174</point1>
+	  <point2>653,191</point2>
+ 	</walk_boundary_def>
+	<walk_boundary_def location="Lakeside Docks2">
+	  <sound>Wood 2Foot</sound>
+	  <point1>654,174</point1>
+	  <point2>658,179</point2>
+ 	</walk_boundary_def> 	
+	<walk_boundary_def location="Lakeside Island Bridge">
+	  <sound>Stone 2Foot</sound>
+	  <point1>632,218</point1>
+	  <point2>632,231</point2>
+	  <point3>636,231</point3>
+	  <point4>636,218</point4>
+ 	</walk_boundary_def>
+	<walk_boundary_def location="Lakeside Bridge2">
+	  <sound>Stone 2Foot</sound>
+	  <point1>714,31</point1>
+	  <point2>714,58</point2>
+	  <point3>718,58</point3>
+	  <point4>718,31</point4>
+ 	</walk_boundary_def>
+	<walk_boundary_def location="Vermor Castle Bridge">
+	  <sound>Stone 2Foot</sound>
+	  <point1>599,428</point1>
+	  <point2>599,432</point2>
+	  <point3>613,432</point3>
+	  <point4>613,428</point4>
+ 	</walk_boundary_def>
+	<walk_boundary_def location="Bridge to PL">
+	  <sound>Stone 2Foot</sound>
+	  <point1>33,562</point1>
+	  <point2>60,566</point2>
+ 	</walk_boundary_def> 	
+	<walk_boundary_def location="Tirnwood pond">
+	  <sound>Dirt 2Foot</sound>
+	  <point1>234,324</point1>
+	  <point2>234,343</point2>
+	  <point3>257,343</point3>
+	  <point4>257,330</point4>
+ 	</walk_boundary_def>   	
+	<walk_boundary_def location="Island to C2">
+	  <sound>Dirt 2Foot</sound>
+	  <point1>390,13</point1>
+	  <point2>390,47</point2>
+	  <point3>407,45</point3>
+	  <point4>433,21</point4>
+ 	</walk_boundary_def>
+	<boundary_def location="Beehive in grahm's">
+		<background>Beehive</background>
+		<point1>101,202</point1>
+		<point2>109,209</point2>
+	</boundary_def> 	
+	<boundary_def location="Boats">
+		<background>Waves01</background>
+		<point1>685,116</point1>
+		<point2>685,192</point2>
+		<point3>760,185</point3>
+		<point4>760,116</point4>
+	</boundary_def>
+	<boundary_def location="Vermor Castle">
+		<background>Wind02</background>
+		<point1>539,351</point1>
+		<point2>539,519</point2>
+		<point3>696,519</point3>
+		<point4>696,351</point4>
+	</boundary_def>
+	<boundary_def location="Tirnwood Vale">
+		<background>Forest02</background>
+		<point1>163,255</point1>
+		<point2>163,479</point2>
+		<point3>486,479</point3>
+		<point4>486,255</point4>
+	</boundary_def>
+	<boundary_def location="Secret Beach">
+		<background>Waves02</background>
+		<point1>387,9</point1>
+		<point2>387,105</point2>
+		<point3>454,105</point3>
+		<point4>528,9</point4>
+	</boundary_def>
+</map>
+
+<map id="3" name="White Stone insides">
+	<walk_boundary_def location="Round walkway in aluwen's temple">
+		<sound>Stone 2Foot</sound>
+		<point1>23,234</point1>
+		<point2>53,263</point2>
+	</walk_boundary_def>
+	<walk_boundary_def location="stone area aluwens temp">
+		<sound>Stone 2Foot</sound>
+		<point1>29,264</point1>
+		<point2>59,281</point2>
+	</walk_boundary_def>	
+	<walk_boundary_def location="grassy part in aluwen's temp">
+		<sound>Grass 2Foot</sound>
+		<point1>15,271</point1>
+		<point2>26,295</point2>
+	</walk_boundary_def>
+	<walk_boundary_def location="grassy part in aluwen's temp">
+		<sound>Grass 2Foot</sound>
+		<point1>27,281</point1>
+		<point2>58,299</point2>
+	</walk_boundary_def>	
+	<walk_boundary_def location="Bridge over stone pit">
+		<sound>Stone 2Foot</sound>
+		<point1>119,252</point1>
+		<point2>120, 269</point2>
+	</walk_boundary_def>
+
+	<walk_boundary_def location="Around ladder">
+		<sound>Dirt 2Foot</sound>
+		<point1>199,148</point1>
+		<point2>206,154</point2>
+	</walk_boundary_def>
+
+	<walk_boundary_def location="Around hole in ground">
+		<sound>Dirt 2Foot</sound>
+		<point1>357,246</point1>
+		<point2>364,254</point2>
+	</walk_boundary_def>
+</map>
+
+<map id="4" name="Desert Pines">
+	<boundary_def>
+		<background>Forest02</background>
+		<point1>0,268</point1>
+		<point2>0,383</point2>
+		<point3>383,383</point3>
+		<point4>383,125</point4>
+		<time_of_day_flags>0x007e</time_of_day_flags>
+	</boundary_def>
+	<boundary_def>
+		<background>Forest Night01</background>
+		<point1>44,163</point1>
+		<point2>44,193</point2>
+		<point3>153,235</point3>
+		<point4>153,189</point4>
+		<time_of_day_flags>0x0f81</time_of_day_flags>
+	</boundary_def>
+	<boundary_def>
+		<background>Water01</background>
+		<point1>343,302</point1>
+		<point2>343,368</point2>
+		<point3>375,368</point3>
+		<point4>375,302</point4>
+	</boundary_def>
+	<boundary_def>
+		<background>Water01</background>
+		<point1>44,163</point1>
+		<point2>44,193</point2>
+		<point3>153,235</point3>
+		<point4>153,189</point4>
+	</boundary_def>
+	<boundary_def>
+		<background>Water01</background>
+		<point1>111,94</point1>
+		<point2>44,163</point2>
+		<point3>44,193</point3>
+		<point4>144,94</point4>
+	</boundary_def>
+
+	<boundary_def>
+		<background>Water01</background>
+		<point1>289,92</point1>
+		<point2>289,150</point2>
+		<point3>375,150</point3>
+		<point4>375,92</point4>
+	</boundary_def>
+	
+	<walk_boundary_def location="docks">
+		<sound>Wood 2Foot</sound>
+		<point1>348,312</point1>
+		<point2>378,365</point2>
+	</walk_boundary_def>
+	<walk_boundary_def location="rock in water">
+		<sound>Stone 2Foot</sound>
+		<point1>11,350</point1>
+		<point2>24,365</point2>
+	</walk_boundary_def>
+	<walk_boundary_def location="arena">
+		<sound>Stone 2Foot</sound>
+		<point1>49,235</point1>
+		<point2>70,250</point2>
+	</walk_boundary_def>	
+	<walk_boundary_def location="dirt depression">
+		<sound>Dirt 2Foot</sound>
+		<point1>18,138</point1>
+		<point2>47,217</point2>
+	</walk_boundary_def>
+	<walk_boundary_def location="moutain trail">
+		<sound>Dirt 2Foot</sound>
+		<point1>31,70</point1>
+		<point2>24,112</point2>
+		<point3>67,140</point3>
+		<point4>65,69</point4>		
+	</walk_boundary_def>
+	<walk_boundary_def location="dirt path through water">
+		<sound>Dirt 2Foot</sound>
+		<point1>53,42</point1>
+		<point2>67,67</point2>
+	</walk_boundary_def>
+	<walk_boundary_def location="docks">
+		<sound>Wood 2Foot</sound>
+		<point1>119,88</point1>
+		<point2>130,89</point2>
+	</walk_boundary_def>
+	<walk_boundary_def location="rocks">
+		<sound>Stone 2Foot</sound>
+		<point1>129,109</point1>
+		<point2>136,109</point2>
+	</walk_boundary_def>
+	<walk_boundary_def location="rock bridge">
+		<sound>Stone 2Foot</sound>
+		<point1>273,204</point1>
+		<point2>277,217</point2>
+	</walk_boundary_def>	
+</map>
+
+<map id="5" name="Desert Pines Insides">
+	<walk_boundary_def location="Around tree">
+		<sound>Dirt 2Foot</sound>
+		<point1>92,165</point1>
+		<point2>104,176</point2>
+	</walk_boundary_def>
+
+	<walk_boundary_def location="Alchemy school">
+		<sound>Dirt 2Foot</sound>
+		<point1>148,93</point1>
+		<point2>180,25</point2>
+	</walk_boundary_def>
+</map>
+
+<map id="9" name="Tirnym">
+	<boundary_def>
+		<background>Forest02</background>
+		<time_of_day_flags>0x007e</time_of_day_flags>
+		<is_default>1</is_default>
+	</boundary_def>
+	<boundary_def>
+		<background>Forest Night01</background>
+		<time_of_day_flags>0x0f81</time_of_day_flags>
+		<is_default>1</is_default>
+	</boundary_def>	
+	<walk_boundary_def location="Magic school entrance">
+	  <sound>Stone 2Foot</sound>
+	  <point1>10,84</point1>
+	  <point2>35,118</point2>
+	  <point3>40,118</point3>
+	  <point4>40,84</point4>
+ 	</walk_boundary_def>
+	<boundary_def> 	
+	<background>Water01</background>
+	  <point1>0,22</point1>
+	  <point2>0,155</point2>
+	  <point3>31,155</point3>
+	  <point4>52,22</point4>
+	</boundary_def>
+	<boundary_def>	
+	<background>Water01</background>
+	  <point1>53,22</point1>
+	  <point2>53,38</point2>
+	  <point3>166,38</point3>
+	  <point4>166,22</point4>
+	</boundary_def>
+	<boundary_def>	
+	<background>Water01</background>
+	  <point1>146,22</point1>
+	  <point2>146,114</point2>
+	  <point3>176,191</point3>
+	  <point4>191,58</point4>
+	</boundary_def> 	
+</map>
+<map id="142" name="Tirnym past">
+	<boundary_def>
+		<background>Forest02</background>
+		<time_of_day_flags>0x007e</time_of_day_flags>
+		<is_default>1</is_default>
+	</boundary_def>
+	<boundary_def>
+		<background>Forest Night01</background>
+		<time_of_day_flags>0x0f81</time_of_day_flags>
+		<is_default>1</is_default>
+	</boundary_def>	
+	<walk_boundary_def location="Magic school entrance">
+	  <sound>Stone 2Foot</sound>
+	  <point1>10,84</point1>
+	  <point2>35,118</point2>
+	  <point3>40,118</point3>
+	  <point4>40,84</point4>
+ 	</walk_boundary_def>
+	<boundary_def> 	
+	<background>Water01</background>
+	  <point1>0,22</point1>
+	  <point2>0,155</point2>
+	  <point3>31,155</point3>
+	  <point4>52,22</point4>
+	</boundary_def>
+	<boundary_def>	
+	<background>Water01</background>
+	  <point1>53,22</point1>
+	  <point2>53,38</point2>
+	  <point3>166,38</point3>
+	  <point4>166,22</point4>
+	</boundary_def>
+	<boundary_def>	
+	<background>Water01</background>
+	  <point1>146,22</point1>
+	  <point2>146,114</point2>
+	  <point3>176,191</point3>
+	  <point4>191,58</point4>
+	</boundary_def> 	
+</map>
+<map id="10" name="Valley of the Dwarves">
+	<boundary_def>
+		<background>Meadow01</background>
+		<time_of_day_flags>0x007e</time_of_day_flags>
+		<is_default>1</is_default>
+	</boundary_def>
+	<boundary_def>
+		<background>Forest Night01</background>
+		<time_of_day_flags>0x0f81</time_of_day_flags>
+		<is_default>1</is_default>
+	</boundary_def>	
+	<walk_boundary_def location="VOTD Docks">
+	  <sound>Wood 2Foot</sound>
+	  <point1>70,157</point1>
+	  <point2>58,186</point2>
+	  <point3>70,191</point3>
+	  <point4>81,165</point4>
+ 	</walk_boundary_def>	
+	<walk_boundary_def location="VOTD Docks2">
+	  <sound>Wood 2Foot</sound>
+	  <point1>55,168</point1>
+	  <point2>50,180</point2>
+	  <point3>59,183</point3>
+	  <point4>63,172</point4>
+ 	</walk_boundary_def>
+	<walk_boundary_def location="VOTD log crossing">
+	  <sound>Dirt 2Foot</sound>
+	  <point1>96,121</point1>
+	  <point2>96,138</point2>
+	  <point3>113,138</point3>
+	  <point4>113,121</point4>
+ 	</walk_boundary_def>
+	<boundary_def>
+	<background>Water01</background>
+	  <point1>59,0</point1>
+	  <point2>59,113</point2>
+	  <point3>98,113</point3>
+	  <point4>98,0</point4>
+	</boundary_def>
+	<boundary_def>	
+	<background>Water01</background>
+	  <point1>89,114</point1>
+	  <point2>89,146</point2>
+	  <point3>116,146</point3>
+	  <point4>116,114</point4>
+	</boundary_def>
+	<boundary_def>	
+	<background>Water01</background>
+	  <point1>73,147</point1>
+	  <point2>57,191</point2>
+	  <point3>111,191</point3>
+	  <point4>111,147</point4>
+	</boundary_def>
+	<boundary_def>	
+	<background>Water01</background>
+	  <point1>73,147</point1>
+	  <point2>57,191</point2>
+	  <point3>111,191</point3>
+	  <point4>111,147</point4>
+	</boundary_def>
+	<boundary_def>	
+	<background>Water01</background>
+	  <point1>31,172</point1>
+	  <point2>31,191</point2>
+	  <point3>155,191</point3>
+	  <point4>155,172</point4>
+	</boundary_def>		
+</map>
+<map id="36" name="Nordcarn">
+	<boundary_def>
+		<background>Meadow01</background>
+		<time_of_day_flags>0x007e</time_of_day_flags>
+		<is_default>1</is_default>
+	</boundary_def>
+	<boundary_def>
+		<background>Forest Night01</background>
+		<time_of_day_flags>0x0f81</time_of_day_flags>
+		<is_default>1</is_default>
+	</boundary_def>
+	<walk_boundary_def location="Bridge">
+	  <sound>Stone 2Foot</sound>
+	  <point1>47,150</point1>
+	  <point2>47,160</point2>
+	  <point3>77,157</point3>
+	  <point4>77,152</point4>
+ 	</walk_boundary_def>	
+</map>
+<map id="44" name="Nordcarn cave">
+	<walk_boundary_def location="northern dock">
+		<sound>Wood 2Foot</sound>
+		<point1>148,138</point1>
+		<point2>153,147</point2>
+	</walk_boundary_def>
+	<walk_boundary_def location="stone bridge near dragon skull">
+		<sound>Stone 2Foot</sound>
+		<point1>65,90</point1>
+		<point2>67,104</point2>
+	</walk_boundary_def>
+</map>
+<map id="24" name="Kilaran Field">
+	<boundary_def>
+		<background>Meadow01</background>
+		<time_of_day_flags>0x007e</time_of_day_flags>
+		<is_default>1</is_default>
+	</boundary_def>
+	<boundary_def>
+		<background>Forest Night01</background>
+		<time_of_day_flags>0x0f81</time_of_day_flags>
+		<is_default>1</is_default>
+	</boundary_def>
+	<walk_boundary_def location="Wooden footbridge">	
+	  <sound>Wood 2Foot</sound>
+	  <point1>75,102</point1>
+	  <point2>79,107</point2>
+ 	</walk_boundary_def>
+	<walk_boundary_def location="Stone steps leading to tower">	
+	  <sound>Stone 2Foot</sound>
+	  <point1>74,67</point1>
+	  <point2>80,72</point2>
+ 	</walk_boundary_def>	 	
+</map>
+<map id="29" name="South Kilaran Field">
+	<boundary_def>
+		<background>Meadow01</background>
+		<time_of_day_flags>0x007e</time_of_day_flags>
+		<is_default>1</is_default>
+	</boundary_def>
+	<boundary_def>
+		<background>Forest Night01</background>
+		<time_of_day_flags>0x0f81</time_of_day_flags>
+		<is_default>1</is_default>
+	</boundary_def>
+	<walk_boundary_def location="Bridge">	
+	  <sound>Stone 2Foot</sound>
+	  <point1>119,73</point1>
+	  <point2>140,95</point2>
+ 	</walk_boundary_def>	
+</map>
+
+<map id="38" name="South Kilaran Field inside carmien manor">
+<walk_boundary_def location="Wooden walkway 1">
+<sound>Wood 2Foot</sound>
+<point1>95,136</point1>
+<point2>108,137</point2>
+</walk_boundary_def>
+
+<walk_boundary_def location="Wooden walkway 2">
+<sound>Wood 2Foot</sound>
+<point1>95,126</point1>
+<point2>108,127</point2>
+</walk_boundary_def>
+
+<walk_boundary_def location="Wooden platform 1">
+<sound>Wood 2Foot</sound>
+<point1>74,30</point1>
+<point2>83,41</point2>
+</walk_boundary_def>
+
+<walk_boundary_def location="Wooden platform 2">
+<sound>Wood 2Foot</sound>
+<point1>108,30</point1>
+<point2>117,41</point2>
+</walk_boundary_def>
+</map>
+
+<map id="18" name="Tahraji Desert">
+	<boundary_def>
+		<background>Desert01</background>
+		<time_of_day_flags>0xffff</time_of_day_flags>
+		<is_default>1</is_default>
+	</boundary_def>
+	<walk_boundary_def location="summoning">	
+	  <sound>Stone 2Foot</sound>
+	  <point1>135,250</point1>
+	  <point2>171,283</point2>
+ 	</walk_boundary_def>	
+</map>
+<map id="35" name="Tahraji Desert cave">
+<walk_boundary_def location="Wood bridge over water">
+<sound>Wood 2Foot</sound>
+<point1>13,49</point1>
+<point2>28,50</point2>
+</walk_boundary_def>
+
+<walk_boundary_def location="Stone part of bridge1">
+<sound>Stone 2Foot</sound>
+<point1>71,75</point1>
+<point2>77,75</point2>
+</walk_boundary_def>
+
+<walk_boundary_def location="Wooden part of bridge2">
+<sound>Wood 2Foot</sound>
+<point1>78,75</point1>
+<point2>89,75</point2>
+</walk_boundary_def>
+
+<walk_boundary_def location="Stone part of bridge3">
+<sound>Stone 2Foot</sound>
+<point1>90,75</point1>
+<point2>95,75</point2>
+</walk_boundary_def>
+
+<walk_boundary_def location="Stone bridge over lava">
+<sound>Stone 2Foot</sound>
+<point1>58,130</point1>
+<point2>59,140</point2>
+</walk_boundary_def>
+
+<walk_boundary_def location="Stones over lava">
+<sound>Stone 2Foot</sound>
+<point1>60,112</point1>
+<point2>61,122</point2>
+</walk_boundary_def>
+</map>
+<map id="39" name="Tarsengaard">
+	<boundary_def>
+		<background>Forest02</background>
+		<time_of_day_flags>0x007e</time_of_day_flags>
+		<is_default>1</is_default>
+	</boundary_def>
+	<boundary_def>
+		<background>Forest Night01</background>
+		<time_of_day_flags>0x0f81</time_of_day_flags>
+		<is_default>1</is_default>
+	</boundary_def>
+	<walk_boundary_def location="dock to ship">	
+	  <sound>Wood 2Foot</sound>
+	  <point1>129,288</point1>
+	  <point2>143,314</point2>
+ 	</walk_boundary_def>
+	<walk_boundary_def location="wall leading to docks">	
+	  <sound>Stone 2Foot</sound>
+	  <point1>129,189</point1>
+	  <point2>133,287</point2>
+ 	</walk_boundary_def>
+	<walk_boundary_def location="wall">	
+	  <sound>Stone 2Foot</sound>
+	  <point1>134,189</point1>
+	  <point2>157,193</point2>
+ 	</walk_boundary_def>
+	<walk_boundary_def location="wall">	
+	  <sound>Stone 2Foot</sound>
+	  <point1>157,174</point1>
+	  <point2>161,206</point2>
+ 	</walk_boundary_def>
+	<walk_boundary_def location="stairs from wall">	
+	  <sound>Stone 2Foot</sound>
+	  <point1>157,207</point1>
+	  <point2>162,227</point2>
+ 	</walk_boundary_def>
+	<walk_boundary_def location="stairs from wall">	
+	  <sound>Stone 2Foot</sound>
+	  <point1>163,222</point1>
+	  <point2>173,227</point2>
+ 	</walk_boundary_def>
+	<walk_boundary_def location="wall">	
+	  <sound>Stone 2Foot</sound>
+	  <point1>161,174</point1>
+	  <point2>251,178</point2>
+ 	</walk_boundary_def>
+	<walk_boundary_def location="stairs from wall">	
+	  <sound>Stone 2Foot</sound>
+	  <point1>185,179</point1>
+	  <point2>189,188</point2>
+ 	</walk_boundary_def>
+	<walk_boundary_def location="stairs from wall">	
+	  <sound>Stone 2Foot</sound>
+	  <point1>224,179</point1>
+	  <point2>238,184</point2>
+ 	</walk_boundary_def>
+ 	<walk_boundary_def location="stone around craft school">	
+	  <sound>Stone 2Foot</sound>
+	  <point1>252,190</point1>
+	  <point2>266,207</point2>
+ 	</walk_boundary_def>	
+ 	<walk_boundary_def location="stone around craft school">	
+	  <sound>Stone 2Foot</sound>
+	  <point1>267,190</point1>
+	  <point2>275,196</point2>
+ 	</walk_boundary_def>
+ 	<walk_boundary_def location="dock at craft school">	
+	  <sound>Wood 2Foot</sound>
+	  <point1>267,213</point1>
+	  <point2>278,218</point2>
+ 	</walk_boundary_def>
+ 	<walk_boundary_def location="stone around magic school">	
+	  <sound>Stone 2Foot</sound>
+	  <point1>173,304</point1>
+	  <point2>208,334</point2>
+ 	</walk_boundary_def>
+ 	<walk_boundary_def location="stone around magic school">	
+	  <sound>Stone 2Foot</sound>
+	  <point1>186,294</point1>
+	  <point2>201,303</point2>
+ 	</walk_boundary_def>
+ 	<walk_boundary_def location="spot in middle of roanof">	
+	  <sound>Dirt 2Foot</sound>
+	  <point1>294,348</point1>
+	  <point2>305,359</point2>
+ 	</walk_boundary_def>  
+ 	<walk_boundary_def location="small dock on roanof">	
+	  <sound>Wood 2Foot</sound>
+	  <point1>342,307</point1>
+	  <point2>347,308</point2>
+ 	</walk_boundary_def>
+ 	<walk_boundary_def location="ground depression">	
+	  <sound>Dirt 2Foot</sound>
+	  <point1>36,276</point1>
+	  <point2>47,299</point2>
+ 	</walk_boundary_def>
+ 	<walk_boundary_def location="ground depression outside of mine">	
+	  <sound>Dirt 2Foot</sound>
+	  <point1>38,49</point1>
+	  <point2>87,78</point2>
+ 	</walk_boundary_def>
+ 	<walk_boundary_def location="rocky area">	
+	  <sound>Dirt 2Foot</sound>
+	  <point1>223,18</point1>
+	  <point2>281,47</point2>
+ 	</walk_boundary_def> 	 	
+</map>
+
+<map id="40" name="Tarsengaard insides">
+	<walk_boundary_def location="Wooden Dock with casket">
+		<sound>Wood 2Foot</sound>
+		<point1>201,354</point1>
+		<point2>205,359</point2>
+	</walk_boundary_def>
+</map>
+
+<map id="42" name="Tarsengaard crypt">
+	<walk_boundary_def location="casket cover">
+		<sound>wood 2Foot</sound>
+		<point1>70,73</point1>
+		<point2>71,76</point2>
+	</walk_boundary_def>
+</map>
+
+<map id="41" name="Tarsengaard magic school">
+	<walk_boundary_def location="Dirt 1 in path">
+		<sound>Dirt 2Foot</sound>
+		<point1>358,74</point1>
+		<point2>363,31</point2>
+	</walk_boundary_def>
+
+	<walk_boundary_def location="Stone pad 1">
+		<sound>Stone 2Foot</sound>
+		<point1>367,157</point1>
+		<point2>370,167</point2>
+	</walk_boundary_def>
+
+	<walk_boundary_def location="Stone stair 1">
+		<sound>Stone 2Foot</sound>
+		<point1>356,187</point1>
+		<point2>370,194</point2>
+	</walk_boundary_def>
+
+	<walk_boundary_def location="Stone stair 2">
+		<sound>Stone 2Foot</sound>
+		<point1>283,156</point1>
+		<point2>284,167</point2>
+	</walk_boundary_def>
+
+	<walk_boundary_def location="stone pad around">
+		<sound>Stone 2Foot</sound>
+		<point1>216,36</point1>
+		<point2>216,53</point2>
+		<point3>227,53</point3>
+		<point4>217,36</point4>
+	</walk_boundary_def>
+
+	<walk_boundary_def location="stone pad 2 around">
+		<sound>Stone 2Foot</sound>
+		<point1>234,50</point1>
+		<point2>234,53</point2>
+		<point3>250,53</point3>
+		<point4>250,38</point4>
+	</walk_boundary_def>
+
+	<walk_boundary_def location="stone pad 3 around">
+		<sound>Stone 2Foot</sound>
+		<point1>240,18</point1>
+		<point2>249,30</point2>
+		<point3>250,30</point3>
+		<point4>250,18</point4>
+	</walk_boundary_def>
+
+	<walk_boundary_def location="stone pad 4 around">
+		<sound>Stone 2Foot</sound>
+		<point1>216,18</point1>
+		<point2>216,29</point2>
+		<point3>218,29</point3>
+		<point4>232,18</point4>
+	</walk_boundary_def>
+
+	<walk_boundary_def location="Stone around lava">
+		<sound>Stone 2Foot</sound>
+		<point1>13,342</point1>
+		<point2>31,355</point2>
+	</walk_boundary_def>
+</map>
+
+<map id="15" name="Portland">
+	<boundary_def>
+		<background>Forest03</background>
+		<time_of_day_flags>0x007e</time_of_day_flags>
+		<is_default>1</is_default>
+	</boundary_def>
+	<boundary_def>
+		<background>Forest Night02</background>
+		<time_of_day_flags>0x0f81</time_of_day_flags>
+		<is_default>1</is_default>
+	</boundary_def>
+ 	<walk_boundary_def location="small boats">	
+	  <sound>Wood 2Foot</sound>
+	  <point1>109,17</point1>
+	  <point2>121,24</point2>
+ 	</walk_boundary_def>
+ 	<walk_boundary_def location="ship">	
+	  <sound>Wood 2Foot</sound>
+	  <point1>138,19</point1>
+	  <point2>146,41</point2>
+ 	</walk_boundary_def>
+ 	<walk_boundary_def location="ship">	
+	  <sound>Wood 2Foot</sound>
+	  <point1>144,48</point1>
+	  <point2>152,73</point2>
+ 	</walk_boundary_def>
+ 	<walk_boundary_def location="two ships and dock">	
+	  <sound>Wood 2Foot</sound>
+	  <point1>174,54</point1>
+	  <point2>203,76</point2>
+ 	</walk_boundary_def>
+ 	<walk_boundary_def location="bridge in city">	
+	  <sound>Stone 2Foot</sound>
+	  <point1>155,91</point1>
+	  <point2>168,95</point2>
+ 	</walk_boundary_def>
+ 	<walk_boundary_def location="suspension bridge">	
+	  <sound>Wood 2Foot</sound>
+	  <point1>94,248</point1>
+	  <point2>124,249</point2>
+ 	</walk_boundary_def>
+ 	<walk_boundary_def location="small dock">	
+	  <sound>Wood 2Foot</sound>
+	  <point1>173,200</point1>
+	  <point2>182,209</point2>
+ 	</walk_boundary_def>
+ 	<walk_boundary_def location="bridge=">	
+	  <sound>Stone 2Foot</sound>
+	  <point1>191,228</point1>
+	  <point2>204,232</point2>
+ 	</walk_boundary_def>
+ 	<walk_boundary_def location="wood outside of potion school">	
+	  <sound>Wood 2Foot</sound>
+	  <point1>262,264</point1>
+	  <point2>284,273</point2>
+ 	</walk_boundary_def>
+ 	<walk_boundary_def location="dock and boat">	
+	  <sound>Wood 2Foot</sound>
+	  <point1>31,183</point1>
+	  <point2>46,194</point2>
+ 	</walk_boundary_def> 	 	
+</map>
+<map id="15" name="Portland insides">
+ 	<walk_boundary_def location="wsc sewers bridge">	
+	  <sound>Wood 2Foot</sound>
+	  <point1>162,313</point1>
+	  <point2>167,315</point2>
+ 	</walk_boundary_def>
+ 	<walk_boundary_def location="wsc sewers bridge">	
+	  <sound>Wood 2Foot</sound>
+	  <point1>225,317</point1>
+	  <point2>227,330</point2>
+ 	</walk_boundary_def>
+ 	<walk_boundary_def location="wsc sewers bridge">	
+	  <sound>Wood 2Foot</sound>
+	  <point1>231,305</point1>
+	  <point2>236,306</point2>
+ 	</walk_boundary_def>
+ 	<walk_boundary_def location="wsc sewers bridge">	
+	  <sound>Wood 2Foot</sound>
+	  <point1>297,276</point1>
+	  <point2>299,282</point2>
+ 	</walk_boundary_def>
+ 	<walk_boundary_def location="wsc sewers bridge">	
+	  <sound>Wood 2Foot</sound>
+	  <point1>276,314</point1>
+	  <point2>281,316</point2>
+ 	</walk_boundary_def>
+ 	<walk_boundary_def location="wsc sewers bridge">	
+	  <sound>Wood 2Foot</sound>
+	  <point1>211,349</point1>
+	  <point2>215,254</point2>
+ 	</walk_boundary_def>
+ 	<walk_boundary_def location="wsc sewers bridge">	
+	  <sound>Wood 2Foot</sound>
+	  <point1>366,271</point1>
+	  <point2>370,274</point2>
+ 	</walk_boundary_def>
+ 	<walk_boundary_def location="wsc sewers bridge">	
+	  <sound>Wood 2Foot</sound>
+	  <point1>291,360</point1>
+	  <point2>302,362</point2>
+ 	</walk_boundary_def>
+ 	<walk_boundary_def location="wsc sewers bridge">	
+	  <sound>Wood 2Foot</sound>
+	  <point1>60,318</point1>
+	  <point2>63,329</point2>
+ 	</walk_boundary_def>
+ 	<walk_boundary_def location="wsc sewers bridge">	
+	  <sound>Wood 2Foot</sound>
+	  <point1>96,366</point1>
+	  <point2>124,366</point2>
+ 	</walk_boundary_def>
+ 	<walk_boundary_def location="wsc sewers bridge">	
+	  <sound>Wood 2Foot</sound>
+	  <point1>123,367</point1>
+	  <point2>124,371</point2>
+ 	</walk_boundary_def>  	
+</map>
+<map id="17" name="portland cave">
+<walk_boundary_def location="Bridge over water">
+<sound>Stone 2Foot</sound>
+<point1>36,150</point1>
+<point2>47,155</point2>
+</walk_boundary_def>
+</map>
+<map id="31" name="Morcraven">
+	<boundary_def>
+		<background>Swamp Day</background>
+		<time_of_day_flags>0x007e</time_of_day_flags>
+		<is_default>1</is_default>
+	</boundary_def>
+	<boundary_def>
+		<background>Swamp Night</background>
+		<time_of_day_flags>0x0f81</time_of_day_flags>
+		<is_default>1</is_default>
+	</boundary_def>
+ 	<walk_boundary_def location="dock">	
+	  <sound>Wood 2Foot</sound>
+	  <point1>149,342</point1>
+	  <point2>153,362</point2>
+ 	</walk_boundary_def>
+ 	
+</map>
+<map id="32" name="Morcraven insides">
+<walk_boundary_def location="Small log over chasm">
+<sound>Wood 2Foot</sound>
+<point1>73,230</point1>
+<point2>89,231</point2>
+</walk_boundary_def>
+
+<walk_boundary_def location="Medium log over chasm">
+<sound>Wood 2Foot</sound>
+<point1>140,187</point1>
+<point2>141,202</point2>
+</walk_boundary_def>
+
+<walk_boundary_def location="Mound on water">
+<sound>Dirt 2Foot</sound>
+<point1>218,178</point1>
+<point2>223,184</point2>
+</walk_boundary_def>
+
+<walk_boundary_def location="Other mound on water">
+<sound>Dirt 2Foot</sound>
+<point1>198,177</point1>
+<point2>202,184</point2>
+</walk_boundary_def>
+
+<walk_boundary_def location="Log over water">
+<sound>Wood 2Foot</sound>
+<point1>211,185</point1>
+<point2>214,190</point2>
+</walk_boundary_def>
+
+<walk_boundary_def location="Platform over water">
+<sound>Stone 2Foot</sound>
+<point1>336,31</point1>
+<point2>364,52</point2>
+</walk_boundary_def>
+
+<walk_boundary_def location="Platforms in lava room">
+<sound>Stone 2Foot</sound>
+<point1>342,216</point1>
+<point2>371,251</point2>
+</walk_boundary_def>
+</map>
+
+<map id="33" name="Morcraven cave">
+<walk_boundary_def location="Small boat south">
+<sound>Wood 2Foot</sound>
+<point1>63,32</point1>
+<point2>65,36</point2>
+</walk_boundary_def>
+
+<walk_boundary_def location="Small boat north">
+<sound>Wood 2Foot</sound>
+<point1>71,87</point1>
+<point2>75,89</point2>
+</walk_boundary_def>
+</map>
+
+<map id="22" name="Grubani">
+	<boundary_def>
+		<background>Swamp Day</background>
+		<time_of_day_flags>0x007e</time_of_day_flags>
+		<is_default>1</is_default>
+	</boundary_def>
+	<boundary_def>
+		<background>Swamp Night</background>
+		<time_of_day_flags>0x0f81</time_of_day_flags>
+		<is_default>1</is_default>
+	</boundary_def>
+ 	<walk_boundary_def location="left side of summoning area">	
+	  <sound>Dirt 2Foot</sound>
+	  <point1>37,80</point1>
+	  <point2>41,109</point2>
+ 	</walk_boundary_def>	
+</map>
+<map id="26" name="Naralik">
+	<boundary_def>
+		<background>Meadow01</background>
+		<time_of_day_flags>0x007e</time_of_day_flags>
+		<is_default>1</is_default>
+	</boundary_def>
+	<boundary_def>
+		<background>Forest Night01</background>
+		<time_of_day_flags>0x0f81</time_of_day_flags>
+		<is_default>1</is_default>
+	</boundary_def>
+	<walk_boundary_def location="Naralik Insides Entrance">
+		<sound>Stone 2Foot</sound>
+		<point1>148,173</point1>
+		<point2>159,178</point2>
+	</walk_boundary_def>
+
+	<walk_boundary_def location="Walkway outside sm. house">
+		<sound>Stone 2Foot</sound>
+		<point1>152,83</point1>
+		<point2>168,95</point2>
+	</walk_boundary_def>
+
+	<walk_boundary_def location="Booksellers ledge">
+		<sound>Stone 2Foot</sound>
+		<point1>117,61</point1>
+		<point2>121,70</point2>
+	</walk_boundary_def>
+
+	<walk_boundary_def location="Stairs to Bookseller">
+		<sound>Stone 2Foot</sound>
+		<point1>122,63</point1>
+		<point2>127,63</point2>
+	</walk_boundary_def>
+
+	<walk_boundary_def location="Dirt covering boat">
+		<sound>Wood 2Foot</sound>
+		<point1>51,85</point1>
+		<point2>73,97</point2>
+	</walk_boundary_def>	
+</map>
+<map id="28" name="Naralik Catacombs">
+	<boundary_def>
+		<background>Atmosphere Spooky01</background>
+		<time_of_day_flags>0xffff</time_of_day_flags>
+		<is_default>1</is_default>
+	</boundary_def>
+	<walk_boundary_def location="Pk arena large">
+		<sound>Dirt 2Foot</sound>
+		<point1>95,161</point1>
+		<point2>108,174</point2>
+	</walk_boundary_def>
+
+	<walk_boundary_def location="Bridge across lava">
+		<sound>Stone 2Foot</sound>
+		<point1>72,137</point1>
+		<point2>90,167</point2>
+	</walk_boundary_def>
+
+	<walk_boundary_def location="Stone entrance foyer">
+		<sound>Stone 2Foot</sound>
+		<point1>170,170</point1>
+		<point2>180,179</point2>
+	</walk_boundary_def>	
+</map>	
+<map id="6" name="Crystal Cavern">
+	<boundary_def>
+	<background>Cave Water</background>
+	  <point1>64,150</point1>
+	  <point2>44,181</point2>
+	  <point3>143,181</point3>
+	  <point4>125,150</point4>
+	</boundary_def>
+	<boundary_def>	
+	<background>Cave Water</background>
+	  <point1>98,105</point1>
+	  <point2>124,121</point2>
+	</boundary_def>
+	<boundary_def>	
+	<background>Cave Water</background>
+	  <point1>0,0</point1>
+	  <point2>38,40</point2>
+	</boundary_def>
+	<walk_boundary_def location="Bridge over water">
+		<sound>Stone 2Foot</sound>
+		<point1>121,162</point1>
+		<point2>129,171</point2>
+	</walk_boundary_def>	
+</map>
+<map id="14" name="Underworld">
+	<boundary_def>
+		<background>Atmosphere Underworld</background>
+		<time_of_day_flags>0xffff</time_of_day_flags>
+		<is_default>1</is_default>
+	</boundary_def>
+	<walk_boundary_def location="Bridge over lava (west)">
+		<sound>Stone 2Foot</sound>
+		<point1>84,156</point1>
+		<point2>89,160</point2>
+	</walk_boundary_def>
+
+	<walk_boundary_def location="Bridge over lava (east)">
+		<sound>Stone 2Foot</sound>
+		<point1>108,157</point1>
+		<point2>113,161</point2>
+	</walk_boundary_def>
+
+	<walk_boundary_def location="Bridge over lava (south)">
+		<sound>Stone 2Foot</sound>
+		<point1>96,144</point1>
+		<point2>101,149</point2>
+	</walk_boundary_def>
+
+	<walk_boundary_def location="Boardwalk over lava">
+		<sound>Wood 2Foot</sound>
+		<point1>102,115</point1>
+		<point2>113,121</point2>
+	</walk_boundary_def>
+
+	<walk_boundary_def location="Dirtwalk over lava">
+		<sound>Dirt 2Foot</sound>
+		<point1>66,108</point1>
+		<point2>71,113</point2>
+	</walk_boundary_def>
+</map>
+
+
+<map id="34" name="WS Diamond Cave">
+	<boundary_def>
+		<crowd>Mining Crowd</crowd>
+		<is_default>1</is_default>
+	</boundary_def>
+</map>
+
+<map id="53" name="c2 docks seridia">
+	<walk_boundary_def location="wooden dock around ship">
+		<sound>Wood 2Foot</sound>
+		<point1>48,77</point1>
+		<point2>71,82</point2>
+	</walk_boundary_def>
+
+	<walk_boundary_def location="wooden dock around ship 2">
+		<sound>Wood 2Foot</sound>
+		<point1>71,71</point1>
+		<point2>76,82</point2>
+	</walk_boundary_def>
+
+	<walk_boundary_def location="Rock at entrance to dock">
+		<sound>Stone 2Foot</sound>
+		<point1>18,59</point1>
+		<point2>24,67</point2>
+	</walk_boundary_def>
+
+
+	<walk_boundary_def location="Rock 1 in path">
+		<sound>Stone 2Foot</sound>
+		<point1>29,74</point1>
+		<point2>29,77</point2>
+		<point3>32,78</point3>
+		<point4>31,74</point4>
+	</walk_boundary_def>
+
+	<walk_boundary_def location="Rock 2 in path">
+		<sound>Stone 2Foot</sound>
+		<point1>24,69</point1>
+		<point2>24,72</point2>
+		<point3>27,72</point3>
+		<point4>27,70</point4>
+	</walk_boundary_def>
+
+	<walk_boundary_def location="Rock 3 in path">
+		<sound>Stone 2Foot</sound>
+		<point1>23,54</point1>
+		<point2>26,57</point2>
+	</walk_boundary_def>
+
+	<walk_boundary_def location="Rock 4 in path">
+		<sound>Stone 2Foot</sound>
+		<point1>28,53</point1>
+		<point2>31,55</point2>
+	</walk_boundary_def>
+</map>
+
+<map id="12" name="portals room">
+	<walk_boundary_def location="Walkway over water">
+		<sound>Stone 2Foot</sound>
+		<point1>43,30</point1>
+		<point2>58,54</point2>
+	</walk_boundary_def>
+</map>
+
+<!-- Example of sounds existing for the entire map, without coords:
+	<boundary_def>
+		<background>Forest03</background>
+		<time_of_day_flags>0x007e</time_of_day_flags>
+		<is_default>1</is_default>
+	</boundary_def>
+	<boundary_def>
+		<background>Wind1</background>
+		<time_of_day_flags>0x0f81</time_of_day_flags>
+		<is_default>1</is_default>
+	</boundary_def>
+-->

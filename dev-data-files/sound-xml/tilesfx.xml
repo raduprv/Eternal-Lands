@@ -1,0 +1,71 @@
+<!-- Define some different walking sounds
+
+	We don't need list the "2 footed" actors because they will be covered by the default, but they are listed in this example.
+	Actors too small/don't walk are already excluded by setting sound_scale="0.0" for CAL_walk in the actor def so we can
+	ignore them.
+	Actors with a sound defined by sound="" for CAL_walk, or in the <walk> block in their actor defs will override any sounds
+	here.
+	
+	<tile_type type="Grass">
+		<tiles>1,2,19,50,242</tiles>
+		<default>Grass 2Foot</default>
+		<actor_types sound="Grass 2Foot">
+			Armed Female Goblin,Armed Female Orc,Armed Male Goblin,Armed Male Orc,Armed Skeleton,Cyclops,Female Orc,
+			Feros,Hill Giant,Hobgoblin,Male Goblin,Male Ogre,Male Orc,Medium Gargoyle,Phantom Warrior,Skeleton,
+			Small Gargoyle,Tall Gargoyle,Troll,Yeti
+		</actor_types>
+		<actor_types sound="Grass 4Foot">
+			Arctic Chim,Beaver,Black Bear,Black Dragon,Black Panther,Boar,Cockatrice,Deer,Desert Chimeran,Feran,
+			Forest Chimeran,Grizzly Bear,Leopard,Lion,Mountain Chimeran,Panda Bear,Polar Bear,Puma,Red Dragon,
+			Snow Leopard,Tiger,Unicorn,White Tiger,Wolf
+		</actor_types>
+	</tile_type>
+-->
+<tile_type type="Grass">
+	<tiles>1,2,19,34,50</tiles>
+	<default>Grass 2Foot</default>
+	<actor_types sound="Grass 4Foot">
+		Arctic Chim,Beaver,Black Bear,Black Dragon,Black Panther,Boar,Cockatrice,Deer,Desert Chimeran,Feran,
+		Forest Chimeran,Grizzly Bear,Leopard,Lion,Mountain Chimeran,Panda Bear,Polar Bear,Puma,Red Dragon,
+		Snow Leopard,Tiger,Unicorn,White Tiger,Wolf
+	</actor_types>
+</tile_type>
+<tile_type type="Snow">
+	<tiles>28,29,34,35</tiles>
+	<default>Snow 2Foot</default>
+</tile_type>
+<tile_type type="Stone">
+	<tiles>3,4,5,6,11,13,15,17,18,24,25,26,27,30,31,32,36,37,38,40,41,42,43</tiles>
+	<default>Stone 2Foot</default>
+	<actor_types sound="Stone 4Foot">
+		Arctic Chim,Beaver,Black Bear,Black Dragon,Black Panther,Boar,Cockatrice,Deer,Desert Chimeran,Feran,
+		Forest Chimeran,Grizzly Bear,Leopard,Lion,Mountain Chimeran,Panda Bear,Polar Bear,Puma,Red Dragon,
+		Snow Leopard,Tiger,Unicorn,White Tiger,Wolf
+	</actor_types>
+</tile_type>
+<tile_type type="Wood">
+	<tiles>22,23</tiles>
+	<default>Wood 2Foot</default>
+	<actor_types sound="Wood 4Foot">
+		Arctic Chim,Beaver,Black Bear,Black Dragon,Black Panther,Boar,Cockatrice,Deer,Desert Chimeran,Feran,
+		Forest Chimeran,Grizzly Bear,Leopard,Lion,Mountain Chimeran,Panda Bear,Polar Bear,Puma,Red Dragon,
+		Snow Leopard,Tiger,Unicorn,White Tiger,Wolf
+	</actor_types>
+</tile_type>
+<tile_type type="Leaves">
+	<tiles>7,8,48</tiles>
+	<default>Leaves 2Foot</default>
+</tile_type>
+<tile_type type="Dirt">
+	<tiles>9,10,12,14,16,44,45,46,47,49,240</tiles>
+	<default>Dirt 2Foot</default>
+	<actor_types sound="Dirt 4Foot">
+		Arctic Chim,Beaver,Black Bear,Black Dragon,Black Panther,Boar,Cockatrice,Deer,Desert Chimeran,Feran,
+		Forest Chimeran,Grizzly Bear,Leopard,Lion,Mountain Chimeran,Panda Bear,Polar Bear,Puma,Red Dragon,
+		Snow Leopard,Tiger,Unicorn,White Tiger,Wolf
+	</actor_types>
+</tile_type>
+<tile_type type="Water">
+	<tiles>0,231,232,233,241,242</tiles>
+	<default>Water 2Foot</default>
+</tile_type>
