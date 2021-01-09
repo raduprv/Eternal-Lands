@@ -3421,7 +3421,7 @@ void setup_map_sounds (int map_num)
 		{
 			snd_cur_map = i;
 #ifdef DEBUG_MAP_SOUND
-			safe_snprintf(str, sizeof(str), "Snd config map ID: %d, Snd config map name: %s", i, sound_map_data[i].name);
+			safe_snprintf(str, sizeof(str), "Snd config map ID: %d, Snd config map name: %s", sound_map_data[i].id, sound_map_data[i].name);
 			LOG_TO_CONSOLE(c_red1, str);
 			print_sound_boundary_coords(map_num);
 #endif // DEBUG_MAP_SOUND
