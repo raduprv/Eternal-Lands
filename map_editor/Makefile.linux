@@ -4,11 +4,11 @@ CC=gcc
 CXX=g++
 LINK=g++
 
-FEATURES  = EYE_CANDY
 FEATURES += CLUSTER_INSIDES
 FEATURES += NEW_LIGHT_FORMAT
 FEATURES += ZLIB
 FEATURES += ZLIBW
+#FEATURES += EYE_CANDY # Unstable
 
 PLATFORM=-march=native
 CWARN=-Wall -Wdeclaration-after-statement -Werror
