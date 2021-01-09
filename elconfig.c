@@ -247,7 +247,7 @@ static unsigned char elconf_description_buffer[400]= {0};
 static int last_description_idx = -1;
 #endif
 struct {
-	Uint32	tab;
+	Sint32	tab;
 	Uint16	x;
 	Uint16	y;
 } elconfig_tabs[MAX_TABS];
@@ -3514,6 +3514,9 @@ static void elconfig_populate_tabs(void)
 		int current_x = elconfig_tabs[tab_id].x;
 		int current_y = elconfig_tabs[tab_id].y;
 
+		if (elconfig_tabs[tab_id].tab < 0)
+			continue;
+
 		switch(var->type)
 		{
 			case OPT_BOOL_INI:
@@ -3806,6 +3809,8 @@ void display_elconfig_win(void)
 		{
 			/* configure scrolling for any tabs that exceed the window length */
 			int window_height = widget_get_height(elconfig_win, elconfig_tab_collection_id) -TAB_TAG_HEIGHT;
+			if (elconfig_tabs[i].tab < 0)
+				continue;
 			if (elconfig_tabs[i].y > window_height)
 			{
 				set_window_scroll_len(elconfig_tabs[i].tab, elconfig_tabs[i].y - window_height);
