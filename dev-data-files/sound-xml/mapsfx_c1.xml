@@ -1,4 +1,4 @@
-<map id="0" name="Isla Prima">
+<map id="162" name="Isla Prima">
 	<boundary_def>
 		<background>Forest02</background>
 		<time_of_day_flags>0x007e</time_of_day_flags>
@@ -81,7 +81,7 @@
 		<point4>191,0</point4>
 	</boundary_def>		
 </map>
-<map id="1" name="Whitestone">
+<map id="132" name="Whitestone">
 	<boundary_def>
 		<background>Forest02</background>
 		<time_of_day_flags>0x007e</time_of_day_flags>
@@ -184,7 +184,7 @@
 	</boundary_def>
 </map>
 
-<map id="3" name="White Stone insides">
+<map id="134" name="White Stone insides">
 	<walk_boundary_def location="Round walkway in aluwen's temple">
 		<sound>Stone 2Foot</sound>
 		<point1>23,234</point1>
@@ -224,7 +224,7 @@
 	</walk_boundary_def>
 </map>
 
-<map id="4" name="Desert Pines">
+<map id="136" name="Desert Pines">
 	<boundary_def>
 		<background>Forest02</background>
 		<point1>0,268</point1>
@@ -320,7 +320,7 @@
 	</walk_boundary_def>	
 </map>
 
-<map id="5" name="Desert Pines Insides">
+<map id="137" name="Desert Pines Insides">
 	<walk_boundary_def location="Around tree">
 		<sound>Dirt 2Foot</sound>
 		<point1>92,165</point1>
@@ -334,7 +334,7 @@
 	</walk_boundary_def>
 </map>
 
-<map id="9" name="Tirnym">
+<map id="139" name="Tirnym">
 	<boundary_def>
 		<background>Forest02</background>
 		<time_of_day_flags>0x007e</time_of_day_flags>
@@ -374,7 +374,7 @@
 	  <point4>191,58</point4>
 	</boundary_def> 	
 </map>
-<map id="142" name="Tirnym past">
+<map id="138" name="Tirnym past">
 	<boundary_def>
 		<background>Forest02</background>
 		<time_of_day_flags>0x007e</time_of_day_flags>
@@ -414,7 +414,7 @@
 	  <point4>191,58</point4>
 	</boundary_def> 	
 </map>
-<map id="10" name="Valley of the Dwarves">
+<map id="140" name="Valley of the Dwarves">
 	<boundary_def>
 		<background>Meadow01</background>
 		<time_of_day_flags>0x007e</time_of_day_flags>
@@ -482,7 +482,7 @@
 	  <point4>155,172</point4>
 	</boundary_def>		
 </map>
-<map id="36" name="Nordcarn">
+<map id="124" name="Nordcarn">
 	<boundary_def>
 		<background>Meadow01</background>
 		<time_of_day_flags>0x007e</time_of_day_flags>
@@ -501,7 +501,7 @@
 	  <point4>77,152</point4>
  	</walk_boundary_def>	
 </map>
-<map id="44" name="Nordcarn cave">
+<map id="125" name="Nordcarn cave">
 	<walk_boundary_def location="northern dock">
 		<sound>Wood 2Foot</sound>
 		<point1>148,138</point1>
@@ -513,7 +513,7 @@
 		<point2>67,104</point2>
 	</walk_boundary_def>
 </map>
-<map id="24" name="Kilaran Field">
+<map id="129" name="Kilaran Field">
 	<boundary_def>
 		<background>Meadow01</background>
 		<time_of_day_flags>0x007e</time_of_day_flags>
@@ -535,7 +535,7 @@
 	  <point2>80,72</point2>
  	</walk_boundary_def>	 	
 </map>
-<map id="29" name="South Kilaran Field">
+<map id="126" name="South Kilaran Field">
 	<boundary_def>
 		<background>Meadow01</background>
 		<time_of_day_flags>0x007e</time_of_day_flags>
@@ -553,7 +553,7 @@
  	</walk_boundary_def>	
 </map>
 
-<map id="38" name="South Kilaran Field inside carmien manor">
+<map id="127" name="South Kilaran Field inside carmien manor">
 <walk_boundary_def location="Wooden walkway 1">
 <sound>Wood 2Foot</sound>
 <point1>95,136</point1>
@@ -579,7 +579,7 @@
 </walk_boundary_def>
 </map>
 
-<map id="18" name="Tahraji Desert">
+<map id="130" name="Tahraji Desert">
 	<boundary_def>
 		<background>Desert01</background>
 		<time_of_day_flags>0xffff</time_of_day_flags>
@@ -591,7 +591,7 @@
 	  <point2>171,283</point2>
  	</walk_boundary_def>	
 </map>
-<map id="35" name="Tahraji Desert cave">
+<map id="131" name="Tahraji Desert cave">
 <walk_boundary_def location="Wood bridge over water">
 <sound>Wood 2Foot</sound>
 <point1>13,49</point1>
@@ -628,7 +628,7 @@
 <point2>61,122</point2>
 </walk_boundary_def>
 </map>
-<map id="39" name="Tarsengaard">
+<map id="118" name="Tarsengaard">
 	<boundary_def>
 		<background>Forest02</background>
 		<time_of_day_flags>0x007e</time_of_day_flags>
@@ -736,7 +736,7 @@
  	</walk_boundary_def> 	 	
 </map>
 
-<map id="40" name="Tarsengaard insides">
+<map id="119" name="Tarsengaard insides">
 	<walk_boundary_def location="Wooden Dock with casket">
 		<sound>Wood 2Foot</sound>
 		<point1>201,354</point1>
@@ -744,7 +744,7 @@
 	</walk_boundary_def>
 </map>
 
-<map id="42" name="Tarsengaard crypt">
+<map id="123" name="Tarsengaard crypt">
 	<walk_boundary_def location="casket cover">
 		<sound>wood 2Foot</sound>
 		<point1>70,73</point1>
@@ -752,7 +752,7 @@
 	</walk_boundary_def>
 </map>
 
-<map id="41" name="Tarsengaard magic school">
+<map id="120" name="Tarsengaard magic school">
 	<walk_boundary_def location="Dirt 1 in path">
 		<sound>Dirt 2Foot</sound>
 		<point1>358,74</point1>
@@ -816,7 +816,7 @@
 	</walk_boundary_def>
 </map>
 
-<map id="15" name="Portland">
+<map id="142" name="Portland">
 	<boundary_def>
 		<background>Forest03</background>
 		<time_of_day_flags>0x007e</time_of_day_flags>
@@ -878,7 +878,7 @@
 	  <point2>46,194</point2>
  	</walk_boundary_def> 	 	
 </map>
-<map id="15" name="Portland insides">
+<map id="143" name="Portland insides">
  	<walk_boundary_def location="wsc sewers bridge">	
 	  <sound>Wood 2Foot</sound>
 	  <point1>162,313</point1>
@@ -935,14 +935,14 @@
 	  <point2>124,371</point2>
  	</walk_boundary_def>  	
 </map>
-<map id="17" name="portland cave">
+<map id="144" name="portland cave">
 <walk_boundary_def location="Bridge over water">
 <sound>Stone 2Foot</sound>
 <point1>36,150</point1>
 <point2>47,155</point2>
 </walk_boundary_def>
 </map>
-<map id="31" name="Morcraven">
+<map id="145" name="Morcraven">
 	<boundary_def>
 		<background>Swamp Day</background>
 		<time_of_day_flags>0x007e</time_of_day_flags>
@@ -960,7 +960,7 @@
  	</walk_boundary_def>
  	
 </map>
-<map id="32" name="Morcraven insides">
+<map id="146" name="Morcraven insides">
 <walk_boundary_def location="Small log over chasm">
 <sound>Wood 2Foot</sound>
 <point1>73,230</point1>
@@ -1004,7 +1004,7 @@
 </walk_boundary_def>
 </map>
 
-<map id="33" name="Morcraven cave">
+<map id="147" name="Morcraven cave">
 <walk_boundary_def location="Small boat south">
 <sound>Wood 2Foot</sound>
 <point1>63,32</point1>
@@ -1018,7 +1018,7 @@
 </walk_boundary_def>
 </map>
 
-<map id="22" name="Grubani">
+<map id="151" name="Grubani">
 	<boundary_def>
 		<background>Swamp Day</background>
 		<time_of_day_flags>0x007e</time_of_day_flags>
@@ -1035,7 +1035,7 @@
 	  <point2>41,109</point2>
  	</walk_boundary_def>	
 </map>
-<map id="26" name="Naralik">
+<map id="148" name="Naralik">
 	<boundary_def>
 		<background>Meadow01</background>
 		<time_of_day_flags>0x007e</time_of_day_flags>
@@ -1076,7 +1076,7 @@
 		<point2>73,97</point2>
 	</walk_boundary_def>	
 </map>
-<map id="28" name="Naralik Catacombs">
+<map id="150" name="Naralik Catacombs">
 	<boundary_def>
 		<background>Atmosphere Spooky01</background>
 		<time_of_day_flags>0xffff</time_of_day_flags>
@@ -1100,7 +1100,7 @@
 		<point2>180,179</point2>
 	</walk_boundary_def>	
 </map>	
-<map id="6" name="Crystal Cavern">
+<map id="5" name="Crystal Cavern">
 	<boundary_def>
 	<background>Cave Water</background>
 	  <point1>64,150</point1>
@@ -1124,7 +1124,7 @@
 		<point2>129,171</point2>
 	</walk_boundary_def>	
 </map>
-<map id="14" name="Underworld">
+<map id="157" name="Underworld">
 	<boundary_def>
 		<background>Atmosphere Underworld</background>
 		<time_of_day_flags>0xffff</time_of_day_flags>
@@ -1162,14 +1162,14 @@
 </map>
 
 
-<map id="34" name="WS Diamond Cave">
+<map id="133" name="WS Diamond Cave">
 	<boundary_def>
 		<crowd>Mining Crowd</crowd>
 		<is_default>1</is_default>
 	</boundary_def>
 </map>
 
-<map id="53" name="c2 docks seridia">
+<map id="2" name="c2 docks seridia">
 	<walk_boundary_def location="wooden dock around ship">
 		<sound>Wood 2Foot</sound>
 		<point1>48,77</point1>
@@ -1218,7 +1218,7 @@
 	</walk_boundary_def>
 </map>
 
-<map id="12" name="portals room">
+<map id="156" name="portals room">
 	<walk_boundary_def location="Walkway over water">
 		<sound>Stone 2Foot</sound>
 		<point1>43,30</point1>
