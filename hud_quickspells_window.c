@@ -735,16 +735,6 @@ void set_quickspell_options(unsigned int options, unsigned int position)
 		reset_quickspells();
 }
 
-#ifdef ANDROID
-// ANDROID_TODO clean this up - perhaps double tap to add not just tap?
-int remove_all_quickspells(void)
-{
-	size_t i;
-	for (i = num_quickspell_slots; i >= 1; i--)
-		remove_quickspell(i);
-	return 1;
-}
-#endif
 
 #ifdef JSON_FILES
 void read_quickspell_options(const char *dict_name)

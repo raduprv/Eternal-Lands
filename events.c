@@ -27,10 +27,8 @@
 #include "actor_scripts.h"
 
 #ifdef ANDROID
-int last_mouse_x;
-int last_mouse_y;
-int last_mouse_flags;
 int back_on;
+float long_touch_delay_s = 0.5f;
 #endif
 
 #ifdef OSX
@@ -195,6 +193,28 @@ void check_minimised_or_restore_window(void)
 	}
 }
 
+#ifdef ANDROID
+typedef struct
+{
+	float tfinger_x;
+	float tfinger_y;
+} LONG_TOUCH_STRUCT;
+
+Uint32 gen_EVENT_LONG_TOUCH_callback(Uint32 interval, void *param)
+{
+	SDL_Event event;
+	SDL_UserEvent userevent;
+	userevent.type = SDL_USEREVENT;
+	userevent.code = EVENT_LONG_TOUCH;
+	userevent.data1 = param;
+	userevent.data2 = NULL;
+	event.type = SDL_USEREVENT;
+	event.user = userevent;
+	SDL_PushEvent(&event);
+	return 0;
+}
+#endif
+
 int HandleEvent (SDL_Event *event)
 {
 	int done = 0;
@@ -204,12 +224,15 @@ int HandleEvent (SDL_Event *event)
 	SDL_Keymod  mod_key_status = 0;
 	Uint8 unicode = '\0';
 #ifdef ANDROID
-	static int finger_right_click = 0;
-	static int finger_left_click = 0;
-	static int finger_motion = 0;
-	static Uint32 last_mouse_down_start = 0;
-	static Uint32 last_mouse_down_delta = 0;
+	static int last_mouse_x;
+	static int last_mouse_y;
+	static int last_mouse_flags;
+	static SDL_bool have_finger_motion = SDL_FALSE;
+	static Uint32 last_finger_down_start = 0;
+	static SDL_bool have_usable_finger = SDL_FALSE;
 	static Uint32 last_gesture_time = 0;
+	static SDL_TimerID long_touch_timer_id = 0;
+	static LONG_TOUCH_STRUCT long_touch_info = {0.0f, 0.0f};
 #endif
 	static Uint32 last_loss = 0;
 	static Uint32 last_gain = 0;
@@ -366,14 +389,15 @@ int HandleEvent (SDL_Event *event)
 
 #ifdef ANDROID
 		case SDL_MULTIGESTURE:
-			finger_motion = 0;
-			last_mouse_down_start = 0;
+			SDL_RemoveTimer(long_touch_timer_id);
+			have_finger_motion = SDL_FALSE;
+			last_finger_down_start = 0;
 			last_gesture_time = SDL_GetTicks();
 			multi_gesture_in_windows(event->mgesture.timestamp, event->mgesture.x, event->mgesture.y, event->mgesture.dDist, event->mgesture.dTheta);
 			break;
 
 		case SDL_FINGERMOTION:
-			if (((SDL_GetTicks() - last_gesture_time) > 100) && ((SDL_GetTicks() - last_mouse_down_start) > 100))
+			if (((SDL_GetTicks() - last_gesture_time) > 100) && ((SDL_GetTicks() - last_finger_down_start) > 100))
 			{
 				int drag_x = (int)(event->tfinger.x * window_width + 0.5);
 				int drag_y = (int)(event->tfinger.y * window_height + 0.5);
@@ -384,78 +408,60 @@ int HandleEvent (SDL_Event *event)
 				{
 					if (drag_windows (drag_x, drag_y, drag_dx, drag_dy) >= 0)
 					{
-						last_mouse_down_start = 0;
-						finger_motion++;
+						SDL_RemoveTimer(long_touch_timer_id);
+						last_finger_down_start = 0;
+						have_finger_motion = SDL_TRUE;
 						return done;
 					}
 
 					if (drag_in_windows (drag_x, drag_y, ELW_LEFT_MOUSE, drag_dx, drag_dy) >= 0)
 					{
-						last_mouse_down_start = 0;
-						finger_motion++;
+						SDL_RemoveTimer(long_touch_timer_id);
+						last_finger_down_start = 0;
+						have_finger_motion = SDL_TRUE;
 						return done;
 					}
 				}
 
 				if ((abs(drag_dx) > 3) || (abs(drag_dy) > 3))
 				{
-					last_mouse_down_start = 0;
-					finger_motion++;
+					SDL_RemoveTimer(long_touch_timer_id);
+					last_finger_down_start = 0;
+					have_finger_motion = SDL_TRUE;
 					finger_motion_in_windows(event->tfinger.timestamp, event->tfinger.x, event->tfinger.y, event->tfinger.dx, event->tfinger.dy);
 				}
 			}
 			break;
 
 		case SDL_FINGERDOWN:
-			last_mouse_down_start = SDL_GetTicks();
-			last_mouse_down_delta = 0;
-			finger_left_click = finger_right_click = finger_motion = 0;
+			last_finger_down_start = SDL_GetTicks();
+			have_usable_finger = SDL_FALSE;
+			have_finger_motion = SDL_FALSE;
+			SDL_RemoveTimer(long_touch_timer_id);
+			long_touch_info.tfinger_x = event->tfinger.x; long_touch_info.tfinger_y = event->tfinger.y;
+			long_touch_timer_id = SDL_AddTimer((Uint32)(1000 * long_touch_delay_s), gen_EVENT_LONG_TOUCH_callback, &long_touch_info);
 			break;
 
-
 		case SDL_FINGERUP:
-			if (finger_motion)
+			SDL_RemoveTimer(long_touch_timer_id);
+			if (have_finger_motion)
 			{
-				finger_motion = 0;
+				have_finger_motion = SDL_FALSE;
 				end_drag_windows();
 			}
-
-			if (last_mouse_down_start <= 0)
-			{
-				finger_left_click = finger_right_click = 0;
+			if (last_finger_down_start == 0)
 				break;
-			}
-
-			last_mouse_down_delta = SDL_GetTicks() - last_mouse_down_start;
-			last_mouse_down_start = 0;
-
-			if (last_mouse_down_delta > 250)
-			{
-				finger_left_click = 0;
-				finger_right_click++;
-			}
-			else
-				finger_left_click++;
-
-			if (finger_left_click)
-				flags |= ELW_LEFT_MOUSE;
-			if (finger_right_click)
-				flags |= ELW_RIGHT_MOUSE;
-
-			mouse_x = (int)(0.5 + window_width * event->tfinger.x);
-			mouse_y = (int)(0.5 + window_height * event->tfinger.y);
-
 			if (afk_time)
 				last_action_time = cur_time;	// Set the latest events - don't make mousemotion set the afk_time... (if you prefer that mouse motion sets/resets the afk_time, then move this one step below...
-
-			if ((finger_left_click == 1) || (finger_right_click == 1))
-			{
-				last_mouse_x = mouse_x;
-				last_mouse_y = mouse_y;
-				last_mouse_flags = flags;
-				click_in_windows (mouse_x, mouse_y, flags);
-			}
-
+			have_usable_finger = SDL_TRUE;
+			last_finger_down_start = 0;
+			flags |= ELW_LEFT_MOUSE;
+			mouse_x = (int)(0.5 + window_width * event->tfinger.x);
+			mouse_y = (int)(0.5 + window_height * event->tfinger.y);
+			last_mouse_x = mouse_x;
+			last_mouse_y = mouse_y;
+			last_mouse_flags = flags;
+			click_in_windows (mouse_x, mouse_y, flags);
 			break;
 
 #else // ANDROID
@@ -626,9 +632,23 @@ int HandleEvent (SDL_Event *event)
 				break;
 #ifdef ANDROID
 			case	EVENT_CURSOR_CALCULATION_COMPLETE:
-				if (last_mouse_down_delta > 0)
+				if (have_usable_finger)
 					click_in_windows (last_mouse_x, last_mouse_y, last_mouse_flags);
 				break;
+			case	EVENT_LONG_TOUCH:
+			{
+				LONG_TOUCH_STRUCT *info = (LONG_TOUCH_STRUCT *)event->user.data1;
+				if (info != NULL)
+				{
+					last_mouse_x = mouse_x = (int)(0.5 + window_width * info->tfinger_x);
+					last_mouse_y = mouse_y = (int)(0.5 + window_height * info->tfinger_y);
+					last_mouse_flags = flags |= ELW_RIGHT_MOUSE;
+					have_usable_finger = SDL_TRUE;
+					last_finger_down_start = 0;
+					click_in_windows (mouse_x, mouse_y, flags);
+				}
+				break;
+			}
 #endif
 			case	EVENT_UPDATE_PARTICLES:
 				update_particles();

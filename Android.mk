@@ -7,22 +7,18 @@ LOCAL_MODULE := main
 SDL_PATH := ../SDL2
 SDL_IMAGE_PATH := ../SDL2_image
 SDL_NET_PATH := ../SDL2_net
-#SDL_TTF_PATH := ../SDL2_ttf
-GLSHIM_PATH := ../glshim
 CAL3D_PATH := ../cal3d/src/
 LIBXML2_PATH := ../libxml2
 EXTRAS_PATH := ../extras
-GL4ES_PATH := ../downloads/gl4es/
+GL4ES_PATH := ../gl4es/
 
 LOCAL_C_INCLUDES := $(LOCAL_PATH)/$(SDL_PATH)/include \
 $(LOCAL_PATH)/$(SDL_IMAGE_PATH) \
 $(LOCAL_PATH)/$(SDL_NET_PATH) \
-$(LOCAL_PATH)/$(GLSHIM_PATH) \
 $(LOCAL_PATH)/$(CAL3D_PATH) \
 $(LOCAL_PATH)/$(LIBXML2_PATH)/include/ \
 $(LOCAL_PATH)/$(EXTRAS_PATH)/ \
 $(LOCAL_PATH)/$(GL4ES_PATH)/include/
-#$(LOCAL_PATH)/$(SDL_TTF_PATH) \
 
 LOCAL_CFLAGS := \
 	-O3 -fsigned-char -frtti \
@@ -36,7 +32,7 @@ LOCAL_CFLAGS := \
 	-DFUZZY_PATHS \
 	-DBANDWIDTH_SAVINGS \
 	-DANIMATION_SCALING \
-	-DGIT_VERSION=\"1.9.5.20210109\"
+	-DGIT_VERSION=\"1.9.5.20210110\"
 #	-DTTF \
 
 # Add your application source files here...

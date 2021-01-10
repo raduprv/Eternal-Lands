@@ -33,6 +33,7 @@
  #include "draw_scene.h"
  #include "emotes.h"
  #include "errors.h"
+ #include "events.h"
  #include "elwindows.h"
  #include "filter.h"
  #include "gamewin.h"
@@ -2673,6 +2674,9 @@ static void init_ELC_vars(void)
 #ifndef ANDROID
 	add_var(OPT_MULTI,"trade_log_mode","tradelogmode",&trade_log_mode,change_int, TRADE_LOG_NONE,"Trade log","Set how successful trades are logged.",CONTROLS,"Do not log trades", "Log only to console", "Log only to file", "Log to console and file", NULL);
 #endif
+#ifdef ANDROID
+	add_var(OPT_FLOAT,"long_touch_delay_s", "ltds", &long_touch_delay_s, change_float, 0.5, "Long Touch Delay (seconds)", "The time to wait before interpreting a long touch as a right-click equivalent", CONTROLS, 0.2, 2.0, 0.05);
+#endif
 	// CONTROLS TAB
 
 
@@ -3833,10 +3837,8 @@ static void elconfig_populate_tabs(void)
 		our_vars.var[i]->widgets.label_id= label_id;
 		our_vars.var[i]->widgets.widget_id= widget_id;
 		//Make the description print when the mouse is over a widget
-#ifndef ANDROID
 		widget_set_OnMouseover(window_id, label_id, mouseover_option_label_handler);
 		widget_set_OnMouseover(window_id, widget_id, mouseover_option_handler);
-#endif
 		//left click used only to tolle BOOL, right click to open context menu
 		widget_set_OnClick(window_id, label_id, onclick_label_handler);
 	}

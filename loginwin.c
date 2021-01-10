@@ -223,7 +223,14 @@ static int resize_login_handler (window_info *win, Uint32 w, Uint32 h)
 		max_width, NULL, NULL);
 
 	height = username_bar_y_len + password_bar_y_len + button_y_len + (3 + num_rules_lines) * win->default_font_len_y;
+#ifdef ANDROID
+	if (SDL_IsScreenKeyboardShown(el_gl_window))
+		username_bar_y = passmngr_button_y = height / 5;
+	else
+		username_bar_y = passmngr_button_y = half_screen_y - height / 2;
+#else
 	username_bar_y = passmngr_button_y = half_screen_y - height / 2;
+#endif
 	username_text_y = username_bar_y + username_bar_y_len/4;
 	password_bar_y = username_bar_y + username_bar_y_len + win->default_font_len_y;
 	password_text_y = password_bar_y + password_bar_y_len/4;
@@ -305,6 +312,15 @@ static int display_login_handler (window_info *win)
 	float select_u[2] = {32.0 * (float)(10 % 8)/256.0, 32.0 * (float)(24 % 8)/256.0 };
 	float select_v[2] = {32.0 * (float)(10 >> 3)/256.0, select_v[1] = 32.0 * (float)(24 >> 3)/256.0 };
 
+#ifdef ANDROID
+	static SDL_bool last_KeyboardShown = 0;
+	if (SDL_IsScreenKeyboardShown(el_gl_window) != last_KeyboardShown)
+	{
+		resize_login_handler(win, win->len_x, win->len_y);
+		last_KeyboardShown = SDL_IsScreenKeyboardShown(el_gl_window);
+	}
+#endif
+
 	draw_console_pic(login_text);
 
 	// ok, start drawing the interface...
@@ -373,8 +389,11 @@ static int display_login_handler (window_info *win)
 		int num_lines = reset_soft_breaks((unsigned char*)log_in_error_str,
 			strlen(log_in_error_str), sizeof (log_in_error_str), UI_FONT,
 			win->current_scale, max_win_width, NULL, NULL);
+		int y_offset = username_bar_y - (num_lines + 2) * win->default_font_len_y;
+		if (y_offset < 0)
+			y_offset = 0;
 		glColor3f (1.0f, 0.0f, 0.0f);
-		draw_string_zoomed_centered(window_width/2, username_bar_y - (num_lines + 2) * win->default_font_len_y, (const unsigned char*)log_in_error_str, num_lines, win->current_scale);
+		draw_string_zoomed_centered(window_width/2, y_offset, (const unsigned char*)log_in_error_str, num_lines, win->current_scale);
 	}
 
 	CHECK_GL_ERRORS ();

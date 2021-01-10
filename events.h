@@ -24,6 +24,7 @@ enum {
 	EVENT_DOWNLOAD_COMPLETE, /*!< the normal event to send when a download finishes */
 #ifdef ANDROID
 	EVENT_CURSOR_CALCULATION_COMPLETE, /*!< event to send after the what is under mouse was calculated in the display loop */
+	EVENT_LONG_TOUCH,		 /*!< for non-moving touch event, this will trigger a right-click equlivient event after a deley */
 #endif
 #ifdef PAWN
 	EVENT_PAWN_TIMER,        /*!< event for running Pawn timer callbacks */
@@ -40,6 +41,7 @@ extern int osx_right_mouse_cam; /*!< flag indication whether the right mouse but
 
 #ifdef ANDROID
 extern int back_on; /*!< flag indicating whether the Android back key is pressed. */
+extern float long_touch_delay_s; /*!< Long Touch Delay in seconds. */
 #endif
 
 /*!
