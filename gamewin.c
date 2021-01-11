@@ -2481,6 +2481,7 @@ static int keypress_game_handler (window_info *win, int mx, int my, SDL_Keycode 
 			hud_y=0;
 		}
 		resize_root_window ();
+		resize_all_root_windows(window_width, window_width, window_height, window_height);
 	}
 	else if (KEY_DEF_CMP(K_FIRST_PERSON, key_code, key_mod))
 	{
@@ -2643,11 +2644,6 @@ static int change_game_root_font_handler(window_info *win, font_cat cat)
 
 void create_game_root_window (int width, int height)
 {
-#ifdef ANDROID
-	// ANDROID_TODO - make this an option
-	hud_x=0;
-	hud_y=0;
-#endif
 	if (game_root_win < 0)
 	{
 		game_root_win = create_window ("Game", -1, -1, 0, 0, width, height, ELW_USE_UISCALE|ELW_TITLE_NONE|ELW_SHOW_LAST);

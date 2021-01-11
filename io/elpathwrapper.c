@@ -65,7 +65,7 @@ static const char* cfgdirname = "Library/Application\ Support/Eternal\ Lands";
 #elif defined(WINDOWS)
 static const char* cfgdirname = "Eternal Lands";
 #elif defined(ANDROID)
-static const char* cfgdirname = "conf_and_logs";
+static const char* cfgdirname = "user";
 #else /* *nix */
 static const char* cfgdirname = ".elc";
 #endif // platform check
@@ -138,7 +138,24 @@ const char * get_path_config_base(void)
 		strcpy(locbuffer, cfgdirname);
 	}
 	strcat(locbuffer, "/");
-#else /* !WINDOWS */
+#elif defined(ANDROID)
+	{
+		static int state = -1;
+		if (state == -1)
+			state = SDL_AndroidGetExternalStorageState();
+		if (state == (SDL_ANDROID_EXTERNAL_STORAGE_READ|SDL_ANDROID_EXTERNAL_STORAGE_WRITE))
+			safe_snprintf (locbuffer, sizeof(locbuffer), "%s/%s/", SDL_AndroidGetExternalStoragePath(), cfgdirname);
+		else
+			safe_snprintf (locbuffer, sizeof(locbuffer), "%s/%s/", SDL_AndroidGetInternalStoragePath(), cfgdirname);
+		if (!mkdir_tree (locbuffer, 0))
+		{
+			// Failed to create a configuration direction in the home directory,
+			// try in the current directory and hope that succeeds.
+			safe_snprintf (locbuffer, sizeof (locbuffer), "%s/", cfgdirname);
+			mkdir_tree (locbuffer, 1);
+		}
+	}
+#else /* !WINDOWS !ANDROID*/
 	safe_snprintf (locbuffer, sizeof(locbuffer), "%s/%s/", getenv("HOME"), cfgdirname);
 	if (!mkdir_tree (locbuffer, 0))
 	{
@@ -154,12 +171,6 @@ const char * get_path_config_base(void)
 const char * get_path_config(void)
 {
 	static char locbuffer[MAX_PATH] = {0};
-
-#ifdef ANDROID
-	strcpy(locbuffer,SDL_AndroidGetInternalStoragePath());//?problem with cfg?
-	strcat(locbuffer,"/config/");
-	return locbuffer;
-#endif
 
 	// Check if we have selected a server yet, otherwise return the base config dir
 #ifndef MAP_EDITOR

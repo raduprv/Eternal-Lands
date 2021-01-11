@@ -16,9 +16,7 @@
 #include "hud_quickbar_window.h"
 #include "hud_quickspells_window.h"
 #include "hud_statsbar_window.h"
-#ifndef ANDROID
 #include "hud_timer.h"
-#endif
 #include "init.h"
 #include "interface.h"
 #include "knowledge.h"
@@ -37,9 +35,7 @@ int misc_win = -1;
 int view_analog_clock = 1;
 int view_digital_clock = 0;
 int view_knowledge_bar = 1;
-#ifndef ANDROID
 int view_hud_timer = 1;
-#endif
 int show_stats_in_hud = 0;
 int show_statbars_in_hud = 0;
 int copy_next_LOCATE_ME = 0;
@@ -373,10 +369,8 @@ CHECK_GL_ERRORS();
 		base_y_start -= knowledge_bar_height;
 	}
 
-#ifndef ANDROID
 	/* if the timer is visible, draw it */
 	base_y_start -= display_timer(win, base_y_start, tooltip_sep);
-#endif
 
 	/*	Optionally display the stats bar.  If the current window size does not
 		provide enough room, display only some skills and allow scrolling to view
@@ -531,10 +525,8 @@ static int click_misc_handler(window_info *win, int mx, int my, Uint32 flags)
 		}
 	}
 
-#ifndef ANDROID
 	if (mouse_is_over_timer(win, mx, my))
 		return mouse_click_timer(flags);
-#endif
 
 	// only handle mouse button clicks, not scroll wheels moves
 	if ( (flags & ELW_MOUSE_BUTTON) == 0) return 0;
@@ -624,11 +616,9 @@ static int mouseover_misc_handler(window_info *win, int mx, int my)
 	if (mouse_is_over_knowedge_bar(win, mx, my))
 		mouse_over_knowledge_bar = 1;
 
-#ifndef ANDROID
 	/* check if over the timer */
 	if (mouse_is_over_timer(win, mx, my))
 		set_mouse_over_timer();
-#endif
 
 	/* if mouse over the compass - display the coords */
 	if(my>win->len_y - compass_size && my < win->len_y)
@@ -640,9 +630,7 @@ static int mouseover_misc_handler(window_info *win, int mx, int my)
 
 static int destroy_misc_handler(window_info *win)
 {
-#ifndef ANDROID
 	destroy_timer();
-#endif
 	return 0;
 }
 
@@ -715,14 +703,10 @@ static int ui_scale_misc_handler(window_info *win)
 	digital_clock_zoom = (float)(win->len_x - (int)(0.5 + 6 * win->current_scale)) / digital_clock_width;
 	digital_clock_height = get_line_height(win->font_category, digital_clock_zoom);
 
-#ifndef ANDROID
 	ui_scale_timer(win);
-#endif
 	y_len = compass_size;
-#ifndef ANDROID
 	if (view_hud_timer)
 		y_len += get_height_of_timer();
-#endif
 	if (view_analog_clock)
 		y_len += analog_clock_size;
 	if (view_digital_clock)
@@ -774,9 +758,7 @@ void init_misc_display(void)
 			cm_bool_line(cm_hud_id, CMH_STATS, &show_stats_in_hud, "show_stats_in_hud");
 			cm_bool_line(cm_hud_id, CMH_STATBARS, &show_statbars_in_hud, "show_statbars_in_hud");
 			cm_bool_line(cm_hud_id, CMH_KNOWBAR, &view_knowledge_bar, "view_knowledge_bar");
-#ifndef ANDROID
 			cm_bool_line(cm_hud_id, CMH_TIMER, &view_hud_timer, "view_hud_timer");
-#endif
 			cm_bool_line(cm_hud_id, CMH_DIGCLOCK, &view_digital_clock, "view_digital_clock");
 			cm_bool_line(cm_hud_id, CMH_ANACLOCK, &view_analog_clock, "view_analog_clock");
 			cm_bool_line(cm_hud_id, CMH_SECONDS, &show_game_seconds, "show_game_seconds");

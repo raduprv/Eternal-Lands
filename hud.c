@@ -36,6 +36,9 @@
 
 int hud_x= 64;
 int hud_y= 48;
+#ifdef ANDROID
+int use_transparent_hud = 1;
+#endif
 int hud_text;
 int show_help_text=1;
 int always_enlarge_text=1;
@@ -96,6 +99,15 @@ void init_hud_interface (hud_interface type)
 	}
 	else
 	{
+#ifdef ANDROID
+		if (use_transparent_hud)
+			hud_x = hud_y = 0;
+		else
+		{
+			hud_x = HUD_MARGIN_X;
+			hud_y = HUD_MARGIN_Y;
+		}
+#endif
 		if (hud_x>0)
 			hud_x=HUD_MARGIN_X;
 		resize_root_window();

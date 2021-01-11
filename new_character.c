@@ -933,12 +933,6 @@ void login_from_new_char(void)
 	use_windowed_chat = old_use_windowed_chat;
 	hide_window(newchar_hud_win);
 
-#ifdef ANDROID
-	// ANDROID_TODO clean up when making an option
-	hud_y=0;
-	hud_x=0;
-
-#endif
 	//now send the log in info
 	send_login_info();
 }

@@ -43,9 +43,7 @@
 #include "hud_statsbar_window.h"
 #include "hud_quickbar_window.h"
 #include "hud_indicators.h"
-#ifndef ANDROID
 #include "hud_timer.h"
-#endif
 #include "items.h"
 #ifndef ANDROID
 #include "item_lists.h"
@@ -281,9 +279,11 @@ static void load_cstate(void)
 
 	read_settings_hud_indicators("hud_indicators_window");
 
+#ifndef ANDROID
 	item_lists_set_active(json_cstate_get_unsigned_int("item_lists_window", "active_list", 0));
 	items_list_disable_find_list = json_cstate_get_bool("item_lists_window", "disable_find", 0);
 	items_list_on_left = json_cstate_get_bool("item_lists_window", "on_left", 0);
+#endif
 
 	use_small_items_window = json_cstate_get_bool(get_dict_name_WM(MW_ITEMS, window_dict_name, sizeof(window_dict_name)), "small_size", 0);
 	manual_size_items_window = json_cstate_get_bool(window_dict_name, "manual_size", 0);
@@ -491,8 +491,8 @@ static void read_bin_cfg(void)
 #endif
 	items_mod_click_any_cursor = (cfg_mem.misc_bool_options >> 18) & 1;
 	disable_storage_filter = (cfg_mem.misc_bool_options >> 19) & 1;
-#ifndef ANDROID
 	hud_timer_keep_state = (cfg_mem.misc_bool_options >> 20) & 1;
+#ifndef ANDROID
 	items_list_disable_find_list = (cfg_mem.misc_bool_options >> 21) & 1;
 #endif
 	lock_skills_selection = (cfg_mem.misc_bool_options >> 22) & 1;
@@ -588,9 +588,11 @@ static void save_cstate(void)
 
 	write_settings_hud_indicators("hud_indicators_window");
 
+#ifndef ANDROID
 	json_cstate_set_unsigned_int("item_lists_window", "active_list", item_lists_get_active());
 	json_cstate_set_bool("item_lists_window", "disable_find", items_list_disable_find_list);
 	json_cstate_set_bool("item_lists_window", "on_left", items_list_on_left);
+#endif
 
 	json_cstate_set_bool(get_dict_name_WM(MW_ITEMS, window_dict_name, sizeof(window_dict_name)), "small_size", use_small_items_window);
 	json_cstate_set_bool(window_dict_name, "manual_size", manual_size_items_window);
@@ -757,8 +759,8 @@ void save_bin_cfg(void)
 #endif
 	cfg_mem.misc_bool_options |= items_mod_click_any_cursor << 18;
 	cfg_mem.misc_bool_options |= disable_storage_filter << 19;
-#ifndef ANDROID
 	cfg_mem.misc_bool_options |= hud_timer_keep_state << 20;
+#ifndef ANDROID
 	cfg_mem.misc_bool_options |= items_list_disable_find_list << 21;
 #endif
 	cfg_mem.misc_bool_options |= lock_skills_selection << 22;

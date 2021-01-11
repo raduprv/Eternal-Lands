@@ -18,13 +18,15 @@ $(LOCAL_PATH)/$(SDL_NET_PATH) \
 $(LOCAL_PATH)/$(CAL3D_PATH) \
 $(LOCAL_PATH)/$(LIBXML2_PATH)/include/ \
 $(LOCAL_PATH)/$(EXTRAS_PATH)/ \
-$(LOCAL_PATH)/$(GL4ES_PATH)/include/
+$(LOCAL_PATH)/$(GL4ES_PATH)/include/ \
+nlohmann_json/single_include/
 
 LOCAL_CFLAGS := \
 	-O3 -fsigned-char -frtti \
 	-DANDROID \
 	-DUSE_INLINE \
 	-DELC \
+	-DJSON_FILES \
 	-DFASTER_MAP_LOAD \
 	-DNEW_EYES \
 	-DCLUSTER_INSIDES \
@@ -33,7 +35,6 @@ LOCAL_CFLAGS := \
 	-DBANDWIDTH_SAVINGS \
 	-DANIMATION_SCALING \
 	-DGIT_VERSION=\"1.9.5.20210110\"
-#	-DTTF \
 
 # Add your application source files here...
 LOCAL_SRC_FILES := \
@@ -221,9 +222,11 @@ LOCAL_SRC_FILES := \
 	eye_candy_wrapper.cpp \
 	font.cpp \
 	hud_indicators.cpp \
+	hud_timer.cpp \
 	icon_window.cpp \
 	io/cal3d_io_wrapper.cpp \
 	item_info.cpp \
+	json_io.cpp \
 	named_colours.cpp \
 	optimizer.cpp \
 	password_manager.cpp \

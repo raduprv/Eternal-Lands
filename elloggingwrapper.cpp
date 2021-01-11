@@ -73,7 +73,7 @@ extern "C" void fatal_error_window(const char* file, const Uint32 line,
 	SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Eternal Lands - Fatal Error", str.str().c_str() , NULL);
 
 #ifdef ANDROID
-	SDL_Log("Error: file: %s line: %i message: %s\n",file, line,err_msg);
+	SDL_Log("Fatal Error: file: %s line: %i message: %s\n",file, line,err_msg);
 #endif
 }
 #endif
@@ -140,7 +140,7 @@ extern "C" void log_warning(const char* file, const Uint32 line,
 	el::log_message(el::llt_warning, err_msg, file, line);
 
 #ifdef ANDROID
-	SDL_Log("Error: file: %s line: %i message: %s\n",file, line,err_msg);
+	SDL_Log("Warning: file: %s line: %i message: %s\n",file, line,err_msg);
 #endif
 }
 
@@ -173,7 +173,7 @@ extern "C" void log_info(const char* file, const Uint32 line,
 	el::log_message(el::llt_info, err_msg, file, line);
 
 #ifdef ANDROID
-	SDL_Log("Error: file: %s line: %i message: %s\n",file, line,err_msg);
+	SDL_Log("Info: file: %s line: %i message: %s\n",file, line,err_msg);
 #endif
 }
 
@@ -206,7 +206,7 @@ extern "C" void log_debug(const char* file, const Uint32 line,
 	el::log_message(el::llt_debug, err_msg, file, line);
 
 #ifdef ANDROID
-	SDL_Log("Error: file: %s line: %i message: %s\n",file, line,err_msg);
+	SDL_Log("Debug: file: %s line: %i message: %s\n",file, line,err_msg);
 #endif
 }
 

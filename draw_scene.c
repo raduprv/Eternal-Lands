@@ -15,9 +15,7 @@
 #include "gamewin.h"
 #include "gl_init.h"
 #include "hud.h"
-#ifndef ANDROID
 #include "hud_timer.h"
-#endif
 #include "interface.h"
 #include "items.h"
 #include "main.h"
@@ -176,10 +174,8 @@ void draw_scene()
 			auto_save_local_and_server();
 			/* action on afk state changes */
 			check_afk_state();
-#ifndef ANDROID
 			/* the timer in the hud */
 			update_hud_timer();
-#endif
 			/* check if we need to do buff duration requests */
 			check_then_do_buff_duration_request();
 			/* check if we are doing a server connection test */

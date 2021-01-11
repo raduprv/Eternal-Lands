@@ -502,6 +502,18 @@ static void change_var(int * var)
 	*var= !*var;
 }
 
+#ifdef ANDROID
+static void change_transparent_hud(int * var)
+{
+	*var= !*var;
+	if (game_root_win >= 0)
+	{
+		resize_root_window();
+		resize_all_root_windows(window_width, window_width, window_height, window_height);
+	}
+}
+#endif
+
 #ifndef MAP_EDITOR
 static void change_cursor_scale_factor(int * var, int value)
 {
@@ -2684,12 +2696,15 @@ static void init_ELC_vars(void)
 #ifdef ANDROID
 	add_var(OPT_BOOL,"window_camera_control","window_cc",&window_camera_controls,change_var,1,"Use Full Window Camera Controls","Use Full Window Camera Controls",HUD);
 	add_var(OPT_BOOL,"full_camera_bars","full_cam_bars",&full_camera_bars,change_var,1,"Draw camera bars","Shows the camera bars",HUD);
+	add_var(OPT_BOOL,"use_transparent_hud", "uth", &use_transparent_hud, change_transparent_hud, 1, "Use Transparent Hud", "Removed the background image from the Hud bars.", HUD);
 #endif
 	add_var(OPT_BOOL,"show_fps","fps",&show_fps,change_var,1,"Show FPS","Show the current frames per second in the corner of the window",HUD);
 	add_var(OPT_BOOL,"view_analog_clock","analog",&view_analog_clock,change_var,1,"Analog Clock","Toggle the analog clock",HUD);
 	add_var(OPT_BOOL,"view_digital_clock","digit",&view_digital_clock,change_var,1,"Digital Clock","Toggle the digital clock",HUD);
 	add_var(OPT_BOOL,"view_knowledge_bar","knowledge_bar",&view_knowledge_bar,change_var,1,"Knowledge Bar","Toggle the knowledge bar",HUD);
-#ifndef ANDROID
+#ifdef ANDROID
+	add_var(OPT_BOOL,"view_hud_timer","timer",&view_hud_timer,change_var,0,"Countdown/Stopwatch Timer","Timer controls: Right-click for menu. Shift-left-click to toggle mode. Left-click to start/stop. Mouse wheel to reset, up/down to change countdown start time (+ctrl/alt to change step).",HUD);
+#else
 	add_var(OPT_BOOL,"view_hud_timer","timer",&view_hud_timer,change_var,1,"Countdown/Stopwatch Timer","Timer controls: Right-click for menu. Shift-left-click to toggle mode. Left-click to start/stop. Mouse wheel to reset, up/down to change countdown start time (+ctrl/alt to change step).",HUD);
 #endif
 	add_var(OPT_BOOL,"show_game_seconds","show_game_seconds",&show_game_seconds,change_var,0,"Show Game Seconds","Show seconds on the digital clock. Note: the seconds displayed are computed on client side and synchronized with the server at each new minute.",HUD);
