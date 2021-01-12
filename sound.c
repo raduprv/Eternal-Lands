@@ -3421,7 +3421,7 @@ void setup_map_sounds (int map_num)
 		{
 			snd_cur_map = i;
 #ifdef DEBUG_MAP_SOUND
-			safe_snprintf(str, sizeof(str), "Snd config map ID: %d, Snd config map name: %s", i, sound_map_data[i].name);
+			safe_snprintf(str, sizeof(str), "Snd config map ID: %d, Snd config map name: %s", sound_map_data[i].id, sound_map_data[i].name);
 			LOG_TO_CONSOLE(c_red1, str);
 			print_sound_boundary_coords(map_num);
 #endif // DEBUG_MAP_SOUND
@@ -3746,25 +3746,25 @@ void print_sound_boundaries(int map)
 			}
 			if (bounds->p[2].x == -1 || bounds->p[2].y == -1 || bounds->p[3].x == -1 || bounds->p[3].y == -1)
 			{
-				p[0].x = 51 + 200 * bounds->p[0].x / (tile_map_size_x * scale);
-				p[1].x = 51 + 200 * bounds->p[1].x / (tile_map_size_x * scale);
-				p[2].x = 51 + 200 * bounds->p[1].x / (tile_map_size_x * scale);
-				p[3].x = 51 + 200 * bounds->p[0].x / (tile_map_size_x * scale);
-				p[0].y = 201 - 200 * bounds->p[0].y / (tile_map_size_y * scale);
-				p[1].y = 201 - 200 * bounds->p[0].y / (tile_map_size_y * scale);
-				p[2].y = 201 - 200 * bounds->p[1].y / (tile_map_size_y * scale);
-				p[3].y = 201 - 200 * bounds->p[1].y / (tile_map_size_y * scale);
+				p[0].x = main_map_screen_x_left + (main_map_screen_x_right - main_map_screen_x_left) * bounds->p[0].x / (tile_map_size_x * scale);
+				p[1].x = main_map_screen_x_left + (main_map_screen_x_right - main_map_screen_x_left) * bounds->p[1].x / (tile_map_size_x * scale);
+				p[2].x = main_map_screen_x_left + (main_map_screen_x_right - main_map_screen_x_left) * bounds->p[1].x / (tile_map_size_x * scale);
+				p[3].x = main_map_screen_x_left + (main_map_screen_x_right - main_map_screen_x_left) * bounds->p[0].x / (tile_map_size_x * scale);
+				p[0].y = main_map_screen_y_bottom - (main_map_screen_y_bottom - main_map_screen_y_top) * bounds->p[0].y / (tile_map_size_y * scale);
+				p[1].y = main_map_screen_y_bottom - (main_map_screen_y_bottom - main_map_screen_y_top) * bounds->p[0].y / (tile_map_size_y * scale);
+				p[2].y = main_map_screen_y_bottom - (main_map_screen_y_bottom - main_map_screen_y_top) * bounds->p[1].y / (tile_map_size_y * scale);
+				p[3].y = main_map_screen_y_bottom - (main_map_screen_y_bottom - main_map_screen_y_top) * bounds->p[1].y / (tile_map_size_y * scale);
 			}
 			else
 			{
-				p[0].x = 51 + 200 * bounds->p[0].x / (tile_map_size_x * scale);
-				p[1].x = 51 + 200 * bounds->p[1].x / (tile_map_size_x * scale);
-				p[2].x = 51 + 200 * bounds->p[2].x / (tile_map_size_x * scale);
-				p[3].x = 51 + 200 * bounds->p[3].x / (tile_map_size_x * scale);
-				p[0].y = 201 - 200 * bounds->p[0].y / (tile_map_size_x * scale);
-				p[1].y = 201 - 200 * bounds->p[1].y / (tile_map_size_x * scale);
-				p[2].y = 201 - 200 * bounds->p[2].y / (tile_map_size_x * scale);
-				p[3].y = 201 - 200 * bounds->p[3].y / (tile_map_size_x * scale);
+				p[0].x = main_map_screen_x_left + (main_map_screen_x_right - main_map_screen_x_left) * bounds->p[0].x / (tile_map_size_x * scale);
+				p[1].x = main_map_screen_x_left + (main_map_screen_x_right - main_map_screen_x_left) * bounds->p[1].x / (tile_map_size_x * scale);
+				p[2].x = main_map_screen_x_left + (main_map_screen_x_right - main_map_screen_x_left) * bounds->p[2].x / (tile_map_size_x * scale);
+				p[3].x = main_map_screen_x_left + (main_map_screen_x_right - main_map_screen_x_left) * bounds->p[3].x / (tile_map_size_x * scale);
+				p[0].y = main_map_screen_y_bottom - (main_map_screen_y_bottom - main_map_screen_y_top) * bounds->p[0].y / (tile_map_size_y * scale);
+				p[1].y = main_map_screen_y_bottom - (main_map_screen_y_bottom - main_map_screen_y_top) * bounds->p[1].y / (tile_map_size_y * scale);
+				p[2].y = main_map_screen_y_bottom - (main_map_screen_y_bottom - main_map_screen_y_top) * bounds->p[2].y / (tile_map_size_y * scale);
+				p[3].y = main_map_screen_y_bottom - (main_map_screen_y_bottom - main_map_screen_y_top) * bounds->p[3].y / (tile_map_size_y * scale);
 			}
 
 			glVertex2i(p[0].x, p[0].y);

@@ -247,7 +247,7 @@ static unsigned char elconf_description_buffer[400]= {0};
 static int last_description_idx = -1;
 #endif
 struct {
-	Uint32	tab;
+	Sint32	tab;
 	Uint16	x;
 	Uint16	y;
 } elconfig_tabs[MAX_TABS];
@@ -615,12 +615,12 @@ static void change_int(int * var, int value)
 	if(value>=0) *var= value;
 }
 
-#ifdef ELC
-
 static void change_float(float * var, float * value)
 {
 	*var= *value;
 }
+
+#ifdef ELC
 
 static void change_string(char* var, const char* str, int len)
 {
@@ -2993,7 +2993,10 @@ void init_vars(void)
 	add_var(OPT_BOOL,"show_position_on_minimap","spos",&show_position_on_minimap, change_var, 0,"Show Pos","Show position on the minimap",HUD);
 	add_var(OPT_SPECINT,"auto_save","asv",&auto_save_time, set_auto_save_interval, 0,"Auto Save","Auto Save",HUD,0,INT_MAX);
 	add_var(OPT_BOOL,"show_grid","sgrid",&view_grid, change_var, 0, "Show Grid", "Show grid",HUD);
+	add_var(OPT_BOOL,"show_tooltips","stooltips",&view_tooltips, change_var, 0, "Show Tooltips", "Show tooltips",HUD);
 	add_var(OPT_BOOL,"show_reflections","srefl",&show_mapeditor_reflections, change_var, 0, "Show reflections", "Show reflections, disabling improves editor performance",HUD);
+	add_var(OPT_FLOAT, "ui_scale", "ui_scale", &ui_scale, change_float, 1, "User interface scaling factor",
+		"Scale user interface by this factor, useful for high DPI displays.", FONT, 0.75, 3.0, 0.01);
 #endif
 #ifndef MAP_EDITOR
 	add_var (OPT_BOOL, "use_frame_buffer", "fb", &use_frame_buffer, change_frame_buffer, 0, "Toggle Frame Buffer Support", "Toggle frame buffer support. Used for reflection and shadow mapping.", VIDEO);
@@ -3512,6 +3515,9 @@ static void elconfig_populate_tabs(void)
 		int current_x = elconfig_tabs[tab_id].x;
 		int current_y = elconfig_tabs[tab_id].y;
 
+		if (elconfig_tabs[tab_id].tab < 0)
+			continue;
+
 		switch(var->type)
 		{
 			case OPT_BOOL_INI:
@@ -3804,6 +3810,8 @@ void display_elconfig_win(void)
 		{
 			/* configure scrolling for any tabs that exceed the window length */
 			int window_height = widget_get_height(elconfig_win, elconfig_tab_collection_id) -TAB_TAG_HEIGHT;
+			if (elconfig_tabs[i].tab < 0)
+				continue;
 			if (elconfig_tabs[i].y > window_height)
 			{
 				set_window_scroll_len(elconfig_tabs[i].tab, elconfig_tabs[i].y - window_height);

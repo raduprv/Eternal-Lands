@@ -522,8 +522,8 @@ int storage_item_dragged=-1;
 
 static int post_display_storage_handler(window_info * win)
 {
-	if (cur_item_over !=- 1 && mouse_in_window(win->window_id, mouse_x, mouse_y) == 1
-		&& active_storage_item != storage_items[cur_item_over].pos)
+	if ((cur_item_over !=- 1) && (mouse_in_window(win->window_id, mouse_x, mouse_y) == 1) &&
+		(active_storage_item != storage_items[cur_item_over].pos)  && (storage_items[cur_item_over].quantity > 0))
 	{
 		float zoom = enlarge_text() ? win->current_scale : win->current_scale_small;
 		float line_height = enlarge_text() ? win->default_font_len_y : win->small_font_len_y;
@@ -932,6 +932,7 @@ void display_storage_menu()
 		vscrollbar_set_pos(storage_win, STORAGE_SCROLLBAR_ITEMS, 0);
 	}
 
+	cur_item_over = -1;
 	storage_text[0] = '\0';
 	set_window_name("", "");
 

@@ -1,0 +1,107 @@
+<sound name = "Teleport_in">
+	<variant>
+		<main_sound>sound/teleport_in.ogg</main_sound>
+	</variant>
+	<stereo>0</stereo>
+	<distance>35</distance>
+	<positional>1</positional>
+	<loops>1</loops>
+	<fadeout_time>0</fadeout_time>
+	<echo_delay>0</echo_delay>
+	<echo_volume>0</echo_volume>
+	<time_of_day_flags>0xffff</time_of_day_flags>
+	<priority>5</priority>
+	<type>environmental</type>
+</sound>
+<sound name = "Teleport_out">
+	<variant>
+		<main_sound>sound/teleport_out.ogg</main_sound>
+	</variant>
+	<stereo>0</stereo>
+	<distance>35</distance>
+	<positional>1</positional>
+	<loops>1</loops>
+	<fadeout_time>0</fadeout_time>
+	<echo_delay>0</echo_delay>
+	<echo_volume>0</echo_volume>
+	<time_of_day_flags>0xffff</time_of_day_flags>
+	<priority>5</priority>
+	<type>environmental</type>
+</sound>
+<sound name = "Teleporter">
+	<variant>
+		<main_sound>sound/teleporter.ogg</main_sound>
+	</variant>
+	<stereo>1</stereo>
+	<distance>35</distance>
+	<positional>1</positional>
+	<loops>0</loops>
+	<fadeout_time>0</fadeout_time>
+	<echo_delay>0</echo_delay>
+	<echo_volume>0</echo_volume>
+	<time_of_day_flags>0xffff</time_of_day_flags>
+	<priority>5</priority>
+	<type>map</type>
+</sound>
+<sound name = "Waterfall">
+	<variant>
+		<main_sound>sound/waterfall.ogg</main_sound>
+	</variant>
+	<stereo>1</stereo>
+	<distance>35</distance>
+	<positional>1</positional>
+	<loops>0</loops>
+	<fadeout_time>0</fadeout_time>
+	<echo_delay>0</echo_delay>
+	<echo_volume>0</echo_volume>
+	<time_of_day_flags>0xffff</time_of_day_flags>
+	<priority>5</priority>
+	<type>map</type>
+</sound>
+<sound name = "Fountain">
+	<variant>
+		<main_sound>sound/fountain.ogg</main_sound>
+		<gain>0.5</gain>
+	</variant>
+	<stereo>1</stereo>
+	<distance>35</distance>
+	<positional>1</positional>
+	<loops>0</loops>
+	<fadeout_time>0</fadeout_time>
+	<echo_delay>0</echo_delay>
+	<echo_volume>0</echo_volume>
+	<time_of_day_flags>0xffff</time_of_day_flags>
+	<priority>5</priority>
+	<type>map</type>
+</sound>
+<sound name = "FireBig">
+	<variant>
+		<main_sound>sound/campfire01.ogg</main_sound>
+		<gain>0.5</gain>
+	</variant>
+	<stereo>1</stereo>
+	<distance>35</distance>
+	<positional>1</positional>
+	<loops>0</loops>
+	<fadeout_time>0</fadeout_time>
+	<echo_delay>0</echo_delay>
+	<echo_volume>0</echo_volume>
+	<time_of_day_flags>0xffff</time_of_day_flags>
+	<priority>5</priority>
+	<type>map</type>
+</sound>
+<sound name = "Fireplace">
+	<variant>
+		<main_sound>sound/campfire01.ogg</main_sound>
+	</variant>
+	<stereo>1</stereo>
+	<distance>35</distance>
+	<positional>1</positional>
+	<loops>0</loops>
+	<fadeout_time>0</fadeout_time>
+	<echo_delay>0</echo_delay>
+	<echo_volume>0</echo_volume>
+	<time_of_day_flags>0xffff</time_of_day_flags>
+	<priority>3</priority>
+	<type>map</type>
+</sound>
