@@ -718,7 +718,7 @@
 	</boundary_def>	
 	<boundary_def location="South Beach">
 		<background>Waves01</background>
-		<point1>0,111</point1>
+		<point1>111,0</point1>
 		<point2>117,69</point2>
 		<point3>366,54</point3>
 		<point4>376,0</point4>	
