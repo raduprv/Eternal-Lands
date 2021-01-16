@@ -687,7 +687,7 @@ void draw_spell_icon_strings(window_info *win)
 	active_spells_size = (int)(0.5 + win->current_scale * 32);
 	active_spells_offset = (int)(0.5 + win->current_scale * 64);
 
-	y_start = window_height - hud_y - active_spells_offset - win->small_font_len_y;
+	y_start = window_height - HUD_MARGIN_Y - active_spells_offset - win->small_font_len_y;
 
 	for (i = 0; i < NUM_ACTIVE_SPELLS; i++)
 	{
@@ -860,7 +860,7 @@ void display_spells_we_have(void)
 			cur_pos=i;
 
 			x_start = (active_spells_size + 1) * cur_pos;
-			y_start = window_height - hud_y - active_spells_offset;
+			y_start = window_height - HUD_MARGIN_Y - active_spells_offset;
 
 			duration = active_spells[i].duration;
 
