@@ -2140,6 +2140,7 @@ static int keypress_game_handler (window_info *win, int mx, int my, SDL_Keycode 
 			hud_y=0;
 		}
 		resize_root_window ();
+		resize_all_root_windows(window_width, window_width, window_height, window_height);
 	}
 	else if (KEY_DEF_CMP(K_FIRST_PERSON, key_code, key_mod))
 	{
