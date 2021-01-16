@@ -2730,11 +2730,8 @@ static void init_ELC_vars(void)
 	add_var(OPT_BOOL, "windows_on_top", "wot", &windows_on_top, change_windows_on_top, 0, "Windows On Top","Allows the Manufacture, Storage and Inventory windows to appear above the map and console.", HUD);
 	add_var(OPT_BOOL,"opaque_window_backgrounds", "opaquewin", &opaque_window_backgrounds, change_var, 0,"Use Opaque Window Backgrounds","Toggle the current state of all windows between transparent and opaque background. Use CTRL+D to toggle the current state of an individual window.",HUD);
 	add_var(OPT_SPECINT, "buff_icon_size","bufficonsize", &buff_icon_size, set_buff_icon_size, 32, "Buff Icon Size","The size of the icons of the active buffs.  Icons are not displayed when size set to zero.",HUD,0,48);
-#ifndef ANDROID
-	// ANDROID_TODO enable?
 	add_var(OPT_BOOL,"relocate_quickbar", "requick", &quickbar_relocatable, change_quickbar_relocatable, 0,"Relocate Quickbar","Set whether you can move the quickbar",HUD);
 	add_var(OPT_BOOL,"relocate_quickspells", "requickspells", &quickspells_relocatable, change_quickspells_relocatable, 0,"Relocate Quick Spells","Set whether you can move the quick spells window",HUD);
-#endif
 	add_var(OPT_INT,"num_quickbar_slots","numqbslots",&num_quickbar_slots,change_int,6,"Number Of Quickbar Item Slots","Set the number of quick slots for inventory items. May be automatically reduced for low resolutions",HUD,1,MAX_QUICKBAR_SLOTS);
 	add_var(OPT_INT,"num_quickspell_slots","numqsslots",&num_quickspell_slots,change_int,6,"Number Of Quickbar Spell Slots","Set the number of quickbar slots for spells. May be automatically reduced for low resolutions",HUD,1,MAX_QUICKSPELL_SLOTS);
 	add_var(OPT_INT,"max_food_level","maxfoodlevel",&max_food_level,change_int,45,"Maximum Food Level", "Set the maximum value displayed by the food level bar.",HUD,10,200);
