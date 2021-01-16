@@ -1265,6 +1265,18 @@ int vscrollbar_click(widget_list *W, int mx, int my, Uint32 flags)
 	return 1;
 }
 
+#ifdef ANDROID
+int vscrollbar_simulate_click(widget_list *W, int my)
+{
+	if (W != NULL)
+	{
+		if (vscrollbar_click(W, 0, my, 0))
+			return widget_handle_click (W, 0, my, 0);
+	}
+	return 0;
+}
+#endif
+
 int vscrollbar_set_pos_inc(int window_id, Uint32 widget_id, int pos_inc)
 {
 	widget_list *w = widget_find(window_id, widget_id);

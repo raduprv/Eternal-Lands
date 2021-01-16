@@ -57,6 +57,10 @@ static int scroll_up_lines = 0;
 static int console_text_changed = 0;
 static int console_text_width = -1;
 
+#ifdef ANDROID
+static int num_to_scroll = 0;
+#endif
+
 static inline int get_console_sep_height(void)
 {
 	return get_line_height(CHAT_FONT, 1.0);
@@ -93,6 +97,33 @@ static int display_console_handler (window_info *win)
 #endif
 		resize_window(win->window_id, win->len_x, win->len_y);
 	}
+
+#ifdef ANDROID
+	{
+		// Finger motion up/down triggers scrolling, this provides momentum for the scrolling.
+		// The value of num_to_scroll is set relative to the finger motion so big motions scroll further.
+		// The time between updates is used to keep consistent momentum for different FPS.
+		static Uint32 last_time = 0;
+		float time_delta = (float)(SDL_GetTicks() - last_time) / 1000.0f;
+		int scroll_this_time = (int)(20.0f * num_to_scroll * time_delta);
+		if ((scroll_this_time > 0) && (total_nr_lines > (nr_console_lines + scroll_up_lines)))
+		{
+			scroll_up_lines += scroll_this_time;
+			if (total_nr_lines < (nr_console_lines + scroll_up_lines))
+				scroll_up_lines = total_nr_lines - nr_console_lines;
+			console_text_changed = 1;
+		}
+		else if ((scroll_this_time < 0) && (scroll_up_lines > 0))
+		{
+			scroll_up_lines += scroll_this_time;
+			if (scroll_up_lines < 0)
+				scroll_up_lines = 0;
+			console_text_changed = 1;
+		}
+		num_to_scroll *= (time_delta > 1.0f) ?0 :(1.0f - time_delta);
+		last_time = SDL_GetTicks();
+	}
+#endif
 
 	if (console_text_changed)
 	{
@@ -394,35 +425,46 @@ static int ui_scale_console_handler(window_info *win)
 int finger_motion_console_handler(window_info *win, Uint32 timestamp, float x, float y, float dx, float dy)
 {
 	if ((dx != dx) || (dy != dy))
-		return 1; // we got a nan....
+		return 0; // we got a nan....
 
 	if ((dx < -2) || (dx > 2) || (dy < -2) || (dy > 2))
-		return 1; // it's the multi gesture stupid bug
+		return 0; // it's the multi gesture stupid bug
 
-	if (dx < -0.02)
+	if (console_scrollbar_enabled)
 	{
-		if(!SDL_IsTextInputActive())
+		// If we have a scroll bar, it cannot be updated by the drag() functions.  So, we simulate
+		// dragging using the motion position instead.
+		if (((int)(0.5 + x * window_width)) > (win->len_x - HUD_MARGIN_X - 2 * win->box_size))
+		{
+			widget_list *W = widget_find(win->window_id, console_scrollbar_id);
+			if (W != NULL)
+				vscrollbar_simulate_click(W, (int)(0.5 + y * window_height) - CONSOLE_Y_OFFSET);
+			return 1;
+		}
+	}
+
+	// if the motion is more in the x direction, check for keyboard control
+	if (fabsf(dx) > fabsf(dy))
+	{
+		if (dx < -0.02)
+		{
 			SDL_StartTextInput();
-		return 1;
+			return 1;
+		}
+		else if (dx > 0.02)
+		{
+			SDL_StopTextInput();
+			return 1;
+		}
 	}
-	else if (dx > 0.02)
+	else
 	{
-		SDL_StopTextInput();
+		// Else start scrolling with momentum relative to the motion value.
+		num_to_scroll = (int)(dy * 1000.0f);
 		return 1;
 	}
 
-	if ((dy > 0.0001) && (total_nr_lines > (nr_console_lines + scroll_up_lines)))
-	{
-		scroll_up_lines++;
-		console_text_changed = 1;
-	}
-	else if ((dy <- 0.0001) && (scroll_up_lines > 0))
-	{
-		scroll_up_lines--;
-		console_text_changed = 1;
-	}
-
-	return 1;
+	return 0;
 }
 #endif
 
@@ -494,14 +536,11 @@ void create_console_root_window (int width, int height)
 		nr_console_lines = get_max_nr_lines(console_active_height - input_widget->len_y - get_console_sep_height() - CONSOLE_Y_OFFSET,
 			CHAT_FONT, 1.0);
 
-#ifndef ANDROID
-		// ANDROID_TODO put back scrollbar?
 		if (console_scrollbar_enabled && (console_root_win >= 0) && (console_root_win < windows_list.num_windows))
 		{
 			create_console_scrollbar(&windows_list.window[console_root_win]);
 			update_console_scrollbar();
 		}
-#endif
 	}
 }
 

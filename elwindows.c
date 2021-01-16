@@ -2238,36 +2238,33 @@ CHECK_GL_ERRORS();
 int	finger_motion_in_window(int win_id, Uint32 timestamp, float center_x, float center_y, float dx, float dy)
 {
 	window_info *win;
-	int	mx, my;
-	int x,y;
-	int	ret_val=0;
 	int scroll_pos = 0;
-	int flags=0;
+	int flags = 0;
 	widget_list *W;
 
+	int x = center_x * window_width;
+	int y = center_y * window_height;
 
-	x=center_x*window_width;
-	y=center_y*window_height;
-
-	if(win_id < 0 || win_id >= windows_list.num_windows)	return -1;
-	if(windows_list.window[win_id].window_id != win_id)	return -1;
+	if ((win_id < 0) || (win_id >= windows_list.num_windows))
+		return -1;
+	if (windows_list.window[win_id].window_id != win_id)
+		return -1;
 	win = &windows_list.window[win_id];
 	W = win->widgetlist;
 
 	//SDL_Log("multi_gesture_in_window: %f",rotation);
 	if (mouse_in_window (win_id, x, y) > 0)
 	{
-		mx = x - win->cur_x;
-		my = y - win->cur_y;
-
-		//SDL_Log("multi after if");
+		int	ret_val = 1;
+		int mx = x - win->cur_x;
+		int my = y - win->cur_y;
 
 		if(win->flags&ELW_SCROLLABLE)
-			{
-				/* Adjust mouse y coordinates according to the scrollbar position */
-				scroll_pos = vscrollbar_get_pos(win->window_id, win->scroll_id);
-				my += scroll_pos;
-			}
+		{
+			/* Adjust mouse y coordinates according to the scrollbar position */
+			scroll_pos = vscrollbar_get_pos(win->window_id, win->scroll_id);
+			my += scroll_pos;
+		}
 
 		// check the widgets
 		glPushMatrix();
@@ -2276,52 +2273,44 @@ int	finger_motion_in_window(int win_id, Uint32 timestamp, float center_x, float 
 		{
 			if(!(W->Flags&WIDGET_DISABLED) && !(W->Flags&WIDGET_CLICK_TRANSPARENT) &&  !(W->Flags&WIDGET_INVISIBLE) && mx > W->pos_x && mx <= W->pos_x + W->len_x && my > W->pos_y && my <= W->pos_y + W->len_y)
 			{
-				if(dx<-0.003)flags|=ELW_WHEEL_DOWN;
-				else
-				if(dx>0.003)flags|=ELW_WHEEL_UP;
-
-				//SDL_Log("finger motion at widget dx: %f dy: %f",dx,dy);
+				if (dx < -0.003)
+					flags |= ELW_WHEEL_DOWN;
+				else if (dx > 0.003)
+					flags|=ELW_WHEEL_UP;
 
 				if(flags && widget_handle_click (W, mx - W->pos_x, my - W->pos_y, flags))
 				{
 					// widget handled it
 					glPopMatrix ();
-					return 1;
+					return ret_val;
 				}
-				else
-				if(!flags)
-					{
-						glPopMatrix();
-						return 1;//we sort of handled it, but not really
-					}
 			}
 			W = W->next;
 		}
 		glPopMatrix();
 
-		if(win->flags&ELW_SCROLLABLE)
+		if(win->flags & ELW_SCROLLABLE)
 		{
-			if(dy<-0.005)vscrollbar_scroll_down_amount(win->window_id, win->scroll_id,dy*-1200);
-			else
-			if(dy>0.005)vscrollbar_scroll_up_amount(win->window_id, win->scroll_id,dy*1200);
+			if (dy < -0.005)
+				vscrollbar_scroll_down_amount(win->window_id, win->scroll_id, dy * -1200);
+			else if (dy > 0.005)
+				vscrollbar_scroll_up_amount(win->window_id, win->scroll_id, dy * 1200);
 		}
-
 
 		// use the handler if present
 		if(win->finger_motion_handler)
 		{
 			glPushMatrix();
 			glTranslatef ((float)win->cur_x, (float)win->cur_y-scroll_pos, 0.0f);
-			ret_val = (*win->finger_motion_handler)(win, timestamp, center_x,center_y,dx,dy);
+			ret_val = (*win->finger_motion_handler)(win, timestamp, center_x, center_y, dx, dy);
 			glPopMatrix();
-
 		}
 
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
 
-		return 1;
+		return ret_val;
 	}
 
 	return 0;
