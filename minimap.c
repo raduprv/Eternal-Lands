@@ -765,6 +765,20 @@ static int ui_scale_minimap_handler(window_info *win)
 	return 1;
 }
 
+#ifdef ANDROID
+int finger_minimap_handler(window_info *win, Uint32 timestamp, float x, float y, float dx, float dy)
+{
+	if ((fabsf(dx) > fabsf(dy)) && (fabsf(dx) > 0.002))
+	{
+		if (dx > 0)
+			increase_zoom();
+		else
+			decrease_zoom();
+	}
+	return 1;
+}
+#endif
+
 void display_minimap(void)
 {
 	int minimap_win = get_id_MW(MW_MINIMAP);
@@ -788,6 +802,9 @@ void display_minimap(void)
 		set_window_handler(minimap_win, ELW_HANDLER_CLICK, &click_minimap_handler);	
 		set_window_handler(minimap_win, ELW_HANDLER_MOUSEOVER, &mouseover_minimap_handler);	
 		set_window_handler(minimap_win, ELW_HANDLER_KEYPRESS, (int (*)())&keypress_minimap_handler );
+#ifdef ANDROID
+		set_window_handler(minimap_win, ELW_HANDLER_FINGER_MOTION, (int (*)())&finger_minimap_handler );
+#endif
 		set_window_handler(minimap_win, ELW_HANDLER_UI_SCALE, &ui_scale_minimap_handler);
 		win = &(windows_list.window[minimap_win]);
 		win->owner_drawn_title_bar = 1;
