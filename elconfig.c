@@ -273,6 +273,7 @@ int window_camera_controls = 0;
 static int done_initial_config = 0;
 #define MIN_UI_SCALE 0.6f
 #define MAX_UI_SCALE 3.2f
+int disable_GL_POINT_SMOOTH = 0;
 #endif
 
 int you_sit= 0;
@@ -3057,6 +3058,7 @@ static void init_ELC_vars(void)
 	add_var(OPT_FLOAT,"gamma","g",&gamma_var,change_gamma,1,"Gamma","How bright your display should be.",GFX,0.10,3.00,0.05);
 	add_var(OPT_BOOL,"disable_gamma_adjust","dga",&disable_gamma_adjust,change_var,0,"Disable Gamma Adjustment","Stop the client from adjusting the display gamma.",GFX);
 	add_var(OPT_BOOL,"poor_man","poor",&poor_man,change_poor_man,0,"Poor Man","If the game is running very slow for you, toggle this setting.",GFX);
+	add_var(OPT_BOOL,"disable_GL_POINT_SMOOTH","dglps",&disable_GL_POINT_SMOOTH,change_var,0,"Fix missing minimap dots.","If mising minimap and other dots, set this option.",GFX);
 #endif
 #ifdef	NEW_ALPHA
 	add_var(OPT_BOOL,"use_3d_alpha_blend","3dalpha",&use_3d_alpha_blend,change_var,1,"3D Alpha Blending","Toggle the use of the alpha blending on 3D objects",GFX);
