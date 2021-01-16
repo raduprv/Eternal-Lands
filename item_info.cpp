@@ -299,6 +299,8 @@ namespace Item_Info
 #ifdef ANDROID
 		char tmp_str[256];
 		do_file_exists(item_info_filename, datadir, sizeof(tmp_str), tmp_str);
+		do_file_exists("item_extra_info.txt", datadir, sizeof(tmp_str), tmp_str);
+		do_file_exists("item_knowledge_info.txt", datadir, sizeof(tmp_str), tmp_str);
 #endif
 		open_file(in, item_info_filename);
 		if (!in)
