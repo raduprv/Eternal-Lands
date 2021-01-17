@@ -379,7 +379,11 @@ int display_knowledge_handler(window_info *win)
 	}
 	if (know_show_win_help)
 	{
+#ifdef ANDROID
+		show_help(long_touch_cm_options_str, -TAB_MARGIN, win->len_y+10+TAB_MARGIN, win->current_scale);
+#else
 		show_help(cm_help_options_str, -TAB_MARGIN, win->len_y+10+TAB_MARGIN, win->current_scale);
+#endif
 		know_show_win_help = 0;
 	}
 #ifdef OPENGL_TRACE

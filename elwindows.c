@@ -1729,7 +1729,11 @@ int	draw_window_title(window_info *win)
 	if (show_help_text && cm_valid(win->cm_id) && (cm_window_shown() == CM_INIT_VALUE) &&
 		mouse_x > win->cur_x && mouse_x < win->cur_x+win->len_x &&
 		mouse_y > win->cur_y-win->title_height && mouse_y < win->cur_y)
+#ifdef ANDROID
+		show_help(long_touch_cm_title_str, 0, win->len_y+10, win->current_scale);
+#else
 		show_help(cm_title_help_str, 0, win->len_y+10, win->current_scale);
+#endif
 
 	glColor3f(1.0f,1.0f,1.0f);
 	//ok, now draw it...

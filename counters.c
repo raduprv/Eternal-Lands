@@ -871,7 +871,11 @@ static int display_counters_handler(window_info *win)
 	}
 
 	if (counters_show_win_help) {
+#ifdef ANDROID
+		show_help(long_touch_cm_options_str, -TAB_MARGIN, win->len_y+10+TAB_MARGIN, win->current_scale);
+#else
 		show_help(cm_help_options_str, -TAB_MARGIN, win->len_y+10+TAB_MARGIN, win->current_scale);
+#endif
 		if (!enable_used_item_counter && selected_counter_id == USED_ITEMS)
 			show_help("Saving used item counters is disabled, see Options->Controls to enable.", -TAB_MARGIN, win->len_y+10+TAB_MARGIN+win->small_font_len_y, win->current_scale);
 		counters_show_win_help = 0;

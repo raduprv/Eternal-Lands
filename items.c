@@ -935,7 +935,9 @@ static int display_items_handler(window_info *win)
 		char *helpstr[NUMBUT] = { stoall_help_str, getall_help_str, ((disable_double_click) ?drpall_help_str :dcdrpall_help_str), mixoneall_help_str, itmlst_help_str };
 #endif
 		show_help(helpstr[buttons_grid.mouse_over], 0, win->len_y+10, win->current_scale);
-#ifndef ANDROID
+#ifdef ANDROID
+		show_help(long_touch_cm_options_str, 0, win->len_y+10+win->small_font_len_y, win->current_scale);
+#else
 		show_help(cm_help_options_str, 0, win->len_y+10+win->small_font_len_y, win->current_scale);
 #endif
 	}

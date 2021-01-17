@@ -894,7 +894,11 @@ static int recipe_dropdown_draw(window_info *win){
 				SLOT_SIZE*mouse_over_recipe+(SLOT_SIZE-win->small_font_len_y)/2, win->current_scale);
 		if (show_help_text)
 		{
+#ifdef ANDROID
+			show_help(long_touch_cm_options_str, 0, win->len_y + 10 + win->small_font_len_y*help_line++, win->current_scale);
+#else
 			show_help(cm_help_options_str, 0, win->len_y + 10 + win->small_font_len_y*help_line++, win->current_scale);
+#endif
 			show_help(recipe_select_str, 0, win->len_y + 10 + win->small_font_len_y*help_line++, win->current_scale);
 			show_help(recipe_load_str, 0, win->len_y + 10 + win->small_font_len_y*help_line++, win->current_scale);
 			show_help(find_active?recipe_during_find_str:recipe_find_str, 0, win->len_y + 10 + win->small_font_len_y*help_line++, win->current_scale);

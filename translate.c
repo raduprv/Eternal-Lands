@@ -135,6 +135,12 @@ dichar	sig_change,
 char
 	/*3d_objects.c*/
 	values_str[20],
+#ifdef ANDROID
+	/* misc android help */
+	touch_help_str[20],
+	long_touch_cm_title_str[40],
+	long_touch_cm_options_str[40],
+#endif
 	/*buddy.c*/
 	buddy_name_str[20],
 	buddy_long_name_str[100],
@@ -1410,6 +1416,12 @@ void init_help()
 	add_xml_identifier(afk,"names",afk_names,"Names",sizeof(afk_names));
 	add_xml_identifier(afk,"messages",afk_messages,"Messages",sizeof(afk_messages));
 	add_xml_identifier(afk,"help",afk_print_help,"To print the messages from the different people type #msg <number> or #msg all to view them all",sizeof(afk_print_help));
+#ifdef ANDROID
+	// Android-touch specific
+	add_xml_identifier(misc, "touch_help_str", touch_help_str, "Touch", sizeof(touch_help_str));
+	add_xml_identifier(misc, "long_touch_cm_title_str", long_touch_cm_title_str, "Long-touch for window menu", sizeof(long_touch_cm_title_str));
+	add_xml_identifier(misc, "long_touch_cm_options_str", long_touch_cm_options_str, "Long-touch for options", sizeof(long_touch_cm_options_str));
+#endif
 	//Miscellaneous
 	add_xml_identifier(misc,"values",values_str,"values",sizeof(values_str));
 	add_xml_identifier(misc,"close",close_str,"[close]",sizeof(close_str));

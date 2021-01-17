@@ -461,7 +461,11 @@ static int display_dialogue_handler(window_info *win)
 
 	// display help text if appropriate
 	if ((show_help_text) && (highlight_repeat || highlight_copy || mouse_over_name))
+#ifdef ANDROID
+		show_help(long_touch_cm_options_str, 0, win->len_y+10, win->current_scale);
+#else
 		show_help(cm_help_options_str, 0, win->len_y+10, win->current_scale);
+#endif
 
 	show_keypress_letters = highlight_close = highlight_copy = highlight_repeat = mouse_over_name = 0;
 

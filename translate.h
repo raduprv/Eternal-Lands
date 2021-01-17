@@ -221,6 +221,12 @@ extern char 	tt_walk[30],
 extern char	
 		/*3d_objects.c*/
 		values_str[20],
+#ifdef ANDROID
+		/* misc android help */
+		touch_help_str[20],
+		long_touch_cm_title_str[40],
+		long_touch_cm_options_str[40],
+#endif
 		/*buddy.c*/
 		buddy_name_str[20],
 		buddy_long_name_str[100],
