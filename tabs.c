@@ -218,6 +218,11 @@ static int do_scale_info_handler(window_info *win)
 	widget_list *w = widget_find (win->window_id, tab_info_collection_id);
 	const tab_collection *col = (const tab_collection*)w->widget_info;
 
+#ifdef ANDROID
+	if (new_height > (0.8 * ((window_height / 2) - get_input_height())))
+		new_height = 0.8 * ((window_height / 2) - get_input_height());
+#endif
+
 	for (int i = 0; i < col->nr_tabs; ++i)
 	{
 		int id = col->tabs[i].content_id;

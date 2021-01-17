@@ -465,7 +465,11 @@ static unsigned short nr_notes = 0;
 static int widget_space = 0;
 
 // Note selection button parameters
+#ifdef ANDROID
+static int note_button_max_rows = 10;
+#else
 static const int note_button_max_rows = 10;
+#endif
 static int note_button_y_offset = 0;
 static int note_button_width = 0;
 static int note_button_height = 0;
@@ -1013,6 +1017,18 @@ static int resize_buttonwin_handler(window_info *win, int new_width, int new_hei
 		note_button_height = (int)(0.5 + win->current_scale * 22);
 
 	note_button_space = (int)((float)(win->len_y - note_button_y_offset - tab_tag_height) / (float)note_button_max_rows) - note_button_height;
+
+#ifdef ANDROID
+	{
+		// ANDROID_TODO needs adding to the main client
+		int min_but_y_space = (int)(0.5 + win->current_scale * 2);
+		if (note_button_space < but_space)
+		{
+			note_button_max_rows = (int)((float)(win->len_y - note_button_y_offset - tab_tag_height) / (float)(note_button_height + min_but_y_space));
+			note_button_space = (int)((float)(win->len_y - note_button_y_offset - tab_tag_height) / (float)note_button_max_rows) - note_button_height;
+		}
+	}
+#endif
 
 	widget_resize(win->window_id, note_button_scroll_id, win->box_size, note_button_max_rows * (note_button_height + note_button_space) - widget_space);
 	widget_move(win->window_id, note_button_scroll_id, win->len_x - win->box_size - widget_space, note_button_y_offset);
