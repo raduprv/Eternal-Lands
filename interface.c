@@ -702,7 +702,11 @@ static void draw_mark_filter(void)
 	else
 	{
 		char buf[20];
+#ifdef ANDROID
+		safe_snprintf(buf, sizeof(buf), "(%s)", touch_help_str);
+#else
 		get_key_string(K_MARKFILTER, buf, sizeof(buf));
+#endif
 		draw_text(x, (int)(y+0.58*h), (const unsigned char *)buf, strlen(buf), MAPMARK_FONT,
 			TDO_ALIGNMENT, CENTER, TDO_ZOOM, map_font_scale_fac, TDO_END);
 	}
@@ -896,6 +900,7 @@ void draw_game_map (int map, int mouse_mini)
 	if(map/*&&(adding_mark||max_mark>0)*/)
 	{
 		// Draw help for toggling the mini-map
+#ifndef ANDROID
 		{
 			char buf[80];
 			char keybuf[20];
@@ -905,6 +910,7 @@ void draw_game_map (int map, int mouse_mini)
 			draw_text(small_l+small_w/2, (int)(main_t + 0.965*main_h), (const unsigned char *)buf,
 				strlen(buf), MAPMARK_FONT, TDO_ALIGNMENT, CENTER, TDO_ZOOM, map_font_scale_fac, TDO_END);
 		}
+#endif
 
 		// draw a temporary mark until the text is entered
 		if (adding_mark)
@@ -1174,7 +1180,23 @@ int put_mark_on_position(int map_x, int map_y, const char * name)
 void put_mark_on_map_on_mouse_position(void)
 {
 	if (pf_get_mouse_position(mouse_x, mouse_y, &mark_x, &mark_y))
+#ifdef ANDROID
+	{
+		if (adding_mark)
+		{
+			SDL_StopTextInput();
+			adding_mark = 0;
+			clear_input_line();
+		}
+		else
+		{
+			SDL_StartTextInput();
+			adding_mark = 1;
+		}
+	}
+#else
 		adding_mark = 1;
+#endif
 }
 int put_mark_on_current_position(const char *name)
 {

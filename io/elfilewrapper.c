@@ -554,12 +554,12 @@ static Uint32 do_file_exists(const char* file_name, const char* path,
 	}
 
 #ifdef ANDROID
-	// try to extract it
-	// SDL_Log("Trying to extract %s because not found",buffer);
-	return extract_asset_file(file_name);
-#else
-	return 0;
+	// if we're looking for a file in the data dir, try extracting
+	if (strcmp(path, datadir) == 0)
+		return extract_asset_file(file_name);
 #endif
+
+	return 0;
 }
 
 static Uint32 file_exists_path(const char* file_name, const char* extra_path)
@@ -581,12 +581,10 @@ static Uint32 file_exists_path(const char* file_name, const char* extra_path)
 		}
 	}
 
-#ifndef ANDROID
 	if (do_file_exists(file_name, get_path_updates(), sizeof(str), str) == 1)
 	{
 		return 1;
 	}
-#endif
 
 	init_key(file_name, &key, sizeof(str), str);
 
@@ -830,12 +828,10 @@ static el_file_ptr file_open(const char* file_name, const char* extra_path)
 		}
 	}
 
-#ifndef ANDROID
 	if (do_file_exists(file_name, get_path_updates(), sizeof(str), str) == 1)
 	{
 		return xz_gz_file_open(str);
 	}
-#endif
 
 	init_key(file_name, &key, sizeof(str), str);
 
@@ -884,7 +880,6 @@ el_file_ptr el_open(const char* file_name)
 	return result;
 }
 
-#ifndef ANDROID
 el_file_ptr el_open_custom(const char* file_name)
 {
 	el_file_ptr result;
@@ -897,9 +892,7 @@ el_file_ptr el_open_custom(const char* file_name)
 
 	return result;
 }
-#endif
 
-#ifndef ANDROID
 el_file_ptr el_open_anywhere(const char* file_name)
 {
 	el_file_ptr result;
@@ -912,7 +905,6 @@ el_file_ptr el_open_anywhere(const char* file_name)
 
 	return result;
 }
-#endif
 
 Sint64 el_read(el_file_ptr file, Sint64 size, void* buffer)
 {
@@ -1091,7 +1083,6 @@ int el_file_exists(const char* file_name)
 	return result;
 }
 
-#ifndef ANDROID
 int el_custom_file_exists(const char* file_name)
 {
 	int result;
@@ -1104,7 +1095,6 @@ int el_custom_file_exists(const char* file_name)
 
 	return result;
 }
-#endif
 
 int el_file_exists_config(const char* file_name)
 {
@@ -1119,7 +1109,6 @@ int el_file_exists_config(const char* file_name)
 	return result;
 }
 
-#ifndef ANDROID
 int el_file_exists_anywhere(const char* file_name)
 {
 	int result;
@@ -1132,7 +1121,6 @@ int el_file_exists_anywhere(const char* file_name)
 
 	return result;
 }
-#endif
 
 const char* el_file_name(el_file_ptr file)
 {

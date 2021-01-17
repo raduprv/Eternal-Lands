@@ -2581,10 +2581,6 @@ int	keypress_in_window(int win_id, int x, int y, SDL_Keycode key_code, Uint32 ke
 	int	mx, my;
 	int scroll_pos = 0;
    	widget_list *W;
-#ifdef ANDROID
-   	widget_list *last_keyboard_widget;
-	int input_widgets_no = 0;
-#endif
 
 	if(win_id < 0 || win_id >= windows_list.num_windows
 	|| windows_list.window[win_id].window_id != win_id) {
@@ -2592,39 +2588,6 @@ int	keypress_in_window(int win_id, int x, int y, SDL_Keycode key_code, Uint32 ke
 	}
 	win = &windows_list.window[win_id];
 	W = win->widgetlist;
-
-#ifdef ANDROID
-	// only onekeyboard widget?
-	if (!win->keypress_handler)
-	{
-		while (W != NULL)
-		{
-			if(!(W->Flags&WIDGET_DISABLED))
-			{
-
-				if(W->OnKey)
-				{
-					input_widgets_no++;
-					last_keyboard_widget=W;
-				}
-			}
-			W = W->next;
-		}
-	}
-
-	if (input_widgets_no == 1)
-	{
-		widget_handle_keypress (last_keyboard_widget, mx - W->pos_x, my - W->pos_y, key_code, key_unicode, key_mod);
-		//SDL_Log("Keypress in window, only widget: %c %s",unikey,win->window_name);
-		return 1;
-	}
-
-	if (win->keypress_handler)
-	{
-		//SDL_Log("Keypress in window, only widget: %i %i %s",unikey,key,win->window_name);
-		return (*win->keypress_handler) (win, mx, my, key_code, key_unicode, key_mod);
-	}
-#endif
 
 	if (mouse_in_window (win_id, x, y) > 0)
 	{

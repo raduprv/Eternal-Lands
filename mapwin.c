@@ -64,6 +64,17 @@ static int click_map_handler (window_info *win, int mx, int my, Uint32 flags)
 		showing_continent = !showing_continent;
 		inspect_map_text = 0;
 	}
+#ifdef ANDROID
+	else if (left_click && (mx > small_map_screen_x_left) && (mx < small_map_screen_x_right) &&
+		(my > (main_map_screen_y_bottom - (small_map_screen_y_bottom - small_map_screen_y_top))) &&
+		(my < main_map_screen_y_bottom))
+	{
+		mark_filter_active ^= 1;
+		memset(mark_filter_text, 0, sizeof(char)*MARK_FILTER_MAX_LEN);
+		if (mark_filter_active)
+			SDL_StartTextInput();
+	}
+#endif
 	else if (!showing_continent && inspect_map_text == 0)
 	{
 		if (left_click)

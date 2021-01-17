@@ -5,20 +5,12 @@
 
 int el_xml_input_match(char const *file_name)
 {
-#ifdef ANDROID
-	return (el_open (file_name))?1:0;
-#else
 	return el_file_exists_anywhere (file_name);
-#endif
 }
 
 void *el_xml_input_open(char const *file_name)
 {
-#ifdef ANDROID
-	return el_open(file_name);
-#else
 	return el_open_anywhere (file_name);
-#endif
 }
 
 int el_xml_input_read(void *context, char *buffer, int len)

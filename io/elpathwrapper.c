@@ -229,16 +229,9 @@ FILE *open_file_config (const char* filename, const char* mode)
 	if (fp != NULL)
 		return fp;
 #ifdef ANDROID
-	if(do_file_exists(filename, "./", sizeof(str), str) != 1)
-	{
+	// try to extract the file from the data dir
+	if (do_file_exists(filename, datadir, sizeof(str), str) != 1)
 		return NULL;
-	}
-
-	//SDL_Log("open_file_config: we try the ./%s",filename);
-	char pwd[MAX_PATH];
-	chdir(datadir);
-	getcwd(pwd, MAX_PATH);
-	//SDL_Log("cur path is %s",pwd);
 #endif
 	//Not there? okay, try the current directory
 	return fopen(filename, mode);
@@ -269,9 +262,6 @@ FILE * open_file_config_no_local(const char* filename, const char* mode)
 		}
 	}
 
-#ifdef ANDROID
-	//SDL_Log("%s:%d path: %s", __FUNCTION__, __LINE__, locbuffer);
-#endif
 	return fopen(locbuffer, mode);
 }
 
@@ -322,12 +312,11 @@ FILE * open_file_data(const char* in_filename, const char* mode){
 	FILE* fp = NULL;
 #ifdef ANDROID
 	char str[1024];
-	//SDL_Log("open_file_data OPEN FILE !!!!!! %s",in_filename);
 #endif
 
 	safe_strncpy(filename, in_filename, sizeof(filename));
 #ifdef ANDROID
-	do_file_exists(filename, "./", sizeof(str), str);//extract it if needed
+	do_file_exists(filename, datadir, sizeof(str), str); //extract it if needed
 #endif
 	if(strchr(mode, 'w') == NULL){
 		//Reading? okay, we check updates first
@@ -512,9 +501,6 @@ int mkdir_tree (const char *path, int relative_only)
 			if (MKDIR (dir) != 0)
 			{
 				LOG_ERROR("Cannot create directory (mkdir() failed): %s, %s", dir, path);
-#ifdef ANDROID
-				SDL_Log("Can't create dir: %s in path %s", dir, path);
-#endif
 				return 0;
 			}
 		}
