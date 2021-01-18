@@ -65,7 +65,7 @@ static void free_el_file(el_file_t* file)
 }
 
 #ifdef ANDROID
-int extract_asset_file(const char *file_name)
+static int extract_asset_file(const char *file_name)
 {
 	SDL_RWops *io;
 	int file_size;
@@ -119,6 +119,93 @@ int extract_asset_file(const char *file_name)
 
 	// SDL_Log("Hopefully, we extracted file: %s",file_name);
 	return 1;
+}
+
+static void trim_line(char *line, size_t len)
+{
+	size_t i;
+	for (i = 0; i < len; i++)
+		if ((line[i] == '\n') || (line[i] == '\r'))
+		{
+			line[i] = '\0';
+			return;
+		}
+}
+
+static unsigned long get_asset_timestamp(const char *filename, char *line, size_t line_len)
+{
+	FILE *fp;
+	unsigned long timestamp = 0;
+	if ((fp = fopen(filename, "r")) == NULL)
+		return 0;
+	if ((fgets(line, line_len, fp) != NULL) && (strlen(line) > 0))
+	{
+		trim_line(line, strlen(line));
+		timestamp = atol(line);
+	}
+	fclose(fp);
+	return timestamp;
+}
+
+static void check_asset_state(void)
+{
+	FILE *fp;
+	char *line = NULL;
+	unsigned long asset_timestamp = 0;
+	unsigned long last_timestamp = 0;
+	int first_line_read = 0;
+	const size_t line_len = 256;
+	const char *asset_list_filename = "asset.list";
+	const char *last_timestamp_filename = "last_asset_timestamp";
+
+	remove(asset_list_filename);
+	extract_asset_file(asset_list_filename);
+
+	line = malloc(line_len);
+
+	last_timestamp = get_asset_timestamp(last_timestamp_filename, line, line_len);
+	asset_timestamp = get_asset_timestamp(asset_list_filename, line, line_len);
+
+	if ((last_timestamp != 0) && (last_timestamp == asset_timestamp))
+	{
+		SDL_Log("Matching asset timestamps %lu no refresh needed\n", last_timestamp);
+		free(line);
+		return;
+	}
+
+	if ((fp = fopen(last_timestamp_filename, "w")) == NULL)
+	{
+		SDL_Log("Failed to write asset timestamp file [%s]\n", last_timestamp_filename);
+		free(line);
+		return;
+	}
+	fprintf(fp, "%lu", asset_timestamp);
+	fclose(fp);
+
+	SDL_Log("New asset timestamps %lu so deleting extracted files\n", last_timestamp);
+
+	if ((fp = fopen(asset_list_filename, "r")) == NULL)
+	{
+		SDL_Log("Failed to read [%s]\n", asset_list_filename);
+		free(line);
+		return;
+	}
+	while (!feof(fp))
+	{
+		if ((fgets(line, line_len, fp) != NULL) && (strlen(line) > 0))
+		{
+			if (!first_line_read)
+				first_line_read = 1;
+			else
+			{
+				trim_line(line, strlen(line));
+				remove(line);
+			}
+		}
+	}
+	fclose(fp);
+
+	free(line);
 }
 #endif
 
@@ -511,6 +598,15 @@ static Uint32 do_file_exists(const char* file_name, const char* path,
 {
 	struct stat fstat;
 	Uint32 found;
+
+#ifdef ANDROID
+	static int first_call = 1;
+	if (first_call)
+	{
+		first_call = 0;
+		check_asset_state();
+	}
+#endif
 
 	safe_strncpy2(buffer, path, size, strlen(path));
 	safe_strcat(buffer, file_name, size);

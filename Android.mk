@@ -19,7 +19,7 @@ $(LOCAL_PATH)/$(CAL3D_PATH) \
 $(LOCAL_PATH)/$(LIBXML2_PATH)/include/ \
 $(LOCAL_PATH)/$(EXTRAS_PATH)/ \
 $(LOCAL_PATH)/$(GL4ES_PATH)/include/ \
-nlohmann_json/single_include/
+$(LOCAL_PATH)/nlohmann_json/single_include/
 
 LOCAL_CFLAGS := \
 	-O3 -fsigned-char -frtti \
@@ -34,7 +34,7 @@ LOCAL_CFLAGS := \
 	-DFUZZY_PATHS \
 	-DBANDWIDTH_SAVINGS \
 	-DANIMATION_SCALING \
-	-DGIT_VERSION=\"1.9.5.20210110\"
+	-DGIT_VERSION=\"1.9.5.20210118\"
 
 # Add your application source files here...
 LOCAL_SRC_FILES := \
