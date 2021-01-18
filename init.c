@@ -937,7 +937,7 @@ void init_stuff(void)
 	LOG_DEBUG("Init actor defs");
 	init_actor_defs();
 	LOG_DEBUG("Init actor defs done");
-	read_emotes_defs("", "emotes.xml");
+	read_emotes_defs();
 
 	missiles_init_defs();
 

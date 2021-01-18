@@ -2806,14 +2806,12 @@ int parse_emotes_defs(const xmlNode *node)
 	return ok;
 }
 
-int read_emotes_defs(const char *dir, const char *index)
+int read_emotes_defs(void)
 {
 	const xmlNode *root;
 	xmlDoc *doc;
-	char fname[120];
+	const char *fname = "emotes.xml";
 	int ok = 1;
-
-	safe_snprintf(fname, sizeof(fname), "%s/%s", dir, index);
 
 	doc = xmlReadFile(fname, NULL, 0);
 	if (doc == NULL) {
