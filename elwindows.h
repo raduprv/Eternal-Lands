@@ -27,7 +27,7 @@ extern const GLfloat gui_dull_color[3];
 #define	ELW_TITLE_HEIGHT	16
 #define	ELW_BOX_SIZE		20
 #define ELW_TITLE_SIZE 35
-#define ELW_CM_MENU_LEN		4
+#define ELW_CM_MENU_LEN		6
 /*! @} */
 
 /*!
@@ -356,6 +356,8 @@ void toggle_window_MW(enum managed_window_enum managed_win);
 int get_window_showable_MW(enum managed_window_enum managed_win);
 enum managed_window_enum get_by_name_MW(const char *name);
 const char *get_dict_name_WM(enum managed_window_enum managed_win, char *buf, size_t buf_len);
+void get_json_window_state_MW(enum managed_window_enum managed_win);
+void set_json_window_state_MW(enum managed_window_enum managed_win);
 /*! @} */
 
 /*!
