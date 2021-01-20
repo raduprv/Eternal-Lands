@@ -255,7 +255,7 @@ void update_windows_scale(float scale_factor)
 static void move_window_proportionally(int win_id, float pos_ratio_x, float pos_ratio_y)
 {
 #ifdef ANDROID
-	// ANDROID_TODO the window is fixed to do not change it
+	// ANDROID_TODO the main window size is fixed so do not change it
 	return;
 #endif
 	window_info *win = NULL;
@@ -271,7 +271,7 @@ static void move_window_proportionally(int win_id, float pos_ratio_x, float pos_
 void move_windows_proportionally(float pos_ratio_x, float pos_ratio_y)
 {
 #ifdef ANDROID
-	// ANDROID_TODO the window is fixed to do not change it
+	// ANDROID_TODO the main window size is fixed so do not change it
 	return;
 #endif
 	enum managed_window_enum i;
@@ -370,7 +370,7 @@ void set_json_window_state_MW(enum managed_window_enum managed_win)
 void restore_window_proportionally(void)
 {
 #ifdef ANDROID
-	// ANDROID_TODO the window is fixed to do not change it
+	// ANDROID_TODO the main window size is fixed so do not change it
 	return;
 #endif
 	if (!full_screen)
@@ -393,19 +393,20 @@ void restore_window_proportionally(void)
 
 void check_proportional_move(enum managed_window_enum managed_win)
 {
-#ifdef ANDROID
-	// ANDROID_TODO the window is fixed to do not change it
-	return;
-#endif
 	if (managed_win >= MW_MAX)
 		return;
 	if (managed_windows.list[managed_win].keep_centred)
 		centre_window_MW(managed_win);
+#ifdef ANDROID
+	// ANDROID_TODO the main window size is fixed so do not change it
+	return;
+#else
 	else if (managed_windows.list[managed_win].prop_pos && ((managed_windows.list[managed_win].pos_ratio_x != 1.0f) || (managed_windows.list[managed_win].pos_ratio_y != 1.0f)))
 	{
 		move_window_proportionally(managed_windows.list[managed_win].id, managed_windows.list[managed_win].pos_ratio_x, managed_windows.list[managed_win].pos_ratio_y);
 		managed_windows.list[managed_win].pos_ratio_x = managed_windows.list[managed_win].pos_ratio_y = 1.0f;
 	}
+#endif
 }
 
 enum managed_window_enum get_by_name_MW(const char *name)
