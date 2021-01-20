@@ -3,9 +3,7 @@
 #include <stdarg.h>
 #include <string.h>
 #include <ctype.h>
-#ifndef ANDROID
 #include <iconv.h>
-#endif
 #include <errno.h>
 #include "asc.h"
 #include "errors.h"
@@ -208,19 +206,11 @@ int safe_snprintf(char *dest, const size_t len, const char* format, ...)
 
 static int my_UTF8Toisolat1(char **dest, size_t * lu, char **src, size_t * l)
 {
-#ifndef ANDROID
 	iconv_t t=iconv_open("ISO_8859-1","UTF-8");
 
 	iconv(t, src, l, dest, lu);
 
 	iconv_close(t);
-#else
-	static int just_once = 1;
-	if (just_once)
-		SDL_Log("hacking iconv()\n");
-	just_once = 0;
-	safe_strncpy2(*dest, *src, *lu+1, *l);
-#endif
 	return 1;
 }
 

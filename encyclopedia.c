@@ -190,8 +190,10 @@ int display_encyclopedia_handler(window_info *win)
 
 int common_encyclopedia_mouseover_handler(window_info *win, int mx, int my)
 {
+#ifndef ANDROID
 	local_mouse_x = mx;
 	local_mouse_y = my;
+#endif
 	return 1;
 }
 
