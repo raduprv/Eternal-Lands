@@ -188,6 +188,7 @@ void kill_3d_object(int object_id)
 	objects_list[object_id]=0;//kill any refference to it*/
 	objects_list[object_id]->blended=20;
 	selected_3d_object=-1;//we have no selected object now...
+	ew_selected_object = -1; // Hide object info in edit window too
 }
 
 void move_3d_object(int object_id)
