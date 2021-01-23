@@ -372,6 +372,9 @@ int start_rendering()
 	LOG_INFO("cursors_cleanup()");
 	cursors_cleanup();
 
+	LOG_INFO("gl_window_cleanup()");
+	gl_window_cleanup();
+
 	LOG_INFO("SDL_Quit()");
 	SDL_Quit();
 	LOG_INFO("cleanup_mem()");
