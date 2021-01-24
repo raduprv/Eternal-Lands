@@ -37,8 +37,6 @@ typedef struct
 
 extern max_chat_lines_def max_chat_lines;
 
-extern widget_list *input_widget;
-
 extern int use_windowed_chat;		/*!< flag indicating whether we use the channel selection bar, the chat window, or neither */
 //extern int highlight_tab_on_nick;	/*!< flag indicating whether we want to highligh chat tab on nick or not  */
 extern int chat_win;				/*!< handler for the chat window */
@@ -244,7 +242,6 @@ int skip_message (const text_message *msg, Uint8 filter);
 int command_jlc(char * text, int len);
 void update_chat_win_buffers(void);
 void cleanup_chan_names(void);
-int chat_input_key(widget_list *widget, int mx, int my, SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_mod);
 void load_channel_colors();
 void save_channel_colors();
 int command_channel_colors(char * text, int len);
@@ -261,7 +258,21 @@ int get_tab_bar_x(void);
 int get_tab_bar_y(void);
 int get_tabbed_chat_end_x(void);
 
-int get_input_height();
+/* Consolidate all the input widget usage into functions for this module. */
+int get_input_default_height(void);
+int get_current_console_input_height(void);
+void show_console_input(void);
+void check_owned_and_show_console_input(int window_id);
+int get_console_input_cursor(void);
+void set_console_input_cursor(int new_value);
+void update_console_input_zoom(void);
+void update_console_input_uiscale(void);
+void check_and_get_console_input(int window_id);
+void move_console_input_on_input_resize(int pos_x, int pos_y);
+void resize_and_move_console_input(int window_id, int pos_x, int pos_y, int len_x, int len_y);
+int have_console_input(void);
+void create_console_input(int window_id, int widget_id, int pos_x, int pos_y, int len_x, int len_y, Uint32 flags);
+void set_console_input_onkey(void);
 
 void open_chat(void);
 void toggle_chat(void);

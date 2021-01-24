@@ -1247,9 +1247,7 @@ void resize_all_root_windows (Uint32 ow, Uint32 w, Uint32 oh, Uint32 h)
 	if (newchar_root_win >= 0) resize_window (newchar_root_win, w, h);
 	if (update_root_win >= 0) resize_window (update_root_win, w, h);
 	if (langsel_rootwin >= 0) resize_window (langsel_rootwin, w, h);
-	if ((input_widget != NULL) && (input_widget->window_id != get_id_MW(MW_CHAT))) {
-		widget_resize (input_widget->window_id, input_widget->id, w-HUD_MARGIN_X, input_widget->len_y);
-		widget_move (input_widget->window_id, input_widget->id, 0, h-input_widget->len_y-HUD_MARGIN_Y);
-	}
+	resize_and_move_console_input(-1, 0, h - get_current_console_input_height() - HUD_MARGIN_Y,
+		w - HUD_MARGIN_X, get_current_console_input_height());
 	resize_newchar_hud_window();
 }

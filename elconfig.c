@@ -641,9 +641,7 @@ static void change_ui_scale(float *var, float *value)
 		hud_y = HUD_MARGIN_Y;
 
 	update_windows_scale(ui_scale);
-
-	if (input_widget != NULL)
-		input_widget_move_to_win(input_widget->window_id);
+	update_console_input_uiscale();
 }
 
 static void change_elconf_win_scale_factor(float *var, float *value)
@@ -1340,17 +1338,7 @@ static void change_chat_zoom(float *var, float *value)
 
 	*var = (disable_auto_highdpi_scale) ? *value : get_highdpi_scale() * *value;
 	change_windows_font(CHAT_FONT);
-	// FIXME?
-	if (input_widget != NULL)
-	{
-		text_field *tf= input_widget->widget_info;
-		if (use_windowed_chat != 2)
-		{
-			int text_height = get_text_height(tf->nr_lines, CHAT_FONT, input_widget->size);
-			widget_resize(input_widget->window_id, input_widget->id,
-				input_widget->len_x, tf->y_space*2 + text_height);
-		}
-	}
+	update_console_input_zoom();
 }
 
 #ifdef TTF

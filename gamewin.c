@@ -391,7 +391,7 @@ void toggle_have_mouse(void)
 	}
 }
 
-static void toggle_first_person()
+static void toggle_first_person(void)
 {
 	if (first_person == 0){
 		//rotate camera where actor is looking at
@@ -1085,8 +1085,7 @@ void display_handling_common(window_info *win)
 
 	draw_delay = 20;
 
-	if ((input_widget!= NULL) && (input_widget->window_id != win->window_id))
-		input_widget_move_to_win(win->window_id);
+	check_and_get_console_input(win->window_id);
 }
 
 
@@ -1490,8 +1489,8 @@ static int display_game_handler (window_info *win)
 CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
 
-	if ((input_widget!= NULL) && (input_widget->window_id != win->window_id) && !get_show_window(get_id_MW(MW_CHAT)))
-		input_widget_move_to_win(win->window_id);
+	if (!get_show_window(get_id_MW(MW_CHAT)))
+		check_and_get_console_input(win->window_id);
 
 	return 1;
 }
@@ -1545,7 +1544,7 @@ int string_input(char *text, size_t maxlen, SDL_Keycode key_code, Uint32 key_uni
 	return 0;
 }
 
-void hide_all_windows()
+void hide_all_windows(void)
 {
 	/* Note: We don't watch for if a window is otherwise closed; alt+d to reopen only cares about the last
 	 * time it hid windows itself. If you alt+d to reopen windows, manually close them all, and alt+d
@@ -1779,13 +1778,13 @@ int keypress_root_common (SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_m
 	}
 	else if((key_code == SDLK_h) && shift_on && ctrl_on && !alt_on)
 	{
-        if (get_our_actor())
-        {
-            if (get_our_actor()->attached_actor < 0)
-                add_actor_attachment(get_our_actor()->actor_id, 200);
-            else
-                remove_actor_attachment(get_our_actor()->actor_id);
-        }
+		if (get_our_actor())
+		{
+			if (get_our_actor()->attached_actor < 0)
+				add_actor_attachment(get_our_actor()->actor_id, 200);
+			else
+				remove_actor_attachment(get_our_actor()->actor_id);
+		}
 	}
 #endif // DEBUG
 	// use quickbar items & spells
@@ -1977,18 +1976,11 @@ int text_input_handler (SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_mod
 		return 1;
 	}
 	// The following should only be reached when we hit an invalid key
-	// combo or for any reason we don't have a valid input_widget.
+	// combo or for any reason we don't have a valid input widget.
 	else if (is_printable (ch) && input_text_line.len < MAX_TEXT_MESSAGE_LENGTH)
 	{
-		if(put_char_in_buffer (&input_text_line, ch, input_text_line.len)) {
-			if(input_widget) {
-				text_field *tf = input_widget->widget_info;
-				tf->cursor = tf->buffer->len;
-				if(input_widget->window_id == game_root_win) {
-					widget_unset_flags (input_widget->window_id, input_widget->id, WIDGET_DISABLED);
-				}
-			}
-		}
+		if (put_char_in_buffer(&input_text_line, ch, input_text_line.len))
+			check_owned_and_show_console_input(game_root_win);
 	}
 #ifndef OSX
 	else if (key_code == SDLK_BACKSPACE && input_text_line.len > 0)
@@ -2260,7 +2252,8 @@ void do_keypress(el_key_def key)
 	}
 }
 
-static int show_game_handler (window_info *win) {
+static int show_game_handler (window_info *win)
+{
 	init_hud_interface (HUD_INTERFACE_GAME);
 	show_hud_windows();
 	if (use_windowed_chat == 1)
@@ -2318,28 +2311,18 @@ void create_game_root_window (int width, int height)
 		set_window_handler (game_root_win, ELW_HANDLER_UI_SCALE, &ui_scale_game_root_handler);
 		set_window_handler (game_root_win, ELW_HANDLER_FONT_CHANGE, &change_game_root_font_handler);
 
-		if (input_widget == NULL)
+		if (!have_console_input())
 		{
-			int input_height = get_input_height();
-			Uint32 id;
-
 			if (dark_channeltext == 1)
 				set_text_message_color (&input_text_line, 0.6f, 0.6f, 0.6f);
 			else if (dark_channeltext == 2)
 				set_text_message_color (&input_text_line, 0.16f, 0.16f, 0.16f);
 			else
 				set_text_message_color (&input_text_line, 1.0f, 1.0f, 1.0f);
-			id = text_field_add_extended(game_root_win, 42, NULL,
-				0, height-input_height-hud_y, width-hud_x, input_height,
-				INPUT_DEFAULT_FLAGS, CHAT_FONT, 1.0,
-				&input_text_line, 1, FILTER_ALL, INPUT_MARGIN, INPUT_MARGIN);
-			input_widget = widget_find(game_root_win, id);
-			input_widget->OnResize = input_field_resize;
+			create_console_input(game_root_win, 42, 0, height - get_input_default_height() - hud_y,
+				width - hud_x, get_input_default_height(), INPUT_DEFAULT_FLAGS);
 		}
-		widget_set_OnKey(input_widget->window_id, input_widget->id, (int (*)())chat_input_key);
-		if(input_text_line.len > 0) {
-			widget_unset_flags (input_widget->window_id, input_widget->id, WIDGET_DISABLED);
-		}
+		set_console_input_onkey();
 		resize_root_window();
 
 #ifdef NEW_CURSOR

@@ -34,7 +34,7 @@
 #include "sound.h"
 
 static queue_t *chan_name_queue;
-widget_list *input_widget = NULL;
+static widget_list *input_widget = NULL;
 
 /*!
  * \name Tabbed and old behaviour chat
@@ -825,7 +825,7 @@ static int chat_scroll_click (widget_list *widget, int mx, int my, Uint32 flags)
         return 0;
 }
 
-int chat_input_key (widget_list *widget, int mx, int my, SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_mod)
+static int chat_input_key (widget_list *widget, int mx, int my, SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_mod)
 {
 	text_field *tf;
 	text_message *msg;
@@ -2957,7 +2957,135 @@ void change_to_channel_tab(const char *line)
 	}
 }
 
-int get_input_height()
+/*
+ * Consolidate all the input widget usage into functions here.
+ *
+ * The first pass leaves several similar functions, rationalise later.
+ *
+ * The current functions a include prevously existing minor but that
+ * does not handle the number of lines of the input widget when the
+ * main window is resized.  Fix this later too as just refactoring
+ * for now.
+*/
+
+int get_input_default_height(void)
 {
-	return get_line_height(CHAT_FONT, 1.0) + 2*INPUT_MARGIN;
+	return get_line_height(CHAT_FONT, 1.0) + 2 * INPUT_MARGIN;
+}
+
+int get_current_console_input_height(void)
+{
+	if (input_widget != NULL)
+		return input_widget->len_y;
+	return 0;
+}
+
+void show_console_input(void)
+{
+	if (input_widget != NULL)
+		widget_unset_flags (input_widget->window_id, input_widget->id, WIDGET_INVISIBLE);
+}
+
+void check_owned_and_show_console_input(int window_id)
+{
+	// moved from gamewin text_input_handler() during tidy up
+	if(input_widget != NULL)
+	{
+		text_field *tf = input_widget->widget_info;
+		tf->cursor = tf->buffer->len;
+		if(input_widget->window_id == window_id)
+			widget_unset_flags (input_widget->window_id, input_widget->id, WIDGET_DISABLED);
+	}
+}
+
+void resize_and_move_console_input(int window_id, int pos_x, int pos_y, int len_x, int len_y)
+{
+	if ((input_widget != NULL) && (input_widget->window_id != get_id_MW(MW_CHAT)))
+	{
+		if (window_id < 0)
+			window_id = input_widget->window_id;
+		widget_resize(window_id, input_widget->id, len_x, len_y);
+		widget_move(window_id, input_widget->id, pos_x, pos_y);
+	}
+}
+
+int get_console_input_cursor(void)
+{
+	if ((input_widget != NULL) && (input_widget->widget_info != NULL))
+	{
+		text_field *tf = input_widget->widget_info;
+		return tf->cursor;
+	}
+	else
+		return 0;
+}
+
+void set_console_input_cursor(int new_value)
+{
+	if ((input_widget != NULL) && (input_widget->widget_info != NULL))
+	{
+		text_field *tf = input_widget->widget_info;
+		tf->cursor = new_value;
+	}
+}
+
+void update_console_input_zoom(void)
+{
+	// Original comment FIXME?
+	// Called from change_chat_zoom() moved here while tidying up
+	if (input_widget != NULL)
+	{
+		text_field *tf= input_widget->widget_info;
+		if (use_windowed_chat != 2)
+		{
+			int text_height = get_text_height(tf->nr_lines, CHAT_FONT, input_widget->size);
+			widget_resize(input_widget->window_id, input_widget->id,
+				input_widget->len_x, tf->y_space * 2 + text_height);
+		}
+	}
+}
+
+void update_console_input_uiscale(void)
+{
+	// Called from change_ui_scale() moved here while tidying up
+	if (input_widget != NULL)
+		input_widget_move_to_win(input_widget->window_id);
+}
+
+void check_and_get_console_input(int window_id)
+{
+	if ((input_widget != NULL) && (input_widget->window_id != window_id))
+		input_widget_move_to_win(window_id);
+}
+
+void move_console_input_on_input_resize(int pos_x, int pos_y)
+{
+	if (input_widget != NULL)
+		widget_move(input_widget->window_id, input_widget->id, pos_x, pos_y);
+}
+
+int have_console_input(void)
+{
+	return (input_widget != NULL);
+}
+
+void create_console_input(int window_id, int widget_id, int pos_x, int pos_y, int len_x, int len_y, Uint32 flags)
+{
+	Uint32 id = text_field_add_extended(window_id, widget_id, NULL,
+		pos_x, pos_y, len_x, len_y, flags,
+		CHAT_FONT, 1.0, &input_text_line, 1, FILTER_ALL, INPUT_MARGIN, INPUT_MARGIN);
+
+	input_widget = widget_find(window_id, id);
+	input_widget->OnResize = input_field_resize;
+
+	widget_set_OnKey(input_widget->window_id, input_widget->id, (int (*)())chat_input_key);
+	if(input_text_line.len > 0)
+		widget_unset_flags (input_widget->window_id, input_widget->id, WIDGET_DISABLED);
+}
+
+void set_console_input_onkey(void)
+{
+	widget_set_OnKey(input_widget->window_id, input_widget->id, (int (*)())chat_input_key);
+	if (input_text_line.len > 0)
+		widget_unset_flags(input_widget->window_id, input_widget->id, WIDGET_DISABLED);
 }
