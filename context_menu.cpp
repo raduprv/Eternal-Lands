@@ -484,7 +484,7 @@ namespace cm
 	{
 #ifdef ANDROID
 		// ANDROID_TODO this needs to be change on rescale too, and probably in the non-ANDROID client too
-		line_sep = scaled_value(9);
+		line_sep = scaled_value(12);
 #endif
 		set(menu_list, handler);
 		pre_show_handler = 0;
@@ -761,8 +761,8 @@ namespace cm
 			{
 				// if the mouse is over a valid line, draw the highlight and select line
 				if (!menu_lines[i].is_grey && !menu_lines[i].is_separator &&
-				  (my > currenty) &&
-				  (my < currenty + line_step) &&
+				  (my > currenty - line_sep) &&
+				  (my < currenty + line_step - line_sep) &&
 				  (mx > border) &&
 				  (mx < width - border))
 				{
