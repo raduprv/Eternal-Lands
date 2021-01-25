@@ -641,7 +641,7 @@ static void change_ui_scale(float *var, float *value)
 		hud_y = HUD_MARGIN_Y;
 
 	update_windows_scale(ui_scale);
-	update_console_input_uiscale();
+	update_console_input_size_and_position();
 }
 
 static void change_elconf_win_scale_factor(float *var, float *value)
@@ -1259,6 +1259,12 @@ static void change_enable_chat_show_hide(int * var)
 {
 	*var= !*var;
 	enable_chat_shown();
+}
+
+static void change_console_input_at_top(int * var)
+{
+	*var= !*var;
+	update_console_input_size_and_position();
 }
 
 static void change_max_chat_lines(int * var, int value)
@@ -2684,6 +2690,7 @@ static void init_ELC_vars(void)
 	// CHAT TAB
 	add_var(OPT_MULTI,"windowed_chat", "winchat", &use_windowed_chat, change_windowed_chat, 1, "Chat Display Style", "How do you want your chat to be displayed?", CHAT, "Old behavior", "Tabbed chat", "Chat window", NULL);
 	add_var(OPT_BOOL, "enable_chat_show_hide", "ecsh", &enable_chat_show_hide, change_enable_chat_show_hide, 0, "Enable Show/Hide For Chat", "If enabled, you can show or hide chat either using the #K_CHAT key (usually ALT+c) or using the optional icon-bar icon.", CHAT);
+	add_var(OPT_BOOL, "console_input_at_top", "ciat", &console_input_at_top, change_console_input_at_top, 0, "Console Input At Top Of Window", "If set, console input will be located at the top of the window.", CHAT);
 	add_var(OPT_INT,"max_chat_lines","mcl",&max_chat_lines.value,change_max_chat_lines,10,"Maximum Number Of Chat Lines","For Tabbed and Old behaviour chat modes, this value sets the maximium number of lines of chat displayed.",CHAT, max_chat_lines.lower, max_chat_lines.upper);
 	add_var(OPT_BOOL,"local_chat_separate", "locsep", &local_chat_separate, change_separate_flag, 0, "Separate Local Chat", "Should local chat be separate?", CHAT);
 	// The forces that be want PMs always global, so that they're less likely to be ignored

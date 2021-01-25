@@ -1247,7 +1247,6 @@ void resize_all_root_windows (Uint32 ow, Uint32 w, Uint32 oh, Uint32 h)
 	if (newchar_root_win >= 0) resize_window (newchar_root_win, w, h);
 	if (update_root_win >= 0) resize_window (update_root_win, w, h);
 	if (langsel_rootwin >= 0) resize_window (langsel_rootwin, w, h);
-	resize_and_move_console_input(-1, 0, h - get_current_console_input_height() - HUD_MARGIN_Y,
-		w - HUD_MARGIN_X, get_current_console_input_height());
+	input_widget_move_to_win(-1);
 	resize_newchar_hud_window();
 }
