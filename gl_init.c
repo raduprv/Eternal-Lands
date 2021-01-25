@@ -960,3 +960,16 @@ int print_gl_errors(const char *file, int line)
 	return anyErr;
 }
 
+void gl_window_cleanup(void)
+{
+	if (el_gl_window != NULL)
+	{
+		SDL_DestroyWindow(el_gl_window);
+		el_gl_window = NULL;
+	}
+	if (icon_bmp != NULL)
+	{
+		SDL_FreeSurface(icon_bmp);
+		icon_bmp = NULL;
+	}
+}
