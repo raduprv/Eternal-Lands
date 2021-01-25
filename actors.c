@@ -805,9 +805,11 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 
 	// draw the alpha background (if ness)
 	y_bottom = hy;
-	y_bottom += (!display_health_line && !display_ether_line && display_names) ? bar_y_len-6.0 : -5.0;
+	y_bottom += (!display_health_line && !display_ether_line && display_names) ? bar_y_len/2 : -(bar_y_len/3);
 	y_bottom -= (num_lines == 3 || (num_lines==2 && !display_names)) ? bar_y_len : 0.0;
-	y_top = y_bottom + bar_y_len * num_lines + 2;
+	y_top = (y_bottom + bar_y_len * num_lines);
+	y_top += 0.2f * bar_y_len;
+	y_bottom -= 0.2f * bar_y_len;
 	if (display_banner_alpha && banner_width > 0) {
 		//if banner width > 0 there MUST be something displayed in the banner
 		banner_width += 3;
