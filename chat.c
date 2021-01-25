@@ -35,7 +35,7 @@
 
 static queue_t *chan_name_queue;
 static widget_list *input_widget = NULL;
-int console_input_at_top = 1;
+int console_input_at_top = 0;
 
 /*!
  * \name Tabbed and old behaviour chat
