@@ -38,7 +38,6 @@
  * - Mouse paste can resize input box (have a patch)
  * Code Tidy:
  * 	- Sort out len_y of console output text field - sep/margin etc
- * 	- Intimate use of input_widget all over the place in different modules
  */
 
 int console_scrollbar_enabled = 1;
@@ -86,15 +85,9 @@ static int display_console_handler (window_info *win)
 {
 	static int msg = 0, offset = 0;
 
-#ifdef ANDROID
-	if ((get_tab_bar_y() + get_input_height()) != CONSOLE_Y_OFFSET)
+	if ((get_tab_bar_y() + get_input_at_top_height()) != CONSOLE_Y_OFFSET)
 	{
-		CONSOLE_Y_OFFSET = get_tab_bar_y() + get_input_height();
-#else
-	if (get_tab_bar_y() != CONSOLE_Y_OFFSET)
-	{
-		CONSOLE_Y_OFFSET = get_tab_bar_y();
-#endif
+		CONSOLE_Y_OFFSET = get_tab_bar_y() + get_input_at_top_height();
 		resize_window(win->window_id, win->len_x, win->len_y);
 	}
 
@@ -139,7 +132,7 @@ static int display_console_handler (window_info *win)
 	{
 		glColor3f (1.0, 1.0, 1.0);
 		draw_console_separator(CONSOLE_TEXT_X_BORDER,
-			win->len_y - HUD_MARGIN_Y - input_widget->len_y - get_console_sep_height(),
+			win->len_y - HUD_MARGIN_Y - get_input_at_bottom_height() - get_console_sep_height(),
 			console_text_width, 1.0);
 	}
 	//ttlanhil: disabled, until the scrolling in console is adusted to work with filtering properly
@@ -250,18 +243,13 @@ static int resize_console_handler (window_info *win, int width, int height)
 	int scrollbar_x_adjust = (console_scrollbar_enabled) ?win->box_size :0;
 	int console_active_width = width - HUD_MARGIN_X;
 	int console_active_height = height - HUD_MARGIN_Y;
-	int text_display_height = console_active_height - input_widget->len_y - get_console_sep_height() - CONSOLE_Y_OFFSET;
+	int text_display_height = console_active_height - get_input_at_bottom_height() - get_console_sep_height() - CONSOLE_Y_OFFSET;
 
 	console_text_width = (int) (console_active_width - 2*CONSOLE_TEXT_X_BORDER - scrollbar_x_adjust);
 
 	widget_resize (win->window_id, console_out_id, console_text_width, text_display_height);
 	widget_move (win->window_id, console_out_id, CONSOLE_TEXT_X_BORDER, CONSOLE_Y_OFFSET);
-	widget_resize (win->window_id, input_widget->id, console_active_width, input_widget->len_y);
-#ifdef ANDROID
-	move_input_widget();
-#else
-	widget_move (win->window_id, input_widget->id, 0, console_active_height - input_widget->len_y);
-#endif
+	input_widget_move_to_win(win->window_id);
 
 	nr_console_lines = get_max_nr_lines(text_display_height, CHAT_FONT, 1.0);
 	recalc_message_lines();
@@ -299,11 +287,11 @@ static void create_console_scrollbar(window_info *win)
 {
 	int console_active_width = window_width - HUD_MARGIN_X;
 	int console_active_height = window_height - HUD_MARGIN_Y;
-	if (input_widget == NULL)
+	if (!have_console_input())
 		return;
 	console_scrollbar_id = vscrollbar_add_extended(win->window_id, console_scrollbar_id, NULL,
 		console_active_width - win->box_size, CONSOLE_Y_OFFSET,
-		win->box_size, console_active_height - get_console_sep_height() - CONSOLE_Y_OFFSET - input_widget->len_y,
+		win->box_size, console_active_height - get_console_sep_height() - CONSOLE_Y_OFFSET - get_input_at_bottom_height(),
 		0, 1.0, 0, 1, total_nr_lines-nr_console_lines);
 	widget_set_OnDrag(win->window_id, console_scrollbar_id, console_scroll_drag);
 	widget_set_OnClick(win->window_id, console_scrollbar_id, console_scroll_click);
@@ -369,7 +357,8 @@ int get_total_nr_lines(void)
 	return total_nr_lines;
 }
 
-void clear_console(){
+void clear_console(void)
+{
 	console_text_changed = 1;
 	clear_lines_to_show();
 	scroll_up_lines = 0;
@@ -473,7 +462,7 @@ static int change_console_font_handler(window_info *win, font_cat cat)
 	if (cat != CHAT_FONT)
 		return 0;
 
-	nr_console_lines = get_max_nr_lines(window_height - input_widget->len_y - get_console_sep_height() - hud_y - CONSOLE_Y_OFFSET,
+	nr_console_lines = get_max_nr_lines(window_height - get_input_at_bottom_height() - get_console_sep_height() - hud_y - CONSOLE_Y_OFFSET,
 		CHAT_FONT, 1.0);
 	resize_console_handler(win, window_width, window_height);
 	return 1;
@@ -488,7 +477,6 @@ void create_console_root_window (int width, int height)
 		int scrollbar_x_adjust = 0;
 		int console_active_width = width - HUD_MARGIN_X;
 		int console_active_height = height - HUD_MARGIN_Y;
-		int input_height = get_input_height();
 
 		console_root_win = create_window ("Console", -1, -1, 0, 0, width, height, ELW_USE_UISCALE|ELW_TITLE_NONE|ELW_SHOW_LAST);
 		set_id_MW(MW_CONSOLE, console_root_win);
@@ -515,25 +503,19 @@ void create_console_root_window (int width, int height)
 
 		console_out_id = text_field_add_extended(console_root_win, console_out_id, NULL,
 			CONSOLE_TEXT_X_BORDER, CONSOLE_Y_OFFSET, console_text_width,
-			console_active_height - input_height - get_console_sep_height() - CONSOLE_Y_OFFSET,
+			console_active_height - get_input_default_height() - get_console_sep_height() - CONSOLE_Y_OFFSET,
 			0, CHAT_FONT, 1.0, display_text_buffer, DISPLAY_TEXT_BUFFER_SIZE, CHAT_ALL, 0, 0);
 		widget_unset_color(console_root_win, console_out_id);
 
 		recalc_message_lines();
 
-		if (input_widget == NULL)
-		{
-			Uint32 id;
-			id = text_field_add_extended(console_root_win, console_in_id, NULL,
-				0, console_active_height - input_height, console_active_width, input_height,
-				(INPUT_DEFAULT_FLAGS|TEXT_FIELD_BORDER)^WIDGET_CLICK_TRANSPARENT,
-				CHAT_FONT, 1.0, &input_text_line, 1, FILTER_ALL, INPUT_MARGIN, INPUT_MARGIN);
-			input_widget = widget_find(console_root_win, id);
-			input_widget->OnResize = input_field_resize;
-		}
-		widget_set_OnKey(input_widget->window_id, input_widget->id, (int (*)())chat_input_key);
+		if (!have_console_input())
+			create_console_input(console_root_win, console_in_id,
+				0, console_active_height - get_input_default_height(), console_active_width, get_input_default_height(),
+				(INPUT_DEFAULT_FLAGS|TEXT_FIELD_BORDER)^WIDGET_CLICK_TRANSPARENT);
+		set_console_input_onkey();
 
-		nr_console_lines = get_max_nr_lines(console_active_height - input_widget->len_y - get_console_sep_height() - CONSOLE_Y_OFFSET,
+		nr_console_lines = get_max_nr_lines(console_active_height - get_input_at_bottom_height() - get_console_sep_height() - CONSOLE_Y_OFFSET,
 			CHAT_FONT, 1.0);
 
 		if (console_scrollbar_enabled && (console_root_win >= 0) && (console_root_win < windows_list.num_windows))
@@ -557,16 +539,10 @@ int input_field_resize(widget_list *w, Uint32 x, Uint32 y)
 	msg->wrap_width = 0;
 	tf->nr_lines = rewrap_message(msg, w->fcat, w->size,
 		w->len_x - 2 * tf->x_space, &tf->cursor);
-	if(use_windowed_chat != 2 || !get_show_window(get_id_MW(MW_CHAT))) {
-		window_info *win = &windows_list.window[w->window_id];
-#ifdef ANDROID
-		move_input_widget();
-#else
-		widget_move(input_widget->window_id, input_widget->id, 0, win->len_y - input_widget->len_y - HUD_MARGIN_Y);
-#endif
-	}
 
-	console_active_height = console_win->len_y - HUD_MARGIN_Y - input_widget->len_y - get_console_sep_height() - CONSOLE_Y_OFFSET;
+	move_console_input_on_input_resize();
+
+	console_active_height = console_win->len_y - HUD_MARGIN_Y - get_input_at_bottom_height() - get_console_sep_height() - CONSOLE_Y_OFFSET;
 	widget_resize(console_root_win, console_out_id, console_out_w->len_x, console_active_height);
 	if (console_scrollbar_enabled)
 		widget_resize(console_root_win, console_scrollbar_id, console_win->box_size, console_active_height);

@@ -353,8 +353,8 @@ static struct compl_str tab_complete(const text_message *input, unsigned int cur
 
 void do_tab_complete(text_message *input)
 {
-	text_field *tf = input_widget->widget_info;
-	struct compl_str completed = tab_complete(input, tf->cursor);
+	int input_cursor = get_console_input_cursor();
+	struct compl_str completed = tab_complete(input, input_cursor);
 
 	if(completed.str != NULL)
 	{
@@ -363,22 +363,22 @@ void do_tab_complete(text_message *input)
 
 		/* Find the length of the data we're removing */
 		if(completed.type == NAME) {
-			const char *last_space = strmrchr(input->data, input->data+tf->cursor, ' ');
+			const char *last_space = strmrchr(input->data, input->data+input_cursor, ' ');
 			/* Name is a bit special because it can be anywhere in a string,
 			 * not just at the beginning like the other types. */
-			len = input->data+tf->cursor-1-(last_space ? last_space : (input->data-1));
+			len = input->data+input_cursor-1-(last_space ? last_space : (input->data-1));
 		} else if (completed.type == CHANNEL) {
-			len = tf->cursor-2;
+			len = input_cursor-2;
 		} else {
-			len = tf->cursor-1;
+			len = input_cursor-1;
 		}
 
 		/* Erase the current input word */
-		for (i = tf->cursor; i <= input->len; i++) {
+		for (i = input_cursor; i <= input->len; i++) {
 			input->data[i-len] = input->data[i];
 		}
 		input->len -= len;
-		tf->cursor -= len;
+		set_console_input_cursor(input_cursor - len);
 		paste_in_input_field((unsigned char*)completed.str);
 		input->len = strlen(input->data);
 	}

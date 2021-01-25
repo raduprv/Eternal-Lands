@@ -34,7 +34,8 @@
 #include "sound.h"
 
 static queue_t *chan_name_queue;
-widget_list *input_widget = NULL;
+static widget_list *input_widget = NULL;
+int console_input_at_top = 1;
 
 /*!
  * \name Tabbed and old behaviour chat
@@ -116,6 +117,7 @@ void enable_chat_shown(void)
 			break;
 	}
 	set_icon_state("chat", (enable_chat_show_hide != 0));
+	update_console_input_size_and_position();
 }
 
 int is_chat_shown(void)
@@ -151,6 +153,7 @@ void toggle_chat(void)
 			chat_shown = get_window_showable(get_id_MW(MW_CHAT));
 			break;
 	}
+	update_console_input_size_and_position();
 }
 
 int get_tabbed_chat_end_x(void)
@@ -160,24 +163,24 @@ int get_tabbed_chat_end_x(void)
 	return windows_list.window[tab_bar_win].cur_x + windows_list.window[tab_bar_win].len_x;
 }
 
-#ifdef ANDROID
-void move_input_widget(void)
-{
-	if (input_widget == NULL)
-		return;
-	widget_move(input_widget->window_id, input_widget->id, 0, get_tab_bar_y());
-}
-#endif
-
 void input_widget_move_to_win(int window_id)
 {
 	window_info *win = NULL;
-	if ((window_id >= 0) && (window_id < windows_list.num_windows))
-		win = &windows_list.window[window_id];
-	if ((input_widget == NULL) || (win == NULL))
+
+	if (input_widget == NULL)
 		return;
 
-	widget_move_win(input_widget->window_id, input_widget->id, window_id);
+	if (window_id < 0)
+		window_id = input_widget->window_id;
+
+	if ((window_id >= 0) && (window_id < windows_list.num_windows))
+		win = &windows_list.window[window_id];
+	if (win == NULL)
+		return;
+
+	if (input_widget->window_id != window_id)
+		widget_move_win(input_widget->window_id, input_widget->id, window_id);
+
 	if(window_id == get_id_MW(MW_CHAT)) {
 		widget_set_flags(input_widget->window_id, input_widget->id, TEXT_FIELD_BORDER|TEXT_FIELD_EDITABLE|TEXT_FIELD_NO_KEYPRESS);
 		input_widget->OnResize = NULL;
@@ -197,14 +200,16 @@ void input_widget_move_to_win(int window_id)
 		} else {
 			flags = INPUT_DEFAULT_FLAGS;
 		}
+		if (console_input_at_top)
+			flags |= TEXT_FIELD_BORDER;
 		widget_set_flags(input_widget->window_id, input_widget->id, flags);
 		widget_resize(input_widget->window_id, input_widget->id,
 			win->len_x - HUD_MARGIN_X, 2 * tf->y_space + text_height);
-#ifdef ANDROID
-		move_input_widget();
-#else
-		widget_move(input_widget->window_id, input_widget->id, 0, win->len_y-input_widget->len_y-HUD_MARGIN_Y);
-#endif
+
+		if (console_input_at_top)
+			widget_move(input_widget->window_id, input_widget->id, 0, get_tab_bar_y());
+		else
+			widget_move(input_widget->window_id, input_widget->id, 0, win->len_y-input_widget->len_y-HUD_MARGIN_Y);
 	}
 }
 
@@ -397,15 +402,7 @@ void clear_input_line(void)
 		field->cursor = 0;
 		field->cursor_line = 0;
 		field->nr_lines = 1;
-		if (use_windowed_chat != 2)
-		{
-			int line_height = get_line_height(CHAT_FONT, input_widget->size);
-			widget_resize(input_widget->window_id, input_widget->id,
-				input_widget->len_x, 2*field->y_space + line_height);
-		}
-		/* Hide the game win input widget */
-		if(input_widget->window_id == game_root_win)
-			widget_set_flags(game_root_win, input_widget->id, INPUT_DEFAULT_FLAGS|WIDGET_DISABLED);
+		input_widget_move_to_win(-1);
 	}
 	history_reset();
 }
@@ -665,8 +662,7 @@ static int display_chat_handler (window_info *win)
 		text_changed = 0;
 	}
 
-	if ((input_widget!= NULL) && (input_widget->window_id != win->window_id))
-		input_widget_move_to_win(win->window_id);
+	check_and_get_console_input(win->window_id);
 
 	return 1;
 }
@@ -838,7 +834,7 @@ static int chat_scroll_click (widget_list *widget, int mx, int my, Uint32 flags)
         return 0;
 }
 
-int chat_input_key (widget_list *widget, int mx, int my, SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_mod)
+static int chat_input_key (widget_list *widget, int mx, int my, SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_mod)
 {
 	text_field *tf;
 	text_message *msg;
@@ -1262,6 +1258,7 @@ void display_chat(void)
 		select_window (chat_win);
 	}
 	update_chat_win_buffers();
+	update_console_input_size_and_position();
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -2220,6 +2217,7 @@ void display_tab_bar(void)
 		show_window (tab_bar_win);
 		select_window (tab_bar_win);
 	}
+	update_console_input_size_and_position();
 }
 
 static void change_to_current_tab(const char *input)
@@ -2772,9 +2770,9 @@ int get_tab_bar_x(void)
 
 int get_tab_bar_y(void)
 {
-	if (use_windowed_chat == 1 && tab_bar_win >= 0 && tab_bar_win < windows_list.num_windows)
+	if (use_windowed_chat == 1 && tab_bar_win >= 0 && tab_bar_win < windows_list.num_windows && chat_shown)
 		return 4 + windows_list.window[tab_bar_win].pos_y + windows_list.window[tab_bar_win].len_y;
-	return 20;
+	return 1;
 }
 
 void next_channel_tab(void)
@@ -2970,7 +2968,142 @@ void change_to_channel_tab(const char *line)
 	}
 }
 
-int get_input_height()
+/*
+ * Consolidate all the input widget usage into functions here.
+*/
+
+int get_input_default_height(void)
 {
-	return get_line_height(CHAT_FONT, 1.0) + 2*INPUT_MARGIN;
+	return get_line_height(CHAT_FONT, 1.0) + 2 * INPUT_MARGIN;
+}
+
+int get_input_at_top_height(void)
+{
+	if (console_input_at_top && (input_widget != NULL))
+		return input_widget->len_y;
+	else
+		return 0;
+}
+
+int get_input_at_bottom_height(void)
+{
+	if (!console_input_at_top && (input_widget != NULL))
+		return input_widget->len_y;
+	else
+		return 0;
+}
+
+void show_console_input(void)
+{
+	if (input_widget != NULL)
+		widget_unset_flags (input_widget->window_id, input_widget->id, WIDGET_INVISIBLE);
+}
+
+void check_owned_and_show_console_input(int window_id)
+{
+	// moved from gamewin text_input_handler() during tidy up
+	if(input_widget != NULL)
+	{
+		text_field *tf = input_widget->widget_info;
+		tf->cursor = tf->buffer->len;
+		if(input_widget->window_id == window_id)
+			widget_unset_flags (input_widget->window_id, input_widget->id, WIDGET_DISABLED);
+	}
+}
+
+int get_console_input_cursor(void)
+{
+	if ((input_widget != NULL) && (input_widget->widget_info != NULL))
+	{
+		text_field *tf = input_widget->widget_info;
+		return tf->cursor;
+	}
+	else
+		return 0;
+}
+
+void set_console_input_cursor(int new_value)
+{
+	if ((input_widget != NULL) && (input_widget->widget_info != NULL))
+	{
+		text_field *tf = input_widget->widget_info;
+		tf->cursor = new_value;
+	}
+}
+
+void update_console_input_zoom(void)
+{
+	// Original comment FIXME?
+	// Called from change_chat_zoom() moved here while tidying up
+	if (input_widget != NULL)
+	{
+		text_field *tf= input_widget->widget_info;
+		if (use_windowed_chat != 2)
+		{
+			int text_height = get_text_height(tf->nr_lines, CHAT_FONT, input_widget->size);
+			widget_resize(input_widget->window_id, input_widget->id,
+				input_widget->len_x, tf->y_space * 2 + text_height);
+		}
+	}
+}
+
+void update_console_input_size_and_position(void)
+{
+	if (input_widget != NULL)
+		input_widget_move_to_win(input_widget->window_id);
+}
+
+void check_and_get_console_input(int window_id)
+{
+	if ((input_widget != NULL) && (input_widget->window_id != window_id))
+		input_widget_move_to_win(window_id);
+}
+
+void move_console_input_on_input_resize(void)
+{
+	if ((input_widget != NULL) && ((use_windowed_chat != 2) || !get_show_window(get_id_MW(MW_CHAT))))
+	{
+		if ((input_widget->window_id >= 0) && (input_widget->window_id < windows_list.num_windows))
+		{
+			if (console_input_at_top)
+				widget_move(input_widget->window_id, input_widget->id, 0, get_tab_bar_y());
+			else
+				widget_move(input_widget->window_id, input_widget->id,
+					0, windows_list.window[input_widget->window_id].len_y - input_widget->len_y - HUD_MARGIN_Y);
+		}
+	}
+}
+
+int have_console_input(void)
+{
+	return (input_widget != NULL);
+}
+
+void create_console_input(int window_id, int widget_id, int pos_x, int pos_y, int len_x, int len_y, Uint32 flags)
+{
+	Uint32 id;
+
+	if (console_input_at_top)
+	{
+		pos_y = get_tab_bar_y();
+		flags |= TEXT_FIELD_BORDER;
+	}
+
+	id = text_field_add_extended(window_id, widget_id, NULL,
+		pos_x, pos_y, len_x, len_y, flags,
+		CHAT_FONT, 1.0, &input_text_line, 1, FILTER_ALL, INPUT_MARGIN, INPUT_MARGIN);
+
+	input_widget = widget_find(window_id, id);
+	input_widget->OnResize = input_field_resize;
+
+	widget_set_OnKey(input_widget->window_id, input_widget->id, (int (*)())chat_input_key);
+	if(input_text_line.len > 0)
+		widget_unset_flags (input_widget->window_id, input_widget->id, WIDGET_DISABLED);
+}
+
+void set_console_input_onkey(void)
+{
+	widget_set_OnKey(input_widget->window_id, input_widget->id, (int (*)())chat_input_key);
+	if (input_text_line.len > 0)
+		widget_unset_flags(input_widget->window_id, input_widget->id, WIDGET_DISABLED);
 }

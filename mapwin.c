@@ -233,7 +233,7 @@ static int resize_map_root_handler(window_info *win, int width, int height)
 
 static int hide_map_handler (window_info * win)
 {
-	widget_unset_flags (input_widget->window_id, input_widget->id, WIDGET_INVISIBLE);
+	show_console_input();
 	return 1;
 }
 
