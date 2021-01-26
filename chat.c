@@ -1049,6 +1049,8 @@ int root_key_to_input_field (SDL_Keycode key_code, Uint32 key_unicode, Uint16 ke
 		input_widget->Flags &= ~TEXT_FIELD_NO_KEYPRESS;
 		text_field_keypress (input_widget, 0, 0, key_code, key_unicode, key_mod);
 		input_widget->Flags |= TEXT_FIELD_NO_KEYPRESS;
+		if (input_text_line.len == 0)
+			clear_input_line();
 	}
 	else if (KEY_DEF_CMP(K_TABCOMPLETE, key_code, key_mod) && input_text_line.len > 0)
 	{
@@ -3095,15 +3097,18 @@ void create_console_input(int window_id, int widget_id, int pos_x, int pos_y, in
 
 	input_widget = widget_find(window_id, id);
 	input_widget->OnResize = input_field_resize;
-
-	widget_set_OnKey(input_widget->window_id, input_widget->id, (int (*)())chat_input_key);
-	if(input_text_line.len > 0)
-		widget_unset_flags (input_widget->window_id, input_widget->id, WIDGET_DISABLED);
 }
 
 void set_console_input_onkey(void)
 {
+	if (input_widget == NULL)
+		return;
 	widget_set_OnKey(input_widget->window_id, input_widget->id, (int (*)())chat_input_key);
 	if (input_text_line.len > 0)
 		widget_unset_flags(input_widget->window_id, input_widget->id, WIDGET_DISABLED);
+}
+
+int console_input_active_at_top(void)
+{
+	return (console_input_at_top && (input_widget != NULL) && (input_text_line.len > 0) && (use_windowed_chat != 2));
 }
