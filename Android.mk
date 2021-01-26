@@ -4,6 +4,8 @@ include $(CLEAR_VARS)
 
 LOCAL_MODULE := main
 
+ELVERSION=1.9.5.8
+
 SDL_PATH := ../SDL2
 SDL_IMAGE_PATH := ../SDL2_image
 SDL_NET_PATH := ../SDL2_net
@@ -36,7 +38,7 @@ LOCAL_CFLAGS := \
 	-DFUZZY_PATHS \
 	-DBANDWIDTH_SAVINGS \
 	-DANIMATION_SCALING \
-	-DGIT_VERSION=\"1.9.5.20210120\"
+	-DGIT_VERSION=\"$(ELVERSION)\"
 
 # Add your application source files here...
 LOCAL_SRC_FILES := \
