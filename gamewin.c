@@ -1383,7 +1383,7 @@ static int display_game_handler (window_info *win)
 			}
 		}
 	}
-	if (show_fps)
+	if (show_fps && !console_input_active_at_top())
 	{
 		int fps_y;
 #ifdef	DEBUG

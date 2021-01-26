@@ -274,6 +274,7 @@ void move_console_input_on_input_resize(void);
 int have_console_input(void);
 void create_console_input(int window_id, int widget_id, int pos_x, int pos_y, int len_x, int len_y, Uint32 flags);
 void set_console_input_onkey(void);
+int console_input_active_at_top(void);
 
 void open_chat(void);
 void toggle_chat(void);
