@@ -14,9 +14,6 @@
 #include "counters.h"
 #include "eye_candy_wrapper.h"
 #include "spells.h"
-#ifdef ANDROID
-#include "android_glu.h"
-#endif
 
 player_attribs your_info;
 player_attribs someone_info;
@@ -1110,19 +1107,7 @@ static void draw_floatingmessage(floating_message *message, float healthbar_z) {
         }
         else
         {
-#ifndef ANDROID
 			gluProject(0.0, 0.0, healthbar_z * get_actor_scale(your_actor), model, proj, view, &x, &y, &z);
-#else
-			// ANDROID_TODO fix glu
-			float temp_array[3];
-			temp_array[0]=x;
-			temp_array[1]=y;
-			temp_array[2]=z;
-			glhProject(0.0, 0.0, healthbar_z * get_actor_scale(your_actor), model, proj, view, temp_array);
-			x=temp_array[0];
-			y=temp_array[1];
-			z=temp_array[2];
-#endif
 			y += 50*font_scales[NAME_FONT]; // size of the actor name/bar
         }
 

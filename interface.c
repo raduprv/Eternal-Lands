@@ -40,8 +40,6 @@
 #include "image_loading.h"
 #include "weather.h"
 #ifdef ANDROID
-// ANDROID_TODO use proper GLU
-#include "android_glu.h"
 #include "elconfig.h"
 #endif
 
@@ -123,19 +121,7 @@ void get_world_x_y (short *scene_x, short *scene_y)
 	if (ati_click_workaround && bpp == 32)
 		mouse_z = ldexp (mouse_z, 8);
 
-#ifndef ANDROID
 	gluUnProject (mouse_x, window_height-hud_y-mouse_y, mouse_z, model_mat, projection_mat, viewport, &sx, &sy, &sz);
-#else
-	// ANDROID_TODO use proper GLU
-	float temp_array[3];
-	temp_array[0]=sx;
-	temp_array[1]=sy;
-	temp_array[2]=sz;
-	glhUnProject (mouse_x, window_height-hud_y-mouse_y, mouse_z, model_mat, projection_mat, viewport, temp_array);
-	sx=temp_array[0];
-	sy=temp_array[1];
-	sz=temp_array[2];
-#endif
 
 	*scene_x = (sx / 0.5);
 	*scene_y = (sy / 0.5);

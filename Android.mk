@@ -14,6 +14,7 @@ LIBXML2_PATH := ../libxml2
 EXTRAS_PATH := ../extras
 GL4ES_PATH := ../gl4es/
 ICONV_PATH := ../libiconv/
+GLU_PATH := ../glu-9.0.1/
 
 LOCAL_C_INCLUDES := $(LOCAL_PATH)/$(SDL_PATH)/include \
 $(LOCAL_PATH)/$(SDL_IMAGE_PATH) \
@@ -23,6 +24,7 @@ $(LOCAL_PATH)/$(LIBXML2_PATH)/include/ \
 $(LOCAL_PATH)/$(ICONV_PATH)/libiconv-1.14/include/ \
 $(LOCAL_PATH)/$(EXTRAS_PATH)/ \
 $(LOCAL_PATH)/$(GL4ES_PATH)/include/ \
+$(LOCAL_PATH)/$(GLU_PATH)/include/ \
 $(LOCAL_PATH)/nlohmann_json/single_include/
 
 LOCAL_CFLAGS := \
@@ -248,6 +250,7 @@ LOCAL_SHARED_LIBRARIES := \
 	libGL \
 	cal3d \
 	iconv \
+	libGLU \
 	libxml2
 
 LOCAL_LDLIBS := -lz -llog

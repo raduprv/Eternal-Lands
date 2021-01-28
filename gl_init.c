@@ -950,13 +950,11 @@ int print_gl_errors(const char *file, int line)
 {
 	GLenum	glErr, anyErr=GL_NO_ERROR;
 
-#ifndef ANDROID
 	while ((glErr=glGetError()) != GL_NO_ERROR )
 	 {
 		anyErr=glErr;
 		log_error(file, line, "OpenGL %s", gluErrorString(glErr));
 	}
-#endif
 	return anyErr;
 }
 

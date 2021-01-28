@@ -94,11 +94,7 @@ namespace ELGL_Colour
 		char const *error_prefix = __PRETTY_FUNCTION__;
 		std::string file_name = "named_colours.xml";
 
-#ifdef ANDROID
-		if (!el_file_exists(file_name.c_str()))
-#else
 		if (!el_file_exists_anywhere(file_name.c_str()))
-#endif
 			return;
 
 		xmlDocPtr doc;

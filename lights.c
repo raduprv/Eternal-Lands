@@ -55,8 +55,6 @@ short game_minute = 0;
 short game_second = 0;
 unsigned char freeze_time = 0;
 
-#ifndef ANDROID
-// ANDROID_TODO needs GLU
 int test_point_visible(float x,float y,float z)
 {
 	double MV[16];
@@ -79,7 +77,6 @@ CHECK_GL_ERRORS();
 		return 1;
 	else 	return 0;
 }
-#endif
 
 int	max_enabled;
 void disable_local_lights()

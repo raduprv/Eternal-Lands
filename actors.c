@@ -33,9 +33,6 @@
 #ifdef	FSAA
 #include "fsaa/fsaa.h"
 #endif	/* FSAA */
-#ifdef ANDROID
-#include "android_glu.h"
-#endif
 
 actor *actors_list[MAX_ACTORS];
 int max_actors=0;
@@ -502,19 +499,7 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 	glGetDoublev(GL_PROJECTION_MATRIX, proj);
 	glGetIntegerv(GL_VIEWPORT, view);
 	// Input adjusted healthbar_y value to scale hy according to actor scale
-
-#ifndef ANDROID
 	gluProject(healthbar_x, healthbar_y, healthbar_z * actor_id->scale * actors_defs[actor_id->actor_type].actor_scale + 0.02, model, proj, view, &hx, &hy, &hz);
-#else
-	float temp_array[3];
-	temp_array[0]=hx;
-	temp_array[1]=hy;
-	temp_array[2]=hz;
-	glhProject(healthbar_x, healthbar_y, healthbar_z * actor_id->scale * actors_defs[actor_id->actor_type].actor_scale + 0.02, model, proj, view, temp_array);
-	hx=temp_array[0];
-	hy=temp_array[1];
-	hz=temp_array[2];
-#endif
 
 	//Save World-view and Projection matrices to allow precise raster placement of quads
 	glPushMatrix();

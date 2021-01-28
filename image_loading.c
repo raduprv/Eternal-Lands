@@ -68,11 +68,7 @@ Uint32 check_image_name(const char* file_name, const Uint32 size, char* str)
 		safe_strncpy2(buffer, file_name, sizeof(buffer), len);
 		safe_strcat(buffer, image_extensions[i], sizeof(buffer));
 
-#ifdef ANDROID
-		if (el_file_exists(buffer) != 0)
-#else
 		if (el_custom_file_exists(buffer) != 0)
-#endif
 		{
 			len = strlen(buffer);
 
@@ -502,11 +498,7 @@ Uint32 load_image_data_file(el_file_ptr file, const Uint32 compression,
 	if ((dds != 1) && (check_alpha_image_name(el_file_name(file),
 		sizeof(buffer), buffer) != 0))
 	{
-#ifdef ANDROID
-		alpha_file = el_open(buffer);
-#else
 		alpha_file = el_open_custom(buffer);
-#endif
 
 		if (alpha_file == 0)
 		{
@@ -540,11 +532,7 @@ Uint32 load_image_data(const char* file_name, const Uint32 compression,
 		return 0;
 	}
 
-#ifdef ANDROID
-	file = el_open(buffer);
-#else
 	file = el_open_custom(buffer);
-#endif
 
 	if (file == 0)
 	{

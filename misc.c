@@ -33,10 +33,6 @@
 #include "init.h"
 #include "interface.h"
 #include "translate.h"
-#ifdef ANDROID
-// ANDROID_TODO GLU
-#include "android_glu.h"
-#endif
 
 #define IMG_SetError(a) SDL_SetError(a)
 #ifndef S_ISDIR
@@ -62,22 +58,8 @@ void get_click_line(LINE* line)
 	glGetDoublev(GL_PROJECTION_MATRIX, proj);
 	glGetDoublev(GL_MODELVIEW_MATRIX, modl);
 	glGetIntegerv(GL_VIEWPORT, view);
-#ifndef ANDROID
 	gluUnProject(mouse_x, window_height-mouse_y, 0, modl, proj, view, &x1, &y1, &z1);
 	gluUnProject(mouse_x, window_height-mouse_y, 1, modl, proj, view, &x2, &y2, &z2);
-#else
-// ANDROID_TODO GLU
-	float temp_array[3];
-	glhUnProject(mouse_x, window_height-mouse_y, 0, modl, proj, view, temp_array);
-	x1=temp_array[0];
-	y1=temp_array[1];
-	z1=temp_array[2];
-
-	glhUnProject(mouse_x, window_height-mouse_y, 1, modl, proj, view, temp_array);
-	x2=temp_array[0];
-	y2=temp_array[1];
-	z2=temp_array[2];
-#endif
 
 	VMake(line->center, x1, y1, z1);
 

@@ -536,11 +536,7 @@ namespace IconWindow
 		}
 
 		// shame but xmlFileMatch gives an additional error message
-#ifdef ANDROID
-		if (!el_file_exists(file_name.c_str()))
-#else
 		if (!el_file_exists_anywhere(file_name.c_str()))
-#endif
 			return false;
 
 		xmlDocPtr doc;

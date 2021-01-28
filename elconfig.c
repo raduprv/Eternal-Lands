@@ -2610,7 +2610,10 @@ void clear_multiselect_var(const char* name)
 
 	if (var_index == -1)
 	{
+#ifndef ANDROID
+		// ANDROID_TODO cut down on logged errors
 		LOG_ERROR("Can't find var '%s', type 'INI_FILE_VAR'", name);
+#endif
 		return;
 	}
 
