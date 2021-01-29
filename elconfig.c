@@ -2687,7 +2687,7 @@ static void init_ELC_vars(void)
 	add_var(OPT_MULTI,"trade_log_mode","tradelogmode",&trade_log_mode,change_int, TRADE_LOG_NONE,"Trade log","Set how successful trades are logged.",CONTROLS,"Do not log trades", "Log only to console", "Log only to file", "Log to console and file", NULL);
 #endif
 #ifdef ANDROID
-	add_var(OPT_FLOAT,"long_touch_delay_s", "ltds", &long_touch_delay_s, change_float, 0.5, "Long Touch Delay (seconds)", "The time to wait before interpreting a long touch as a right-click equivalent", CONTROLS, 0.2, 2.0, 0.05);
+	add_var(OPT_FLOAT,"long_touch_delay_s", "ltds", &long_touch_delay_s, change_float, 0.35, "Long Touch Delay (seconds)", "The time to wait before interpreting a long touch as a right-click equivalent", CONTROLS, 0.15, 2.0, 0.05);
 #endif
 	// CONTROLS TAB
 
@@ -2696,26 +2696,20 @@ static void init_ELC_vars(void)
 #ifdef ANDROID
 	add_var(OPT_BOOL,"window_camera_control","window_cc",&window_camera_controls,change_var,1,"Use Full Window Camera Controls","Use Full Window Camera Controls",HUD);
 	add_var(OPT_BOOL,"full_camera_bars","full_cam_bars",&full_camera_bars,change_var,1,"Draw camera bars","Shows the camera bars",HUD);
-	add_var(OPT_BOOL,"use_transparent_hud", "uth", &use_transparent_hud, change_transparent_hud, 1, "Use Transparent Hud", "Removed the background image from the Hud bars.", HUD);
+	add_var(OPT_BOOL,"use_transparent_hud", "uth", &use_transparent_hud, change_transparent_hud, 0, "Use Transparent Hud", "Removed the background image from the Hud bars.", HUD);
 #endif
 	add_var(OPT_BOOL,"show_fps","fps",&show_fps,change_var,1,"Show FPS","Show the current frames per second in the corner of the window",HUD);
 	add_var(OPT_BOOL,"view_analog_clock","analog",&view_analog_clock,change_var,1,"Analog Clock","Toggle the analog clock",HUD);
 	add_var(OPT_BOOL,"view_digital_clock","digit",&view_digital_clock,change_var,1,"Digital Clock","Toggle the digital clock",HUD);
 	add_var(OPT_BOOL,"view_knowledge_bar","knowledge_bar",&view_knowledge_bar,change_var,1,"Knowledge Bar","Toggle the knowledge bar",HUD);
-#ifdef ANDROID
-	add_var(OPT_BOOL,"view_hud_timer","timer",&view_hud_timer,change_var,0,"Countdown/Stopwatch Timer","Timer controls: Right-click for menu. Shift-left-click to toggle mode. Left-click to start/stop. Mouse wheel to reset, up/down to change countdown start time (+ctrl/alt to change step).",HUD);
-#else
 	add_var(OPT_BOOL,"view_hud_timer","timer",&view_hud_timer,change_var,1,"Countdown/Stopwatch Timer","Timer controls: Right-click for menu. Shift-left-click to toggle mode. Left-click to start/stop. Mouse wheel to reset, up/down to change countdown start time (+ctrl/alt to change step).",HUD);
-#endif
 	add_var(OPT_BOOL,"show_game_seconds","show_game_seconds",&show_game_seconds,change_var,0,"Show Game Seconds","Show seconds on the digital clock. Note: the seconds displayed are computed on client side and synchronized with the server at each new minute.",HUD);
 	add_var(OPT_BOOL,"show_stats_in_hud","sstats",&show_stats_in_hud,change_var,0,"Stats In HUD","Toggle showing stats in the HUD",HUD);
 	add_var(OPT_BOOL,"show_statbars_in_hud","sstatbars",&show_statbars_in_hud,change_var,0,"StatBars In HUD","Toggle showing statbars in the HUD. Needs Stats in HUD",HUD);
 	add_var(OPT_BOOL,"show_action_bar","ssactionbar",&show_action_bar,change_show_action_bar,0,"Action Points Bar in HUD","Show the current action points level in a stats bar on the bottom HUD.",HUD);
 	add_var(OPT_BOOL,"show_last_health_change_always","slhca",&show_last_health_change_always,change_var,0,"Always Show The Last Health Change", "Enable to always show the last health change.  Otherwise, it is only shown when the mouse is over the health bar.",HUD);
-#ifdef ANDROID
-	add_var(OPT_BOOL,"show_indicators","showindicators",&show_hud_indicators,toggle_hud_indicators_window,0,"Show Status Indicators in HUD","Show status indicators for special day (left click to show day), harvesting, poision and message count (left click to zero). Right-click the window for settings.",HUD);
-#else
 	add_var(OPT_BOOL,"show_indicators","showindicators",&show_hud_indicators,toggle_hud_indicators_window,1,"Show Status Indicators in HUD","Show status indicators for special day (left click to show day), harvesting, poision and message count (left click to zero). Right-click the window for settings.",HUD);
+#ifndef ANDROID
 	add_var(OPT_BOOL,"logo_click_to_url","logoclick",&logo_click_to_url,change_var,0,"Logo Click To URL","Toggle clicking the LOGO opening a browser window",HUD);
 	add_var(OPT_STRING,"logo_link", "logolink", LOGO_URL_LINK, change_string, sizeof(LOGO_URL_LINK),
 		"Logo Link", "URL when clicking the logo", HUD);
@@ -2736,12 +2730,10 @@ static void init_ELC_vars(void)
 	add_var(OPT_INT,"max_food_level","maxfoodlevel",&max_food_level,change_int,45,"Maximum Food Level", "Set the maximum value displayed by the food level bar.",HUD,10,200);
 	add_var(OPT_INT,"wanted_num_recipe_entries","wantednumrecipeentries",&wanted_num_recipe_entries,change_num_recipe_entries,10,"Number of recipe entries", "Sets the number of entries available for the manufacturing window stored recipes.",HUD,4,max_num_recipe_entries);
 	add_var(OPT_INT,"exp_log_threshold","explogthreshold",&exp_log_threshold,change_int,5000,"Log exp gain to console", "If you gain experience of this value or over, then a console message will be written.  Set the value to zero to disable completely.",HUD,0,INT_MAX);
-#ifndef ANDROID
 	add_var(OPT_STRING, "npc_mark_template", "npcmarktemplate", npc_mark_str, change_string,
 		sizeof(npc_mark_str), "NPC map mark template",
 		"The template used when setting a map mark from the NPC dialogue (right click name). The %s is substituted for the NPC name.",
 		HUD);
-#endif
 	add_var(OPT_BOOL,"3d_map_markers","3dmarks",&marks_3d,change_3d_marks,1,"Enable 3D Map Markers","Shows user map markers in the game window",HUD);
 	add_var(OPT_BOOL,"item_window_on_drop","itemdrop",&item_window_on_drop,change_var,1,"Item Window On Drop","Toggle whether the item window shows when you drop items",HUD);
 	add_var(OPT_FLOAT,"minimap_scale", "minimapscale", &local_minimap_size_coefficient, change_minimap_scale, 0.7, "Minimap Scale", "Adjust the overall size of the minimap", HUD, 0.5, 1.5, 0.1);
@@ -2777,11 +2769,7 @@ static void init_ELC_vars(void)
 
 
 	// CHAT TAB
-#ifdef ANDROID
-	add_var(OPT_MULTI,"windowed_chat", "winchat", &use_windowed_chat, change_windowed_chat, 1, "Chat Display Style", "How do you want your chat to be displayed?", CHAT, "Old behavior", "Tabbed chat", NULL);
-#else
 	add_var(OPT_MULTI,"windowed_chat", "winchat", &use_windowed_chat, change_windowed_chat, 1, "Chat Display Style", "How do you want your chat to be displayed?", CHAT, "Old behavior", "Tabbed chat", "Chat window", NULL);
-#endif
 	add_var(OPT_BOOL, "enable_chat_show_hide", "ecsh", &enable_chat_show_hide, change_enable_chat_show_hide, 0, "Enable Show/Hide For Chat", "If enabled, you can show or hide chat either using the #K_CHAT key (usually ALT+c) or using the optional icon-bar icon.", CHAT);
 	add_var(OPT_BOOL, "console_input_at_top", "ciat", &console_input_at_top, change_console_input_at_top, 0, "Console Input At Top Of Window", "If set, console input will be located at the top of the window.", CHAT);
 	add_var(OPT_INT,"max_chat_lines","mcl",&max_chat_lines.value,change_max_chat_lines,10,"Maximum Number Of Chat Lines","For Tabbed and Old behaviour chat modes, this value sets the maximium number of lines of chat displayed.",CHAT, max_chat_lines.lower, max_chat_lines.upper);
@@ -2910,11 +2898,10 @@ static void init_ELC_vars(void)
 		"Username", "Your user name here", SERVER);
 	add_var(OPT_PASSWORD, "password", "p", active_password_str, change_string, sizeof(active_password_str),
 		"Password", "Put your password here", SERVER);
+	add_var(OPT_BOOL,"passmngr_enabled","pme",&passmngr_enabled,change_var,0,"Enable Password Manager", "If enabled, user names and passwords are saved locally by the built-in password manager.  Multiple sets of details can be saved.  You can choose which details to use at the login screen.",SERVER);
 #ifdef ANDROID
-	passmngr_enabled = 1;
 	log_chat = LOG_NONE;
 #else
-	add_var(OPT_BOOL,"passmngr_enabled","pme",&passmngr_enabled,change_var,0,"Enable Password Manager", "If enabled, user names and passwords are saved locally by the built-in password manager.  Multiple sets of details can be saved.  You can choose which details to use at the login screen.",SERVER);
 	add_var(OPT_MULTI,"log_chat","log",&log_chat,change_int,LOG_SERVER,"Log Messages","Log messages from the server (chat, harvesting events, GMs, etc)",SERVER,"Do not log chat", "Log chat only", "Log server messages", "Log server to srv_log.txt", NULL);
 #endif
 	add_var(OPT_BOOL,"rotate_chat_log","rclog",&rotate_chat_log_config_var,change_rotate_chat_log,0,"Rotate Chat Log File","Tag the chat/server message log files with year and month. You will still need to manage deletion of the old files. Requires a client restart.",SERVER);

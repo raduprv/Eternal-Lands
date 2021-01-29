@@ -834,6 +834,14 @@ static int chat_scroll_click (widget_list *widget, int mx, int my, Uint32 flags)
         return 0;
 }
 
+#ifdef ANDROID
+static int chat_input_click(widget_list *widget, int mx, int my, Uint32 flags)
+{
+	SDL_StartTextInput();
+	return 1;
+}
+#endif
+
 static int chat_input_key (widget_list *widget, int mx, int my, SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_mod)
 {
 	text_field *tf;
@@ -1236,6 +1244,9 @@ static void create_chat_window(void)
 			CHAT_FONT, 1.0, &input_text_line, 1, FILTER_ALL,
 			CHAT_WIN_SPACE, CHAT_WIN_SPACE);
 		widget_set_OnKey (chat_win, id, (int (*)())chat_input_key);
+#ifdef ANDROID
+		widget_set_OnClick(chat_win, id, chat_input_click);
+#endif
 		input_widget = widget_find(chat_win, id);
 	}
 	set_window_min_size (chat_win, min_width, min_height);
@@ -3097,6 +3108,9 @@ void create_console_input(int window_id, int widget_id, int pos_x, int pos_y, in
 
 	input_widget = widget_find(window_id, id);
 	input_widget->OnResize = input_field_resize;
+#ifdef ANDROID
+	widget_set_OnClick(window_id, id, chat_input_click);
+#endif
 }
 
 void set_console_input_onkey(void)

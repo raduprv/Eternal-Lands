@@ -825,7 +825,7 @@ static int click_game_handler(window_info *win, int mx, int my, Uint32 flags)
 #ifdef ANDROID
 			// activate/close the on-screen keyboard of we're near the top
 			// ANDROID_TODO instead, perhaps activate when the widget is clicked?
-			if ((window_camera_controls) && (my < (3 * (get_tab_bar_y() + get_input_at_top_height()))))
+			if ((window_camera_controls) && (my < (get_tab_bar_y() + (3 * get_input_default_height()))))
 			{
 				if (SDL_IsTextInputActive())
 					SDL_StopTextInput();
