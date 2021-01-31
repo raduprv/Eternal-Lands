@@ -9,22 +9,23 @@ ELVERSION=1.9.5.8
 SDL_PATH := ../SDL2
 SDL_IMAGE_PATH := ../SDL2_image
 SDL_NET_PATH := ../SDL2_net
-CAL3D_PATH := ../cal3d/src/
+CAL3D_PATH := ../cal3d/
 LIBXML2_PATH := ../libxml2
-EXTRAS_PATH := ../extras
 GL4ES_PATH := ../gl4es/
-ICONV_PATH := ../libiconv/
-GLU_PATH := ../glu-9.0.1/
+ICONV_PATH := ../iconv/
+MYGLOB_PATH := ../myglob/
+GLU_PATH := ../glu/
 
 LOCAL_C_INCLUDES := $(LOCAL_PATH)/$(SDL_PATH)/include \
 $(LOCAL_PATH)/$(SDL_IMAGE_PATH) \
 $(LOCAL_PATH)/$(SDL_NET_PATH) \
-$(LOCAL_PATH)/$(CAL3D_PATH) \
+$(LOCAL_PATH)/$(CAL3D_PATH)/cal3d-0.11.0/src/ \
 $(LOCAL_PATH)/$(LIBXML2_PATH)/include/ \
 $(LOCAL_PATH)/$(ICONV_PATH)/libiconv-1.14/include/ \
 $(LOCAL_PATH)/$(EXTRAS_PATH)/ \
 $(LOCAL_PATH)/$(GL4ES_PATH)/include/ \
-$(LOCAL_PATH)/$(GLU_PATH)/include/ \
+$(LOCAL_PATH)/$(GLU_PATH)/glu-9.0.1/include/ \
+$(LOCAL_PATH)/$(MYGLOB_PATH)/include/ \
 $(LOCAL_PATH)/nlohmann_json/single_include/
 
 LOCAL_CFLAGS := \
@@ -45,8 +46,6 @@ LOCAL_CFLAGS := \
 # Add your application source files here...
 LOCAL_SRC_FILES := \
 	$(SDL_PATH)/src/main/android/SDL_android_main.c \
-	$(EXTRAS_PATH)/android_glu.c \
-	$(EXTRAS_PATH)/glob.c \
 	\
 	2d_objects.c \
 	3d_objects.c \
@@ -253,6 +252,7 @@ LOCAL_SHARED_LIBRARIES := \
 	cal3d \
 	iconv \
 	libGLU \
+	libmyglob \
 	libxml2
 
 LOCAL_LDLIBS := -lz -llog
