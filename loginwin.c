@@ -224,7 +224,7 @@ static int resize_login_handler (window_info *win, Uint32 w, Uint32 h)
 
 	height = username_bar_y_len + password_bar_y_len + button_y_len + (3 + num_rules_lines) * win->default_font_len_y;
 #ifdef ANDROID
-	if (SDL_IsScreenKeyboardShown(el_gl_window))
+	if (SDL_IsScreenKeyboardShown(el_gl_window) && SDL_IsTextInputActive())
 		username_bar_y = passmngr_button_y = height / 5;
 	else
 		username_bar_y = passmngr_button_y = half_screen_y - height / 2;
