@@ -5,6 +5,7 @@
 #include <SDL_syswm.h>
 #endif
 
+#include "asc.h"
 #include "elconfig.h"
 #include "events.h"
 #ifdef ANDROID
@@ -376,8 +377,12 @@ int HandleEvent (SDL_Event *event)
 				back_on = 1;
 				break;
 			}
-#endif
+			// ANDROID_TODO - the hardware keyboard on Android does not produce SDL_TEXTINPUT for SDLK_SPACE, so fix here
+			last_SDL_KEYDOWN_return_value = keypress_in_windows (mouse_x, mouse_y, event->key.keysym.sym,
+				(event->key.keysym.sym == SDLK_SPACE ?SDLK_SPACE :0), event->key.keysym.mod);
+#else
 			last_SDL_KEYDOWN_return_value = keypress_in_windows (mouse_x, mouse_y, event->key.keysym.sym, 0, event->key.keysym.mod);
+#endif
 			//printf("SDL_KEYDOWN result=%d\n", last_SDL_KEYDOWN_return_value);
 			break;
 
