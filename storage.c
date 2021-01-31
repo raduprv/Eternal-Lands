@@ -14,9 +14,7 @@
 #include "init.h"
 #include "items.h"
 #include "item_info.h"
-#ifndef ANDROID
 #include "item_lists.h"
-#endif
 #include "misc.h"
 #include "multiplayer.h"
 #include "named_colours.h"
@@ -99,9 +97,7 @@ static void select_item(int image_id, Uint16 item_id)
 	if (found_at < 0)
 	{
 		do_alert1_sound();
-#ifndef ANDROID
 		item_lists_reset_pickup_fail_time();
-#endif
 	}
 	else
 	{
@@ -109,6 +105,19 @@ static void select_item(int image_id, Uint16 item_id)
 		if (!view_only_storage)
 		{
 			storage_item_dragged=found_at;
+#ifdef ANDROID
+			// For Android, we just withdraw the item rather than drag it
+			if ((storage_item_dragged >=0) && (storage_item_dragged < STORAGE_ITEMS_SIZE) && (storage_items[storage_item_dragged].quantity > 0))
+			{
+				Uint8 str[10];
+				str[0] = WITHDRAW_ITEM;
+				*((Uint16*)(str+1)) = SDL_SwapLE16(storage_items[storage_item_dragged].pos);
+				*((Uint32*)(str+3)) = SDL_SwapLE32(item_quantity);
+				my_tcp_send(my_socket, str, 6);
+				do_drop_item_sound();
+				storage_item_dragged = -1;
+			}
+#endif
 			do_drag_item_sound();
 		}
 		else
@@ -132,11 +141,9 @@ static int storage_categories_display = 0;
 //
 static void category_updated(void)
 {
-#ifndef ANDROID
 	int i;
 	for (i=0; i<no_storage; i++)
 		update_category_maps(storage_items[i].image_id, storage_items[i].id, storage_categories[selected_category].id);
-#endif
 	if (selected_category == wanted_category)
 	{
 		select_item(wanted_image_id, wanted_item_id);
@@ -154,9 +161,7 @@ void pickup_storage_item(int image_id, Uint16 item_id, int cat_id)
 	if ((get_id_MW(MW_STORAGE) < 0) || (find_category(cat_id) == -1))
 	{
 		do_alert1_sound();
-#ifndef ANDROID
 		item_lists_reset_pickup_fail_time();
-#endif
 		return;
 	}
 	wanted_category = find_category(cat_id);

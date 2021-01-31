@@ -49,9 +49,7 @@
 #include "icon_window.h"
 #include "io/elfilewrapper.h"
 #include "init.h"
-#ifndef ANDROID
 #include "item_lists.h"
-#endif
 #include "interface.h"
 #include "lights.h"
 #include "manufacture.h"
@@ -305,10 +303,8 @@ int start_rendering()
 	passmngr_destroy();
 	LOG_INFO("unload_questlog()");
 	unload_questlog();
-#ifndef ANDROID
 	LOG_INFO("save_item_lists()");
 	save_item_lists();
-#endif
 	LOG_INFO("free_emotes()");
 	free_emotes();
 	LOG_INFO("free_actor_defs()");

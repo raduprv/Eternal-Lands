@@ -95,15 +95,9 @@ static const char *item_help_str = NULL;
 static const char *item_desc_str = NULL;
 static float button_text_zoom = 0.0f;
 
-#ifdef ANDROID
-#define NUMBUT 4
-static size_t buttons_cm_id[NUMBUT] = {CM_INIT_VALUE, CM_INIT_VALUE, CM_INIT_VALUE, CM_INIT_VALUE};
-enum { BUT_STORE, BUT_GET, BUT_DROP, BUT_MIX };
-#else
 #define NUMBUT 5
 static size_t buttons_cm_id[NUMBUT] = {CM_INIT_VALUE, CM_INIT_VALUE, CM_INIT_VALUE, CM_INIT_VALUE, CM_INIT_VALUE};
 enum { BUT_STORE, BUT_GET, BUT_DROP, BUT_MIX, BUT_ITEM_LIST };
-#endif
 
 /* variables to enable enhanced equipment swapping */
 static struct { int last_dest; int move_to; int move_from; size_t string_id; Uint32 start_time; } swap_complete = {-1, -1, -1, 0, 0};
@@ -624,11 +618,7 @@ static int display_items_handler(window_info *win)
 	int x,y,i;
 	int item_is_weared=0;
 	Uint32 _cur_time = SDL_GetTicks(); /* grab a snapshot of current time */
-#ifdef ANDROID
-	char *but_labels[NUMBUT] = { sto_all_str, get_all_str, drp_all_str, NULL };
-#else
 	char *but_labels[NUMBUT] = { sto_all_str, get_all_str, drp_all_str, NULL, itm_lst_str };
-#endif
 
 	glEnable(GL_TEXTURE_2D);
 
@@ -929,11 +919,7 @@ static int display_items_handler(window_info *win)
 
 	// display help text for button if mouse over one
 	if ((buttons_grid.mouse_over != -1) && show_help_text) {
-#ifdef ANDROID
-		char *helpstr[NUMBUT] = { stoall_help_str, getall_help_str, ((disable_double_click) ?drpall_help_str :dcdrpall_help_str), mixoneall_help_str };
-#else
 		char *helpstr[NUMBUT] = { stoall_help_str, getall_help_str, ((disable_double_click) ?drpall_help_str :dcdrpall_help_str), mixoneall_help_str, itmlst_help_str };
-#endif
 		show_help(helpstr[buttons_grid.mouse_over], 0, win->len_y+10, win->current_scale);
 #ifdef ANDROID
 		show_help(long_touch_cm_options_str, 0, win->len_y+10+win->small_font_len_y, win->current_scale);
@@ -1520,10 +1506,8 @@ static int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 	}
 
 	// Item List button
-#ifndef ANDROID
 	else if (over_button(win, mx, my)==BUT_ITEM_LIST)
 		toggle_items_list_window(win);
-#endif
 
 	//see if we clicked on any item in the wear category
 	else if((mx > equip_grid.pos_x) && (mx < equip_grid.pos_x + equip_grid.len_x) &&
@@ -1924,10 +1908,8 @@ void display_items_menu()
 		buttons_cm_id[BUT_GET] = cm_create(auto_get_all_str, NULL);
 		cm_bool_line(buttons_cm_id[BUT_GET], 0, &items_auto_get_all, NULL);
 
-#ifndef ANDROID
 		buttons_cm_id[BUT_ITEM_LIST] = cm_create(item_list_but_str, NULL);
 		cm_bool_line(buttons_cm_id[BUT_ITEM_LIST], 0, &items_list_on_left, NULL);
-#endif
 
 		show_items_handler(&windows_list.window[items_win]);
 		check_proportional_move(MW_ITEMS);

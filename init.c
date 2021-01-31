@@ -45,9 +45,7 @@
 #include "hud_indicators.h"
 #include "hud_timer.h"
 #include "items.h"
-#ifndef ANDROID
 #include "item_lists.h"
-#endif
 #include "keys.h"
 #ifdef JSON_FILES
 #include "json_io.h"
@@ -273,11 +271,9 @@ static void load_cstate(void)
 
 	read_settings_hud_indicators("hud_indicators_window");
 
-#ifndef ANDROID
 	item_lists_set_active(json_cstate_get_unsigned_int("item_lists_window", "active_list", 0));
 	items_list_disable_find_list = json_cstate_get_bool("item_lists_window", "disable_find", 0);
 	items_list_on_left = json_cstate_get_bool("item_lists_window", "on_left", 0);
-#endif
 
 	use_small_items_window = json_cstate_get_bool(get_dict_name_WM(MW_ITEMS, window_dict_name, sizeof(window_dict_name)), "small_size", 0);
 	manual_size_items_window = json_cstate_get_bool(window_dict_name, "manual_size", 0);
@@ -451,9 +447,7 @@ static void read_bin_cfg(void)
 	rz=cfg_mem.camera_z;
 	new_zoom_level=zoom_level=cfg_mem.zoom_level;
 
-#ifndef ANDROID
 	item_lists_set_active(cfg_mem.active_item_list);
-#endif
 
 	view_health_bar=cfg_mem.banner_settings & 1;
 	view_ether_bar=(cfg_mem.banner_settings >> 1) & 1;
@@ -492,15 +486,11 @@ static void read_bin_cfg(void)
 	sort_storage_categories = (cfg_mem.misc_bool_options >> 14) & 1;
 	disable_manuwin_keypress = (cfg_mem.misc_bool_options >> 15) & 1;
 	always_show_astro_details = (cfg_mem.misc_bool_options >> 16) & 1;
-#ifndef ANDROID
 	items_list_on_left = (cfg_mem.misc_bool_options >> 17) & 1;
-#endif
 	items_mod_click_any_cursor = (cfg_mem.misc_bool_options >> 18) & 1;
 	disable_storage_filter = (cfg_mem.misc_bool_options >> 19) & 1;
 	hud_timer_keep_state = (cfg_mem.misc_bool_options >> 20) & 1;
-#ifndef ANDROID
 	items_list_disable_find_list = (cfg_mem.misc_bool_options >> 21) & 1;
-#endif
 	lock_skills_selection = (cfg_mem.misc_bool_options >> 22) & 1;
 	items_disable_text_block = (cfg_mem.misc_bool_options >> 23) & 1;
 	items_buttons_on_left = (cfg_mem.misc_bool_options >> 24) & 1;
@@ -588,11 +578,9 @@ static void save_cstate(void)
 
 	write_settings_hud_indicators("hud_indicators_window");
 
-#ifndef ANDROID
 	json_cstate_set_unsigned_int("item_lists_window", "active_list", item_lists_get_active());
 	json_cstate_set_bool("item_lists_window", "disable_find", items_list_disable_find_list);
 	json_cstate_set_bool("item_lists_window", "on_left", items_list_on_left);
-#endif
 
 	json_cstate_set_bool(get_dict_name_WM(MW_ITEMS, window_dict_name, sizeof(window_dict_name)), "small_size", use_small_items_window);
 	json_cstate_set_bool(window_dict_name, "manual_size", manual_size_items_window);
@@ -712,9 +700,7 @@ void save_bin_cfg(void)
 	cfg_mem.banner_settings |= view_hp << 3;
 	cfg_mem.banner_settings |= view_ether << 4;
 
-#ifndef ANDROID
 	cfg_mem.active_item_list = item_lists_get_active();
-#endif
 
 	cfg_mem.quantity_selected=(quantities.selected<ITEM_EDIT_QUANT)?quantities.selected :0;
 
@@ -754,15 +740,11 @@ void save_bin_cfg(void)
 	cfg_mem.misc_bool_options |= sort_storage_categories << 14;
 	cfg_mem.misc_bool_options |= disable_manuwin_keypress << 15;
 	cfg_mem.misc_bool_options |= always_show_astro_details << 16;
-#ifndef ANDROID
 	cfg_mem.misc_bool_options |= items_list_on_left << 17;
-#endif
 	cfg_mem.misc_bool_options |= items_mod_click_any_cursor << 18;
 	cfg_mem.misc_bool_options |= disable_storage_filter << 19;
 	cfg_mem.misc_bool_options |= hud_timer_keep_state << 20;
-#ifndef ANDROID
 	cfg_mem.misc_bool_options |= items_list_disable_find_list << 21;
-#endif
 	cfg_mem.misc_bool_options |= lock_skills_selection << 22;
 	cfg_mem.misc_bool_options |= items_disable_text_block << 23;
 	cfg_mem.misc_bool_options |= items_buttons_on_left << 24;
