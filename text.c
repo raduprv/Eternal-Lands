@@ -36,9 +36,7 @@
 #include "serverpopup.h"
 #include "sky.h"
 #include "sound.h"
-#ifndef ANDROID
 #include "trade_log.h"
-#endif
 #include "actor_scripts.h"
 #include "emotes.h"
 
@@ -623,14 +621,12 @@ int filter_or_ignore_text (char *text_to_add, int len, int size, Uint8 channel)
 		{
 			increment_poison_incidence();
 		}
-#ifndef ANDROID
 		else if (strstr(text_to_add+1, "aborted the trade.")) {
 			trade_aborted(text_to_add+1);
 		}
 		else if (strstr(text_to_add+1, "Trade session failed")) {
 			trade_aborted(text_to_add+1);
 		}
-#endif
 		else if (strstr(text_to_add+1, "You have been saved!")) {
 			last_save_time = time(NULL);
 		}

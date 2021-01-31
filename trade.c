@@ -15,9 +15,7 @@
 #include "storage.h"
 #include "string.h"
 #include "textures.h"
-#ifndef ANDROID
 #include "trade_log.h"
-#endif
 #include "translate.h"
 #ifdef OPENGL_TRACE
 #include "gl_init.h"
@@ -479,9 +477,7 @@ int click_trade_handler(window_info *win, int mx, int my, Uint32 flags)
 				int i;
 				for(i = 0; i < 16; i++)
 					str[i + 1] = (others_trade_list[i].quantity > 0) * others_trade_list[i].type;
-#ifndef ANDROID
 				trade_accepted(other_player_trade_name, your_trade_list, others_trade_list, 16);
-#endif
 			}
 			my_tcp_send(my_socket, str, 17);
 			do_click_sound();

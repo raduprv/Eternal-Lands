@@ -69,9 +69,7 @@
 #include "sound.h"
 #include "text.h"
 #include "timers.h"
-#ifndef ANDROID
 #include "trade_log.h"
-#endif
 #include "translate.h"
 #include "textures.h"
 #include "update.h"
@@ -322,10 +320,8 @@ int start_rendering()
 	cleanup_chan_names();
 	LOG_INFO("cleanup_hud()");
 	cleanup_hud();
-#ifndef ANDROID
 	LOG_INFO("destroy_trade_log()");
 	destroy_trade_log();
-#endif
 	LOG_INFO("destroy_user_menus()");
 	destroy_user_menus();
 	LOG_INFO("destroy_all_root_windows()");

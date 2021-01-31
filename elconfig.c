@@ -2683,9 +2683,7 @@ static void init_ELC_vars(void)
 	add_var(OPT_BOOL,"osx_right_mouse_cam","osxrightmousecam", &osx_right_mouse_cam, change_var,0,"Rotate Camera with right mouse button", "Allows to rotate the camera by pressing the right mouse button and dragging the cursor", CONTROLS);
 	add_var(OPT_BOOL,"emulate_3_button_mouse","emulate3buttonmouse", &emulate3buttonmouse, change_var,0,"Emulate a 3 Button Mouse", "If you have a 1 Button Mouse you can use <apple> click to emulate a rightclick. Needs client restart.", CONTROLS);
 #endif // OSX
-#ifndef ANDROID
 	add_var(OPT_MULTI,"trade_log_mode","tradelogmode",&trade_log_mode,change_int, TRADE_LOG_NONE,"Trade log","Set how successful trades are logged.",CONTROLS,"Do not log trades", "Log only to console", "Log only to file", "Log to console and file", NULL);
-#endif
 #ifdef ANDROID
 	add_var(OPT_FLOAT,"long_touch_delay_s", "ltds", &long_touch_delay_s, change_float, 0.35, "Long Touch Delay (seconds)", "The time to wait before interpreting a long touch as a right-click equivalent", CONTROLS, 0.15, 2.0, 0.05);
 #endif

@@ -240,6 +240,7 @@ LOCAL_SRC_FILES := \
 	quest_log.cpp \
 	select.cpp \
 	sendvideoinfo.cpp \
+	trade_log.cpp \
 	user_menus.cpp \
 	xml/xmlhelper.cpp \
 	xor_cipher.cpp
