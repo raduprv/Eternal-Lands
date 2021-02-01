@@ -1179,7 +1179,7 @@ int drag_windows (int mx, int my, int dx, int dy)
 				win = &(windows_list.window[i]);
 #ifdef ANDROID
 				// skip if handling motion separately for this window
-				if ((win->finger_motion_handler != NULL) && !(win->owner_drawn_title_bar && y < win->title_height))
+				if ((win->finger_motion_handler != NULL) && !(win->owner_drawn_title_bar && ((my - win->cur_y) < win->title_height)))
 					continue;
 #endif
 				dragable = win->flags & ELW_DRAGGABLE;
