@@ -161,7 +161,9 @@ namespace Trade_Log
 		if ((trade_log_mode == TRADE_LOG_CONSOLE) || (trade_log_mode == TRADE_LOG_BOTH))
 		{
 			std::string message_str =  message.str();
-			message_str.erase(std::find_if(message_str.rbegin(), message_str.rend(), std::not1(std::ptr_fun<int, int>(std::iscntrl))).base(), message_str.end());
+			// inspired by https://stackoverflow.com/questions/216823/whats-the-best-way-to-trim-stdstring
+			message_str.erase(std::find_if(message_str.rbegin(), message_str.rend(),
+				[](unsigned char ch) { return !std::iscntrl(ch); }).base(), message_str.end());
 			LOG_TO_CONSOLE(c_green2, message_str.c_str()); // stripped of final newline
 		}
 
