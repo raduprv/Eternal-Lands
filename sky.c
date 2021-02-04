@@ -109,7 +109,6 @@ GLfloat *dome_clouds_detail_colors = NULL;
 GLfloat *dome_clouds_colors_bis = NULL;
 GLfloat *dome_clouds_detail_colors_bis = NULL;
 GLfloat *dome_clouds_tex_coords_bis = NULL;
-GLfloat *fog_colors = NULL;
 
 sky_sphere moon_mesh = {0, 0, NULL, NULL, NULL};
 
@@ -675,8 +674,6 @@ void update_cloudy_sky_colors()
 	skybox_blend_current_colors(skybox_light_ambient_color, skybox_light_ambient, skybox_light_ambient_rainy, rain_coef);
 	skybox_blend_current_colors(skybox_light_diffuse_color, skybox_light_diffuse, skybox_light_diffuse_rainy, rain_coef);
 
-	idx = 0;
-
     // we compute the color and the density of the fog
 	skybox_blend_current_colors(skybox_fog_color, skybox_fog, skybox_fog_rainy, rain_coef);
 	if (rain_coef > 0.0)
@@ -690,33 +687,6 @@ void update_cloudy_sky_colors()
 	}
 	skybox_fog_density = skybox_fog_color[3];
 	skybox_fog_color[3] = 1.0;
-
-    // we compute the colors of the fog around the dome according to the sun and moons positions
-    skybox_blend_current_colors(color_sun, skybox_fog_sunny, skybox_fog_rainy, rain_coef);
-    for (i = 0; i < dome_sky.slices_count; ++i)
-    {
-		normal = &dome_sky.normals[i*3];
-		ml1 = get_moonlight1(normal)*0.15*day_alpha;
-		ml2 = get_moonlight2(normal)*0.1*day_alpha;
-
-		blend_colors(color, skybox_fog_color, color_sun, get_fog_sunlight(normal), 3);
-
-		color[0] *= (1.0 - rain_coef) + rain_coef*weather_color[0];
-		color[1] *= (1.0 - rain_coef) + rain_coef*weather_color[1];
-		color[2] *= (1.0 - rain_coef) + rain_coef*weather_color[2];
-
-		if (lightning_falling) {
-			skybox_vertex_to_ground_coords(&dome_sky, i, &x, &y);
-			lg = weather_get_lightning_intensity(x-camera_x, y-camera_y);
-			color[0] = color[0]*(1.0-lg) + lightning_color[0]*lg;
-			color[1] = color[1]*(1.0-lg) + lightning_color[1]*lg;
-			color[2] = color[2]*(1.0-lg) + lightning_color[2]*lg;
-		}
-
-		fog_colors[idx++] = color[0] + ml1*moon1_color[0] + ml2*moon2_color[0];
-		fog_colors[idx++] = color[1] + ml1*moon1_color[1] + ml2*moon2_color[1];
-		fog_colors[idx++] = color[2] + ml1*moon1_color[2] + ml2*moon2_color[2];
-    }
 
 	i = idx = 0;
 
@@ -1047,8 +1017,6 @@ void update_cloudy_sky_local_colors()
 	skybox_blend_current_colors(skybox_light_ambient_color, skybox_light_ambient, skybox_light_ambient_rainy, rain_coef);
 	skybox_blend_current_colors(skybox_light_diffuse_color, skybox_light_diffuse, skybox_light_diffuse_rainy, rain_coef);
 
-	idx = 0;
-
     // we compute the color and the density of the fog
 	rain_coef = weather_get_intensity();
 	skybox_blend_current_colors(skybox_fog_color, skybox_fog, skybox_fog_rainy, rain_coef);
@@ -1064,40 +1032,6 @@ void update_cloudy_sky_local_colors()
 	}
 	skybox_fog_density = skybox_fog_color[3];
 	skybox_fog_color[3] = 1.0;
-
-    // we compute the colors of the fog around the dome according to the sun and moons positions
-    for (i = 0; i < dome_sky.slices_count; ++i)
-    {
-		normal = &dome_sky.normals[i*3];
-		ml1 = get_moonlight1(normal)*0.15*day_alpha;
-		ml2 = get_moonlight2(normal)*0.1*day_alpha;
-
-		skybox_vertex_to_ground_coords(&dome_sky, i, &x, &y);
-		x -= camera_x;
-		y -= camera_y;
-		lg = weather_get_lightning_intensity(x, y);
-		weather_compute_ratios(ratios, x, y);
-		rain_coef = weather_get_density_from_ratios(ratios);
-		weather_get_color_from_ratios(local_color, ratios);
-
-		ml1 *= 1.0 - rain_coef;
-		ml2 *= 1.0 - rain_coef;
-
-		skybox_blend_current_colors(color_sun, skybox_fog_sunny, skybox_fog_rainy, rain_coef);
-		blend_colors(color, skybox_fog_color, color_sun, get_fog_sunlight(normal), 3);
-
-		color[0] *= (1.0 - rain_coef) + rain_coef*local_color[0];
-		color[1] *= (1.0 - rain_coef) + rain_coef*local_color[1];
-		color[2] *= (1.0 - rain_coef) + rain_coef*local_color[2];
-
-		color[0] = color[0]*(1.0-lg) + lightning_color[0]*lg;
-		color[1] = color[1]*(1.0-lg) + lightning_color[1]*lg;
-		color[2] = color[2]*(1.0-lg) + lightning_color[2]*lg;
-
-		fog_colors[idx++] = color[0] + ml1*moon1_color[0] + ml2*moon2_color[0];
-		fog_colors[idx++] = color[1] + ml1*moon1_color[1] + ml2*moon2_color[1];
-		fog_colors[idx++] = color[2] + ml1*moon1_color[2] + ml2*moon2_color[2];
-    }
 
 	i = idx = 0;
 
@@ -2519,7 +2453,6 @@ void skybox_init_gl()
 	if (dome_clouds_colors_bis) free(dome_clouds_colors_bis);
 	if (dome_clouds_detail_colors_bis) free(dome_clouds_detail_colors_bis);
 	if (dome_clouds_tex_coords_bis) free(dome_clouds_tex_coords_bis);
-	if (fog_colors) free(fog_colors);
 
 	dome_sky = create_dome(24, 12, 500.0, 80.0, 90.0, 3.5, 1.0);
 	dome_clouds = create_dome(24, 12, 500.0, 80.0, 90.0, 2.0, 1.0);
@@ -2528,7 +2461,6 @@ void skybox_init_gl()
 	dome_clouds_colors_bis = (GLfloat*)malloc(4*dome_clouds.vertices_count*sizeof(GLfloat));
 	dome_clouds_detail_colors_bis = (GLfloat*)malloc(4*dome_clouds.vertices_count*sizeof(GLfloat));
 	dome_clouds_tex_coords_bis = (GLfloat*)malloc(2*dome_clouds.vertices_count*sizeof(GLfloat));
-	fog_colors = (GLfloat*)malloc(3*dome_sky.slices_count*sizeof(GLfloat));
 
 	for (i = dome_clouds.vertices_count; i--; )
 	{
@@ -2547,6 +2479,5 @@ void free_skybox()
 	if (dome_clouds_colors_bis) free(dome_clouds_colors_bis);
 	if (dome_clouds_detail_colors_bis) free(dome_clouds_detail_colors_bis);
 	if (dome_clouds_tex_coords_bis) free(dome_clouds_tex_coords_bis);
-	if (fog_colors) free(fog_colors);
 }
 
