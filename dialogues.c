@@ -59,7 +59,8 @@ response dialogue_responces[MAX_RESPONSES];
 
 static int char_frame_size = 0;
 static int char_size = 0;
-static int border_space = 0;
+static int border_x_space = 0;
+static int border_y_space = 0;
 static const int available_text_width = 70 * SMALL_FIXED_FONT_WIDTH;
 static int bot_line_height = 0;
 
@@ -295,7 +296,7 @@ static void text_log_modify_npc_setting(void)
 static void calculate_option_positions(window_info *win)
 {
 	int i = 0;
-	int start_x = border_space;
+	int start_x = border_x_space;
 	int start_y = response_y_offset;
 	int width = 0;
 	int width_extra = (show_keypress_letters) ? 3*win->small_font_max_len_x : 0;
@@ -307,9 +308,9 @@ static void calculate_option_positions(window_info *win)
 			win->font_category, win->current_scale_small);
 		if (i < 36)
 			width += width_extra;
-		if ((start_x + width) > (win->len_x - 2 * border_space))
+		if ((start_x + width) > (win->len_x - 2 * border_x_space))
 		{
-			start_x = border_space;
+			start_x = border_x_space;
 			start_y += win->small_font_len_y;
 		}
 		dialogue_responces[i].pos_x = start_x;
@@ -393,7 +394,7 @@ static int display_dialogue_handler(window_info *win)
 	}
 
 	//draw the main text
-	draw_string_small_zoomed(char_frame_size + border_space, border_space, dialogue_string, MAX_MESS_LINES, win->current_scale);
+	draw_string_small_zoomed(char_frame_size + border_x_space, border_y_space, dialogue_string, MAX_MESS_LINES, win->current_scale);
 
 	//ok, now draw the responses
 	for(i=0;i<MAX_RESPONSES;i++)
@@ -848,20 +849,21 @@ int ui_scale_dialogue_handler(window_info *win)
 
 	char_size = (int)(0.5 + win->current_scale * 64);
 	char_frame_size = char_size + 2;
-	border_space = (int)(0.5 + win->current_scale * 5);
-	dialogue_menu_x_len += 2 * border_space + char_frame_size;
-	response_y_offset = 2 * border_space + MAX_MESS_LINES * win->small_font_len_y;
+	border_x_space = (int)(0.5 + win->current_scale * win->small_font_max_len_x);
+	border_y_space = (int)(0.5 + win->current_scale * 5);
+	dialogue_menu_x_len += 2 * border_x_space + char_frame_size;
+	response_y_offset = 2 * border_y_space + MAX_MESS_LINES * win->small_font_len_y;
 	bot_line_height = win->small_font_len_y + 1;
 
-	copy_pos_x = border_space;
+	copy_pos_x = border_x_space;
 	copy_str_width = get_string_width_zoom((unsigned char*)dialogue_copy_str,
 		win->font_category, win->current_scale_small);
 	close_str_width = get_string_width_zoom((unsigned char*)close_str,
 		win->font_category, win->current_scale_small);
-	close_pos_x = dialogue_menu_x_len - close_str_width - border_space;
+	close_pos_x = dialogue_menu_x_len - close_str_width - border_x_space;
 	repeat_str_width = get_string_width_zoom((unsigned char*)dialogue_repeat_str,
 		win->font_category, win->current_scale_small);
-	repeat_pos_x = copy_pos_x + copy_str_width + 2 * border_space;
+	repeat_pos_x = copy_pos_x + copy_str_width + 2 * border_x_space;
 
 	resize_window(win->window_id, dialogue_menu_x_len, dialogue_menu_y_len);
 	recalc_option_positions = new_dialogue = 1;
