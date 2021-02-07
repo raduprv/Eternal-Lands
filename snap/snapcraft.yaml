@@ -72,8 +72,8 @@ parts:
       sed -i 's|^#use_new_selection.*$|#use_new_selection = 1|g' $SNAPCRAFT_PART_INSTALL/el_data/el.ini
 
   sound:
-    source: https://github.com/raduprv/Eternal-Lands/releases/download/1.9.5.8/eternallands-sound_1.9.5.zip
-    source-checksum: md5/f99e6a61c06918f4e0c533294942b4d5
+    source: https://github.com/raduprv/Eternal-Lands/releases/download/1.9.5.8/eternallands-sound_1.9.5-1.zip
+    source-checksum: md5/5ad32d081bd3563ab4e096f3175e50a2
     plugin: dump
     organize:
       '*' : data/
