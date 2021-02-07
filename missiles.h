@@ -72,7 +72,7 @@ void missiles_log_message_func(const char *format, ...);
 
 static __inline__ missile *get_missile_ptr_from_id(int id)
 {
-	return ((id >= 0 || id < missiles_count) ? &missiles_list[id] : NULL);
+	return ((id >= 0 && id < missiles_count) ? &missiles_list[id] : NULL);
 }
 
 /*!
