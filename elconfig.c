@@ -3387,6 +3387,10 @@ static int spinbutton_onclick_handler(widget_list *widget, int mx, int my, Uint3
 		for(i= 0; i < our_vars.no; i++) {
 			if(our_vars.var[i]->widgets.widget_id == widget->id) {
 				button= widget->widget_info;
+#ifdef ANDROID
+				if (mx < widget->len_x * 0.75)
+					SDL_StartTextInput();
+#endif
 				switch(button->type) {
 					case SPIN_FLOAT:
 						our_vars.var[i]->func(our_vars.var[i]->var, (float *)button->data);
@@ -3402,6 +3406,14 @@ static int spinbutton_onclick_handler(widget_list *widget, int mx, int my, Uint3
 	}
 	return 0;
 }
+
+#ifdef ANDROID
+static int string_onclick_handler(widget_list *widget, int mx, int my, Uint32 flags)
+{
+	SDL_StartTextInput();
+	return 1;
+}
+#endif
 
 static int multiselect_click_handler(widget_list *widget, int mx, int my, Uint32 flags)
 {
@@ -3688,7 +3700,11 @@ static void elconfig_populate_tabs(void)
 					current_x, current_y, 0, elconf_scale, (char*)var->display.str);
 				widget_width = spin_button_width;
 				widget_id = spinbutton_add_extended(window_id, elconfig_free_widget_id++, NULL,
+#ifdef ANDROID
+					window_width - TAB_MARGIN - 2.0f * widget_width - CHECKBOX_SIZE, current_y, 2.0f * widget_width, 2.0f * line_height,
+#else
 					window_width - TAB_MARGIN - widget_width, current_y, widget_width, line_height,
+#endif
 					SPIN_INT, var->var, var->args.imm.min,
 					var->args.imm.max, 1.0, elconf_scale);
 				widget_set_OnKey(window_id, widget_id, (int (*)())spinbutton_onkey_handler);
@@ -3699,7 +3715,11 @@ static void elconfig_populate_tabs(void)
 					current_x, current_y, 0, elconf_scale, (char*)var->display.str);
 				widget_width = spin_button_width;
 				widget_id = spinbutton_add_extended(window_id, elconfig_free_widget_id++, NULL,
+#ifdef ANDROID
+					window_width - TAB_MARGIN - 2.0f * widget_width - CHECKBOX_SIZE, current_y, 2.0f * widget_width, 2.0f * line_height,
+#else
 					window_width - TAB_MARGIN - widget_width, current_y, widget_width, line_height,
+#endif
 					SPIN_FLOAT, var->var, var->args.fmmi.min, var->args.fmmi.max,
 					var->args.fmmi.interval, elconf_scale);
 				widget_set_OnKey(window_id, widget_id, (int (*)())spinbutton_onkey_handler);
@@ -3717,6 +3737,9 @@ static void elconfig_populate_tabs(void)
 				label_id = label_add_extended(window_id, elconfig_free_widget_id++, NULL,
 					current_x, current_y + dy/2, 0, elconf_scale, (char*)var->display.str);
 				widget_set_OnKey (window_id, widget_id, (int (*)())string_onkey_handler);
+#ifdef ANDROID
+				widget_set_OnClick(window_id, widget_id, string_onclick_handler);
+#endif
 			break;
 			case OPT_PASSWORD:
 				// Grum: the client shouldn't store the password, so let's not add it to the configuration window
@@ -3749,7 +3772,11 @@ static void elconfig_populate_tabs(void)
 					current_x, current_y, 0, elconf_scale, (char*)var->display.str);
 				widget_width = spin_button_width;
 				widget_id = spinbutton_add_extended(window_id, elconfig_free_widget_id++, NULL,
+#ifdef ANDROID
+					window_width - TAB_MARGIN - 2.0f * widget_width - CHECKBOX_SIZE, current_y, 2.0f * widget_width, 2.0f * line_height,
+#else
 					window_width - TAB_MARGIN - widget_width, current_y, widget_width, line_height,
+#endif
 					SPIN_FLOAT, var->var, var->args.fmmif.min(), var->args.fmmif.max(),
 					var->args.fmmif.interval, elconf_scale);
 				widget_set_OnKey(window_id, widget_id, (int (*)())spinbutton_onkey_handler);
@@ -3761,7 +3788,11 @@ static void elconfig_populate_tabs(void)
 					current_x, current_y, 0, elconf_scale, (char*)var->display.str);
 				widget_width = spin_button_width;
 				widget_id = spinbutton_add_extended(window_id, elconfig_free_widget_id++, NULL,
+#ifdef ANDROID
+					window_width - TAB_MARGIN - 2.0f * widget_width - CHECKBOX_SIZE, current_y, 2.0f * widget_width, 2.0f * line_height,
+#else
 					window_width - TAB_MARGIN - widget_width, current_y, widget_width, line_height,
+#endif
 					SPIN_INT, var->var, var->args.immf.min(), var->args.immf.max(), 1.0, elconf_scale);
 				widget_set_OnKey(window_id, widget_id, (int (*)())spinbutton_onkey_handler);
 				widget_set_OnClick(window_id, widget_id, spinbutton_onclick_handler);
