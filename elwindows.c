@@ -170,6 +170,8 @@ void close_last_window(void)
 				return;
 			}
 	}
+
+	clear_input_line();
 }
 #endif
 
