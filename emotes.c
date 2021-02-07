@@ -50,6 +50,7 @@ static int top_border = 0;
 static int box_width = 0;
 static int box_sep = 0;
 static int category_y_step = 0;
+static int category_extra_y_step = 0;
 static int EMOTES_SCROLLBAR_ITEMS = 1001;
 
 static int cur_cat=0;
@@ -214,14 +215,14 @@ static int click_emotes_handler(window_info *win, int mx, int my, Uint32 flags)
 
 	if(mx > border_space && mx < border_space + emotes_rect_x && my > top_border && my < top_border + emotes_rect_y){
 		//click on a cat
-		cur_cat=(my - top_border) / category_y_step;
+		cur_cat=(my - top_border + category_extra_y_step / 2) / category_y_step;
 		if(cur_cat>=EMOTES_CATEGORIES) cur_cat=0;
 		if(cur_cat>EMOTE_STANDING) cur_cat=EMOTE_STANDING+1;
 		update_selectables();
 		last_pos=-1;
 	} else if(mx > box_left && mx < box_right && my > box_top && my < box_bot) {
 		//click on selectables
-		int w=(my - top_border - emotes_rect_y - box_sep)/ category_y_step;
+		int w=(my - top_border - emotes_rect_y - box_sep + category_extra_y_step / 2) / category_y_step;
 		emote_sel[cur_cat]=selectables[(w>=EMOTES_SHOWN)?(EMOTES_SHOWN-1):(w)];
 		update_selectables();
 		if ( ((SDL_GetTicks() - last_clicked) < 300)&&last_pos==w) do_handler();
@@ -263,12 +264,13 @@ static int ui_scale_emotes_handler(window_info *win)
 	border_space = (int)(0.5 + win->current_scale * 5);
 	top_border = border_space + win->small_font_len_y;
 	box_sep = 2 * border_space + win->small_font_len_y;
-	category_y_step = win->small_font_len_y;
+	category_extra_y_step = 0;
+	category_y_step = win->small_font_len_y + category_extra_y_step;
 
 	emotes_rect_x = 2 * inbox_space + box_width;
-	emotes_rect_y = 2 * inbox_space + category_y_step * EMOTES_CATEGORIES;
+	emotes_rect_y = 2 * inbox_space + category_y_step * EMOTES_CATEGORIES - category_extra_y_step;
 	emotes_rect_x2 = 2 * inbox_space + box_width;
-	emotes_rect_y2 = 2 * inbox_space + category_y_step * EMOTES_SHOWN;
+	emotes_rect_y2 = 2 * inbox_space + category_y_step * EMOTES_SHOWN - category_extra_y_step;
 
 	resize_window(win->window_id, emotes_rect_x2 + win->box_size + 2 * border_space,
 		top_border + emotes_rect_y + box_sep + emotes_rect_y2 + 3 * win->small_font_len_y + 2 * border_space);
