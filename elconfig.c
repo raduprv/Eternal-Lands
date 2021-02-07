@@ -3626,7 +3626,7 @@ static void elconfig_populate_tabs(void)
 					current_x, current_y, 0, elconf_scale, (char*)var->display.str);
 				widget_width = spin_button_width;
 				widget_id = spinbutton_add_extended(window_id, elconfig_free_widget_id++, NULL,
-					window_width - TAB_MARGIN + widget_width, current_y, widget_width, line_height,
+					window_width - TAB_MARGIN - widget_width, current_y, widget_width, line_height,
 					SPIN_FLOAT, var->var, var->args.fmmif.min(), var->args.fmmif.max(),
 					var->args.fmmif.interval, elconf_scale);
 				widget_set_OnKey(window_id, widget_id, (int (*)())spinbutton_onkey_handler);
