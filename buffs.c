@@ -159,6 +159,7 @@ void update_buff_eye_candy(int actor_id) {
 
 void draw_buffs(int actor_id, float x, float y,float z)
 {
+	int scale_buff_icon_size = (int)(0.5 + buff_icon_size * get_global_scale());
 	actor *act;
 	act = get_actor_ptr_from_id(actor_id);
 	if (act && act->buffs) {
@@ -224,20 +225,20 @@ void draw_buffs(int actor_id, float x, float y,float z)
 			u_end = u_start + 0.125f;
 			v_start = 0.125f * (cur_tex / 8);
 			v_end = v_start + 0.125f;
-			x_off = (int)(-1.0 * ((float)num_buffs * buff_icon_size) / 2.0f + (buff_icon_size * i));
+			x_off = (int)(-1.0 * ((float)num_buffs * scale_buff_icon_size) / 2.0f + (scale_buff_icon_size * i));
 			// draw the spell icon
 			glBegin(GL_QUADS);
 			glTexCoord2f(u_start,v_start);
-			glVertex3f(x + x_off, y + buff_icon_size, z);
+			glVertex3f(x + x_off, y + scale_buff_icon_size, z);
 
 			glTexCoord2f(u_start,v_end);
 			glVertex3f(x + x_off,y,z);
 
 			glTexCoord2f(u_end,v_end);
-			glVertex3f(x + buff_icon_size + x_off, y, z);
+			glVertex3f(x + scale_buff_icon_size + x_off, y, z);
 
 			glTexCoord2f(u_end,v_start);
-			glVertex3f(x + buff_icon_size + x_off, y + buff_icon_size, z);
+			glVertex3f(x + scale_buff_icon_size + x_off, y + scale_buff_icon_size, z);
 			glEnd();
 		}
 		glDisable(GL_BLEND);
