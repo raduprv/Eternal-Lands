@@ -12,245 +12,248 @@
 #include "missiles.h"
 #include "skeletons.h"
 
-int ecdebug_win_width = 512;
-int ecdebug_win_height = 214;
+static int ecdw_restoration_handler(void);
+static int ecdw_shield_handler(void);
+static int ecdw_coldshield_handler(void);
+static int ecdw_heatshield_handler(void);
+static int ecdw_radiationshield_handler(void);
+static int ecdw_heal_handler(void);
+static int ecdw_b2g_handler(void);
+static int ecdw_magic_immunity_handler(void);
+static int ecdw_remote_heal_handler(void);
+static int ecdw_poison_handler(void);
+static int ecdw_harm_handler(void);
+static int ecdw_mana_drain_handler(void);
+static int ecdw_alert_handler(void);
+static int ecdw_harv_rare_stone_handler(void);
+static int ecdw_mine_high_exp_detonate_handler(void);
+static int ecdw_harv_goldbag_handler(void);
+static int ecdw_harv_bee_handler(void);
+static int ecdw_level_up_oa_handler(void);
+static int ecdw_magic_protection_handler(void);
+static int ecdw_tptpr_handler(void);
+static int ecdw_breathe_fire_handler(void);
+static int ecdw_breathe_ice_handler(void);
+static int ecdw_breathe_poison_handler(void);
+static int ecdw_breathe_magic_handler(void);
+static int ecdw_breathe_lightning_handler(void);
+static int ecdw_breathe_wind_handler(void);
+static int ecdw_life_drain_handler(void);
+static int ecdw_tptr_handler(void);
+static int ecdw_harv_radon_handler(void);
+static int ecdw_harv_cavern_wall_handler(void);
+static int ecdw_harv_mother_nature_handler(void);
+static int ecdw_harv_queen_handler(void);
+static int ecdw_summon_rabbit_handler(void);
+static int ecdw_summon_rat_handler(void);
+static int ecdw_summon_beaver_handler(void);
+static int ecdw_summon_skunk_handler(void);
+static int ecdw_summon_racoon_handler(void);
+static int ecdw_summon_deer_handler(void);
+static int ecdw_summon_green_snake_handler(void);
+static int ecdw_summon_red_snake_handler(void);
+static int ecdw_summon_brown_snake_handler(void);
+static int ecdw_summon_fox_handler(void);
+static int ecdw_summon_boar_handler(void);
+static int ecdw_summon_wolf_handler(void);
+static int ecdw_summon_skeleton_handler(void);
+static int ecdw_summon_small_garg_handler(void);
+static int ecdw_summon_medium_garg_handler(void);
+static int ecdw_summon_large_garg_handler(void);
+static int ecdw_summon_puma_handler(void);
+static int ecdw_summon_fem_gob_handler(void);
+static int ecdw_summon_polar_bear_handler(void);
+static int ecdw_summon_bear_handler(void);
+static int ecdw_summon_armed_male_gob_handler(void);
+static int ecdw_summon_armed_skeleton_handler(void);
+static int ecdw_summon_fem_orc_handler(void);
+static int ecdw_summon_male_orc_handler(void);
+static int ecdw_summon_armed_fem_orc_handler(void);
+static int ecdw_summon_armed_male_orc_handler(void);
+static int ecdw_summon_cyclops_handler(void);
+static int ecdw_summon_fluffy_handler(void);
+static int ecdw_summon_phantom_warrior_handler(void);
+static int ecdw_summon_mchim_handler(void);
+static int ecdw_summon_yeti_handler(void);
+static int ecdw_summon_achim_handler(void);
+static int ecdw_summon_giant_handler(void);
+static int ecdw_summon_giant_snake_handler(void);
+static int ecdw_summon_spider_handler(void);
+static int ecdw_summon_tiger_handler(void);
+static int ecdw_level_up_att_handler(void);
+static int ecdw_level_up_def_handler(void);
+static int ecdw_mine_small_detonate_handler(void);
+static int ecdw_mine_medium_detonate_handler(void);
+static int ecdw_mine_trap_detonate_handler(void);
+static int ecdw_mine_caltrop_detonate_handler(void);
+static int ecdw_mine_poisoned_caltrop_detonate_handler(void);
+static int ecdw_mine_mana_drainer_detonate_handler(void);
+static int ecdw_mine_mana_burner_detonate_handler(void);
+static int ecdw_mine_uninvisibilizer_detonate_handler(void);
+static int ecdw_mine_magic_immunity_removal_detonate_handler(void);
+static int ecdw_remote_smite_summons_handler(void);
+static int ecdw_ongoing_clear_handler(void);
+static int ecdw_ongoing_magic_immunity_handler(void);
+static int ecdw_ongoing_magic_protection_handler(void);
+static int ecdw_ongoing_poison_handler(void);
+static int ecdw_ongoing_shield_handler(void);
+static int ecdw_ongoing_harvesting_handler(void);
+static int ecdw_level_up_har_handler(void);
+static int ecdw_level_up_alc_handler(void);
+static int ecdw_level_up_mag_handler(void);
+static int ecdw_level_up_pot_handler(void);
+static int ecdw_level_up_sum_handler(void);
+static int ecdw_level_up_man_handler(void);
+static int ecdw_level_up_cra_handler(void);
+static int ecdw_level_up_eng_handler(void);
+static int ecdw_level_up_tai_handler(void);
+static int ecdw_level_up_ran_handler(void);
+static int ecdw_normal_arrow_handler(int type);
+static int ecdw_magic_arrow_handler(int type);
+static int ecdw_fire_arrow_handler(int type);
+static int ecdw_ice_arrow_handler(int type);
+static int ecdw_explosive_arrow_handler(int type);
+static int ecdw_harv_tool_break_handler(void);
+static int ecdw_wind_leaves_handler(void);
+static int ecdw_clouds_handler(void);
 
-int ecdw_tab_collection = -1;
-
-int tab_self = 12100;
-int tab_remote = 12101;
-int tab_harv = 12102;
-int tab_lvlup = 12103;
-int tab_misc = 12104;
-int tab_breath = 12105;
-int tab_summon = 12106;
-int tab_summon2 = 12107;
-int tab_summon3 = 12108;
-int tab_mines = 12109;
-int tab_arrows = 12110;
-
-int button_width = 160;
-int button_x = 8;
-int button_y = 8;
-int button_x_shift = 168;
-int button_y_shift = 36;
-
-int ecdw_restoration_button_id = 11100;
-int ecdw_shield_button_id = 11101;
-int ecdw_coldshield_button_id = 11102;
-int ecdw_heatshield_button_id = 11103;
-int ecdw_radiationshield_button_id = 11104;
-int ecdw_heal_button_id = 11105;
-int ecdw_b2g_button_id = 11106;
-int ecdw_magic_immunity_button_id = 11107;
-int ecdw_remote_heal_button_id = 11108;
-int ecdw_poison_button_id = 11109;
-int ecdw_harm_button_id = 11110;
-int ecdw_mana_drain_button_id = 11111;
-int ecdw_alert_button_id = 11112;
-int ecdw_harv_rare_stone_button_id = 11113;
-int ecdw_mine_high_exp_detonate_button_id = 11114;
-int ecdw_harv_goldbag_button_id = 11115;
-int ecdw_harv_bee_button_id = 11116;
-int ecdw_level_up_oa_button_id = 11117;
-int ecdw_magic_protection_button_id = 11118;
-int ecdw_tptpr_button_id = 11119;
-int ecdw_breathe_fire_button_id = 11120;
-int ecdw_breathe_ice_button_id = 11121;
-int ecdw_breathe_poison_button_id = 11122;
-int ecdw_breathe_magic_button_id = 11123;
-int ecdw_breathe_lightning_button_id = 11124;
-int ecdw_breathe_wind_button_id = 11125;
-int ecdw_life_drain_button_id = 11126;
-int ecdw_tptr_button_id = 11127;
-int ecdw_harv_radon_button_id = 11128;
-int ecdw_harv_cavern_wall_button_id = 11129;
-int ecdw_harv_mother_nature_button_id = 11130;
-int ecdw_harv_queen_button_id = 11131;
-int ecdw_summon_rabbit_button_id = 11132;
-int ecdw_summon_rat_button_id = 11133;
-int ecdw_summon_beaver_button_id = 11134;
-int ecdw_summon_skunk_button_id = 11135;
-int ecdw_summon_racoon_button_id = 11136;
-int ecdw_summon_deer_button_id = 11137;
-int ecdw_summon_green_snake_button_id = 11138;
-int ecdw_summon_red_snake_button_id = 11139;
-int ecdw_summon_brown_snake_button_id = 11140;
-int ecdw_summon_fox_button_id = 11141;
-int ecdw_summon_boar_button_id = 11142;
-int ecdw_summon_wolf_button_id = 11143;
-int ecdw_summon_skeleton_button_id = 11144;
-int ecdw_summon_small_garg_button_id = 11145;
-int ecdw_summon_medium_garg_button_id = 11146;
-int ecdw_summon_large_garg_button_id = 11147;
-int ecdw_summon_puma_button_id = 11148;
-int ecdw_summon_fem_gob_button_id = 11149;
-int ecdw_summon_polar_bear_button_id = 11150;
-int ecdw_summon_bear_button_id = 11151;
-int ecdw_summon_armed_male_gob_button_id = 11152;
-int ecdw_summon_armed_skeleton_button_id = 11153;
-int ecdw_summon_fem_orc_button_id = 11154;
-int ecdw_summon_male_orc_button_id = 11155;
-int ecdw_summon_armed_fem_orc_button_id = 11156;
-int ecdw_summon_armed_male_orc_button_id = 11157;
-int ecdw_summon_cyclops_button_id = 11158;
-int ecdw_summon_fluffy_button_id = 11159;
-int ecdw_summon_phantom_warrior_button_id = 11160;
-int ecdw_summon_mchim_button_id = 11161;
-int ecdw_summon_yeti_button_id = 11162;
-int ecdw_summon_achim_button_id = 11163;
-int ecdw_summon_giant_button_id = 11164;
-int ecdw_summon_giant_snake_button_id = 11165;
-int ecdw_summon_spider_button_id = 11166;
-int ecdw_summon_tiger_button_id = 11167;
-int ecdw_level_up_att_button_id = 11168;
-int ecdw_level_up_def_button_id = 11169;
-int ecdw_mine_small_detonate_button_id = 11170;
-int ecdw_mine_medium_detonate_button_id = 11171;
-int ecdw_mine_trap_detonate_button_id = 11172;
-int ecdw_mine_caltrop_detonate_button_id = 11173;
-int ecdw_mine_poisoned_caltrop_detonate_button_id = 11174;
-int ecdw_mine_mana_drainer_detonate_button_id = 11176;
-int ecdw_mine_mana_burner_detonate_button_id = 11177;
-int ecdw_mine_uninvisibilizer_detonate_button_id = 11178;
-int ecdw_mine_magic_immunity_removal_detonate_button_id = 11179;
-int ecdw_remote_smite_summons_button_id = 11180;
-int ecdw_ongoing_clear_button_id = 11181;
-int ecdw_ongoing_magic_immunity_button_id = 11182;
-int ecdw_ongoing_magic_protection_button_id = 11183;
-int ecdw_ongoing_poison_button_id = 11184;
-int ecdw_ongoing_shield_button_id = 11185;
-int ecdw_ongoing_harvesting_button_id = 11186;
-int ecdw_level_up_har_button_id = 11187;
-int ecdw_level_up_alc_button_id = 11188;
-int ecdw_level_up_mag_button_id = 11189;
-int ecdw_level_up_pot_button_id = 11190;
-int ecdw_level_up_sum_button_id = 11191;
-int ecdw_level_up_man_button_id = 11192;
-int ecdw_level_up_cra_button_id = 11193;
-int ecdw_level_up_eng_button_id = 11194;
-int ecdw_level_up_tai_button_id = 11195;
-int ecdw_level_up_ran_button_id = 11196;
-int ecdw_normal_arrow_button_id = 11197;
-int ecdw_magic_arrow_button_id = 11198;
-int ecdw_fire_arrow_button_id = 11199;
-int ecdw_ice_arrow_button_id = 11200;
-int ecdw_explosive_arrow_button_id = 11201;
-int ecdw_harv_tool_break_button_id = 11202;
-int ecdw_wind_leaves_button_id = 11203;
-int ecdw_clouds_button_id = 12204;
-
-int ecdw_restoration_handler();
-int ecdw_shield_handler();
-int ecdw_coldshield_handler();
-int ecdw_heatshield_handler();
-int ecdw_radiationshield_handler();
-int ecdw_heal_handler();
-int ecdw_b2g_handler();
-int ecdw_magic_immunity_handler();
-int ecdw_remote_heal_handler();
-int ecdw_poison_handler();
-int ecdw_harm_handler();
-int ecdw_mana_drain_handler();
-int ecdw_alert_handler();
-int ecdw_harv_rare_stone_handler();
-int ecdw_mine_high_exp_detonate_handler();
-int ecdw_harv_goldbag_handler();
-int ecdw_harv_bee_handler();
-int ecdw_level_up_oa_handler();
-int ecdw_magic_protection_handler();
-int ecdw_tptpr_handler();
-int ecdw_breathe_fire_handler();
-int ecdw_breathe_ice_handler();
-int ecdw_breathe_poison_handler();
-int ecdw_breathe_magic_handler();
-int ecdw_breathe_lightning_handler();
-int ecdw_breathe_wind_handler();
-int ecdw_life_drain_handler();
-int ecdw_tptr_handler();
-int ecdw_harv_radon_handler();
-int ecdw_harv_cavern_wall_handler();
-int ecdw_harv_mother_nature_handler();
-int ecdw_harv_queen_handler();
-int ecdw_summon_rabbit_handler();
-int ecdw_summon_rat_handler();
-int ecdw_summon_beaver_handler();
-int ecdw_summon_skunk_handler();
-int ecdw_summon_racoon_handler();
-int ecdw_summon_deer_handler();
-int ecdw_summon_green_snake_handler();
-int ecdw_summon_red_snake_handler();
-int ecdw_summon_brown_snake_handler();
-int ecdw_summon_fox_handler();
-int ecdw_summon_boar_handler();
-int ecdw_summon_wolf_handler();
-int ecdw_summon_skeleton_handler();
-int ecdw_summon_small_garg_handler();
-int ecdw_summon_medium_garg_handler();
-int ecdw_summon_large_garg_handler();
-int ecdw_summon_puma_handler();
-int ecdw_summon_fem_gob_handler();
-int ecdw_summon_polar_bear_handler();
-int ecdw_summon_bear_handler();
-int ecdw_summon_armed_male_gob_handler();
-int ecdw_summon_armed_skeleton_handler();
-int ecdw_summon_fem_orc_handler();
-int ecdw_summon_male_orc_handler();
-int ecdw_summon_armed_fem_orc_handler();
-int ecdw_summon_armed_male_orc_handler();
-int ecdw_summon_cyclops_handler();
-int ecdw_summon_fluffy_handler();
-int ecdw_summon_phantom_warrior_handler();
-int ecdw_summon_mchim_handler();
-int ecdw_summon_yeti_handler();
-int ecdw_summon_achim_handler();
-int ecdw_summon_giant_handler();
-int ecdw_summon_giant_snake_handler();
-int ecdw_summon_spider_handler();
-int ecdw_summon_tiger_handler();
-int ecdw_level_up_att_handler();
-int ecdw_level_up_def_handler();
-int ecdw_mine_small_detonate_handler();
-int ecdw_mine_medium_detonate_handler();
-int ecdw_mine_trap_detonate_handler();
-int ecdw_mine_caltrop_detonate_handler();
-int ecdw_mine_poisoned_caltrop_detonate_handler();
-int ecdw_mine_mana_drainer_detonate_handler();
-int ecdw_mine_mana_burner_detonate_handler();
-int ecdw_mine_uninvisibilizer_detonate_handler();
-int ecdw_mine_magic_immunity_removal_detonate_handler();
-int ecdw_remote_smite_summons_handler();
-int ecdw_ongoing_clear_handler();
-int ecdw_ongoing_magic_immunity_handler();
-int ecdw_ongoing_magic_protection_handler();
-int ecdw_ongoing_poison_handler();
-int ecdw_ongoing_shield_handler();
-int ecdw_ongoing_harvesting_handler();
-int ecdw_level_up_har_handler();
-int ecdw_level_up_alc_handler();
-int ecdw_level_up_mag_handler();
-int ecdw_level_up_pot_handler();
-int ecdw_level_up_sum_handler();
-int ecdw_level_up_man_handler();
-int ecdw_level_up_cra_handler();
-int ecdw_level_up_eng_handler();
-int ecdw_level_up_tai_handler();
-int ecdw_level_up_ran_handler();
-int ecdw_normal_arrow_handler();
-int ecdw_magic_arrow_handler();
-int ecdw_fire_arrow_handler();
-int ecdw_ice_arrow_handler();
-int ecdw_explosive_arrow_handler();
-int ecdw_harv_tool_break_handler();
-int ecdw_wind_leaves_handler();
-int ecdw_clouds_handler();
-
-void display_ecdebugwin()
+void display_ecdebugwin(void)
 {
 	int ecdebug_win = get_id_MW(MW_ECDEBUG);
 
 	if (ecdebug_win < 0) // create window
 	{
+		// at least scale to using the current value
+		// we don't really need it to be dynamic and that would be a lot of code
+		float current_scale = get_global_scale();
+		int ecdebug_win_width = (int)(0.5 + current_scale * 512);
+		int ecdebug_win_height = (int)(0.5 + current_scale * 214);
+		int button_width = (int)(0.5 + current_scale * 160);
+		int button_x = (int)(0.5 + current_scale * 8);
+		int button_y = (int)(0.5 + current_scale * 8);
+		int button_x_shift = (int)(0.5 + current_scale * 168);
+		int button_y_shift = (int)(0.5 + current_scale * 36);
+
+		// tab ids
+		int ecdw_tab_collection = -1;
+		int tab_self = 12100;
+		int tab_remote = 12101;
+		int tab_harv = 12102;
+		int tab_lvlup = 12103;
+		int tab_misc = 12104;
+		int tab_breath = 12105;
+		int tab_summon = 12106;
+		int tab_summon2 = 12107;
+		int tab_summon3 = 12108;
+		int tab_mines = 12109;
+		int tab_arrows = 12110;
+
+		// widget ids
+		int ecdw_restoration_button_id = 11100;
+		int ecdw_shield_button_id = 11101;
+		int ecdw_coldshield_button_id = 11102;
+		int ecdw_heatshield_button_id = 11103;
+		int ecdw_radiationshield_button_id = 11104;
+		int ecdw_heal_button_id = 11105;
+		int ecdw_b2g_button_id = 11106;
+		int ecdw_magic_immunity_button_id = 11107;
+		int ecdw_remote_heal_button_id = 11108;
+		int ecdw_poison_button_id = 11109;
+		int ecdw_harm_button_id = 11110;
+		int ecdw_mana_drain_button_id = 11111;
+		int ecdw_alert_button_id = 11112;
+		int ecdw_harv_rare_stone_button_id = 11113;
+		int ecdw_mine_high_exp_detonate_button_id = 11114;
+		int ecdw_harv_goldbag_button_id = 11115;
+		int ecdw_harv_bee_button_id = 11116;
+		int ecdw_level_up_oa_button_id = 11117;
+		int ecdw_magic_protection_button_id = 11118;
+		int ecdw_tptpr_button_id = 11119;
+		int ecdw_breathe_fire_button_id = 11120;
+		int ecdw_breathe_ice_button_id = 11121;
+		int ecdw_breathe_poison_button_id = 11122;
+		int ecdw_breathe_magic_button_id = 11123;
+		int ecdw_breathe_lightning_button_id = 11124;
+		int ecdw_breathe_wind_button_id = 11125;
+		int ecdw_life_drain_button_id = 11126;
+		int ecdw_tptr_button_id = 11127;
+		int ecdw_harv_radon_button_id = 11128;
+		int ecdw_harv_cavern_wall_button_id = 11129;
+		int ecdw_harv_mother_nature_button_id = 11130;
+		int ecdw_harv_queen_button_id = 11131;
+		int ecdw_summon_rabbit_button_id = 11132;
+		int ecdw_summon_rat_button_id = 11133;
+		int ecdw_summon_beaver_button_id = 11134;
+		int ecdw_summon_skunk_button_id = 11135;
+		int ecdw_summon_racoon_button_id = 11136;
+		int ecdw_summon_deer_button_id = 11137;
+		int ecdw_summon_green_snake_button_id = 11138;
+		int ecdw_summon_red_snake_button_id = 11139;
+		int ecdw_summon_brown_snake_button_id = 11140;
+		int ecdw_summon_fox_button_id = 11141;
+		int ecdw_summon_boar_button_id = 11142;
+		int ecdw_summon_wolf_button_id = 11143;
+		int ecdw_summon_skeleton_button_id = 11144;
+		int ecdw_summon_small_garg_button_id = 11145;
+		int ecdw_summon_medium_garg_button_id = 11146;
+		int ecdw_summon_large_garg_button_id = 11147;
+		int ecdw_summon_puma_button_id = 11148;
+		int ecdw_summon_fem_gob_button_id = 11149;
+		int ecdw_summon_polar_bear_button_id = 11150;
+		int ecdw_summon_bear_button_id = 11151;
+		int ecdw_summon_armed_male_gob_button_id = 11152;
+		int ecdw_summon_armed_skeleton_button_id = 11153;
+		int ecdw_summon_fem_orc_button_id = 11154;
+		int ecdw_summon_male_orc_button_id = 11155;
+		int ecdw_summon_armed_fem_orc_button_id = 11156;
+		int ecdw_summon_armed_male_orc_button_id = 11157;
+		int ecdw_summon_cyclops_button_id = 11158;
+		int ecdw_summon_fluffy_button_id = 11159;
+		int ecdw_summon_phantom_warrior_button_id = 11160;
+		int ecdw_summon_mchim_button_id = 11161;
+		int ecdw_summon_yeti_button_id = 11162;
+		int ecdw_summon_achim_button_id = 11163;
+		int ecdw_summon_giant_button_id = 11164;
+		int ecdw_summon_giant_snake_button_id = 11165;
+		int ecdw_summon_spider_button_id = 11166;
+		int ecdw_summon_tiger_button_id = 11167;
+		int ecdw_level_up_att_button_id = 11168;
+		int ecdw_level_up_def_button_id = 11169;
+		int ecdw_mine_small_detonate_button_id = 11170;
+		int ecdw_mine_medium_detonate_button_id = 11171;
+		int ecdw_mine_trap_detonate_button_id = 11172;
+		int ecdw_mine_caltrop_detonate_button_id = 11173;
+		int ecdw_mine_poisoned_caltrop_detonate_button_id = 11174;
+		int ecdw_mine_mana_drainer_detonate_button_id = 11176;
+		int ecdw_mine_mana_burner_detonate_button_id = 11177;
+		int ecdw_mine_uninvisibilizer_detonate_button_id = 11178;
+		int ecdw_mine_magic_immunity_removal_detonate_button_id = 11179;
+		int ecdw_remote_smite_summons_button_id = 11180;
+		int ecdw_ongoing_clear_button_id = 11181;
+		int ecdw_ongoing_magic_immunity_button_id = 11182;
+		int ecdw_ongoing_magic_protection_button_id = 11183;
+		int ecdw_ongoing_poison_button_id = 11184;
+		int ecdw_ongoing_shield_button_id = 11185;
+		int ecdw_ongoing_harvesting_button_id = 11186;
+		int ecdw_level_up_har_button_id = 11187;
+		int ecdw_level_up_alc_button_id = 11188;
+		int ecdw_level_up_mag_button_id = 11189;
+		int ecdw_level_up_pot_button_id = 11190;
+		int ecdw_level_up_sum_button_id = 11191;
+		int ecdw_level_up_man_button_id = 11192;
+		int ecdw_level_up_cra_button_id = 11193;
+		int ecdw_level_up_eng_button_id = 11194;
+		int ecdw_level_up_tai_button_id = 11195;
+		int ecdw_level_up_ran_button_id = 11196;
+		int ecdw_normal_arrow_button_id = 11197;
+		int ecdw_magic_arrow_button_id = 11198;
+		int ecdw_fire_arrow_button_id = 11199;
+		int ecdw_ice_arrow_button_id = 11200;
+		int ecdw_explosive_arrow_button_id = 11201;
+		int ecdw_harv_tool_break_button_id = 11202;
+		int ecdw_wind_leaves_button_id = 11203;
+		int ecdw_clouds_button_id = 12204;
+
 		// init window
 		ecdebug_win = create_window("Eye Candy DEBUG", (not_on_top_now(MW_ECDEBUG) ?game_root_win : -1),
             0, get_pos_x_MW(MW_ECDEBUG), get_pos_y_MW(MW_ECDEBUG),
@@ -932,6 +935,9 @@ void display_ecdebugwin()
 		widget_set_OnClick(tab_arrows, ecdw_fire_arrow_button_id, ecdw_fire_arrow_handler);
 		widget_set_OnClick(tab_arrows, ecdw_ice_arrow_button_id, ecdw_ice_arrow_handler);
 		widget_set_OnClick(tab_arrows, ecdw_explosive_arrow_button_id, ecdw_explosive_arrow_handler);
+
+		check_proportional_move(MW_ECDEBUG);
+
 }
 	else // display existing window
 	{
@@ -940,63 +946,63 @@ void display_ecdebugwin()
 	}
 }
 
-int ecdw_restoration_handler()
+int ecdw_restoration_handler(void)
 {
 	ec_create_selfmagic_restoration2(get_actor_ptr_from_id(yourself),
 		(poor_man ? 6 : 10));
 	return 1;
 }
 
-int ecdw_shield_handler()
+int ecdw_shield_handler(void)
 {
 	ec_create_selfmagic_shield_generic(get_actor_ptr_from_id(yourself),
 		(poor_man ? 6 : 10), SPECIAL_EFFECT_SHIELD);
 	return 1;
 }
 
-int ecdw_coldshield_handler()
+int ecdw_coldshield_handler(void)
 {
 	ec_create_selfmagic_shield_generic(get_actor_ptr_from_id(yourself),
 		(poor_man ? 6 : 10), SPECIAL_EFFECT_COLDSHIELD);
 	return 1;
 }
 
-int ecdw_heatshield_handler()
+int ecdw_heatshield_handler(void)
 {
 	ec_create_selfmagic_shield_generic(get_actor_ptr_from_id(yourself),
 		(poor_man ? 6 : 10), SPECIAL_EFFECT_HEATSHIELD);
 	return 1;
 }
 
-int ecdw_radiationshield_handler()
+int ecdw_radiationshield_handler(void)
 {
 	ec_create_selfmagic_shield_generic(get_actor_ptr_from_id(yourself),
 		(poor_man ? 6 : 10), SPECIAL_EFFECT_RADIATIONSHIELD);
 	return 1;
 }
 
-int ecdw_heal_handler()
+int ecdw_heal_handler(void)
 {
 	ec_create_selfmagic_heal2(get_actor_ptr_from_id(yourself), (poor_man ? 6
 		: 10));
 	return 1;
 }
 
-int ecdw_b2g_handler()
+int ecdw_b2g_handler(void)
 {
 	ec_create_selfmagic_bones_to_gold2(get_actor_ptr_from_id(yourself),
 		(poor_man ? 6 : 10));
 	return 1;
 }
 
-int ecdw_magic_immunity_handler()
+int ecdw_magic_immunity_handler(void)
 {
 	ec_create_selfmagic_magic_immunity2(get_actor_ptr_from_id(yourself),
 		(poor_man ? 6 : 10));
 	return 1;
 }
 
-int ecdw_remote_heal_handler()
+int ecdw_remote_heal_handler(void)
 {
 	actor *target= NULL;
 	int i;
@@ -1017,7 +1023,7 @@ int ecdw_remote_heal_handler()
 	return 1;
 }
 
-int ecdw_poison_handler()
+int ecdw_poison_handler(void)
 {
 	actor *target= NULL;
 	int i;
@@ -1038,7 +1044,7 @@ int ecdw_poison_handler()
 	return 1;
 }
 
-int ecdw_harm_handler()
+int ecdw_harm_handler(void)
 {
 	actor *target= NULL;
 	int i;
@@ -1059,7 +1065,7 @@ int ecdw_harm_handler()
 	return 1;
 }
 
-int ecdw_mana_drain_handler()
+int ecdw_mana_drain_handler(void)
 {
 	actor *target= NULL;
 	int i;
@@ -1078,41 +1084,41 @@ int ecdw_mana_drain_handler()
 	return 1;
 }
 
-int ecdw_alert_handler()
+int ecdw_alert_handler(void)
 {
 	ec_create_alert2(get_actor_ptr_from_id(yourself), (poor_man ? 6 : 10));
 	return 1;
 }
 
-int ecdw_harv_rare_stone_handler()
+int ecdw_harv_rare_stone_handler(void)
 {
 	ec_create_harvesting_rare_stone2(get_actor_ptr_from_id(yourself),
 		(poor_man ? 6 : 10));
 	return 1;
 }
 
-int ecdw_mine_high_exp_detonate_handler()
+int ecdw_mine_high_exp_detonate_handler(void)
 {
 	ec_create_mine_detonate2(get_actor_ptr_from_id(yourself), 
 	MINE_TYPE_HIGH_EXPLOSIVE_MINE, (poor_man ? 6 : 10));
 	return 1;
 }
 
-int ecdw_harv_goldbag_handler()
+int ecdw_harv_goldbag_handler(void)
 {
 	ec_create_harvesting_bag_of_gold2(get_actor_ptr_from_id(yourself),
 		(poor_man ? 6 : 10));
 	return 1;
 }
 
-int ecdw_harv_bee_handler()
+int ecdw_harv_bee_handler(void)
 {
 	ec_create_harvesting_bees2(get_actor_ptr_from_id(yourself), (poor_man ? 6
 		: 10));
 	return 1;
 }
 
-int ecdw_level_up_oa_handler()
+int ecdw_level_up_oa_handler(void)
 {
 	ec_create_glow_level_up_default(get_actor_ptr_from_id(yourself),
 		(poor_man ? 6 : 10));
@@ -1121,21 +1127,21 @@ int ecdw_level_up_oa_handler()
 	return 1;
 }
 
-int ecdw_magic_protection_handler()
+int ecdw_magic_protection_handler(void)
 {
 	ec_create_selfmagic_magic_protection2(get_actor_ptr_from_id(yourself),
 		(poor_man ? 6 : 10));
 	return 1;
 }
 
-int ecdw_tptpr_handler()
+int ecdw_tptpr_handler(void)
 {
 	ec_create_selfmagic_teleport_to_the_portals_room2(
 		get_actor_ptr_from_id(yourself), (poor_man ? 6 : 10));
 	return 1;
 }
 
-int ecdw_breathe_fire_handler()
+int ecdw_breathe_fire_handler(void)
 {
 	actor *target= NULL;
 	int i;
@@ -1154,7 +1160,7 @@ int ecdw_breathe_fire_handler()
 	return 1;
 }
 
-int ecdw_breathe_ice_handler()
+int ecdw_breathe_ice_handler(void)
 {
 	actor *target= NULL;
 	int i;
@@ -1173,7 +1179,7 @@ int ecdw_breathe_ice_handler()
 	return 1;
 }
 
-int ecdw_breathe_poison_handler()
+int ecdw_breathe_poison_handler(void)
 {
 	actor *target= NULL;
 	int i;
@@ -1192,7 +1198,7 @@ int ecdw_breathe_poison_handler()
 	return 1;
 }
 
-int ecdw_breathe_magic_handler()
+int ecdw_breathe_magic_handler(void)
 {
 	actor *target= NULL;
 	int i;
@@ -1211,7 +1217,7 @@ int ecdw_breathe_magic_handler()
 	return 1;
 }
 
-int ecdw_breathe_lightning_handler()
+int ecdw_breathe_lightning_handler(void)
 {
 	actor *target= NULL;
 	int i;
@@ -1230,7 +1236,7 @@ int ecdw_breathe_lightning_handler()
 	return 1;
 }
 
-int ecdw_breathe_wind_handler()
+int ecdw_breathe_wind_handler(void)
 {
 	actor *target= NULL;
 	int i;
@@ -1249,7 +1255,7 @@ int ecdw_breathe_wind_handler()
 	return 1;
 }
 
-int ecdw_life_drain_handler()
+int ecdw_life_drain_handler(void)
 {
 	actor *target= NULL;
 	int i;
@@ -1268,7 +1274,7 @@ int ecdw_life_drain_handler()
 	return 1;
 }
 
-int ecdw_tptr_handler()
+int ecdw_tptr_handler(void)
 {
 	actor *target= NULL;
 	int i;
@@ -1287,35 +1293,35 @@ int ecdw_tptr_handler()
 	return 1;
 }
 
-int ecdw_harv_radon_handler()
+int ecdw_harv_radon_handler(void)
 {
 	ec_create_harvesting_radon_pouch2(get_actor_ptr_from_id(yourself),
 		(poor_man ? 6 : 10));
 	return 1;
 }
 
-int ecdw_harv_cavern_wall_handler()
+int ecdw_harv_cavern_wall_handler(void)
 {
 	ec_create_harvesting_cavern_wall2(get_actor_ptr_from_id(yourself),
 		(poor_man ? 6 : 10));
 	return 1;
 }
 
-int ecdw_harv_mother_nature_handler()
+int ecdw_harv_mother_nature_handler(void)
 {
 	ec_create_harvesting_mother_nature2(get_actor_ptr_from_id(yourself),
 		(poor_man ? 6 : 10));
 	return 1;
 }
 
-int ecdw_harv_queen_handler()
+int ecdw_harv_queen_handler(void)
 {
 	ec_create_harvesting_queen_of_nature2(get_actor_ptr_from_id(yourself),
 		(poor_man ? 6 : 10));
 	return 1;
 }
 
-int ecdw_summon_rabbit_handler()
+int ecdw_summon_rabbit_handler(void)
 {
 	actor *target= NULL;
 	int i;
@@ -1333,7 +1339,7 @@ int ecdw_summon_rabbit_handler()
 	return 1;
 }
 
-int ecdw_summon_rat_handler()
+int ecdw_summon_rat_handler(void)
 {
 	actor *target= NULL;
 	int i;
@@ -1351,7 +1357,7 @@ int ecdw_summon_rat_handler()
 	return 1;
 }
 
-int ecdw_summon_beaver_handler()
+int ecdw_summon_beaver_handler(void)
 {
 	actor *target= NULL;
 	int i;
@@ -1369,7 +1375,7 @@ int ecdw_summon_beaver_handler()
 	return 1;
 }
 
-int ecdw_summon_skunk_handler()
+int ecdw_summon_skunk_handler(void)
 {
 	actor *target= NULL;
 	int i;
@@ -1387,7 +1393,7 @@ int ecdw_summon_skunk_handler()
 	return 1;
 }
 
-int ecdw_summon_racoon_handler()
+int ecdw_summon_racoon_handler(void)
 {
 	actor *target= NULL;
 	int i;
@@ -1405,7 +1411,7 @@ int ecdw_summon_racoon_handler()
 	return 1;
 }
 
-int ecdw_summon_deer_handler()
+int ecdw_summon_deer_handler(void)
 {
 	actor *target= NULL;
 	int i;
@@ -1423,7 +1429,7 @@ int ecdw_summon_deer_handler()
 	return 1;
 }
 
-int ecdw_summon_green_snake_handler()
+int ecdw_summon_green_snake_handler(void)
 {
 	actor *target= NULL;
 	int i;
@@ -1441,7 +1447,7 @@ int ecdw_summon_green_snake_handler()
 	return 1;
 }
 
-int ecdw_summon_red_snake_handler()
+int ecdw_summon_red_snake_handler(void)
 {
 	actor *target= NULL;
 	int i;
@@ -1459,7 +1465,7 @@ int ecdw_summon_red_snake_handler()
 	return 1;
 }
 
-int ecdw_summon_brown_snake_handler()
+int ecdw_summon_brown_snake_handler(void)
 {
 	actor *target= NULL;
 	int i;
@@ -1477,7 +1483,7 @@ int ecdw_summon_brown_snake_handler()
 	return 1;
 }
 
-int ecdw_summon_fox_handler()
+int ecdw_summon_fox_handler(void)
 {
 	actor *target= NULL;
 	int i;
@@ -1495,7 +1501,7 @@ int ecdw_summon_fox_handler()
 	return 1;
 }
 
-int ecdw_summon_boar_handler()
+int ecdw_summon_boar_handler(void)
 {
 	actor *target= NULL;
 	int i;
@@ -1513,7 +1519,7 @@ int ecdw_summon_boar_handler()
 	return 1;
 }
 
-int ecdw_summon_wolf_handler()
+int ecdw_summon_wolf_handler(void)
 {
 	actor *target= NULL;
 	int i;
@@ -1531,7 +1537,7 @@ int ecdw_summon_wolf_handler()
 	return 1;
 }
 
-int ecdw_summon_skeleton_handler()
+int ecdw_summon_skeleton_handler(void)
 {
 	actor *target= NULL;
 	int i;
@@ -1549,7 +1555,7 @@ int ecdw_summon_skeleton_handler()
 	return 1;
 }
 
-int ecdw_summon_small_garg_handler()
+int ecdw_summon_small_garg_handler(void)
 {
 	actor *target= NULL;
 	int i;
@@ -1567,7 +1573,7 @@ int ecdw_summon_small_garg_handler()
 	return 1;
 }
 
-int ecdw_summon_medium_garg_handler()
+int ecdw_summon_medium_garg_handler(void)
 {
 	actor *target= NULL;
 	int i;
@@ -1585,7 +1591,7 @@ int ecdw_summon_medium_garg_handler()
 	return 1;
 }
 
-int ecdw_summon_large_garg_handler()
+int ecdw_summon_large_garg_handler(void)
 {
 	actor *target= NULL;
 	int i;
@@ -1603,7 +1609,7 @@ int ecdw_summon_large_garg_handler()
 	return 1;
 }
 
-int ecdw_summon_puma_handler()
+int ecdw_summon_puma_handler(void)
 {
 	actor *target= NULL;
 	int i;
@@ -1621,7 +1627,7 @@ int ecdw_summon_puma_handler()
 	return 1;
 }
 
-int ecdw_summon_fem_gob_handler()
+int ecdw_summon_fem_gob_handler(void)
 {
 	actor *target= NULL;
 	int i;
@@ -1639,7 +1645,7 @@ int ecdw_summon_fem_gob_handler()
 	return 1;
 }
 
-int ecdw_summon_polar_bear_handler()
+int ecdw_summon_polar_bear_handler(void)
 {
 	actor *target= NULL;
 	int i;
@@ -1657,7 +1663,7 @@ int ecdw_summon_polar_bear_handler()
 	return 1;
 }
 
-int ecdw_summon_bear_handler()
+int ecdw_summon_bear_handler(void)
 {
 	actor *target= NULL;
 	int i;
@@ -1675,7 +1681,7 @@ int ecdw_summon_bear_handler()
 	return 1;
 }
 
-int ecdw_summon_armed_male_gob_handler()
+int ecdw_summon_armed_male_gob_handler(void)
 {
 	actor *target= NULL;
 	int i;
@@ -1693,7 +1699,7 @@ int ecdw_summon_armed_male_gob_handler()
 	return 1;
 }
 
-int ecdw_summon_armed_skeleton_handler()
+int ecdw_summon_armed_skeleton_handler(void)
 {
 	actor *target= NULL;
 	int i;
@@ -1711,7 +1717,7 @@ int ecdw_summon_armed_skeleton_handler()
 	return 1;
 }
 
-int ecdw_summon_fem_orc_handler()
+int ecdw_summon_fem_orc_handler(void)
 {
 	actor *target= NULL;
 	int i;
@@ -1729,7 +1735,7 @@ int ecdw_summon_fem_orc_handler()
 	return 1;
 }
 
-int ecdw_summon_male_orc_handler()
+int ecdw_summon_male_orc_handler(void)
 {
 	actor *target= NULL;
 	int i;
@@ -1747,7 +1753,7 @@ int ecdw_summon_male_orc_handler()
 	return 1;
 }
 
-int ecdw_summon_armed_fem_orc_handler()
+int ecdw_summon_armed_fem_orc_handler(void)
 {
 	actor *target= NULL;
 	int i;
@@ -1765,7 +1771,7 @@ int ecdw_summon_armed_fem_orc_handler()
 	return 1;
 }
 
-int ecdw_summon_armed_male_orc_handler()
+int ecdw_summon_armed_male_orc_handler(void)
 {
 	actor *target= NULL;
 	int i;
@@ -1783,7 +1789,7 @@ int ecdw_summon_armed_male_orc_handler()
 	return 1;
 }
 
-int ecdw_summon_cyclops_handler()
+int ecdw_summon_cyclops_handler(void)
 {
 	actor *target= NULL;
 	int i;
@@ -1801,7 +1807,7 @@ int ecdw_summon_cyclops_handler()
 	return 1;
 }
 
-int ecdw_summon_fluffy_handler()
+int ecdw_summon_fluffy_handler(void)
 {
 	actor *target= NULL;
 	int i;
@@ -1819,7 +1825,7 @@ int ecdw_summon_fluffy_handler()
 	return 1;
 }
 
-int ecdw_summon_phantom_warrior_handler()
+int ecdw_summon_phantom_warrior_handler(void)
 {
 	actor *target= NULL;
 	int i;
@@ -1837,7 +1843,7 @@ int ecdw_summon_phantom_warrior_handler()
 	return 1;
 }
 
-int ecdw_summon_mchim_handler()
+int ecdw_summon_mchim_handler(void)
 {
 	actor *target= NULL;
 	int i;
@@ -1855,7 +1861,7 @@ int ecdw_summon_mchim_handler()
 	return 1;
 }
 
-int ecdw_summon_yeti_handler()
+int ecdw_summon_yeti_handler(void)
 {
 	actor *target= NULL;
 	int i;
@@ -1873,7 +1879,7 @@ int ecdw_summon_yeti_handler()
 	return 1;
 }
 
-int ecdw_summon_achim_handler()
+int ecdw_summon_achim_handler(void)
 {
 	actor *target= NULL;
 	int i;
@@ -1891,7 +1897,7 @@ int ecdw_summon_achim_handler()
 	return 1;
 }
 
-int ecdw_summon_giant_handler()
+int ecdw_summon_giant_handler(void)
 {
 	actor *target= NULL;
 	int i;
@@ -1909,7 +1915,7 @@ int ecdw_summon_giant_handler()
 	return 1;
 }
 
-int ecdw_summon_giant_snake_handler()
+int ecdw_summon_giant_snake_handler(void)
 {
 	actor *target= NULL;
 	int i;
@@ -1927,7 +1933,7 @@ int ecdw_summon_giant_snake_handler()
 	return 1;
 }
 
-int ecdw_summon_spider_handler()
+int ecdw_summon_spider_handler(void)
 {
 	actor *target= NULL;
 	int i;
@@ -1945,7 +1951,7 @@ int ecdw_summon_spider_handler()
 	return 1;
 }
 
-int ecdw_summon_tiger_handler()
+int ecdw_summon_tiger_handler(void)
 {
 	actor *target= NULL;
 	int i;
@@ -1963,7 +1969,7 @@ int ecdw_summon_tiger_handler()
 	return 1;
 }
 
-int ecdw_level_up_att_handler()
+int ecdw_level_up_att_handler(void)
 {
 	ec_create_glow_level_up_default(get_actor_ptr_from_id(yourself),
 		(poor_man ? 6 : 10));
@@ -1972,7 +1978,7 @@ int ecdw_level_up_att_handler()
 	return 1;
 }
 
-int ecdw_level_up_def_handler()
+int ecdw_level_up_def_handler(void)
 {
 	ec_create_glow_level_up_default(get_actor_ptr_from_id(yourself),
 		(poor_man ? 6 : 10));
@@ -1981,63 +1987,63 @@ int ecdw_level_up_def_handler()
 	return 1;
 }
 
-int ecdw_mine_small_detonate_handler()
+int ecdw_mine_small_detonate_handler(void)
 {
 	ec_create_mine_detonate2(get_actor_ptr_from_id(yourself), 
 	MINE_TYPE_SMALL_MINE, (poor_man ? 6 : 10));
 	return 1;
 }
 
-int ecdw_mine_medium_detonate_handler()
+int ecdw_mine_medium_detonate_handler(void)
 {
 	ec_create_mine_detonate2(get_actor_ptr_from_id(yourself), 
 	MINE_TYPE_MEDIUM_MINE, (poor_man ? 6 : 10));
 	return 1;
 }
 
-int ecdw_mine_trap_detonate_handler()
+int ecdw_mine_trap_detonate_handler(void)
 {
 	ec_create_mine_detonate2(get_actor_ptr_from_id(yourself), MINE_TYPE_TRAP,
 		(poor_man ? 6 : 10));
 	return 1;
 }
 
-int ecdw_mine_caltrop_detonate_handler()
+int ecdw_mine_caltrop_detonate_handler(void)
 {
 	ec_create_mine_detonate2(get_actor_ptr_from_id(yourself), 
 	MINE_TYPE_CALTROP, (poor_man ? 6 : 10));
 	return 1;
 }
 
-int ecdw_mine_poisoned_caltrop_detonate_handler()
+int ecdw_mine_poisoned_caltrop_detonate_handler(void)
 {
 	ec_create_mine_detonate2(get_actor_ptr_from_id(yourself), 
 	MINE_TYPE_POISONED_CALTROP, (poor_man ? 6 : 10));
 	return 1;
 }
 
-int ecdw_mine_mana_drainer_detonate_handler()
+int ecdw_mine_mana_drainer_detonate_handler(void)
 {
 	ec_create_mine_detonate2(get_actor_ptr_from_id(yourself), 
 	MINE_TYPE_MANA_DRAINER, (poor_man ? 6 : 10));
 	return 1;
 }
 
-int ecdw_mine_mana_burner_detonate_handler()
+int ecdw_mine_mana_burner_detonate_handler(void)
 {
 	ec_create_mine_detonate2(get_actor_ptr_from_id(yourself), 
 	MINE_TYPE_MANA_BURNER, (poor_man ? 6 : 10));
 	return 1;
 }
 
-int ecdw_mine_uninvisibilizer_detonate_handler()
+int ecdw_mine_uninvisibilizer_detonate_handler(void)
 {
 	ec_create_mine_detonate2(get_actor_ptr_from_id(yourself), 
 	MINE_TYPE_UNINVIZIBILIZER, (poor_man ? 6 : 10));
 	return 1;
 }
 
-int ecdw_mine_magic_immunity_removal_detonate_handler()
+int ecdw_mine_magic_immunity_removal_detonate_handler(void)
 {
 	ec_create_mine_detonate2(get_actor_ptr_from_id(yourself), 
 	MINE_TYPE_MAGIC_IMMUNITY_REMOVAL, (poor_man ? 6 : 10));
@@ -2045,7 +2051,7 @@ int ecdw_mine_magic_immunity_removal_detonate_handler()
 }
 
 // TODO!
-int ecdw_remote_smite_summons_handler()
+int ecdw_remote_smite_summons_handler(void)
 {
 	int targetcount = 0;
 	int i;
@@ -2066,48 +2072,48 @@ int ecdw_remote_smite_summons_handler()
 	return 1;
 }
 
-int ecdw_ongoing_magic_protection_handler()
+int ecdw_ongoing_magic_protection_handler(void)
 {
 	ec_create_ongoing_magic_protection2(get_actor_ptr_from_id(yourself), 1.0,
 		1.0, (poor_man ? 6 : 10), 1.0);
 	return 1;
 }
 
-int ecdw_ongoing_shield_handler()
+int ecdw_ongoing_shield_handler(void)
 {
 	ec_create_ongoing_shield2(get_actor_ptr_from_id(yourself), 1.0, 1.0,
 		(poor_man ? 6 : 10), 1.0);
 	return 1;
 }
 
-int ecdw_ongoing_magic_immunity_handler()
+int ecdw_ongoing_magic_immunity_handler(void)
 {
 	ec_create_ongoing_magic_immunity2(get_actor_ptr_from_id(yourself), 1.0,
 		1.0, (poor_man ? 6 : 10), 1.0);
 	return 1;
 }
 
-int ecdw_ongoing_poison_handler()
+int ecdw_ongoing_poison_handler(void)
 {
 	ec_create_ongoing_poison2(get_actor_ptr_from_id(yourself), 1.0, 1.0,
 		(poor_man ? 6 : 10), 1.0);
 	return 1;
 }
 
-int ecdw_ongoing_clear_handler()
+int ecdw_ongoing_clear_handler(void)
 {
 	ec_delete_effect_type(EC_ONGOING);
 	return 1;
 }
 
-int ecdw_ongoing_harvesting_handler()
+int ecdw_ongoing_harvesting_handler(void)
 {
 	ec_create_ongoing_harvesting2(get_actor_ptr_from_id(yourself), 1.0, 1.0,
 		(poor_man ? 6 : 10), 1.0);
 	return 1;
 }
 
-int ecdw_level_up_har_handler()
+int ecdw_level_up_har_handler(void)
 {
 	ec_create_glow_level_up_default(get_actor_ptr_from_id(yourself),
 		(poor_man ? 6 : 10));
@@ -2116,7 +2122,7 @@ int ecdw_level_up_har_handler()
 	return 1;
 }
 
-int ecdw_level_up_alc_handler()
+int ecdw_level_up_alc_handler(void)
 {
 	ec_create_glow_level_up_default(get_actor_ptr_from_id(yourself),
 		(poor_man ? 6 : 10));
@@ -2127,7 +2133,7 @@ int ecdw_level_up_alc_handler()
 	return 1;
 }
 
-int ecdw_level_up_mag_handler()
+int ecdw_level_up_mag_handler(void)
 {
 	ec_create_glow_level_up_default(get_actor_ptr_from_id(yourself),
 		(poor_man ? 6 : 10));
@@ -2136,7 +2142,7 @@ int ecdw_level_up_mag_handler()
 	return 1;
 }
 
-int ecdw_level_up_pot_handler()
+int ecdw_level_up_pot_handler(void)
 {
 	ec_create_glow_level_up_default(get_actor_ptr_from_id(yourself),
 		(poor_man ? 6 : 10));
@@ -2147,7 +2153,7 @@ int ecdw_level_up_pot_handler()
 	return 1;
 }
 
-int ecdw_level_up_sum_handler()
+int ecdw_level_up_sum_handler(void)
 {
 	ec_create_glow_level_up_default(get_actor_ptr_from_id(yourself),
 		(poor_man ? 6 : 10));
@@ -2156,7 +2162,7 @@ int ecdw_level_up_sum_handler()
 	return 1;
 }
 
-int ecdw_level_up_man_handler()
+int ecdw_level_up_man_handler(void)
 {
 	ec_create_glow_level_up_default(get_actor_ptr_from_id(yourself),
 		(poor_man ? 6 : 10));
@@ -2167,7 +2173,7 @@ int ecdw_level_up_man_handler()
 	return 1;
 }
 
-int ecdw_level_up_cra_handler()
+int ecdw_level_up_cra_handler(void)
 {
 	ec_create_glow_level_up_default(get_actor_ptr_from_id(yourself),
 		(poor_man ? 6 : 10));
@@ -2178,7 +2184,7 @@ int ecdw_level_up_cra_handler()
 	return 1;
 }
 
-int ecdw_level_up_eng_handler()
+int ecdw_level_up_eng_handler(void)
 {
 	ec_create_glow_level_up_default(get_actor_ptr_from_id(yourself),
 		(poor_man ? 6 : 10));
@@ -2189,7 +2195,7 @@ int ecdw_level_up_eng_handler()
 	return 1;
 }
 
-int ecdw_level_up_tai_handler()
+int ecdw_level_up_tai_handler(void)
 {
 	ec_create_glow_level_up_default(get_actor_ptr_from_id(yourself),
 		(poor_man ? 6 : 10));
@@ -2200,7 +2206,7 @@ int ecdw_level_up_tai_handler()
 	return 1;
 }
 
-int ecdw_level_up_ran_handler()
+int ecdw_level_up_ran_handler(void)
 {
 	ec_create_glow_level_up_default(get_actor_ptr_from_id(yourself),
 		(poor_man ? 6 : 10));
@@ -2324,14 +2330,14 @@ int ecdw_explosive_arrow_handler(int type)
 	return 1;
 }
 
-int ecdw_harv_tool_break_handler()
+int ecdw_harv_tool_break_handler(void)
 {
 	ec_create_harvesting_tool_break(get_actor_ptr_from_id(yourself),
 		(poor_man ? 6 : 10));
 	return 1;
 }
 
-int ecdw_wind_leaves_handler()
+int ecdw_wind_leaves_handler(void)
 {
 	ec_bounds *bounds = ec_create_bounds_list();
 	actor *act = get_actor_ptr_from_id(yourself);
@@ -2341,7 +2347,7 @@ int ecdw_wind_leaves_handler()
 	return 1;
 }
 
-int ecdw_clouds_handler()
+int ecdw_clouds_handler(void)
 {
 	ec_bounds *bounds = ec_create_bounds_list();
 	actor *act = get_actor_ptr_from_id(yourself);

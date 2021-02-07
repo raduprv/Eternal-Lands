@@ -9,7 +9,6 @@ extern int skybox_show_clouds;
 extern int skybox_show_sun;
 extern int skybox_show_moons;
 extern int skybox_show_stars;
-extern int skybox_show_horizon_fog;
 
 // position of the sun (different from the light position!)
 extern float skybox_sun_position[4];
