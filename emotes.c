@@ -25,7 +25,11 @@
 // TO ENABLE POSES, follow comments for EMOTES_CATEGORIES, emote_cats and emote_sel
 
 #define EMOTES_CATEGORIES 1 //Set EMOTE_CATEGORIES to 5 for poses
+#ifdef ANDROID
+#define EMOTES_SHOWN 6
+#else
 #define EMOTES_SHOWN 9
+#endif
 
 #define EMOTE_SPAM_TIME 1000
 
@@ -264,7 +268,11 @@ static int ui_scale_emotes_handler(window_info *win)
 	border_space = (int)(0.5 + win->current_scale * 5);
 	top_border = border_space + win->small_font_len_y;
 	box_sep = 2 * border_space + win->small_font_len_y;
+#ifdef ANDROID
+	category_extra_y_step = win->small_font_len_y / 2;
+#else
 	category_extra_y_step = 0;
+#endif
 	category_y_step = win->small_font_len_y + category_extra_y_step;
 
 	emotes_rect_x = 2 * inbox_space + box_width;
