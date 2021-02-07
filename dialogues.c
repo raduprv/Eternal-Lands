@@ -311,12 +311,20 @@ static void calculate_option_positions(window_info *win)
 		if ((start_x + width) > (win->len_x - 2 * border_x_space))
 		{
 			start_x = border_x_space;
+#ifdef ANDROID
+			start_y += win->small_font_len_y * win->current_scale;
+#else
 			start_y += win->small_font_len_y;
+#endif
 		}
 		dialogue_responces[i].pos_x = start_x;
 		dialogue_responces[i].pos_y = start_y;
 		dialogue_responces[i].width = width;
+#ifdef ANDROID
+		start_x += width + 2 * win->small_font_max_len_x * win->current_scale;
+#else
 		start_x += width + 2 * win->small_font_max_len_x;
+#endif
 	}
 	recalc_option_positions = 0;
 }
