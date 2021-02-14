@@ -16,15 +16,16 @@ ICONV_PATH := ../iconv/
 MYGLOB_PATH := ../myglob/
 GLU_PATH := ../glu/
 
-LOCAL_C_INCLUDES := $(LOCAL_PATH)/$(SDL_PATH)/include \
+LOCAL_C_INCLUDES := \
+$(LOCAL_PATH)/$(SDL_PATH)/include \
 $(LOCAL_PATH)/$(SDL_IMAGE_PATH) \
 $(LOCAL_PATH)/$(SDL_NET_PATH) \
-$(LOCAL_PATH)/$(CAL3D_PATH)/libcal3d/src/ \
+$(LOCAL_PATH)/$(CAL3D_PATH)/src/ \
 $(LOCAL_PATH)/$(LIBXML2_PATH)/include/ \
-$(LOCAL_PATH)/$(ICONV_PATH)/libiconv/include/ \
+$(LOCAL_PATH)/$(ICONV_PATH)/include/ \
 $(LOCAL_PATH)/$(EXTRAS_PATH)/ \
 $(LOCAL_PATH)/$(GL4ES_PATH)/include/ \
-$(LOCAL_PATH)/$(GLU_PATH)/libglu/include/ \
+$(LOCAL_PATH)/$(GLU_PATH)/include/ \
 $(LOCAL_PATH)/$(MYGLOB_PATH)/include/ \
 $(LOCAL_PATH)/nlohmann_json/single_include/
 
