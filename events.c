@@ -10,7 +10,9 @@
 #include "events.h"
 #ifdef ANDROID
 #include "console.h"
+#include "consolewin.h"
 #include "elwindows.h"
+#include "multiplayer.h"
 #endif
 #include "context_menu.h"
 #include "gamewin.h"
@@ -249,6 +251,15 @@ int HandleEvent (SDL_Event *event)
 	switch( event->type )
 	{
 #ifdef ANDROID
+		case SDL_APP_DIDENTERFOREGROUND:
+			SDL_Log("App returned to forground");
+			if (disconnected && !locked_to_console)
+			{
+				SDL_Log("Reconnectecing after return to forground");
+				connect_to_server();
+			}
+			break;
+
 		case SDL_APP_TERMINATING:
 			SDL_Log("OS is terminating us...");
 			// ANDROID_TODO radu removed the save in the latest version - "might cause problems"
