@@ -313,6 +313,9 @@ extern char
 		urlcmd_invalid_str[30],
 		urlcmd_afk_str[30],
 		urlcmd_clear_str[30],
+#ifdef ANDROID
+		urlwin_longtouch_str[50],
+#endif
 		urlwin_open_str[50],
 		urlwin_clear_str[30],
 		/*draw_scene.c*/

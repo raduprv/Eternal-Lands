@@ -353,6 +353,12 @@ static int only_call_from_open_web_link__go_to_url(void * url)
 
 void open_web_link(const char * url)
 {
+#ifdef ANDROID
+#if SDL_VERSION_ATLEAST(2, 0, 14)
+	SDL_OpenURL(url);
+#endif
+	return;
+#endif
 #ifdef OSX
 	CFURLRef newurl = CFURLCreateWithString(kCFAllocatorDefault,CFStringCreateWithCStringNoCopy(NULL,url,kCFStringEncodingMacRoman, NULL),NULL);
 	LSOpenCFURLRef(newurl,NULL);
@@ -432,7 +438,11 @@ CHECK_GL_ERRORS();
 	/* if we have a status message, display it */
 	if (url_win_status)
 	{
+#ifdef ANDROID
+		char *message[] = { urlcmd_none_str, urlwin_clear_str, urlwin_longtouch_str };
+#else
 		char *message[] = { urlcmd_none_str, urlwin_clear_str, urlwin_open_str };
+#endif
 		int y_start = (url_win_text_start_y - 0.75 * win->default_font_len_y) / 2;
 		glColor3f(1.0f,1.0f,1.0f);
 		draw_string_zoomed(url_win_help_x, y_start, (unsigned char *)message[url_win_status-1], 1, 0.75 * win->current_scale);
@@ -699,6 +709,7 @@ static int click_url_handler(window_info *win, int mx, int my, Uint32 flags)
 			}
 			cm_show_direct(cm_id, -1, -1);
 		}
+#ifndef ANDROID
 		else
 		{
 			/* open the URL but block double clicks */
@@ -711,6 +722,7 @@ static int click_url_handler(window_info *win, int mx, int my, Uint32 flags)
 				open_current_url(url_win_hover_url);
 			}
 		}
+#endif
 	}
 	url_win_top_line = vscrollbar_get_pos(win->window_id, url_scroll_id);
 	return 0;

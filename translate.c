@@ -182,6 +182,9 @@ char
 	urlcmd_invalid_str[30],
 	urlcmd_afk_str[30],
 	urlcmd_clear_str[30],
+#ifdef ANDROID
+	urlwin_longtouch_str[50],
+#endif
 	urlwin_open_str[50],
 	urlwin_clear_str[30],
 	/*draw_scene.c*/
@@ -1537,6 +1540,9 @@ void init_help()
 	add_xml_identifier(misc,"invalid_url",urlcmd_invalid_str,"Invalid URL number",sizeof(urlcmd_invalid_str));
 	add_xml_identifier(misc,"afk_url",urlcmd_afk_str,"URL seen while AFK:",sizeof(urlcmd_afk_str));
 	add_xml_identifier(misc,"clear_url",urlcmd_clear_str,"clear",sizeof(urlcmd_clear_str));
+#ifdef ANDROID
+	add_xml_identifier(misc,"urlwin_longtouch",urlwin_longtouch_str,"Long-touch for open and other options",sizeof(urlwin_longtouch_str));
+#endif
 	add_xml_identifier(misc,"open_urlwin",urlwin_open_str,"Click to open; right+click for options",sizeof(urlwin_open_str));
 	add_xml_identifier(misc,"clear_urlwin",urlwin_clear_str,"Clear the URL list",sizeof(urlwin_clear_str));
 	add_xml_identifier(misc,"reset",reset_str,"Reset",sizeof(reset_str));
