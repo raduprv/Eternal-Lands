@@ -10,7 +10,7 @@ SDL_PATH := ../SDL2
 SDL_IMAGE_PATH := ../SDL2_image
 SDL_NET_PATH := ../SDL2_net
 CAL3D_PATH := ../cal3d/
-LIBXML2_PATH := ../libxml2
+XML2_PATH := ../xml2
 GL4ES_PATH := ../gl4es/
 ICONV_PATH := ../iconv/
 MYGLOB_PATH := ../myglob/
@@ -21,7 +21,7 @@ $(LOCAL_PATH)/$(SDL_PATH)/include \
 $(LOCAL_PATH)/$(SDL_IMAGE_PATH) \
 $(LOCAL_PATH)/$(SDL_NET_PATH) \
 $(LOCAL_PATH)/$(CAL3D_PATH)/src/ \
-$(LOCAL_PATH)/$(LIBXML2_PATH)/include/ \
+$(LOCAL_PATH)/$(XML2_PATH)/include/ \
 $(LOCAL_PATH)/$(ICONV_PATH)/include/ \
 $(LOCAL_PATH)/$(EXTRAS_PATH)/ \
 $(LOCAL_PATH)/$(GL4ES_PATH)/include/ \
