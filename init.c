@@ -10,7 +10,7 @@
 #include <ctype.h>
 #include <time.h>
 #ifdef TTF
-#include <SDL2/SDL_ttf.h>
+#include <SDL_ttf.h>
 #endif
 #include "astrology.h"
 #include "init.h"
