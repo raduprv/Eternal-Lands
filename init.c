@@ -13,7 +13,7 @@
 #include <gl4eshint.h>
 #endif
 #ifdef TTF
-#include <SDL2/SDL_ttf.h>
+#include <SDL_ttf.h>
 #endif
 #include "astrology.h"
 #include "init.h"
