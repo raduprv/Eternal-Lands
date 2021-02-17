@@ -463,7 +463,6 @@ CHECK_GL_ERRORS();
 		{
 			char *thetext = ((URLDATA *)local_head->data)->text;
 			int dsp_string_len = 0;
-			float string_width = 0;
 			int highlight_url = 0;
 
 			/* stop now if the url line will not fit into the window */
@@ -515,6 +514,8 @@ CHECK_GL_ERRORS();
 				Uint32 currenttime = SDL_GetTicks();
 				size_t full_help_len = strlen(((URLDATA *)local_head->data)->text) + 30;
 				char *full_help_text = (char *)malloc(sizeof(char) * full_help_len);
+				float string_width = min2i(get_string_width_zoom((const unsigned char *)((URLDATA *)local_head->data)->text,
+					win->font_category, url_win_text_zoom), url_win_max_string_width);
 
 				/* display the mouse over help next time round */
 				url_win_status = URLW_OVER;
