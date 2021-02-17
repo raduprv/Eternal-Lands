@@ -31,6 +31,7 @@
 #include "interface.h"
 #include "list.h"
 #include "load_gl_extensions.h"
+#include "misc.h"
 #include "tabs.h"
 #include "text.h"
 #include "translate.h"
