@@ -2707,11 +2707,9 @@ static void init_ELC_vars(void)
 	add_var(OPT_BOOL,"show_action_bar","ssactionbar",&show_action_bar,change_show_action_bar,0,"Action Points Bar in HUD","Show the current action points level in a stats bar on the bottom HUD.",HUD);
 	add_var(OPT_BOOL,"show_last_health_change_always","slhca",&show_last_health_change_always,change_var,0,"Always Show The Last Health Change", "Enable to always show the last health change.  Otherwise, it is only shown when the mouse is over the health bar.",HUD);
 	add_var(OPT_BOOL,"show_indicators","showindicators",&show_hud_indicators,toggle_hud_indicators_window,1,"Show Status Indicators in HUD","Show status indicators for special day (left click to show day), harvesting, poision and message count (left click to zero). Right-click the window for settings.",HUD);
-#ifndef ANDROID
 	add_var(OPT_BOOL,"logo_click_to_url","logoclick",&logo_click_to_url,change_var,0,"Logo Click To URL","Toggle clicking the LOGO opening a browser window",HUD);
 	add_var(OPT_STRING,"logo_link", "logolink", LOGO_URL_LINK, change_string, sizeof(LOGO_URL_LINK),
 		"Logo Link", "URL when clicking the logo", HUD);
-#endif
 	add_var(OPT_BOOL,"show_help_text","shelp",&show_help_text,change_var,1,"Help Text","Enable tooltips.",HUD);
 	add_var(OPT_BOOL,"always_enlarge_text","aetext",&always_enlarge_text,change_var,1,"Always Enlarge Text","Some text can be enlarged by pressing ALT or CTRL, often only while the mouse is over it.  Setting this option effectively locks the ALT/CTRL state to on.",HUD);
 	add_var(OPT_BOOL,"show_item_desc_text","showitemdesctext",&show_item_desc_text,change_var,1,"Item Description Text","Enable item description tooltips. Needs item_info.txt file.",HUD);
