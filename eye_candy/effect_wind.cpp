@@ -572,7 +572,7 @@ namespace ec
 		Vec3 velocity_shift;
 		velocity_shift.randomize();
 		velocity_shift.y /= 2;
-		velocity_shift.normalize(0.00004 * 4 * std::sqrt((double)usec));
+		velocity_shift.normalize(0.00004 * 4 * std::sqrt(usec));
 		overall_wind_adjust += velocity_shift;
 		const coord_t magnitude = overall_wind_adjust.magnitude();
 		if (magnitude > max_adjust * 3.5)

@@ -323,7 +323,7 @@ namespace ec
 		mover = NULL;
 		count = 0;
 		count_scalar = 3000 / LOD;
-		size_scalar = scale * std::sqrt((double)LOD) / sqrt(10.0);
+		size_scalar = scale * std::sqrt(LOD) / sqrt(10.0);
 
 		spawner = new FilledSphereSpawner(scale / 3.0);
 		mover = new SmokeMover(this, 10.0);

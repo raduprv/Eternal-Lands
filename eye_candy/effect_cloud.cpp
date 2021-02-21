@@ -56,7 +56,7 @@ namespace ec
 		Vec3 velocity_shift;
 		velocity_shift.randomize();
 		velocity_shift.y /= 3;
-		velocity_shift.normalize(0.00002 * std::sqrt((double)delta_t));
+		velocity_shift.normalize(0.00002 * std::sqrt(delta_t));
 		velocity += velocity_shift;
 		const coord_t magnitude = velocity.magnitude();
 		if (magnitude > 0.15)
@@ -268,7 +268,7 @@ namespace ec
 			count = 21;
 
 		alpha = 0.1725 / (1.0 / _density + 0.15);
-		size_scalar = 110.0 / std::sqrt((double)LOD + 1);
+		size_scalar = 110.0 / std::sqrt(LOD + 1);
 
 		for (int i = 0; i < count; i++)
 		{

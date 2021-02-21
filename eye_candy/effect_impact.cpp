@@ -16,7 +16,7 @@ namespace ec
 		const color_t blue, TextureEnum _texture, const Uint16 _LOD,
 		const ImpactEffect::ImpactType _type) :
 		Particle(_effect, _mover, _pos, _velocity,
-			(0.3 + randcoord()) * 15 / 3.16 / std::sqrt((double)_LOD))
+			(0.3 + randcoord()) * 15 / 3.16 / std::sqrt(_LOD))
 	{
 		type = _type;
 		color[0] = red;

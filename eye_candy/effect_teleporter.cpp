@@ -67,7 +67,7 @@ namespace ec
 		saturation_adjust = _saturation_adjust;
 		LOD = base->last_forced_LOD;
 		desired_LOD = _LOD;
-		sqrt_LOD = std::sqrt((double)LOD);
+		sqrt_LOD = std::sqrt(LOD);
 		size_scalar = 15 / (LOD + 5);
 		scale = _scale;
 		bounds = NULL;
@@ -188,7 +188,7 @@ namespace ec
 		else
 			LOD = desired_LOD;
 
-		sqrt_LOD = std::sqrt((double)LOD);
+		sqrt_LOD = std::sqrt(LOD);
 		size_scalar = 15 / (LOD + 5);
 
 		delete capless_cylinders;
