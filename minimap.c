@@ -222,9 +222,6 @@ static __inline__ void draw_actor_points(window_info *win, float zoom_multip, fl
 				glPushMatrix();
 				glDisable(GL_TEXTURE_2D);
 				rotate_actor_points(zoom_multip,px,py);
-#ifdef ANDROID
-				glLineWidth((int)(0.5 + 2.0f * win->current_scale));
-#endif
 				glBegin(GL_LINES);
 				elglColourN("minimap.cross");
 				glVertex2f(x-diff, y-diff);
