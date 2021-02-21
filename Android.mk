@@ -9,6 +9,7 @@ ELVERSION=1.9.5.8
 SDL_PATH := ../SDL2
 SDL_IMAGE_PATH := ../SDL2_image
 SDL_NET_PATH := ../SDL2_net
+SDL_TTF_PATH := ../SDL2_ttf
 CAL3D_PATH := ../cal3d/
 XML2_PATH := ../xml2
 GL4ES_PATH := ../gl4es/
@@ -20,6 +21,7 @@ LOCAL_C_INCLUDES := \
 $(LOCAL_PATH)/$(SDL_PATH)/include \
 $(LOCAL_PATH)/$(SDL_IMAGE_PATH) \
 $(LOCAL_PATH)/$(SDL_NET_PATH) \
+$(LOCAL_PATH)/$(SDL_TTF_PATH) \
 $(LOCAL_PATH)/$(CAL3D_PATH)/src/ \
 $(LOCAL_PATH)/$(XML2_PATH)/include/ \
 $(LOCAL_PATH)/$(ICONV_PATH)/include/ \
@@ -42,6 +44,7 @@ LOCAL_CFLAGS := \
 	-DFUZZY_PATHS \
 	-DBANDWIDTH_SAVINGS \
 	-DANIMATION_SCALING \
+	-DTTF \
 	-DGIT_VERSION=\"$(ELVERSION)\"
 
 # Add your application source files here...
@@ -249,6 +252,7 @@ LOCAL_SHARED_LIBRARIES := \
 	SDL2 \
 	SDL2_image \
 	SDL2_net \
+	SDL2_ttf \
 	libGL \
 	cal3d \
 	iconv \

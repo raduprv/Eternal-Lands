@@ -2816,9 +2816,9 @@ static void init_ELC_vars(void)
 #endif
 	add_var(OPT_FLOAT,"ui_text_size","uisize",&font_scales[UI_FONT],change_text_zoom,1,"UI Text Size","Set the size of the text in the user interface",FONT,0.8,1.2,0.01);
 	add_var(OPT_MULTI,"ui_font","uifont",&font_idxs[UI_FONT],change_font,0,"UI Font","Change the type of font used in the user interface",FONT, NULL);
-	add_var(OPT_FLOAT,"name_text_size","nsize",&font_scales[NAME_FONT],change_text_zoom,1,"Name Text Size","Set the size of the players name text",FONT,0.1,2.0,0.01);
+	add_var(OPT_FLOAT,"name_text_size","nsize",&font_scales[NAME_FONT],change_text_zoom,1,"Name Text Size","Set the size of the players name text",FONT,0.1,3.0,0.01);
 	add_var(OPT_MULTI,"name_font","nfont",&font_idxs[NAME_FONT],change_font,0,"Name Font","Change the type of font used for the name",FONT, NULL);
-	add_var(OPT_FLOAT,"chat_text_size","csize",&font_scales[CHAT_FONT],change_chat_zoom,1,"Chat Text Size","Sets the size of the normal text",FONT,0.1,2.0,0.01);
+	add_var(OPT_FLOAT,"chat_text_size","csize",&font_scales[CHAT_FONT],change_chat_zoom,1,"Chat Text Size","Sets the size of the normal text",FONT,0.1,3.0,0.01);
 	add_var(OPT_MULTI,"chat_font","cfont",&font_idxs[CHAT_FONT],change_font,0,"Chat Font","Set the type of font used for normal text",FONT, NULL);
 	add_var(OPT_FLOAT,"book_text_size","bsize",&font_scales[BOOK_FONT],change_text_zoom,1,"Book Text Size","Set the size of the text in in-game books",FONT,0.1,2.0,0.01);
 	add_var(OPT_MULTI,"book_font","bfont",&font_idxs[BOOK_FONT],change_font,0,"Book Font","Set the type of font used for text in in-game books",FONT, NULL);
@@ -3655,7 +3655,11 @@ static void elconfig_populate_tabs(void)
 	int y_label, y_widget, dx, dy, iopt;
 	int spin_button_width = max2i(ELCONFIG_SCALED_VALUE(100),
 		4 * get_max_digit_width_zoom(CONFIG_FONT, elconf_scale) + 4 * (int)(0.5 + 5 * elconf_scale));
+#ifdef ANDROID
+	int right_margin = CHECKBOX_SIZE + TAB_MARGIN;
+#else
 	int right_margin = TAB_MARGIN;
+#endif
 	int multi_height = 3 * MULTI_LINE_HEIGHT;
 
 	for(i= 0; i < MAX_TABS; i++) {
