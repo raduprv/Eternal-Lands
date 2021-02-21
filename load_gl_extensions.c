@@ -11,8 +11,12 @@
 #include "gl_init.h"
 
 #ifdef ANDROID
-// ANDROID_TODO investigte why we crash without thse changes, possibly updated libraries?
+// replace all calls to SDL_GL_GetProcAddress with glXGetProcAddress
+// "This is necessary in environments where the OpenGL link library
+// exports a different set of functions than the runtime library."
+// https://www.khronos.org/registry/OpenGL-Refpages/gl2.1/xhtml/glXGetProcAddress.xml
 void *glXGetProcAddress(const char *name);
+#define SDL_GL_GetProcAddress glXGetProcAddress
 #endif
 
 const char* gl_versions_str[] = { "1.1", "1.2", "1.3", "1.4", "1.5", "2.0", "2.1" };
@@ -335,7 +339,6 @@ static GLboolean el_init_GL_VERSION_1_2()
 /*	GL_VERSION_1_2		*/
 
 /*	GL_VERSION_1_3		*/
-#ifndef ANDROID
 static GLboolean el_init_GL_VERSION_1_3()
 {
 	GLboolean r = GL_TRUE;
@@ -389,62 +392,6 @@ static GLboolean el_init_GL_VERSION_1_3()
 
 	return r;
 }
-#else
-static GLboolean el_init_GL_VERSION_1_3()
-{
-	GLboolean r = GL_TRUE;
-
-	r = ((ELglActiveTexture = (PFNGLACTIVETEXTUREPROC)SDL_GL_GetProcAddress("glActiveTexture")) != NULL) && r;
-	r = ((ELglClientActiveTexture = (PFNGLCLIENTACTIVETEXTUREPROC)SDL_GL_GetProcAddress("glClientActiveTexture")) != NULL) && r;
-	r = ((ELglCompressedTexImage1D = (PFNGLCOMPRESSEDTEXIMAGE1DPROC)SDL_GL_GetProcAddress("glCompressedTexImage1D")) != NULL) && r;
-	r = ((ELglCompressedTexImage2D = (PFNGLCOMPRESSEDTEXIMAGE2DPROC)SDL_GL_GetProcAddress("glCompressedTexImage2D")) != NULL) && r;
-	r = ((ELglCompressedTexImage3D = (PFNGLCOMPRESSEDTEXIMAGE3DPROC)SDL_GL_GetProcAddress("glCompressedTexImage3D")) != NULL) && r;
-	r = ((ELglCompressedTexSubImage1D = (PFNGLCOMPRESSEDTEXSUBIMAGE1DPROC)SDL_GL_GetProcAddress("glCompressedTexSubImage1D")) != NULL) && r;
-	r = ((ELglCompressedTexSubImage2D = (PFNGLCOMPRESSEDTEXSUBIMAGE2DPROC)SDL_GL_GetProcAddress("glCompressedTexSubImage2D")) != NULL) && r;
-	r = ((ELglCompressedTexSubImage3D = (PFNGLCOMPRESSEDTEXSUBIMAGE3DPROC)SDL_GL_GetProcAddress("glCompressedTexSubImage3D")) != NULL) && r;
-	r = ((ELglGetCompressedTexImage = (PFNGLGETCOMPRESSEDTEXIMAGEPROC)SDL_GL_GetProcAddress("glGetCompressedTexImage")) != NULL) && r;
-	r = ((ELglLoadTransposeMatrixd = (PFNGLLOADTRANSPOSEMATRIXDPROC)SDL_GL_GetProcAddress("glLoadTransposeMatrixd")) != NULL) && r;
-	r = ((ELglLoadTransposeMatrixf = (PFNGLLOADTRANSPOSEMATRIXFPROC)SDL_GL_GetProcAddress("glLoadTransposeMatrixf")) != NULL) && r;
-	r = ((ELglMultTransposeMatrixd = (PFNGLMULTTRANSPOSEMATRIXDPROC)SDL_GL_GetProcAddress("glMultTransposeMatrixd")) != NULL) && r;
-	r = ((ELglMultTransposeMatrixf = (PFNGLMULTTRANSPOSEMATRIXFPROC)SDL_GL_GetProcAddress("glMultTransposeMatrixf")) != NULL) && r;
-	r = ((ELglMultiTexCoord1d = (PFNGLMULTITEXCOORD1DPROC)SDL_GL_GetProcAddress("glMultiTexCoord1d")) != NULL) && r;
-	r = ((ELglMultiTexCoord1dv = (PFNGLMULTITEXCOORD1DVPROC)SDL_GL_GetProcAddress("glMultiTexCoord1dv")) != NULL) && r;
-	r = ((ELglMultiTexCoord1f = (PFNGLMULTITEXCOORD1FPROC)SDL_GL_GetProcAddress("glMultiTexCoord1f")) != NULL) && r;
-	r = ((ELglMultiTexCoord1fv = (PFNGLMULTITEXCOORD1FVPROC)SDL_GL_GetProcAddress("glMultiTexCoord1fv")) != NULL) && r;
-	r = ((ELglMultiTexCoord1i = (PFNGLMULTITEXCOORD1IPROC)SDL_GL_GetProcAddress("glMultiTexCoord1i")) != NULL) && r;
-	r = ((ELglMultiTexCoord1iv = (PFNGLMULTITEXCOORD1IVPROC)SDL_GL_GetProcAddress("glMultiTexCoord1iv")) != NULL) && r;
-	r = ((ELglMultiTexCoord1s = (PFNGLMULTITEXCOORD1SPROC)SDL_GL_GetProcAddress("glMultiTexCoord1s")) != NULL) && r;
-	r = ((ELglMultiTexCoord1sv = (PFNGLMULTITEXCOORD1SVPROC)SDL_GL_GetProcAddress("glMultiTexCoord1sv")) != NULL) && r;
-	r = ((ELglMultiTexCoord2d = (PFNGLMULTITEXCOORD2DPROC)SDL_GL_GetProcAddress("glMultiTexCoord2d")) != NULL) && r;
-	r = ((ELglMultiTexCoord2dv = (PFNGLMULTITEXCOORD2DVPROC)SDL_GL_GetProcAddress("glMultiTexCoord2dv")) != NULL) && r;
-	r = ((ELglMultiTexCoord2f = (PFNGLMULTITEXCOORD2FPROC)SDL_GL_GetProcAddress("glMultiTexCoord2f")) != NULL) && r;
-	r = ((ELglMultiTexCoord2fv = (PFNGLMULTITEXCOORD2FVPROC)SDL_GL_GetProcAddress("glMultiTexCoord2fv")) != NULL) && r;
-	r = ((ELglMultiTexCoord2i = (PFNGLMULTITEXCOORD2IPROC)SDL_GL_GetProcAddress("glMultiTexCoord2i")) != NULL) && r;
-	r = ((ELglMultiTexCoord2iv = (PFNGLMULTITEXCOORD2IVPROC)SDL_GL_GetProcAddress("glMultiTexCoord2iv")) != NULL) && r;
-	r = ((ELglMultiTexCoord2s = (PFNGLMULTITEXCOORD2SPROC)SDL_GL_GetProcAddress("glMultiTexCoord2s")) != NULL) && r;
-	r = ((ELglMultiTexCoord2sv = (PFNGLMULTITEXCOORD2SVPROC)SDL_GL_GetProcAddress("glMultiTexCoord2sv")) != NULL) && r;
-	r = ((ELglMultiTexCoord3d = (PFNGLMULTITEXCOORD3DPROC)SDL_GL_GetProcAddress("glMultiTexCoord3d")) != NULL) && r;
-	r = ((ELglMultiTexCoord3dv = (PFNGLMULTITEXCOORD3DVPROC)SDL_GL_GetProcAddress("glMultiTexCoord3dv")) != NULL) && r;
-	r = ((ELglMultiTexCoord3f = (PFNGLMULTITEXCOORD3FPROC)SDL_GL_GetProcAddress("glMultiTexCoord3f")) != NULL) && r;
-	r = ((ELglMultiTexCoord3fv = (PFNGLMULTITEXCOORD3FVPROC)SDL_GL_GetProcAddress("glMultiTexCoord3fv")) != NULL) && r;
-	r = ((ELglMultiTexCoord3i = (PFNGLMULTITEXCOORD3IPROC)SDL_GL_GetProcAddress("glMultiTexCoord3i")) != NULL) && r;
-	r = ((ELglMultiTexCoord3iv = (PFNGLMULTITEXCOORD3IVPROC)SDL_GL_GetProcAddress("glMultiTexCoord3iv")) != NULL) && r;
-	r = ((ELglMultiTexCoord3s = (PFNGLMULTITEXCOORD3SPROC)SDL_GL_GetProcAddress("glMultiTexCoord3s")) != NULL) && r;
-	r = ((ELglMultiTexCoord3sv = (PFNGLMULTITEXCOORD3SVPROC)SDL_GL_GetProcAddress("glMultiTexCoord3sv")) != NULL) && r;
-	r = ((ELglMultiTexCoord4d = (PFNGLMULTITEXCOORD4DPROC)SDL_GL_GetProcAddress("glMultiTexCoord4d")) != NULL) && r;
-	r = ((ELglMultiTexCoord4dv = (PFNGLMULTITEXCOORD4DVPROC)SDL_GL_GetProcAddress("glMultiTexCoord4dv")) != NULL) && r;
-	r = ((ELglMultiTexCoord4f = (PFNGLMULTITEXCOORD4FPROC)SDL_GL_GetProcAddress("glMultiTexCoord4f")) != NULL) && r;
-	r = ((ELglMultiTexCoord4fv = (PFNGLMULTITEXCOORD4FVPROC)SDL_GL_GetProcAddress("glMultiTexCoord4fv")) != NULL) && r;
-	r = ((ELglMultiTexCoord4i = (PFNGLMULTITEXCOORD4IPROC)SDL_GL_GetProcAddress("glMultiTexCoord4i")) != NULL) && r;
-	r = ((ELglMultiTexCoord4iv = (PFNGLMULTITEXCOORD4IVPROC)SDL_GL_GetProcAddress("glMultiTexCoord4iv")) != NULL) && r;
-	r = ((ELglMultiTexCoord4s = (PFNGLMULTITEXCOORD4SPROC)SDL_GL_GetProcAddress("glMultiTexCoord4s")) != NULL) && r;
-	r = ((ELglMultiTexCoord4sv = (PFNGLMULTITEXCOORD4SVPROC)SDL_GL_GetProcAddress("glMultiTexCoord4sv")) != NULL) && r;
-	r = ((ELglSampleCoverage = (PFNGLSAMPLECOVERAGEPROC)SDL_GL_GetProcAddress("glSampleCoverage")) != NULL) && r;
-
-	return r;
-}
-
-#endif
 /*	GL_VERSION_1_3		*/
 
 /*	GL_VERSION_1_4		*/
@@ -882,7 +829,6 @@ PFNGLPROGRAMENVPARAMETERS4FVEXTPROC ELglProgramEnvParameters4fvEXT = NULL;
 PFNGLPROGRAMLOCALPARAMETERS4FVEXTPROC ELglProgramLocalParameters4fvEXT = NULL;
 /*	GL_EXT_gpu_program_parameters	*/
 
-#ifndef ANDROID
 static GLboolean el_init_GL_ARB_multitexture()
 {
 	GLboolean r = GL_TRUE;
@@ -924,127 +870,7 @@ static GLboolean el_init_GL_ARB_multitexture()
 
 	return r;
 }
-#else
-static GLboolean el_init_GL_ARB_multitexture()
-{
-	GLboolean r = GL_TRUE;
 
-	//ELglActiveTextureARB = glActiveTextureARB;
-	ELglActiveTextureARB = glActiveTexture;
-	//ELglClientActiveTextureARB = glClientActiveTextureARB;
-	ELglClientActiveTextureARB = glClientActiveTexture;
-	//ELglMultiTexCoord2fARB =glMultiTexCoord2fARB;
-	ELglMultiTexCoord2fARB =glMultiTexCoord2f;
-	ELglActiveTexture = glActiveTexture;
-
-	r = ((ELglBindBufferARB = (PFNGLBINDBUFFERARBPROC)SDL_GL_GetProcAddress("glBindBuffer")) != NULL) && r;
-	//SDL_Log("r: %i",r);
-	r = ((ELglBufferDataARB = (PFNGLBUFFERDATAARBPROC)SDL_GL_GetProcAddress("glBufferData")) != NULL) && r;
-	//SDL_Log("r: %i",r);
-	r = ((ELglBufferSubDataARB = (PFNGLBUFFERSUBDATAARBPROC)SDL_GL_GetProcAddress("glBufferSubData")) != NULL) && r;
-	//SDL_Log("r: %i",r);
-	r = ((ELglDeleteBuffersARB = (PFNGLDELETEBUFFERSARBPROC)SDL_GL_GetProcAddress("glDeleteBuffers")) != NULL) && r;
-	//SDL_Log("r: %i",r);
-	r = ((ELglGenBuffersARB = (PFNGLGENBUFFERSARBPROC)SDL_GL_GetProcAddress("glGenBuffers")) != NULL) && r;
-	//SDL_Log("r: %i",r);
-	r = ((ELglGetBufferParameterivARB = (PFNGLGETBUFFERPARAMETERIVARBPROC)SDL_GL_GetProcAddress("glGetBufferParameteriv")) != NULL) && r;
-	//SDL_Log("r: %i",r);
-	r = ((ELglGetBufferPointervARB = (PFNGLGETBUFFERPOINTERVARBPROC)SDL_GL_GetProcAddress("glGetBufferPointerv")) != NULL) && r;
-	//SDL_Log("r: %i",r);
-	r = ((ELglGetBufferSubDataARB = (PFNGLGETBUFFERSUBDATAARBPROC)SDL_GL_GetProcAddress("glGetBufferSubData")) != NULL) && r;
-	//SDL_Log("r: %i",r);
-	r = ((ELglIsBufferARB = (PFNGLISBUFFERARBPROC)SDL_GL_GetProcAddress("glIsBuffer")) != NULL) && r;
-	//SDL_Log("r: %i",r);
-	r = ((ELglMapBufferARB = (PFNGLMAPBUFFERARBPROC)SDL_GL_GetProcAddress("glMapBuffer")) != NULL) && r;
-	//SDL_Log("r: %i",r);
-	r = ((ELglUnmapBufferARB = (PFNGLUNMAPBUFFERARBPROC)SDL_GL_GetProcAddress("glUnmapBuffer")) != NULL) && r;
-	//SDL_Log("r: %i",r);
-
-
-	//return r;
-
-	//it doesn't belong here, but whatever
-	/*
-	ELglBindBufferARB = glBindBuffer;
-	ELglBufferDataARB = glBufferDataARB;
-	ELglBufferSubDataARB = glBufferSubDataARB;
-	ELglDeleteBuffersARB = glDeleteBuffersARB;
-	ELglGenBuffersARB = glGenBuffersARB;
-	ELglGetBufferParameterivARB = glGetBufferParameterivARB;
-	ELglGetBufferPointervARB = glGetBufferPointervARB;
-	ELglGetBufferSubDataARB = glGetBufferSubDataARB;
-	ELglIsBufferARB = glIsBufferARB;
-	ELglMapBufferARB = glMapBufferARB;
-	ELglUnmapBufferARB = glUnmapBufferARB;
-*/
-	ELglBindBufferARB = glXGetProcAddress("glBindBuffer");
-	ELglBufferDataARB = glXGetProcAddress("glBufferDataARB");
-	ELglBufferSubDataARB = glXGetProcAddress("glBufferSubDataARB");
-	ELglDeleteBuffersARB = glXGetProcAddress("glDeleteBuffersARB");
-	ELglGenBuffersARB = glXGetProcAddress("glGenBuffers");
-	ELglGetBufferParameterivARB = glXGetProcAddress("glGetBufferParameterivARB");
-	ELglGetBufferPointervARB = glXGetProcAddress("glGetBufferPointervARB");
-	ELglGetBufferSubDataARB = glXGetProcAddress("glGetBufferSubDataARB");
-	ELglIsBufferARB = glXGetProcAddress("glIsBufferARB");
-	ELglMapBufferARB = glXGetProcAddress("glMapBufferARB");
-	ELglUnmapBufferARB = glXGetProcAddress("glUnmapBufferARB");
-
-	ELglMultiTexCoord1f = glXGetProcAddress("glMultiTexCoord1f");
-
-	ELglGenFramebuffersEXT = glXGetProcAddress("glGenFramebuffersEXT");
-	ELglGenRenderbuffersEXT = glXGetProcAddress("glGenRenderbuffersEXT");
-	ELglBindFramebufferEXT = glXGetProcAddress("glBindFramebufferEXT");
-	ELglBindRenderbufferEXT = glXGetProcAddress("glBindRenderbufferEXT");
-	ELglRenderbufferStorageEXT = glXGetProcAddress("glRenderbufferStorageEXT");
-	ELglFramebufferRenderbufferEXT = glXGetProcAddress("glFramebufferRenderbufferEXT");
-	ELglFramebufferTexture2DEXT = glXGetProcAddress("glFramebufferTexture2DEXT");
-	ELglDeleteFramebuffersEXT = glXGetProcAddress("glDeleteFramebuffersEXT");
-	ELglDeleteRenderbuffersEXT = glXGetProcAddress("glDeleteRenderbuffersEXT");
-
-//	SDL_Log("r: %i",ELglBufferDataARB);
-//	SDL_Log("r: %i",ELglUnmapBufferARB);
-//	SDL_Log("ELglGenFramebuffersEXT: %i",ELglGenFramebuffersEXT);
-
-
-/*
-	r = ((ELglMultiTexCoord1dARB = (PFNGLMULTITEXCOORD1DARBPROC)SDL_GL_GetProcAddress("glMultiTexCoord1dARB")) != NULL) && r;
-	r = ((ELglMultiTexCoord1dvARB = (PFNGLMULTITEXCOORD1DVARBPROC)SDL_GL_GetProcAddress("glMultiTexCoord1dvARB")) != NULL) && r;
-	r = ((ELglMultiTexCoord1fARB = (PFNGLMULTITEXCOORD1FARBPROC)SDL_GL_GetProcAddress("glMultiTexCoord1fARB")) != NULL) && r;
-	r = ((ELglMultiTexCoord1fvARB = (PFNGLMULTITEXCOORD1FVARBPROC)SDL_GL_GetProcAddress("glMultiTexCoord1fvARB")) != NULL) && r;
-	r = ((ELglMultiTexCoord1iARB = (PFNGLMULTITEXCOORD1IARBPROC)SDL_GL_GetProcAddress("glMultiTexCoord1iARB")) != NULL) && r;
-	r = ((ELglMultiTexCoord1ivARB = (PFNGLMULTITEXCOORD1IVARBPROC)SDL_GL_GetProcAddress("glMultiTexCoord1ivARB")) != NULL) && r;
-	r = ((ELglMultiTexCoord1sARB = (PFNGLMULTITEXCOORD1SARBPROC)SDL_GL_GetProcAddress("glMultiTexCoord1sARB")) != NULL) && r;
-	r = ((ELglMultiTexCoord1svARB = (PFNGLMULTITEXCOORD1SVARBPROC)SDL_GL_GetProcAddress("glMultiTexCoord1svARB")) != NULL) && r;
-	r = ((ELglMultiTexCoord2dARB = (PFNGLMULTITEXCOORD2DARBPROC)SDL_GL_GetProcAddress("glMultiTexCoord2dARB")) != NULL) && r;
-	r = ((ELglMultiTexCoord2dvARB = (PFNGLMULTITEXCOORD2DVARBPROC)SDL_GL_GetProcAddress("glMultiTexCoord2dvARB")) != NULL) && r;
-	r = ((ELglMultiTexCoord2fvARB = (PFNGLMULTITEXCOORD2FVARBPROC)SDL_GL_GetProcAddress("glMultiTexCoord2fvARB")) != NULL) && r;
-	r = ((ELglMultiTexCoord2iARB = (PFNGLMULTITEXCOORD2IARBPROC)SDL_GL_GetProcAddress("glMultiTexCoord2iARB")) != NULL) && r;
-	r = ((ELglMultiTexCoord2ivARB = (PFNGLMULTITEXCOORD2IVARBPROC)SDL_GL_GetProcAddress("glMultiTexCoord2ivARB")) != NULL) && r;
-	r = ((ELglMultiTexCoord2sARB = (PFNGLMULTITEXCOORD2SARBPROC)SDL_GL_GetProcAddress("glMultiTexCoord2sARB")) != NULL) && r;
-	r = ((ELglMultiTexCoord2svARB = (PFNGLMULTITEXCOORD2SVARBPROC)SDL_GL_GetProcAddress("glMultiTexCoord2svARB")) != NULL) && r;
-	r = ((ELglMultiTexCoord3dARB = (PFNGLMULTITEXCOORD3DARBPROC)SDL_GL_GetProcAddress("glMultiTexCoord3dARB")) != NULL) && r;
-	r = ((ELglMultiTexCoord3dvARB = (PFNGLMULTITEXCOORD3DVARBPROC)SDL_GL_GetProcAddress("glMultiTexCoord3dvARB")) != NULL) && r;
-	r = ((ELglMultiTexCoord3fARB = (PFNGLMULTITEXCOORD3FARBPROC)SDL_GL_GetProcAddress("glMultiTexCoord3fARB")) != NULL) && r;
-	r = ((ELglMultiTexCoord3fvARB = (PFNGLMULTITEXCOORD3FVARBPROC)SDL_GL_GetProcAddress("glMultiTexCoord3fvARB")) != NULL) && r;
-	r = ((ELglMultiTexCoord3iARB = (PFNGLMULTITEXCOORD3IARBPROC)SDL_GL_GetProcAddress("glMultiTexCoord3iARB")) != NULL) && r;
-	r = ((ELglMultiTexCoord3ivARB = (PFNGLMULTITEXCOORD3IVARBPROC)SDL_GL_GetProcAddress("glMultiTexCoord3ivARB")) != NULL) && r;
-	r = ((ELglMultiTexCoord3sARB = (PFNGLMULTITEXCOORD3SARBPROC)SDL_GL_GetProcAddress("glMultiTexCoord3sARB")) != NULL) && r;
-	r = ((ELglMultiTexCoord3svARB = (PFNGLMULTITEXCOORD3SVARBPROC)SDL_GL_GetProcAddress("glMultiTexCoord3svARB")) != NULL) && r;
-	r = ((ELglMultiTexCoord4dARB = (PFNGLMULTITEXCOORD4DARBPROC)SDL_GL_GetProcAddress("glMultiTexCoord4dARB")) != NULL) && r;
-	r = ((ELglMultiTexCoord4dvARB = (PFNGLMULTITEXCOORD4DVARBPROC)SDL_GL_GetProcAddress("glMultiTexCoord4dvARB")) != NULL) && r;
-	r = ((ELglMultiTexCoord4fARB = (PFNGLMULTITEXCOORD4FARBPROC)SDL_GL_GetProcAddress("glMultiTexCoord4fARB")) != NULL) && r;
-	r = ((ELglMultiTexCoord4fvARB = (PFNGLMULTITEXCOORD4FVARBPROC)SDL_GL_GetProcAddress("glMultiTexCoord4fvARB")) != NULL) && r;
-	r = ((ELglMultiTexCoord4iARB = (PFNGLMULTITEXCOORD4IARBPROC)SDL_GL_GetProcAddress("glMultiTexCoord4iARB")) != NULL) && r;
-	r = ((ELglMultiTexCoord4ivARB = (PFNGLMULTITEXCOORD4IVARBPROC)SDL_GL_GetProcAddress("glMultiTexCoord4ivARB")) != NULL) && r;
-	r = ((ELglMultiTexCoord4sARB = (PFNGLMULTITEXCOORD4SARBPROC)SDL_GL_GetProcAddress("glMultiTexCoord4sARB")) != NULL) && r;
-	r = ((ELglMultiTexCoord4svARB = (PFNGLMULTITEXCOORD4SVARBPROC)SDL_GL_GetProcAddress("glMultiTexCoord4svARB")) != NULL) && r;
-*/
-	return GL_TRUE;
-	//return 0;
-}
-#endif
-
-#ifndef ANDROID
 static GLboolean el_init_GL_ARB_texture_compression()
 {
 	GLboolean r = GL_TRUE;
@@ -1059,36 +885,6 @@ static GLboolean el_init_GL_ARB_texture_compression()
 
 	return r;
 }
-#else
-static GLboolean el_init_GL_ARB_texture_compression()
-{
-	GLboolean r = GL_TRUE;
-
-	ELglCompressedTexImage1DARB=glCompressedTexImage1D;
-
-	//SDL_Log("Compression:");
-
-	r = ((ELglCompressedTexImage1DARB = (PFNGLCOMPRESSEDTEXIMAGE1DARBPROC)SDL_GL_GetProcAddress("glCompressedTexImage1DARB")) != NULL) && r;
-	//SDL_Log("r: %i",r);
-	r = ((ELglCompressedTexImage2DARB = (PFNGLCOMPRESSEDTEXIMAGE2DARBPROC)SDL_GL_GetProcAddress("glCompressedTexImage2DARB")) != NULL) && r;
-	//SDL_Log("r: %i",r);
-	r = ((ELglCompressedTexImage3DARB = (PFNGLCOMPRESSEDTEXIMAGE3DARBPROC)SDL_GL_GetProcAddress("glCompressedTexImage3DARB")) != NULL) && r;
-	//SDL_Log("r: %i",r);
-	r = ((ELglCompressedTexSubImage1DARB = (PFNGLCOMPRESSEDTEXSUBIMAGE1DARBPROC)SDL_GL_GetProcAddress("glCompressedTexSubImage1DARB")) != NULL) && r;
-	//SDL_Log("r: %i",r);
-	r = ((ELglCompressedTexSubImage2DARB = (PFNGLCOMPRESSEDTEXSUBIMAGE2DARBPROC)SDL_GL_GetProcAddress("glCompressedTexSubImage2DARB")) != NULL) && r;
-	//SDL_Log("r: %i",r);
-	r = ((ELglCompressedTexSubImage3DARB = (PFNGLCOMPRESSEDTEXSUBIMAGE3DARBPROC)SDL_GL_GetProcAddress("glCompressedTexSubImage3DARB")) != NULL) && r;
-	//SDL_Log("r: %i",r);
-	r = ((ELglGetCompressedTexImageARB = (PFNGLGETCOMPRESSEDTEXIMAGEARBPROC)SDL_GL_GetProcAddress("glGetCompressedTexImageARB")) != NULL) && r;
-	//SDL_Log("r: %i",r);
-
-	ELglCompressedTexImage2D = glCompressedTexImage2D;
-
-	return 1;
-}
-
-#endif
 
 static GLboolean el_init_GL_ARB_point_parameters()
 {
@@ -1103,7 +899,7 @@ static GLboolean el_init_GL_ARB_point_parameters()
 static GLboolean el_init_GL_ARB_vertex_buffer_object()
 {
 	GLboolean r = GL_TRUE;
-#ifndef ANDROID
+
 	r = ((ELglBindBufferARB = (PFNGLBINDBUFFERARBPROC)SDL_GL_GetProcAddress("glBindBufferARB")) != NULL) && r;
 	r = ((ELglBufferDataARB = (PFNGLBUFFERDATAARBPROC)SDL_GL_GetProcAddress("glBufferDataARB")) != NULL) && r;
 	r = ((ELglBufferSubDataARB = (PFNGLBUFFERSUBDATAARBPROC)SDL_GL_GetProcAddress("glBufferSubDataARB")) != NULL) && r;
@@ -1117,9 +913,6 @@ static GLboolean el_init_GL_ARB_vertex_buffer_object()
 	r = ((ELglUnmapBufferARB = (PFNGLUNMAPBUFFERARBPROC)SDL_GL_GetProcAddress("glUnmapBufferARB")) != NULL) && r;
 
 	return r;
-#else
-	return 1;
-#endif
 }
 
 static GLboolean el_init_GL_ARB_occlusion_query()
@@ -1285,7 +1078,6 @@ static GLboolean el_init_GL_EXT_draw_range_elements()
 	return r;
 }
 
-#ifndef ANDROID
 static GLboolean el_init_GL_EXT_framebuffer_object()
 {
 	GLboolean r = GL_TRUE;
@@ -1310,12 +1102,6 @@ static GLboolean el_init_GL_EXT_framebuffer_object()
 
 	return r;
 }
-#else
-static GLboolean el_init_GL_EXT_framebuffer_object()
-{
-	return 1;
-}
-#endif
 
 static GLboolean el_init_GL_EXT_fog_coord()
 {
@@ -1673,7 +1459,6 @@ const char* get_gl_version_str()
 	return gl_versions_str[gl_version];
 }
 
-#ifndef ANDROID
 GLboolean supports_gl_version(Uint8 major, Uint8 minor)
 {
 	if (gl_versions[gl_version] >= ((major << 8) + minor))
@@ -1685,10 +1470,4 @@ GLboolean supports_gl_version(Uint8 major, Uint8 minor)
 		return GL_FALSE;
 	}
 }
-#else
-GLboolean supports_gl_version(Uint8 major, Uint8 minor)
-{
-	return GL_TRUE;
-}
 
-#endif
