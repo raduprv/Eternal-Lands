@@ -150,6 +150,8 @@ static int recheck_window_scale = 0;
 #define ELCONFIG_SCALED_VALUE(BASE) ((int)(0.5 + ((BASE) * elconf_scale)))
 #endif
 
+#define MULTI_LINE_HEIGHT (ELCONFIG_SCALED_VALUE(22) + SPACING)
+
 typedef char input_line[256];
 
 /*!
@@ -2533,7 +2535,7 @@ void add_multi_option_with_id(const char* name, const char* str, const char* id,
 		{
 			int n = our_vars.var[var_index]->args.multi.count - 1;
 			multiselect_button_add_extended(window_id, widget_id,
-				0, n * (ELCONFIG_SCALED_VALUE(22)+SPACING), 0, str,
+				0, n * MULTI_LINE_HEIGHT, 0, str,
 				elconf_scale * DEFAULT_SMALL_RATIO, 0);
 		}
 	}
@@ -3518,6 +3520,8 @@ static void elconfig_populate_tabs(void)
 	int y_label, y_widget, dx, dy, iopt;
 	int spin_button_width = max2i(ELCONFIG_SCALED_VALUE(100),
 		4 * get_max_digit_width_zoom(CONFIG_FONT, elconf_scale) + 4 * (int)(0.5 + 5 * elconf_scale));
+	int right_margin = TAB_MARGIN;
+	int multi_height = 3 * MULTI_LINE_HEIGHT;
 
 	for(i= 0; i < MAX_TABS; i++) {
 		//Set default values
@@ -3565,7 +3569,7 @@ static void elconfig_populate_tabs(void)
 					current_x, current_y, 0, elconf_scale, (char*)var->display.str);
 				widget_width = spin_button_width;
 				widget_id = spinbutton_add_extended(window_id, elconfig_free_widget_id++, NULL,
-					window_width - TAB_MARGIN - widget_width, current_y, widget_width, line_height,
+					window_width - right_margin - widget_width, current_y, widget_width, line_height,
 					SPIN_INT, var->var, var->args.imm.min,
 					var->args.imm.max, 1.0, elconf_scale);
 				widget_set_OnKey(window_id, widget_id, (int (*)())spinbutton_onkey_handler);
@@ -3576,7 +3580,7 @@ static void elconfig_populate_tabs(void)
 					current_x, current_y, 0, elconf_scale, (char*)var->display.str);
 				widget_width = spin_button_width;
 				widget_id = spinbutton_add_extended(window_id, elconfig_free_widget_id++, NULL,
-					window_width - TAB_MARGIN - widget_width, current_y, widget_width, line_height,
+					window_width - right_margin - widget_width, current_y, widget_width, line_height,
 					SPIN_FLOAT, var->var, var->args.fmmi.min, var->args.fmmi.max,
 					var->args.fmmi.interval, elconf_scale);
 				widget_set_OnKey(window_id, widget_id, (int (*)())spinbutton_onkey_handler);
@@ -3588,7 +3592,7 @@ static void elconfig_populate_tabs(void)
 					continue;
 				widget_width = ELCONFIG_SCALED_VALUE(332);
 				widget_id = pword_field_add_extended(window_id, elconfig_free_widget_id++, NULL,
-					window_width - TAB_MARGIN - widget_width, current_y, widget_width, 0,
+					window_width - right_margin - widget_width, current_y, widget_width, 0,
 					P_TEXT, elconf_scale, var->var, var->len);
 				dy = widget_get_height(window_id, widget_id) - line_height;
 				label_id = label_add_extended(window_id, elconfig_free_widget_id++, NULL,
@@ -3606,8 +3610,8 @@ static void elconfig_populate_tabs(void)
 					current_x, current_y, 0, elconf_scale, (char*)var->display.str);
 				widget_width = ELCONFIG_SCALED_VALUE(250);
 				widget_id = multiselect_add_extended(window_id, elconfig_free_widget_id++, NULL,
-					window_width - TAB_MARGIN - widget_width, current_y, widget_width,
-					ELCONFIG_SCALED_VALUE(80), elconf_scale, gui_color[0], gui_color[1], gui_color[2],
+					window_width - right_margin - widget_width, current_y, widget_width,
+					multi_height, elconf_scale, gui_color[0], gui_color[1], gui_color[2],
 					gui_invert_color[0], gui_invert_color[1], gui_invert_color[2], 0);
 				for (iopt = 0; iopt < var->args.multi.count; ++iopt)
 				{
@@ -3615,7 +3619,7 @@ static void elconfig_populate_tabs(void)
 					if (!*label)
 						label = "??";
 					multiselect_button_add_extended(window_id, widget_id,
-						0, iopt*(ELCONFIG_SCALED_VALUE(22)+SPACING), 0, label,
+						0, iopt * MULTI_LINE_HEIGHT, 0, label,
 						DEFAULT_SMALL_RATIO*elconf_scale, iopt == *(int *)var->var);
 				}
 				multiselect_set_selected(window_id, widget_id, *((const int*)var->var));
@@ -3626,7 +3630,7 @@ static void elconfig_populate_tabs(void)
 					current_x, current_y, 0, elconf_scale, (char*)var->display.str);
 				widget_width = spin_button_width;
 				widget_id = spinbutton_add_extended(window_id, elconfig_free_widget_id++, NULL,
-					window_width - TAB_MARGIN - widget_width, current_y, widget_width, line_height,
+					window_width - right_margin - widget_width, current_y, widget_width, line_height,
 					SPIN_FLOAT, var->var, var->args.fmmif.min(), var->args.fmmif.max(),
 					var->args.fmmif.interval, elconf_scale);
 				widget_set_OnKey(window_id, widget_id, (int (*)())spinbutton_onkey_handler);
@@ -3638,7 +3642,7 @@ static void elconfig_populate_tabs(void)
 					current_x, current_y, 0, elconf_scale, (char*)var->display.str);
 				widget_width = spin_button_width;
 				widget_id = spinbutton_add_extended(window_id, elconfig_free_widget_id++, NULL,
-					window_width - TAB_MARGIN - widget_width, current_y, widget_width, line_height,
+					window_width - right_margin - widget_width, current_y, widget_width, line_height,
 					SPIN_INT, var->var, var->args.immf.min(), var->args.immf.max(), 1.0, elconf_scale);
 				widget_set_OnKey(window_id, widget_id, (int (*)())spinbutton_onkey_handler);
 				widget_set_OnClick(window_id, widget_id, spinbutton_onclick_handler);
@@ -3648,7 +3652,7 @@ static void elconfig_populate_tabs(void)
 					current_x, current_y, 0, elconf_scale, (const char*)var->display.str);
 				x = current_x + widget_get_width(window_id, label_id) + SPACING;
 				widget_id = multiselect_add_extended(window_id, elconfig_free_widget_id++,
-					NULL, x, current_y, ELCONFIG_SCALED_VALUE(350), ELCONFIG_SCALED_VALUE(80),
+					NULL, x, current_y, ELCONFIG_SCALED_VALUE(350), multi_height,
 					elconf_scale, gui_color[0], gui_color[1], gui_color[2], gui_invert_color[0],
 					gui_invert_color[1], gui_invert_color[2], 0);
 				dx = 0;
@@ -3675,12 +3679,12 @@ static void elconfig_populate_tabs(void)
 				if (dy < 0)
 				{
 					widget_move(window_id, label_id, current_x, current_y - dy / 2);
-					widget_move(window_id, widget_id, window_width - TAB_MARGIN - widget_width, current_y);
+					widget_move(window_id, widget_id, window_width - right_margin - widget_width, current_y);
 				}
 				else
 				{
 					widget_move(window_id, widget_id,
-						window_width - TAB_MARGIN - widget_width, current_y + dy / 2);
+						window_width - right_margin - widget_width, current_y + dy / 2);
 				}
 
 				multiselect_set_selected(window_id, widget_id, *((const int*)var->var));
