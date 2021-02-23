@@ -3952,6 +3952,10 @@ void display_elconfig_win(void)
 			+ ELCONFIG_SCALED_VALUE(ELW_BOX_SIZE);
 		elconfig_menu_x_len = get_elconfig_content_width() + 2 * TAB_MARGIN;
 		elconfig_menu_y_len = ELCONFIG_SCALED_VALUE(440);
+#ifdef ANDROID
+		if (elconfig_menu_y_len > (window_height - HUD_MARGIN_Y))
+			elconfig_menu_y_len = window_height - HUD_MARGIN_Y;
+#endif
 
 		/* Set up the window */
 		elconfig_win = create_window(win_configuration, (not_on_top_now(MW_CONFIG) ?game_root_win : -1), 0, get_pos_x_MW(MW_CONFIG), get_pos_y_MW(MW_CONFIG),
