@@ -34,6 +34,10 @@ int back_on;
 float long_touch_delay_s = 0.5f;
 #endif
 
+#ifdef ANDROID
+int enable_keyboard_debug = 0;
+#endif
+
 #ifdef OSX
 int osx_right_mouse_cam = 0;
 #endif
@@ -347,6 +351,16 @@ int HandleEvent (SDL_Event *event)
 				last_action_time = cur_time;  // reset the AFK timer
 			cm_post_show_check(1); // forces any context menu to close
 			unicode = utf8_to_unicode(event->text.text);
+#ifdef ANDROID
+			if (enable_keyboard_debug)
+			{
+				char str[200];
+				safe_snprintf(str, sizeof(str), "SDL_TEXTINPUT text=[%s] len=%lu,%lu timestamp=%u", (unsigned char *)event->text.text, sizeof(event->text.text), strlen(event->text.text), event->key.timestamp);
+				LOG_TO_CONSOLE(c_green1, str);
+				safe_snprintf(str, sizeof(str), "SDL_TEXTINPUT UTF-8 udf8=(%x,%x) unicode=%x", event->text.text[0], event->text.text[1], unicode);
+				LOG_TO_CONSOLE(c_green1, str);
+			}
+#endif
 			//printf("SDL_TEXTINPUT text=[%s] len=%lu,%lu timestamp=%u\n", (unsigned char *)event->text.text, sizeof(event->text.text), strlen(event->text.text), event->key.timestamp);
 			//printf("UTF-8 udf8=(%x,%x) unicode=%x\n", event->text.text[0], event->text.text[1], unicode);
 			if (unicode)
@@ -378,6 +392,14 @@ int HandleEvent (SDL_Event *event)
 			if (last_gain && (event->key.keysym.sym == SDLK_TAB) && ((SDL_GetTicks() - last_gain) < 50))
 				break;
 			last_gain = 0;
+#ifdef ANDROID
+			if (enable_keyboard_debug)
+			{
+				char str[200];
+				safe_snprintf(str, sizeof(str), "SDL_KEYDOWN keycode=%u,[%s] mod=%u timestamp=%u", event->key.keysym.sym, SDL_GetKeyName(event->key.keysym.sym), event->key.keysym.mod, event->key.timestamp);
+				LOG_TO_CONSOLE(c_green1, str);
+			}
+#endif
 			//printf("SDL_KEYDOWN keycode=%u,[%s] mod=%u timestamp=%u\n", event->key.keysym.sym, SDL_GetKeyName(event->key.keysym.sym), event->key.keysym.mod, event->key.timestamp);
 			last_SDL_KEYDOWN_timestamp = event->key.timestamp;
 #ifdef ANDROID

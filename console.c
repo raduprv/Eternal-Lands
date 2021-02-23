@@ -12,6 +12,9 @@
 #include "chat.h"
 #include "consolewin.h"
 #include "elconfig.h"
+#ifdef ANDROID
+#include "events.h"
+#endif
 #include "filter.h"
 #include "gamewin.h"
 #include "gl_init.h"
@@ -1704,6 +1707,14 @@ static int command_reset_res(char *text, int len)
 	return 1;
 }
 
+#ifdef ANDROID
+static int toggle_keyboard_debug(char *text, int len)
+{
+	enable_keyboard_debug = (enable_keyboard_debug) ?0 :1;
+	return 1;
+}
+#endif
+
 static int command_set_res(char *text, int len)
 {
 	text = getparams(text);
@@ -1867,6 +1878,10 @@ add_command("horse", &horse_cmd);
 	add_command("set_res", &command_set_res);
 	add_command("save_res", &command_save_res);
 	add_command("show_res", &command_show_res);
+
+#ifdef ANDROID
+	add_command("kbd", &toggle_keyboard_debug);
+#endif
 
 	command_buffer_offset = NULL;
 }

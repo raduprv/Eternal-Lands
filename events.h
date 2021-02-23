@@ -44,6 +44,10 @@ extern int back_on; /*!< flag indicating whether the Android back key is pressed
 extern float long_touch_delay_s; /*!< Long Touch Delay in seconds. */
 #endif
 
+#ifdef ANDROID
+extern int enable_keyboard_debug;
+#endif
+
 /*!
  * \ingroup event_handle
  * \brief       main event handling routine
