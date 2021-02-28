@@ -795,7 +795,7 @@ int search_files_and_apply(const char* base_path, const char *pattern, void (*fn
 #ifdef WINDOWS
 	char full_pattern[512];
 	struct _finddata_t c_file;
-	long hFile;
+	intptr_t hFile;
 
 	// First get the matching files
 	safe_snprintf(full_pattern, sizeof(full_pattern), "%s/%s", base_path, pattern);
