@@ -2,6 +2,7 @@
 #include <cmath>
 #include <numeric>
 #include <sstream>
+#include <limits>
 #ifdef TTF
 #ifndef WINDOWS
 #include <glob.h>
