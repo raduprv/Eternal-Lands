@@ -2,6 +2,7 @@
 #include <cmath>
 #include <numeric>
 #include <sstream>
+#include <limits>
 #ifdef ANDROID
 #include <fstream>
 #endif
