@@ -333,6 +333,11 @@ static int delay_update_highdpi_auto_scaling = 0;
 static float local_ui_scale = 1.0f;
 static float local_minimap_size_coefficient = 0.7f;
 static size_t local_encyclopedia_font = 0;
+// the chat, name and mapmark fonts are not scaled by ui_scale
+// so we need to scale them individually for high dpi support
+static float chat_font_local_scale = 1.0;
+static float name_font_local_scale = 1.0;
+static float mapmark_font_local_scale = 1.0;
 
 #ifdef JSON_FILES
 // Most of this code can be removed when json file use if the default of the only supported client
@@ -1328,7 +1333,8 @@ static void change_text_zoom(float *var, const float *value)
 		if (val < 0.1)
 			val = 0.1;
 
-		*var = (disable_auto_highdpi_scale) ? val : get_highdpi_scale() * val;
+		// these fonts are scaled by ui_scale so we do not have to apply the high dpi scale
+		*var = val;
 		// Yes, this is ugly. I just really did not want to introduce a ton of
 		// separate function for each font category.
 		if (var >= font_scales && var < font_scales + NR_FONT_CATS)
@@ -1343,10 +1349,34 @@ static void change_chat_zoom(float *var, float *value)
 {
 	if (*value < 0.0f)
 		return;
+	*var = *value;
 
-	*var = (disable_auto_highdpi_scale) ? *value : get_highdpi_scale() * *value;
+	// this font is not scaled by ui_scale so we have to apply the high dpi scale
+	font_scales[CHAT_FONT] = (disable_auto_highdpi_scale) ? *value : get_highdpi_scale() * *value;
 	change_windows_font(CHAT_FONT);
 	update_console_input_zoom();
+}
+
+static void change_name_zoom(float *var, float *value)
+{
+	if (*value < 0.0f)
+		return;
+	*var = *value;
+
+	// this font is not scaled by ui_scale so we have to apply the high dpi scale
+	font_scales[NAME_FONT] = (disable_auto_highdpi_scale) ? *value : get_highdpi_scale() * *value;
+	change_windows_font(NAME_FONT);
+}
+
+static void change_mapmark_zoom(float *var, float *value)
+{
+	if (*value < 0.0f)
+		return;
+	*var = *value;
+
+	// this font is not scaled by ui_scale so we have to apply the high dpi scale
+	font_scales[MAPMARK_FONT] = (disable_auto_highdpi_scale) ? *value : get_highdpi_scale() * *value;
+	change_windows_font(MAPMARK_FONT);
 }
 
 #ifdef TTF
@@ -1362,13 +1392,9 @@ static void change_use_ttf(int *var)
 
 void update_highdpi_auto_scaling(void)
 {
-	change_text_zoom(&font_scales[UI_FONT], &font_scales[UI_FONT]);
-	change_text_zoom(&font_scales[NAME_FONT], &font_scales[NAME_FONT]);
-	change_chat_zoom(&font_scales[CHAT_FONT], &font_scales[CHAT_FONT]);
-	change_text_zoom(&font_scales[NOTE_FONT], &font_scales[NOTE_FONT]);
-	change_text_zoom(&font_scales[BOOK_FONT], &font_scales[BOOK_FONT]);
-	change_text_zoom(&font_scales[RULES_FONT], &font_scales[RULES_FONT]);
-	change_text_zoom(&font_scales[ENCYCLOPEDIA_FONT], &font_scales[ENCYCLOPEDIA_FONT]);
+	change_chat_zoom(&chat_font_local_scale, &chat_font_local_scale);
+	change_name_zoom(&name_font_local_scale, &name_font_local_scale);
+	change_mapmark_zoom(&mapmark_font_local_scale, &mapmark_font_local_scale);
 	change_ui_scale(&local_ui_scale, &local_ui_scale);
 	change_minimap_scale(&local_minimap_size_coefficient, &local_minimap_size_coefficient);
 }
@@ -2734,9 +2760,9 @@ static void init_ELC_vars(void)
 #endif
 	add_var(OPT_FLOAT,"ui_text_size","uisize",&font_scales[UI_FONT],change_text_zoom,1,"UI Text Size","Set the size of the text in the user interface",FONT,0.8,1.2,0.01);
 	add_var(OPT_MULTI,"ui_font","uifont",&font_idxs[UI_FONT],change_font,0,"UI Font","Change the type of font used in the user interface",FONT, NULL);
-	add_var(OPT_FLOAT,"name_text_size","nsize",&font_scales[NAME_FONT],change_text_zoom,1,"Name Text Size","Set the size of the players name text",FONT,0.1,3.0,0.01);
+	add_var(OPT_FLOAT,"name_text_size","nsize",&name_font_local_scale,change_name_zoom,1,"Name Text Size","Set the size of the players name text",FONT,0.1,3.0,0.01);
 	add_var(OPT_MULTI,"name_font","nfont",&font_idxs[NAME_FONT],change_font,0,"Name Font","Change the type of font used for the name",FONT, NULL);
-	add_var(OPT_FLOAT,"chat_text_size","csize",&font_scales[CHAT_FONT],change_chat_zoom,1,"Chat Text Size","Sets the size of the normal text",FONT,0.1,3.0,0.01);
+	add_var(OPT_FLOAT,"chat_text_size","csize",&chat_font_local_scale,change_chat_zoom,1,"Chat Text Size","Sets the size of the normal text",FONT,0.1,3.0,0.01);
 	add_var(OPT_MULTI,"chat_font","cfont",&font_idxs[CHAT_FONT],change_font,0,"Chat Font","Set the type of font used for normal text",FONT, NULL);
 	add_var(OPT_FLOAT,"book_text_size","bsize",&font_scales[BOOK_FONT],change_text_zoom,1,"Book Text Size","Set the size of the text in in-game books",FONT,0.1,2.0,0.01);
 	add_var(OPT_MULTI,"book_font","bfont",&font_idxs[BOOK_FONT],change_font,0,"Book Font","Set the type of font used for text in in-game books",FONT, NULL);
@@ -2751,7 +2777,7 @@ static void init_ELC_vars(void)
 		change_font, 0, "Encyclopedia Font",
 		 "Set the type of font used for drawing the encycloepdia and ingame help",
 		 FONT, NULL);
-	add_var(OPT_FLOAT,"mapmark_text_size", "marksize", &font_scales[MAPMARK_FONT], change_text_zoom, 1.0, "Mapmark Text Size","Sets the size of the mapmark text", FONT, 0.1, 2.0, 0.01);
+	add_var(OPT_FLOAT,"mapmark_text_size", "marksize", &mapmark_font_local_scale, change_mapmark_zoom, 1.0, "Mapmark Text Size","Sets the size of the mapmark text", FONT, 0.1, 2.0, 0.01);
 	add_var(OPT_FLOAT,"ui_scale","ui_scale",&local_ui_scale,change_ui_scale,1,"User interface scaling factor","Scale user interface by this factor, useful for high DPI displays.  Note: the options window will be rescaled after reopening.",FONT,0.75,3.0,0.01);
 	add_var(OPT_INT,"cursor_scale_factor","cursor_scale_factor",&cursor_scale_factor ,change_cursor_scale_factor,cursor_scale_factor,"Mouse pointer scaling factor","The size of the mouse pointer is scaled by this factor",FONT, 1, max_cursor_scale_factor);
 	add_var(OPT_BOOL,"disable_window_scaling_controls","disablewindowscalingcontrols", get_scale_flag_MW(), change_var, 0, "Disable Window Scaling Controls", "If you do not want to use keys or mouse+scrollwheel to scale individual windows, set this option.", FONT);
