@@ -61,8 +61,8 @@ parts:
       - desktop-glib-only
 
   data:
-    source: https://twinmoons.org.uk/el/git/el_data_20201214.zip
-    source-checksum: md5/fc968e82c61e4ba48de03a3d20c6dc4c
+    source: https://twinmoons.org.uk/el/git/el_data_20210307.zip
+    source-checksum: md5/6e93d6ba1679f9254ba490f404f22f2e
     plugin: dump
     organize:
       el_data/ : data/
