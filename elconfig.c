@@ -2777,7 +2777,8 @@ static void init_ELC_vars(void)
 		change_font, 0, "Encyclopedia Font",
 		 "Set the type of font used for drawing the encycloepdia and ingame help",
 		 FONT, NULL);
-	add_var(OPT_FLOAT,"mapmark_text_size", "marksize", &mapmark_font_local_scale, change_mapmark_zoom, 1.0, "Mapmark Text Size","Sets the size of the mapmark text", FONT, 0.1, 2.0, 0.01);
+	// the tab map scale changes mean previous setting are too small, make sure all users are reset to the new scaling by using a different variable
+	add_var(OPT_FLOAT,"mapmark_text_size_1", "marksize", &mapmark_font_local_scale, change_mapmark_zoom, 1.0, "Mapmark Text Size","Sets the size of the mapmark text", FONT, 0.1, 2.0, 0.01);
 	add_var(OPT_FLOAT,"ui_scale","ui_scale",&local_ui_scale,change_ui_scale,1,"User interface scaling factor","Scale user interface by this factor, useful for high DPI displays.  Note: the options window will be rescaled after reopening.",FONT,0.75,3.0,0.01);
 	add_var(OPT_INT,"cursor_scale_factor","cursor_scale_factor",&cursor_scale_factor ,change_cursor_scale_factor,cursor_scale_factor,"Mouse pointer scaling factor","The size of the mouse pointer is scaled by this factor",FONT, 1, max_cursor_scale_factor);
 	add_var(OPT_BOOL,"disable_window_scaling_controls","disablewindowscalingcontrols", get_scale_flag_MW(), change_var, 0, "Disable Window Scaling Controls", "If you do not want to use keys or mouse+scrollwheel to scale individual windows, set this option.", FONT);
