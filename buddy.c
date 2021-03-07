@@ -397,9 +397,10 @@ static int click_delete_checkbox_label(widget_list *w, int mx, int my, Uint32 fl
 
 int display_buddy_add(void)
 {
+	int input_id = 101;
 	if(buddy_add_win < 0)
 	{
-		int label_id = 100, input_id = 101, button_id = 102;
+		int label_id = 100, button_id = 102;
 		window_info *win = NULL;
 		int label_width = 0;
 		int win_x_len = 0;
@@ -441,6 +442,7 @@ int display_buddy_add(void)
 	else
 	{
 		toggle_window(buddy_add_win);
+		pword_clear(buddy_add_win, input_id);
 		return buddy_add_win;
 	}
 }
@@ -642,11 +644,7 @@ static int display_accept_buddy(char *name)
 
 static int click_buddy_button_handler(widget_list *w, int mx, int my, Uint32 flags)
 {
-	if(buddy_add_win < 0) {
-		buddy_add_win = display_buddy_add();
-	} else {
-		toggle_window(buddy_add_win);
-	}
+	buddy_add_win = display_buddy_add();
 	return 1;
 }
 

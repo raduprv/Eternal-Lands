@@ -641,6 +641,11 @@ int filter_or_ignore_text (char *text_to_add, int len, int size, Uint8 channel)
 			if (get_true_knowledge_info(text_to_add+1))
 				return 0;
 		}
+		else if (!strncasecmp(text_to_add+1, "Your buddy list is now empty.", 29)) {
+			clear_buddy();
+		}
+
+
 		else {
 			static Uint32 last_time[] = { 0, 0 };
 			static int done_one[] = { 0, 0 };
