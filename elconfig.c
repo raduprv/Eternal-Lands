@@ -3795,6 +3795,7 @@ void check_for_config_window_scale(void)
 		destroy_window(elconfig_win);
 		set_id_MW(MW_CONFIG, -1);
 		recheck_window_scale = 0;
+		elconf_description_buffer[0] = '\0';
 	}
 }
 
