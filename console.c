@@ -139,6 +139,8 @@ void history_destroy(void)
 }
 
 
+static void cleanup_commands_help(void);
+
 void command_cleanup(void)
 {
 	if(command_count > 0) {
@@ -147,6 +149,7 @@ void command_cleanup(void)
 	if(name_count > 0) {
 		free(name_list);
 	}
+	cleanup_commands_help();
 }
 
 
@@ -1813,16 +1816,18 @@ int cm_test_window(char *text, int len);
 #endif
 
 
-static int command_commands(char *text, int len)
+// list the #commands available
+static void commands_summary(void)
 {
 	char *str = NULL;
 	size_t str_len = (MAX_COMMAND_NAME_LEN + 5) * command_count;
 	size_t i;
 
 	if ((str = malloc(str_len)) == NULL)
-		return 1;
+		return;
 
-	LOG_TO_CONSOLE(c_yellow2, "Server commands:-");
+	LOG_TO_CONSOLE(c_green1, commands_help_description_help_str);
+	LOG_TO_CONSOLE(c_green1, commands_help_server_str);
 	str[0] = '\0';
 	for(i = 0; i < command_count; i++) 
 	{
@@ -1833,9 +1838,9 @@ static int command_commands(char *text, int len)
 		safe_strcat(str, commands[i].command, str_len);
 	}
 	if (str[0] != '\0')
-		LOG_TO_CONSOLE(c_yellow2, str);
+		LOG_TO_CONSOLE(c_grey1, str);
 
-	LOG_TO_CONSOLE(c_green2, "Client commands:-");
+	LOG_TO_CONSOLE(c_green1, commands_help_client_str);
 	str[0] = '\0';
 	for(i = 0; i < command_count; i++) 
 	{
@@ -1846,10 +1851,144 @@ static int command_commands(char *text, int len)
 		safe_strcat(str, commands[i].command, str_len);
 	}
 	if (str[0] != '\0')
-		LOG_TO_CONSOLE(c_green2, str);
+		LOG_TO_CONSOLE(c_grey1, str);
 
 	free(str);
+}
 
+
+// a structure to store command name, paramaters string and description string for commands help
+typedef struct
+{
+	char *c_str;
+	char *p_str;
+	char *d_str;
+} commands_help_t;
+
+static commands_help_t *commands_help = NULL;
+static size_t commands_help_size = 0;
+static int commands_help_loaded = 0;
+
+
+// free memory used by the commands help
+static void cleanup_commands_help(void)
+{
+	size_t i;
+	if (!commands_help_size)
+		return;
+	commands_help_loaded = 0;
+	for (i = 0; i < commands_help_size; i++)
+	{
+		if (commands_help[i].c_str != NULL)
+			free(commands_help[i].c_str); 
+		if (commands_help[i].p_str != NULL)
+			free(commands_help[i].p_str); 
+		if (commands_help[i].d_str != NULL)
+			free(commands_help[i].d_str); 
+	}
+	free(commands_help);
+	commands_help_size = 0;
+	commands_help = NULL;
+}
+
+
+// Load the commands help file
+static int load_commands_help(void)
+{
+	FILE *fp = NULL;
+	char *line = NULL;
+	const char *delim = " ## ";
+	size_t delim_len = strlen(delim);
+	const size_t line_buf_len = 2048;
+	const char *filename = "commands_help.txt";
+	if ((fp = open_file_lang(filename, "r")) == NULL)
+	{
+		LOG_ERROR("%s [%s]\n", cant_open_file, filename);
+		return 0;
+	}
+	line = malloc(line_buf_len);
+	if (line == NULL)
+		return 0;
+	while (!feof(fp))
+	{
+		if ((fgets(line, line_buf_len, fp) != NULL) && (strlen(line) > 3 * delim_len))
+		{
+			size_t line_len = strlen(line);
+			size_t c_len, p_len, d_len;
+			char *c_str, *p_str, *d_str;
+			int is_valid = 0;
+			if (line[line_len - 1] == '\n')
+				line[--line_len] = '\0';
+			c_str = line;
+			p_str = strstr(c_str, delim);
+			if ((p_str != NULL) && (strlen(p_str) > delim_len))
+			{
+				d_str = strstr(p_str + delim_len, delim);
+				if ((d_str != NULL) && (strlen(d_str) > delim_len))
+				{
+					c_len = p_str - c_str;
+					p_str += delim_len;
+					p_len = d_str - p_str;
+					d_str += delim_len;
+					d_len = strlen(d_str);
+					if ((c_len > 0) && (d_len > 0))
+					{
+						commands_help = realloc(commands_help, sizeof(commands_help_t) * ++commands_help_size);
+						if (commands_help != NULL)
+						{
+							commands_help_t *ptr = &commands_help[commands_help_size - 1];
+							ptr->c_str = malloc(c_len + 1);
+							ptr->p_str = malloc(p_len + 1);
+							ptr->d_str = malloc(d_len + 1);
+							safe_strncpy2(ptr->c_str, c_str, c_len + 1, c_len);
+							safe_strncpy2(ptr->p_str, p_str, p_len + 1, p_len);
+							safe_strncpy2(ptr->d_str, d_str, d_len + 1, d_len);
+							is_valid = 1;
+						}
+					}
+				}
+			}
+			if (!is_valid)
+				LOG_ERROR("Invalid command help line [%s]\n", line);
+		}
+	}
+	free(line);
+	fclose(fp);
+	return 1;
+}
+
+
+// list all commands or show help for specified command
+static int command_commands(char *text, int len)
+{
+	text = getparams(text);
+	if (*text)
+	{
+		char str[128];
+		size_t i;
+		if (!commands_help_loaded)
+			commands_help_loaded = load_commands_help();
+		for (i = 0; i < commands_help_size; i++)
+		{
+			if (strcmp(text, commands_help[i].c_str) == 0)
+			{
+				safe_snprintf(str, sizeof(str), "%s: #%s %s",
+					commands_help_prefix_str, commands_help[i].c_str, commands_help[i].p_str);
+				LOG_TO_CONSOLE(c_green1, str);
+				LOG_TO_CONSOLE(c_grey1, commands_help[i].d_str);
+				return 1;
+			}
+		}
+		if (commands_help_size)
+		{
+			safe_snprintf(str, sizeof(str), "%s [%s]", commands_help_not_recognsed_str, text);
+			LOG_TO_CONSOLE(c_red1, str);
+		}
+		else
+			LOG_TO_CONSOLE(c_red1, commands_help_not_loaded_str);
+	}
+	else
+		commands_summary();
 	return 1;
 }
 
@@ -1983,7 +2122,6 @@ void init_commands(const char *filename)
 	add_command("set_res", &command_set_res);
 	add_command("save_res", &command_save_res);
 	add_command("show_res", &command_show_res);
-	add_command("commands", &command_commands);
 	add_command("#", &command_commands);
 #ifdef ANDROID
 	add_command("kbd", &toggle_keyboard_debug);

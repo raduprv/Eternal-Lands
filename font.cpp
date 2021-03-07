@@ -1570,7 +1570,7 @@ const std::array<size_t, NR_FONT_CATS> FontManager::_default_font_idxs
 	= { 0, 0, 0, 2, 0, 3, 0, 0 };
 std::array<size_t, NR_FONT_CATS> FontManager::font_idxs = { 0, 0, 0, 2, 0, 3, 0, 0, 0 };
 std::array<float, NR_FONT_CATS> FontManager::font_scales
-	= { 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.3, 1.0 };
+	= { 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 };
 
 bool FontManager::initialize()
 {
