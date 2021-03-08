@@ -24,20 +24,12 @@ static int actual_num_disp_stats=1;
 static int exp_bar_text_len = 0;
 static int stats_bar_text_len = 0;
 static int statbar_cursor_x;
-static int statbar_cursor_x;
 static size_t cm_id = CM_INIT_VALUE;
 static int exp_bar_start_x;
-static int exp_bar_start_y;
-static int health_bar_start_y;
 static int mana_bar_start_x;
-static int mana_bar_start_y;
 static int food_bar_start_x;
-static int food_bar_start_y;
 static int load_bar_start_x;
-static int load_bar_start_y;
 static int action_bar_start_x;
-static int action_bar_start_y;
-static const int player_statsbar_y_offset = 4;
 static int player_statsbar_bar_height = 0;
 static int stats_bar_len;
 static int health_bar_start_x;
@@ -83,6 +75,8 @@ static int calc_max_disp_stats(int suggested_stats_bar_len)
 	int preposed_max_disp_stats = (window_width - HUD_MARGIN_X - exp_offset) / (suggested_stats_bar_len + exp_bar_text_len);
 	if (preposed_max_disp_stats > MAX_WATCH_STATS)
 		preposed_max_disp_stats = MAX_WATCH_STATS;
+	if (preposed_max_disp_stats < 0)
+		preposed_max_disp_stats = 0;
 	return preposed_max_disp_stats;
 }
 
@@ -124,7 +118,7 @@ static void draw_last_health_change(window_info *win)
 
 static int get_player_statsbar_active_height(void)
 {
-	return player_statsbar_y_offset + player_statsbar_bar_height;
+	return HUD_MARGIN_Y - get_icons_win_active_height();
 }
 
 
@@ -135,7 +129,7 @@ static void reset_statsbar_exp_cm_regions(void)
 	cm_remove_regions(stats_bar_win);
 	for (i=0; i<actual_num_disp_stats; i++)
 		if (watch_this_stats[i] > 0)
-			cm_add_region(cm_id, stats_bar_win, exp_bar_start_x+i*(stats_bar_len+exp_bar_text_len), exp_bar_start_y, stats_bar_len, get_player_statsbar_active_height());
+			cm_add_region(cm_id, stats_bar_win, exp_bar_start_x+i*(stats_bar_len+exp_bar_text_len), 0, stats_bar_len, get_player_statsbar_active_height());
 }
 
 
@@ -236,12 +230,13 @@ static void cm_statsbar_pre_show_handler(window_info *win, int widget_id, int mx
 }
 
 
-static void draw_stats_bar(window_info *win, int x, int y, int val, int len, float r, float g, float b, float r2, float g2, float b2)
+static void draw_stats_bar(window_info *win, int x, int val, int len, float r, float g, float b, float r2, float g2, float b2)
 {
 	char buf[32];
 	int i; // i deals with massive bars by trimming at 110%
 	int bar_height = player_statsbar_bar_height;
-	int text_offset = (int)(0.5 + win->current_scale * 2);
+	int text_offset = (int)(0.5 + win->current_scale * 3);
+	int y; // both bars and numbers are drawn centred vertically in the window
 
 	if(len>stats_bar_len*1.1)
 		i=stats_bar_len*1.1;
@@ -249,6 +244,7 @@ static void draw_stats_bar(window_info *win, int x, int y, int val, int len, flo
 		i=len;
 	glDisable(GL_TEXTURE_2D);
 
+	y = (int)(0.5 + (float)(win->len_y - bar_height) / 2.0);
 	if(i >= 0){
 		glBegin(GL_QUADS);
 		//draw the colored section
@@ -275,7 +271,8 @@ static void draw_stats_bar(window_info *win, int x, int y, int val, int len, flo
 	// handle the text
 	safe_snprintf(buf, sizeof(buf), "%d", val);
 	//glColor3f(0.8f, 0.8f, 0.8f); moved to next line
-	draw_string_small_shadowed_zoomed_right(x - text_offset, y - text_offset, (const unsigned char*)buf,
+	y = (int)(0.5 + (float)(win->len_y - get_line_height(UI_FONT, win->current_scale_small)) / 2.0);
+	draw_string_small_shadowed_zoomed_right(x - text_offset, y, (const unsigned char*)buf,
 		1, 0.8f, 0.8f, 0.8f, 0.0f, 0.0f, 0.0f, win->current_scale);
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
@@ -360,7 +357,7 @@ static void draw_exp_display(window_info *win)
 	{
 		if (watch_this_stats[i] > 0)
 		{
-			int name_y = exp_bar_start_y + 2 + player_statsbar_bar_height;
+			int name_y = (int)(0.5 + (win->len_y + player_statsbar_bar_height) / 2.0);
 			int icon_x = get_icons_win_active_len();
 			int cur_exp = *statsinfo[watch_this_stats[i]-1].exp;
 			int nl_exp = *statsinfo[watch_this_stats[i]-1].next_lev;
@@ -388,10 +385,10 @@ static void draw_exp_display(window_info *win)
 			if (my_exp_bar_start_x + stats_bar_len - name_width < icon_x)
 			{
 				name = statsinfo[watch_this_stats[i]-1].skillnames->shortname;
-				name_y = (int)(0.5 + (player_statsbar_y_offset + player_statsbar_bar_height - win->small_font_len_y) / 2) - 1;
+				name_y = (int)(0.5 + (float)(win->len_y - get_line_height(UI_FONT, win->current_scale_small)) / 2.0);
 			}
 
-			draw_stats_bar(win, my_exp_bar_start_x, exp_bar_start_y, nl_exp - cur_exp, exp_adjusted_x_len, 0.1f, 0.8f, 0.1f, 0.1f, 0.4f, 0.1f);
+			draw_stats_bar(win, my_exp_bar_start_x, nl_exp - cur_exp, exp_adjusted_x_len, 0.1f, 0.8f, 0.1f, 0.1f, 0.4f, 0.1f);
 			draw_string_small_shadowed_zoomed_right(my_exp_bar_start_x + stats_bar_len,
 				name_y, name, 1,1.0f,1.0f,1.0f,0.0f,0.0f,0.0f, win->current_scale);
 
@@ -462,26 +459,32 @@ static int	display_stats_bar_handler(window_info *win)
 	else
 		action_adjusted_x_len=stats_bar_len/((float)your_info.action_points.base/(float)your_info.action_points.cur);
 
-	draw_stats_bar(win, health_bar_start_x, health_bar_start_y, your_info.material_points.cur, health_adjusted_x_len, 1.0f, 0.2f, 0.2f, 0.5f, 0.2f, 0.2f);
+	draw_stats_bar(win, health_bar_start_x, your_info.material_points.cur, health_adjusted_x_len, 1.0f, 0.2f, 0.2f, 0.5f, 0.2f, 0.2f);
 
 	if (your_info.food_level<=max_food_level) //yellow
-		draw_stats_bar(win, food_bar_start_x, food_bar_start_y, your_info.food_level, food_adjusted_x_len, 1.0f, 1.0f, 0.2f, 0.5f, 0.5f, 0.2f);
-	else draw_stats_bar(win, food_bar_start_x, food_bar_start_y, your_info.food_level, food_adjusted_x_len, 1.0f, 0.5f, 0.0f, 0.7f, 0.3f, 0.0f); //orange
+		draw_stats_bar(win, food_bar_start_x, your_info.food_level, food_adjusted_x_len, 1.0f, 1.0f, 0.2f, 0.5f, 0.5f, 0.2f);
+	else draw_stats_bar(win, food_bar_start_x, your_info.food_level, food_adjusted_x_len, 1.0f, 0.5f, 0.0f, 0.7f, 0.3f, 0.0f); //orange
 
-	draw_stats_bar(win, mana_bar_start_x, mana_bar_start_y, your_info.ethereal_points.cur, mana_adjusted_x_len, 0.2f, 0.2f, 1.0f, 0.2f, 0.2f, 0.5f);
-	draw_stats_bar(win, load_bar_start_x, load_bar_start_y, your_info.carry_capacity.base-your_info.carry_capacity.cur, load_adjusted_x_len, 0.6f, 0.4f, 0.4f, 0.4f, 0.2f, 0.2f);
+	draw_stats_bar(win, mana_bar_start_x, your_info.ethereal_points.cur, mana_adjusted_x_len, 0.2f, 0.2f, 1.0f, 0.2f, 0.2f, 0.5f);
+	draw_stats_bar(win, load_bar_start_x, your_info.carry_capacity.base-your_info.carry_capacity.cur, load_adjusted_x_len, 0.6f, 0.4f, 0.4f, 0.4f, 0.2f, 0.2f);
 	if (show_action_bar)
-		draw_stats_bar(win, action_bar_start_x, action_bar_start_y, your_info.action_points.cur, action_adjusted_x_len, 0.8f, 0.3f, 0.8f, 0.5f, 0.1f, 0.5f);
+		draw_stats_bar(win, action_bar_start_x, your_info.action_points.cur, action_adjusted_x_len, 0.8f, 0.3f, 0.8f, 0.5f, 0.1f, 0.5f);
 
 	draw_exp_display(win);
 
 	if(show_help_text && statbar_cursor_x>=0)
 	{
-		if(over_health_bar) show_help((char*)attributes.material_points.name,health_bar_start_x+stats_bar_len+10,-3, win->current_scale);
-		else if(statbar_cursor_x>food_bar_start_x && statbar_cursor_x < food_bar_start_x+stats_bar_len) show_help((char*)attributes.food.name,food_bar_start_x+stats_bar_len+10,-3, win->current_scale);
-		else if(statbar_cursor_x>mana_bar_start_x && statbar_cursor_x < mana_bar_start_x+stats_bar_len) show_help((char*)attributes.ethereal_points.name,mana_bar_start_x+stats_bar_len+10,-3, win->current_scale);
-		else if(statbar_cursor_x>load_bar_start_x && statbar_cursor_x < load_bar_start_x+stats_bar_len) show_help((char*)attributes.carry_capacity.name,load_bar_start_x+stats_bar_len+10,-3, win->current_scale);
-		else if(show_action_bar && statbar_cursor_x>action_bar_start_x && statbar_cursor_x < action_bar_start_x+stats_bar_len) show_help((char*)attributes.action_points.name,action_bar_start_x+stats_bar_len+10,-3, win->current_scale);
+		int y_pos = -1.1 * get_line_height(UI_FONT, win->current_scale_small);
+		if (over_health_bar)
+			show_help((char*)attributes.material_points.name, health_bar_start_x, y_pos, win->current_scale);
+		else if(statbar_cursor_x>food_bar_start_x && statbar_cursor_x < food_bar_start_x+stats_bar_len)
+			show_help((char*)attributes.food.name, food_bar_start_x, y_pos, win->current_scale);
+		else if(statbar_cursor_x>mana_bar_start_x && statbar_cursor_x < mana_bar_start_x+stats_bar_len)
+			show_help((char*)attributes.ethereal_points.name, mana_bar_start_x, y_pos, win->current_scale);
+		else if(statbar_cursor_x>load_bar_start_x && statbar_cursor_x < load_bar_start_x+stats_bar_len)
+			show_help((char*)attributes.carry_capacity.name, load_bar_start_x, y_pos, win->current_scale);
+		else if(show_action_bar && statbar_cursor_x>action_bar_start_x && statbar_cursor_x < action_bar_start_x+stats_bar_len)
+			show_help((char*)attributes.action_points.name, action_bar_start_x, y_pos, win->current_scale);
 	}
 
 	if ((over_health_bar) || (show_last_health_change_always && get_show_window (game_root_win) && ((use_windowed_chat == 2) || !input_text_line.len)))
@@ -506,14 +509,10 @@ static int ui_scale_stats_bar_handler(window_info *win)
 	int i;
 	int num_exp = get_num_statsbar_exp();
 	int proposed_max_disp_stats = 0;
-	int stats_height = 0;
-	int stats_width = window_width - HUD_MARGIN_X;
-	int stats_y_pos = window_height - (HUD_MARGIN_Y - player_statsbar_y_offset);
 
 	player_statsbar_bar_height = (int)(0.5 + win->current_scale * 8);
-	stats_height = get_player_statsbar_active_height();
 
-	init_window(stats_bar_win, -1, 0, 0, stats_y_pos, stats_width, stats_height);
+	init_window(stats_bar_win, -1, 0, 0, window_height - HUD_MARGIN_Y, window_width - HUD_MARGIN_X, get_player_statsbar_active_height());
 
 	/* use a fixed width for user attrib stat bar text */
 	stats_bar_text_len = 4.5 * win->small_font_max_len_x;
@@ -532,9 +531,6 @@ static int ui_scale_stats_bar_handler(window_info *win)
 	}
 	else
 		actual_num_disp_stats = num_exp;
-
-	// all the bars are at the top of the window
-	mana_bar_start_y = food_bar_start_y = health_bar_start_y = load_bar_start_y = action_bar_start_y = exp_bar_start_y = 0;
 
 	// calculate the stats bar x position
 	mana_bar_start_x = stats_bar_text_len;
