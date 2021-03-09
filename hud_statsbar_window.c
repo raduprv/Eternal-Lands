@@ -25,6 +25,7 @@ static int exp_bar_text_len = 0;
 static int stats_bar_text_len = 0;
 static int statbar_cursor_x;
 static size_t cm_id = CM_INIT_VALUE;
+static int scaled_line = 0;
 static int exp_bar_start_x;
 static int mana_bar_start_x;
 static int food_bar_start_x;
@@ -118,7 +119,7 @@ static void draw_last_health_change(window_info *win)
 
 static int get_player_statsbar_active_height(void)
 {
-	return HUD_MARGIN_Y - get_icons_win_active_height();
+	return HUD_MARGIN_Y - get_icons_win_active_height() - scaled_line;
 }
 
 
@@ -270,10 +271,10 @@ static void draw_stats_bar(window_info *win, int x, int val, int len, float r, f
 
 	// handle the text
 	safe_snprintf(buf, sizeof(buf), "%d", val);
-	//glColor3f(0.8f, 0.8f, 0.8f); moved to next line
-	y = (int)(0.5 + (float)(win->len_y - get_line_height(UI_FONT, win->current_scale_small)) / 2.0);
-	draw_string_small_shadowed_zoomed_right(x - text_offset, y, (const unsigned char*)buf,
-		1, 0.8f, 0.8f, 0.8f, 0.0f, 0.0f, 0.0f, win->current_scale);
+	y = (int)(0.5 + (float)win->len_y / 2.0);
+	draw_text(x - text_offset, y, (const unsigned char*)buf, strlen(buf), UI_FONT, TDO_MAX_LINES, 1,
+		TDO_SHADOW, 1, TDO_FOREGROUND, 0.8f, 0.8f, 0.8f, TDO_BACKGROUND, 0.0f, 0.0f, 0.0f,
+		TDO_ZOOM, win->current_scale_small, TDO_VERTICAL_ALIGNMENT, CENTER_DIGITS, TDO_ALIGNMENT, RIGHT, TDO_END);
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
@@ -357,12 +358,12 @@ static void draw_exp_display(window_info *win)
 	{
 		if (watch_this_stats[i] > 0)
 		{
-			int name_y = (int)(0.5 + (win->len_y + player_statsbar_bar_height) / 2.0);
 			int icon_x = get_icons_win_active_len();
 			int cur_exp = *statsinfo[watch_this_stats[i]-1].exp;
 			int nl_exp = *statsinfo[watch_this_stats[i]-1].next_lev;
 			int baselev = statsinfo[watch_this_stats[i]-1].skillattr->base;
 			const unsigned char* name = statsinfo[watch_this_stats[i]-1].skillnames->name;
+			int name_y = (int)(0.5 + (win->len_y + player_statsbar_bar_height) / 2.0) + scaled_line;
 			int exp_adjusted_x_len;
 			int delta_exp;
 			float prev_exp;
@@ -385,7 +386,8 @@ static void draw_exp_display(window_info *win)
 			if (my_exp_bar_start_x + stats_bar_len - name_width < icon_x)
 			{
 				name = statsinfo[watch_this_stats[i]-1].skillnames->shortname;
-				name_y = (int)(0.5 + (float)(win->len_y - get_line_height(UI_FONT, win->current_scale_small)) / 2.0);
+				name_y = (int)(0.5 + (float)(win->len_y - get_line_height(UI_FONT, win->current_scale_small)) / 2.0) -
+					get_center_offset(name, strlen((char *)name), UI_FONT, win->current_scale_small);
 			}
 
 			draw_stats_bar(win, my_exp_bar_start_x, nl_exp - cur_exp, exp_adjusted_x_len, 0.1f, 0.8f, 0.1f, 0.1f, 0.4f, 0.1f);
@@ -510,9 +512,11 @@ static int ui_scale_stats_bar_handler(window_info *win)
 	int num_exp = get_num_statsbar_exp();
 	int proposed_max_disp_stats = 0;
 
+	scaled_line = (int)(0.5 + win->current_scale);
 	player_statsbar_bar_height = (int)(0.5 + win->current_scale * 8);
 
-	init_window(stats_bar_win, -1, 0, 0, window_height - HUD_MARGIN_Y, window_width - HUD_MARGIN_X, get_player_statsbar_active_height());
+	init_window(stats_bar_win, -1, 0, 0, window_height - HUD_MARGIN_Y + scaled_line,
+		window_width - HUD_MARGIN_X, get_player_statsbar_active_height());
 
 	/* use a fixed width for user attrib stat bar text */
 	stats_bar_text_len = 4.5 * win->small_font_max_len_x;
