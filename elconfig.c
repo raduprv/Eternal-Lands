@@ -344,11 +344,10 @@ static int delay_update_highdpi_auto_scaling = 0;
 static float local_ui_scale = 1.0f;
 static float local_minimap_size_coefficient = 0.7f;
 static size_t local_encyclopedia_font = 0;
-// the chat, name and mapmark fonts are not scaled by ui_scale
+// the chat and name fonts are not scaled by ui_scale
 // so we need to scale them individually for high dpi support
 static float chat_font_local_scale = 1.0;
 static float name_font_local_scale = 1.0;
-static float mapmark_font_local_scale = 1.0;
 
 #ifdef JSON_FILES
 // Most of this code can be removed when json file use if the default of the only supported client
@@ -1391,17 +1390,6 @@ static void change_name_zoom(float *var, float *value)
 	change_windows_font(NAME_FONT);
 }
 
-static void change_mapmark_zoom(float *var, float *value)
-{
-	if (*value < 0.0f)
-		return;
-	*var = *value;
-
-	// this font is not scaled by ui_scale so we have to apply the high dpi scale
-	font_scales[MAPMARK_FONT] = (disable_auto_highdpi_scale) ? *value : get_highdpi_scale() * *value;
-	change_windows_font(MAPMARK_FONT);
-}
-
 #ifdef TTF
 static void change_use_ttf(int *var)
 {
@@ -1455,7 +1443,6 @@ void update_highdpi_auto_scaling(void)
 {
 	change_chat_zoom(&chat_font_local_scale, &chat_font_local_scale);
 	change_name_zoom(&name_font_local_scale, &name_font_local_scale);
-	change_mapmark_zoom(&mapmark_font_local_scale, &mapmark_font_local_scale);
 	change_ui_scale(&local_ui_scale, &local_ui_scale);
 	change_minimap_scale(&local_minimap_size_coefficient, &local_minimap_size_coefficient);
 }
@@ -2858,7 +2845,7 @@ static void init_ELC_vars(void)
 		 "Set the type of font used for drawing the encycloepdia and ingame help",
 		 FONT, NULL);
 	// the tab map scale changes mean previous setting are too small, make sure all users are reset to the new scaling by using a different variable
-	add_var(OPT_FLOAT,"mapmark_text_size_1", "marksize", &mapmark_font_local_scale, change_mapmark_zoom, 1.0, "Mapmark Text Size","Sets the size of the mapmark text", FONT, 0.1, 2.0, 0.01);
+	add_var(OPT_FLOAT,"mapmark_text_size_1", "marksize", &font_scales[MAPMARK_FONT], change_text_zoom, 1.0, "Mapmark Text Size","Sets the size of the mapmark text", FONT, 0.1, 2.0, 0.01);
 #ifdef ANDROID
 	add_var(OPT_FLOAT,"ui_scale","ui_scale",&local_ui_scale,change_ui_scale,1,"User interface scaling factor","Scale user interface by this factor, useful for high DPI displays.  Note: the options window will be rescaled after reopening.",FONT,MIN_UI_SCALE,MAX_UI_SCALE,0.01);
 #else
