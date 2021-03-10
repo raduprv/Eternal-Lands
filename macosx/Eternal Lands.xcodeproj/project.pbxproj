@@ -39,7 +39,6 @@
 		1F812BE70D033551008792A7 /* parser.c in Sources */ = {isa = PBXBuildFile; fileRef = 1F81293A0D033551008792A7 /* parser.c */; };
 		1F812BE80D033551008792A7 /* symbols.c in Sources */ = {isa = PBXBuildFile; fileRef = 1F81293C0D033551008792A7 /* symbols.c */; };
 		1F812BE90D033551008792A7 /* typesetter.c in Sources */ = {isa = PBXBuildFile; fileRef = 1F81293F0D033551008792A7 /* typesetter.c */; };
-		1F812BEA0D033551008792A7 /* books.c in Sources */ = {isa = PBXBuildFile; fileRef = 1F8129410D033551008792A7 /* books.c */; };
 		1F812BEB0D033551008792A7 /* buddy.c in Sources */ = {isa = PBXBuildFile; fileRef = 1F8129430D033551008792A7 /* buddy.c */; };
 		1F812BEC0D033551008792A7 /* cache.c in Sources */ = {isa = PBXBuildFile; fileRef = 1F8129450D033551008792A7 /* cache.c */; };
 		1F812BED0D033551008792A7 /* cal.c in Sources */ = {isa = PBXBuildFile; fileRef = 1F8129470D033551008792A7 /* cal.c */; };
@@ -85,7 +84,6 @@
 		1F812C330D033551008792A7 /* orbital_mover.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1F8129BF0D033551008792A7 /* orbital_mover.cpp */; };
 		1F812CB00D033551008792A7 /* eye_candy_wrapper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1F812A430D033551008792A7 /* eye_candy_wrapper.cpp */; };
 		1F812CB10D033551008792A7 /* filter.c in Sources */ = {isa = PBXBuildFile; fileRef = 1F812A450D033551008792A7 /* filter.c */; };
-		1F812CB20D033551008792A7 /* font.c in Sources */ = {isa = PBXBuildFile; fileRef = 1F812A470D033551008792A7 /* font.c */; };
 		1F812CB30D033551008792A7 /* framebuffer.c in Sources */ = {isa = PBXBuildFile; fileRef = 1F812A490D033551008792A7 /* framebuffer.c */; };
 		1F812CB40D033551008792A7 /* frustum.c in Sources */ = {isa = PBXBuildFile; fileRef = 1F812A4B0D033551008792A7 /* frustum.c */; };
 		1F812CB50D033551008792A7 /* gamewin.c in Sources */ = {isa = PBXBuildFile; fileRef = 1F812A4C0D033551008792A7 /* gamewin.c */; };
@@ -226,6 +224,11 @@
 		D7436E7E24598A2100875ABE /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D7436E7B2459829500875ABE /* Images.xcassets */; };
 		D7437F10245ABAD100875ABE /* vorbis.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D7437F0F245ABAD100875ABE /* vorbis.framework */; };
 		D7437F11245ABAD100875ABE /* vorbis.framework in Copy Frameworks into .app bundle */ = {isa = PBXBuildFile; fileRef = D7437F0F245ABAD100875ABE /* vorbis.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		D791C71525F9300700EB3011 /* books.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D791C71425F9300700EB3011 /* books.cpp */; };
+		D791C71725F930CF00EB3011 /* font.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D791C71625F930CF00EB3011 /* font.cpp */; };
+		D791C71C25F9321900EB3011 /* json_io.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D791C71B25F9321900EB3011 /* json_io.cpp */; };
+		D791C72325F9336F00EB3011 /* SDL2_ttf.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D791C72225F9336F00EB3011 /* SDL2_ttf.framework */; };
+		D791C72425F9336F00EB3011 /* SDL2_ttf.framework in Copy Frameworks into .app bundle */ = {isa = PBXBuildFile; fileRef = D791C72225F9336F00EB3011 /* SDL2_ttf.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		E18287A10EFFFC320046818E /* buffs.c in Sources */ = {isa = PBXBuildFile; fileRef = E182879E0EFFFC320046818E /* buffs.c */; };
 		E1914A6A1305B1A8004CD9C1 /* image.c in Sources */ = {isa = PBXBuildFile; fileRef = E1914A661305B1A8004CD9C1 /* image.c */; };
 		E1914A6B1305B1A8004CD9C1 /* image_loading.c in Sources */ = {isa = PBXBuildFile; fileRef = E1914A681305B1A8004CD9C1 /* image_loading.c */; };
@@ -246,6 +249,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
+				D791C72425F9336F00EB3011 /* SDL2_ttf.framework in Copy Frameworks into .app bundle */,
 				D7302679244F639300A6C002 /* libpng.framework in Copy Frameworks into .app bundle */,
 				D7302671244F639300A6C002 /* SDL2.framework in Copy Frameworks into .app bundle */,
 				D7302673244F639300A6C002 /* SDL2_net.framework in Copy Frameworks into .app bundle */,
@@ -290,7 +294,6 @@
 		1F52AA170D6BCC0800CA2E5F /* calc.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = calc.c; path = ../calc.c; sourceTree = SOURCE_ROOT; };
 		1F52AA180D6BCC0800CA2E5F /* calc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = calc.h; path = ../calc.h; sourceTree = SOURCE_ROOT; };
 		1F52AA190D6BCC0800CA2E5F /* eye_candy_debugwin.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = eye_candy_debugwin.c; path = ../eye_candy_debugwin.c; sourceTree = SOURCE_ROOT; };
-		1F52AA1A0D6BCC0800CA2E5F /* eye_candy_debugwin.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = eye_candy_debugwin.h; path = ../eye_candy_debugwin.h; sourceTree = SOURCE_ROOT; };
 		1F52AA1B0D6BCC0800CA2E5F /* glext.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = glext.h; path = ../glext.h; sourceTree = SOURCE_ROOT; };
 		1F52AA1D0D6BCC0800CA2E5F /* optimizer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = optimizer.cpp; path = ../optimizer.cpp; sourceTree = SOURCE_ROOT; };
 		1F52AA1E0D6BCC0800CA2E5F /* optimizer.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = optimizer.hpp; path = ../optimizer.hpp; sourceTree = SOURCE_ROOT; };
@@ -338,7 +341,6 @@
 		1F81293E0D033551008792A7 /* types.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = types.h; sourceTree = "<group>"; };
 		1F81293F0D033551008792A7 /* typesetter.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = typesetter.c; sourceTree = "<group>"; };
 		1F8129400D033551008792A7 /* typesetter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = typesetter.h; sourceTree = "<group>"; };
-		1F8129410D033551008792A7 /* books.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = books.c; path = ../books.c; sourceTree = SOURCE_ROOT; };
 		1F8129420D033551008792A7 /* books.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = books.h; path = ../books.h; sourceTree = SOURCE_ROOT; };
 		1F8129430D033551008792A7 /* buddy.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = buddy.c; path = ../buddy.c; sourceTree = SOURCE_ROOT; };
 		1F8129440D033551008792A7 /* buddy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = buddy.h; path = ../buddy.h; sourceTree = SOURCE_ROOT; };
@@ -436,7 +438,6 @@
 		1F812A440D033551008792A7 /* eye_candy_wrapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = eye_candy_wrapper.h; path = ../eye_candy_wrapper.h; sourceTree = SOURCE_ROOT; };
 		1F812A450D033551008792A7 /* filter.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = filter.c; path = ../filter.c; sourceTree = SOURCE_ROOT; };
 		1F812A460D033551008792A7 /* filter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = filter.h; path = ../filter.h; sourceTree = SOURCE_ROOT; };
-		1F812A470D033551008792A7 /* font.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = font.c; path = ../font.c; sourceTree = SOURCE_ROOT; };
 		1F812A480D033551008792A7 /* font.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = font.h; path = ../font.h; sourceTree = SOURCE_ROOT; };
 		1F812A490D033551008792A7 /* framebuffer.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = framebuffer.c; path = ../framebuffer.c; sourceTree = SOURCE_ROOT; };
 		1F812A4A0D033551008792A7 /* framebuffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = framebuffer.h; path = ../framebuffer.h; sourceTree = SOURCE_ROOT; };
@@ -445,7 +446,6 @@
 		1F812A4D0D033551008792A7 /* gamewin.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = gamewin.h; path = ../gamewin.h; sourceTree = SOURCE_ROOT; };
 		1F812A4E0D033551008792A7 /* gl_init.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = gl_init.c; path = ../gl_init.c; sourceTree = SOURCE_ROOT; };
 		1F812A4F0D033551008792A7 /* gl_init.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = gl_init.h; path = ../gl_init.h; sourceTree = SOURCE_ROOT; };
-		1F812A500D033551008792A7 /* global.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = global.h; path = ../global.h; sourceTree = SOURCE_ROOT; };
 		1F812A510D033551008792A7 /* help.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = help.c; path = ../help.c; sourceTree = SOURCE_ROOT; };
 		1F812A520D033551008792A7 /* help.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = help.h; path = ../help.h; sourceTree = SOURCE_ROOT; };
 		1F812A530D033551008792A7 /* highlight.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = highlight.c; path = ../highlight.c; sourceTree = SOURCE_ROOT; };
@@ -551,7 +551,6 @@
 		1F812B530D033551008792A7 /* serverpopup.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = serverpopup.h; path = ../serverpopup.h; sourceTree = SOURCE_ROOT; };
 		1F812B540D033551008792A7 /* servers.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = servers.c; path = ../servers.c; sourceTree = SOURCE_ROOT; };
 		1F812B550D033551008792A7 /* servers.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = servers.h; path = ../servers.h; sourceTree = SOURCE_ROOT; };
-		1F812B560D033551008792A7 /* servers.lst */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = servers.lst; path = ../servers.lst; sourceTree = SOURCE_ROOT; };
 		1F812B570D033551008792A7 /* session.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = session.c; path = ../session.c; sourceTree = SOURCE_ROOT; };
 		1F812B580D033551008792A7 /* session.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = session.h; path = ../session.h; sourceTree = SOURCE_ROOT; };
 		1F812B5E0D033551008792A7 /* noise.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = noise.c; sourceTree = "<group>"; };
@@ -696,6 +695,19 @@
 		D7436E7B2459829500875ABE /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = "Eternal Lands/Images.xcassets"; sourceTree = "<group>"; };
 		D7437F0C245AB82B00875ABE /* Vorbis.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Vorbis.framework; path = ../../../Library/Frameworks/Vorbis.framework; sourceTree = "<group>"; };
 		D7437F0F245ABAD100875ABE /* vorbis.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = vorbis.framework; path = ../../../Library/Frameworks/vorbis.framework; sourceTree = "<group>"; };
+		D791C71425F9300700EB3011 /* books.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = books.cpp; path = ../books.cpp; sourceTree = "<group>"; };
+		D791C71625F930CF00EB3011 /* font.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = font.cpp; path = ../font.cpp; sourceTree = "<group>"; };
+		D791C71825F9313A00EB3011 /* hud_timer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = hud_timer.h; path = ../hud_timer.h; sourceTree = "<group>"; };
+		D791C71925F9314D00EB3011 /* icon_window.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = icon_window.h; path = ../icon_window.h; sourceTree = "<group>"; };
+		D791C71A25F9320B00EB3011 /* item_info.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = item_info.h; path = ../item_info.h; sourceTree = "<group>"; };
+		D791C71B25F9321900EB3011 /* json_io.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = json_io.cpp; path = ../json_io.cpp; sourceTree = "<group>"; };
+		D791C71D25F9321F00EB3011 /* json_io.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = json_io.h; path = ../json_io.h; sourceTree = "<group>"; };
+		D791C71E25F9323F00EB3011 /* main.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = main.h; path = ../main.h; sourceTree = "<group>"; };
+		D791C71F25F9326D00EB3011 /* named_colours.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = named_colours.h; path = ../named_colours.h; sourceTree = "<group>"; };
+		D791C72025F9327D00EB3011 /* password_manager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = password_manager.h; path = ../password_manager.h; sourceTree = "<group>"; };
+		D791C72125F932ED00EB3011 /* trade_log.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = trade_log.h; path = ../trade_log.h; sourceTree = "<group>"; };
+		D791C72225F9336F00EB3011 /* SDL2_ttf.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL2_ttf.framework; path = ../../../Library/Frameworks/SDL2_ttf.framework; sourceTree = "<group>"; };
+		D791C74425F938F400EB3011 /* json.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = json.hpp; sourceTree = "<group>"; };
 		E182879E0EFFFC320046818E /* buffs.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = buffs.c; path = ../buffs.c; sourceTree = SOURCE_ROOT; };
 		E182879F0EFFFC320046818E /* buffs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = buffs.h; path = ../buffs.h; sourceTree = SOURCE_ROOT; };
 		E18287A00EFFFC320046818E /* eye_candy_types.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = eye_candy_types.h; path = ../eye_candy_types.h; sourceTree = SOURCE_ROOT; };
@@ -731,6 +743,7 @@
 				D7437F10245ABAD100875ABE /* vorbis.framework in Frameworks */,
 				D730265B244F5C8800A6C002 /* Cocoa.framework in Frameworks */,
 				D7302676244F639300A6C002 /* cal3d.framework in Frameworks */,
+				D791C72325F9336F00EB3011 /* SDL2_ttf.framework in Frameworks */,
 				1F812DA40D03511A008792A7 /* OpenGL.framework in Frameworks */,
 				1F812DC70D03572D008792A7 /* OpenAL.framework in Frameworks */,
 				D7302674244F639300A6C002 /* ogg.framework in Frameworks */,
@@ -775,87 +788,14 @@
 		1F8128D90D033520008792A7 /* elc */ = {
 			isa = PBXGroup;
 			children = (
-				7B0C5B4E224007C900BCFE13 /* password_manager.cpp */,
-				7B0C5B4F224007C900BCFE13 /* xor_cipher.cpp */,
-				7BDF3E1820D009CA007BE401 /* el_memory.c */,
-				7BDF3E1920D009CA007BE401 /* el_memory.h */,
-				7B57365D20C80E4000C41C6E /* command_queue.h */,
-				7B57365E20C80E4000C41C6E /* command_queue.hpp */,
-				7B57365F20C80E4000C41C6E /* hud_indicators.h */,
-				7B57366020C80E4000C41C6E /* hud_misc_window.c */,
-				7B57366120C80E4000C41C6E /* hud_misc_window.h */,
-				7B57366220C80E4000C41C6E /* hud_quickbar_window.c */,
-				7B57366320C80E4000C41C6E /* hud_quickbar_window.h */,
-				7B57366420C80E4000C41C6E /* hud_quickspells_window.c */,
-				7B57366520C80E4000C41C6E /* hud_quickspells_window.h */,
-				7B57366620C80E4000C41C6E /* hud_statsbar_window.c */,
-				7B57366720C80E4000C41C6E /* hud_statsbar_window.h */,
-				7B80F34B187DA85B00C81403 /* hud_indicators.cpp */,
-				7B80F34C187DA85B00C81403 /* hud_timer.cpp */,
-				7B0B8F191794171B00D75AD9 /* named_colours.cpp */,
-				7B0B8CB916CA78E800D75AD9 /* item_info.cpp */,
-				7B0B8CB616CA78C000D75AD9 /* trade_log.cpp */,
-				7B0B8CAF16AD61C000D75AD9 /* command_queue.cpp */,
-				7B0B8C9816982A1000D75AD9 /* icon_window.cpp */,
-				1FB7E416143560EA002C4FEA /* xz */,
-				1FB7E40F143560DE002C4FEA /* engine */,
-				1FB7E409143560CB002C4FEA /* elloggingwrapper.cpp */,
-				1FB7E40A143560CB002C4FEA /* elloggingwrapper.h */,
-				E1DE78661330EE79005E7747 /* custom_update.c */,
-				E1DE78671330EE79005E7747 /* custom_update.h */,
-				E1DE78681330EE79005E7747 /* new_update.c */,
-				E1DE78691330EE79005E7747 /* new_update.h */,
-				E1914A661305B1A8004CD9C1 /* image.c */,
-				E1914A671305B1A8004CD9C1 /* image.h */,
-				E1914A681305B1A8004CD9C1 /* image_loading.c */,
-				E1914A691305B1A8004CD9C1 /* image_loading.h */,
-				E1914A3E1305A1E5004CD9C1 /* achievements.h */,
-				1F77DD2512C23AEA00D59013 /* achievements.cpp */,
-				1F1CE86A114F0BA300F30873 /* quest_log.cpp */,
-				1F1CE867114F0B8200F30873 /* item_lists.cpp */,
-				1F1CE868114F0B8200F30873 /* item_lists.h */,
-				1F8F612710CDC8CD007B270D /* emotes.c */,
-				1F8F612810CDC8CD007B270D /* emotes.h */,
-				1F8F612910CDC8CD007B270D /* hash.c */,
-				1F8F612A10CDC8CD007B270D /* hash.h */,
-				1F8F612B10CDC8CD007B270D /* multiplayer.c */,
-				1F8F612C10CDC8CD007B270D /* text.c */,
-				1FC155560FE906160046D7FE /* user_menus.cpp */,
-				1FC155570FE906160046D7FE /* user_menus.h */,
-				1F608B5F0FA5CAD100FFD55C /* dds.c */,
-				1F608B600FA5CAD100FFD55C /* dds.h */,
-				1F608B610FA5CAD100FFD55C /* ddsimage.c */,
-				1F608B620FA5CAD100FFD55C /* ddsimage.h */,
-				E182879E0EFFFC320046818E /* buffs.c */,
-				E182879F0EFFFC320046818E /* buffs.h */,
-				E18287A00EFFFC320046818E /* eye_candy_types.h */,
-				1F3DDB130E92F8450036BD6A /* elglext.h */,
-				1F22CC3A0DBAD57400411752 /* context_menu.cpp */,
-				1F22CC3B0DBAD57400411752 /* context_menu.h */,
-				1F22CC3C0DBAD57400411752 /* dbuffer.h */,
-				1F22CC3D0DBAD57400411752 /* makeargv.c */,
-				1F22CC3E0DBAD57400411752 /* makeargv.h */,
-				1F22CC3F0DBAD57400411752 /* text_aliases.c */,
-				1F22CC400DBAD57400411752 /* text_aliases.h */,
-				1F52AA150D6BCC0800CA2E5F /* actor_init.cpp */,
-				1F52AA160D6BCC0800CA2E5F /* actor_init.h */,
-				1F52AA170D6BCC0800CA2E5F /* calc.c */,
-				1F52AA180D6BCC0800CA2E5F /* calc.h */,
-				1F52AA190D6BCC0800CA2E5F /* eye_candy_debugwin.c */,
-				1F52AA1A0D6BCC0800CA2E5F /* eye_candy_debugwin.h */,
-				1F52AA1B0D6BCC0800CA2E5F /* glext.h */,
-				1F52AA1D0D6BCC0800CA2E5F /* optimizer.cpp */,
-				1F52AA1E0D6BCC0800CA2E5F /* optimizer.hpp */,
-				1F52AA1F0D6BCC0800CA2E5F /* select.cpp */,
-				1F52AA200D6BCC0800CA2E5F /* skeletons.c */,
-				1F52AA210D6BCC0800CA2E5F /* skeletons.h */,
-				1F52AA220D6BCC0800CA2E5F /* threads.h */,
-				1F744D950D19894900F655E9 /* missiles.c */,
-				1F744D960D19894900F655E9 /* missiles.h */,
 				1F8128DA0D033551008792A7 /* 2d_objects.c */,
 				1F8128DB0D033551008792A7 /* 2d_objects.h */,
 				1F8128DC0D033551008792A7 /* 3d_objects.c */,
 				1F8128DD0D033551008792A7 /* 3d_objects.h */,
+				1F77DD2512C23AEA00D59013 /* achievements.cpp */,
+				E1914A3E1305A1E5004CD9C1 /* achievements.h */,
+				1F52AA150D6BCC0800CA2E5F /* actor_init.cpp */,
+				1F52AA160D6BCC0800CA2E5F /* actor_init.h */,
 				1F8129280D033551008792A7 /* actor_scripts.c */,
 				1F8129290D033551008792A7 /* actor_scripts.h */,
 				1F81292A0D033551008792A7 /* actors.c */,
@@ -871,17 +811,21 @@
 				1F8129340D033551008792A7 /* bbox_tree.c */,
 				1F8129350D033551008792A7 /* bbox_tree.h */,
 				1F8129360D033551008792A7 /* books */,
-				1F8129410D033551008792A7 /* books.c */,
+				D791C71425F9300700EB3011 /* books.cpp */,
 				1F8129420D033551008792A7 /* books.h */,
 				1F8129430D033551008792A7 /* buddy.c */,
 				1F8129440D033551008792A7 /* buddy.h */,
+				E182879E0EFFFC320046818E /* buffs.c */,
+				E182879F0EFFFC320046818E /* buffs.h */,
 				1F8129450D033551008792A7 /* cache.c */,
 				1F8129460D033551008792A7 /* cache.h */,
+				1F81294B0D033551008792A7 /* cal_types.h */,
 				1F8129470D033551008792A7 /* cal.c */,
 				1F8129480D033551008792A7 /* cal.h */,
 				1F8129490D033551008792A7 /* cal3d_wrapper.cpp */,
 				1F81294A0D033551008792A7 /* cal3d_wrapper.h */,
-				1F81294B0D033551008792A7 /* cal_types.h */,
+				1F52AA170D6BCC0800CA2E5F /* calc.c */,
+				1F52AA180D6BCC0800CA2E5F /* calc.h */,
 				1F81294D0D033551008792A7 /* chat.c */,
 				1F81294E0D033551008792A7 /* chat.h */,
 				1F81294F0D033551008792A7 /* client_serv.h */,
@@ -889,40 +833,62 @@
 				1F8129510D033551008792A7 /* cluster.h */,
 				1F8129520D033551008792A7 /* colors.c */,
 				1F8129530D033551008792A7 /* colors.h */,
+				7B0B8CAF16AD61C000D75AD9 /* command_queue.cpp */,
+				7B57365D20C80E4000C41C6E /* command_queue.h */,
+				7B57365E20C80E4000C41C6E /* command_queue.hpp */,
 				1F8129550D033551008792A7 /* console.c */,
 				1F8129560D033551008792A7 /* console.h */,
 				1F8129570D033551008792A7 /* consolewin.c */,
 				1F8129580D033551008792A7 /* consolewin.h */,
+				1F22CC3A0DBAD57400411752 /* context_menu.cpp */,
+				1F22CC3B0DBAD57400411752 /* context_menu.h */,
 				1F8129590D033551008792A7 /* counters.c */,
 				1F81295A0D033551008792A7 /* counters.h */,
 				1F81295B0D033551008792A7 /* cursors.c */,
 				1F81295C0D033551008792A7 /* cursors.h */,
+				E1DE78661330EE79005E7747 /* custom_update.c */,
+				E1DE78671330EE79005E7747 /* custom_update.h */,
+				1F22CC3C0DBAD57400411752 /* dbuffer.h */,
+				1F608B5F0FA5CAD100FFD55C /* dds.c */,
+				1F608B600FA5CAD100FFD55C /* dds.h */,
+				1F608B610FA5CAD100FFD55C /* ddsimage.c */,
+				1F608B620FA5CAD100FFD55C /* ddsimage.h */,
 				1F8129620D033551008792A7 /* dialogues.c */,
 				1F8129630D033551008792A7 /* dialogues.h */,
 				1F8129730D033551008792A7 /* draw_scene.c */,
 				1F8129740D033551008792A7 /* draw_scene.h */,
-				1F8129750D033551008792A7 /* e3d.h */,
 				1F8129760D033551008792A7 /* e3d_object.h */,
+				1F8129750D033551008792A7 /* e3d.h */,
+				7BDF3E1820D009CA007BE401 /* el_memory.c */,
+				7BDF3E1920D009CA007BE401 /* el_memory.h */,
 				1F81297D0D033551008792A7 /* elc_private.h */,
 				1F8129800D033551008792A7 /* elconfig.c */,
 				1F8129810D033551008792A7 /* elconfig.h */,
+				1F3DDB130E92F8450036BD6A /* elglext.h */,
+				1FB7E409143560CB002C4FEA /* elloggingwrapper.cpp */,
+				1FB7E40A143560CB002C4FEA /* elloggingwrapper.h */,
 				1F8129820D033551008792A7 /* elmemory.c */,
 				1F8129830D033551008792A7 /* elmemory.h */,
 				1F8129840D033551008792A7 /* elwindows.c */,
 				1F8129850D033551008792A7 /* elwindows.h */,
+				1F8F612710CDC8CD007B270D /* emotes.c */,
+				1F8F612810CDC8CD007B270D /* emotes.h */,
 				1F8129860D033551008792A7 /* encyclopedia.c */,
 				1F8129870D033551008792A7 /* encyclopedia.h */,
+				1FB7E40F143560DE002C4FEA /* engine */,
 				1F8129880D033551008792A7 /* errors.c */,
 				1F8129890D033551008792A7 /* errors.h */,
 				1F81298C0D033551008792A7 /* events.c */,
 				1F81298D0D033551008792A7 /* events.h */,
 				1F81298E0D033551008792A7 /* exceptions */,
 				1F8129920D033551008792A7 /* eye_candy */,
+				1F52AA190D6BCC0800CA2E5F /* eye_candy_debugwin.c */,
+				E18287A00EFFFC320046818E /* eye_candy_types.h */,
 				1F812A430D033551008792A7 /* eye_candy_wrapper.cpp */,
 				1F812A440D033551008792A7 /* eye_candy_wrapper.h */,
 				1F812A450D033551008792A7 /* filter.c */,
 				1F812A460D033551008792A7 /* filter.h */,
-				1F812A470D033551008792A7 /* font.c */,
+				D791C71625F930CF00EB3011 /* font.cpp */,
 				1F812A480D033551008792A7 /* font.h */,
 				1F812A490D033551008792A7 /* framebuffer.c */,
 				1F812A4A0D033551008792A7 /* framebuffer.h */,
@@ -931,22 +897,48 @@
 				1F812A4D0D033551008792A7 /* gamewin.h */,
 				1F812A4E0D033551008792A7 /* gl_init.c */,
 				1F812A4F0D033551008792A7 /* gl_init.h */,
-				1F812A500D033551008792A7 /* global.h */,
+				1F52AA1B0D6BCC0800CA2E5F /* glext.h */,
+				1F8F612910CDC8CD007B270D /* hash.c */,
+				1F8F612A10CDC8CD007B270D /* hash.h */,
 				1F812A510D033551008792A7 /* help.c */,
 				1F812A520D033551008792A7 /* help.h */,
 				1F812A530D033551008792A7 /* highlight.c */,
 				1F812A540D033551008792A7 /* highlight.h */,
+				7B80F34B187DA85B00C81403 /* hud_indicators.cpp */,
+				7B57365F20C80E4000C41C6E /* hud_indicators.h */,
+				7B57366020C80E4000C41C6E /* hud_misc_window.c */,
+				7B57366120C80E4000C41C6E /* hud_misc_window.h */,
+				7B57366220C80E4000C41C6E /* hud_quickbar_window.c */,
+				7B57366320C80E4000C41C6E /* hud_quickbar_window.h */,
+				7B57366420C80E4000C41C6E /* hud_quickspells_window.c */,
+				7B57366520C80E4000C41C6E /* hud_quickspells_window.h */,
+				7B57366620C80E4000C41C6E /* hud_statsbar_window.c */,
+				7B57366720C80E4000C41C6E /* hud_statsbar_window.h */,
+				7B80F34C187DA85B00C81403 /* hud_timer.cpp */,
+				D791C71825F9313A00EB3011 /* hud_timer.h */,
 				1F812A550D033551008792A7 /* hud.c */,
 				1F812A560D033551008792A7 /* hud.h */,
+				7B0B8C9816982A1000D75AD9 /* icon_window.cpp */,
+				D791C71925F9314D00EB3011 /* icon_window.h */,
 				1F812A570D033551008792A7 /* ignore.c */,
 				1F812A580D033551008792A7 /* ignore.h */,
+				E1914A681305B1A8004CD9C1 /* image_loading.c */,
+				E1914A691305B1A8004CD9C1 /* image_loading.h */,
+				E1914A661305B1A8004CD9C1 /* image.c */,
+				E1914A671305B1A8004CD9C1 /* image.h */,
 				1F812A590D033551008792A7 /* init.c */,
 				1F812A5A0D033551008792A7 /* init.h */,
 				1F812A5B0D033551008792A7 /* interface.c */,
 				1F812A5C0D033551008792A7 /* interface.h */,
 				1F812A5D0D033551008792A7 /* io */,
+				7B0B8CB916CA78E800D75AD9 /* item_info.cpp */,
+				D791C71A25F9320B00EB3011 /* item_info.h */,
+				1F1CE867114F0B8200F30873 /* item_lists.cpp */,
+				1F1CE868114F0B8200F30873 /* item_lists.h */,
 				1F812A710D033551008792A7 /* items.c */,
 				1F812A720D033551008792A7 /* items.h */,
+				D791C71B25F9321900EB3011 /* json_io.cpp */,
+				D791C71D25F9321F00EB3011 /* json_io.h */,
 				1F812A740D033551008792A7 /* keys.c */,
 				1F812A750D033551008792A7 /* keys.h */,
 				1F812A760D033551008792A7 /* knowledge.c */,
@@ -964,6 +956,9 @@
 				1F812AFF0D033551008792A7 /* loginwin.c */,
 				1F812B000D033551008792A7 /* loginwin.h */,
 				1F812B010D033551008792A7 /* main.c */,
+				D791C71E25F9323F00EB3011 /* main.h */,
+				1F22CC3D0DBAD57400411752 /* makeargv.c */,
+				1F22CC3E0DBAD57400411752 /* makeargv.h */,
 				1F812B080D033551008792A7 /* manufacture.c */,
 				1F812B090D033551008792A7 /* manufacture.h */,
 				1F812B0A0D033551008792A7 /* map.c */,
@@ -978,17 +973,29 @@
 				1F812B150D033551008792A7 /* minimap.h */,
 				1F812B160D033551008792A7 /* misc.c */,
 				1F812B170D033551008792A7 /* misc.h */,
+				1F744D950D19894900F655E9 /* missiles.c */,
+				1F744D960D19894900F655E9 /* missiles.h */,
+				1F8F612B10CDC8CD007B270D /* multiplayer.c */,
 				1F812B190D033551008792A7 /* multiplayer.h */,
+				7B0B8F191794171B00D75AD9 /* named_colours.cpp */,
+				D791C71F25F9326D00EB3011 /* named_colours.h */,
 				1F812B1A0D033551008792A7 /* new_actors.c */,
 				1F812B1B0D033551008792A7 /* new_actors.h */,
 				1F812B1C0D033551008792A7 /* new_character.c */,
 				1F812B1D0D033551008792A7 /* new_character.h */,
+				E1DE78681330EE79005E7747 /* new_update.c */,
+				E1DE78691330EE79005E7747 /* new_update.h */,
+				D791C73A25F938F300EB3011 /* nlohmann_json */,
 				1F812B1E0D033551008792A7 /* notepad.c */,
 				1F812B1F0D033551008792A7 /* notepad.h */,
 				1F812B200D033551008792A7 /* openingwin.c */,
 				1F812B210D033551008792A7 /* openingwin.h */,
+				1F52AA1D0D6BCC0800CA2E5F /* optimizer.cpp */,
+				1F52AA1E0D6BCC0800CA2E5F /* optimizer.hpp */,
 				1F812B220D033551008792A7 /* particles.c */,
 				1F812B230D033551008792A7 /* particles.h */,
+				7B0C5B4E224007C900BCFE13 /* password_manager.cpp */,
+				D791C72025F9327D00EB3011 /* password_manager.h */,
 				1F812B240D033551008792A7 /* paste.c */,
 				1F812B250D033551008792A7 /* paste.h */,
 				1F812B260D033551008792A7 /* pathfinder.c */,
@@ -999,6 +1006,7 @@
 				1F812B440D033551008792A7 /* pm_log.h */,
 				1F812B450D033551008792A7 /* popup.c */,
 				1F812B460D033551008792A7 /* popup.h */,
+				1F1CE86A114F0BA300F30873 /* quest_log.cpp */,
 				1F812B480D033551008792A7 /* questlog.h */,
 				1F812B490D033551008792A7 /* queue.c */,
 				1F812B4A0D033551008792A7 /* queue.h */,
@@ -1006,18 +1014,20 @@
 				1F812B4D0D033551008792A7 /* reflection.h */,
 				1F812B4E0D033551008792A7 /* rules.c */,
 				1F812B4F0D033551008792A7 /* rules.h */,
+				1F52AA1F0D6BCC0800CA2E5F /* select.cpp */,
 				1F812B500D033551008792A7 /* sendvideoinfo.cpp */,
 				1F812B510D033551008792A7 /* sendvideoinfo.h */,
 				1F812B520D033551008792A7 /* serverpopup.c */,
 				1F812B530D033551008792A7 /* serverpopup.h */,
 				1F812B540D033551008792A7 /* servers.c */,
 				1F812B550D033551008792A7 /* servers.h */,
-				1F812B560D033551008792A7 /* servers.lst */,
 				1F812B570D033551008792A7 /* session.c */,
 				1F812B580D033551008792A7 /* session.h */,
 				1F812B590D033551008792A7 /* shader */,
 				1F812B620D033551008792A7 /* shadows.c */,
 				1F812B630D033551008792A7 /* shadows.h */,
+				1F52AA200D6BCC0800CA2E5F /* skeletons.c */,
+				1F52AA210D6BCC0800CA2E5F /* skeletons.h */,
 				1F812B640D033551008792A7 /* skills.c */,
 				1F812B650D033551008792A7 /* skills.h */,
 				1F812B660D033551008792A7 /* sky.c */,
@@ -1039,13 +1049,19 @@
 				1F812B760D033551008792A7 /* tabs.c */,
 				1F812B770D033551008792A7 /* tabs.h */,
 				1F812B780D033551008792A7 /* templates */,
+				1F22CC3F0DBAD57400411752 /* text_aliases.c */,
+				1F22CC400DBAD57400411752 /* text_aliases.h */,
+				1F8F612C10CDC8CD007B270D /* text.c */,
 				1F812B7B0D033551008792A7 /* text.h */,
 				1F812B7C0D033551008792A7 /* textures.c */,
 				1F812B7D0D033551008792A7 /* textures.h */,
+				1F52AA220D6BCC0800CA2E5F /* threads.h */,
 				1F812B7E0D033551008792A7 /* tile_map.c */,
 				1F812B7F0D033551008792A7 /* tiles.h */,
 				1F812B800D033551008792A7 /* timers.c */,
 				1F812B810D033551008792A7 /* timers.h */,
+				7B0B8CB616CA78C000D75AD9 /* trade_log.cpp */,
+				D791C72125F932ED00EB3011 /* trade_log.h */,
 				1F812B830D033551008792A7 /* trade.c */,
 				1F812B840D033551008792A7 /* trade.h */,
 				1F812B850D033551008792A7 /* translate.c */,
@@ -1054,12 +1070,16 @@
 				1F812B880D033551008792A7 /* update.h */,
 				1F812B890D033551008792A7 /* url.c */,
 				1F812B8A0D033551008792A7 /* url.h */,
+				1FC155560FE906160046D7FE /* user_menus.cpp */,
+				1FC155570FE906160046D7FE /* user_menus.h */,
 				1F812B8B0D033551008792A7 /* vmath.h */,
 				1F812B8C0D033551008792A7 /* weather.c */,
 				1F812B8D0D033551008792A7 /* weather.h */,
 				1F812B8E0D033551008792A7 /* widgets.c */,
 				1F812B8F0D033551008792A7 /* widgets.h */,
 				1F812B900D033551008792A7 /* xml */,
+				7B0C5B4F224007C900BCFE13 /* xor_cipher.cpp */,
+				1FB7E416143560EA002C4FEA /* xz */,
 			);
 			name = elc;
 			sourceTree = "<group>";
@@ -1155,35 +1175,35 @@
 		1F812A5D0D033551008792A7 /* io */ = {
 			isa = PBXGroup;
 			children = (
-				1FB7E44C14356236002C4FEA /* fileutil.c */,
-				1FB7E44D14356236002C4FEA /* fileutil.h */,
 				E1DE78541330EE52005E7747 /* cal3d_io_wrapper.cpp */,
 				E1DE78551330EE52005E7747 /* cal3d_io_wrapper.h */,
 				E1DE78561330EE52005E7747 /* crypt.h */,
-				E1DE78571330EE52005E7747 /* elfilewrapper.c */,
-				E1DE78581330EE52005E7747 /* ioapi.c */,
-				E1DE78591330EE52005E7747 /* ioapi.h */,
-				E1DE785A1330EE52005E7747 /* unzip.c */,
-				E1DE785B1330EE52005E7747 /* unzip.h */,
-				E1DE785C1330EE52005E7747 /* zip.c */,
-				E1DE785D1330EE52005E7747 /* zip.h */,
-				E1DE785E1330EE52005E7747 /* ziputil.c */,
-				E1DE785F1330EE52005E7747 /* ziputil.h */,
-				1F608B650FA5CAF200FFD55C /* half.c */,
-				1F608B660FA5CAF200FFD55C /* half.h */,
-				1F608B670FA5CAF200FFD55C /* normal.c */,
-				1F608B680FA5CAF200FFD55C /* normal.h */,
 				1F812A5F0D033551008792A7 /* e3d_io.c */,
 				1F812A600D033551008792A7 /* e3d_io.h */,
 				1F812A610D033551008792A7 /* elc_io.c */,
 				1F812A620D033551008792A7 /* elc_io.h */,
+				E1DE78571330EE52005E7747 /* elfilewrapper.c */,
 				1F812A670D033551008792A7 /* elfilewrapper.h */,
 				1F812A680D033551008792A7 /* elpathwrapper.c */,
 				1F812A690D033551008792A7 /* elpathwrapper.h */,
+				1FB7E44C14356236002C4FEA /* fileutil.c */,
+				1FB7E44D14356236002C4FEA /* fileutil.h */,
+				1F608B650FA5CAF200FFD55C /* half.c */,
+				1F608B660FA5CAF200FFD55C /* half.h */,
+				E1DE78581330EE52005E7747 /* ioapi.c */,
+				E1DE78591330EE52005E7747 /* ioapi.h */,
 				1F812A6A0D033551008792A7 /* map_io.c */,
 				1F812A6B0D033551008792A7 /* map_io.h */,
+				1F608B670FA5CAF200FFD55C /* normal.c */,
+				1F608B680FA5CAF200FFD55C /* normal.h */,
+				E1DE785A1330EE52005E7747 /* unzip.c */,
+				E1DE785B1330EE52005E7747 /* unzip.h */,
 				1F812A6D0D033551008792A7 /* xmlcallbacks.c */,
 				1F812A6E0D033551008792A7 /* xmlcallbacks.h */,
+				E1DE785C1330EE52005E7747 /* zip.c */,
+				E1DE785D1330EE52005E7747 /* zip.h */,
+				E1DE785E1330EE52005E7747 /* ziputil.c */,
+				E1DE785F1330EE52005E7747 /* ziputil.h */,
 			);
 			name = io;
 			path = ../io;
@@ -1324,6 +1344,7 @@
 		29B97323FDCFA39411CA2CEA /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				D791C72225F9336F00EB3011 /* SDL2_ttf.framework */,
 				D7437F0F245ABAD100875ABE /* vorbis.framework */,
 				D7437F0C245AB82B00875ABE /* Vorbis.framework */,
 				D730266C244F639200A6C002 /* cal3d.framework */,
@@ -1336,6 +1357,31 @@
 				1058C7A2FEA54F0111CA2CBB /* Other Frameworks */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		D791C73A25F938F300EB3011 /* nlohmann_json */ = {
+			isa = PBXGroup;
+			children = (
+				D791C74225F938F400EB3011 /* single_include */,
+			);
+			name = nlohmann_json;
+			path = ../nlohmann_json;
+			sourceTree = "<group>";
+		};
+		D791C74225F938F400EB3011 /* single_include */ = {
+			isa = PBXGroup;
+			children = (
+				D791C74325F938F400EB3011 /* nlohmann */,
+			);
+			path = single_include;
+			sourceTree = "<group>";
+		};
+		D791C74325F938F400EB3011 /* nlohmann */ = {
+			isa = PBXGroup;
+			children = (
+				D791C74425F938F400EB3011 /* json.hpp */,
+			);
+			path = nlohmann;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -1416,7 +1462,6 @@
 				1F812BE70D033551008792A7 /* parser.c in Sources */,
 				1F812BE80D033551008792A7 /* symbols.c in Sources */,
 				1F812BE90D033551008792A7 /* typesetter.c in Sources */,
-				1F812BEA0D033551008792A7 /* books.c in Sources */,
 				1F812BEB0D033551008792A7 /* buddy.c in Sources */,
 				1F812BEC0D033551008792A7 /* cache.c in Sources */,
 				1F812BED0D033551008792A7 /* cal.c in Sources */,
@@ -1462,7 +1507,6 @@
 				1F812C330D033551008792A7 /* orbital_mover.cpp in Sources */,
 				1F812CB00D033551008792A7 /* eye_candy_wrapper.cpp in Sources */,
 				1F812CB10D033551008792A7 /* filter.c in Sources */,
-				1F812CB20D033551008792A7 /* font.c in Sources */,
 				1F812CB30D033551008792A7 /* framebuffer.c in Sources */,
 				1F812CB40D033551008792A7 /* frustum.c in Sources */,
 				1F812CB50D033551008792A7 /* gamewin.c in Sources */,
@@ -1478,6 +1522,7 @@
 				1F812CC10D033551008792A7 /* elpathwrapper.c in Sources */,
 				1F812CC20D033551008792A7 /* map_io.c in Sources */,
 				1F812CC30D033551008792A7 /* xmlcallbacks.c in Sources */,
+				D791C71525F9300700EB3011 /* books.cpp in Sources */,
 				1F812CC50D033551008792A7 /* items.c in Sources */,
 				1F812CC70D033551008792A7 /* keys.c in Sources */,
 				1F812CC80D033551008792A7 /* knowledge.c in Sources */,
@@ -1508,6 +1553,7 @@
 				1F812D540D033551008792A7 /* amxel.c in Sources */,
 				1F812D550D033551008792A7 /* amxfloat.c in Sources */,
 				1F812D560D033551008792A7 /* amxstring.c in Sources */,
+				D791C71725F930CF00EB3011 /* font.cpp in Sources */,
 				1F812D570D033551008792A7 /* elpawn.c in Sources */,
 				1F812D600D033551008792A7 /* pm_log.c in Sources */,
 				1F812D610D033551008792A7 /* popup.c in Sources */,
@@ -1600,6 +1646,7 @@
 				1FB7E44B143560EA002C4FEA /* XzEnc.c in Sources */,
 				1FB7E44E14356236002C4FEA /* fileutil.c in Sources */,
 				7B0B8C9916982A1000D75AD9 /* icon_window.cpp in Sources */,
+				D791C71C25F9321900EB3011 /* json_io.cpp in Sources */,
 				7B0B8CB016AD61C000D75AD9 /* command_queue.cpp in Sources */,
 				7B0B8CB716CA78C000D75AD9 /* trade_log.cpp in Sources */,
 				7B0B8CBA16CA78E800D75AD9 /* item_info.cpp in Sources */,
@@ -1623,19 +1670,16 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++14";
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				CODE_SIGN_ENTITLEMENTS = "Eternal Lands.entitlements";
 				CODE_SIGN_IDENTITY = "Developer ID Application: Ben Doughty (58CZVHK7KH)";
 				CODE_SIGN_STYLE = Manual;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 1.9.5p8;
+				CURRENT_PROJECT_VERSION = "$(inherited)";
 				DEVELOPMENT_TEAM = 58CZVHK7KH;
 				ENABLE_HARDENED_RUNTIME = YES;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(USER_LIBRARY_DIR)/Frameworks",
-					"$(PROJECT_DIR)",
-				);
+				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					ECDEBUGWIN,
@@ -1654,7 +1698,10 @@
 					FASTER_MAP_LOAD,
 					FASTER_STARTUP,
 					NEW_EYES,
+					TTF,
+					JSON_FILES,
 				);
+				HEADER_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = Info.plist;
 				INSTALL_PATH = "$(HOME)/Applications";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -1662,18 +1709,12 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.14;
-				MARKETING_VERSION = 1.9.5p8;
-				OTHER_CFLAGS = (
-					"-I/Users/dev/Library/Frameworks/SDL2.Framework/Headers/",
-					"-I/Users/dev/Library/Frameworks/SDL2_image.Framework/Headers/",
-					"-I/Users/dev/Library/Frameworks/SDL2_net.Framework/Headers/",
-					"-Wno-deprecated-declarations",
-				);
+				MARKETING_VERSION = "$(inherited)";
+				OTHER_CFLAGS = "-Wno-deprecated-declarations";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.eternal-lands.Eternal-Lands";
 				PRODUCT_NAME = "Eternal Lands";
 				PROVISIONING_PROFILE_SPECIFIER = "Eternal Lands";
 				WRAPPER_EXTENSION = app;
-				ZERO_LINK = YES;
 			};
 			name = Debug;
 		};
@@ -1681,18 +1722,15 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++14";
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				CODE_SIGN_ENTITLEMENTS = "Eternal Lands.entitlements";
 				CODE_SIGN_IDENTITY = "Developer ID Application: Ben Doughty (58CZVHK7KH)";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 1.9.5p8;
+				CURRENT_PROJECT_VERSION = "$(inherited)";
 				DEVELOPMENT_TEAM = 58CZVHK7KH;
 				ENABLE_HARDENED_RUNTIME = YES;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(USER_LIBRARY_DIR)/Frameworks",
-					"$(PROJECT_DIR)",
-				);
+				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					CLUSTER_INSIDES,
@@ -1710,18 +1748,10 @@
 					FASTER_MAP_LOAD,
 					FASTER_STARTUP,
 					NEW_EYES,
+					TTF,
+					JSON_FILES,
 				);
-				HEADER_SEARCH_PATHS = (
-					/usr/include/libxml2,
-					/System/Library/Frameworks/OpenGL.framework/Headers,
-					/System/Library/Frameworks/OpenAL.framework/Headers,
-					"$(EL_FRAMEWORKS_DIR)/SDL.framework/Headers",
-					"$(EL_FRAMEWORKS_DIR)/SDL_net.framework/Headers",
-					"$(EL_FRAMEWORKS_DIR)/SDL_image.framework/Headers",
-					"$(EL_FRAMEWORKS_DIR)/Ogg.framework/Headers",
-					"$(EL_FRAMEWORKS_DIR)/Vorbis.framework/Headers",
-					"$(EL_FRAMEWORKS_DIR)/png.framework/Headers",
-				);
+				HEADER_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = Info.plist;
 				INSTALL_PATH = "$(HOME)/Applications";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -1729,13 +1759,8 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.14;
-				MARKETING_VERSION = 1.9.5p8;
-				OTHER_CFLAGS = (
-					"-I/Users/dev/Library/Frameworks/SDL2.Framework/Headers/",
-					"-I/Users/dev/Library/Frameworks/SDL2_image.Framework/Headers/",
-					"-I/Users/dev/Library/Frameworks/SDL2_net.Framework/Headers/",
-					"-Wno-deprecated-declarations",
-				);
+				MARKETING_VERSION = "$(inherited)";
+				OTHER_CFLAGS = "-Wno-deprecated-declarations";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.eternal-lands.Eternal-Lands";
 				PRODUCT_NAME = "Eternal Lands";
 				PROVISIONING_PROFILE_SPECIFIER = "Eternal Lands";
@@ -1764,15 +1789,13 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 1.9.5;
+				CURRENT_PROJECT_VERSION = 1.9.5p9;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				FRAMEWORK_SEARCH_PATHS = (
-					"$(HOME)/Library/Frameworks",
+					"$(USER_LIBRARY_DIR)/Frameworks",
 					/System/Library/Frameworks,
-					/Library/Frameworks,
-					"$(FRAMEWORK_SEARCH_PATHS)",
 				);
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
@@ -1802,16 +1825,15 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = (
-					/usr/include/libxml2,
 					/System/Library/Frameworks/OpenGL.framework/Headers,
 					/System/Library/Frameworks/OpenAL.framework/Headers,
-					"$(EL_FRAMEWORKS_DIR)/SDL.framework/Headers",
-					"$(EL_FRAMEWORKS_DIR)/SDL_net.framework/Headers",
-					"$(EL_FRAMEWORKS_DIR)/SDL_image.framework/Headers",
-					"$(EL_FRAMEWORKS_DIR)/Ogg.framework/Headers",
-					"$(EL_FRAMEWORKS_DIR)/Vorbis.framework/Headers",
-					"$(EL_FRAMEWORKS_DIR)/png.framework/Headers",
+					"$(USER_LIBRARY_DIR)/Frameworks/SDL2.framework/Headers",
+					"$(USER_LIBRARY_DIR)/Frameworks/SDL2_net.framework/Headers",
+					"$(USER_LIBRARY_DIR)/Frameworks/SDL2_ttf.framework/Headers",
+					"$(USER_LIBRARY_DIR)/Frameworks/SDL2_image.framework/Headers",
+					"$(SRCROOT)/../nlohmann_json/single_include/",
 				);
+				MARKETING_VERSION = 1.9.5p9;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = (
 					"-lz",
@@ -1831,7 +1853,6 @@
 		C01FCF5008A954540054247B /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS_STANDARD_32_64_BIT_PRE_XCODE_3_1 = "ppc i386 ppc64 x86_64";
 				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_COMMA = YES;
@@ -1850,17 +1871,14 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 1.9.5;
+				CURRENT_PROJECT_VERSION = 1.9.5p9;
 				DEPLOYMENT_LOCATION = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				FRAMEWORK_SEARCH_PATHS = (
-					"$(HOME)/Library/Frameworks",
+					"$(USER_LIBRARY_DIR)/Frameworks",
 					/System/Library/Frameworks,
-					/Library/Frameworks,
-					"$(FRAMEWORK_SEARCH_PATHS)",
 				);
 				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
-				GCC_MODEL_TUNING = "";
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_OPTIMIZATION_LEVEL = 2;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -1888,16 +1906,15 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = (
-					/usr/include/libxml2,
 					/System/Library/Frameworks/OpenGL.framework/Headers,
 					/System/Library/Frameworks/OpenAL.framework/Headers,
-					"$(EL_FRAMEWORKS_DIR)/SDL.framework/Headers",
-					"$(EL_FRAMEWORKS_DIR)/SDL_net.framework/Headers",
-					"$(EL_FRAMEWORKS_DIR)/SDL_image.framework/Headers",
-					"$(EL_FRAMEWORKS_DIR)/Ogg.framework/Headers",
-					"$(EL_FRAMEWORKS_DIR)/Vorbis.framework/Headers",
-					"$(EL_FRAMEWORKS_DIR)/png.framework/Headers",
+					"$(USER_LIBRARY_DIR)/Frameworks/SDL2.framework/Headers",
+					"$(USER_LIBRARY_DIR)/Frameworks/SDL2_net.framework/Headers",
+					"$(USER_LIBRARY_DIR)/Frameworks/SDL2_ttf.framework/Headers",
+					"$(USER_LIBRARY_DIR)/Frameworks/SDL2_image.framework/Headers",
+					"$(SRCROOT)/../nlohmann_json/single_include/",
 				);
+				MARKETING_VERSION = 1.9.5p9;
 				OTHER_LDFLAGS = (
 					"-lz",
 					"-lxml2",
