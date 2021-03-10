@@ -1676,14 +1676,10 @@
 				CODE_SIGN_IDENTITY = "Developer ID Application: Ben Doughty (58CZVHK7KH)";
 				CODE_SIGN_STYLE = Manual;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 1.9.5p9;
+				CURRENT_PROJECT_VERSION = "$(inherited)";
 				DEVELOPMENT_TEAM = 58CZVHK7KH;
 				ENABLE_HARDENED_RUNTIME = YES;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(USER_LIBRARY_DIR)/Frameworks",
-					"$(PROJECT_DIR)",
-				);
+				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					ECDEBUGWIN,
@@ -1705,11 +1701,7 @@
 					TTF,
 					JSON_FILES,
 				);
-				HEADER_SEARCH_PATHS = (
-					/usr/include/libxml2,
-					/System/Library/Frameworks/OpenGL.framework/Headers,
-					/System/Library/Frameworks/OpenAL.framework/Headers,
-				);
+				HEADER_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = Info.plist;
 				INSTALL_PATH = "$(HOME)/Applications";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -1717,14 +1709,8 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.14;
-				MARKETING_VERSION = 1.9.5p9;
-				OTHER_CFLAGS = (
-					"-I/Users/dev/Library/Frameworks/SDL2.Framework/Headers/",
-					"-I/Users/dev/Library/Frameworks/SDL2_image.Framework/Headers/",
-					"-I/Users/dev/Library/Frameworks/SDL2_net.Framework/Headers/",
-					"-I/Users/dev/Library/Frameworks/SDL2_ttf.Framework/Headers/",
-					"-Wno-deprecated-declarations",
-				);
+				MARKETING_VERSION = "$(inherited)";
+				OTHER_CFLAGS = "-Wno-deprecated-declarations";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.eternal-lands.Eternal-Lands";
 				PRODUCT_NAME = "Eternal Lands";
 				PROVISIONING_PROFILE_SPECIFIER = "Eternal Lands";
@@ -1741,14 +1727,10 @@
 				CODE_SIGN_ENTITLEMENTS = "Eternal Lands.entitlements";
 				CODE_SIGN_IDENTITY = "Developer ID Application: Ben Doughty (58CZVHK7KH)";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 1.9.5p9;
+				CURRENT_PROJECT_VERSION = "$(inherited)";
 				DEVELOPMENT_TEAM = 58CZVHK7KH;
 				ENABLE_HARDENED_RUNTIME = YES;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(USER_LIBRARY_DIR)/Frameworks",
-					"$(PROJECT_DIR)",
-				);
+				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					CLUSTER_INSIDES,
@@ -1769,11 +1751,7 @@
 					TTF,
 					JSON_FILES,
 				);
-				HEADER_SEARCH_PATHS = (
-					/usr/include/libxml2,
-					/System/Library/Frameworks/OpenGL.framework/Headers,
-					/System/Library/Frameworks/OpenAL.framework/Headers,
-				);
+				HEADER_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = Info.plist;
 				INSTALL_PATH = "$(HOME)/Applications";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -1781,14 +1759,8 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.14;
-				MARKETING_VERSION = 1.9.5p9;
-				OTHER_CFLAGS = (
-					"-I/Users/dev/Library/Frameworks/SDL2.Framework/Headers/",
-					"-I/Users/dev/Library/Frameworks/SDL2_image.Framework/Headers/",
-					"-I/Users/dev/Library/Frameworks/SDL2_net.Framework/Headers/",
-					"-I/Users/dev/Library/Frameworks/SDL2_ttf.Framework/Headers/",
-					"-Wno-deprecated-declarations",
-				);
+				MARKETING_VERSION = "$(inherited)";
+				OTHER_CFLAGS = "-Wno-deprecated-declarations";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.eternal-lands.Eternal-Lands";
 				PRODUCT_NAME = "Eternal Lands";
 				PROVISIONING_PROFILE_SPECIFIER = "Eternal Lands";
@@ -1817,14 +1789,13 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 1.9.5;
+				CURRENT_PROJECT_VERSION = 1.9.5p9;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(USER_LIBRARY_DIR)/Frameworks",
 					/System/Library/Frameworks,
-					"$(FRAMEWORK_SEARCH_PATHS)",
 				);
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
@@ -1854,10 +1825,15 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = (
-					/usr/include/libxml2,
 					/System/Library/Frameworks/OpenGL.framework/Headers,
 					/System/Library/Frameworks/OpenAL.framework/Headers,
+					"$(USER_LIBRARY_DIR)/Frameworks/SDL2.framework/Headers",
+					"$(USER_LIBRARY_DIR)/Frameworks/SDL2_net.framework/Headers",
+					"$(USER_LIBRARY_DIR)/Frameworks/SDL2_ttf.framework/Headers",
+					"$(USER_LIBRARY_DIR)/Frameworks/SDL2_image.framework/Headers",
+					"$(SRCROOT)/../nlohmann_json/single_include/",
 				);
+				MARKETING_VERSION = 1.9.5p9;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = (
 					"-lz",
@@ -1895,13 +1871,12 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 1.9.5;
+				CURRENT_PROJECT_VERSION = 1.9.5p9;
 				DEPLOYMENT_LOCATION = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(USER_LIBRARY_DIR)/Frameworks",
 					/System/Library/Frameworks,
-					"$(FRAMEWORK_SEARCH_PATHS)",
 				);
 				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -1931,10 +1906,15 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = (
-					/usr/include/libxml2,
 					/System/Library/Frameworks/OpenGL.framework/Headers,
 					/System/Library/Frameworks/OpenAL.framework/Headers,
+					"$(USER_LIBRARY_DIR)/Frameworks/SDL2.framework/Headers",
+					"$(USER_LIBRARY_DIR)/Frameworks/SDL2_net.framework/Headers",
+					"$(USER_LIBRARY_DIR)/Frameworks/SDL2_ttf.framework/Headers",
+					"$(USER_LIBRARY_DIR)/Frameworks/SDL2_image.framework/Headers",
+					"$(SRCROOT)/../nlohmann_json/single_include/",
 				);
+				MARKETING_VERSION = 1.9.5p9;
 				OTHER_LDFLAGS = (
 					"-lz",
 					"-lxml2",
