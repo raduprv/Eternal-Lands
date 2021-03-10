@@ -11,7 +11,12 @@
 #include <fstream>
 #include <string>
 #include <iomanip>
-#include <nlohmann/json.hpp>
+
+#ifdef OSX
+    #include "nlohmann_json/single_include/nlohmann/json.hpp"
+#else
+    #include <nlohmann/json.hpp>
+#endif
 
 #include "chat.h"
 #include "elloggingwrapper.h"
