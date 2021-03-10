@@ -1842,6 +1842,8 @@ int use_ttf = 0;
 char ttf_directory[TTF_DIR_SIZE] = "/usr/share/fonts/TTF";
 #elif defined WINDOWS
 char ttf_directory[TTF_DIR_SIZE] = "C:/Windows/Fonts";
+#elif defined OSX
+char ttf_directory[TTF_DIR_SIZE] = "/System/Library/Fonts";
 #else
 char ttf_directory[TTF_DIR_SIZE];
 #endif //
