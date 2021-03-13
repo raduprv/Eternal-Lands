@@ -2067,7 +2067,9 @@ static __inline__ void check_option_var(const char* name)
 
 void check_options(void)
 {
-	check_option_var("use_compiled_vertex_array");
+    #ifndef OSX
+    check_option_var("use_compiled_vertex_array");
+    #endif
 	check_option_var("use_vertex_buffers");
 	check_option_var("clouds_shadows");
 	check_option_var("small_actor_texture_cache");
