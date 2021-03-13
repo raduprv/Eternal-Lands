@@ -56,7 +56,7 @@ Theoretically safe, unless someone has a HOME that has a really long path. Such 
 #ifdef CONFIGDIR
 static const char* cfgdirname = CONFIGDIR;
 #elif defined(OSX)
-static const char* cfgdirname = "Library/Application\ Support/Eternal\ Lands";
+static const char* cfgdirname = "Library/Application Support/Eternal Lands";
 #elif defined(WINDOWS)
 static const char* cfgdirname = "Eternal Lands";
 #else /* *nix */
