@@ -272,8 +272,6 @@ extern char
 		commands_help_not_loaded_str[60],
 		commands_help_not_recognsed_str[40],
 		commands_help_description_help_str[100],
-		commands_help_server_str[40],
-		commands_help_client_str[40],
 		cmd_ignores[20],
 		cmd_ignore[20],
 		cmd_unignore[20],
