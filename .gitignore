@@ -8,3 +8,8 @@ docs/DOXYTAGS
 docs/html
 pawn_scripts/*.amx
 pawn_scripts/features.inc
+
+# macOS Specific
+.DS_Store
+.DS_Store?
+xcuserdata/
