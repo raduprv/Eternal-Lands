@@ -416,7 +416,7 @@ int Font::width_pos(int pos, float zoom) const
 {
 	if (pos < 0)
 		return 0;
-	return std::round(_metrics[pos].advance * _scale_x * zoom);
+	return std::round((_metrics[pos].width + _spacing) * _scale_x * zoom);
 }
 
 int Font::width_spacing_pos(int pos, float zoom) const
@@ -736,7 +736,7 @@ int Font::draw_char(unsigned char c, int x, int y, float zoom, bool ignore_color
 	// the pen should advance for drawing the next character. Interestingly,
 	// char_width can be larger than advance, epsecially for bold fonts. For
 	// size calculations, the only relevant quantity is advance, though.
-	int char_width = std::round((_metrics[pos].width + _spacing) * _scale_x * zoom);
+	int char_width = width_pos(pos, zoom);
 	int advance = width_spacing_pos(pos, zoom);
 	int char_height = height(zoom);
 
