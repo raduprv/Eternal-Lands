@@ -568,7 +568,6 @@ extern char
 		item_list_add_help_str[40],
 		item_list_drag_help_str[40],
 		item_list_create_help_str[40],
-		item_list_magic_str[80],
 		item_list_find_str[20],
 		item_list_find_help_str[40],
 		item_list_find_help_disabled_str[40],

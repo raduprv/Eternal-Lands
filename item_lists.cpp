@@ -1317,13 +1317,6 @@ CHECK_GL_ERRORS();
 					do_click_sound();
 				if (flags & ELW_LEFT_MOUSE)
 				{
-					// randomly close the window
-					if (!(SDL_GetTicks() & 63))
-					{
-						hide_window(Vars::win()->get_id());
-						set_shown_string(c_red2, item_list_magic_str);
-						return 0;
-					}
 					storage_item_dragged = item_dragged = -1;
 					int image_id = Vars::lists()->get_list().get_image_id(selected_item_number);
 					Uint16 item_id = Vars::lists()->get_list().get_item_id(selected_item_number);
