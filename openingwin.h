@@ -26,6 +26,8 @@ extern int opening_root_win; /*!< handler for the opening window */
  */
 void create_opening_root_window (int width, int height);
 
+void switch_to_login(void);
+
 #ifdef __cplusplus
 } // extern "C"
 #endif

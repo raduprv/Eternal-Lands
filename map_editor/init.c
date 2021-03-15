@@ -44,6 +44,8 @@ void read_config()
 
 	safe_strncpy(configdir, tcfg, sizeof(configdir));
 
+	fprintf(stderr, "[DEBUG] configdir: [%s]\n", configdir);
+
 	if ( !read_el_ini () )
 	{
 		// oops, the file doesn't exist, give up

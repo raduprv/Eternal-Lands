@@ -164,7 +164,7 @@ static void load_entrable_list(void)
 }
 #endif // FASTER_MAP_LOAD
 
-static void read_config(void)
+void read_config(void)
 {
 	// Set our configdir
 	const char * tcfg = get_path_config();
@@ -788,13 +788,14 @@ void init_stuff(void)
 	init_text_buffers ();
 
 	load_server_list("servers.lst");
-	set_server_details();
+	set_default_config();
 
 #ifdef NEW_SOUND
 	initial_sound_init();
 #endif
 
 	// Read the config file
+	// TODO: config is stored per server... here we load the default config
 	read_config();
 
 	// Parse command line options
@@ -1056,6 +1057,7 @@ void init_stuff(void)
 	safe_snprintf(config_location, sizeof(config_location), datadir_location_str, datadir);
 	LOG_TO_CONSOLE(c_green4, config_location);
 	cfgdir = get_path_config();
+	cfgdir = get_path_default_config();
 	if (cfgdir != NULL) {
 		//Realistically, if this failed, then there's not much point in continuing, but oh well...
 		safe_snprintf(config_location, sizeof(config_location), config_location_str, cfgdir);
@@ -1092,8 +1094,10 @@ void init_stuff(void)
 	}
 	else if (has_accepted)
 	{
+		//switch_to_login();
 		show_window (opening_root_win);
-		connect_to_server();
+		//show_window (login_root_win);
+		//connect_to_server();
 	}
 	else
 	{

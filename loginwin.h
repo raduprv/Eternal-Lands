@@ -13,22 +13,28 @@ extern "C" {
 // How long a username is allowed to be. This define allows for the trailing NULL
 #define MAX_USERNAME_LENGTH (15 + 1)
 
+// How long a username is allowed to be. This define allows for the trailing NULL
+#define MAX_SERVER_LENGTH (15 + 1)
+
 extern int login_root_win; /*!< ID for the login root window */
 extern int login_text; /*!< ID for the background texture */
 extern char active_username_str[MAX_USERNAME_LENGTH]; /*!< the username of the actor */
 extern char active_password_str[MAX_USERNAME_LENGTH]; /*!< the password of the actor */
+extern char active_server_str[MAX_SERVER_LENGTH]; /*!< the server for the client to connect to */
 
 #define VALID_PASSWORD_CHAR(ch) (ch>=33 && ch<126)
 
 /*!
- * \name Getters and setters for current username and password.
+ * \name Getters and setters for current username, password and server.
  */
 /*! @{ */
 const char * get_username(void);
 const char * get_lowercase_username(void);
 const char * get_password(void);
+const char * get_server(void);
 void set_username(const char * new_username);
 void set_password(const char * new_password);
+void set_server(const char * new_server);
 int valid_username_password(void);
 /*! @} */
 

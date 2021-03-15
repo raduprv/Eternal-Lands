@@ -23,6 +23,14 @@ extern "C" {
 const char * get_path_config_base(void);
 
 /**
+ * @brief Gets the directory for the default config files
+ *
+ * Get the directory where we should be storing default config files
+ * @return Returns a string with the path on success, or an empty string (indicating the use of the current directory, usually data_dir) on failure
+ */
+const char * get_path_default_config(void);
+
+/**
  * @brief Gets the directory for config files
  *
  * Get the directory where we should be storing config files
@@ -170,6 +178,13 @@ void file_update_clear_old(void);
  * @return As per remove()
  */
 void remove_file_updates(char * filename, int custom);
+
+/**
+ * @brief Check for valid default config
+ *
+ * Checks if we can stat() default config file
+ */
+int check_default_config(void);
 
 /**
  * @brief Check for valid configdir

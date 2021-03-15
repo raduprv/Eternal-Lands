@@ -2795,6 +2795,7 @@ static void init_ELC_vars(void)
 		"Username", "Your user name here", SERVER);
 	add_var(OPT_PASSWORD, "password", "p", active_password_str, change_string, sizeof(active_password_str),
 		"Password", "Put your password here", SERVER);
+	add_var(OPT_STRING,"server","s",active_server_str,change_string,sizeof(active_server_str),"Server","Put your server here",SERVER);
 	add_var(OPT_BOOL,"passmngr_enabled","pme",&passmngr_enabled,change_var,0,"Enable Password Manager", "If enabled, user names and passwords are saved locally by the built-in password manager.  Multiple sets of details can be saved.  You can choose which details to use at the login screen.",SERVER);
 	add_var(OPT_MULTI,"log_chat","log",&log_chat,change_int,LOG_SERVER,"Log Messages","Log messages from the server (chat, harvesting events, GMs, etc)",SERVER,"Do not log chat", "Log chat only", "Log server messages", "Log server to srv_log.txt", NULL);
 	add_var(OPT_BOOL,"rotate_chat_log","rclog",&rotate_chat_log_config_var,change_rotate_chat_log,0,"Rotate Chat Log File","Tag the chat/server message log files with year and month. You will still need to manage deletion of the old files. Requires a client restart.",SERVER);

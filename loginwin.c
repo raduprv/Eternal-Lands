@@ -19,15 +19,20 @@
 #include "tabs.h"
 #include "textures.h"
 #include "translate.h"
+#include "elloggingwrapper.h"
+#include "servers.h"
+#include "init.h"
 
 int login_root_win = -1;
 int login_text = -1;
 
 static int username_field_id = 0;
 static int password_field_id = 1;
+static int server_field_id   = 2;
 
 static char username_box_selected = 1;
 static char password_box_selected = 0;
+static char server_box_selected   = 0;
 
 static int game_buttons;
 static int login_screen_menus;
@@ -38,6 +43,8 @@ static int username_text_x;
 static int username_text_y;
 static int password_text_x;
 static int password_text_y;
+static int server_text_x;
+static int server_text_y;
 
 static int username_bar_x;
 static int username_bar_y;
@@ -48,6 +55,11 @@ static int password_bar_x;
 static int password_bar_y;
 static int password_bar_x_len = 0;
 static int password_bar_y_len = 0;
+
+static int server_bar_x;
+static int server_bar_y;
+static int server_bar_x_len = 0;
+static int server_bar_y_len = 0;
 
 static int passmngr_button_mouse_over = 0;
 static int passmngr_button_x = 0;
@@ -77,12 +89,16 @@ static char settings_button_selected = 0;
 
 char active_username_str[MAX_USERNAME_LENGTH]={0};
 char active_password_str[MAX_USERNAME_LENGTH]={0};
+char active_server_str[MAX_SERVER_LENGTH]={0};
 
 static char input_username_str[MAX_USERNAME_LENGTH]={0};
 static char input_password_str[MAX_USERNAME_LENGTH]={0};
 static char lower_username_str[MAX_USERNAME_LENGTH]={0};
+static char lower_server_str[MAX_SERVER_LENGTH]={0};
+static char input_server_str[MAX_SERVER_LENGTH]={0};
 static int username_initial = 1;
 static int password_initial = 1;
+static int server_initial = 1;
 
 #define SELBOX_X_LEN 174
 #define SELBOX_Y_LEN 28
@@ -112,16 +128,28 @@ static void toggle_selected_box(int which)
 		sel_flags |= username_initial ? PWORD_FIELD_NO_CURSOR : PWORD_FIELD_DRAW_CURSOR;
 		widget_set_flags(login_root_win, username_field_id, sel_flags);
 		widget_set_flags(login_root_win, password_field_id, unsel_flags);
+		widget_set_flags(login_root_win, server_field_id, unsel_flags);
 		username_box_selected = 1;
 		password_box_selected = 0;
-	}
-	else
-	{
+		server_box_selected = 0;
+	} else if (which == password_field_id) {
 		sel_flags |= password_initial ? PWORD_FIELD_NO_CURSOR : PWORD_FIELD_DRAW_CURSOR;
 		widget_set_flags(login_root_win, username_field_id, unsel_flags);
 		widget_set_flags(login_root_win, password_field_id, sel_flags);
+		widget_set_flags(login_root_win, server_field_id, unsel_flags);
 		username_box_selected = 0;
 		password_box_selected = 1;
+		server_box_selected = 0;
+	}
+	else
+	{
+		sel_flags |= server_initial ? PWORD_FIELD_NO_CURSOR : PWORD_FIELD_DRAW_CURSOR;
+		widget_set_flags(login_root_win, username_field_id, unsel_flags);
+		widget_set_flags(login_root_win, password_field_id, unsel_flags);
+		widget_set_flags(login_root_win, server_field_id, sel_flags);
+		username_box_selected = 0;
+		password_box_selected = 0;
+		server_box_selected = 1;
 	}
 }
 
@@ -137,6 +165,12 @@ static int select_password_box()
 	return 1;
 }
 
+static int select_server_box()
+{
+	toggle_selected_box(server_field_id);
+	return 1;
+}
+
 void init_login_screen (void)
 {
 	CHECK_GL_ERRORS();
@@ -147,6 +181,7 @@ void init_login_screen (void)
 
 	set_username(active_username_str);
 	set_password(active_password_str);
+	set_server(active_server_str);
 	passmngr_init();
 	passmngr_set_login();
 
@@ -188,12 +223,14 @@ static int resize_login_handler (window_info *win, Uint32 w, Uint32 h)
 		win->font_category, win->current_scale);
 	int password_str_len_x = get_string_width_zoom((const unsigned char*)login_username_str,
 		win->font_category, win->current_scale);
-	int max_login_str = max2i(username_str_len_x, password_str_len_x);
+	int server_str_len_x = get_string_width_zoom((const unsigned char*)login_server_str,
+		win->font_category, win->current_scale);
+	int max_login_str = max2i(max2i(username_str_len_x, password_str_len_x), server_str_len_x);
 	int height = 0, max_width = 0, login_sep_x = 0, button_sep_x = 0;
 	int normal_char_width = (int)(0.5 + win->current_scale * DEFAULT_FIXED_FONT_WIDTH);
 
-	username_bar_x_len = password_bar_x_len = 10 * (MAX_USERNAME_LENGTH-1) * normal_char_width / 9;
-	username_bar_y_len = password_bar_y_len = 1.5 * win->default_font_len_y;
+	username_bar_x_len = password_bar_x_len = server_bar_x_len = 10 * (MAX_USERNAME_LENGTH-1) * normal_char_width / 9;
+	username_bar_y_len = password_bar_y_len = server_bar_y_len = 1.5 * win->default_font_len_y;
 	log_in_y_len = new_char_y_len = settings_y_len = button_y_len;
 	passmngr_button_size = (int)(0.5 + win->current_scale * 32);
 
@@ -205,8 +242,8 @@ static int resize_login_handler (window_info *win, Uint32 w, Uint32 h)
 	login_sep_x = (max_width - max_login_str - username_bar_x_len - passmngr_button_size) / 2;
 	button_sep_x = (max_width - log_in_x_len - new_char_x_len - settings_x_len) / 2;
 
-	username_text_x = password_text_x = half_screen_x - max_width / 2;
-	username_bar_x = password_bar_x = username_text_x + max_login_str + login_sep_x;
+	username_text_x = password_text_x = server_text_x = half_screen_x - max_width / 2;
+	username_bar_x = password_bar_x = server_bar_x = username_text_x + max_login_str + login_sep_x;
 	passmngr_button_x = username_bar_x + username_bar_x_len + login_sep_x;
 	log_in_x = username_text_x;
 	new_char_x = log_in_x + log_in_x_len + button_sep_x;
@@ -221,7 +258,9 @@ static int resize_login_handler (window_info *win, Uint32 w, Uint32 h)
 	username_text_y = username_bar_y + username_bar_y_len/4;
 	password_bar_y = username_bar_y + username_bar_y_len + win->default_font_len_y;
 	password_text_y = password_bar_y + password_bar_y_len/4;
-	log_in_y = settings_y = new_char_y = password_bar_y + username_bar_y_len + win->default_font_len_y;
+	server_bar_y = password_bar_y + password_bar_y_len + win->default_font_len_y;
+	server_text_y = server_bar_y + server_bar_y_len/4;
+	log_in_y = settings_y = new_char_y = server_bar_y + username_bar_y_len + win->default_font_len_y;
 
 	widget_move(win->window_id, username_field_id,
 		username_bar_x + 0.025 * username_bar_x_len, username_text_y);
@@ -234,6 +273,12 @@ static int resize_login_handler (window_info *win, Uint32 w, Uint32 h)
 	widget_resize(win->window_id, password_field_id, (1.0 - 2*0.025) * username_bar_x_len,
 		password_bar_y + password_bar_y_len - password_text_y);
 	widget_set_size(win->window_id, password_field_id, win->current_scale);
+
+	widget_move(win->window_id, server_field_id,
+	            server_bar_x + 0.025 * server_bar_x_len, server_text_y);
+	widget_resize(win->window_id, server_field_id, (1.0 - 2*0.025) * username_bar_x_len,
+	              server_bar_y + server_bar_y_len - server_text_y);
+	widget_set_size(win->window_id, server_field_id, win->current_scale);
 
 	passmngr_resize();
 
@@ -306,6 +351,8 @@ static int display_login_handler (window_info *win)
 		strlen(login_username_str), win->font_category, TDO_ZOOM, win->current_scale, TDO_END);
 	draw_text(username_text_x, password_text_y, (const unsigned char*)login_password_str,
 		strlen(login_password_str), win->font_category, TDO_ZOOM, win->current_scale, TDO_END);
+	draw_text(server_text_x, server_text_y, (const unsigned char*)login_server_str,
+		strlen(login_server_str), win->font_category, TDO_ZOOM, win->current_scale, TDO_END);
 
 	draw_string_zoomed(username_text_x, log_in_y + log_in_y_len + win->default_font_len_y, (unsigned char*)login_rules_str, num_rules_lines, win->current_scale);
 
@@ -339,6 +386,12 @@ static int display_login_handler (window_info *win)
 		draw_2d_thing (selected_bar_u_start, selected_bar_v_start, selected_bar_u_end, selected_bar_v_end, password_bar_x, password_bar_y, password_bar_x + password_bar_x_len, password_bar_y + password_bar_y_len);
 	else
 		draw_2d_thing (unselected_bar_u_start, unselected_bar_v_start, unselected_bar_u_end, unselected_bar_v_end, password_bar_x, password_bar_y, password_bar_x + password_bar_x_len, password_bar_y + password_bar_y_len);
+
+	// server box
+	if (server_box_selected)
+		draw_2d_thing (selected_bar_u_start, selected_bar_v_start, selected_bar_u_end, selected_bar_v_end, server_bar_x, server_bar_y, server_bar_x + server_bar_x_len, server_bar_y + server_bar_y_len);
+	else
+		draw_2d_thing (unselected_bar_u_start, unselected_bar_v_start, unselected_bar_u_end, unselected_bar_v_end, server_bar_x, server_bar_y, server_bar_x + server_bar_x_len, server_bar_y + server_bar_y_len);
 
 	// log in button
 	if (log_in_button_selected)
@@ -422,6 +475,11 @@ static int click_login_handler (window_info *win, int mx, int my, Uint32 flags)
 	{
 		select_password_box();
 	}
+	// check to see if we clicked on the server box
+	else if (mx >= server_bar_x && mx <= server_bar_x + server_bar_x_len && my >= server_bar_y && my <= server_bar_y + server_bar_y_len)
+	{
+		select_server_box();
+	}
 	// check to see if we clicked login select button
 	else if (mx >= passmngr_button_x && mx <= passmngr_button_x + passmngr_button_size && my >= passmngr_button_y && my <= passmngr_button_y + passmngr_button_size)
 	{
@@ -437,11 +495,21 @@ static int click_login_handler (window_info *win, int mx, int my, Uint32 flags)
 	// check to see if we clicked on the ACTIVE Log In button
 	if (log_in_button_selected)
 	{
+		fprintf(stderr,"[DEBUG] click_login_handler - log_in_button_selected\n");
 		log_in_error_str[0] = '\0';
 		set_username(input_username_str);
 		set_password(input_password_str);
+		set_server(input_server_str);
 		passmngr_destroy_window();
-		send_login_info ();
+		fprintf(stderr,"[DEBUG] Server: %s\n",input_server_str);
+		if ( set_server_details_from_id(input_server_str) ) {
+			//read_config();
+			SDLNet_TCP_Close(my_socket);
+			my_socket = 0;
+			disconnected = 1;
+			can_login = 1;
+			send_login_info ();
+		}
 	}
 	//check to see if we clicked on the ACTIVE New Char button
 	else if (new_char_button_selected)
@@ -499,24 +567,46 @@ static keypress_type password_keypress_ok(SDL_Keycode key_code, Uint32 key_unico
 	return VALID_PASSWORD_CHAR(key_unicode) ? KP_INPUT : special_keypress_ok(key_code);
 }
 
+static keypress_type server_keypress_ok(SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_mod)
+{
+	Uint8 ch = key_to_char(key_unicode);
+	if ((ch >= '0' && ch <= '9') || (ch>='A' && ch<='Z') || (ch>='a' && ch<='z') || ch=='_' || ch=='-' || ch=='.')
+		return KP_INPUT;
+	return special_keypress_ok(key_code);
+}
+
 static int keypress_login_handler (window_info *win, int mx, int my, SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_mod)
 {
 	// First check key presses common to all root windows. Many of these
 	// don't make sense at this point, but it should be harmless.
 	if ( keypress_root_common (key_code, key_unicode, key_mod) )
 		return 1;
-	else if ((key_code == SDLK_RETURN || key_code == SDLK_KP_ENTER) && input_username_str[0] && input_password_str[0])
+	else if ((key_code == SDLK_RETURN || key_code == SDLK_KP_ENTER) && input_username_str[0] && input_password_str[0] && input_server_str[0])
 	{
 		log_in_error_str[0] = '\0';
 		set_username(input_username_str);
 		set_password(input_password_str);
+		set_server(input_server_str);
 		passmngr_destroy_window();
-		send_login_info();
+		fprintf(stderr,"[DEBUG] Server: %s\n",input_server_str);
+		if ( set_server_details_from_id(input_server_str)) {
+			//read_config();
+			SDLNet_TCP_Close(my_socket);
+			my_socket = 0;
+			disconnected = 1;
+			can_login = 1;
+			send_login_info();
+		}
 		return 1;
 	}
 	else if (key_code == SDLK_TAB)
 	{
-		toggle_selected_box(username_box_selected ? password_field_id : username_field_id);
+		if (username_box_selected)
+			toggle_selected_box(password_field_id);
+		else if (password_box_selected)
+			toggle_selected_box(server_field_id);
+		else
+			toggle_selected_box(username_field_id);
 		return 1;
 	}
 	else if (username_box_selected)
@@ -534,7 +624,7 @@ static int keypress_login_handler (window_info *win, int mx, int my, SDL_Keycode
 			username_initial = 0;
 		}
 	}
-	else
+	else if (password_box_selected)
 	{
 		keypress_type kp_type = password_keypress_ok(key_code, key_unicode, key_mod);
 		log_in_error_str[0] = '\0';
@@ -547,6 +637,21 @@ static int keypress_login_handler (window_info *win, int mx, int my, SDL_Keycode
 			widget_handle_keypress(field, 0, 0, key_code, key_unicode, key_mod);
 			widget_set_flags(login_root_win, password_field_id, PWORD_FIELD_NO_BORDER|PWORD_FIELD_NO_KEYPRESS|PWORD_FIELD_DRAW_CURSOR);
 			password_initial = 0;
+		}
+	}
+	else
+	{
+		keypress_type kp_type = server_keypress_ok(key_code, key_unicode, key_mod);
+		log_in_error_str[0] = '\0';
+		if (kp_type)
+		{
+			widget_list *field = widget_find(win->window_id, server_field_id);
+			if (server_initial && kp_type == KP_INPUT)
+				pword_clear(login_root_win, server_field_id);
+			widget_unset_flags(win->window_id, server_field_id, PWORD_FIELD_NO_KEYPRESS);
+			widget_handle_keypress(field, 0, 0, key_code, key_unicode, key_mod);
+			widget_set_flags(login_root_win, server_field_id, PWORD_FIELD_NO_BORDER|PWORD_FIELD_NO_KEYPRESS|PWORD_FIELD_DRAW_CURSOR);
+			server_initial = 0;
 		}
 	}
 	return 0;
@@ -599,6 +704,11 @@ void create_login_root_window (int width, int height)
 		widget_set_color(login_root_win, password_field_id, 0.0f, 0.9f, 1.0f);
 		widget_set_flags(login_root_win, password_field_id, PWORD_FIELD_NO_BORDER|PWORD_FIELD_NO_KEYPRESS|PWORD_FIELD_NO_CURSOR);
 		widget_set_OnClick(login_root_win, password_field_id, select_password_box);
+		server_field_id = pword_field_add_extended(login_root_win, server_field_id, NULL,
+			0, 0, 0, 0, P_TEXT, 1.0, (unsigned char*)input_server_str, MAX_SERVER_LENGTH);
+		widget_set_color(login_root_win, server_field_id, 0.0f, 0.9f, 1.0f);
+		widget_set_flags(login_root_win, server_field_id, PWORD_FIELD_NO_BORDER|PWORD_FIELD_NO_KEYPRESS|PWORD_FIELD_NO_CURSOR);
+		widget_set_OnClick(login_root_win, server_field_id, select_server_box);
 
 		resize_window (login_root_win, width, height);
 	}
@@ -617,6 +727,11 @@ const char * get_lowercase_username(void)
 const char * get_password(void)
 {
 	return active_password_str;
+}
+
+const char * get_server(void)
+{
+	return active_server_str;
 }
 
 void set_username(const char * new_username)
@@ -645,6 +760,7 @@ void set_username(const char * new_username)
 
 void set_password(const char * new_password)
 {
+	fprintf(stderr,"[DEBUG] set_password [%s]\n",new_password);
 	if (strcmp(active_password_str, new_password) != 0)
 		safe_strncpy(active_password_str, new_password, MAX_USERNAME_LENGTH);
 	if (strcmp(input_password_str, new_password) != 0)
@@ -658,9 +774,36 @@ void set_password(const char * new_password)
 	password_initial = 1;
 }
 
+void set_server(const char * new_server)
+{
+	if (strcmp(active_server_str, new_server) != 0)
+	{
+		safe_strncpy(active_server_str, new_server, MAX_SERVER_LENGTH);
+		if (passmngr_enabled)
+			set_var_unsaved("server", INI_FILE_VAR);
+	}
+	if (strcmp(input_server_str, new_server) != 0)
+	{
+		if (login_root_win >= 0)
+			pword_field_set_content(login_root_win, server_field_id,
+			                        (const unsigned char*)new_server, strlen(new_server));
+		else
+			safe_strncpy(input_server_str, new_server, MAX_SERVER_LENGTH);
+	}
+	if (strcmp(lower_server_str, new_server) != 0)
+	{
+		safe_strncpy(lower_server_str, new_server, MAX_SERVER_LENGTH);
+		my_tolower(lower_server_str);
+	}
+	server_initial = 1;
+}
+
 int valid_username_password(void)
 {
 	int i, username_len, password_len;
+
+	fprintf(stderr, "[DEBUG] valid_username_password - Username: [%s]\n", get_username());
+	fprintf(stderr, "[DEBUG] valid_username_password - Password: [%s]\n", get_password());
 
 	username_len = strlen(get_username());
 	if (username_len < 3)

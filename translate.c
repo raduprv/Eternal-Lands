@@ -211,6 +211,7 @@ char
 	/*loginwin.c*/
 	login_username_str[20],
 	login_password_str[20],
+	login_server_str[20],
 	login_rules_str[120],
 	passmngr_enabled_str[70],
 	passmngr_disabled_str[70],
@@ -1431,6 +1432,7 @@ void init_help()
 	add_xml_identifier(misc,"trade",no_open_on_trade,"You can't open this window while on trade.",sizeof(no_open_on_trade));
 	add_xml_identifier(misc,"user",login_username_str,"Username:",sizeof(login_username_str));
 	add_xml_identifier(misc,"pass",login_password_str,"Password:",sizeof(login_password_str));
+	add_xml_identifier(misc,"server",login_server_str,"Server:",sizeof(login_server_str));
 	add_xml_identifier(misc,"passmngr_enabled",passmngr_enabled_str,"Open/close password manager window.",sizeof(passmngr_enabled_str));
 	add_xml_identifier(misc,"passmngr_disabled",passmngr_disabled_str,"Password manager is disabled, see server tab in settings.",sizeof(passmngr_disabled_str));
 	add_xml_identifier(misc,"show_passwords",show_passwords_str,"Show Passwords",sizeof(show_passwords_str));
