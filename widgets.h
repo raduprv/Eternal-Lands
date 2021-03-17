@@ -27,7 +27,7 @@ typedef struct {
 } tab;
 
 typedef struct {
-	int tag_height, button_size;
+	int tag_height, button_size, tabs_right_margin;
 	int nr_tabs, max_tabs, cur_tab, tab_offset, tab_last_visible;
 	tab *tabs;
 } tab_collection;
@@ -1277,13 +1277,14 @@ int tab_collection_add (int window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint
  * \param   	ly The height
  * \param   	Flags The flags
  * \param   	size The text size
- * \param	max_tabs The largest number of tabs this collection will hold
+ * \param   	max_tabs The largest number of tabs this collection will hold
+ * \param   	right_margin space to leave to the right of the line of tabs (for example, for a close box)
  * \retval int  	Returns the new widgets unique ID
  *
  * \sa tab_collection_add
  */
 int tab_collection_add_extended (int window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 y,
-	Uint16 lx, Uint16 ly, Uint32 Flags, float size, int max_tabs);
+	Uint16 lx, Uint16 ly, Uint32 Flags, float size, int max_tabs, int right_margin);
 
 /*!
  * \ingroup	tabs

@@ -1213,7 +1213,7 @@ static void create_chat_window(void)
 	widget_set_OnDrag (chat_win, chat_scroll_id, chat_scroll_drag);
 	widget_set_OnClick (chat_win, chat_scroll_id, chat_scroll_click);
 
-	chat_tabcollection_id = tab_collection_add_extended (chat_win, chat_tabcollection_id, NULL, CHAT_WIN_SPACE, CHAT_WIN_SPACE, inout_width, tabcol_height, 0, DEFAULT_SMALL_RATIO, MAX_CHAT_TABS);
+	chat_tabcollection_id = tab_collection_add_extended (chat_win, chat_tabcollection_id, NULL, CHAT_WIN_SPACE, CHAT_WIN_SPACE, inout_width, tabcol_height, 0, DEFAULT_SMALL_RATIO, MAX_CHAT_TABS, 0);
 	widget_set_OnClick (chat_win, chat_tabcollection_id, chat_tabs_click);
 
 	channels[0].tab_id = tab_add (chat_win, chat_tabcollection_id, (tab_label(CHAT_ALL))->name, 0, 0, 0);

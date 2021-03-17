@@ -265,8 +265,9 @@ void display_ecdebugwin(void)
 
 		// create tab collection
 		// 24 pixels offset down so we don't cover the [X] in the upper right corner
-		ecdw_tab_collection = tab_collection_add_extended(ecdebug_win, ecdw_tabcollection_id, NULL, 0, 0,
-			ecdebug_win_width - windows_list.window[ecdebug_win].box_size, ecdebug_win_height, 0, current_scale, 0);
+		ecdw_tab_collection = tab_collection_add_extended(ecdebug_win, ecdw_tabcollection_id,
+			NULL, 0, 0, ecdebug_win_width - windows_list.window[ecdebug_win].box_size,
+			ecdebug_win_height, 0, DEFAULT_SMALL_RATIO * current_scale, 0, ELW_BOX_SIZE);
 
 		// create tabs
 		tab_self = tab_add(ecdebug_win, ecdw_tab_collection, "self", 0, 0, 0);

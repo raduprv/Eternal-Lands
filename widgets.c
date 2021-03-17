@@ -1524,6 +1524,7 @@ int tab_collection_draw (widget_list *w)
 	int h;
 	int xtxt, ytxt;
 	float tab_corner;
+	int right_margin = 0;
 
 	if (!w) return 0;
 
@@ -1537,6 +1538,9 @@ int tab_collection_draw (widget_list *w)
 	arw_width = btn_size / 4;
 	cur_start = cur_end = xstart;
 	tab_corner = h / 5.0f;
+
+	if ((w->window_id >= 0) && (w->window_id < windows_list.num_windows))
+		right_margin = col->tabs_right_margin * windows_list.window[w->window_id].current_scale;
 
 	glDisable(GL_TEXTURE_2D);
 
@@ -1575,7 +1579,7 @@ int tab_collection_draw (widget_list *w)
 	for (itab = col->tab_offset; itab < col->nr_tabs; itab++)
 	{
 		xend = xstart + col->tabs[itab].tag_width;
-		xmax = w->pos_x + w->len_x;
+		xmax = w->pos_x + w->len_x - right_margin;
 		if (itab < col->nr_tabs - 1)
 			xmax -= h;
 
@@ -1587,7 +1591,7 @@ int tab_collection_draw (widget_list *w)
 			// the end of the available width
 			glBegin (GL_LINES);
 				glVertex3f (xstart - 2 * tab_corner, ytagtop, 0);
-				glVertex3f (w->pos_x + w->len_x - h, ytagtop, 0);
+				glVertex3f (w->pos_x + w->len_x - h - right_margin, ytagtop, 0);
 			glEnd ();
 			break;
 		}
@@ -1668,7 +1672,7 @@ int tab_collection_draw (widget_list *w)
 	if (itab < col->nr_tabs)
 	{
 		// draw a "move right" button
-		xstart = w->pos_x + w->len_x - btn_size;
+		xstart = w->pos_x + w->len_x - right_margin - btn_size;
 
 		if(w->r!=-1.0)
 			glColor3f(w->r, w->g, w->b);
@@ -1724,6 +1728,7 @@ CHECK_GL_ERRORS();
 static int tab_collection_click(widget_list *W, int x, int y, Uint32 flags)
 {
 	tab_collection *col = (tab_collection *) W->widget_info;
+	int right_margin = 0;
 
 	// only handle mouse button clicks, not scroll wheels moves
 	if ( (flags & ELW_MOUSE_BUTTON) == 0) return 0;
@@ -1735,7 +1740,13 @@ static int tab_collection_click(widget_list *W, int x, int y, Uint32 flags)
 		return 1;
 	}
 
-	if (col->tab_last_visible < col->nr_tabs-1 && x >= W->len_x - col->button_size && x <= W->len_x && y >= 0 && y <= col->button_size)
+	if ((W->window_id >= 0) && (W->window_id < windows_list.num_windows))
+		right_margin = col->tabs_right_margin * windows_list.window[W->window_id].current_scale;
+
+	if ((col->tab_last_visible < col->nr_tabs - 1) &&
+		(x >= W->len_x - col->button_size - right_margin) &&
+		(x <= W->len_x - right_margin) &&
+		(y >= 0) && (y <= col->button_size))
 	{
 		if (col->tab_offset < col->nr_tabs-1)
 			col->tab_offset++;
@@ -1909,7 +1920,7 @@ static int tab_collection_keypress(widget_list *W, int mx, int my, SDL_Keycode k
 	return 0;
 }
 
-int tab_collection_add_extended (int window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, int max_tabs)
+int tab_collection_add_extended (int window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, int max_tabs, int right_margin)
 {
 	int itab;
 	window_info *win = &windows_list.window[window_id];
@@ -1924,6 +1935,7 @@ int tab_collection_add_extended (int window_id, Uint32 wid, int (*OnInit)(), Uin
 	T->nr_tabs = 0;
 	T->tag_height = tab_collection_calc_tab_height(win->font_category, size);
 	T->button_size = (9 * T->tag_height) / 10;
+	T->tabs_right_margin = right_margin;
 	T->cur_tab = 0;
 	T->tab_offset = 0;
 	T->tab_last_visible = 0;
@@ -1933,7 +1945,7 @@ int tab_collection_add_extended (int window_id, Uint32 wid, int (*OnInit)(), Uin
 
 int tab_collection_add (int window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly)
 {
-	return tab_collection_add_extended (window_id, widget_id++, OnInit, x, y, lx, ly, 0, 1.0, 0);
+	return tab_collection_add_extended (window_id, widget_id++, OnInit, x, y, lx, ly, 0, 1.0, 0, 0);
 }
 
 int tab_add (int window_id, Uint32 col_id, const char *label, Uint16 tag_width, int closable, Uint32 flags)
@@ -4982,7 +4994,7 @@ int ParseWidget (xmlNode *node, int winid)
 		case TABCOLLECTION:
 		{
 			xmlNode *tab;
-			int colid = tab_collection_add_extended (winid, id, NULL, pos_x, pos_y, len_x, len_y, flags, size, max_tabs, tag_height);
+			int colid = tab_collection_add_extended (winid, id, NULL, pos_x, pos_y, len_x, len_y, flags, size, max_tabs, tag_height, 0);
 			for (tab = node->children; tab; tab = tab->next)
 			{
 				if (tab->type == XML_ELEMENT_NODE)
