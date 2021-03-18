@@ -1075,7 +1075,7 @@ void draw_game_map (int map, int mouse_mini)
 #ifdef DEBUG_MAP_SOUND
 	// If we are in map view (not continent view) draw the sound area boundaries
 	if (map) {
-		print_sound_boundaries(cur_tab_map);
+		print_sound_boundaries(map_file_name);
 	}
 #endif // DEBUG_MAP_SOUND
 

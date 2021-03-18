@@ -244,7 +244,7 @@ void change_map (const char *mapname)
 
 #ifdef NEW_SOUND
 	get_map_playlist();
-	setup_map_sounds(get_cur_map(mapname));
+	setup_map_sounds(mapname);
 #endif // NEW_SOUND
 	have_a_map=1;
 	//also, stop the rain
@@ -271,7 +271,7 @@ void change_map (const char *mapname)
 
 #ifdef NEW_SOUND
 	get_map_playlist();
-	setup_map_sounds(get_cur_map(mapname));
+	setup_map_sounds(mapname);
 #endif // NEW_SOUND
 	have_a_map=1;
 #endif  //MAP_EDITOR2
