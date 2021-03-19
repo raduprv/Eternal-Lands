@@ -203,6 +203,7 @@ typedef struct
 
 typedef struct
 {
+	int id;
 	char file_name[256];
 	char name[MAX_SOUND_MAP_NAME_LENGTH];		// This isn't used, it is simply helpful when editing the config
 	map_sound_boundary_def boundaries[MAX_SOUND_MAP_BOUNDARIES];		// This is the boundaries for backgound and crowd sounds
@@ -1083,7 +1084,7 @@ int check_for_valid_stream_sound(int tx, int ty, int type)
 {
 	int i, j, snd = -1, playing, found = 0;
 
-	if (snd_cur_map > -1 && sound_map_data[snd_cur_map].file_name[0] != '\0')
+	if (snd_cur_map > -1 && (sound_map_data[snd_cur_map].file_name[0] != '\0' || sound_map_data[snd_cur_map].id > -1) )
 	{
 		for (i = 0; i < sound_map_data[snd_cur_map].num_boundaries; i++)
 		{
@@ -3336,7 +3337,7 @@ int get_boundary_walk_sound(int tx, int ty)
 {
 	int i, snd = -1;
 
-	if (snd_cur_map > -1 && sound_map_data[snd_cur_map].file_name[0] != '\0')
+	if (snd_cur_map > -1 && (sound_map_data[snd_cur_map].file_name[0] != '\0' || sound_map_data[snd_cur_map].id > -1) )
 	{
 		for (i = 0; i < sound_map_data[snd_cur_map].num_walk_boundaries; i++)
 		{
@@ -3417,7 +3418,7 @@ void setup_map_sounds (const char * mapname)
 	snd_cur_map = -1;
 	for (i = 0; i < sound_num_maps; i++)
 	{
-		if (strcmp (sound_map_data[i].file_name, mapname) == 0)
+		if (strcmp (sound_map_data[i].file_name, mapname) == 0 || get_cur_map(mapname) == sound_map_data[i].id)
 		{
 			snd_cur_map = i;
 #ifdef DEBUG_MAP_SOUND
@@ -3708,7 +3709,7 @@ void print_sound_boundaries(const char *mapname)
 
 	// Check if this map matches an array id
 	for (i = 0; i < MAX_SOUND_MAPS; i++) {
-		if (strcmp (sound_map_data[i].file_name, mapname) == 0) {
+		if (strcmp (sound_map_data[i].file_name, mapname) == 0 || get_cur_map(mapname) == sound_map_data[i].id ) {
 			id = i;
 			break;
 		}
@@ -3791,7 +3792,7 @@ void print_sound_boundary_coords(const char *mapname)
 
 	// Check if this map matches an array id
 	for (i = 0; i < MAX_SOUND_MAPS; i++) {
-		if (strcmp (sound_map_data[i].file_name, mapname) == 0) {
+		if (strcmp (sound_map_data[i].file_name, mapname) == 0 || get_cur_map(mapname) == sound_map_data[i].id ) {
 			id = i;
 			break;
 		}
@@ -3924,6 +3925,7 @@ void clear_sound_data()
 	walking_default = -1;
 	for (i = 0; i < MAX_SOUND_MAPS; i++)
 	{
+		sound_map_data[i].id = -1;
 		sound_map_data[i].file_name[0] = '\0';
 		sound_map_data[i].name[0] = '\0';
 		sound_map_data[i].num_boundaries = 0;
@@ -4116,6 +4118,7 @@ void initial_sound_init(void)
 	for (i=0; i<MAX_SOUND_MAPS; i++)
 	{
 		sound_map_data[i].num_boundaries = sound_map_data[i].num_defaults = sound_map_data[i].num_walk_boundaries = 0;
+		sound_map_data[i].id = -1;
 		sound_map_data[i].file_name[0] = '\0';
 	}
 
@@ -5130,13 +5133,30 @@ void parse_map_sound(const xmlNode *inNode)
 	if (!sVal)
 	{
 		pMap->file_name[0] = '\0';
-		LOG_ERROR("%s: map has no file_name", snd_config_error);
 	}
 	else
 	{
 		safe_strncpy(pMap->file_name, (const char*)sVal, sizeof(pMap->file_name));
 		xmlFree(sVal);
-
+	}
+	
+	sVal = xmlGetProp((xmlNode*)inNode,(const xmlChar*)"id");
+	if (!sVal)
+	{
+		pMap->id = -1;	
+	}
+	else
+	{
+		pMap->id = atoi((const char*)sVal);
+		xmlFree(sVal);
+	}
+	
+	if (pMap->file_name[0] == '\0' && pMap->id == -1)
+	{
+			LOG_ERROR("%s: map has no file_name or id", snd_config_error);
+	}
+	else
+	{
 		sVal = xmlGetProp((xmlNode*)inNode, (const xmlChar*)"name");
 		if (sVal)
 		{

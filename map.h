@@ -159,7 +159,15 @@ extern int marks_3d;
 #define MARK_CLIP_POS 20
 #define MARK_DIST 20
 
-
+/*
+ * Returns the index of the map file name in the continent_maps array.
+ * This is used in map.c to save the index of the current map in cur_map.
+ * It is here temporarily because if the map sound config files use the map id rather than
+ * the map name from the server, sound.c needs to look up the index of the current map.
+ * Once map sound config files use server map name rather than id, we can remove this and
+ * references to get_cur_map in sound.c.
+ */
+int get_cur_map (const char * file_name);
 
 
 #ifdef __cplusplus
