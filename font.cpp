@@ -419,7 +419,7 @@ int Font::width_pos(int pos, float zoom) const
 	return std::round((_metrics[pos].width + _spacing) * _scale_x * zoom);
 }
 
-int Font::width_spacing_pos(int pos, float zoom) const
+int Font::advance_spacing_pos(int pos, float zoom) const
 {
 	if (pos < 0)
 		return 0;
@@ -451,11 +451,11 @@ int Font::line_width(const unsigned char* str, size_t len, float zoom) const
 		int pos = get_position(str[i]);
 		if (pos >= 0)
 		{
-			cur_width += width_spacing_pos(pos, zoom);
+			cur_width += advance_spacing_pos(pos, zoom);
 			last_pos = pos;
 		}
 	}
-	cur_width -= width_spacing_pos(last_pos, zoom) - width_pos(last_pos, zoom);
+	cur_width -= advance_spacing_pos(last_pos, zoom) - width_pos(last_pos, zoom);
 
 	return cur_width;
 }
@@ -464,7 +464,7 @@ int Font::line_width_spacing(const unsigned char* str, size_t len, float zoom) c
 {
 	int cur_width = 0;
 	for (size_t i = 0; i < len; ++i)
-		cur_width += width_spacing(str[i], zoom);
+		cur_width += advance_spacing(str[i], zoom);
 
 	return cur_width;
 }
@@ -568,7 +568,7 @@ std::tuple<ustring, int, int> Font::reset_soft_breaks(const unsigned char *text,
 	size_t text_len, const TextDrawOptions& options, ssize_t cursor, int *max_line_width)
 {
 	int block_width = std::ceil(_block_width * _scale_x * options.zoom());
-	int cursor_width = width_spacing('_', options.zoom());
+	int cursor_width = advance_spacing('_', options.zoom());
 
 	if (!text || options.max_width() < block_width)
 		return std::make_tuple(ustring(), 0, 0);
@@ -590,7 +590,7 @@ std::tuple<ustring, int, int> Font::reset_soft_breaks(const unsigned char *text,
 
 			// We need to be able to place a cursor at this position, so use the maximum of the
 			// cursor width and character width to determine if the character fits.
-			int chr_width = width_spacing(c, options.zoom());
+			int chr_width = advance_spacing(c, options.zoom());
 			if (cur_width + block_width <= options.max_width()
 				|| cur_width + std::max(chr_width, cursor_width) <= options.max_width())
 			{
@@ -737,7 +737,7 @@ int Font::draw_char(unsigned char c, int x, int y, float zoom, bool ignore_color
 	// char_width can be larger than advance, epsecially for bold fonts. For
 	// size calculations, the only relevant quantity is advance, though.
 	int char_width = width_pos(pos, zoom);
-	int advance = width_spacing_pos(pos, zoom);
+	int advance = advance_spacing_pos(pos, zoom);
 	int char_height = height(zoom);
 
 	float u_start, u_end, v_start, v_end;
@@ -863,10 +863,9 @@ std::pair<size_t, size_t> Font::clip_line(const unsigned char *text, size_t len,
 		return std::make_pair(0, len);
 
 	int trunc_width = max_width;
-	int ellipsis_width = 0;
 	if (options.ellipsis())
 	{
-		ellipsis_width = line_width_spacing(ellipsis, options.zoom());
+		int ellipsis_width = line_width_spacing(ellipsis, options.zoom());
 		if (options.alignment() == TextDrawOptions::Alignment::CENTER)
 			ellipsis_width *= 2;
 		trunc_width -= ellipsis_width;
@@ -883,7 +882,7 @@ std::pair<size_t, size_t> Font::clip_line(const unsigned char *text, size_t len,
 				if (is_color(ch) && !after_color)
 					after_color = ch;
 				else
-					width -= width_spacing(ch, options.zoom());
+					width -= advance_spacing(ch, options.zoom());
 			}
 			break;
 		}
@@ -895,7 +894,7 @@ std::pair<size_t, size_t> Font::clip_line(const unsigned char *text, size_t len,
 				if (is_color(ch))
 					before_color = ch;
 				else
-					width -= width_spacing(ch, options.zoom());
+					width -= advance_spacing(ch, options.zoom());
 			}
 			break;
 		}
@@ -910,7 +909,7 @@ std::pair<size_t, size_t> Font::clip_line(const unsigned char *text, size_t len,
 					if (is_color(ch))
 						before_color = ch;
 					else
-						d_left += width_spacing(ch, options.zoom());
+						d_left += advance_spacing(ch, options.zoom());
 				}
 				else
 				{
@@ -918,7 +917,7 @@ std::pair<size_t, size_t> Font::clip_line(const unsigned char *text, size_t len,
 					if (is_color(ch) && !after_color)
 						after_color = ch;
 					else
-						d_right += width_spacing(ch, options.zoom());
+						d_right += advance_spacing(ch, options.zoom());
 				}
 			}
 			width -= d_left + d_right;
@@ -1060,7 +1059,7 @@ void Font::draw_messages(const text_message *msgs, size_t msgs_size, int x, int 
 {
 	int block_width = std::ceil(_block_width * _scale_x * options.zoom());
 	int line_skip = vertical_advance(options.zoom(), options.line_spacing());
-	int cursor_width = width_spacing('_', options.zoom());
+	int cursor_width = advance_spacing('_', options.zoom());
 
 	if (options.max_width() < block_width || options.max_lines() < 1)
 		// no point in trying
@@ -1169,7 +1168,7 @@ void Font::draw_messages(const text_message *msgs, size_t msgs_size, int x, int 
 		if (is_color(ch))
 			last_color_char = ch;
 
-		int chr_width = width_spacing(ch, options.zoom());
+		int chr_width = advance_spacing(ch, options.zoom());
 		if (cur_x - x + chr_width <= options.max_width())
 		{
 			if (i_total == cursor)
@@ -1231,7 +1230,7 @@ void Font::draw_console_separator(int x_space, int y, const TextDrawOptions& opt
 	int pos = get_position('^');
 	int char_width = width_pos(pos, options.zoom());
 	int char_height = height(options.zoom());
-	int dx = width_spacing_pos(pos, options.zoom());
+	int dx = advance_spacing_pos(pos, options.zoom());
 
 	float u_start, u_end, v_start, v_end;
 	get_texture_coordinates(pos, u_start, u_end, v_start, v_end);
@@ -1314,7 +1313,7 @@ void Font::draw_ortho_ingame_string(const unsigned char* text, size_t len,
 				glTexCoord2f(u_end,   v_end);   glVertex3f(cur_x+char_width, cur_y,             z);
 				glTexCoord2f(u_end,   v_start); glVertex3f(cur_x+char_width, cur_y+char_height, z);
 
-				cur_x += width_spacing_pos(pos, zoom_x);
+				cur_x += advance_spacing_pos(pos, zoom_x);
 			}
 		}
 	}
@@ -1861,7 +1860,7 @@ size_t get_fixed_width_font_number(size_t idx)
 
 int get_char_width_zoom(unsigned char c, font_cat cat, float zoom)
 {
-	return FontManager::get_instance().width_spacing(cat, c, zoom);
+	return FontManager::get_instance().advance_spacing(cat, c, zoom);
 }
 int get_max_char_width_zoom(font_cat cat, float zoom)
 {

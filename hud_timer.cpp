@@ -217,10 +217,10 @@ int Hud_Timer::ui_scale_handler(window_info *win)
 	eternal_lands::FontManager& font_manager = eternal_lands::FontManager::get_instance();
 	zoom = win->current_scale;
 
-	int c_width = font_manager.width_spacing(win->font_category, countdown_str[0], zoom);
-	int s_width = font_manager.width_spacing(win->font_category, stopwatch_str[0], zoom);
+	int c_width = font_manager.advance_spacing(win->font_category, countdown_str[0], zoom);
+	int s_width = font_manager.advance_spacing(win->font_category, stopwatch_str[0], zoom);
 	int text_width = std::max(c_width, s_width)
-		+ font_manager.width_spacing(win->font_category, ':', zoom)
+		+ font_manager.advance_spacing(win->font_category, ':', zoom)
 		+ 3 * font_manager.max_digit_width_spacing(win->font_category, zoom);
 	int max_width = win->len_x - 4 * win->current_scale;
 
