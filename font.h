@@ -590,6 +590,16 @@ public:
 	 */
 	int max_digit_width_spacing(float zoom=1.0) const;
 	/*!
+	 * \brief The maximum width of a single name character
+	 *
+	 * Return the maximum pen advancement for a single name character ('0'-'9', 'a'-'z', 'A'-'Z', or '_')
+	 * when drawn in this font at zoom level \a text_zoom, and include the spacing between characters.
+	 *
+	 * \param zoom The scale factor for the text
+	 * \return The maximum name character width incuding spacing, in pixels.
+	 */
+	int max_name_width_spacing(float zoom=1.0) const;
+	/*!
 	 * \brief Calculate the width of a string
 	 *
 	 * Calculate the width in pixels of the string \a text of length \a len
@@ -916,8 +926,10 @@ private:
 	int _password_center_offset;
 	//! Maximum width of a glyph
 	int _max_advance;
-	//! Maximum width of a digit 0-9
+	//! Maximum width of a digit '0'-'9'
 	int _max_digit_advance;
+	//! Maximum width of a name character '0'-'9', 'A'-'Z', 'a'-'z' or '_'
+	int _max_name_advance;
 	//! "Typical" character width for English text
 	int _avg_advance;
 	//! Distance between characters when drawn (at default zoom level)
@@ -1267,6 +1279,21 @@ public:
 	int max_digit_width_spacing(Category cat, float text_zoom=1.0)
 	{
 		return get(cat, text_zoom).max_digit_width_spacing(text_zoom * font_scales[cat]);
+	}
+	/*!
+	 * \brief The maximum width of a single name character
+	 *
+	 * Return the maximum pen advancement for a single name character ('0'-'9', 'a'-'z', 'A'-'Z', or '_')
+	 * when drawn in the font for category \a cat at zoom level \a text_zoom, and include the
+	 * spacing between characters.
+	 *
+	 * \param cat       The font category for the font used
+	 * \param text_zoom The scale factor for the text
+	 * \return The maximum name character width incuding spacing, in pixels.
+	 */
+	int max_name_width_spacing(Category cat, float text_zoom=1.0)
+	{
+		return get(cat, text_zoom).max_name_width_spacing(text_zoom * font_scales[cat]);
 	}
 	/*!
 	 * \brief Calculate the width of a string
@@ -1743,6 +1770,19 @@ int get_avg_char_width_zoom(font_cat cat, float text_zoom);
  * \return The maximum digit character width incuding spacing, in pixels.
  */
 int get_max_digit_width_zoom(font_cat cat, float text_zoom);
+/*!
+ * \ingroup text_font
+ * \brief The maximum width of a single name character
+ *
+ * Return the maximum pen advancement for a single name character ('0'-'9', 'a'-'z', 'A'-'Z', or '_')
+ * when drawn in the font for category \a cat at zoom level \a text_zoom, and include the
+ * spacing between characters.
+ *
+ * \param cat       The font category for the font used
+ * \param text_zoom The scale factor for the text
+ * \return The maximum name character width incuding spacing, in pixels.
+ */
+int get_max_name_width_zoom(font_cat cat, float text_zoom);
 /*!
  * \ingroup text_font
  * \brief Calculate the width of a string
