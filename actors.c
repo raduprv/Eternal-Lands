@@ -812,7 +812,7 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 	y_bottom -= 0.2f * bar_y_len;
 	if (display_banner_alpha && banner_width > 0) {
 		//if banner width > 0 there MUST be something displayed in the banner
-		banner_width += 3;
+		banner_width += name_zoom * 3;
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_ONE, GL_SRC_ALPHA);
 		glColor4f(0.0f, 0.0f, 0.0f, 0.6f);

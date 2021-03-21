@@ -434,7 +434,6 @@ char
 	item_list_add_help_str[40],
 	item_list_drag_help_str[40],
 	item_list_create_help_str[40],
-	item_list_magic_str[80],
 	item_list_find_str[20],
 	item_list_find_help_str[40],
 	item_list_find_help_disabled_str[40];
@@ -508,8 +507,6 @@ char	name_too_long[75],
 	commands_help_not_loaded_str[60],
 	commands_help_not_recognsed_str[40],
 	commands_help_description_help_str[100],
-	commands_help_server_str[40],
-	commands_help_client_str[40],
 	cmd_ignores[20],
 	cmd_ignore[20],
 	cmd_unignore[20],
@@ -1136,8 +1133,6 @@ void init_console()
 	add_xml_identifier(misc, "commands_help_not_loaded", commands_help_not_loaded_str, "Commands help file not loaded", sizeof(commands_help_not_loaded_str));
 	add_xml_identifier(misc, "commands_help_not_recognsed", commands_help_not_recognsed_str, "Unrecognised command", sizeof(commands_help_not_recognsed_str));
 	add_xml_identifier(misc, "commands_help_description_help", commands_help_description_help_str, "For help on a particular command, use ## <command>", sizeof(commands_help_description_help_str));
-	add_xml_identifier(misc, "commands_help_server", commands_help_server_str, "Server commands:-", sizeof(commands_help_server_str));
-	add_xml_identifier(misc, "commands_help_client", commands_help_client_str, "Client commands:-", sizeof(commands_help_client_str));
 
 	add_xml_identifier(loading_msg,"init_opengl",init_opengl_str,"Initializing OpenGL extensions",sizeof(init_opengl_str));
 	add_xml_identifier(loading_msg,"init_random",init_random_str,"Generating random seed",sizeof(init_random_str));
@@ -1773,7 +1768,6 @@ void init_help()
 	add_xml_identifier(misc, "item_list_add_help", item_list_add_help_str, "Add to list - ctrl+left-click", sizeof(item_list_add_help_str));
 	add_xml_identifier(misc, "item_list_drag_help", item_list_drag_help_str, "Add to list - drag from inv/sto", sizeof(item_list_drag_help_str));
 	add_xml_identifier(misc, "item_list_create_help", item_list_create_help_str, "Create new list", sizeof(item_list_create_help_str));
-	add_xml_identifier(misc, "item_list_magic", item_list_magic_str, "Magical interference caused the list window to close O.O", sizeof(item_list_magic_str));
 	add_xml_identifier(misc, "item_list_find", item_list_find_str, "Find: ", sizeof(item_list_find_str));
 	add_xml_identifier(misc, "item_list_find_help", item_list_find_help_str, "Find list - type text", sizeof(item_list_find_help_str));
 	add_xml_identifier(misc, "item_list_find_help_disabled", item_list_find_help_disabled_str, "Find list - (disabled)", sizeof(item_list_find_help_disabled_str));

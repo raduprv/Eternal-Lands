@@ -1820,34 +1820,19 @@ int cm_test_window(char *text, int len);
 static void commands_summary(void)
 {
 	char *str = NULL;
-	size_t str_len = (MAX_COMMAND_NAME_LEN + 5) * command_count;
+	const char *delim = "  .  ";
+	const size_t str_len = 1 + (MAX_COMMAND_NAME_LEN + strlen(delim)) * command_count;
 	size_t i;
 
 	if ((str = malloc(str_len)) == NULL)
 		return;
 
 	LOG_TO_CONSOLE(c_green1, commands_help_description_help_str);
-	LOG_TO_CONSOLE(c_green1, commands_help_server_str);
 	str[0] = '\0';
 	for(i = 0; i < command_count; i++) 
 	{
-		if (commands[i].callback != NULL)
-			continue;
 		if (str[0] != '\0')
-			safe_strcat(str, "  -  ", str_len);
-		safe_strcat(str, commands[i].command, str_len);
-	}
-	if (str[0] != '\0')
-		LOG_TO_CONSOLE(c_grey1, str);
-
-	LOG_TO_CONSOLE(c_green1, commands_help_client_str);
-	str[0] = '\0';
-	for(i = 0; i < command_count; i++) 
-	{
-		if (commands[i].callback == NULL)
-			continue;
-		if (str[0] != '\0')
-			safe_strcat(str, "  -  ", str_len);
+			safe_strcat(str, delim, str_len);
 		safe_strcat(str, commands[i].command, str_len);
 	}
 	if (str[0] != '\0')
