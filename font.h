@@ -518,7 +518,7 @@ public:
 	/*!
 	 * \brief Get the width of a character
 	 *
-	 * Get the width of character \a c when drawn in this font at zoom level \a zoom.
+	 * Get the drawing width of character \a c when drawn in this font at zoom level \a zoom.
 	 *
 	 * \param c    The character of which to determine the width
 	 * \param zoom The zoom factor for drawing the glyph
@@ -529,18 +529,18 @@ public:
 		return width_pos(get_position(c), zoom);
 	}
 	/*!
-	 * \brief Get the width of a character plus spacing
+	 * \brief Get the pen advancement of a character, plus spacing
 	 *
-	 * Get the width of character \a c when drawn in this font at zoom level \a zoom,
-	 * plus the spacing between two characters.
+	 * Get how far the pen is advanced after drawing character \a c in this font at zoom level
+	 * \a zoom. The spacing between two characters is added to the advancement.
 	 *
 	 * \param c    The character of which to determine the width
 	 * \param zoom The zoom factor for drawing the glyph
 	 * \return The width of \a c and spacing, in pixels.
 	 */
-	int width_spacing(unsigned char c, float zoom=1.0) const
+	int advance_spacing(unsigned char c, float zoom=1.0) const
 	{
-		return width_spacing_pos(get_position(c), zoom);
+		return advance_spacing_pos(get_position(c), zoom);
 	}
 	/*!
 	 * \brief Get the maximum character width, plus spacing
@@ -963,16 +963,16 @@ private:
 	 */
 	int width_pos(int pos, float zoom=1.0) const;
 	/*!
-	 * \brief Get the width of a character plus spacing
+	 * \brief Get the pen advancement of a character, plus spacing
 	 *
-	 * Get the width of the glyph at position \a pos in the texture when drawn
-	 * in this font at zoom level \a zoom, plus the spacing between two
-	 * characters.
+	 * Get how far the pen is advanced after drawing the glyph at position \a pos in the texture,
+	 * when drawn in this font at zoom level \a zoom. The spacing between two characters is added
+	 * to the advancement.
 	 *
 	 * \param pos  The position of the glyph in the texture
 	 * \param zoom The zoom factor for drawing the glyph
 	 */
-	int width_spacing_pos(int pos, float zoom=1.0) const;
+	int advance_spacing_pos(int pos, float zoom=1.0) const;
 	/*!
 	 * \brief Get vertical coordinates
 	 *
@@ -1208,19 +1208,19 @@ public:
 	}
 
 	/*!
-	 * \brief The width of a single character
+	 * \brief Get the pend advancement of a character, plus spacing
 	 *
-	 * Return the width of a single character including spacing, when drawn
-	 * in the font for category \a cat, at zoom level \a text_zoom.
+	 * Get how far the pen is advanced after drawing character \a c in the font for category \a cat,
+	 * at zoom level \a zoom. The spacing between two characters is added to the advancement.
 	 *
 	 * \param cat       The font category for the font used
 	 * \param c         The character for which to get the width
 	 * \param text_zoom The scale factor for the text
 	 * \return The width of the character and spacing, in pixels.
 	 */
-	int width_spacing(Category cat, unsigned char c, float text_zoom=1.0)
+	int advance_spacing(Category cat, unsigned char c, float text_zoom=1.0)
 	{
-		return get(cat, text_zoom).width_spacing(c, text_zoom * font_scales[cat]);
+		return get(cat, text_zoom).advance_spacing(c, text_zoom * font_scales[cat]);
 	}
 	/*!
 	 * \brief The maximum width of a single character

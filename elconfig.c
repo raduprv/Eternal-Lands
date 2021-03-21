@@ -3950,9 +3950,6 @@ void display_elconfig_win(void)
 		elconf_desc_max_height = MAX_LONG_DESC_LINES * get_line_height(CONFIG_FONT, elconf_scale * DEFAULT_SMALL_RATIO);
 		LONG_DESC_SPACE = SPACING + elconf_desc_max_height;
 		TAB_TAG_HEIGHT = tab_collection_calc_tab_height(CONFIG_FONT, elconf_scale);
-		elconfig_menu_x_len = 4 * TAB_MARGIN + 4 * SPACING + CHECKBOX_SIZE
-			+ 50 * ELCONFIG_SCALED_VALUE(DEFAULT_FIXED_FONT_WIDTH)
-			+ ELCONFIG_SCALED_VALUE(ELW_BOX_SIZE);
 		elconfig_menu_x_len = get_elconfig_content_width() + 2 * TAB_MARGIN;
 		elconfig_menu_y_len = ELCONFIG_SCALED_VALUE(440);
 #ifdef ANDROID
@@ -3977,7 +3974,7 @@ void display_elconfig_win(void)
 		/* Create tabs */
 		elconfig_tab_collection_id= tab_collection_add_extended (elconfig_win, elconfig_tab_collection_id, NULL,
 			TAB_MARGIN, TAB_MARGIN, elconfig_menu_x_len-TAB_MARGIN*2, elconfig_menu_y_len-TAB_MARGIN*2-LONG_DESC_SPACE,
-			0, DEFAULT_SMALL_RATIO * elconf_scale, MAX_TABS);
+			0, DEFAULT_SMALL_RATIO * elconf_scale, MAX_TABS, ELW_BOX_SIZE);
 		/* Pass ELW_SCROLLABLE as the final argument to tab_add() if you want
 		 * to put more widgets in the tab than the size of the window allows.*/
 		elconfig_tabs[CONTROLS].tab= tab_add(elconfig_win, elconfig_tab_collection_id, ttab_controls, 0, 0, ELW_SCROLLABLE|ELW_USE_UISCALE);
