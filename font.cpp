@@ -18,6 +18,7 @@
 #include "elloggingwrapper.h"
 #include "exceptions/extendedexception.hpp"
 #include "io/elpathwrapper.h"
+#include "init.h"
 #include "gl_init.h"
 #include "textures.h"
 
@@ -82,12 +83,19 @@ bool pos_selected(const select_info *sel, size_t imsg, size_t ichar)
 #ifdef TTF
 TTF_Font* open_font(const std::string& file_name, int point_size)
 {
-	// First try to interpret ttf_file_name as a path relative to ttf_directory. If that fails,
-	// try as an absolute path.
-	std::string path = ttf_directory + file_name;
+	// First try to interpret ttf_file_name as a path relative to the data directory. If that fails,
+	// try a path relative to the ttf_directory. If that also fails, try as an absolute path.
+	std::string path = datadir + file_name;
 	TTF_Font *font = TTF_OpenFont(path.c_str(), point_size);
 	if (!font)
-		font = TTF_OpenFont(file_name.c_str(), point_size);
+	{
+		path = ttf_directory + file_name;
+		font = TTF_OpenFont(path.c_str(), point_size);
+		if (!font)
+		{
+			font = TTF_OpenFont(file_name.c_str(), point_size);
+		}
+	}
 	return font;
 }
 #endif
@@ -1472,8 +1480,6 @@ bool Font::build_texture_atlas()
 		return false;
 	}
 
-	// First try to interpret ttf_file_name as a path relative to ttf_directory. If that fails,
-	// try as an absolute path.
 	int point_size = _point_size ? _point_size : ttf_point_size;
 	TTF_Font *font = open_font(_file_name.c_str(), point_size);
 	if (!font)
@@ -1637,6 +1643,24 @@ void FontManager::initialize_ttf()
 	}
 
 	size_t nr_existing_fonts = _options.size();
+	// First load from the game fonts directory
+	std::string fonts_dir = std::string(datadir) + "/fonts";
+	for (const char* pattern: patterns)
+	{
+		search_files_and_apply(fonts_dir.c_str(), pattern,
+			[](const char *fname_ptr) {
+				size_t dir_name_len = strlen(datadir);
+				std::string fname;
+				if (!strncmp(fname_ptr, datadir, dir_name_len))
+					fname = fname_ptr + dir_name_len;
+				else
+					fname = fname_ptr;
+				FontOption option(fname);
+				if (!option.failed())
+					FontManager::get_instance()._options.push_back(std::move(option));
+			}, 0);
+	}
+	// Now search files in the user specified fonts directory
 	for (const char* pattern: patterns)
 	{
 		search_files_and_apply(ttf_directory, pattern,
