@@ -214,6 +214,8 @@ char
 	login_rules_str[120],
 	passmngr_enabled_str[70],
 	passmngr_disabled_str[70],
+	passmngr_error_str[70],
+	password_format_str[150],
 	show_passwords_str[30],
 	login_select_window_str[30],
 	/*items.c*/
@@ -1433,6 +1435,8 @@ void init_help()
 	add_xml_identifier(misc,"pass",login_password_str,"Password:",sizeof(login_password_str));
 	add_xml_identifier(misc,"passmngr_enabled",passmngr_enabled_str,"Open/close password manager window.",sizeof(passmngr_enabled_str));
 	add_xml_identifier(misc,"passmngr_disabled",passmngr_disabled_str,"Password manager is disabled, see server tab in settings.",sizeof(passmngr_disabled_str));
+	add_xml_identifier(misc,"passmngr_error",passmngr_error_str,"WARNING: Password manager did not save invalid password.",sizeof(passmngr_error_str));
+	add_xml_identifier(misc,"password_format",password_format_str,"Passwords must be 4-15 characters and can include alpha, numeric or others characters but not space or ~.",sizeof(password_format_str));
 	add_xml_identifier(misc,"show_passwords",show_passwords_str,"Show Passwords",sizeof(show_passwords_str));
 	add_xml_identifier(misc,"login_select_window",login_select_window_str,"Select Login",sizeof(login_select_window_str));
 	add_xml_identifier(misc,"login_rules",login_rules_str,"If you log into this game, you accept the rules of Eternal Lands. Press F5 to read them in game.",sizeof(login_rules_str));

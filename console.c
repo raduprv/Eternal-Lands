@@ -1747,8 +1747,14 @@ static int command_relogin(char *text, int len)
 
 static int command_change_pass(char *text, int len)
 {
-	passmngr_pending_pw_change(getparams(text));
-	return 0;
+	if (!passmngr_pending_pw_change(getparams(text)))
+	{
+		LOG_TO_CONSOLE(c_red1, invalid_pass);
+		LOG_TO_CONSOLE(c_red1, password_format_str);
+		return 1;
+	}
+	else
+		return 0;
 }
 
 

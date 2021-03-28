@@ -663,14 +663,14 @@ int valid_username_password(void)
 	int i, username_len, password_len;
 
 	username_len = strlen(get_username());
-	if (username_len < 3)
+	if (username_len < MIN_USERNAME_LEN)
 	{
 		set_login_error (error_username_length, strlen (error_username_length), 1);
 		return 0;
 	}
 
 	password_len = strlen(get_password());
-	if (password_len < 4)
+	if (password_len < MIN_PASSWORD_LEN)
 	{
 		set_login_error (error_password_length, strlen (error_password_length), 1);
 		return 0;
