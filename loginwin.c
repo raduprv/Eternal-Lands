@@ -245,10 +245,10 @@ static int resize_login_handler (window_info *win, Uint32 w, Uint32 h)
 	passmngr_checkbox_x = passmngr_button_x;
 	passmngr_checkbox_y = password_bar_y;
 	widget_move(win->window_id, passmngr_checkbox_field_id,
-		passmngr_checkbox_x + passmngr_checkbox_size * 0.25f,
-		passmngr_checkbox_y + passmngr_checkbox_size * 0.25f);
+		passmngr_checkbox_x + passmngr_checkbox_size * 0.3f,
+		passmngr_checkbox_y + passmngr_checkbox_size * 0.3f);
 	widget_resize(win->window_id, passmngr_checkbox_field_id,
-		passmngr_checkbox_size * 0.5f, passmngr_checkbox_size * 0.5f);
+		passmngr_checkbox_size * 0.4f, passmngr_checkbox_size * 0.4f);
 
 	passmngr_resize();
 
