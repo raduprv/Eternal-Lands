@@ -105,7 +105,7 @@ TTF_Font* open_font(const std::string& file_name, int point_size)
 namespace eternal_lands
 {
 
-FontOption::FontOption(size_t font_nr): _font_nr(font_nr), _file_name(), _font_name(),
+FontOption::FontOption(size_t font_nr): _font_nr(font_nr), _file_name(), _file_base_name(), _font_name(),
 #ifdef TTF
 	_is_ttf(false),
 #endif
@@ -147,12 +147,14 @@ FontOption::FontOption(size_t font_nr): _font_nr(font_nr), _file_name(), _font_n
 		_failed = true;
 	}
 
+	size_t sep_pos = _file_name.find_last_of("/\\");
+	_file_base_name = sep_pos == std::string::npos ? _file_name : _file_name.substr(sep_pos + 1);
 	_fixed_width = (font_nr != 1 && font_nr != 2);
 }
 
 #ifdef TTF
 FontOption::FontOption(const std::string& file_name): _font_nr(std::numeric_limits<size_t>::max()),
-	_file_name(file_name), _font_name(), _is_ttf(true), _fixed_width(), _failed(false)
+	_file_name(file_name), _file_base_name(), _font_name(), _is_ttf(true), _fixed_width(), _failed(false)
 {
 	TTF_Font *font = open_font(file_name.c_str(), 40);
 	if (!font)
@@ -172,6 +174,9 @@ FontOption::FontOption(const std::string& file_name): _font_nr(std::numeric_limi
 		return;
 	}
 
+	size_t sep_pos = _file_name.find_last_of("/\\");
+	_file_base_name = sep_pos == std::string::npos ? _file_name : _file_name.substr(sep_pos + 1);
+
 	std::string name = TTF_FontFaceFamilyName(font);
 	std::string style = TTF_FontFaceStyleName(font);
 
@@ -184,15 +189,15 @@ FontOption::FontOption(const std::string& file_name): _font_nr(std::numeric_limi
 
 void FontOption::add_select_options(bool add_button) const
 {
-	add_multi_option_with_id("ui_font",    _font_name.c_str(), _file_name.c_str(), add_button);
-	add_multi_option_with_id("chat_font",  _font_name.c_str(), _file_name.c_str(), add_button);
-	add_multi_option_with_id("name_font",  _font_name.c_str(), _file_name.c_str(), add_button);
-	add_multi_option_with_id("book_font",  _font_name.c_str(), _file_name.c_str(), add_button);
-	add_multi_option_with_id("note_font",  _font_name.c_str(), _file_name.c_str(), add_button);
-	add_multi_option_with_id("rules_font", _font_name.c_str(), _file_name.c_str(), add_button);
+	add_multi_option_with_id("ui_font",    _font_name.c_str(), _file_base_name.c_str(), add_button);
+	add_multi_option_with_id("chat_font",  _font_name.c_str(), _file_base_name.c_str(), add_button);
+	add_multi_option_with_id("name_font",  _font_name.c_str(), _file_base_name.c_str(), add_button);
+	add_multi_option_with_id("book_font",  _font_name.c_str(), _file_base_name.c_str(), add_button);
+	add_multi_option_with_id("note_font",  _font_name.c_str(), _file_base_name.c_str(), add_button);
+	add_multi_option_with_id("rules_font", _font_name.c_str(), _file_base_name.c_str(), add_button);
 	if (is_fixed_width())
 	{
-		add_multi_option_with_id("encyclopedia_font", _font_name.c_str(), _file_name.c_str(),
+		add_multi_option_with_id("encyclopedia_font", _font_name.c_str(), _file_base_name.c_str(),
 			add_button);
 	}
 }
@@ -1676,6 +1681,21 @@ void FontManager::initialize_ttf()
 					FontManager::get_instance()._options.push_back(std::move(option));
 			}, 1);
 	}
+
+	// Remove duplicate fonts, possibly caused by multiple copies of the same font in different
+	// directories. A font is assumed to be a duplicate of another if both the base name of the
+	// file and the font name are equal.
+	std::sort(_options.begin() + nr_existing_fonts, _options.end(),
+		[](const FontOption& f0, const FontOption& f1) {
+			if (f0.file_base_name() == f1.file_base_name())
+				return f0.font_name() < f1.font_name();
+			else
+				return f0.file_base_name() < f1.file_base_name();
+		});
+	auto new_end = std::unique(_options.begin(), _options.end(),
+		[](const FontOption& f0, const FontOption& f1) {
+			return f0.file_base_name() == f1.file_base_name() && f0.font_name() == f1.font_name(); });
+	_options.erase(new_end, _options.end());
 
 	// Sort TTF fonts by font name, but keep them after EL bundled fonts
 	std::sort(_options.begin() + nr_existing_fonts, _options.end(),

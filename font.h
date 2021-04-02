@@ -150,6 +150,8 @@ public:
 	size_t font_number() const { return _font_nr; }
 	//! Return the file name of the font
     const std::string& file_name() const { return _file_name; }
+	//! Return the base file name of the font, without a path prefix
+    const std::string& file_base_name() const { return _file_base_name; }
     //! Return the display name of the font
     const std::string& font_name() const { return _font_name; }
 #ifdef TTF
@@ -175,6 +177,8 @@ private:
 	size_t _font_nr;
 	//! File name of the font file or texture image
     std::string _file_name;
+	//! Base file name of the font file or texture image, without any preceding path
+    std::string _file_base_name;
 	//! Return the display name of the font
     std::string _font_name;
 #ifdef TTF
