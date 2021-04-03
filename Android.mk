@@ -253,12 +253,14 @@ LOCAL_SHARED_LIBRARIES := \
 	SDL2_image \
 	SDL2_net \
 	SDL2_ttf \
-	libGL \
 	cal3d \
 	iconv \
 	libGLU \
 	libmyglob \
 	libxml2
+
+LOCAL_STATIC_LIBRARIES := \
+	GL
 
 LOCAL_LDLIBS := -lz -llog
 
