@@ -54,6 +54,12 @@ static int passmngr_button_x = 0;
 static int passmngr_button_y = 0;
 static int passmngr_button_size = 0;
 
+static int passmngr_checkbox_field_id = 2;
+static int passmngr_checkbox_mouse_over = 0;
+static int passmngr_checkbox_x = 0;
+static int passmngr_checkbox_y = 0;
+static int passmngr_checkbox_size = 0;
+
 static int log_in_x;
 static int log_in_y;
 static int log_in_x_len = 0;
@@ -248,6 +254,15 @@ static int resize_login_handler (window_info *win, Uint32 w, Uint32 h)
 		password_bar_y + password_bar_y_len - password_text_y);
 	widget_set_size(win->window_id, password_field_id, win->current_scale);
 
+	passmngr_checkbox_size = passmngr_button_size;
+	passmngr_checkbox_x = passmngr_button_x;
+	passmngr_checkbox_y = password_bar_y;
+	widget_move(win->window_id, passmngr_checkbox_field_id,
+		passmngr_checkbox_x + passmngr_checkbox_size * 0.3f,
+		passmngr_checkbox_y + passmngr_checkbox_size * 0.3f);
+	widget_resize(win->window_id, passmngr_checkbox_field_id,
+		passmngr_checkbox_size * 0.4f, passmngr_checkbox_size * 0.4f);
+
 	passmngr_resize();
 
 	return 1;
@@ -310,7 +325,11 @@ static int display_login_handler (window_info *win)
 
 	float select_uoffset = 31.0/256.0, select_voffset = 31.0/256.0;
 	float select_u[2] = {32.0 * (float)(10 % 8)/256.0, 32.0 * (float)(24 % 8)/256.0 };
-	float select_v[2] = {32.0 * (float)(10 >> 3)/256.0, select_v[1] = 32.0 * (float)(24 >> 3)/256.0 };
+	float select_v[2] = {32.0 * (float)(10 >> 3)/256.0, 32.0 * (float)(24 >> 3)/256.0 };
+
+	float checkbox_uoffset = 31.0/256.0, checkbox_voffset = 31.0/256.0;
+	float checkbox_u = 32.0 * (float)(52 % 8)/256.0;
+	float checkbox_v = 32.0 * (float)(52 >> 3)/256.0;
 
 #ifdef ANDROID
 	static SDL_bool last_KeyboardShown = 0;
@@ -338,12 +357,17 @@ static int display_login_handler (window_info *win)
 		draw_2d_thing( select_u[1], select_v[1], select_u[1]+select_uoffset, select_v[1]+select_voffset, passmngr_button_x, passmngr_button_y, passmngr_button_x + passmngr_button_size, passmngr_button_y + passmngr_button_size);
 	else
 		draw_2d_thing( select_u[0], select_v[0], select_u[0]+select_uoffset, select_v[0]+select_voffset, passmngr_button_x, passmngr_button_y, passmngr_button_x + passmngr_button_size, passmngr_button_y + passmngr_button_size);
+	draw_2d_thing( checkbox_u, checkbox_v, checkbox_u + checkbox_uoffset, checkbox_v + checkbox_voffset,
+		passmngr_checkbox_x, passmngr_checkbox_y, passmngr_checkbox_x + passmngr_checkbox_size, passmngr_checkbox_y + passmngr_checkbox_size);
 	glEnd();
 	if (passmngr_button_mouse_over)
 	{
 		const unsigned char* msg = (const unsigned char*)(passmngr_enabled ? passmngr_enabled_str : passmngr_disabled_str);
 		draw_string_zoomed_centered(win->len_x/2, passmngr_button_y - 1.25 * win->default_font_len_y, msg, 1, win->current_scale);
 	}
+	if (passmngr_checkbox_mouse_over)
+		draw_string_zoomed_centered(win->len_x/2, passmngr_button_y - 1.25 * win->default_font_len_y,
+			(const unsigned char*)passmngr_remember_details_str, 1, win->current_scale);
 
 	// start drawing the actual interface pieces
 	bind_texture(login_screen_menus);
@@ -401,6 +425,13 @@ static int display_login_handler (window_info *win)
 	return 1;
 }
 
+static int save_passmngr_enabled_change(widget_list *widget, int mx, int my, Uint32 flags)
+{
+	// don't use any of the function parameters as can be called without them set
+	set_var_unsaved("passmngr_enabled", INI_FILE_VAR);
+	return 1;
+}
+
 static int mouseover_login_handler (window_info *win, int mx, int my)
 {
 	// check to see if the log in button is active, or not
@@ -425,6 +456,12 @@ static int mouseover_login_handler (window_info *win, int mx, int my)
 		passmngr_button_mouse_over = 1;
 	else
 		passmngr_button_mouse_over = 0;
+
+	if ((mx >= passmngr_checkbox_x) && (mx <= passmngr_checkbox_x + passmngr_checkbox_size) &&
+		(my >= passmngr_checkbox_y) && (my <= passmngr_checkbox_y + passmngr_checkbox_size))
+		passmngr_checkbox_mouse_over = 1;
+	else
+		passmngr_checkbox_mouse_over = 0;
 
 	return 1;
 }
@@ -465,6 +502,13 @@ static int click_login_handler (window_info *win, int mx, int my, Uint32 flags)
 		else
 			do_alert1_sound();
 	}
+	else if ((mx >= passmngr_checkbox_x) && (mx <= passmngr_checkbox_x + passmngr_checkbox_size) &&
+		(my >= passmngr_checkbox_y) && (my <= passmngr_checkbox_y + passmngr_checkbox_size))
+	{
+		checkbox_set_checked(win->window_id, passmngr_checkbox_field_id, passmngr_enabled ^= 1);
+		save_passmngr_enabled_change(NULL, 0, 0, 0);
+	}
+
 	// check to see if we clicked on the ACTIVE Log In button
 	if (log_in_button_selected)
 	{
@@ -633,6 +677,10 @@ void create_login_root_window (int width, int height)
 		widget_set_flags(login_root_win, password_field_id, PWORD_FIELD_NO_BORDER|PWORD_FIELD_NO_KEYPRESS|PWORD_FIELD_NO_CURSOR);
 		widget_set_OnClick(login_root_win, password_field_id, select_password_box);
 
+		passmngr_checkbox_field_id = checkbox_add_extended(login_root_win, passmngr_checkbox_field_id, NULL,
+			0, 0, 0, 0, 0, 1.0, &passmngr_enabled);
+		widget_set_OnClick(login_root_win, passmngr_checkbox_field_id, save_passmngr_enabled_change);
+
 		resize_window (login_root_win, width, height);
 	}
 }
@@ -696,14 +744,14 @@ int valid_username_password(void)
 	int i, username_len, password_len;
 
 	username_len = strlen(get_username());
-	if (username_len < 3)
+	if (username_len < MIN_USERNAME_LEN)
 	{
 		set_login_error (error_username_length, strlen (error_username_length), 1);
 		return 0;
 	}
 
 	password_len = strlen(get_password());
-	if (password_len < 4)
+	if (password_len < MIN_PASSWORD_LEN)
 	{
 		set_login_error (error_password_length, strlen (error_password_length), 1);
 		return 0;

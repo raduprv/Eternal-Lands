@@ -16,8 +16,8 @@ void passmngr_set_login(void);
 void passmngr_resize(void);
 void passmngr_init(void);
 void passmngr_destroy(void);
-void passmngr_pending_pw_change(const char * old_and_new_password);
-void passmngr_confirm_pw_change(void);
+int passmngr_pending_pw_change(const char * old_and_new_password);
+int passmngr_confirm_pw_change(void);
 /*! @} */
 
 extern int passmngr_enabled; /*!< if true login details are saved and selectable from login screen */

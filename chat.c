@@ -203,6 +203,7 @@ void input_widget_move_to_win(int window_id)
 		if (console_input_at_top)
 			flags |= TEXT_FIELD_BORDER;
 		widget_set_flags(input_widget->window_id, input_widget->id, flags);
+		tf->x_space = tf->y_space = INPUT_MARGIN * font_scales[CHAT_FONT];
 		widget_resize(input_widget->window_id, input_widget->id,
 			win->len_x - HUD_MARGIN_X, 2 * tf->y_space + text_height);
 
@@ -3054,6 +3055,7 @@ void update_console_input_zoom(void)
 		if (use_windowed_chat != 2)
 		{
 			int text_height = get_text_height(tf->nr_lines, CHAT_FONT, input_widget->size);
+			tf->x_space = tf->y_space = INPUT_MARGIN * font_scales[CHAT_FONT];
 			widget_resize(input_widget->window_id, input_widget->id,
 				input_widget->len_x, tf->y_space * 2 + text_height);
 		}
@@ -3104,7 +3106,7 @@ void create_console_input(int window_id, int widget_id, int pos_x, int pos_y, in
 
 	id = text_field_add_extended(window_id, widget_id, NULL,
 		pos_x, pos_y, len_x, len_y, flags,
-		CHAT_FONT, 1.0, &input_text_line, 1, FILTER_ALL, INPUT_MARGIN, INPUT_MARGIN);
+		CHAT_FONT, 1.0, &input_text_line, 1, FILTER_ALL, INPUT_MARGIN * font_scales[CHAT_FONT], INPUT_MARGIN * font_scales[CHAT_FONT]);
 
 	input_widget = widget_find(window_id, id);
 	input_widget->OnResize = input_field_resize;

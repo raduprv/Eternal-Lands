@@ -2316,6 +2316,8 @@ void enter_disconnected_state(const char *message)
 #endif // NEW_SOUND
 	disconnect_time = SDL_GetTicks();
 	clear_now_harvesting();
+	if (login_root_win >= 0)
+		set_login_error(disconnected_from_server, strlen(disconnected_from_server), 1);
 }
 
 /* for a disconnect from the server and the normal reconnect on keypress */

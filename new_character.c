@@ -30,6 +30,7 @@
 #include "multiplayer.h"
 #include "new_actors.h"
 #include "particles.h"
+#include "password_manager.h"
 #include "reflection.h"
 #include "shadows.h"
 #include "sky.h"
@@ -1145,6 +1146,12 @@ static const struct WIDGET_TYPE password_type = {NULL, &password_draw, &click_na
 static const struct WIDGET_TYPE errorbox_type = {NULL, &errorbox_draw, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}; //custom widget for displaying name/password errors
 static int specs[3] = {0, 1, 2};
 
+static int click_remember_details_handler(widget_list *widget, int mx, int my, Uint32 flags)
+{
+	set_var_unsaved("passmngr_enabled", INI_FILE_VAR);
+	return 1;
+}
+
 static int init_namepass_handler(window_info * win)
 {
 	float very_small = win->current_scale_small; //font sizes
@@ -1214,13 +1221,25 @@ static int init_namepass_handler(window_info * win)
 	widget_id = widget_add(win->window_id, free_widget_id++, 0, input_off, y, input_len_x, input_len_y, 0, input_size, &password_type, inputs[2].str, (void*)&specs[2]);
 	y += input_len_y + 2*sep;
 
-	//Show password checkbox and error label
+	// Show password checkbox
 	text_width = get_string_width_zoom((const unsigned char*)show_password,
 		win->font_category, bit_small);
 	label_add_extended(win->window_id, free_widget_id++, 0,
 		win->len_x - 4 * sep - size - text_width, y, 0, bit_small, show_password);
 	widget_id = checkbox_add_extended(win->window_id, free_widget_id++, 0, win->len_x - 2 * sep - size, y, size, size, 0, bit_small, &hidden);
 	y += sep + get_line_height(win->font_category, bit_small);
+
+	// Remember password checkbox
+	text_width = get_string_width_zoom((const unsigned char*)remember_details_str,
+		win->font_category, bit_small);
+	label_add_extended(win->window_id, free_widget_id++, 0,
+		win->len_x - 4 * sep - size - text_width, y, 0, bit_small, remember_details_str);
+	widget_id = checkbox_add_extended(win->window_id, free_widget_id, 0, win->len_x - 2 * sep - size, y, size, size, 0, bit_small, &passmngr_enabled);
+	y += sep + get_line_height(win->font_category, bit_small);
+	widget_set_OnClick(win->window_id, free_widget_id, click_remember_details_handler);
+	free_widget_id++;
+
+	// Error label
 	error_widget_id = widget_add(win->window_id, free_widget_id++, 0, 2 * sep, y, win->len_x - 4 * sep, win->len_y - y, 0, very_small, &errorbox_type, NULL, NULL);
 
 	//Done and Back buttons

@@ -461,6 +461,7 @@ static int display_buddy_change(_buddy *buddy)
 	int buddy_change_y_len = 0;
 	window_info *win = NULL;
 	int tmp_width = 0;
+	int name_char_width;
 
 	buddy_to_change = buddy->name;
 	if(buddy_change_win >= 0) {
@@ -484,7 +485,8 @@ static int display_buddy_change(_buddy *buddy)
 	name_id = label_add_extended(buddy_change_win, name_id, NULL,
 		2 * buddy_border_space + tmp_width, buddy_border_space, 0, win->current_scale, buddy_to_change);
 
-	buddy_change_x_len = 3 * buddy_border_space + tmp_width + MAX_USERNAME_LENGTH * win->default_font_max_len_x + win->box_size;
+	name_char_width = get_max_name_width_zoom(win->font_category, win->current_scale);
+	buddy_change_x_len = 3 * buddy_border_space + tmp_width + MAX_USERNAME_LENGTH * name_char_width + win->box_size;
 	buddy_change_y_len = 2 * buddy_border_space + widget_get_height(buddy_change_win, name_id);
 
 	buddy_type_input_id = -1;
@@ -671,6 +673,8 @@ static void set_scrollbar_len(void)
 static int ui_scale_buddy_handler(window_info *win)
 {
 	int button_len_y = win->default_font_len_y + 4*win->current_scale;
+	int name_char_width = get_max_name_width_zoom(win->font_category, win->current_scale_small);
+
 	buddy_border_space = (int)(0.5 + win->current_scale * 5);
 #if ANDROID
 	buddy_name_step_y = 1.5 * get_line_height(win->font_category, win->current_scale_small);
@@ -678,7 +682,7 @@ static int ui_scale_buddy_handler(window_info *win)
 	buddy_name_step_y = get_line_height(win->font_category, win->current_scale_small);
 #endif
 
-	buddy_menu_x_len = win->box_size + MAX_USERNAME_LENGTH * win->small_font_max_len_x + 2 * buddy_border_space;
+	buddy_menu_x_len = win->box_size + MAX_USERNAME_LENGTH * name_char_width + 2 * buddy_border_space;
 	buddy_menu_y_len = button_len_y + 2* buddy_border_space + num_displayed_buddies * buddy_name_step_y;
 
 	request_box_start_x = buddy_menu_x_len - win->box_size

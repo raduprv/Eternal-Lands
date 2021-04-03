@@ -561,7 +561,8 @@ int filter_or_ignore_text (char *text_to_add, int len, int size, Uint8 channel)
 		}
 		else if (!strncasecmp(text_to_add+1, "Great, you changed your password!", 33))
 		{
-			passmngr_confirm_pw_change();
+			if (!passmngr_confirm_pw_change())
+				LOG_TO_CONSOLE(c_red1, passmngr_error_str);
 		}
 		else if (!strncasecmp(text_to_add+1, "Glow on!", 8))
 		{

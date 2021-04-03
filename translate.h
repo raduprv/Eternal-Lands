@@ -364,6 +364,9 @@ extern char
 		login_rules_str[120],
 		passmngr_enabled_str[70],
 		passmngr_disabled_str[70],
+		passmngr_remember_details_str[70],
+		passmngr_error_str[70],
+		password_format_str[150],
 		show_passwords_str[30],
 		login_select_window_str[30],
 		/*items.c*/
@@ -483,6 +486,7 @@ extern char
 		char_help[200],
 		invalid_pass[30],
 		show_password[30],
+		remember_details_str[30],
 		hide_password[30],
 		char_done[15],
 		char_back[15],

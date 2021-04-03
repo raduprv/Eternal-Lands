@@ -12,6 +12,7 @@ extern "C" {
 
 // How long a username is allowed to be. This define allows for the trailing NULL
 #define MAX_USERNAME_LENGTH (15 + 1)
+#define MIN_USERNAME_LEN 3
 
 extern int login_root_win; /*!< ID for the login root window */
 extern int login_text; /*!< ID for the background texture */
@@ -19,6 +20,8 @@ extern char active_username_str[MAX_USERNAME_LENGTH]; /*!< the username of the a
 extern char active_password_str[MAX_USERNAME_LENGTH]; /*!< the password of the actor */
 
 #define VALID_PASSWORD_CHAR(ch) (ch>=33 && ch<126)
+#define MAX_PASSWORD_LEN MAX_USERNAME_LENGTH
+#define MIN_PASSWORD_LEN 4
 
 /*!
  * \name Getters and setters for current username and password.
