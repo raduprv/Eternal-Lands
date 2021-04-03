@@ -459,7 +459,7 @@ namespace UserMenus
 		update_standard_window_position(win);
 
 		// enable the title bar if the window ends up off screen - resolution change perhaps
-		if ((win->cur_x + 20 > window_width) || (win->cur_y + 10 > window_height))
+		if ((standard_window_position == STND_POS_NONE) && ((win->cur_x + 20 > window_width) || (win->cur_y + 10 > window_height)))
 			set_title_state(win, true);
 
 		int curr_x = window_x_pad;
