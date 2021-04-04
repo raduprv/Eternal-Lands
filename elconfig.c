@@ -2329,17 +2329,16 @@ int check_var(char *str, var_name_type type)
 	}
 	else
 	{
-		// Strip it
-		char *tptr= our_string;
-		while (*ptr && *ptr != 0x0a && *ptr != 0x0d)
-		{
-			if (*ptr != ' ')
-				*tptr++= *ptr++; //Strip all spaces
-			else
-				ptr++;
-		}
-		*tptr= 0;
-		ptr= our_string;
+		size_t len;
+
+		// Strip spaces from front and back of the string, but not internal spaces
+		while (*ptr == ' ')
+			++ptr;
+		len = strcspn(ptr, "\r\n");
+		while (len > 0 && ptr[len-1] == ' ')
+			--len;
+
+		safe_strncpy2(our_string, ptr, sizeof(our_string), len);
 	}
 
 	if (type == INI_FILE_VAR)
