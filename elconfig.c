@@ -2291,7 +2291,6 @@ int check_var(char *str, var_name_type type)
 	int i, *p;
 	char *ptr= str;
 	float foo;
-	input_line our_string;
 
 	i = find_var(str, type);
 	if (i < 0)
@@ -2337,8 +2336,7 @@ int check_var(char *str, var_name_type type)
 		len = strcspn(ptr, "\r\n");
 		while (len > 0 && ptr[len-1] == ' ')
 			--len;
-
-		safe_strncpy2(our_string, ptr, sizeof(our_string), len);
+		ptr[len] = '\0';
 	}
 
 	if (type == INI_FILE_VAR)
