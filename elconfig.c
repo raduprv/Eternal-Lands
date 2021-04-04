@@ -1428,9 +1428,9 @@ void set_scale_from_window_size(void)
 	set_var_unsaved("ui_scale", INI_FILE_VAR);
 
 	new_value = local_ui_scale * 0.8f;
-	change_chat_zoom(&font_scales[CHAT_FONT], &new_value);
+	change_chat_zoom(&chat_font_local_scale, &new_value);
 	set_var_unsaved("chat_text_size", INI_FILE_VAR);
-	change_float(&font_scales[NAME_FONT], &new_value);
+	change_name_zoom(&name_font_local_scale, &new_value);
 	set_var_unsaved("name_text_size", INI_FILE_VAR);
 	new_value = 0.7f * local_ui_scale * 0.8f;
 	change_minimap_scale(&local_minimap_size_coefficient, &new_value);
