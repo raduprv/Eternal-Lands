@@ -393,7 +393,7 @@ Font::Font(const FontOption& option): _font_name(option.font_name()),
 }
 
 #ifdef TTF
-Font::Font(const FontOption& option, int height): _font_name(option.font_name()),
+Font::Font(const FontOption& option, int height, bool outline): _font_name(option.font_name()),
 	_file_name(option.file_name()), _flags(IS_TTF), _texture_width(0), _texture_height(0),
 	_metrics(), _block_width(0), _line_height(0), _vertical_advance(0), _font_top_offset(0),
 	_digit_center_offset(0), _password_center_offset(0), _max_advance(0), _max_digit_advance(0),
@@ -403,6 +403,8 @@ Font::Font(const FontOption& option, int height): _font_name(option.font_name())
 	_point_size = find_point_size(height);
 	if (option.is_fixed_width())
 		_flags |= Flags::FIXED_WIDTH;
+	if (outline)
+		_flags |= Flags::HAS_OUTLINE;
 }
 #endif
 
@@ -705,11 +707,11 @@ bool Font::load_texture()
 		_flags |= Flags::HAS_TEXTURE;
 		return true;
 	}
-#else
+#else // TTF
 	_texture_id = ::load_texture_cached(_file_name.c_str(), tt_font);
 	_flags |= Flags::HAS_TEXTURE;
 	return true;
-#endif
+#endif // TTF
 }
 
 void Font::bind_texture() const
@@ -1376,7 +1378,7 @@ bool Font::render_glyph(size_t i_glyph, int size, int y_delta, int outline_size,
 
 	};
 	static const SDL_Color white = { .r = 0xff, .g = 0xff, .b = 0xff, .a = 0xff };
-	static const SDL_Color black = { .r = 0x55, .g = 0x55, .b = 0x55, .a = 0x30 };
+	static const SDL_Color black = { .r = 0x00, .g = 0x00, .b = 0x00, .a = 0x30 };
 
 	Uint16 glyph = glyphs[i_glyph];
 	if (!TTF_GlyphIsProvided(font, glyph))
@@ -1502,9 +1504,11 @@ bool Font::build_texture_atlas()
 	// SDL_ttf versions < 2.0.15 don't take transparency into account, so don't draw shadows
 	// if the run-time version of this library version is too old.
 	const SDL_version *link_version = TTF_Linked_Version();
-	bool draw_shadow = link_version->major > 2
-		|| (link_version->major == 2 && link_version->minor > 0)
-		|| (link_version->major == 2 && link_version->minor == 0 && link_version->patch >= 15);
+	bool draw_shadow = has_outline()
+		&& (link_version->major > 2
+			|| (link_version->major == 2 && link_version->minor > 0)
+			|| (link_version->major == 2 && link_version->minor == 0 && link_version->patch >= 15)
+		);
 	int outline_size = draw_shadow ? _outline : 0;
 
 	int size = TTF_FontLineSkip(font);
@@ -1742,9 +1746,18 @@ void FontManager::add_select_options(bool add_button)
 	}
 }
 
+static uint32_t get_key(size_t idx, int height, bool outline)
+{
+	// It is unlikely that there will be more than 64k fonts, or that the line height wil be more
+	// than 32k pixels, so combine the three values into a single key 32-bit key.
+	return (outline << 31) | ((height & 0x7fff) << 16) | (idx & 0xffff);
+}
+
 Font& FontManager::get(Category cat, float text_zoom)
 {
 	size_t idx = font_idxs[cat];
+	bool outline = cat != BOOK_FONT; // Don't draw an outline for book text
+
 	if (idx > _options.size())
 	{
 #ifdef TTF
@@ -1754,7 +1767,7 @@ Font& FontManager::get(Category cat, float text_zoom)
 			// Probably TTF was disabled, and the settings window was using a TTF font. Check if
 			// it is still available
 			int height = std::round((Font::font_block_height - 2) * text_zoom * font_scales[cat]);
-			uint32_t key = ((height & 0xffff) << 16) | 0xffff;
+			uint32_t key = get_key(0xffff, height, outline);
 			auto it = _fonts.find(key);
 			if (it != _fonts.end())
 				return it->second;
@@ -1776,14 +1789,12 @@ Font& FontManager::get(Category cat, float text_zoom)
 	int height = _options[idx].is_ttf()
 		? std::round((Font::font_block_height - 2) * text_zoom * font_scales[cat])
 		: 0;
-	// It is unlikely that there will be more than 64k fonts, or that the line height wil be more
-	// than 64k pixels, so combine the two values into a single key 32-bit key.
-	uint32_t key = ((height & 0xffff) << 16) | (idx & 0xffff);
+	uint32_t key = get_key(idx, height, outline);
 	auto it = _fonts.find(key);
 	if (it == _fonts.end())
 	{
 		// The font has not been loaded yet
-		Font font = _options[idx].is_ttf() ? Font(_options[idx], height) : Font(_options[idx]);
+		Font font = _options[idx].is_ttf() ? Font(_options[idx], height, outline) : Font(_options[idx]);
 		it = _fonts.insert(std::make_pair(key, std::move(font))).first;
 	}
 #else // TTF
