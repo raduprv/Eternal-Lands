@@ -644,8 +644,8 @@ namespace UserMenus
 			// find all the menu files and build a list of path+filenames for later
 #ifdef WINDOWS
 			struct _finddata_t c_file;
-			long hFile;
-			if ((hFile = _findfirst(glob_path.c_str(), &c_file)) != -1L)
+			intptr_t hFile;
+			if ((hFile = _findfirst(glob_path.c_str(), &c_file)) != static_cast<intptr_t>(-1))
 			{
 				do
 					filelist.push_back(search_paths[i] + std::string(c_file.name));
