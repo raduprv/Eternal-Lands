@@ -850,6 +850,8 @@ private:
 		int width;
 		//! How far to advance the pen after drawing this glyph
 		int advance;
+		//! Horizontal offset for drawing the character
+		int x_off;
 		//! Offset from top of line to top of glyph
 		int top;
 		//! Offset from top of line to bottom of glyph
@@ -864,7 +866,7 @@ private:
 		float v_end;
 
 		//! Default constructor
-		Metrics(): width(0), advance(0), top(0), bottom(0), u_start(0.0), v_start(0.0),
+		Metrics(): width(0), advance(0), x_off(0), top(0), bottom(0), u_start(0.0), v_start(0.0),
 			u_end(0.0), v_end(0.0) {}
 	};
 

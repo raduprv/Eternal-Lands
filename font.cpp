@@ -374,6 +374,7 @@ Font::Font(const FontOption& option): _font_name(option.font_name()),
 
 		_metrics[pos].width = char_widths[pos];
 		_metrics[pos].advance = char_widths[pos];
+		_metrics[pos].x_off = 0;
 		_metrics[pos].top = font_nr < 2 ? top_1[pos] : 0;
 		_metrics[pos].bottom = font_nr < 2 ? bottom_1[pos] : _line_height;
 		_metrics[pos].u_start = float(col * font_block_width + skip) / 256;
@@ -772,6 +773,9 @@ int Font::draw_char(unsigned char c, int x, int y, float zoom, bool ignore_color
 
 	float u_start, u_end, v_start, v_end;
 	get_texture_coordinates(pos, u_start, u_end, v_start, v_end);
+
+	// Adjust for character offset in the font
+	x += _metrics[pos].x_off;
 
 	// and place the text from the graphics on the map
 	glTexCoord2f(u_start, v_start); glVertex3i(x, y, 0);
@@ -1440,7 +1444,8 @@ bool Font::render_glyph(size_t i_glyph, int size, int y_delta, int outline_size,
 
 	int y_min, y_max;
 	_metrics[i_glyph].width = width;
-	TTF_GlyphMetrics(font, glyph, nullptr, nullptr, &y_min, &y_max, &_metrics[i_glyph].advance);
+	TTF_GlyphMetrics(font, glyph, &_metrics[i_glyph].x_off, nullptr, &y_min, &y_max,
+		&_metrics[i_glyph].advance);
 	_metrics[i_glyph].top = y_delta + TTF_FontAscent(font) - y_max;
 	_metrics[i_glyph].bottom = y_delta + TTF_FontAscent(font) - y_min;
 	_metrics[i_glyph].u_start = float(col * size) / surface->w;
