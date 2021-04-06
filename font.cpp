@@ -780,10 +780,10 @@ int Font::draw_char(unsigned char c, int x, int y, float zoom, bool ignore_color
 	x += _metrics[pos].x_off;
 
 	// and place the text from the graphics on the map
-	glTexCoord2f(u_start, v_start); glVertex3i(x, y, 0);
-	glTexCoord2f(u_start, v_end);   glVertex3i(x, y + char_height, 0);
-	glTexCoord2f(u_end,   v_end);   glVertex3i(x + char_width, y + char_height, 0);
-	glTexCoord2f(u_end,   v_start); glVertex3i(x + char_width, y, 0);
+	glTexCoord2f(u_start, v_start); glVertex3i(x, y - _outline, 0);
+	glTexCoord2f(u_start, v_end);   glVertex3i(x, y + char_height + _outline, 0);
+	glTexCoord2f(u_end,   v_end);   glVertex3i(x + char_width, y + char_height + _outline, 0);
+	glTexCoord2f(u_end,   v_start); glVertex3i(x + char_width, y - _outline, 0);
 
 	return advance;
 }
@@ -1428,9 +1428,12 @@ bool Font::render_glyph(size_t i_glyph, int size, int y_delta, int outline_size,
 	int row = i_glyph / font_chars_per_line;
 	int col = i_glyph % font_chars_per_line;
 
+	// Reserve space for the outline, even when it is not used
+	int row_height = size + 2 * _outline + 2;
+
 	SDL_Rect area;
 	area.x = col*size;
-	area.y = row*(size+2) + 1 + y_delta - outline_size;
+	area.y = row*row_height + 1 + y_delta + _outline - outline_size;
 	area.w = width;
 	area.h = height;
 
@@ -1451,9 +1454,9 @@ bool Font::render_glyph(size_t i_glyph, int size, int y_delta, int outline_size,
 	_metrics[i_glyph].top = y_delta + TTF_FontAscent(font) - y_max;
 	_metrics[i_glyph].bottom = y_delta + TTF_FontAscent(font) - y_min;
 	_metrics[i_glyph].u_start = float(col * size) / surface->w;
-	_metrics[i_glyph].v_start = float(row * (size+2) + 1) / surface->h;
+	_metrics[i_glyph].v_start = float(row * row_height + 1) / surface->h;
 	_metrics[i_glyph].u_end = float(col * size + width) / surface->w;
-	_metrics[i_glyph].v_end = float(row * (size+2) + size + 1) / surface->h;
+	_metrics[i_glyph].v_end = float(row * row_height + row_height - 1) / surface->h;
 
 	return true;
 }
@@ -1517,7 +1520,7 @@ bool Font::build_texture_atlas()
 	// alternative view on texture coordinates (i.e. off by one pixel). Perhaps they may lose a
 	// single pixel row of a really high character, but at least we won't draw part of the character
 	// bwlow or above it.
-	int height = next_power_of_two(nr_rows * (size + 2));
+	int height = next_power_of_two(nr_rows * (size + 2 * _outline + 2));
 	SDL_Surface *image = SDL_CreateRGBSurface(SDL_SWSURFACE, width, height, 32,
 #if SDL_BYTEORDER == SDL_LIL_ENDIAN /* OpenGL RGBA masks */
 		0x000000FF,
