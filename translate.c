@@ -1430,8 +1430,8 @@ void init_help()
 	add_xml_identifier(misc,"reopen_storage",reopen_storage_str,"Reopen for setting to take effect",sizeof(reopen_storage_str));
 	add_xml_identifier(misc,"low",low_framerate_str,"Low framerate detected, shadows and eye candy disabled!",sizeof(low_framerate_str));
 	add_xml_identifier(misc,"encycl_search_prompt",encycl_search_prompt_str,"Enter text to find",sizeof(encycl_search_prompt_str));
-	add_xml_identifier(misc,"multiselect_find_prompt", multiselect_find_prompt_str, "Find:", sizeof(multiselect_find_prompt_str));
-	add_xml_identifier(misc,"multiselect_find_help", multiselect_find_help_str, "Type text to find an option. ENTER: find next, ESC: clear", sizeof(multiselect_find_help_str));
+	add_xml_identifier(misc,"multiselect_find_prompt", multiselect_find_prompt_str, "Find", sizeof(multiselect_find_prompt_str));
+	add_xml_identifier(misc,"multiselect_find_help", multiselect_find_help_str, "Type text to find an option. ENTER: find next, ESC: clear, TAB: case", sizeof(multiselect_find_help_str));
 	add_xml_identifier(misc,"size",window_size_adjusted_str,"Window size adjusted to %s",sizeof(window_size_adjusted_str));
 	add_xml_identifier(misc,"reset_res",reset_res_str,"Reset window size",sizeof(reset_res_str));
 	add_xml_identifier(misc,"set_res",set_res_str,"Set window size",sizeof(set_res_str));

@@ -330,6 +330,8 @@ static int is_mouse_over_option_label = 0;
 static char multiselect_find_str[32] = { 0 };
 static size_t multiselect_find_str_len = 0;
 static int multiselect_find_show = 0;
+static int multiselect_find_casesensitive = 0;
+static int multiselect_find_not_found = 0;
 
 static int disable_auto_highdpi_scale = 0;
 static int delay_update_highdpi_auto_scaling = 0;
@@ -3240,9 +3242,14 @@ static int display_elconfig_handler(window_info *win)
 	{
 		if (multiselect_find_str_len > 0)
 		{
-			static char multiselect_find_show_str[128];
-			safe_snprintf(multiselect_find_show_str, sizeof(multiselect_find_show_str), "%s %s\n", multiselect_find_prompt_str, multiselect_find_str);
-			show_help(multiselect_find_show_str, 0, help_y, win->current_scale);
+			float col[2][3] = {{1.0f, 1.0f, 1.0f}, {1.0f, 0.0f, 0.0f}};
+			int ic = (multiselect_find_not_found) ?1: 0;
+			static char text[128];
+			safe_snprintf(text, sizeof(text), "%s%s: %s\n", multiselect_find_prompt_str,
+				(multiselect_find_casesensitive) ?"[Aa]" :"", multiselect_find_str);
+			draw_text(0, help_y, (const unsigned char*)text, strlen(text), UI_FONT,
+				TDO_MAX_WIDTH, window_width - 80, TDO_HELP, 1, TDO_FOREGROUND, col[ic][0], col[ic][1], col[ic][2], 
+				TDO_ZOOM, win->current_scale * DEFAULT_SMALL_RATIO, TDO_END);
 		}
 		else
 			show_help(multiselect_find_help_str, 0, help_y, win->current_scale);
@@ -3336,6 +3343,7 @@ static int multiselect_keypress_handler(widget_list *widget, int mx, int my, SDL
 	// reset if ESCAPE pressed
 	if (key_code == SDLK_ESCAPE)
 	{
+		multiselect_find_not_found = 0;
 		multiselect_find_str_len = 0;
 		multiselect_find_str[multiselect_find_str_len] = '\0';
 		last_widget_id = (Uint32)-1;
@@ -3370,6 +3378,13 @@ static int multiselect_keypress_handler(widget_list *widget, int mx, int my, SDL
 	if ((key_code == SDLK_RETURN) || (key_code == SDLK_KP_ENTER))
 		search_offset = 1;
 
+	// toggle wether we match case, the need to search for TAB is unlikely
+	else if (key_code == SDLK_TAB)
+	{
+		if (multiselect_find_str_len) // only action if we are showing a string
+			multiselect_find_casesensitive ^= 1;
+	}
+
 	// if we use the key modifying the string, search again starting from current entry
 	else if (string_input(multiselect_find_str, sizeof(multiselect_find_str), key_code, key_unicode, key_mod))
 		multiselect_find_str_len = strlen(multiselect_find_str);
@@ -3389,8 +3404,12 @@ static int multiselect_keypress_handler(widget_list *widget, int mx, int my, SDL
 	for (i = 0; i < var->args.multi.count; i++)
 	{
 		size_t entry = (i + last_entry + search_offset) % var->args.multi.count;
-		// use case sensitive search - could use get_string_occurance() for insensitive
-		if (strstr(var->args.multi.elems[entry].label, multiselect_find_str))
+		if (multiselect_find_casesensitive)
+			multiselect_find_not_found = (strstr(var->args.multi.elems[entry].label, multiselect_find_str) == NULL);
+		else
+			multiselect_find_not_found = (safe_strcasestr(var->args.multi.elems[entry].label,
+				strlen(var->args.multi.elems[entry].label), multiselect_find_str, multiselect_find_str_len) == NULL);
+		if (!multiselect_find_not_found)
 		{
 			multiselect_set_scrollbar_pos(widget->window_id, widget->id, entry);
 			last_entry = entry;
