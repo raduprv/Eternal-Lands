@@ -90,6 +90,9 @@ static char lower_username_str[MAX_USERNAME_LENGTH]={0};
 static int username_initial = 1;
 static int password_initial = 1;
 
+static char version_str[128] = {0};
+static int mouseover_version_trigger = 0;
+
 #define SELBOX_X_LEN 174
 #define SELBOX_Y_LEN 28
 #define UNSELBOX_X_LEN 170
@@ -158,6 +161,8 @@ void init_login_screen (void)
 
 	if (strlen(get_username()) && !strlen(get_password()))
 		select_password_box();
+
+	get_version_string (version_str, sizeof (version_str));
 }
 
 void set_login_error (const char *msg, int len, int print_err)
@@ -395,6 +400,10 @@ static int display_login_handler (window_info *win)
 		draw_string_zoomed_centered(window_width/2, username_bar_y - (num_lines + 2) * win->default_font_len_y, (const unsigned char*)log_in_error_str, num_lines, win->current_scale);
 	}
 
+	if (mouseover_version_trigger)
+		draw_text(win->len_x / 2, 0.1 * win->default_font_len_y, (const unsigned char*)version_str,
+			strlen(version_str), UI_FONT, TDO_MAX_LINES, 1, TDO_ZOOM, win->current_scale, TDO_ALIGNMENT, CENTER, TDO_END);
+
 	CHECK_GL_ERRORS ();
 	draw_delay = 20;
 	return 1;
@@ -437,6 +446,8 @@ static int mouseover_login_handler (window_info *win, int mx, int my)
 		passmngr_checkbox_mouse_over = 1;
 	else
 		passmngr_checkbox_mouse_over = 0;
+
+	mouseover_version_trigger = (my > (win->len_y * 0.8)) ?1 :0;
 
 	return 1;
 }
