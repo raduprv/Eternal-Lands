@@ -312,49 +312,6 @@ char *my_tolower (char *src)
 	return dest;
 }
 
-/*Wraps the lines*/
-
-char ** get_lines(char * str, int chars_per_line)
-{
-	char ** my_str=NULL;
-	char * cur=NULL;
-	int lines=0;
-	int i=0;
-	if(str){
-		for(lines = 0; *str; lines++) {
-			my_str=(char **)realloc(my_str,(lines+2)*sizeof(char *));
-			cur=my_str[lines]=(char*)calloc(chars_per_line+3,sizeof(char));
-
-			for(i = 0; i < chars_per_line && str[i]; i++){
-				if(str[i] == '\r') i++;
-				if (str[i] == '\n'){
-					i++;
-					break;
-				}
-				cur[i]=str[i];
-			}
-			if(i >= chars_per_line){//Wrap it
-				//go back to the last space
-				while(i){
-					if(str[i]=='/' || str[i]=='-' || str[i]=='?' || str[i]=='!' || str[i]==' ' || str[i]=='\n' || str[i]=='\r') break;
-					i--;
-				}
-				if(i){
-					i++;
-					if(str[i]==' ')str++;
-				} else {
-					//Force a break then...
-					i=chars_per_line;
-				}
-			}
-			str+=i;
-			cur[i]=0;
-		}
-		if(my_str)my_str[lines]=NULL;//Used to get the bounds for displaying each line
-	}
-	return my_str;
-}
-
 /*XML*/
 
 float xmlGetFloat(const xmlNode *n, const char* c, float def_val)

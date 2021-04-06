@@ -238,18 +238,6 @@ Sint32 my_isupper(const char *src, int len);
 char *my_tolower (char *src);
 
 /*!
- * \ingroup	misc_utils
- * \brief	Splits up the char array into multiple character arrays
- *
- * 		Splits up the char array into multiple character arrays. The new arrays will have chars_per_line+3 bytes allocated. The char ** array will have a NULL pointer as the end pointer.
- *
- * \param	str The string to split
- * \param	chars_per_line The number of characters per line
- * \retval char**	Returns a char ** to the new array. You must free the memory yourself.
- */
-char ** get_lines(char * str, int chars_per_line);
-
-/*!
  * \ingroup	xml_utils
  * \brief	Finds the xml-attribute with the identifier p in the xmlNode and returns it as a floating point value
  *
