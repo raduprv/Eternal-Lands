@@ -474,6 +474,7 @@ static int click_login_handler (window_info *win, int mx, int my, Uint32 flags)
 	else if ((mx >= passmngr_checkbox_x) && (mx <= passmngr_checkbox_x + passmngr_checkbox_size) &&
 		(my >= passmngr_checkbox_y) && (my <= passmngr_checkbox_y + passmngr_checkbox_size))
 	{
+		do_click_sound();
 		checkbox_set_checked(win->window_id, passmngr_checkbox_field_id, passmngr_enabled ^= 1);
 		save_passmngr_enabled_change(NULL, 0, 0, 0);
 	}
@@ -481,6 +482,7 @@ static int click_login_handler (window_info *win, int mx, int my, Uint32 flags)
 	// check to see if we clicked on the ACTIVE Log In button
 	if (log_in_button_selected)
 	{
+		do_click_sound();
 		log_in_error_str[0] = '\0';
 		set_username(input_username_str);
 		set_password(input_password_str);
@@ -490,6 +492,7 @@ static int click_login_handler (window_info *win, int mx, int my, Uint32 flags)
 	//check to see if we clicked on the ACTIVE New Char button
 	else if (new_char_button_selected)
 	{
+		do_click_sound();
 		// don't destroy the login window just yet, the user might
 		// click the back button
 		hide_window (login_root_win);
@@ -508,6 +511,7 @@ static int click_login_handler (window_info *win, int mx, int my, Uint32 flags)
 	// to see if we clicked on the ACTIVE settings button
 	else if (settings_button_selected)
 	{
+		do_click_sound();
 		force_elconfig_win_ontop = 1;
 		view_window(MW_CONFIG);
 	}
