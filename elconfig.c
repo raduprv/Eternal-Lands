@@ -326,6 +326,10 @@ static void consolidate_rotate_chat_log_status(void);
 static int elconfig_menu_x_len= 0;
 static int elconfig_menu_y_len= 0;
 static int is_mouse_over_option = 0;
+static int is_mouse_over_option_label = 0;
+static char multiselect_find_str[32] = { 0 };
+static size_t multiselect_find_str_len = 0;
+static int multiselect_find_show = 0;
 
 static int disable_auto_highdpi_scale = 0;
 static int delay_update_highdpi_auto_scaling = 0;
@@ -3216,6 +3220,8 @@ int write_el_ini (void)
 #ifdef ELC
 static int display_elconfig_handler(window_info *win)
 {
+	int help_y = win->len_y + 10;
+
 	// Draw the long description of an option
 	draw_string_zoomed_width_font(TAB_MARGIN, elconfig_menu_y_len-LONG_DESC_SPACE,
 		elconf_description_buffer, window_width, MAX_LONG_DESC_LINES, win->font_category,
@@ -3223,8 +3229,27 @@ static int display_elconfig_handler(window_info *win)
 
 	// Show the context menu help message
 	if (is_mouse_over_option)
-		show_help(cm_help_options_str, 0, win->len_y + 10, win->current_scale);
-	is_mouse_over_option = 0;
+	{
+		show_help(cm_help_options_str, 0, help_y, win->current_scale);
+		help_y += win->small_font_len_y;
+		is_mouse_over_option = 0;
+	}
+
+	// Show current find string for multi-select widgets
+	if (multiselect_find_show)
+	{
+		if (multiselect_find_str_len > 0)
+		{
+			static char multiselect_find_show_str[128];
+			safe_snprintf(multiselect_find_show_str, sizeof(multiselect_find_show_str), "%s %s\n", multiselect_find_prompt_str, multiselect_find_str);
+			show_help(multiselect_find_show_str, 0, help_y, win->current_scale);
+		}
+		else
+			show_help(multiselect_find_help_str, 0, help_y, win->current_scale);
+		multiselect_find_show = 0;
+	}
+
+	is_mouse_over_option_label = 0;
 
 	return 1;
 }
@@ -3296,6 +3321,86 @@ static int multiselect_click_handler(widget_list *widget, int mx, int my, Uint32
 	return 0;
 }
 
+static int multiselect_keypress_handler(widget_list *widget, int mx, int my, SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_mod)
+{
+	size_t search_offset = 0;
+	var_struct *var = NULL;
+	size_t i;
+	static Uint32 last_widget_id = (Uint32)-1;
+	static size_t last_entry = 0;
+
+	// exit if this widget does not have a scrollbar - no need for search
+	if ((widget == NULL) || (multiselect_get_scrollbar_pos(widget->window_id, widget->id) == -1))
+		return 0;
+
+	// reset if ESCAPE pressed
+	if (key_code == SDLK_ESCAPE)
+	{
+		multiselect_find_str_len = 0;
+		multiselect_find_str[multiselect_find_str_len] = '\0';
+		last_widget_id = (Uint32)-1;
+		last_entry = 0;
+		return 1;
+	}
+
+	// start from the first entry if we change widgets
+	if (last_widget_id != widget->id)
+	{
+		last_widget_id = widget->id;
+		last_entry = 0;
+	}
+
+	// find the var with the widget id, exit if its not a multiselect
+	for (i = 0; i < our_vars.no; i++)
+	{
+		if (our_vars.var[i]->widgets.widget_id == widget->id)
+		{
+			if (our_vars.var[i]->type != OPT_MULTI)
+				return 0;
+			var = our_vars.var[i];
+			break;
+		}
+	}
+
+	// didn't find the option var so return
+	if (var == NULL)
+		return 0;
+
+	// if we press return, search for the next match after the current
+	if ((key_code == SDLK_RETURN) || (key_code == SDLK_KP_ENTER))
+		search_offset = 1;
+
+	// if we use the key modifying the string, search again starting from current entry
+	else if (string_input(multiselect_find_str, sizeof(multiselect_find_str), key_code, key_unicode, key_mod))
+		multiselect_find_str_len = strlen(multiselect_find_str);
+
+	// else we are not using the key so return now
+	else
+		return 0;
+
+	// reset to the first entry if the string is empty then return
+	if (multiselect_find_str_len == 0)
+	{
+		last_entry = 0;
+		return 1;
+	}
+
+	// find the entry matching the text, starting from the current unless return was pressed
+	for (i = 0; i < var->args.multi.count; i++)
+	{
+		size_t entry = (i + last_entry + search_offset) % var->args.multi.count;
+		// use case sensitive search - could use get_string_occurance() for insensitive
+		if (strstr(var->args.multi.elems[entry].label, multiselect_find_str))
+		{
+			multiselect_set_scrollbar_pos(widget->window_id, widget->id, entry);
+			last_entry = entry;
+			break;
+		}
+	}
+
+	return 1;
+}
+
 static int mouseover_option_handler(widget_list *widget, int mx, int my)
 {
 	int i, nr_lines;
@@ -3310,6 +3415,12 @@ static int mouseover_option_handler(widget_list *widget, int mx, int my)
 	if (i == our_vars.no)
 		//We didn't find anything, abort
 		return 0;
+
+	if (!is_mouse_over_option_label && (our_vars.var[i]->type == OPT_MULTI) &&
+		(multiselect_get_scrollbar_pos(widget->window_id, widget->id) != -1))
+		// If we are over a OPT_MULTI with a scrollbar, show the search text
+		multiselect_find_show = 1;
+
 	if (i == last_description_idx)
 		// We're still on the same variable
 		return 1;
@@ -3351,7 +3462,7 @@ static int mouseover_option_handler(widget_list *widget, int mx, int my)
 
 static int mouseover_option_label_handler(widget_list *widget, int mx, int my)
 {
-	is_mouse_over_option = 1;
+	is_mouse_over_option = is_mouse_over_option_label = 1;
 	return mouseover_option_handler(widget, mx, my);
 }
 
@@ -3623,6 +3734,7 @@ static void elconfig_populate_tabs(void)
 				}
 				multiselect_set_selected(window_id, widget_id, *((const int*)var->var));
 				widget_set_OnClick(window_id, widget_id, multiselect_click_handler);
+				widget_set_OnKey(window_id, widget_id, (int (*)())multiselect_keypress_handler);
 			break;
 			case OPT_FLOAT_F:
 				label_id = label_add_extended(window_id, elconfig_free_widget_id++, NULL,

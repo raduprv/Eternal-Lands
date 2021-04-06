@@ -1515,6 +1515,8 @@ int multiselect_button_add(int window_id, Uint32 multiselect_id, Uint16 x, Uint1
 int multiselect_button_add_extended(int window_id, Uint32 multiselect_id, Uint16 x, Uint16 y, int width, const char *text, float size, const char selected);
 int multiselect_get_selected(int window_id, Uint32 widget_id);
 int multiselect_set_selected(int window_id, Uint32 widget_id, int button_id);
+int multiselect_get_scrollbar_pos(int window_id, Uint32 widget_id);
+int multiselect_set_scrollbar_pos(int window_id, Uint32 widget_id, int pos);
 int multiselect_get_height(int window_id, Uint32 widget_id);
 int multiselect_clear(int window_id, Uint32 widget_id);
 

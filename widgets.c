@@ -4183,6 +4183,24 @@ int multiselect_set_selected(int window_id, Uint32 widget_id, int button_id)
 	}
 }
 
+int multiselect_get_scrollbar_pos(int window_id, Uint32 widget_id)
+{
+	widget_list *widget = widget_find(window_id, widget_id);
+	multiselect *M = widget->widget_info;
+	if ((M == NULL) || (M->scrollbar == -1))
+		return -1;
+	return vscrollbar_get_pos(M->win_id, M->scrollbar);
+}
+
+int multiselect_set_scrollbar_pos(int window_id, Uint32 widget_id, int pos)
+{
+	widget_list *widget = widget_find(window_id, widget_id);
+	multiselect *M = widget->widget_info;
+	if ((M == NULL) || (M->scrollbar == -1))
+		return 0;
+	return vscrollbar_set_pos(M->win_id, M->scrollbar, pos);
+}
+
 int multiselect_get_height(int window_id, Uint32 widget_id)
 {
 	widget_list *widget = widget_find(window_id, widget_id);

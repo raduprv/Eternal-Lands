@@ -315,6 +315,9 @@ extern char
 		urlwin_clear_str[30],
 		/*draw_scene.c*/
 		low_framerate_str[100],
+		/* elconfig */
+		multiselect_find_prompt_str[40],
+		multiselect_find_help_str[80],
 		/* encyclopedia */
 		encycl_search_prompt_str[25],
 		/*filter.c*/
