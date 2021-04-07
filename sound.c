@@ -36,21 +36,22 @@
 #define SLEEP_TIME 300		// Time to give CPU to other processes between loops of update_streams()
 
 #ifdef _EXTRA_SOUND_DEBUG
-/*
- #ifdef DEBUG
-#define LOCK_SOUND_LIST() { static int i; static char str[50]; snprintf(str, sizeof(str), "LOCK_SOUND_LIST %d\n", i++); log_error_detailed(str, __FILE__, __FUNCTION__, __LINE__); SDL_LockMutex(sound_list_mutex); }
-#define UNLOCK_SOUND_LIST() { static int i; static char str[50]; snprintf(str, sizeof(str), "LOCK_SOUND_LIST %d\n", i++); log_error_detailed(str, __FILE__, __FUNCTION__, __LINE__); SDL_UnlockMutex(sound_list_mutex); }
- #else // DEBUG
-#define LOCK_SOUND_LIST() { static int i; printf("LOCK_SOUND_LIST %d - %s %s:%d sources: %d\n", i++, __FILE__, __FUNCTION__, __LINE__, used_sources); SDL_LockMutex(sound_list_mutex); }
-#define UNLOCK_SOUND_LIST() { static int i; printf("UNLOCK_SOUND_LIST %d - %s %s:%d\n", i++, __FILE__, __FUNCTION__, __LINE__); SDL_UnlockMutex(sound_list_mutex); }
- #endif // DEBUG
-*/
-int locked = 0;
-char last_file[50] = "";
-char last_func[50] = "";
-int last_line = 0;
-#define	LOCK_SOUND_LIST() { int i = 0; while (locked) {	i++; if (i == 32000) printf("lock loop in %s, %s:%d - last lock: %s, %s:%d\n", __FILE__, __FUNCTION__, __LINE__, last_file, last_func, last_line); } safe_strncpy(last_file, __FILE__, strlen(last_file)); safe_strncpy(last_func, __FUNCTION__, strlen(last_func)); last_line = __LINE__; locked = 1; }
-#define	UNLOCK_SOUND_LIST() { locked = 0; }
+#include <unistd.h>
+static char last_file[50] = "";
+static char last_func[50] = "";
+static int last_line = 0;
+#define	LOCK_SOUND_LIST() \
+{ \
+	while (SDL_TryLockMutex(sound_list_mutex) != 0) \
+	{ \
+		printf("lock loop in %s, %s:%d - last lock: %s, %s:%d\n", __FILE__, __FUNCTION__, __LINE__, last_file, last_func, last_line); \
+		usleep(100); \
+	} \
+	safe_strncpy(last_file, __FILE__, strlen(last_file)); \
+	safe_strncpy(last_func, __FUNCTION__, strlen(last_func)); \
+	last_line = __LINE__; \
+}
+#define	UNLOCK_SOUND_LIST() { CHECK_AND_UNLOCK_MUTEX(sound_list_mutex); }
 #else // _EXTRA_SOUND_DEBUG
 #define	LOCK_SOUND_LIST() CHECK_AND_LOCK_MUTEX(sound_list_mutex);
 #define	UNLOCK_SOUND_LIST() CHECK_AND_UNLOCK_MUTEX(sound_list_mutex);
