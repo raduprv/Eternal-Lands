@@ -1447,10 +1447,10 @@ bool Font::render_glyph(size_t i_glyph, int size, int y_delta, int outline_size,
 		return false;
 	}
 
-	int y_min, y_max;
+	int y_min, y_max, x_min;
 	_metrics[i_glyph].width = width;
-	TTF_GlyphMetrics(font, glyph, &_metrics[i_glyph].x_off, nullptr, &y_min, &y_max,
-		&_metrics[i_glyph].advance);
+	TTF_GlyphMetrics(font, glyph, &x_min, nullptr, &y_min, &y_max, &_metrics[i_glyph].advance);
+	_metrics[i_glyph].x_off = std::min(x_min, 0);
 	_metrics[i_glyph].top = y_delta + TTF_FontAscent(font) - y_max;
 	_metrics[i_glyph].bottom = y_delta + TTF_FontAscent(font) - y_min;
 	_metrics[i_glyph].u_start = float(col * size) / surface->w;
