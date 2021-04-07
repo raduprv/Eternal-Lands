@@ -1344,10 +1344,12 @@ void Font::draw_ortho_ingame_string(const unsigned char* text, size_t len,
 				float u_start, u_end, v_start, v_end;
 				get_texture_coordinates(pos, u_start, u_end, v_start, v_end);
 
-				glTexCoord2f(u_start, v_start); glVertex3f(cur_x,            cur_y+char_height, z);
-				glTexCoord2f(u_start, v_end);   glVertex3f(cur_x,            cur_y,             z);
-				glTexCoord2f(u_end,   v_end);   glVertex3f(cur_x+char_width, cur_y,             z);
-				glTexCoord2f(u_end,   v_start); glVertex3f(cur_x+char_width, cur_y+char_height, z);
+				int x_left = cur_x + _metrics[pos].x_off;
+
+				glTexCoord2f(u_start, v_start); glVertex3f(x_left,            cur_y+char_height+_outline, z);
+				glTexCoord2f(u_start, v_end);   glVertex3f(x_left,            cur_y-_outline,             z);
+				glTexCoord2f(u_end,   v_end);   glVertex3f(x_left+char_width, cur_y-_outline,             z);
+				glTexCoord2f(u_end,   v_start); glVertex3f(x_left+char_width, cur_y+char_height+_outline, z);
 
 				cur_x += advance_spacing_pos(pos, zoom_x);
 			}

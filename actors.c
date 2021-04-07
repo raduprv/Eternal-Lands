@@ -417,7 +417,6 @@ static void set_mana_color(float percent, float multiplier, float a)
 void draw_actor_banner(actor * actor_id, float offset_z)
 {
 	unsigned char str[60];
-	unsigned char temp[255];
 	GLdouble model[16],proj[16];
 	GLint view[4];
 
@@ -614,10 +613,9 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 				} else {
 					glColor3f(1.0f,1.0f,0.0f);
 				}
-				safe_snprintf ((char*)temp, sizeof (temp), "%s", actor_id->actor_name);
 				banner_width = 0.5 * (float)get_string_width_zoom((unsigned char*)actor_id->actor_name, NAME_FONT, font_size_x);
-				draw_ortho_ingame_string(hx-banner_width, hy+bar_y_len/2.0f, hz, temp,
-					1, NAME_FONT, font_size_x, font_size_y);
+				draw_ortho_ingame_string(hx-banner_width, hy+bar_y_len/2.0f, hz,
+					(const unsigned char*)actor_id->actor_name, 1, NAME_FONT, font_size_x, font_size_y);
 			}
 			if (view_buffs)
 			{
