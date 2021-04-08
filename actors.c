@@ -793,7 +793,7 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 		glBegin(GL_LINE_LOOP);
 			glVertex3f (hx - 1.0, top_y - 1.0 , hz);
 			glVertex3f (hx + bar_x_len + 1.0, top_y - 1.0, hz);
-			glVertex3f (hx + bar_x_len + 1.0, bot_y - 1.0, hz);
+			glVertex3f (hx + bar_x_len + 1.0, bot_y + 1.0, hz);
 			glVertex3f (hx - 1.0, bot_y + 1.0, hz);
 		glEnd();
 		hx+=off;
