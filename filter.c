@@ -191,10 +191,10 @@ int check_if_filtered (const char *name)
 				{
 					if (!isalpha (name[t])) break; /* t points now at the end of the word */
 				}
-				l = filter_list[i].len;
-				if (t >= l-1)
+				l = filter_list[i].len - 1;
+				if ((l > 0) && (t >= l))
 				{
-					if (!strncasecmp(&(filter_list[i].name[1]), &name[t-l], l-1))
+					if (!strncasecmp(&(filter_list[i].name[1]), &name[t-l], l))
 						return i;
 				}
 			}
