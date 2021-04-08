@@ -744,9 +744,7 @@ void Font::set_color(int color)
 	float r = static_cast<float>(colors_list[color].r1) / 255;
 	float g = static_cast<float>(colors_list[color].g1) / 255;
 	float b = static_cast<float>(colors_list[color].b1) / 255;
-	//This fixes missing letters in the font on some clients
-	//No idea why going from 3f to 4f helps, but it does
-	glColor4f(r, g, b, 1.0);
+	glColor3f(r, g, b);
 }
 
 int Font::draw_char(unsigned char c, int x, int y, float zoom, bool ignore_color) const
@@ -1027,6 +1025,14 @@ CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
 	glEnable(GL_ALPHA_TEST); // enable alpha filtering, so we have some alpha key
 	glAlphaFunc(GL_GREATER, 0.1f);
+	if (is_ttf())
+	{
+		// Only enable alpha blending for TTF fonts. The old style fonts have an alpha channel,
+		// but this has never been used before except for alpha filtering. Instead, the
+		// semi-transparent border has always been drawn as solid black.
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	}
 	bind_texture();
 	glBegin(GL_QUADS);
 
@@ -1083,6 +1089,10 @@ CHECK_GL_ERRORS();
 	}
 
 	glEnd();
+	if (is_ttf())
+	{
+		glDisable(GL_BLEND);
+	}
 	glDisable(GL_ALPHA_TEST);
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
@@ -1131,6 +1141,14 @@ void Font::draw_messages(const text_message *msgs, size_t msgs_size, int x, int 
 
  	glEnable(GL_ALPHA_TEST);	// enable alpha filtering, so we have some alpha key
 	glAlphaFunc(GL_GREATER, 0.1f);
+	if (is_ttf())
+	{
+		// Only enable alpha blending for TTF fonts. The old style fonts have an alpha channel,
+		// but this has never been used before. Instead, the semi-transparent border has always
+		// been drawn as solid black.
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	}
 	bind_texture();
 
 	int cur_x = x, cur_y = y, cur_line = 0;
@@ -1255,6 +1273,10 @@ void Font::draw_messages(const text_message *msgs, size_t msgs_size, int x, int 
 	}
 
 	glEnd();
+	if (is_ttf())
+	{
+		glDisable(GL_BLEND);
+	}
 	glDisable(GL_ALPHA_TEST);
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
@@ -1316,6 +1338,14 @@ void Font::draw_ortho_ingame_string(const unsigned char* text, size_t len,
 
 	glEnable(GL_ALPHA_TEST); // enable alpha filtering, so we have some alpha key
 	glAlphaFunc(GL_GREATER, 0.1f);
+	if (is_ttf())
+	{
+		// Only enable alpha blending for TTF fonts. The old style fonts have an alpha channel,
+		// but this has never been used before. Instead, the semi-transparent border has always
+		// been drawn as solid black.
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	}
 	bind_texture();
 	glBegin(GL_QUADS);
 
@@ -1357,6 +1387,8 @@ void Font::draw_ortho_ingame_string(const unsigned char* text, size_t len,
 	}
 
 	glEnd();
+	if (is_ttf())
+		glDisable(GL_BLEND);
 	glDisable(GL_ALPHA_TEST);
 }
 #endif // !MAP_EDITOR_2
@@ -1380,7 +1412,7 @@ bool Font::render_glyph(size_t i_glyph, int size, int y_delta, int outline_size,
 
 	};
 	static const SDL_Color white = { .r = 0xff, .g = 0xff, .b = 0xff, .a = 0xff };
-	static const SDL_Color black = { .r = 0x00, .g = 0x00, .b = 0x00, .a = 0x30 };
+	static const SDL_Color black = { .r = 0x00, .g = 0x00, .b = 0x00, .a = 0xff };
 
 	Uint16 glyph = glyphs[i_glyph];
 	if (!TTF_GlyphIsProvided(font, glyph))
@@ -1416,7 +1448,7 @@ bool Font::render_glyph(size_t i_glyph, int size, int y_delta, int outline_size,
 	}
 	else
 	{
-		glyph_surface = TTF_RenderGlyph_Solid(font, glyph, white);
+		glyph_surface = TTF_RenderGlyph_Blended(font, glyph, white);
 		if (!glyph_surface)
 		{
 			LOG_ERROR("Failed to render TTF glyph: %s", TTF_GetError());
@@ -1506,15 +1538,7 @@ bool Font::build_texture_atlas()
 		return false;
 	}
 
-	// SDL_ttf versions < 2.0.15 don't take transparency into account, so don't draw shadows
-	// if the run-time version of this library version is too old.
-	const SDL_version *link_version = TTF_Linked_Version();
-	bool draw_shadow = has_outline()
-		&& (link_version->major > 2
-			|| (link_version->major == 2 && link_version->minor > 0)
-			|| (link_version->major == 2 && link_version->minor == 0 && link_version->patch >= 15)
-		);
-	int outline_size = draw_shadow ? _outline : 0;
+	int outline_size = has_outline() ? _outline : 0;
 
 	int size = TTF_FontLineSkip(font);
 	int width = next_power_of_two(font_chars_per_line * size);
