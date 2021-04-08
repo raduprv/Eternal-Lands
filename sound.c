@@ -2815,7 +2815,7 @@ void stop_all_sounds()
 		if (sounds_list[i].cookie != 0 && (!sounds_list[i].playing || sound_type_data[sounds_list[i].sound].loops == 0))
 		{
 #ifdef _EXTRA_SOUND_DEBUG
-			printf("Stopping sound %d (%s), cookie: %d, used_sources: %d\n", i, sound_type_data[sounds_list[sound_source_data[0].loaded_sound].sound].name, sounds_list[i].cookie, used_sources);
+			printf("Stopping sound %d (%s), cookie: %d, used_sources: %d\n", i, sound_type_data[sounds_list[i].sound].name, sounds_list[i].cookie, used_sources);
 #endif //_EXTRA_SOUND_DEBUG
 			stop_sound(sounds_list[i].cookie);
 		}
