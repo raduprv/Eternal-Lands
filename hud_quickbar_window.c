@@ -162,8 +162,11 @@ static void reset_quickbar()
 	limit_win_scale_to_default(get_scale_WM(MW_QUICKBAR));
 	quickbar_dir = VERTICAL;
 	quickbar_draggable = 0;
-	quickbar_relocatable = 0;
-	set_var_unsaved("relocate_quickbar", INI_FILE_VAR);
+	if (quickbar_relocatable)
+	{
+		set_var_unsaved("relocate_quickbar", INI_FILE_VAR);
+		quickbar_relocatable = 0;
+	}
 	change_flags(quickbar_win, ELW_USE_UISCALE|ELW_TITLE_NONE|ELW_SHOW|ELW_USE_BACKGROUND|ELW_USE_BORDER|ELW_SHOW_LAST);
 	init_window(quickbar_win, -1, 0, default_item_quickbar_x, default_item_quickbar_y, item_quickbar_slot_size, get_quickbar_y_len());
 }
