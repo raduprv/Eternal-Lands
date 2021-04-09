@@ -1,6 +1,6 @@
 name: eternallands
 # Set to x.y.zpn / x.y.zpn-dev for stable / dev build
-version: '1.9.5p9-dev'
+version: '1.9.5p9rc'
 summary: Eternal Lands is a free to play, graphical MMORPG
 description: |
   Eternal Lands is a free to play, graphical MMORPG (massively-multi-player
@@ -28,7 +28,7 @@ parts:
     source: https://github.com/raduprv/Eternal-Lands
     source-type: git
     # Include for stable release, comment out for dev build, comment out for latest commit dev release
-    # source-tag: 1.9.5.8
+    # source-tag: 1.9.5.9
     build-packages: [build-essential, libcal3d12-dev, libsdl2-image-dev, libsdl2-net-dev, libsdl2-ttf-dev, libxml2-dev, libopenal-dev, libvorbis-dev, libpng-dev]
     plugin: cmake
     # Add -DVERSION_PREFIX=x.y.z for dev build, remove for release
@@ -61,8 +61,8 @@ parts:
       - desktop-glib-only
 
   data:
-    source: https://twinmoons.org.uk/el/git/el_data_20210307.zip
-    source-checksum: md5/6e93d6ba1679f9254ba490f404f22f2e
+    source: https://github.com/raduprv/Eternal-Lands/releases/download/1.9.5.9.rc2/eternallands-data_1.9.5.9.zip
+    source-checksum: sha256/7cc74d98fa98059a13e0e8b78469804fafddcce31a7d535701def271a4c631c1
     plugin: dump
     organize:
       el_data/ : data/
@@ -72,15 +72,15 @@ parts:
       sed -i 's|^#use_new_selection.*$|#use_new_selection = 1|g' $SNAPCRAFT_PART_INSTALL/el_data/el.ini
 
   sound:
-    source: https://github.com/raduprv/Eternal-Lands/releases/download/1.9.5.8/eternallands-sound_1.9.5-1.zip
-    source-checksum: md5/5ad32d081bd3563ab4e096f3175e50a2
+    source: https://github.com/raduprv/Eternal-Lands/releases/download/1.9.5.9.rc2/eternallands-sound_1.9.5.9.zip
+    source-checksum: sha256/13a030bf5aca4e9e881707216f269df5826ff00345c93afac94a3f58455af542
     plugin: dump
     organize:
       '*' : data/
 
   music:
-    source: https://github.com/raduprv/Eternal-Lands/releases/download/1.9.5.2/music_full.zip
-    source-checksum: md5/95220e0df0be0eb4f2b9646cc5d6b7e5
+    source: https://github.com/raduprv/Eternal-Lands/releases/download/1.9.5.9.rc2/eternallands-music_1.9.5.9.zip
+    source-checksum: sha256/1ea4de25081034ac684aaebf127ab6ca8524ba5367532863d84d63837dd631ec
     plugin: dump
     organize:
       '*' : data/music/
