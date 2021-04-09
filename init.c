@@ -334,7 +334,10 @@ static void read_bin_cfg(void)
 		char fname[128];
 		USE_JSON_DEBUG("Loading json file");
 		// try to load the json file
-		safe_snprintf(fname, sizeof(fname), "%s%s", get_path_config(), client_state_filename);
+		if (!file_exists_config(client_state_filename))
+			safe_snprintf(fname, sizeof(fname), "%s%s", datadir, client_state_filename);
+		else
+			safe_snprintf(fname, sizeof(fname), "%s%s", get_path_config(), client_state_filename);
 		if (json_load_cstate(fname) >= 0)
 		{
 			load_cstate();
