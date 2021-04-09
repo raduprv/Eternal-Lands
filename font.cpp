@@ -1374,7 +1374,7 @@ void Font::draw_ortho_ingame_string(const unsigned char* text, size_t len,
 				float u_start, u_end, v_start, v_end;
 				get_texture_coordinates(pos, u_start, u_end, v_start, v_end);
 
-				int x_left = cur_x + _metrics[pos].x_off;
+				float x_left = cur_x + _metrics[pos].x_off;
 
 				glTexCoord2f(u_start, v_start); glVertex3f(x_left,            cur_y+char_height+_outline, z);
 				glTexCoord2f(u_start, v_end);   glVertex3f(x_left,            cur_y-_outline,             z);
