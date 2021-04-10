@@ -272,6 +272,7 @@ CHECK_GL_ERRORS();
 	//Digital Clock
 	if(view_digital_clock > 0)
 	{
+		int centre_x = (0.5 + win->len_x / 2.0);
 		char str[10];
 
 		base_y_start -= digital_clock_height;
@@ -282,19 +283,15 @@ CHECK_GL_ERRORS();
 		// If seconds are not drawn, we simply center the time.
 		if (show_game_seconds)
 		{
-			int x;
 			safe_snprintf(str, sizeof(str), "%1d:%02d:%02d", real_game_minute/60, real_game_minute%60, real_game_second);
-			x = win->len_x / 2
-				- get_buf_width_zoom((const unsigned char*)str, 4, win->font_category, digital_clock_zoom)
-				+ get_char_width_zoom(str[3], win->font_category, digital_clock_zoom) / 2;
-			draw_text(x, base_y_start, (const unsigned char*)str, strlen(str),
+			draw_text(centre_x, base_y_start, (const unsigned char*)str, strlen(str),
 				win->font_category, TDO_SHADOW, 1, TDO_FOREGROUND, gui_color[0], gui_color[1], gui_color[2],
-				TDO_BACKGROUND, 0.0, 0.0, 0.0, TDO_ZOOM, digital_clock_zoom, TDO_END);
+				TDO_BACKGROUND, 0.0, 0.0, 0.0, TDO_ALIGNMENT, CENTER, TDO_ZOOM, digital_clock_zoom, TDO_END);
 		}
 		else
 		{
 			safe_snprintf(str, sizeof(str), "%1d:%02d", real_game_minute/60, real_game_minute%60);
-			draw_text(win->len_x/2, base_y_start, (const unsigned char*)str, strlen(str),
+			draw_text(centre_x, base_y_start, (const unsigned char*)str, strlen(str),
 				win->font_category, TDO_SHADOW, 1, TDO_FOREGROUND, gui_color[0], gui_color[1], gui_color[2],
 				TDO_BACKGROUND, 0.0, 0.0, 0.0, TDO_ALIGNMENT, CENTER, TDO_ZOOM, digital_clock_zoom,
 				TDO_END);
@@ -693,14 +690,11 @@ static int ui_scale_misc_handler(window_info *win)
 		+ 2 // border around bar
 		+ (int)(win->current_scale * 2); // separation between bars
 
-	if (show_game_seconds)
-		digital_clock_width = 5 * get_max_digit_width_zoom(win->font_category, 1.0)
-			+ 2 * get_char_width_zoom(':', win->font_category, 1.0);
-	else
-		digital_clock_width = 3 * get_max_digit_width_zoom(win->font_category, 1.0)
-			+ get_char_width_zoom(':', win->font_category, 1.0)
-			+ 2 * get_char_width_zoom(' ', win->font_category, 1.0);
-	digital_clock_zoom = (float)(win->len_x - (int)(0.5 + 6 * win->current_scale)) / digital_clock_width;
+	// always scale the digital clock as when seconds enabled
+	// allow 7px for max rouding error, 4 * scale margin to avoid the edges
+	digital_clock_width = 5 * get_max_digit_width_zoom(win->font_category, 1.0)
+		+ 2 * get_char_width_zoom(':', win->font_category, 1.0) + 7;
+	digital_clock_zoom = ((float)win->len_x - 4.0f * win->current_scale) / (float)digital_clock_width;
 	digital_clock_height = get_line_height(win->font_category, digital_clock_zoom);
 
 	ui_scale_timer(win);
