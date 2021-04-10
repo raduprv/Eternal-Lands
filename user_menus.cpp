@@ -166,6 +166,7 @@ namespace UserMenus
 			int border_on;
 			int use_small_font;
 			int include_datadir;
+			bool auto_include_datadir;
 			int just_echo;
 			int win_x_pos;
 			int win_y_pos;
@@ -271,7 +272,7 @@ namespace UserMenus
 	//
 	Container::Container(void) : win_id(-1), win_width(0), current_mouseover_menu(0), mouse_over_window(false),
 		reload_menus(false), context_id(CM_INIT_VALUE), window_used(false), title_on(1), background_on(1),
-		border_on(1), use_small_font(0), include_datadir(1), just_echo(0), win_x_pos(100),
+		border_on(1), use_small_font(0), include_datadir(1), auto_include_datadir(true), just_echo(0), win_x_pos(100),
 		win_y_pos(100), name_sep(10), window_x_pad(8), window_y_pad(2), standard_window_position(STND_POS_NONE)
 	{
 	}
@@ -676,6 +677,14 @@ namespace UserMenus
 		current_mouseover_menu = menus.size();
 		recalc_win_width(win);
 
+		// if there are no user menus but we're not trying standard menus...
+		// unless already controlled this session, enable standard menus and reload
+		if (menus.empty() && !include_datadir && auto_include_datadir)
+		{
+			include_datadir = 1;
+			reload(win);
+		}
+
 	} // end Container::reload()
 
 
@@ -862,7 +871,8 @@ namespace UserMenus
 			case ELW_CM_MENU_LEN+CM_BACKGND: set_win_flag(&win->flags, ELW_USE_BACKGROUND, background_on); break;
 			case ELW_CM_MENU_LEN+CM_BORDER: set_win_flag(&win->flags, ELW_USE_BORDER, border_on); break;
 			case ELW_CM_MENU_LEN+CM_FONT: recalc_win_width(win); break;
-			case ELW_CM_MENU_LEN+CM_STANDMENU: case ELW_CM_MENU_LEN+CM_RELOAD: reload(win); break;
+			case ELW_CM_MENU_LEN+CM_STANDMENU: auto_include_datadir = false; reload(win); break;
+			case ELW_CM_MENU_LEN+CM_RELOAD: reload(win); break;
 			case ELW_CM_MENU_LEN+CM_DISABLE: toggle_user_menus(&enable_user_menus); break;
 		}
 
