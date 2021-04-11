@@ -23,7 +23,7 @@ case "$1" in
 
 	TARGETDIR="/usr/share/games/EternalLands/music"
 	CACHEDIR="/var/cache/eternallands"
-	DOWNLOADURL="http://twinmoons.org.uk/el/git"
+	DOWNLOADURL="http://twinmoons.org.uk/el/rel/195"
 	DOWNLOADMAIN="eternallands-music_1.9.5.9.zip"
 	MD5SUM="95220e0df0be0eb4f2b9646cc5d6b7e5"
 	[ -f ~paul/el/installpkg/localdownload ] && DOWNLOADURL="http://harry/~paul/el"

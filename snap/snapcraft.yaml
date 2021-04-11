@@ -28,7 +28,7 @@ parts:
     source: https://github.com/raduprv/Eternal-Lands
     source-type: git
     # Include for stable release, comment out for dev build, comment out for latest commit dev release
-    source-tag: 1.9.5.9
+    source-tag: 1.9.5.9-1
     build-packages: [build-essential, libcal3d12-dev, libsdl2-image-dev, libsdl2-net-dev, libsdl2-ttf-dev, libxml2-dev, libopenal-dev, libvorbis-dev, libpng-dev]
     plugin: cmake
     # Add -DVERSION_PREFIX=x.y.z for dev build, remove for release
@@ -61,8 +61,8 @@ parts:
       - desktop-glib-only
 
   data:
-    source: https://github.com/raduprv/Eternal-Lands/releases/download/1.9.5.9/eternallands-data_1.9.5.9-1.zip
-    source-checksum: sha256/f76de7355be9646d52ac740d5934db047a7ab68038f1f446f27b6e89e866676f
+    source: https://github.com/raduprv/Eternal-Lands/releases/download/1.9.5.9-1/eternallands-data_1.9.5.9-1.zip
+    source-checksum: sha256/00f105ce44998b939bb92361c113961f2220afa0a3b21e53beed35968ae23ae4
     plugin: dump
     organize:
       el_data/ : data/
@@ -72,14 +72,14 @@ parts:
       sed -i 's|^#use_new_selection.*$|#use_new_selection = 1|g' $SNAPCRAFT_PART_INSTALL/el_data/el.ini
 
   sound:
-    source: https://github.com/raduprv/Eternal-Lands/releases/download/1.9.5.9/eternallands-sound_1.9.5.9.zip
+    source: https://github.com/raduprv/Eternal-Lands/releases/download/1.9.5.9-1/eternallands-sound_1.9.5.9.zip
     source-checksum: sha256/13a030bf5aca4e9e881707216f269df5826ff00345c93afac94a3f58455af542
     plugin: dump
     organize:
       '*' : data/
 
   music:
-    source: https://github.com/raduprv/Eternal-Lands/releases/download/1.9.5.9/eternallands-music_1.9.5.9.zip
+    source: https://github.com/raduprv/Eternal-Lands/releases/download/1.9.5.9-1/eternallands-music_1.9.5.9.zip
     source-checksum: sha256/1ea4de25081034ac684aaebf127ab6ca8524ba5367532863d84d63837dd631ec
     plugin: dump
     organize:

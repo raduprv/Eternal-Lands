@@ -23,7 +23,7 @@ case "$1" in
 
 	TARGETDIR="/usr/share/games/EternalLands/sound"
 	CACHEDIR="/var/cache/eternallands"
-	DOWNLOADURL="http://twinmoons.org.uk/el/git"
+	DOWNLOADURL="http://twinmoons.org.uk/el/rel/195"
 	DOWNLOADMAIN="eternallands-sound_1.9.5.9.zip"
 	MD5SUMMAIN="b441ce65da967c937ac030f219fdd9ae"
 
@@ -34,7 +34,7 @@ case "$1" in
 
 	# remove old downloads
 	rm -f el_sound_150.zip EL_sound_191.zip EL_sound_update_191.zip \
-		EL_sound_update_191.1.zip eternallands-sound_1.9.4.zip eternallands-sound_1.9.5-1.zip
+		EL_sound_update_191.1.zip eternallands-sound_1.9.4.zip
 
 	# if we already have an archive check the md5sum is ok and remove if not
 	[ ! -f "$DOWNLOADMAIN" ] || echo "$MD5SUMMAIN  $DOWNLOADMAIN" | md5sum -c - || rm -fv $DOWNLOADMAIN

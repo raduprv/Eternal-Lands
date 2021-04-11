@@ -23,9 +23,9 @@ case "$1" in
 
 	TARGETDIR="/usr/share/games/EternalLands"
 	CACHEDIR="/var/cache/eternallands"
-	DOWNLOADURL="http://twinmoons.org.uk/el/git"
+	DOWNLOADURL="http://twinmoons.org.uk/el/rel/195"
 	DOWNLOADMAIN="eternallands-data_1.9.5.9-1.zip"
-	MD5SUMMAIN="b8a3b88daf3dc9a6ce09bf5a2e52331a"
+	MD5SUMMAIN="82c0b5601faed923fb30d01906e25ca3"
 	# post release updates
 	#DOWNLOADUPDATE1=""
 	#MD5SUMUPDATE1=""
