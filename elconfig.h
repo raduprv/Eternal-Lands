@@ -78,8 +78,10 @@ typedef enum
 	OPT_PASSWORD,
 	OPT_FLOAT_F,       // Change float with functions that returns max and min values  func(float*,float*), max/min float func()
 	OPT_INT_F,         // Change int with functions that returns max and min values    func(int*,int), max/min int func()
-	OPT_BOOL_INI,      // Boolean value that is only read from and written to the ini file
-	OPT_INT_INI	   // Int value that is only read from the ini file
+	// Values of _INI types are not displayed in the config window
+	OPT_BOOL_INI,
+	OPT_STRING_INI,
+	OPT_INT_INI
 } option_type;
 
 /*!
@@ -342,6 +344,8 @@ void options_loaded(void);
  * and therefore deletes all deferred options.
  */
 void check_deferred_options();
+
+int command_set_default_fonts(char *text, int len);
 
 #ifdef __cplusplus
 } // extern "C"

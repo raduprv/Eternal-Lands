@@ -344,6 +344,15 @@ static size_t local_encyclopedia_font = 0;
 static float chat_font_local_scale = 1.0;
 static float name_font_local_scale = 1.0;
 
+// default fonts will be replaced if values present the ini file
+static char def_ui_font_str[80] = "20(Ubuntu-R.ttf)";
+static char def_name_font_str[80] = "20(Ubuntu-R.ttf)";
+static char def_chat_font_str[80] = "20(Ubuntu-R.ttf)";
+static char def_note_font_str[80] = "20(Ubuntu-R.ttf)";
+static char def_book_font_str[80] = "7(MarckScript-Regular.ttf)";
+static char def_rules_font_str[80] = "20(Ubuntu-R.ttf)";
+static char def_encyclopedia_font_str[80] = "8(UbuntuMono-R.ttf)";
+
 #ifdef JSON_FILES
 // Most of this code can be removed when json file use if the default of the only supported client
 
@@ -2059,6 +2068,7 @@ static __inline__ void check_option_var(const char* name)
 			our_vars.var[i]->func (our_vars.var[i]->var);
 			break;
 		case OPT_STRING:
+		case OPT_STRING_INI:
 		case OPT_PASSWORD:
 			value_s= (char*)our_vars.var[i]->var;
 			our_vars.var[i]->func (our_vars.var[i]->var, value_s, our_vars.var[i]->len);
@@ -2384,6 +2394,10 @@ int check_var(char *str, var_name_type type)
 			our_vars.var[i]->config_file_val = (float)new_val;
 			return 1;
 		}
+		case OPT_STRING_INI:
+			// Needed, because var is never changed through widget
+			our_vars.var[i]->saved= 0;
+			// fallthrough
 		case OPT_STRING:
 		case OPT_PASSWORD:
 			our_vars.var[i]->func (our_vars.var[i]->var, ptr, our_vars.var[i]->len);
@@ -2479,6 +2493,7 @@ static void add_var(option_type type, char * name, char * shortname, void * var,
 			*integer=(int)def;
 			break;
 		case OPT_STRING:
+		case OPT_STRING_INI:
 		case OPT_PASSWORD:
 			our_vars.var[no]->len=(int)def;
 			break;
@@ -2525,6 +2540,58 @@ static void add_var(option_type type, char * name, char * shortname, void * var,
 }
 
 #ifndef MAP_EDITOR
+// set default fonts names and sizes
+int command_set_default_fonts(char *text, int len)
+{
+	char const * font_vars[] = { "ui_font", "name_font", "chat_font", "note_font",
+		"book_font", "rules_font", "encyclopedia_font" };
+	char const * size_vars[] = { "ui_text_size", "name_text_size", "chat_text_size",
+		"note_text_size", "book_text_size", "rules_text_size", "encyclopedia_text_size" };
+	char const * font_names[] = { def_ui_font_str, def_name_font_str, def_chat_font_str,
+		def_note_font_str, def_book_font_str, def_rules_font_str, def_encyclopedia_font_str };
+	int elconfig_win = get_id_MW(MW_CONFIG);
+	int var_idx;
+	size_t i;
+
+	for (i = 0; i < sizeof(font_vars)/sizeof(char *); i++)
+	{
+		if (strlen(font_names[i]) == 0)
+			continue;
+		var_idx = find_var(font_vars[i], INI_FILE_VAR);
+		if (var_idx >= 0)
+		{
+			var_struct *var = our_vars.var[var_idx];
+			if (check_multi_select(font_names[i], var_idx) != 1)
+				continue;
+			var->saved = 0;
+			if (elconfig_win >= 0)
+			{
+				int window_id = elconfig_tabs[var->widgets.tab_id].tab;
+				int widget_id = var->widgets.widget_id;
+				if ((window_id >= 0) && (widget_id >= 0))
+					multiselect_set_selected(window_id, widget_id, *((const int*)var->var));
+			}
+		}
+		var_idx = find_var(size_vars[i], INI_FILE_VAR);
+		if (var_idx >= 0)
+		{
+			float new_val = 1.0f;
+			var_struct *var = our_vars.var[var_idx];
+			var->func(var->var, &new_val);
+			var->saved = 0;
+		}
+	}
+	var_idx = find_var("mapmark_text_size", INI_FILE_VAR);
+	if (var_idx >= 0)
+	{
+		float new_val = 1.0f;
+		var_struct *var = our_vars.var[var_idx];
+		var->func(var->var, &new_val);
+		var->saved = 0;
+	}
+	return 1;
+}
+
 void add_multi_option_with_id(const char* name, const char* str, const char* id,
 	int add_button)
 {
@@ -2790,6 +2857,14 @@ static void init_ELC_vars(void)
 	add_var(OPT_BOOL,"big_cursors","big_cursors", &big_cursors, change_var,0,"Use Large Pointers", "When using the experiment coloured mouse pointers, use the large pointer set.", FONT);
 	add_var(OPT_FLOAT,"pointer_size","pointer_size", &pointer_size, change_float,1.0,"Coloured Pointer Size", "When using the experiment coloured mouse pointers, set the scale of the pointer. 1.0 is 1:1 scale.", FONT,0.25,4.0,0.05);
 #endif // NEW_CURSOR
+	// default fonts
+	add_var(OPT_STRING_INI,"def_ui_font", "def_ui_font", def_ui_font_str, change_string, sizeof(def_ui_font_str), "def_ui_font", "Default font for UI", FONT);
+	add_var(OPT_STRING_INI,"def_name_font", "def_name_font", def_name_font_str, change_string, sizeof(def_name_font_str), "def_name_font", "Default UI font", FONT);
+	add_var(OPT_STRING_INI,"def_chat_font", "def_chat_font", def_chat_font_str, change_string, sizeof(def_chat_font_str), "def_chat_font", "Default Chat font", FONT);
+	add_var(OPT_STRING_INI,"def_note_font", "def_note_font", def_note_font_str, change_string, sizeof(def_note_font_str), "def_note_font", "Default Note font", FONT);
+	add_var(OPT_STRING_INI,"def_book_font", "def_book_font", def_book_font_str, change_string, sizeof(def_book_font_str), "def_book_font", "Default Book font", FONT);
+	add_var(OPT_STRING_INI,"def_rules_font", "def_rules_font", def_rules_font_str, change_string, sizeof(def_rules_font_str), "def_rules_font", "Default Rules font", FONT);
+	add_var(OPT_STRING_INI,"def_encyclopedia_font", "def_encyclopedia_font", def_encyclopedia_font_str, change_string, sizeof(def_encyclopedia_font_str), "def_encyclopedia_font", "Default Encyclopedia font", FONT);
 	// FONT TAB
 
 
@@ -3043,6 +3118,7 @@ static void write_var(FILE *fout, int ivar)
 			break;
 		}
 		case OPT_STRING:
+		case OPT_STRING_INI:
 			if (strcmp(var->name, "password") == 0)
 				// Do not write the password to the file. If the user really wants it
 				// s/he should edit the file.
@@ -3673,6 +3749,7 @@ static void elconfig_populate_tabs(void)
 		switch(var->type)
 		{
 			case OPT_BOOL_INI:
+			case OPT_STRING_INI:
 			case OPT_INT_INI:
 				// This variable should not be settable
 				// through the window, so don't try to add it,

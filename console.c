@@ -2102,6 +2102,7 @@ void init_commands(const char *filename)
 	add_command("save_res", &command_save_res);
 	add_command("show_res", &command_show_res);
 	add_command("#", &command_commands);
+	add_command("set_default_fonts", &command_set_default_fonts);
 
 	// Sort the command list alphabetically so that the #command lists
 	// them sorted and the ctrl+SPACE cycles them sorted.  Assumes no
