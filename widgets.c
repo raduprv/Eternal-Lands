@@ -4163,7 +4163,10 @@ static int _multiselect_selected_is_visible(int window_id, Uint32 widget_id)
 int multiselect_set_selected(int window_id, Uint32 widget_id, int button_id)
 {
 	widget_list *widget = widget_find(window_id, widget_id);
-	multiselect *M = widget->widget_info;
+	multiselect *M = NULL;
+	if (widget == NULL)
+		return -1;
+	M = widget->widget_info;
 	if(M == NULL) {
 		return -1;
 	} else {
