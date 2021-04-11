@@ -1,6 +1,6 @@
 name: eternallands
 # Set to x.y.zpn / x.y.zpn-dev for stable / dev build
-version: '1.9.5p9rc'
+version: '1.9.5p9'
 summary: Eternal Lands is a free to play, graphical MMORPG
 description: |
   Eternal Lands is a free to play, graphical MMORPG (massively-multi-player
@@ -28,11 +28,11 @@ parts:
     source: https://github.com/raduprv/Eternal-Lands
     source-type: git
     # Include for stable release, comment out for dev build, comment out for latest commit dev release
-    # source-tag: 1.9.5.9
+    source-tag: 1.9.5.9
     build-packages: [build-essential, libcal3d12-dev, libsdl2-image-dev, libsdl2-net-dev, libsdl2-ttf-dev, libxml2-dev, libopenal-dev, libvorbis-dev, libpng-dev]
     plugin: cmake
     # Add -DVERSION_PREFIX=x.y.z for dev build, remove for release
-    cmake-parameters:  ["-DCMAKE_BUILD_TYPE=release", "-DEXEC=el.linux.bin", "-DVERSION_PREFIX=1.9.5", "-DLOCAL_NLOHMANN_JSON=On", "-DCMAKE_INSTALL_PREFIX=/" ]
+    cmake-parameters:  ["-DCMAKE_BUILD_TYPE=release", "-DEXEC=el.linux.bin", "-DLOCAL_NLOHMANN_JSON=On", "-DCMAKE_INSTALL_PREFIX=/" ]
     stage-packages:
       - libglib2.0-0
       - libsdl2-net-2.0-0
@@ -61,8 +61,8 @@ parts:
       - desktop-glib-only
 
   data:
-    source: https://github.com/raduprv/Eternal-Lands/releases/download/1.9.5.9.rc2/eternallands-data_1.9.5.9.zip
-    source-checksum: sha256/7cc74d98fa98059a13e0e8b78469804fafddcce31a7d535701def271a4c631c1
+    source: https://github.com/raduprv/Eternal-Lands/releases/download/1.9.5.9/eternallands-data_1.9.5.9-1.zip
+    source-checksum: sha256/f76de7355be9646d52ac740d5934db047a7ab68038f1f446f27b6e89e866676f
     plugin: dump
     organize:
       el_data/ : data/
@@ -72,14 +72,14 @@ parts:
       sed -i 's|^#use_new_selection.*$|#use_new_selection = 1|g' $SNAPCRAFT_PART_INSTALL/el_data/el.ini
 
   sound:
-    source: https://github.com/raduprv/Eternal-Lands/releases/download/1.9.5.9.rc2/eternallands-sound_1.9.5.9.zip
+    source: https://github.com/raduprv/Eternal-Lands/releases/download/1.9.5.9/eternallands-sound_1.9.5.9.zip
     source-checksum: sha256/13a030bf5aca4e9e881707216f269df5826ff00345c93afac94a3f58455af542
     plugin: dump
     organize:
       '*' : data/
 
   music:
-    source: https://github.com/raduprv/Eternal-Lands/releases/download/1.9.5.9.rc2/eternallands-music_1.9.5.9.zip
+    source: https://github.com/raduprv/Eternal-Lands/releases/download/1.9.5.9/eternallands-music_1.9.5.9.zip
     source-checksum: sha256/1ea4de25081034ac684aaebf127ab6ca8524ba5367532863d84d63837dd631ec
     plugin: dump
     organize:
