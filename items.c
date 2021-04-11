@@ -1646,6 +1646,7 @@ static int get_max_but_label_len(window_info * win)
 	size_t i;
 	if (win == NULL)
 		return 0;
+	max_width = win->box_size;
 	for (i = 0; i < sizeof(but_labels) / sizeof(char *); i++)
 	{
 		char *saveptr = NULL;
