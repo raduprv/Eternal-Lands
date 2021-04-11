@@ -21,7 +21,7 @@ static __inline__ void get_texture_object_linear_plane(float obj_z_rot, float ob
 	w = -obj_z_rot * M_PI / 180.0f;
 	cos_w = cos(w);
 	sin_w = sin(w);
-	
+
 	s_plane[0] = cos_w / texture_scale;
 	s_plane[1] = sin_w / texture_scale;
 	s_plane[2] = 1.0f / texture_scale;
@@ -83,7 +83,7 @@ void draw_3d_object(object3d * object_id)
 		glTexGenfv(GL_S, GL_EYE_PLANE, s_plane);
 		glTexGenfv(GL_T, GL_EYE_PLANE, t_plane);
 		ELglActiveTextureARB(GL_TEXTURE0_ARB);
-	
+
 		glClientActiveTextureARB(GL_TEXTURE0_ARB);
 		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 	}
@@ -172,22 +172,22 @@ e3d_object * load_e3d_cache(char * file_name)
 
 	// allocate the memory
 	e3d_id = (e3d_object*)malloc(sizeof(e3d_object));
-	if (e3d_id == NULL) 
+	if (e3d_id == NULL)
 	{
 		LOG_ERROR("Can't alloc data for file \"%s\"!", file_name);
 		return NULL;
 	}
 	// and fill in the data
 	memset(e3d_id, 0, sizeof(e3d_object));
-	if (e3d_id == NULL) 
+	if (e3d_id == NULL)
 	{
 		LOG_ERROR("Memset Error for file \"%s\"!", file_name);
 		return NULL;
 	}
-	my_strncp(e3d_id->file_name, file_name, sizeof(e3d_id->file_name));	
+	safe_strncpy(e3d_id->file_name, file_name, sizeof(e3d_id->file_name));
 	e3d_id = load_e3d_detail(e3d_id);
 
-	if (e3d_id == NULL) 
+	if (e3d_id == NULL)
 	{
 		LOG_ERROR("Can't load file \"%s\"!", file_name);
 		return NULL;
@@ -216,13 +216,12 @@ int add_e3d_at_id (int id, char * file_name, float x_pos, float y_pos, float z_p
 	char fname[80];
 	e3d_object *returned_e3d;
 	object3d *our_object;
-	
+
 	if (id < 0 || id >= MAX_OBJ_3D)
 		return 0;
 
 	//but first convert any '\' in '/'
 	clean_file_name(fname, file_name, sizeof(fname));
-	my_tolower(fname);
 
 	returned_e3d=load_e3d_cache(fname);
 	if(returned_e3d==NULL)
@@ -273,11 +272,11 @@ int add_e3d (char * file_name, float x_pos, float y_pos, float z_pos, float x_ro
 	id = 0;
 	while (id < MAX_OBJ_3D)
 	{
-		if (objects_list[id] == NULL || objects_list[id]->blended==20) 
+		if (objects_list[id] == NULL || objects_list[id]->blended==20)
 			break;
 		id++;
 	}
-	
+
 	if (id >= MAX_OBJ_3D) return 0;
 	return add_e3d_at_id (id, file_name, x_pos, y_pos, z_pos, x_rot, y_rot, z_rot, self_lit, blended, r, g, b);
 }
@@ -290,11 +289,11 @@ int add_e3d_keep_deleted (char * file_name, float x_pos, float y_pos, float z_po
 	id = 0;
 	while (id < MAX_OBJ_3D)
 	{
-		if (objects_list[id] == NULL) 
+		if (objects_list[id] == NULL)
 			break;
 		id++;
 	}
-	
+
 	if (id >= MAX_OBJ_3D) return 0;
 	return add_e3d_at_id (id, file_name, x_pos, y_pos, z_pos, x_rot, y_rot, z_rot, self_lit, blended, r, g, b);
 }
@@ -377,13 +376,13 @@ void destroy_e3d(e3d_object *e3d_id)
 			e3d_id->materials= NULL;
 			e3d_id->material_no= 0;
 		}
-		if (e3d_id->vertex_vbo != 0) 
-		{		
+		if (e3d_id->vertex_vbo != 0)
+		{
 			ELglDeleteBuffersARB(1, &e3d_id->vertex_vbo);
 			e3d_id->vertex_vbo = 0;
 		}
-		if (e3d_id->indices_vbo != 0) 
-		{		
+		if (e3d_id->indices_vbo != 0)
+		{
 			ELglDeleteBuffersARB(1, &e3d_id->indices_vbo);
 			e3d_id->indices_vbo = 0;
 		}
@@ -404,7 +403,7 @@ void flag_for_destruction()
 void destroy_the_flagged()
 {
 	int i;
-	
+
 	for (i = 0; i < MAX_E3D_CACHE; i++)
 	{
 		if (e3d_cache[i].file_name[0] && e3d_cache[i].flag_for_destruction)
@@ -504,7 +503,7 @@ void clear_e3d_heightmap(int K)
 	float3 *TF;
 	void* T;
 	int vertex_no;
-	int minx, miny, maxx, maxy;							
+	int minx, miny, maxx, maxy;
 	int i, j;
 	float x_pos, y_pos;
 	float min_x, min_y, max_x, max_y;
@@ -588,7 +587,7 @@ int TestLines(float pax, float pay, float pbx, float pby, float pcx, float pcy, 
 	}
 	return 0;
 }
- 
+
 void change_heightmap(unsigned char *hm, unsigned char h)
 {
 	//if(*hm==11 && h>21)return;
@@ -604,7 +603,7 @@ void method1(float3 *T, float x_pos, float y_pos, float z_pos, int i, int j)
 
 	// We determine if the point is in the triangle
 	if(TriangleTest(i*0.5f+0.25f, j*0.5f+0.25f, x1, y1, x2, y2, x3, y3)){
-		height_map[(j*tile_map_size_x*6)+i]=h;	
+		height_map[(j*tile_map_size_x*6)+i]=h;
 		return;
 	}
 }
@@ -618,19 +617,19 @@ void method2(float3 *T, float x_pos, float y_pos, float z_pos, int i, int j)
 
 	// We determine if the point is in the triangle
 	if(TriangleTest(i*0.5f+0.25f, j*0.5f+0.25f, x1, y1, x2, y2, x3, y3)){
-		height_map[(j*tile_map_size_x*6)+i]=h;	
+		height_map[(j*tile_map_size_x*6)+i]=h;
 		return;
 	}
 	if(TriangleTest(i*0.5f, j*0.5f, x1, y1, x2, y2, x3, y3)){
-		height_map[(j*tile_map_size_x*6)+i]=h;	
+		height_map[(j*tile_map_size_x*6)+i]=h;
 		return;
 	}
 	if(TriangleTest(i*0.5f+0.25f, j*0.5f, x1, y1, x2, y2, x3, y3)){
-		height_map[(j*tile_map_size_x*6)+i]=h;	
+		height_map[(j*tile_map_size_x*6)+i]=h;
 		return;
 	}
 	if(TriangleTest(i*0.5f+0.25f, j*0.5f, x1, y1, x2, y2, x3, y3)){
-		height_map[(j*tile_map_size_x*6)+i]=h;	
+		height_map[(j*tile_map_size_x*6)+i]=h;
 		return;
 	}
 }
@@ -647,14 +646,14 @@ void method3(float3 *T, float x_pos, float y_pos, float z_pos, int i, int j)
 	||  (x2 > i*0.5 && x2 < (i+1)*0.5 && y2 > j*0.5 && y2 < (j+1)*0.5)
 	||  (x3 > i*0.5 && x3 < (i+1)*0.5 && y3 > j*0.5 && y3 < (j+1)*0.5)){
 		change_heightmap(&height_map[(j*tile_map_size_x*6)+i],h);
-		//height_map[(j*tile_map_size_x*6)+i]=h;	
+		//height_map[(j*tile_map_size_x*6)+i]=h;
 		//return;
 	}
-	
+
 	// Special case 2: rectangle inside triangle
 	if(TriangleTest(i*0.5f+0.25f, j*0.5f+0.25f, x1, y1, x2, y2, x3, y3)){
 		change_heightmap(&height_map[(j*tile_map_size_x*6)+i],h);
-		//height_map[(j*tile_map_size_x*6)+i]=h;	
+		//height_map[(j*tile_map_size_x*6)+i]=h;
 		//return;
 	}
 
@@ -672,7 +671,7 @@ void method3(float3 *T, float x_pos, float y_pos, float z_pos, int i, int j)
 	|| TestLines((i+1)*0.5, (j+1)*0.5, i*0.5, (j+1)*0.5, x2, y2, x3, y3)
 	|| TestLines((i+1)*0.5, (j+1)*0.5, i*0.5, (j+1)*0.5, x3, y3, x1, y1)){
 		change_heightmap(&height_map[(j*tile_map_size_x*6)+i],h);
-		//height_map[(j*tile_map_size_x*6)+i]=h;	
+		//height_map[(j*tile_map_size_x*6)+i]=h;
 		//return;
 	}
 
@@ -689,14 +688,14 @@ void add_e3d_heightmap(int K, int D)
 	unsigned int *u32;
 	float3 *TF;
 	int vertex_no;
-	int minx, miny, maxx, maxy;							
+	int minx, miny, maxx, maxy;
 	int i, j, k, index, size;
 	int start, idx, face_no;
 	float x_pos, y_pos, z_pos;
 	float min_x, min_y, max_x, max_y;
 	void (*method)(float3 *T, float x_pos, float y_pos, float z_pos, int i, int j);
-	
-	
+
+
 	method = D==1 ? method1 : (D==2)?method2:method3;
 
 	vertex_no = objects_list[K]->e3d_data->vertex_no;

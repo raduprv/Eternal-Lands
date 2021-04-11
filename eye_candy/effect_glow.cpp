@@ -683,6 +683,7 @@ namespace ec
 					if (!base->push_back_particle(p))
 						break;
 				}
+				break;
 			}
 			case LEVEL_UP_SUM_GLOW:
 			{
@@ -793,6 +794,7 @@ namespace ec
 						}
 					}
 				}
+				break;
 			}
 			default:
 			{

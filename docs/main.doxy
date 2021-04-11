@@ -3,22 +3,30 @@
  * @mainpage Eternal Lands Documentation
  * Documentation for the free, open sourced MMORPG "Eternal Lands"
  * </center>
- * 
- * @section general General info
- * <p>This is the documentation for the Open Source MMORPG "Eternal Lands". It is currently under heavy development, so be patient as there are still not that many pages that are documented :-)</p>
- * 
- * <p>We hope to finish the documentation within the next 2-3 weeks, so stay tuned, and keep yourself updated:</p>
- * 
- * <p>For an overview of the Eternal Lands client, see our \ref startpage.</p>
  *
- * <p><pre>
- * cvs -d:pserver:anonymous@cvs.elc.berlios.de:/cvsroot/elc login
- * &lt;enter blank password&gt;
- * cvs -z3 -d:pserver:anonymous@cvs.elc.berlios.de:/cvsroot/elc co elc
+ * @section general General info
+ * <p>This is the source code documentation for the Open Source MMORPG "Eternal Lands".
+ * PLease check the game's <a href="http://www.eternal-lands.com">web site</a> for a
+ * description of the game itself.</p>
+ * <p>This documentation is not complete, but every once in a while some effort is made to
+ * bring it somewhat up to date. To quote a comment from 2005, from this same file:
+ * <pre>
+ * We hope to finish the documentation within the next 2-3 weeks, so stay tuned,
+ * and keep yourself updated
+ * </pre>
+ * So, yes this quote was written 15 years ago (at the time this is written), and
+ * we may not quite have succeeded in fully documenting the code in a few weeks, but we
+ * still hope this documentation may prove to be useful.
+ *
+ * <p>For an overview of the Eternal Lands client, see our \ref startpage.</p>
+ * <p>
+ * The source code for the client can be freely obtained from Github:
+ * <pre>
+ * git clone https://github.com/raduprv/Eternal-Lands.git
  * </pre>
  * </p>
  * <p>
  * You are also very welcome to join our discussion forums:<br>
- * http://www.eternal-lands.com/forum/
+ * <a href="http://www.eternal-lands.com/forum/">http://www.eternal-lands.com/forum/</a>
  * </p>
  */

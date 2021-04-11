@@ -8,6 +8,7 @@
 #include "../errors.h"
 #include "../asc.h"
 #include "../init.h"
+#include "../misc.h"
 #include "../threads.h"
 #include "../hash.h"
 #include "../xz/7zCrc.h"

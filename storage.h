@@ -14,17 +14,12 @@ extern "C" {
 
 #define STORAGE_ITEMS_SIZE 300
 
-/*! \name window handler
- * @{ */
-extern int storage_win; /*!< window handler for the new storage window */
-/*! @} */
 extern int storage_item_dragged;
 extern ground_item storage_items[STORAGE_ITEMS_SIZE]; /*!< list of storage items. */
 
-extern int storage_win_x;
-extern int storage_win_y;
 extern int view_only_storage;
 extern int sort_storage_categories;
+extern int sort_storage_items;
 extern Uint32 drop_fail_time;
 extern int disable_storage_filter;
 
@@ -74,16 +69,6 @@ void get_storage_text (const Uint8 * in_data, int len);
  * 	Closes the storage window.
  */
 void close_storagewin();
-
-/*!
- * \ingroup storage_window
- * \brief Displays the new storage window
- *
- *      Displays the new storage window. If the window hasn't been created before it will first created.
- *
- * \callgraph
- */
-void display_storage_menu();
 
 /*!
  * \ingroup storage_window

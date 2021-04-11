@@ -57,6 +57,10 @@
 #include "missiles.h"
 #include "threads.h"
 
+#ifndef DEF_INFO
+  #define DEF_INFO ""
+#endif
+
 /* NOTE: This file contains implementations of the following, currently unused, and commented functions:
  *          Look at the end of the file.
  *
@@ -143,7 +147,7 @@ void get_version_string (char *buf, size_t len)
 	safe_snprintf (buf, len, "%s %s", game_version_prefix_str, GIT_VERSION);
 #else
 	char extra[100];
-	
+
 	if (client_version_patch > 0)
 	{
 		safe_snprintf (extra, sizeof(extra), "p%d %s", client_version_patch, DEF_INFO);
@@ -158,7 +162,7 @@ void get_version_string (char *buf, size_t len)
 
 /*
  *	Date handling code:
- * 
+ *
  * 		Maintain a string with the current date.  This gets invalidated
  * 	at the turn of the day but not immediately refreshed.  Rather, the
  * 	refresh (asking the server) is done next time the get string is
@@ -587,7 +591,7 @@ void connect_to_server()
 	clear_now_harvesting();
 	last_heart_beat= time(NULL);
 	send_heart_beat();	// prime the hearbeat to prevent some stray issues when there is lots of lag
-	hide_window(trade_win);
+	hide_window_MW(MW_TRADE);
 	do_connect_sound();
 
 	my_tcp_flush(my_socket);    // make sure tcp output buffer is empty
@@ -600,7 +604,7 @@ void send_login_info()
 	const char * local_username_str;
 	const char * local_password_str;
 
-	if (!valid_username_pasword())
+	if (!valid_username_password())
 		return;
 
 	local_username_str = get_username();
@@ -688,7 +692,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 		case RAW_TEXT:
 			{
 				int len;
-				
+
 				if (data_length <= 4)
 				{
 				  LOG_WARNING("CAUTION: Possibly forged RAW_TEXT packet received.\n");
@@ -702,7 +706,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 				if (in_data[3] == server_pop_chan)
 				{
 					if (use_server_pop_win)
-						display_server_popup_win((char*)text_buf);
+						display_server_popup_win(text_buf);
 					else
 						put_text_in_buffer (in_data[3], text_buf, len);
 					// if we're expecting a quest entry, this will be it
@@ -711,7 +715,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 						char cur_npc_name[sizeof(npc_name)];
 						safe_strncpy2(cur_npc_name, (char *)npc_name, sizeof(npc_name), sizeof(npc_name));
 						safe_strncpy((char *)npc_name, "<None>", sizeof(npc_name));
-						add_questlog((char*)text_buf, len);
+						add_questlog(text_buf, len);
 						safe_strncpy2((char *)npc_name, cur_npc_name, sizeof(npc_name), sizeof(npc_name));
 					}
 				}
@@ -748,7 +752,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 				//print_packet(in_data,data_length);
 				if (data_length <= 32)
 				{
-				  LOG_WARNING("CAUTION: Possibly forged ADD_ENHANCED_ACTOR packet received.\n");
+				  LOG_WARNING("CAUTION: Possibly forged ADD_NEW_ENHANCED_ACTOR packet received.\n");
 				  break;
 				}
 				add_enhanced_actor_from_server((char*)&in_data[3], data_length-3);
@@ -841,7 +845,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 					destroy_new_character_interface();
 				}
 				newchar_root_win = -1;
-				if (!get_show_window(console_root_win))
+				if (!get_show_window_MW(MW_CONSOLE))
 					show_window (game_root_win);
 
 				safe_snprintf(str,sizeof(str),"(%s on %s) %s",get_username(),get_server_name(),win_principal);
@@ -854,6 +858,10 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 #endif // NEW_SOUND
 
 				passmngr_save_login();
+#ifdef JSON_FILES
+				set_ready_for_user_files();
+				load_character_options();
+#endif
 				load_quickspells();
 				load_recipes();
 				load_server_markings();
@@ -877,13 +885,13 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 
 		case HERE_YOUR_STATS:
 			{
-				if (data_length <= 167)
+				if (data_length <= 112*sizeof(Sint16) + 3)
 				{
-				  LOG_WARNING("CAUTION: Possibly forged HERE_YOUR_STATS packet received.\n");
-				  break;
+					LOG_WARNING("CAUTION: Possibly forged HERE_YOUR_STATS packet received.\n");
+					break;
 				}
 				get_the_stats((Sint16 *)(in_data+3), data_length-3);
-				update_research_rate();
+				request_true_knowledge_info();
 			}
 			break;
 
@@ -933,7 +941,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 			{
 				int items;
 				int plen;
-		
+
 				if (data_length <= 3)
 				{
 				  LOG_WARNING("CAUTION: Possibly forged HERE_YOUR_INVENTORY packet received.\n");
@@ -975,7 +983,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 					plen=10;
 				else
 					plen=8;
-				
+
 				// allow for multiple packets in a row
 				while(data_length >= 3+plen){
 					get_new_inventory_item(in_data+3);
@@ -1034,11 +1042,14 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 					// if we don't get the product name, make sure we don't just count it as the last item.
 					else
 						counters_set_product_info("",0);
-					if(!((is_created_message&&mixed_message_filter)||get_show_window(items_win)||get_show_window(manufacture_win)||get_show_window(trade_win)))
+					if(!((is_created_message && mixed_message_filter) ||
+							get_show_window_MW(MW_ITEMS) ||
+							get_show_window_MW(MW_MANU) ||
+							get_show_window_MW(MW_TRADE)))
 						put_text_in_buffer(CHAT_SERVER, &in_data[3], data_length-3);
 				}  // End successs counters block
 				/* You failed to create a[n] ..., and lost the ingredients */
-				if (my_strncompare(inventory_item_string+1, "You failed to create a[n] ", 26))
+				if (!strncasecmp(inventory_item_string+1, "You failed to create a[n] ", 26))
 				{
 					size_t item_name_len = 0;
 					char item_name[128];
@@ -1090,7 +1101,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 				if(in_data[3] == '.' && in_data[4] == '/')
 				{
 					safe_strncpy2(mapname, (char*)in_data + 3, sizeof(mapname), data_length - 3);
-				} else 
+				} else
 				{
 					safe_snprintf(mapname, sizeof(mapname), "./%s", (char*)in_data + 3);
 				}
@@ -1208,7 +1219,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 			{
 				if (data_length <= 4)
 				{
-				  LOG_WARNING("CAUTION: Possibly forged CREATE_CHAR_NOT_OKAY packet received.\n");
+				  LOG_WARNING("CAUTION: Possibly forged CREATE_CHAR_NOT_OK packet received.\n");
 				  break;
 				}
 				set_create_char_error ((char*)&in_data[3], data_length - 3);
@@ -1341,7 +1352,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 				char str[160];
 				if (data_length <= 6)
 				{
-				  LOG_WARNING("CAUTION: Possibly forged SYNC_CLOCK packet received.\n");
+				  LOG_WARNING("CAUTION: Possibly forged PONG packet received.\n");
 				  break;
 				}
 				testing_server_connection_time = 0;
@@ -1482,7 +1493,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 #ifdef EXTRA_DEBUG
 	ERR();
 #endif
-				hide_window(ground_items_win);
+				server_close_bag();
 			}
 			break;
 
@@ -1522,13 +1533,13 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 					// double color code, this text
 					// should be added to the quest log
 					safe_strncpy2((char*)text_buf, (char*)&in_data[4], sizeof(text_buf), data_length - 4);
-					add_questlog ((char*)text_buf, strlen((char*)text_buf));
+					add_questlog(text_buf, strlen((char*)text_buf));
 				}
 				// if we're expecting a quest entry, this will be it
 				else if (waiting_for_questlog_entry())
 				{
 					safe_strncpy2((char*)text_buf, (char*)&in_data[3], sizeof(text_buf), data_length - 3);
-					add_questlog ((char*)text_buf, strlen((char*)text_buf));
+					add_questlog(text_buf, strlen((char*)text_buf));
 				}
 			}
 			break;
@@ -1537,7 +1548,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 			{
 				if (data_length <= 23)
 				{
-				  LOG_WARNING("CAUTION: Possibly forged NPC_INFO packet received.\n");
+				  LOG_WARNING("CAUTION: Possibly forged SEND_NPC_INFO packet received.\n");
 				  break;
 				}
 				safe_strncpy2((char*)npc_name, (char*)&in_data[3], sizeof(npc_name), 20);
@@ -1584,7 +1595,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 
 		case GET_TRADE_EXIT:
 			{
-				hide_window(trade_win);
+				hide_window_MW(MW_TRADE);
 				trade_exit();
 			}
 			break;
@@ -1619,8 +1630,8 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 				if (item_uid_enabled)
 					plen=10;
 				else
-					plen=8;		
-			
+					plen=8;
+
 				if (data_length <= 3+plen)
 				{
 				  LOG_WARNING("CAUTION: Possibly forged GET_TRADE_OBJECT packet received.\n");
@@ -1874,7 +1885,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 				  LOG_WARNING("CAUTION: Possibly forged READ_BOOK packet received.\n");
 				  break;
 				}
-				read_network_book((char*)in_data+3, data_length-3);
+				read_network_book(in_data+3, data_length-3);
 			}
 			break;
 
@@ -1913,7 +1924,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 
 		case STORAGE_TEXT:
 			{
-				if (data_length <= 4)
+				if (data_length <= 5)
 				{
 				  LOG_WARNING("CAUTION: Possibly forged STORAGE_TEXT packet received.\n");
 				  break;
@@ -2301,6 +2312,8 @@ void enter_disconnected_state(const char *message)
 #endif // NEW_SOUND
 	disconnect_time = SDL_GetTicks();
 	clear_now_harvesting();
+	if (login_root_win >= 0)
+		set_login_error(disconnected_from_server, strlen(disconnected_from_server), 1);
 }
 
 /* for a disconnect from the server and the normal reconnect on keypress */

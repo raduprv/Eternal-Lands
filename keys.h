@@ -23,7 +23,7 @@ typedef struct
 {
 	SDL_Keycode key_code;			/*!< the SDL virtual key code; see SDL_Keycode */
 	Uint16 key_mod;					/*!< the key modifiers; see SDL_Keymod */
-	char name[KEY_DEF_NAME_SIZE];	/*!< the #K_xxx name for the file */
+	char name[KEY_DEF_NAME_SIZE];	/*!< the \#K_xxx name for the file */
 } el_key_def;
 /*! @} */
 
@@ -54,7 +54,7 @@ extern el_key_def K_VIEWHP;             /*!< key used to toggle display of hitpo
 extern el_key_def K_VIEWETHER;          /*!< key used to toggle display of ether pointer */
 extern el_key_def K_ETHERBARS;          /*!< key used to toggle display of ether bar */
 extern el_key_def K_STATS;              /*!< key to toggle display of \ref stats_window */
-extern el_key_def K_QUESTLOG;           /*!< key to toggle display of \ref questlog_window */
+extern el_key_def K_QUESTLOG;           /*!< key to toggle display of \ref questlog_win */
 extern el_key_def K_SESSION;            /*!< key to toggle display of session tab in stats_window */
 extern el_key_def K_WALK;               /*!< key used to switch to walk cursor */
 extern el_key_def K_LOOK;               /*!< key used to switch to look cursor */
@@ -96,15 +96,15 @@ extern el_key_def K_OPAQUEWIN;          /*!< key used to toggle window opacity *
 extern el_key_def K_GRAB_MOUSE;         /*!< key used to toggle whether mouse is in HUD or camera control mode */
 extern el_key_def K_FIRST_PERSON;       /*!< key used to toggle first person/third person view mode*/
 extern el_key_def K_EXTEND_CAM;         /*!< key used to toggle extended camera mode*/
-extern el_key_def K_CUT;                /*!< key used to cut text and copy it into a clipboard */ 
-extern el_key_def K_COPY;               /*!< key used to copy text into a clipboard */ 
+extern el_key_def K_CUT;                /*!< key used to cut text and copy it into a clipboard */
+extern el_key_def K_COPY;               /*!< key used to copy text into a clipboard */
 extern el_key_def K_PASTE;              /*!< key used to copy text from a clipboard into EL */
-extern el_key_def K_COPY_ALT;           /*!< alternative key used to copy text into a clipboard */ 
+extern el_key_def K_COPY_ALT;           /*!< alternative key used to copy text into a clipboard */
 extern el_key_def K_PASTE_ALT;          /*!< alternative key used to copy text from a clipboard into EL */
 #ifdef ECDEBUGWIN
 extern el_key_def K_ECDEBUGWIN;         /*!< open Eye Candy debug window */
 #endif /* ECDEBUGWIN */
-extern el_key_def K_EMOTES;             /*!< key used to toggle display of \ref emotes_window */
+extern el_key_def K_EMOTES;             /*!< key used to toggle display of \ref emotes_win */
 extern el_key_def K_RANGINGWIN;         /*!< key used to toggle display of ranging win */
 extern el_key_def K_TARGET_CLOSE;       /*!< toggle target_close_clicked_creature option */
 extern el_key_def K_COUNTERS;           /*!< key used to toggle display of counters window  */
@@ -114,6 +114,7 @@ extern el_key_def K_WINSCALEDOWN;       /*!< key used to decrease custom window 
 extern el_key_def K_WINSCALEDEF;        /*!< key used to reset custom window scale factor to default */
 extern el_key_def K_WINSCALEINIT;       /*!< key used to reset custom window scale factor to initial value */
 extern el_key_def K_SUMMONINGMENU;      /*!< key used to open summoning menu for last summomed creature */
+extern el_key_def K_CHAT;               /*!< key used to toggle chat display */
 /*! @} */
 
 /*! \name Quickbar access keys */
@@ -170,7 +171,7 @@ const char *get_key_string(el_key_def keydef, char *buf, size_t buflen);
 
 /*!
  * \brief   Returns the value of the specified keydef.
- * 
+ *
  *      Returns the key value or 0 if not found.
  *
  * \callgraph

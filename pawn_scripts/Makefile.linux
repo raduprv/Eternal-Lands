@@ -1,0 +1,20 @@
+PAWNC = pawncc
+
+-include ../make.conf
+
+all: pawn_test.amx
+
+pawn_test.amx: pawn_test.p features.inc *.p *.inc
+	$(PAWNC) $<
+
+features.inc: ../make.conf
+	echo "#if defined _features_included" > $@; \
+	echo "\t#endinput" >> $@; \
+	echo "#endif" >> $@; \
+	echo "#define _features_included" >> $@; \
+	for feature in $(FEATURES); do \
+		echo "#define $$feature" >> $@; \
+	done
+
+clean:
+	\rm -f *.amx features.inc

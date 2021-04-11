@@ -125,6 +125,7 @@ int HandleEvent(SDL_Event *event)
                     case SDLK_F12:      zoom_level=3.75f; window_resize(); break;
                     case SDLK_TAB:      heights_3d=!heights_3d; break;
                     case SDLK_g:        view_grid=!view_grid; break;
+                    case SDLK_t:        view_tooltips=!view_tooltips; break;
 
                     // FIXME what this?
                     case SDLK_ESCAPE:   done = 1; break;
@@ -134,16 +135,18 @@ int HandleEvent(SDL_Event *event)
                     case SDLK_n:        game_minute=0;  break;
                     case SDLK_d:        game_minute=60; break;
 
+                    case SDLK_PLUS:
                     case SDLK_KP_PLUS:
-                        if(view_tiles_list){
+                        if(get_show_window(tiles_win)){
                             if(tile_offset<192)
                                 tile_offset+=64;
 						} else 
                             grid_height+=0.1f;
                         break;
 
+                    case SDLK_MINUS:
                     case SDLK_KP_MINUS:
-                        if(view_tiles_list){
+                        if(get_show_window(tiles_win)){
                             if(tile_offset>0)
                                 tile_offset -= 64;
 						} else 
@@ -154,6 +157,20 @@ int HandleEvent(SDL_Event *event)
                         break;
                 }
             }
+            // Allow regular '+' (possibly entered by Shift+= or similar) as well.
+            else if (!ctrl_on && !alt_on && event->key.keysym.unicode == '+')
+            {
+                if (get_show_window(tiles_win))
+                {
+                    if (tile_offset < 192)
+                        tile_offset += 64;
+                }
+                else
+                {
+                    grid_height += 0.1f;
+                }
+            }
+
 
             // process key, what push not depening on extended keys
             switch(event->key.keysym.sym) {
@@ -501,20 +518,22 @@ int HandleEvent(SDL_Event *event)
 
 #endif
     if(event->type==SDL_MOUSEMOTION)
-				{
-					mouse_x= event->motion.x;
-					mouse_y= event->motion.y;
+	{
+		mouse_x= event->motion.x;
+		mouse_y= event->motion.y;
 
-					mouse_delta_x= event->motion.xrel;
-					mouse_delta_y= event->motion.yrel;
-				}
-			else
-				{
-					// why was this here? whats broken by removing it?
-					//mouse_x= event->button.x;
-					//mouse_y= event->button.y;
-					mouse_delta_x= mouse_delta_y= 0;
-				}
+		mouse_delta_x= event->motion.xrel;
+		mouse_delta_y= event->motion.yrel;
+
+		check_toolbar_mouseover();
+	}
+	else
+	{
+		// why was this here? whats broken by removing it?
+		//mouse_x= event->button.x;
+		//mouse_y= event->button.y;
+		mouse_delta_x= mouse_delta_y= 0;
+	}
 
 
 	if(event->type==SDL_MOUSEMOTION || event->type==SDL_MOUSEBUTTONDOWN || event->type==SDL_MOUSEBUTTONUP)
@@ -659,7 +678,8 @@ int HandleEvent(SDL_Event *event)
 #endif
 
 			if(check_interface_buttons()==1)tool_bar_click=1;
-			if(right_click==1 && cur_tool==tool_select && selected_tile!=255 && cur_mode==mode_tile)selected_tile=255;
+			if (right_click == 1 && cur_tool == tool_select && cur_mode == mode_tile)
+				selected_tile = 255;
 			if(right_click==1 && cur_tool==tool_select && selected_height!=-1 && cur_mode==mode_height)selected_height=-1;
 			if(right_click==1 && cur_tool==tool_select && selected_2d_object!=-1 && cur_mode==mode_2d)kill_2d_object(selected_2d_object);
 			if(right_click==1 && cur_tool==tool_select && selected_3d_object!=-1 && cur_mode==mode_3d)kill_3d_object(selected_3d_object);
@@ -676,14 +696,6 @@ int HandleEvent(SDL_Event *event)
 			}
 #endif
 			if(right_click==1 && cur_tool==tool_select && cur_mode==mode_particles && selected_particles_object!=-1)kill_particles_object(selected_particles_object);
-			if(right_click==1 && cur_mode==mode_tile && view_tiles_list)
-				{
-					view_tiles_list=0;
-					cur_tool=tool_select;
-					selected_tile=0;
-				}
-
-			
 
 			if(!tool_bar_click)
 				{

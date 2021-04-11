@@ -34,10 +34,12 @@ void clear_conn_log();
 void log_conn(const Uint8 *in_data, Uint16 data_length);
 
 #ifdef EXTRA_DEBUG
-/*! \name    ERR macro 
- * @{ */
+/*!
+ * \name    ERR macro
+ * @{
+ */
 #define ERR() log_func_err(__FILE__, __FUNCTION__, __LINE__); /*!< additional macro to log function error messages */
-/* @} */
+/*! @} */
 
 /*!
  * \ingroup misc_utils

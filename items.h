@@ -7,7 +7,6 @@
 #define __ITEMS_H__
 
 #include "platform.h"
-#include "bags.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -72,7 +71,7 @@ typedef enum {
 /*! @} */
 
 /*!
- * \name The quantities are located within this struct 
+ * \name The quantities are located within this struct
 */
 struct quantities {
 	int selected;
@@ -91,17 +90,10 @@ extern item_extra item_list_extra[ITEM_NUM_ITEMS]; /*!< global list of items ext
 extern int item_dragged;					/*!< the position of any currently dragged item, or -1 */
 extern int item_quantity;					/*!< the number of items for and any currently dragged item */
 extern int use_item;						/*!< the position of any current items used */
-extern int item_action_mode;				/*!< the current cursor mode for the items window */
 extern int item_uid_enabled;				/*!< true if item ids are enable */
 extern const Uint16 unset_item_uid;			/*!< a value to compare with an itemd id to check if its set */
-/*! @} */
+extern int independant_inventory_action_modes; /*!< use independant action modes for inventory window */
 
-
-/*! \name item window vars */
-/*! @{ */
-extern int items_win; 						/*!< inventory windows id */
-extern int items_menu_x;					/*!< position of the window saved in the config file */
-extern int items_menu_y;
 /*! @} */
 
 /*! \name Text fields for items */
@@ -147,9 +139,9 @@ void update_item_sound(int interval);
  * \param item_pos_to_mov	the position of the item to move
  * \param destination_pos	the desired destination
  * \param avoid_pos			if > 0 then avoid this slot for the destinaiton
- * 
+ *
  * \retval int      return true if the move command is sent to the server
- * 
+ *
  * \callgraph
  */
 int move_item(int item_pos_to_mov, int destination_pos, int avoid_pos);
@@ -183,7 +175,7 @@ void used_item_counter_timer(void);
  * \brief  Common function between QuickBar and Inventroy to enable counting item use.
  *
  * \param item_pos   the position in the items array, to check
- * 
+ *
  * \callgraph
  */
 void used_item_counter_action_use(int pos);
@@ -264,16 +256,6 @@ static __inline__ GLuint get_items_texture(int no)
 }
 
 /*!
- * \ingroup items_window
- * \brief   Displays the items (inventory) window.
- *
- *      Displays the items (inventory) window. If the window was not displayed before, it will first created and the event handlers for the window initialized accordingly. \ref items_window recognizes the following events: \ref ELW_HANDLER_DISPLAY, \ref ELW_HANDLER_CLICK and \ref ELW_HANDLER_MOUSEOVER.
- *
- * \callgraph
- */
-void display_items_menu();
-
-/*!
  * \ingroup item
  * \brief   Gets the items for \ref item_list from the parameter \a data.
  *
@@ -333,8 +315,8 @@ void get_new_inventory_item (const Uint8 *data);
  *
  *      Sets the cooldown values of inventory items from server data.
  *
- * \param data		the incoming data string from the server
- * \param cooldown 	the length of the string in bytes
+ * \param data the incoming data string from the server
+ * \param len  the length of the string in bytes
  *
  */
 void get_items_cooldown (const Uint8 *data, int len);
@@ -352,7 +334,7 @@ void update_cooldown ();
  * \ingroup item
  * \brief   Sets the displayed string for the items, manufacture and trade windows.
  *
- *      The items, manufacture and trade windows all display the same string, 
+ *      The items, manufacture and trade windows all display the same string,
  * 		normally set in multiplayer.c.  This function can also set the string.
  *		Each window independantly wraps the string to fit it's window.
  *
@@ -363,6 +345,15 @@ void set_shown_string(char colour_code, const char *the_text);
 
 void get_item_uv(const Uint32 item, float* u_start, float* v_start,
 	float* u_end, float* v_end);
+
+/*!
+ * \ingroup item
+ * \brief Set the action mode for the items window.
+ *
+ * \param new_mode  the new action mode, ignored if not one that can be used
+ *
+ */
+void set_items_action_mode(int new_mode);
 
 #ifdef __cplusplus
 } // extern "C"

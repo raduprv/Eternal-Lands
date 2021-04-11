@@ -6,6 +6,7 @@ extern char heights_3d;
 extern char minimap_on;
 extern int new_map_menu;
 extern int view_grid;
+extern int view_tooltips;
 extern int show_mapeditor_reflections;
 
 #endif

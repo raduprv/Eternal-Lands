@@ -25,7 +25,6 @@
 #include "sound.h"
 
 static size_t cm_edit_id = CM_INIT_VALUE;
-#define DEFAULT_TAB_RADIUS 8 //* the radius used for rounded tabs
 
 typedef struct {
 	char text[256];
@@ -41,7 +40,10 @@ typedef struct {
 }checkbox;
 
 typedef struct {
-	char text[256];
+	unsigned char text[256];
+	Uint16 fixed_width;
+	Uint16 fixed_height;
+	int center_offset;
 }button;
 
 typedef struct {
@@ -50,13 +52,20 @@ typedef struct {
 }progressbar;
 
 typedef struct {
-	char * password;
+	unsigned char* password;
 	int status;
 	int max_chars;
-}password_entry;
+	int cursor_pos;
+	int draw_begin, draw_end;
+	int sel_begin, sel_end;
+	int drag_begin;
+	int mouseover;
+	float shadow_r, shadow_g, shadow_b;
+	Uint16 fixed_height;
+} password_entry;
 
 typedef struct {
-	char text[256];
+	unsigned char text[256];
 	Uint16 x;
 	Uint16 y;
 	int width;
@@ -94,36 +103,50 @@ int disable_double_click = 0;
 static int label_resize (widget_list *w, int width, int height);
 static int free_widget_info (widget_list *widget);
 static int checkbox_click(widget_list *W, int mx, int my, Uint32 flags);
+static int button_draw(widget_list *w);
+static int square_button_draw(widget_list *w);
+static int button_change_font(widget_list *W, font_cat cat);
 static int vscrollbar_click(widget_list *W, int mx, int my, Uint32 flags);
 static int vscrollbar_drag(widget_list *W, int x, int y, Uint32 flags, int dx, int dy);
 static int tab_collection_click(widget_list *W, int x, int y, Uint32 flags);
 static int tab_collection_keypress(widget_list *W, int mx, int my, SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_mod);
 static int free_tab_collection(widget_list *widget);
+static int tab_collection_change_font(widget_list *w, font_cat font);
 static int text_field_click(widget_list *w, int mx, int my, Uint32 flags);
 static int text_field_drag(widget_list *w, int mx, int my, Uint32 flags, int dx, int dy);
 static int text_field_resize (widget_list *w, int width, int height);
 static int text_field_destroy(widget_list *w);
 static int text_field_move(widget_list *w, int pos_x, int pos_y);
+static int text_field_change_font(widget_list *w, font_cat cat);
+static int text_field_paste(widget_list *w, const char* text);
+static int text_field_set_color(widget_list *widget, float r, float g, float b);
+static int pword_field_mouseover(widget_list *w, int mx, int my);
+static int pword_field_click(widget_list *w, int mx, int my, Uint32 flags);
+static int pword_field_drag(widget_list *w, int mx, int my, Uint32 flags, int dx, int dy);
+static int pword_field_keypress(widget_list *w, int mx, int my, SDL_Keycode key_code,
+	Uint32 key_unicode, Uint16 key_mod);
 static int pword_field_draw(widget_list *w);
+static int pword_field_paste(widget_list *w, const char* text);
 static int multiselect_draw(widget_list *widget);
 static int multiselect_click(widget_list *widget, int mx, int my, Uint32 flags);
+static int multiselect_set_color(widget_list *widget, float r, float g, float b);
 static int free_multiselect(widget_list *widget);
 static int spinbutton_draw(widget_list *widget);
 static int spinbutton_click(widget_list *widget, int mx, int my, Uint32 flags);
 static int spinbutton_keypress(widget_list *widget, int mx, int my, SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_mod);
 
-static const struct WIDGET_TYPE label_type = { NULL, label_draw, NULL, NULL, NULL, label_resize, NULL, free_widget_info, NULL };
-static const struct WIDGET_TYPE image_type = { NULL, image_draw, NULL, NULL, NULL, NULL, NULL, free_widget_info, NULL };
-static const struct WIDGET_TYPE checkbox_type = { NULL, checkbox_draw, checkbox_click, NULL, NULL, NULL, NULL, free_widget_info, NULL };
-static const struct WIDGET_TYPE round_button_type = { NULL, button_draw, NULL, NULL, NULL, NULL, NULL, free_widget_info, NULL };
-static const struct WIDGET_TYPE square_button_type = { NULL, square_button_draw, NULL, NULL, NULL, NULL, NULL, free_widget_info, NULL };
-static const struct WIDGET_TYPE progressbar_type = { NULL, progressbar_draw, NULL, NULL, NULL, NULL, NULL, free_widget_info, NULL };
-static const struct WIDGET_TYPE vscrollbar_type = { NULL, vscrollbar_draw, vscrollbar_click, vscrollbar_drag, NULL, NULL, NULL, free_widget_info, NULL };
-static const struct WIDGET_TYPE tab_collection_type = { NULL, tab_collection_draw, tab_collection_click, NULL, NULL, tab_collection_resize, (int (*)())tab_collection_keypress, free_tab_collection, NULL };
-static const struct WIDGET_TYPE text_field_type = { NULL, text_field_draw, text_field_click, text_field_drag, NULL, text_field_resize, (int (*)())text_field_keypress, text_field_destroy, text_field_move };
-static const struct WIDGET_TYPE pword_field_type = { NULL, pword_field_draw, pword_field_click, NULL, NULL, NULL, (int (*)())pword_keypress, free_widget_info, NULL };
-static const struct WIDGET_TYPE multiselect_type = { NULL, multiselect_draw, multiselect_click, NULL, NULL, NULL, NULL, free_multiselect, NULL };
-static const struct WIDGET_TYPE spinbutton_type = { NULL, spinbutton_draw, spinbutton_click, spinbutton_click, NULL, NULL, (int (*)())spinbutton_keypress, free_multiselect, NULL };
+static const struct WIDGET_TYPE label_type = { NULL, label_draw, NULL, NULL, NULL, label_resize, NULL, free_widget_info, NULL, NULL, NULL, NULL };
+static const struct WIDGET_TYPE image_type = { NULL, image_draw, NULL, NULL, NULL, NULL, NULL, free_widget_info, NULL, NULL, NULL, NULL };
+static const struct WIDGET_TYPE checkbox_type = { NULL, checkbox_draw, checkbox_click, NULL, NULL, NULL, NULL, free_widget_info, NULL, NULL, NULL, NULL };
+static const struct WIDGET_TYPE round_button_type = { NULL, button_draw, NULL, NULL, NULL, NULL, NULL, free_widget_info, NULL, button_change_font, NULL, NULL };
+static const struct WIDGET_TYPE square_button_type = { NULL, square_button_draw, NULL, NULL, NULL, NULL, NULL, free_widget_info, NULL, button_change_font, NULL, NULL };
+static const struct WIDGET_TYPE progressbar_type = { NULL, progressbar_draw, NULL, NULL, NULL, NULL, NULL, free_widget_info, NULL, NULL, NULL, NULL };
+static const struct WIDGET_TYPE vscrollbar_type = { NULL, vscrollbar_draw, vscrollbar_click, vscrollbar_drag, NULL, NULL, NULL, free_widget_info, NULL, NULL, NULL, NULL };
+static const struct WIDGET_TYPE tab_collection_type = { NULL, tab_collection_draw, tab_collection_click, NULL, NULL, tab_collection_resize, (int (*)())tab_collection_keypress, free_tab_collection, NULL, tab_collection_change_font, NULL, NULL };
+static const struct WIDGET_TYPE text_field_type = { NULL, text_field_draw, text_field_click, text_field_drag, NULL, text_field_resize, (int (*)())text_field_keypress, text_field_destroy, text_field_move, text_field_change_font, text_field_paste, text_field_set_color };
+static const struct WIDGET_TYPE pword_field_type = { NULL, pword_field_draw, pword_field_click, pword_field_drag, pword_field_mouseover, NULL, (int (*)())pword_field_keypress, free_widget_info, NULL, NULL, pword_field_paste, NULL };
+static const struct WIDGET_TYPE multiselect_type = { NULL, multiselect_draw, multiselect_click, NULL, NULL, NULL, NULL, free_multiselect, NULL, NULL, NULL, multiselect_set_color };
+static const struct WIDGET_TYPE spinbutton_type = { NULL, spinbutton_draw, spinbutton_click, spinbutton_click, NULL, NULL, (int (*)())spinbutton_keypress, free_multiselect, NULL, NULL, NULL, NULL };
 
 // <--- Common widget functions ---
 widget_list * widget_find(int window_id, Uint32 widget_id)
@@ -132,7 +155,7 @@ widget_list * widget_find(int window_id, Uint32 widget_id)
 
 	if (window_id < 0 || window_id >= windows_list.num_windows) return NULL;
 	if (windows_list.window[window_id].window_id != window_id) return NULL;
-	
+
 	w = windows_list.window[window_id].widgetlist;
 	while(w != NULL)
 	{
@@ -140,7 +163,7 @@ widget_list * widget_find(int window_id, Uint32 widget_id)
 			return w;
 		w = w->next;
 	}
-	
+
 	return NULL;
 }
 
@@ -157,7 +180,7 @@ int widget_destroy (int window_id, Uint32 widget_id)
 		// shouldn't happen
 		return 0;
 	}
-	
+
 	if (n->id == widget_id)
 	{
 		if (n->OnDestroy != NULL)
@@ -192,7 +215,7 @@ int widget_destroy (int window_id, Uint32 widget_id)
 				// their scrollbar) may set a pointer to the
 				// widget being deleted here.
 				w->next = n->next;
-				
+
 				if (n->OnDestroy != NULL)
 				{
 					if(n->spec != NULL)
@@ -208,8 +231,8 @@ int widget_destroy (int window_id, Uint32 widget_id)
 			}
 		}
 	}
-	
-	// shouldn't get here	
+
+	// shouldn't get here
 	return 0;
 }
 
@@ -295,12 +318,12 @@ Uint32 widget_move_win(int window_id, Uint32 widget_id, int new_win_id)
 	widget_list *w;
 	widget_list *prev_w = NULL;
 
-	if (window_id < 0 || window_id >= windows_list.num_windows 
+	if (window_id < 0 || window_id >= windows_list.num_windows
 		|| new_win_id < 0 || new_win_id >= windows_list.num_windows) {
 		return 0;
 	}
-	if (windows_list.window[window_id].window_id != window_id 
-		|| windows_list.window[new_win_id].window_id != new_win_id 
+	if (windows_list.window[window_id].window_id != window_id
+		|| windows_list.window[new_win_id].window_id != new_win_id
 		|| window_id == new_win_id) {
 		return 0;
 	}
@@ -371,20 +394,20 @@ int widget_resize(int window_id, Uint32 widget_id, Uint16 x, Uint16 y)
 {
 	widget_list *w = widget_find (window_id, widget_id);
 	int res = 0;
-	
+
 	if (w)
 	{
 		w->len_x = x;
 		w->len_y = y;
 		if (w->type != NULL)
-			if (w->type->resize != NULL) 
+			if (w->type->resize != NULL)
 				res = w->type->resize (w, x, y);
 		if (w->OnResize && res != -1)
 		{
 			if(w->spec != NULL) res |= w->OnResize (w, x, y, w->spec);
 			else res |= w->OnResize (w, x, y);
 		}
-		
+
 		return res > -1 ? res : 0;
 	}
 	return 0;
@@ -425,13 +448,27 @@ int widget_set_size(int window_id, Uint32 widget_id, float size)
 int widget_set_color(int window_id, Uint32 widget_id, float r, float g, float b)
 {
 	widget_list *w = widget_find(window_id, widget_id);
-	if(w){
-		w->r = r;
-		w->g = g;
-		w->b = b;
-		return 1;
-	}
-	return 0;
+	if(!w)
+		return 0;
+
+	w->r = r;
+	w->g = g;
+	w->b = b;
+	if (w->type->color_change)
+		w->type->color_change(w, r, g, b);
+	return 1;
+}
+
+int widget_set_font_cat(int window_id, int widget_id, font_cat cat)
+{
+	widget_list *w = widget_find(window_id, widget_id);
+	if (!w)
+		return 0;
+
+	w->fcat = cat;
+	widget_handle_font_change(w, cat);
+
+	return 1;
 }
 
 int widget_get_width (int window_id, Uint32 widget_id)
@@ -472,17 +509,18 @@ int widget_set_args (int window_id, Uint32 widget_id, void *spec)
 
 // Create a generic widget
 Uint32 widget_add (int window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly,
-	Uint32 Flags, float size, float r, float g, float b, const struct WIDGET_TYPE *type, void *T, void *S)
+	Uint32 Flags, float size, const struct WIDGET_TYPE *type, void *T, void *S)
 {
+	window_info *win = &windows_list.window[window_id];
 	widget_list *W = (widget_list *) malloc(sizeof(widget_list));
-	widget_list *w = windows_list.window[window_id].widgetlist;
-	
+	widget_list *w = win->widgetlist;
+
 	// Clearing everything
 	memset(W,0,sizeof(widget_list));
 
 	// Filling the widget info
 	W->widget_info = T;
-	
+
 	// Copy the information
 	W->id = wid;
 	W->window_id = window_id;
@@ -490,20 +528,21 @@ Uint32 widget_add (int window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 
 	W->pos_x = x;
 	W->pos_y = y;
 	W->size = size;
-	W->r = r;
-	W->g = g;
-	W->b = b;
+	W->r = gui_color[0];
+	W->g = gui_color[1];
+	W->b = gui_color[2];
+	W->fcat = win->font_category;
 	W->len_y = ly;
 	W->len_x = lx;
-	
+
 	W->spec = S;
-	
+
 	// Generic Handling Functions
 	W->OnInit = OnInit;
 	W->type = type;
-	
+
 	// Check if we need to initialize it
-	if(W->type != NULL)	
+	if(W->type != NULL)
 		if(W->type->init != NULL)
 			W->type->init(W);
 	if(W->OnInit != NULL)
@@ -511,11 +550,11 @@ Uint32 widget_add (int window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 
 		if(W->spec != NULL) W->OnInit (W, W->spec);
 		else W->OnInit (W);
 	}
-	
+
 	// Adding the widget to the list
 	if (w == NULL)
 	{
-		windows_list.window[window_id].widgetlist = W;
+		win->widgetlist = W;
 	}
 	else
 	{
@@ -616,23 +655,64 @@ int widget_handle_keypress (widget_list *widget, int mx, int my, SDL_Keycode key
 	return res > -1 ? res : 0;
 }
 
+int widget_handle_font_change(widget_list *widget, font_cat cat)
+{
+	int res = 0;
+
+	if (cat != widget->fcat)
+		return 0;
+
+	if (widget->type && widget->type->font_change)
+	{
+		res = widget->type->font_change(widget, cat);
+	}
+	if (widget->OnFontChange)
+	{
+		if (widget->spec)
+		{
+			res |= widget->OnFontChange(widget, cat, widget->spec);
+		}
+		else
+		{
+			res |= widget->OnFontChange(widget, cat);
+		}
+	}
+
+	return res;
+}
+
+int widget_handle_paste(widget_list *widget, const char* text)
+{
+	int res = 0;
+	if (widget->type && widget->type->paste)
+	{
+		res = widget->type->paste(widget, text);
+	}
+
+	// MAYBE FIXME? Add object-specific paste handlers?
+
+	return res;
+}
+
 // --- End Common Widget Functions --->
 
 // Label
-int label_add_extended(int window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 y, Uint32 Flags, float size, float r, float g, float b, const char *text)
+int label_add_extended(int window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 y, Uint32 Flags, float size, const char *text)
 {
-	Uint16 len_x = (Uint16)(strlen (text) * DEFAULT_FONT_X_LEN * size);
-	Uint16 len_y = (Uint16)(DEFAULT_FONT_Y_LEN * size);
+	window_info *win = &windows_list.window[window_id];
+
+	Uint16 len_x = get_string_width_zoom((const unsigned char*)text, win->font_category, size);
+	Uint16 len_y = get_line_height(win->font_category, size);
 
 	label *T = (label *) calloc (1, sizeof(label));
-	safe_snprintf (T->text, sizeof(T->text), "%s", text);
+	safe_strncpy(T->text, text, sizeof(T->text));
 
-	return widget_add (window_id, wid, OnInit, x, y, len_x, len_y, Flags, size, r, g, b, &label_type, (void *)T, NULL);
+	return widget_add (window_id, wid, OnInit, x, y, len_x, len_y, Flags, size, &label_type, (void *)T, NULL);
 }
 
 int label_add(int window_id, int (*OnInit)(), const char *text, Uint16 x, Uint16 y)
 {
-	return label_add_extended (window_id, widget_id++, OnInit, x, y, 0, 1.0, -1.0, -1.0, -1.0, text);
+	return label_add_extended (window_id, widget_id++, OnInit, x, y, 0, 1.0, text);
 }
 
 int label_draw(widget_list *W)
@@ -641,19 +721,20 @@ int label_draw(widget_list *W)
 	if(W->r != -1.0) {
 		glColor3f(W->r,W->g,W->b);
 	}
-	draw_string_zoomed(W->pos_x,W->pos_y,(unsigned char *)l->text,1,W->size);
+	draw_string_zoomed_width_font(W->pos_x, W->pos_y, (const unsigned char *)l->text,
+		window_width, 1, W->fcat, W->size);
 	return 1;
 }
 
 static int label_resize (widget_list *w, int width, int height)
 {
-	if(w){
-		label *l = (label *)w->widget_info;
-		if (l) {
-			w->len_x = (width > 0) ?width :(Uint16)(strlen (l->text) * DEFAULT_FONT_X_LEN * w->size);
-			w->len_y = (height > 0) ?height :(Uint16)(DEFAULT_FONT_Y_LEN * w->size);
-		}
-	}
+	label *l;
+	if (!w || !(l = (label*)w->widget_info))
+		return 0;
+
+	w->len_x = (width > 0) ? width : get_string_width_zoom((const unsigned char*)l->text,
+		w->fcat, w->size);
+	w->len_y = (height > 0) ? height : get_line_height(w->fcat, w->size);
 	return 1;
 }
 
@@ -670,7 +751,7 @@ int label_set_text(int window_id, Uint32 widget_id, const char *text)
 
 // Image
 
-int image_add_extended(int window_id, Uint32 wid,  int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b, int id, float u1, float v1, float u2, float v2, float alpha)
+int image_add_extended(int window_id, Uint32 wid,  int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, int id, float u1, float v1, float u2, float v2, float alpha)
 {
 	image *T = calloc (1, sizeof (image));
 	T->u1 = u1;
@@ -680,12 +761,12 @@ int image_add_extended(int window_id, Uint32 wid,  int (*OnInit)(), Uint16 x, Ui
 	T->id = id;
 	T->alpha = alpha;
 
-	return widget_add (window_id, wid, OnInit, x, y, lx, ly, Flags, size, r, g, b, &image_type, T, NULL);
+	return widget_add (window_id, wid, OnInit, x, y, lx, ly, Flags, size, &image_type, T, NULL);
 }
 
 int image_add(int window_id, int (*OnInit)(), int id, Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, float u1, float v1, float u2, float v2)
 {
-	return image_add_extended(window_id, widget_id++, OnInit, x, y, lx, ly, 0, 1.0, 1.0, 1.0, 1.0, id, u1, v1, u2, v2, -1); 
+	return image_add_extended(window_id, widget_id++, OnInit, x, y, lx, ly, 0, 1.0, id, u1, v1, u2, v2, -1);
 }
 
 int image_draw(widget_list *W)
@@ -791,12 +872,12 @@ int checkbox_set_checked(int window_id, Uint32 widget_id, int checked)
 	return 0;
 }
 
-int checkbox_add_extended(int window_id,  Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b, int *checked)
+int checkbox_add_extended(int window_id,  Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, int *checked)
 {
 	checkbox *T = calloc (1, sizeof (checkbox));
 	T->checked = checked;
 
-	return widget_add (window_id, wid, OnInit, x, y, lx, ly, Flags, size, r, g, b, &checkbox_type, T, NULL);
+	return widget_add (window_id, wid, OnInit, x, y, lx, ly, Flags, size, &checkbox_type, T, NULL);
 }
 
 int checkbox_add(int window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, int *checked)
@@ -805,7 +886,7 @@ int checkbox_add(int window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, 
 	{
 		checked = calloc(1,sizeof(*checked));
 	}
-	return checkbox_add_extended(window_id, widget_id++, NULL, x, y, lx, ly, 0, 1.0, -1.0, -1.0, -1.0, checked);
+	return checkbox_add_extended(window_id, widget_id++, NULL, x, y, lx, ly, 0, 1.0, checked);
 }
 
 // Button
@@ -818,51 +899,99 @@ int safe_button_click(Uint32 *last_click)
 	return retvalue;
 }
 
-int button_add_extended(int window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b, const char *text)
+int calc_button_width(const unsigned char* label, font_cat cat, float size)
 {
-	Uint16 len_x = lx > 0 ? lx : (Uint16)(strlen(text) * DEFAULT_FONT_X_LEN * size) + 2*BUTTONRADIUS*size;
-	Uint16 len_y = ly > 0 ? ly : (Uint16)(DEFAULT_FONT_Y_LEN * size) + 12*size;
+	return get_string_width_zoom(label, cat, size) + (int)(0.5 + 2*size*BUTTONRADIUS);
+}
+
+static int button_change_font(widget_list *W, font_cat cat)
+{
+	button *T;
+	Uint16 len_x, len_y;
+
+	if (!W || !(T = W->widget_info))
+		return 0;
+
+	len_x = T->fixed_width ? T->fixed_width : calc_button_width(T->text, W->fcat, W->size);
+	if (T->fixed_height)
+	{
+		len_y = T->fixed_height;
+	}
+	else
+	{
+		// FIXME? Even if the font height changes, the button frame that is drawn only depends on
+		// the size. So at least for now, stick to the button frame for the height.
+// 		int min_len_y = (int)(2 * BUTTONRADIUS * W->size + 0.5);
+// 		len_y = get_line_height(W->fcat, W->size) + (int)(12 * W->size + 0.5);
+// 		if (len_y < min_len_y)
+// 			len_y = min_len_y;
+		len_y = (int)(2 * BUTTONRADIUS * W->size + 0.5);
+	}
+
+	if (W->Flags & BUTTON_VCENTER_CONTENT)
+		T->center_offset = get_center_offset(T->text, strlen((const char*)T->text), W->fcat, W->size);
+
+	return widget_resize(W->window_id, W->id, len_x, len_y);
+}
+
+int button_add_extended(int window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, const char *text)
+{
+	window_info *win = &windows_list.window[window_id];
+
+	Uint16 len_x, len_y;
 	const struct WIDGET_TYPE *type = (Flags & BUTTON_SQUARE) ? &square_button_type : &round_button_type;
 
 	button *T = calloc (1, sizeof(button));
-	safe_snprintf (T->text, sizeof(T->text), "%s", text);
+	safe_strncpy((char*)T->text, text, sizeof(T->text));
+	T->fixed_width = lx;
+	T->fixed_height = ly;
 
-	return widget_add (window_id, wid, OnInit, x, y, len_x, len_y, Flags, size, r, g, b, type, T, NULL);
+	if (Flags & BUTTON_VCENTER_CONTENT)
+	{
+		T->center_offset = get_center_offset((const unsigned char*)text, strlen(text),
+			win->font_category, size);
+	}
+
+	len_x = lx ? lx : calc_button_width(T->text, win->font_category, size);
+	len_y = ly ? ly : get_line_height(win->font_category, size) + (int)(12 * size + 0.5);
+
+	return widget_add (window_id, wid, OnInit, x, y, len_x, len_y, Flags, size, type, T, NULL);
 }
 
 int button_resize(int window_id, Uint32 wid, Uint16 lx, Uint16 ly, float size)
 {
 	widget_list *w = widget_find(window_id, wid);
-	if (w)
-	{
-		button *l = (button *)w->widget_info;
-		Uint16 len_x = lx > 0 ? lx : (Uint16)(strlen(l->text) * DEFAULT_FONT_X_LEN * size) + 2 * BUTTONRADIUS * size;
-		Uint16 len_y = ly > 0 ? ly : (Uint16)(DEFAULT_FONT_Y_LEN * size) + (DEFAULT_FONT_X_LEN+1) * size;
-		w->size = size;
-		return widget_resize(window_id, wid, len_x, len_y);
-	}
-	return 0;
+	button *T;
+	if (!w || !(T = w->widget_info))
+		return 0;
+
+	if (lx) T->fixed_width = lx;
+	if (ly) T->fixed_height = ly;
+	w->size = size;
+
+	return button_change_font(w, w->fcat);
 }
 
 int button_add(int window_id, int (*OnInit)(), const char *text, Uint16 x, Uint16 y)
 {
-	return button_add_extended(window_id, widget_id++, NULL, x, y, 0, 0, 0, 1.0, -1.0, -1.0, -1.0, text);
+	return button_add_extended(window_id, widget_id++, NULL, x, y, 0, 0, 0, 1.0, text);
 }
 
-int button_draw(widget_list *W)
+static int button_draw(widget_list *W)
 {
 	button *l = (button *)W->widget_info;
-	draw_smooth_button(l->text, W->size, W->pos_x, W->pos_y, W->len_x-2*BUTTONRADIUS*W->size, 1, W->r, W->g, W->b, W->Flags & BUTTON_ACTIVE, 0.32f, 0.23f, 0.15f, 0.0f);
+	int text_width = W->len_x - 2*BUTTONRADIUS*W->size;
+	draw_smooth_button(NULL, W->fcat, W->size, W->pos_x, W->pos_y, text_width,
+		1, W->r, W->g, W->b, W->Flags & BUTTON_ACTIVE, gui_invert_color[0], gui_invert_color[1], gui_invert_color[2], 0.0f);
+	draw_text(W->pos_x + W->len_x/2, W->pos_y + W->len_y/2 - l->center_offset, l->text,
+		strlen((const char*)l->text), W->fcat, TDO_MAX_WIDTH, text_width, TDO_ALIGNMENT, CENTER,
+		TDO_VERTICAL_ALIGNMENT, CENTER_LINE, TDO_ZOOM, W->size, TDO_SHRINK_TO_FIT, 1, TDO_END);
 	return 1;
 }
 
-int square_button_draw(widget_list *W)
+static int square_button_draw(widget_list *W)
 {
 	button *l = (button *)W->widget_info;
-	float extra_space = (W->len_x - get_string_width((unsigned char*)l->text)*W->size*(0.11f/0.12f))/2.0f;
-	if(extra_space < 0) {
-		extra_space = 0;
-	}
 
 	glDisable(GL_TEXTURE_2D);
 
@@ -877,7 +1006,9 @@ int square_button_draw(widget_list *W)
 	glEnd();
 
 	glEnable(GL_TEXTURE_2D);
-	draw_string_zoomed(W->pos_x + 2 + extra_space + gx_adjust, W->pos_y + (W->len_y - DEFAULT_FONT_Y_LEN * W->size) / 2 + 1 + gy_adjust, (unsigned char *)l->text, 1, W->size);
+	draw_text(W->pos_x + W->len_x/2, W->pos_y + W->len_y/2 - l->center_offset, l->text,
+		strlen((const char*)l->text), W->fcat, TDO_ALIGNMENT, CENTER, TDO_VERTICAL_ALIGNMENT, CENTER_LINE,
+		TDO_ZOOM, W->size, TDO_END);
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
@@ -885,12 +1016,80 @@ CHECK_GL_ERRORS();
 	return 1;
 }
 
-int button_set_text(int window_id, Uint32 widget_id, char *text)
+void draw_smooth_button(const unsigned char* str, font_cat fcat, float size,
+	int x, int y, int w, int lines, float r, float g, float b,
+	int highlight, float hr, float hg, float hb, float ha)
+{
+	int radius=lines*BUTTONRADIUS*size;
+
+	glDisable(GL_TEXTURE_2D);
+
+	if(r>=0.0f)
+		glColor3f(r, g, b);
+
+#ifdef OSX
+	if (square_buttons) {
+		glBegin(GL_LINE_LOOP);
+		glVertex3i(x,y,0);
+		glVertex3i(x + w + radius*2,y,0);
+		glVertex3i(x + w + radius*2,y + radius*2,0);
+		glVertex3i(x,y + radius*2,0);
+		glEnd();
+
+		if(highlight) {
+			if(hr>=0.0f)
+				glColor4f(hr,hg,hb,ha);
+			glBegin(GL_POLYGON);
+			glVertex3i(x+1,y+1,0);
+			glVertex3i(x + w + radius*2 -1,y+1,0);
+			glVertex3i(x + w + radius*2 -1,y + radius*2 -1,0);
+			glVertex3i(x+1,y + radius*2 -1,0);
+			glEnd();
+		}
+
+		glEnable(GL_TEXTURE_2D);
+	} else {
+#endif
+	glBegin(GL_LINE_LOOP);
+		draw_circle_ext(x, y, radius, 10, 90, 270);
+		draw_circle_ext(x+w, y, radius, 10, -90, 90);
+	glEnd();
+	if(highlight) {
+		if(hr>=0.0f)
+			glColor4f(hr,hg,hb,ha);
+		glBegin(GL_POLYGON);
+			draw_circle_ext(x+1, y+1, radius-1, 10, 90, 270);
+			draw_circle_ext(x+w+1, y+1, radius-1, 10, -90, 90);
+		glEnd();
+	}
+	glEnable(GL_TEXTURE_2D);
+
+#ifdef OSX
+	}	// to close off square_buttons conditional
+#endif
+
+	if(highlight) {
+		glColor3f(r, g, b);
+	}
+
+	if (str)
+	{
+		draw_text(x + radius + w/2, y + radius, str, strlen((const char*)str), fcat,
+			TDO_MAX_WIDTH, w, TDO_ALIGNMENT, CENTER, TDO_VERTICAL_ALIGNMENT, CENTER_LINE,
+			TDO_ZOOM, size, TDO_SHRINK_TO_FIT, 1, TDO_END);
+	}
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
+}
+
+
+int button_set_text(int window_id, Uint32 widget_id, const char *text)
 {
 	widget_list *w = widget_find(window_id, widget_id);
 	if(w){
 		button *l = (button *) w->widget_info;
-		safe_snprintf(l->text, sizeof(l->text), "%s",  text);
+		safe_strncpy((char*)l->text, text, sizeof(l->text));
 		return 1;
 	}
 	return 0;
@@ -899,10 +1098,10 @@ int button_set_text(int window_id, Uint32 widget_id, char *text)
 // Progressbar
 int progressbar_add(int window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly)
 {
-	return progressbar_add_extended(window_id, widget_id++, OnInit, x, y, lx, ly, 0, 1.0, -1.0, -1.0, -1.0, 0.0f, NULL);
+	return progressbar_add_extended(window_id, widget_id++, OnInit, x, y, lx, ly, 0, 1.0, 0.0f, NULL);
 }
 
-int progressbar_add_extended(int window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b, float progress, const float * colors)
+int progressbar_add_extended(int window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float progress, const float * colors)
 {
 	progressbar *T = calloc (1, sizeof(progressbar));
 	T->progress = progress;
@@ -912,7 +1111,7 @@ int progressbar_add_extended(int window_id, Uint32 wid, int (*OnInit)(), Uint16 
 		T->colors[0] = -1.0f;
 	}
 
-	return widget_add (window_id, wid, OnInit, x, y, lx, ly, Flags, size, r, g, b, &progressbar_type, T, NULL);
+	return widget_add (window_id, wid, OnInit, x, y, lx, ly, Flags, size, &progressbar_type, T, NULL);
 }
 
 int progressbar_draw(widget_list *W)
@@ -945,13 +1144,13 @@ int progressbar_draw(widget_list *W)
 			glVertex3i(W->pos_x + pixels, W->pos_y + W->len_y, 0);
 			if (have_bar_colors) glColor3fv(&b->colors[9]);
 			glVertex3i(W->pos_x, W->pos_y + W->len_y, 0);//LabRat: fix unfilled pixels in progress bar
-			glColor3f(0.77f,0.57f,0.39f);
+			glColor3fv(gui_color);
 		glEnd();
 	}
 	if(W->r != -1.0)
 		glColor3f(W->r,W->g,W->b);
 	else
-		glColor3f(0.77f,0.57f,0.39f);
+		glColor3fv(gui_color);
 
 	//LabRat: Draw bounding box after progress bar
 	glBegin(GL_LINE_LOOP);
@@ -960,7 +1159,7 @@ int progressbar_draw(widget_list *W)
 	glVertex3i(W->pos_x + W->len_x,W->pos_y + W->len_y,0);
 	glVertex3i(W->pos_x,W->pos_y + W->len_y,0);
 	glEnd();
-	
+
 	glEnable(GL_TEXTURE_2D);
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
@@ -1011,14 +1210,14 @@ int vscrollbar_draw(widget_list *W)
 
 	// scrollbar arrows
 	glBegin (GL_LINES);
-	glVertex3i(W->pos_x + arrow_size + gx_adjust, W->pos_y + 2*arrow_size + gy_adjust,0);
-	glVertex3i(W->pos_x + 2*arrow_size + gx_adjust, W->pos_y + arrow_size + gy_adjust,0);
-	glVertex3i(W->pos_x + 2*arrow_size + gx_adjust, W->pos_y + arrow_size + gy_adjust,0);
-	glVertex3i(W->pos_x + 3*arrow_size + gx_adjust, W->pos_y + 2*arrow_size + gy_adjust,0);
-	glVertex3i(W->pos_x + arrow_size + gx_adjust, W->pos_y + W->len_y - 2*arrow_size + gy_adjust,0);
-	glVertex3i(W->pos_x + 2*arrow_size + gx_adjust, W->pos_y + W->len_y - arrow_size + gy_adjust,0);
-	glVertex3i(W->pos_x + 2*arrow_size + gx_adjust, W->pos_y + W->len_y - arrow_size + gy_adjust,0);
-	glVertex3i(W->pos_x + 3*arrow_size + gx_adjust, W->pos_y + W->len_y - 2*arrow_size + gy_adjust,0);
+	glVertex3i(W->pos_x + arrow_size, W->pos_y + 2 * arrow_size,0);
+	glVertex3i(W->pos_x + 2 * arrow_size, W->pos_y + arrow_size,0);
+	glVertex3i(W->pos_x + 2 * arrow_size, W->pos_y + arrow_size,0);
+	glVertex3i(W->pos_x + 3 * arrow_size, W->pos_y + 2 * arrow_size,0);
+	glVertex3i(W->pos_x + arrow_size, W->pos_y + W->len_y - 2 * arrow_size,0);
+	glVertex3i(W->pos_x + 2 * arrow_size, W->pos_y + W->len_y - arrow_size,0);
+	glVertex3i(W->pos_x + 2 * arrow_size, W->pos_y + W->len_y - arrow_size,0);
+	glVertex3i(W->pos_x + 3 * arrow_size, W->pos_y + W->len_y - 2 * arrow_size,0);
 	glEnd();
 
 	if (c->bar_len > 0)
@@ -1030,10 +1229,10 @@ int vscrollbar_draw(widget_list *W)
 			glColor3f(W->r/3, W->g/3, W->b/3);
 	}
 	glBegin(GL_QUADS);
-	glVertex3i(W->pos_x + 2*arrow_size - (int)(0.5 + (float)arrow_size/1.5f) + gx_adjust, W->pos_y + 3*arrow_size + (c->pos*((float)(W->len_y-11*arrow_size)/drawn_bar_len)) + gy_adjust, 0);
-	glVertex3i(W->pos_x + 2*arrow_size + (int)(0.5 + (float)arrow_size/1.5f) + gx_adjust, W->pos_y + 3*arrow_size + (c->pos*((float)(W->len_y-11*arrow_size)/drawn_bar_len)) + gy_adjust, 0);
-	glVertex3i(W->pos_x + 2*arrow_size + (int)(0.5 + (float)arrow_size/1.5f) + gx_adjust, W->pos_y + 8*arrow_size + (c->pos*((float)(W->len_y-11*arrow_size)/drawn_bar_len)) + gy_adjust, 0);
-	glVertex3i(W->pos_x + 2*arrow_size - (int)(0.5 + (float)arrow_size/1.5f) + gx_adjust, W->pos_y + 8*arrow_size + (c->pos*((float)(W->len_y-11*arrow_size)/drawn_bar_len)) + gy_adjust, 0);
+	glVertex3i(W->pos_x + 2 * arrow_size - (int)(0.5 + (float)arrow_size / 1.5f), W->pos_y + 3 * arrow_size + (c->pos * ((float)(W->len_y -11 * arrow_size) / drawn_bar_len)), 0);
+	glVertex3i(W->pos_x + 2 * arrow_size + (int)(0.5 + (float)arrow_size / 1.5f), W->pos_y + 3 * arrow_size + (c->pos * ((float)(W->len_y -11 * arrow_size) / drawn_bar_len)), 0);
+	glVertex3i(W->pos_x + 2 * arrow_size + (int)(0.5 + (float)arrow_size / 1.5f), W->pos_y + 8 * arrow_size + (c->pos * ((float)(W->len_y -11 * arrow_size) / drawn_bar_len)), 0);
+	glVertex3i(W->pos_x + 2 * arrow_size - (int)(0.5 + (float)arrow_size / 1.5f), W->pos_y + 8 * arrow_size + (c->pos * ((float)(W->len_y -11 * arrow_size) / drawn_bar_len)), 0);
 	glEnd();
 
 	glEnable(GL_TEXTURE_2D);
@@ -1161,26 +1360,26 @@ int vscrollbar_get_pos(int window_id, Uint32 widget_id)
 	return -1;
 }
 
-int vscrollbar_add_extended(int window_id, Uint32 wid,  int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b, int pos, int pos_inc, int bar_len)
+int vscrollbar_add_extended(int window_id, Uint32 wid,  int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, int pos, int pos_inc, int bar_len)
 {
 	vscrollbar *T = calloc (1, sizeof(vscrollbar));
 	T->pos_inc = pos_inc;
 	T->pos = pos;
 	T->bar_len = bar_len > 0 ? bar_len : 0;
 
-	return widget_add (window_id, wid, OnInit, x, y, lx, ly, Flags, size, r, g, b, &vscrollbar_type, T, NULL);
+	return widget_add (window_id, wid, OnInit, x, y, lx, ly, Flags, size, &vscrollbar_type, T, NULL);
 }
 
 int vscrollbar_add(int window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly)
 {
-	return vscrollbar_add_extended(window_id, widget_id++, OnInit, x, y, lx, ly, 0, 1.0, -1.0, -1.0, -1.0, 0, 1, ly);
+	return vscrollbar_add_extended(window_id, widget_id++, OnInit, x, y, lx, ly, 0, 1.0, 0, 1, ly);
 }
 
 // Tab collection
-int tab_collection_get_tab (int window_id, Uint32 widget_id) 
+int tab_collection_get_tab (int window_id, Uint32 widget_id)
 {
 	widget_list *w = widget_find (window_id, widget_id);
-	if (w) 
+	if (w)
 	{
 		tab_collection *col = (tab_collection *) w->widget_info;
 		return col->cur_tab;
@@ -1188,10 +1387,10 @@ int tab_collection_get_tab (int window_id, Uint32 widget_id)
 	return -1;
 }
 
-int tab_collection_get_tab_id (int window_id, Uint32 widget_id) 
+int tab_collection_get_tab_id (int window_id, Uint32 widget_id)
 {
 	widget_list *w = widget_find (window_id, widget_id);
-	if (w) 
+	if (w)
 	{
 		int tab;
 		tab_collection *col = (tab_collection *) w->widget_info;
@@ -1202,10 +1401,10 @@ int tab_collection_get_tab_id (int window_id, Uint32 widget_id)
 	return -1;
 }
 
-int tab_collection_get_tab_nr (int window_id, Uint32 col_id, int tab_id) 
+int tab_collection_get_tab_nr (int window_id, Uint32 col_id, int tab_id)
 {
 	widget_list *w = widget_find (window_id, col_id);
-	if (w != NULL) 
+	if (w != NULL)
 	{
 		int tab;
 		tab_collection *col = (tab_collection *) w->widget_info;
@@ -1227,20 +1426,20 @@ int tab_collection_get_nr_tabs (int window_id, Uint32 widget_id)
 	return -1;
 }
 
-int tab_collection_calc_tab_height(float size)
+int tab_collection_calc_tab_height(font_cat cat, float size)
 {
-	return (int)(0.5 + DEFAULT_FONT_Y_LEN * 2.0 * size);
+	return 2 * get_line_height(cat, size);
 }
 
 int tab_set_label_color_by_id (int window_id, Uint32 col_id, int tab_id, float r, float g, float b)
 {
 	widget_list *w = widget_find (window_id, col_id);
-	
-	if (w) 
+
+	if (w)
 	{
 		int itab;
 		tab_collection *col = (tab_collection *) w->widget_info;
-		
+
 		for (itab = 0; itab < col->nr_tabs; itab++)
 		{
 			if (col->tabs[itab].content_id == tab_id)
@@ -1255,20 +1454,20 @@ int tab_set_label_color_by_id (int window_id, Uint32 col_id, int tab_id, float r
 	return -1;
 }
 
-int tab_collection_select_tab (int window_id, Uint32 widget_id, int tab) 
+int tab_collection_select_tab (int window_id, Uint32 widget_id, int tab)
 {
 	widget_list *w = widget_find (window_id, widget_id);
-	if (w) 
+	if (w)
 	{
 		tab_collection *col = (tab_collection *) w->widget_info;
 		if (tab >= 0 && tab < col->nr_tabs)
 		{
-			if (tab != col->cur_tab) 
+			if (tab != col->cur_tab)
 				hide_window (col->tabs[col->cur_tab].content_id);
 			col->cur_tab = tab;
 
 			// Don't show the tab, because the parent window might
-			// be hidden. The widget drawing code will take care 
+			// be hidden. The widget drawing code will take care
 			// of it.
 			//show_window (col->tabs[tab].content_id);
 			//select_window (col->tabs[tab].content_id);
@@ -1293,17 +1492,17 @@ int _tab_collection_close_tab_real (tab_collection* col, int tab)
 			col->cur_tab--;
 		if (tab < col->tab_offset || (tab == col->tab_offset && tab >= col->nr_tabs))
 			col->tab_offset--;
-			
+
 		return col->cur_tab;
 	}
 
 	return -1;
 }
 
-int tab_collection_close_tab (int window_id, Uint32 widget_id, int tab) 
+int tab_collection_close_tab (int window_id, Uint32 widget_id, int tab)
 {
 	widget_list *w = widget_find (window_id, widget_id);
-	if (w) 
+	if (w)
 		return _tab_collection_close_tab_real (w->widget_info, tab);
 	return -1;
 }
@@ -1323,11 +1522,14 @@ int tab_collection_draw (widget_list *w)
 	int btn_size, arw_width;
 	int cur_start, cur_end;
 	int h;
+	int xtxt, ytxt;
+	float tab_corner;
+	int right_margin = 0;
 
 	if (!w) return 0;
 
 	col = (tab_collection *) w->widget_info;
-	
+
 	h = col->tag_height;
 	ytagtop = w->pos_y;
 	ytagbot = w->pos_y + h;
@@ -1335,6 +1537,10 @@ int tab_collection_draw (widget_list *w)
 	btn_size = col->button_size;
 	arw_width = btn_size / 4;
 	cur_start = cur_end = xstart;
+	tab_corner = h / 5.0f;
+
+	if ((w->window_id >= 0) && (w->window_id < windows_list.num_windows))
+		right_margin = col->tabs_right_margin * windows_list.window[w->window_id].current_scale;
 
 	glDisable(GL_TEXTURE_2D);
 
@@ -1370,22 +1576,22 @@ int tab_collection_draw (widget_list *w)
 	}
 
 	// draw the tags
-	for (itab = col->tab_offset; itab < col->nr_tabs; itab++) 
+	for (itab = col->tab_offset; itab < col->nr_tabs; itab++)
 	{
 		xend = xstart + col->tabs[itab].tag_width;
-		xmax = w->pos_x + w->len_x;
+		xmax = w->pos_x + w->len_x - right_margin;
 		if (itab < col->nr_tabs - 1)
 			xmax -= h;
 
-		// Check if there's still room for this tab, but always 
+		// Check if there's still room for this tab, but always
 		// draw at least one tab
 		if (itab > col->tab_offset && xend > xmax)
 		{
-			// this tab doesn't fit. Simply extend the top line to 
+			// this tab doesn't fit. Simply extend the top line to
 			// the end of the available width
 			glBegin (GL_LINES);
-				glVertex3i (xstart, ytagtop+1, 0);
-				glVertex3i (w->pos_x + w->len_x - h, ytagtop+1, 0);
+				glVertex3f (xstart - 2 * tab_corner, ytagtop, 0);
+				glVertex3f (w->pos_x + w->len_x - h - right_margin, ytagtop, 0);
 			glEnd ();
 			break;
 		}
@@ -1400,67 +1606,63 @@ int tab_collection_draw (widget_list *w)
 			glColor3f(w->r, w->g, w->b);
 
 		if(col->cur_tab == itab){
+			// current
 			glBegin(GL_LINE_STRIP);
-				glVertex3i(xstart, ytagbot, 0);
-				draw_circle_ext(xstart, ytagtop, DEFAULT_TAB_RADIUS, -10, 180, 90);
-				draw_circle_ext(xend-2*DEFAULT_TAB_RADIUS+1, ytagtop, DEFAULT_TAB_RADIUS, -10, 89, 0);
-				glVertex3i(xend, ytagbot, 0);
+				glVertex3f(xstart, ytagbot, 0);
+				glVertex3f(xstart, ytagtop + tab_corner, 0);
+				glVertex3f(xstart + tab_corner, ytagtop, 0);
+				glVertex3f(xend - tab_corner, ytagtop, 0);
+				glVertex3f(xend, ytagtop + tab_corner, 0);
+				glVertex3f(xend, ytagbot, 0);
 			glEnd();
 		} else if(col->cur_tab>itab){
+			// left of current
 			glBegin (GL_LINE_STRIP);
-				glVertex3i (xstart, ytagbot, 0);
-				draw_circle_ext(xstart, ytagtop, DEFAULT_TAB_RADIUS, -10, 180, 90);
-				glVertex3i (xend, ytagtop+1, 0);
+				glVertex3f(xstart, ytagbot, 0);
+				glVertex3f(xstart, ytagtop + tab_corner, 0);
+				glVertex3f(xstart + tab_corner, ytagtop, 0);
+				glVertex3f(xend + tab_corner, ytagtop, 0);
 			glEnd ();
 		} else {
+			// right of current
 			glBegin (GL_LINE_STRIP);
-				glVertex3i (xstart, ytagtop+1, 0);
-				draw_circle_ext(xend-2*DEFAULT_TAB_RADIUS+1, ytagtop, DEFAULT_TAB_RADIUS, -10, 89, 0);
-				glVertex3i (xend, ytagbot, 0);
+				glVertex3f(xend, ytagbot, 0);
+				glVertex3f(xend, ytagtop + tab_corner, 0);
+				glVertex3f(xend - tab_corner, ytagtop, 0);
+				glVertex3f (xstart - tab_corner, ytagtop, 0);
 			glEnd ();
 		}
-		if(itab+1<col->nr_tabs){
-			glBegin(GL_LINES);
-			glVertex2i(xend-DEFAULT_TAB_RADIUS, ytagtop+1);
-			glVertex2i(xend, ytagtop+1);
-			glEnd();
-		}
-		if(itab){
-			glBegin(GL_LINES);
-				glVertex2i(xstart+DEFAULT_TAB_RADIUS, ytagtop+1);
-				glVertex2i(xstart, ytagtop+1);
-			glEnd();
-		}
-		
+
 		// draw a close box if necessary
 		if (col->tabs[itab].closable)
 		{
 			glBegin (GL_LINE_LOOP);
-			glVertex3i (xstart+3, ytagbot-3, 0);
-			glVertex3i (xstart+3, ytagtop+3, 0);
-			glVertex3i (xstart+h-3, ytagtop+3, 0);
-			glVertex3i (xstart+h-3, ytagbot-3, 0);
+			glVertex3i (xstart + tab_corner, ytagbot - tab_corner, 0);
+			glVertex3i (xstart + tab_corner, ytagtop + tab_corner, 0);
+			glVertex3i (xstart + h - tab_corner, ytagtop + tab_corner, 0);
+			glVertex3i (xstart + h - tab_corner, ytagbot - tab_corner, 0);
 			glEnd ();
 
 			glBegin (GL_LINES);
-			glVertex3i (xstart+3, ytagbot-3, 0);
-			glVertex3i (xstart+h-3, ytagtop+3, 0);
-			glVertex3i (xstart+3, ytagtop+3, 0);
-			glVertex3i (xstart+h-3, ytagbot-3, 0);
+			glVertex3i (xstart + tab_corner, ytagbot - tab_corner, 0);
+			glVertex3i (xstart + h - tab_corner, ytagtop + tab_corner, 0);
+			glVertex3i (xstart + tab_corner, ytagtop + tab_corner, 0);
+			glVertex3i (xstart + h - tab_corner, ytagbot - tab_corner, 0);
 			glEnd ();
 		}
 
 		glEnable(GL_TEXTURE_2D);
-		
+
 		if (col->tabs[itab].label_r >= 0.0f)
-			glColor3f (col->tabs[itab].label_r, col->tabs[itab].label_g, col->tabs[itab].label_b); 
-			
+			glColor3f (col->tabs[itab].label_r, col->tabs[itab].label_g, col->tabs[itab].label_b);
+
+		xtxt = xstart + (w->size * DEFAULT_FIXED_FONT_WIDTH) / 2;
+		ytxt = ytagtop + h/2;
 		if (col->tabs[itab].closable)
-			draw_string_zoomed (xstart + (w->size * DEFAULT_FONT_X_LEN) / 2 + h + gx_adjust,
-				ytagtop + (h - (w->size * DEFAULT_FONT_Y_LEN)) / 2 + gy_adjust, (unsigned char *)col->tabs[itab].label, 1, w->size);
-		else
-			draw_string_zoomed (xstart + (w->size * DEFAULT_FONT_X_LEN) / 2 + gx_adjust,
-				ytagtop + (h - (w->size * DEFAULT_FONT_Y_LEN)) / 2 + gy_adjust, (unsigned char *)col->tabs[itab].label, 1, w->size);
+			xtxt += h;
+		draw_text(xtxt, ytxt, col->tabs[itab].label, strlen((const char*)col->tabs[itab].label),
+			w->fcat, TDO_ZOOM, w->size, TDO_VERTICAL_ALIGNMENT, CENTER_LINE, TDO_END);
+
 		glDisable(GL_TEXTURE_2D);
 
 		xstart = xend;
@@ -1470,7 +1672,7 @@ int tab_collection_draw (widget_list *w)
 	if (itab < col->nr_tabs)
 	{
 		// draw a "move right" button
-		xstart = w->pos_x + w->len_x - btn_size;
+		xstart = w->pos_x + w->len_x - right_margin - btn_size;
 
 		if(w->r!=-1.0)
 			glColor3f(w->r, w->g, w->b);
@@ -1500,51 +1702,58 @@ int tab_collection_draw (widget_list *w)
 
 	if(w->r!=-1.0)
 		glColor3f(w->r, w->g, w->b);
-	
+
 	// draw the rest of the frame around the tab
 	glBegin (GL_LINE_STRIP);
 	glVertex3i (cur_end, ytagbot, 0);
-	glVertex3i (w->pos_x + w->len_x, ytagbot, 0);		
-	glVertex3i (w->pos_x + w->len_x, w->pos_y + w->len_y, 0);		
-	glVertex3i (w->pos_x, w->pos_y + w->len_y, 0);		
-	glVertex3i (w->pos_x, ytagbot, 0);		
+	glVertex3i (w->pos_x + w->len_x, ytagbot, 0);
+	glVertex3i (w->pos_x + w->len_x, w->pos_y + w->len_y, 0);
+	glVertex3i (w->pos_x, w->pos_y + w->len_y, 0);
+	glVertex3i (w->pos_x, ytagbot, 0);
 	glVertex3i (cur_start, ytagbot, 0);
 	glEnd ();
 
 	glEnable(GL_TEXTURE_2D);
-	
+
 	// show the content of the current tab
 	if (col->nr_tabs > 0)
 		show_window (col->tabs[col->cur_tab].content_id);
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
-	
+
 	return 1;
 }
 
 static int tab_collection_click(widget_list *W, int x, int y, Uint32 flags)
 {
 	tab_collection *col = (tab_collection *) W->widget_info;
-	
+	int right_margin = 0;
+
 	// only handle mouse button clicks, not scroll wheels moves
 	if ( (flags & ELW_MOUSE_BUTTON) == 0) return 0;
-	
+
 	// Check if we clicked a tab scroll button
 	if (col->tab_offset > 0 && x >= 0 && x <= col->button_size && y >= 0 && y <= col->button_size)
 	{
 		col->tab_offset--;
 		return 1;
 	}
-	
-	if (col->tab_last_visible < col->nr_tabs-1 && x >= W->len_x - col->button_size && x <= W->len_x && y >= 0 && y <= col->button_size)
+
+	if ((W->window_id >= 0) && (W->window_id < windows_list.num_windows))
+		right_margin = col->tabs_right_margin * windows_list.window[W->window_id].current_scale;
+
+	if ((col->tab_last_visible < col->nr_tabs - 1) &&
+		(x >= W->len_x - col->button_size - right_margin) &&
+		(x <= W->len_x - right_margin) &&
+		(y >= 0) && (y <= col->button_size))
 	{
 		if (col->tab_offset < col->nr_tabs-1)
 			col->tab_offset++;
 		return 1;
 	}
 
-	if (y < col->tag_height) 
+	if (y < col->tag_height)
 	{
 		int x_start = col->tab_offset > 0 ? col->tag_height : 0;
 		int itag, ctag = col->cur_tab;
@@ -1560,8 +1769,12 @@ static int tab_collection_click(widget_list *W, int x, int y, Uint32 flags)
 
 		if (itag <= col->tab_last_visible)
 		{
+			int tab_corner = col->tag_height / 5;
+
 			// check if close box was clicked
-			if (col->tabs[itag].closable && x > x_start + 3 && x < x_start + col->tag_height - 3 && y > 3 && y < col->tag_height - 3)
+			if (col->tabs[itag].closable && x > x_start + tab_corner &&
+				x < x_start + col->tag_height - tab_corner &&
+				y > tab_corner && y < col->tag_height - tab_corner)
 			{
 				do_click_sound();
 				_tab_collection_close_tab_real (col, itag);
@@ -1578,8 +1791,37 @@ static int tab_collection_click(widget_list *W, int x, int y, Uint32 flags)
 			return 1;
 		}
 	}
-	
+
 	return 0;
+}
+
+static int calc_tag_width(const unsigned char* label, font_cat fcat, float size, int close_width)
+{
+	return size * DEFAULT_FIXED_FONT_WIDTH
+			+ get_string_width_zoom(label, fcat, size)
+			+ close_width;
+}
+
+static int tab_collection_change_font(widget_list *w, font_cat font)
+{
+	tab_collection *col;
+	int itab;
+
+	if (!w || !(col = (tab_collection *)w->widget_info))
+		return 0;
+
+	col->tag_height = tab_collection_calc_tab_height(w->fcat, w->size);
+	col->button_size = (9 * col->tag_height) / 10;
+
+	for (itab = 0; itab < col->nr_tabs; ++itab)
+	{
+		Uint16 width = calc_tag_width(col->tabs[itab].label, w->fcat, w->size,
+			col->tabs[itab].closable ? col->tag_height : 0);
+		if (width > col->tabs[itab].min_tag_width)
+			col->tabs[itab].tag_width = width;
+	}
+
+	return 1;
 }
 
 int tab_collection_resize (widget_list *w, Uint32 width, Uint32 height)
@@ -1590,15 +1832,7 @@ int tab_collection_resize (widget_list *w, Uint32 width, Uint32 height)
 	if (w == NULL || (col = (tab_collection *) w->widget_info) == NULL)
 		return 0;
 
-	col->tag_height = tab_collection_calc_tab_height(w->size);
-	col->button_size = (9 * col->tag_height) / 10;
-
-	for (itab=0; itab<col->nr_tabs; itab++)
-	{
-		col->tabs[itab].tag_width = w->size * DEFAULT_FONT_X_LEN + (w->size * DEFAULT_FONT_X_LEN * (float)get_string_width((unsigned char*)col->tabs[itab].label) / 12.0f);
-		if (col->tabs[itab].closable) 
-			col->tabs[itab].tag_width += col->tag_height;
-	}
+	tab_collection_change_font(w, w->fcat);
 
 	for (itab = 0; itab < col->nr_tabs; itab++)
 		resize_window (col->tabs[itab].content_id, width, height);
@@ -1642,7 +1876,7 @@ void _tab_collection_make_cur_visible (widget_list *W)
 		int max_width = W->len_x - col->tag_height;
 		if (col->cur_tab < col->nr_tabs-1)
 			max_width -= col->tag_height;
-		
+
 		while (col->tab_offset < col->cur_tab)
 		{
 			int w = 0, i;
@@ -1650,7 +1884,7 @@ void _tab_collection_make_cur_visible (widget_list *W)
 			col->tab_offset++;
 			for (i = col->tab_offset; i <= col->cur_tab; i++)
 				w+= col->tabs[i].tag_width;
-			
+
 			if (w < max_width)
 				break;
 		}
@@ -1661,9 +1895,9 @@ static int tab_collection_keypress(widget_list *W, int mx, int my, SDL_Keycode k
 {
 	int shift_on = key_mod & KMOD_SHIFT;
 	tab_collection *col = (tab_collection *) W->widget_info;
-	
+
 	if (col->nr_tabs <= 0) return 0;
-	
+
 	if (shift_on && KEY_DEF_CMP(K_ROTATERIGHT, key_code, key_mod))
 	{
 		if (col->nr_tabs == 1) return 1;
@@ -1683,31 +1917,35 @@ static int tab_collection_keypress(widget_list *W, int mx, int my, SDL_Keycode k
 		return 1;
 	}
 
-	return 0;	
+	return 0;
 }
 
-int tab_collection_add_extended (int window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b, int max_tabs)
+int tab_collection_add_extended (int window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, int max_tabs, int right_margin)
 {
 	int itab;
-	tab_collection *T = calloc (1, sizeof (tab_collection));
+	window_info *win = &windows_list.window[window_id];
+	tab_collection *T;
+
+	T = calloc (1, sizeof (tab_collection));
 	T->max_tabs =  max_tabs <= 0 ? 2 : max_tabs;
 	T->tabs = calloc (T->max_tabs, sizeof (tab));
 	// initialize all tabs content ids to -1 (unitialized window_
 	for (itab = 0; itab < T->max_tabs; itab++)
 		T->tabs[itab].content_id = -1;
 	T->nr_tabs = 0;
-	T->tag_height = tab_collection_calc_tab_height(size);
+	T->tag_height = tab_collection_calc_tab_height(win->font_category, size);
 	T->button_size = (9 * T->tag_height) / 10;
+	T->tabs_right_margin = right_margin;
 	T->cur_tab = 0;
 	T->tab_offset = 0;
 	T->tab_last_visible = 0;
 
-	return widget_add (window_id, wid, OnInit, x, y, lx, ly, Flags, size, r, g, b, &tab_collection_type, T, NULL);
+	return widget_add (window_id, wid, OnInit, x, y, lx, ly, Flags, size, &tab_collection_type, T, NULL);
 }
 
 int tab_collection_add (int window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly)
 {
-	return tab_collection_add_extended (window_id, widget_id++, OnInit, x, y, lx, ly, 0, 1.0, -1.0, -1.0, -1.0, 0);
+	return tab_collection_add_extended (window_id, widget_id++, OnInit, x, y, lx, ly, 0, 1.0, 0, 0);
 }
 
 int tab_add (int window_id, Uint32 col_id, const char *label, Uint16 tag_width, int closable, Uint32 flags)
@@ -1721,57 +1959,57 @@ int tab_add (int window_id, Uint32 col_id, const char *label, Uint16 tag_width, 
 
 	nr = col->nr_tabs++;
 	if (nr >= col->max_tabs)
-	{		
+	{
 		// shoot, we allocated too few tabs
 		int old_max = col->max_tabs, new_max = 2 * old_max;
 		int itab;
-		
+
 		col->tabs = realloc ( col->tabs, new_max * sizeof (tab) );
 		memset ( &(col->tabs[old_max]), 0, (new_max-old_max) * sizeof (tab) );
 		for (itab = old_max; itab < new_max; itab++)
 			col->tabs[itab].content_id = -1;
 		col->max_tabs = new_max;
 	}
-		
-	my_strncp ((char*)col->tabs[nr].label, label, sizeof (col->tabs[nr].label));
+
+	safe_strncpy((char*)col->tabs[nr].label, label, sizeof (col->tabs[nr].label));
 	col->tabs[nr].content_id = create_window ("", window_id, 0, w->pos_x, w->pos_y + col->tag_height, w->len_x, w->len_y - col->tag_height, ELW_TITLE_NONE|flags);
 	col->tabs[nr].closable = closable ? 1 : 0;
 
 	if (tag_width > 0)
 	{
-		col->tabs[nr].tag_width = tag_width;
+		col->tabs[nr].tag_width = col->tabs[nr].min_tag_width = tag_width;
 	}
 	else
 	{
 		// compute tag width from label width
-		col->tabs[nr].tag_width = w->size * DEFAULT_FONT_X_LEN + (w->size * DEFAULT_FONT_X_LEN * (float)get_string_width((unsigned char*)col->tabs[nr].label) / 12.0f);
-		if (col->tabs[nr].closable) 
-			col->tabs[nr].tag_width += col->tag_height;
+		col->tabs[nr].min_tag_width = 0;
+		col->tabs[nr].tag_width = calc_tag_width(col->tabs[nr].label, w->fcat, w->size,
+			col->tabs[nr].closable ? col->tag_height : 0);
 	}
-	
+
 	// set label color to default values
 	col->tabs[nr].label_r = -1.0f;
 	col->tabs[nr].label_g = -1.0f;
 	col->tabs[nr].label_b = -1.0f;
-	
+
 	return col->tabs[nr].content_id;
 }
 
 // text field
-void _text_field_set_nr_visible_lines (widget_list *w)
+static void _text_field_set_nr_visible_lines (widget_list *w)
 {
 	text_field* tf = w->widget_info;
 
 	if (tf != NULL/* && (w->Flags & TEXT_FIELD_EDITABLE)*/)
 	{
-		float displayed_font_y_size = floor (DEFAULT_FONT_Y_LEN * tf->buffer[tf->msg].wrap_zoom);
-		tf->nr_visible_lines = (int) ((w->len_y - 2*tf->y_space) / displayed_font_y_size);
+		tf->nr_visible_lines = get_max_nr_lines(w->len_y - 2*tf->y_space, w->fcat,
+			tf->buffer[tf->msg].wrap_zoom);
 		if (tf->nr_visible_lines < 0)
 			tf->nr_visible_lines = 0;
 	}
 }
 
-void _text_field_set_nr_lines (widget_list *w, int nr_lines)
+static void _text_field_set_nr_lines (widget_list *w, int nr_lines)
 {
 	text_field* tf = w->widget_info;
 	if (tf != NULL)
@@ -1786,7 +2024,7 @@ void _text_field_set_nr_lines (widget_list *w, int nr_lines)
 	}
 }
 
-void text_field_find_cursor_line(text_field* tf)
+static void _text_field_find_cursor_line(text_field* tf)
 {
 	int i, line = 0;
 	const text_message* msg = &tf->buffer[tf->msg];
@@ -1798,6 +2036,18 @@ void text_field_find_cursor_line(text_field* tf)
 	tf->nr_lines = line + 1; // we'll call _text_field_set_nr_lines later;
 	if (tf->cursor >= msg->len) tf->cursor_line = line;
 	tf->update_bar = 1;
+}
+
+static void _text_field_set_cursor_line_only(text_field* tf)
+{
+	int i;
+	const text_message* msg = &tf->buffer[tf->msg];
+	tf->cursor_line = 0;
+	for (i = 0; i < tf->cursor; ++i)
+	{
+		if (msg->data[i] == '\n' || msg->data[i] == '\r')
+			++tf->cursor_line;
+	}
 }
 
 char* text_field_get_selected_text (const text_field* tf)
@@ -1846,7 +2096,7 @@ char* text_field_get_selected_text (const text_field* tf)
 			{
 				append_char(&text, '\n', &len, &max_len);
 			}
-			else if (get_font_char(ch) >= 0)
+			else if (is_printable(ch))
 			{
 				append_char(&text, ch, &len, &max_len);
 			}
@@ -1864,10 +2114,10 @@ void text_field_remove_selection(text_field* tf)
 	int sm, sc, em, ec;
 	text_message* msg;
 	select_info* select;
-	
+
 	select = &tf->select;
 	if (TEXT_FIELD_SELECTION_EMPTY(select)) return;
-	
+
 	if ((select->em > select->sm) || ((select->em == select->sm) && (select->ec >= select->sc)))
 	{
 		sm = select->sm;
@@ -1910,7 +2160,7 @@ void text_field_remove_selection(text_field* tf)
 		}
 		sc = 0;
 	}
-	text_field_find_cursor_line(tf);
+	_text_field_find_cursor_line(tf);
 }
 
 void _text_field_scroll_to_cursor (widget_list *w)
@@ -1927,37 +2177,38 @@ void _text_field_scroll_to_cursor (widget_list *w)
 		vscrollbar_set_pos (w->window_id, tf->scroll_id, tf->cursor_line - tf->nr_visible_lines + 1);
 }
 
-void _text_field_cursor_left (widget_list *w, int skipword)
+void _text_field_cursor_left(widget_list *w, int skipword)
 {
 	text_field *tf = w->widget_info;
 	text_message* msg;
 	int i;
-	char c;
 
 	if (tf == NULL || tf->cursor <= 0)
 		return;
 
 	msg = &(tf->buffer[tf->msg]);
-	i = tf->cursor;
-	do
+	i = tf->cursor - 1;
+	if (i > 0 && msg->data[i] == '\r')
+		--i;
+	if (skipword)
 	{
-		c = msg->data[--i];
-		if (c == '\r' || c == '\n')
-			tf->cursor_line--;
+		while (i > 0 && isspace(msg->data[i]))
+			--i;
+		while (i > 0 && !isspace(msg->data[i-1]))
+			--i;
 	}
-	while (i > 0 && (c == '\r' || (skipword && !isspace (c))));
 	tf->cursor = i;
+	_text_field_set_cursor_line_only(tf);
 
 	if (tf->scroll_id != -1)
 		_text_field_scroll_to_cursor (w);
 }
 
-void _text_field_cursor_right (widget_list *w, int skipword)
+void _text_field_cursor_right(widget_list *w, int skipword)
 {
 	text_field *tf = w->widget_info;
 	text_message* msg;
 	int i;
-	char c;
 
 	if (tf == NULL)
 		return;
@@ -1966,15 +2217,18 @@ void _text_field_cursor_right (widget_list *w, int skipword)
 	if (tf->cursor >= msg->len)
 		return;
 
-	i = tf->cursor;
-	do
+	i = tf->cursor + 1;
+	if (i < msg->len && msg->data[i] == '\r')
+		++i;
+	if (skipword)
 	{
-		c = msg->data[i++];
-		if (c == '\r' || c == '\n')
-			tf->cursor_line++;
+		while (i < msg->len && !isspace(msg->data[i]))
+			++i;
+		while (i < msg->len && isspace(msg->data[i]))
+			++i;
 	}
-	while (i < msg->len && (c == '\r' || (skipword && !isspace (c))));
 	tf->cursor = i;
+	_text_field_set_cursor_line_only(tf);
 
 	if (tf->scroll_id != -1)
 		_text_field_scroll_to_cursor (w);
@@ -1987,7 +2241,7 @@ void _text_field_cursor_up (widget_list *w)
 	int line_start;      // The beginning of the line we're processing
 	int prev_line_start; // Beginning of the line before the line with the cursor
 	int cursor_offset;   // Position of the cursor on this line
-	int prev_line_length;// Length of the previous line
+	int prev_line_end;   // 1 past last character of previous line
 
 	if (tf == NULL || tf->cursor_line <= 0)
 		return;
@@ -2000,15 +2254,16 @@ void _text_field_cursor_up (widget_list *w)
 	if (line_start == 0)
 		// shouldn't happen
 		return;
+
 	cursor_offset = tf->cursor - line_start;
+	prev_line_end = msg->data[line_start-1] == '\r' ? line_start - 1 : line_start;
 
 	// Now find where the previous line starts
 	for (prev_line_start = line_start-1; prev_line_start > 0; prev_line_start--)
 		if (msg->data[prev_line_start-1] == '\r' || msg->data[prev_line_start-1] == '\n')
 			break;
-	
-	prev_line_length = line_start - prev_line_start;
-	tf->cursor = cursor_offset >= prev_line_length ? line_start - 1 : prev_line_start + cursor_offset;
+
+	tf->cursor = min2i(prev_line_start + cursor_offset, prev_line_end - 1);
 	tf->cursor_line--;
 	if (tf->scroll_id != -1)
 		_text_field_scroll_to_cursor (w);
@@ -2020,9 +2275,8 @@ void _text_field_cursor_down (widget_list *w)
 	text_message *msg;
 	int line_start;      // The beginning of the line we're processing
 	int next_line_start; // Beginning of the line after the line with the cursor
-	int next_line_end;   // End of the line after the line with the cursor
+	int next_line_end;   // Index of last character on line after the line with the cursor
 	int cursor_offset;   // Position of the cursor on this line
-	int next_line_length;// Length of the next line
 
 	if (tf == NULL || tf->cursor_line >= tf->nr_lines-1)
 		return;
@@ -2041,16 +2295,22 @@ void _text_field_cursor_down (widget_list *w)
 	if (next_line_start >= msg->len)
 		// shouldn't happen
 		return;
-	// skip newline
-	next_line_start++;
 
+	// skip newline
+	++next_line_start;
 	// Find where the next line ends
 	for (next_line_end = next_line_start; next_line_end < msg->len; next_line_end++)
-		if (msg->data[next_line_end] == '\r' || msg->data[next_line_end] == '\n')
+	{
+		if (msg->data[next_line_end] == '\r')
+		{
+			--next_line_end;
 			break;
+		}
+		if (msg->data[next_line_end] == '\n')
+			break;
+	}
 
-	next_line_length = next_line_end - next_line_start;
-	tf->cursor = cursor_offset >= next_line_length ? next_line_end : next_line_start + cursor_offset;
+	tf->cursor = min2i(next_line_start + cursor_offset, next_line_end);
 	tf->cursor_line++;
 	if (tf->scroll_id != -1)
 		_text_field_scroll_to_cursor (w);
@@ -2064,7 +2324,7 @@ void _text_field_cursor_home (widget_list *w)
 
 	if (tf == NULL)
 		return;
-		
+
 	msg = &(tf->buffer[tf->msg]);
 	for (i = tf->cursor; i > 0; i--)
 		if (msg->data[i-1] == '\r' || msg->data[i-1] == '\n')
@@ -2084,9 +2344,11 @@ void _text_field_cursor_end (widget_list *w)
 		return;
 
 	msg = &(tf->buffer[tf->msg]);
-	for (i = tf->cursor; i <= msg->len; i++)
-		if (msg->data[i] == '\r' || msg->data[i] == '\n' || msg->data[i] == '\0')
+	for (i = tf->cursor; i < msg->len; ++i)
+	{
+		if (msg->data[i] == '\n' || (i+1 < msg->len && msg->data[i+1] == '\r'))
 			break;
+	}
 
 	tf->cursor = i;
 	// tf->cursor_line doesn't change
@@ -2108,7 +2370,7 @@ void _text_field_cursor_page_up (widget_list *w)
 	{
 		int i, nr_lines;
 		text_message *msg = &(tf->buffer[tf->msg]);
-		
+
 		for (i = tf->cursor, nr_lines = tf->nr_visible_lines; i > 0; i--)
 		{
 			if (msg->data[i-1] == '\n' || msg->data[i-1] == '\r')
@@ -2129,7 +2391,7 @@ void _text_field_cursor_page_down (widget_list *w)
 
 	if (tf == NULL)
 		return;
-	
+
 	msg = &(tf->buffer[tf->msg]);
 	if (tf->cursor == msg->len || tf->nr_visible_lines <= 1)
 	{
@@ -2143,7 +2405,7 @@ void _text_field_cursor_page_down (widget_list *w)
 	else
 	{
 		int i, nr_lines;
-		
+
 		for (i = tf->cursor+1, nr_lines = tf->nr_visible_lines-1; i < msg->len; i++)
 		{
 			if (msg->data[i-1] == '\n' || msg->data[i-1] == '\r')
@@ -2157,63 +2419,59 @@ void _text_field_cursor_page_down (widget_list *w)
 		_text_field_scroll_to_cursor (w);
 }
 
-void _text_field_delete_backward (widget_list * w)
+void _text_field_delete_backward(widget_list * w)
 {
 	text_field *tf = w->widget_info;
 	text_message *msg;
-	int i, n = 1, nr_lines, nr_del_lines;
-	
+	int ni, nr_lines;
+
 	if (tf == NULL)
 		return;
-	
+
 	msg = &(tf->buffer[tf->msg]);
-	i = tf->cursor;
-	while (n < i && msg->data[i-n] == '\r')
-		n++;
-	nr_del_lines = n-1;
-	if (msg->data[i-1] == '\n')
-		nr_del_lines++;
-	
-	for ( ; i <= msg->len; i++)
-		msg->data[i-n] = msg->data[i];
-	msg->len -= n;
-	
+	ni = tf->cursor - 1;
+	while (ni > 0 && msg->data[ni] == '\r')
+		--ni;
+
+	memmove(msg->data + ni, msg->data + tf->cursor, msg->len - tf->cursor + 1);
+	msg->len -= tf->cursor - ni;
+	tf->cursor = ni;
+
 	// set invalid width to force rewrap
 	msg->wrap_width = 0;
-	nr_lines = rewrap_message (msg, w->size, w->len_x - 2*tf->x_space - tf->scrollbar_width, &tf->cursor);
-	_text_field_set_nr_lines (w, nr_lines);
+	nr_lines = rewrap_message(msg, w->fcat, w->size, w->len_x - 2*tf->x_space - tf->scrollbar_width,
+		&tf->cursor);
+	_text_field_set_cursor_line_only(tf);
+	_text_field_set_nr_lines(w, nr_lines);
 
-	tf->cursor -= n;
-	tf->cursor_line -= nr_del_lines;
 	if (tf->scroll_id != -1)
 		_text_field_scroll_to_cursor (w);
 
 }
 
-void _text_field_delete_forward (widget_list *w)
+void _text_field_delete_forward(widget_list *w)
 {
 	text_field *tf = w->widget_info;
 	text_message *msg;
-	int i, n = 1, nr_lines;
-	
+	int ni, nr_lines;
+
 	if (tf == NULL)
 		return;
-	
+
 	msg = &(tf->buffer[tf->msg]);
-	i = tf->cursor;
-	while (i+n <= msg->len && msg->data[i+n] == '\r')
-		n++;
+	ni = tf->cursor + 1;
+	while (ni < msg->len && msg->data[ni] == '\r')
+		++ni;
 
-	for (i += n; i <= msg->len; i++)
-		msg->data[i-n] = msg->data[i];
+	memmove(msg->data + tf->cursor, msg->data + ni, msg->len - ni + 1);
+	msg->len -= ni - tf->cursor;
 
-	msg->len -= n;
 	// set invalid width to force rewrap
 	msg->wrap_width = 0;
-	nr_lines = rewrap_message (msg, w->size, w->len_x - 2*tf->x_space - tf->scrollbar_width, &tf->cursor);
+	nr_lines = rewrap_message(msg, w->fcat, w->size, w->len_x - 2*tf->x_space - tf->scrollbar_width,
+		&tf->cursor);
+	_text_field_set_cursor_line_only(tf);
 	_text_field_set_nr_lines (w, nr_lines);
-	
-	// cursor position doesn't change, so no need to update it here
 }
 
 void _text_field_insert_char (widget_list *w, SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_mod)
@@ -2221,13 +2479,13 @@ void _text_field_insert_char (widget_list *w, SDL_Keycode key_code, Uint32 key_u
 	Uint8 ch = key_to_char (key_unicode);
 	text_field *tf = w->widget_info;
 	text_message *msg;
-	int nr_lines, old_cursor;
+	int nr_lines;
 
 	if (tf == NULL)
 		return;
-	
+
 	msg = &(tf->buffer[tf->msg]);
-	
+
 	if (key_code == SDLK_RETURN || key_code == SDLK_KP_ENTER)
 		ch = '\n';
 
@@ -2242,18 +2500,12 @@ void _text_field_insert_char (widget_list *w, SDL_Keycode key_code, Uint32 key_u
 		}
 	}
 	tf->cursor += put_char_in_buffer (msg, ch, tf->cursor);
-	if (ch == '\n')
-		tf->cursor_line++;
-	
+
 	// set invalid width to force rewrap
 	msg->wrap_width = 0;
-	// Save the current character position, and rewrap the message.
-	// The difference between the old and the new position should
-	// be the number of extra line breaks introduced before the 
-	// cursor position
-	old_cursor = tf->cursor;
-	nr_lines = rewrap_message (msg, w->size, w->len_x - 2*tf->x_space - tf->scrollbar_width, &tf->cursor);
-	tf->cursor_line += tf->cursor - old_cursor;
+	nr_lines = rewrap_message(msg, w->fcat, w->size, w->len_x - 2*tf->x_space - tf->scrollbar_width,
+		&tf->cursor);
+	_text_field_set_cursor_line_only(tf);
 	_text_field_set_nr_lines (w, nr_lines);
 
 	// XXX FIXME: Grum: is the following even possible?
@@ -2316,11 +2568,12 @@ static int text_field_resize (widget_list *w, int width, int height)
 			for (i = 0; i < tf->buf_size; i++)
 			{
 				int *cursor = i == tf->msg ? &(tf->cursor) : NULL;
-				nr_lines += rewrap_message (tf->buffer+i, w->size, width - tf->scrollbar_width, cursor);
+				nr_lines += rewrap_message(tf->buffer+i, w->fcat, w->size,
+					width - tf->scrollbar_width, cursor);
 			}
 			_text_field_set_nr_lines (w, nr_lines);
 
-			text_field_find_cursor_line (tf);
+			_text_field_find_cursor_line (tf);
 		}
 	}
 
@@ -2338,7 +2591,6 @@ static int text_field_move(widget_list *w, int pos_x, int pos_y)
 	return 1;
 }
 
-
 static int insert_window_id = -1;
 static int insert_widget_id = -1;
 
@@ -2352,7 +2604,7 @@ static void text_widget_insert(const char *thestring)
 		if (w->Flags & TEXT_FIELD_MOUSE_EDITABLE)
 			w->Flags &= ~TEXT_FIELD_NO_KEYPRESS;
 		widget_unset_flags(insert_window_id, insert_widget_id, WIDGET_DISABLED);
-		do_paste_to_text_field(w, thestring);
+		text_field_paste(w, thestring);
 		w->Flags |= saved_flag;
 	}
 	insert_window_id = insert_widget_id = -1;
@@ -2394,7 +2646,7 @@ static int context_edit_handler(window_info *win, int widget_id, int mx, int my,
 				char str[20];
 				safe_snprintf(str, sizeof(str), "%1d:%02d:%02d", real_game_minute/60, real_game_minute%60, real_game_second);
 				widget_unset_flags(win->window_id, widget_id, WIDGET_DISABLED);
-				do_paste_to_text_field(w, str);
+				text_field_paste(w, str);
 			}
 			break;
 		case 6:
@@ -2405,7 +2657,7 @@ static int context_edit_handler(window_info *win, int widget_id, int mx, int my,
 					char str[20];
 					safe_snprintf(str, sizeof(str), "%d,%d", me->x_tile_pos, me->y_tile_pos);
 					widget_unset_flags(win->window_id, widget_id, WIDGET_DISABLED);
-					do_paste_to_text_field(w, str);
+					text_field_paste(w, str);
 				}
 			}
 			break;
@@ -2606,7 +2858,7 @@ int text_field_keypress(widget_list *w, int mx, int my, SDL_Keycode key_code, Ui
 		if (!TEXT_FIELD_SELECTION_EMPTY(&tf->select))
 		{
 			text_field_remove_selection(tf);
-			TEXT_FIELD_CLEAR_SELECTION(&tf->select);		
+			TEXT_FIELD_CLEAR_SELECTION(&tf->select);
 		}
 		_text_field_insert_char (w, key_code, key_unicode, key_mod);
 		return 1;
@@ -2614,18 +2866,18 @@ int text_field_keypress(widget_list *w, int mx, int my, SDL_Keycode key_code, Ui
 	return 0;
 }
 
-void _set_edit_pos (text_field* tf, int x, int y)
+void _set_edit_pos (text_field* tf, int x, int y, font_cat fcat)
 {
 	unsigned int i = tf->offset;
 	unsigned int nrlines = 0, line = 0;
 	int px = 0;
 	text_message* msg = &(tf->buffer[tf->msg]);
-	float displayed_font_y_size = floor (DEFAULT_FONT_Y_LEN * msg->wrap_zoom);
+	int line_skip = get_line_skip(fcat, msg->wrap_zoom);
 
 	if (msg->len == 0)
 		return;	// nothing to do, there is no string
 
-	nrlines = (int) (y/displayed_font_y_size);
+	nrlines = y / line_skip;
 	for (; line < nrlines && i < msg->len; i++) {
 		switch (msg->data[i]) {
 			case '\r':
@@ -2643,13 +2895,14 @@ void _set_edit_pos (text_field* tf, int x, int y)
 	for (; i < msg->len; i++) {
 		switch (msg->data[i]) {
 			case '\r':
+				tf->cursor = i-1;
+				return;
 			case '\n':
 			case '\0':
 				tf->cursor = i;
 				return;
 			default:
-				// lachesis: for formula see draw_char_scaled
-				px += (int) (0.5 + get_char_width(msg->data[i]) * msg->wrap_zoom * DEFAULT_FONT_X_LEN / 12.0);
+				px += get_char_width_zoom(msg->data[i], fcat, msg->wrap_zoom);
 				if (px >= x)
 				{
 					tf->cursor = i;
@@ -2664,14 +2917,13 @@ void update_selection(int x, int y, widget_list* w, int drag)
 {
 	int line, col;
 	int cx = 0;
-	float displayed_font_y_size = floorf(DEFAULT_FONT_Y_LEN * w->size);
 	text_field* tf;
 	text_message* msg;
 
 	tf = w->widget_info;
 	if (tf == NULL) return;
 
-	line = y / displayed_font_y_size;
+	line = y / get_line_skip(w->fcat, w->size);
 	if (line < 0 || line >= tf->nr_visible_lines || tf->select.lines[line].msg == -1)
 	{
 		// Invalid position, if we were dragging keep the selection
@@ -2686,7 +2938,7 @@ void update_selection(int x, int y, widget_list* w, int drag)
 	{
 		if (msg->data[col] == '\r' || msg->data[col] == '\n' || msg->data[col] == '\0')
 			break;
-		cx += (0.5 + get_char_width(msg->data[col]) * w->size * DEFAULT_FONT_X_LEN / 12.0);
+		cx += get_char_width_zoom(msg->data[col], w->fcat, w->size);
 		if (cx >= x)
 			break;
 	}
@@ -2784,7 +3036,7 @@ static int text_field_click(widget_list *w, int mx, int my, Uint32 flags)
 	if ( (w->Flags & TEXT_FIELD_EDITABLE) == 0)
 		return 0;
 
-	_set_edit_pos(tf, mx, my);
+	_set_edit_pos(tf, mx, my, w->fcat);
 
 #if !defined OSX && !defined WINDOWS
 #ifdef MIDDLE_MOUSE_PASTE
@@ -2818,7 +3070,20 @@ static int text_field_destroy(widget_list *w)
 	return 1;
 }
 
-int text_field_add_extended (int window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b, text_message *buf, int buf_size, Uint8 chan_filt, int x_space, int y_space)
+static int text_field_set_color(widget_list *widget, float r, float g, float b)
+{
+	text_field *tf = widget->widget_info;
+	if (!tf)
+		return 0;
+
+	if (tf->scroll_id != -1)
+		widget_set_color(widget->window_id, tf->scroll_id, r, g, b);
+	return 1;
+}
+
+int text_field_add_extended(int window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 y,
+	Uint16 lx, Uint16 ly, Uint32 Flags, font_cat fcat, float size, text_message *buf, int buf_size,
+	Uint8 chan_filt, int x_space, int y_space)
 {
 	int res;
 
@@ -2837,7 +3102,7 @@ int text_field_add_extended (int window_id, Uint32 wid, int (*OnInit)(), Uint16 
 	if (Flags & TEXT_FIELD_SCROLLBAR)
 	{
 		T->scrollbar_width = size * ELW_BOX_SIZE;
-		T->scroll_id = vscrollbar_add_extended (window_id, widget_id++, NULL, x + lx-T->scrollbar_width, y, T->scrollbar_width, ly, 0, size, r, g, b, 0, 1, 1);		
+		T->scroll_id = vscrollbar_add_extended (window_id, widget_id++, NULL, x + lx-T->scrollbar_width, y, T->scrollbar_width, ly, 0, size, 0, 1, 1);
 	}
 	else
 	{
@@ -2845,23 +3110,11 @@ int text_field_add_extended (int window_id, Uint32 wid, int (*OnInit)(), Uint16 
 		T->scrollbar_width = 0;
 	}
 
-	res = widget_add (window_id, wid, OnInit, x, y, lx, ly, Flags, size, r, g, b, &text_field_type, T, NULL);
-
-	if (buf != NULL)
-	{
-		// We need to set the correct nr of lines if we want the
-		// scrollbar to work, but we couldn't do this earlier, since we
-		// need the widget itself which was only just created.
-		widget_list *w = widget_find (window_id, wid);
-		if (w != NULL)
-		{
-			int nr_lines = rewrap_message (buf, w->size, lx - 2*x_space - T->scrollbar_width, &T->cursor);
-			_text_field_set_nr_visible_lines (w);
-			_text_field_set_nr_lines (w, nr_lines);
-			T->select.lines = (text_field_line*) calloc(T->nr_visible_lines, sizeof(text_field_line));
-			T->select.sm = T->select.em = T->select.sc = T->select.ec = -1;
-		}
-	}
+	res = widget_add (window_id, wid, OnInit, x, y, lx, ly, Flags, size, &text_field_type, T, NULL);
+	// In addition to setting the font category, the call to widget_set_font_cat() also sets
+	// the number of visible lines, and allocates T->select.lines with the correct number of lines.
+	widget_set_font_cat(window_id, wid, fcat);
+	T->select.sm = T->select.em = T->select.sc = T->select.ec = -1;
 
 	/* on the first occurance create the editting context menu */
 	/* maintain a activation entry for each widget so they can be removed or modified */
@@ -2878,7 +3131,8 @@ int text_field_add_extended (int window_id, Uint32 wid, int (*OnInit)(), Uint16 
 
 int text_field_add (int window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, text_message *buf, int buf_size, int x_space, int y_space)
 {
-	return text_field_add_extended (window_id, widget_id++, OnInit, x, y, lx, ly, TEXT_FIELD_BORDER, 1.0, -1.0, -1.0, -1.0, buf, buf_size, FILTER_ALL, x_space, y_space);
+	return text_field_add_extended (window_id, widget_id++, OnInit, x, y, lx, ly,
+		TEXT_FIELD_BORDER, 0, 1.0, buf, buf_size, FILTER_ALL, x_space, y_space);
 }
 
 int text_field_draw (widget_list *w)
@@ -2908,7 +3162,8 @@ int text_field_draw (widget_list *w)
 			int nr_lines;
 			int old_cursor = tf->cursor;
 			tf->buffer[tf->msg].wrap_width = 0;
-			nr_lines = rewrap_message (&tf->buffer[tf->msg], w->size, w->len_x - 2*tf->x_space - tf->scrollbar_width, &tf->cursor);
+			nr_lines = rewrap_message (&tf->buffer[tf->msg], w->fcat, w->size,
+				w->len_x - 2*tf->x_space - tf->scrollbar_width, &tf->cursor);
 			tf->cursor_line += tf->cursor - old_cursor;
 			_text_field_set_nr_lines (w, nr_lines);
 			_text_field_scroll_to_cursor(w);
@@ -2923,7 +3178,7 @@ int text_field_draw (widget_list *w)
 					if (--delta == 0) break;
 			}
 			tf->offset = i+1;
-			tf->line_offset = pos; 
+			tf->line_offset = pos;
 		}
 		else if (pos < tf->line_offset)
 		{
@@ -2975,11 +3230,13 @@ int text_field_draw (widget_list *w)
 	}
 
 	glEnable(GL_TEXTURE_2D);
-	set_font(chat_font);	// switch to the chat font
 
 	for (i = 0; i < tf->nr_visible_lines; i++)
 		tf->select.lines[i].msg = -1;
-	draw_messages (w->pos_x + tf->x_space, w->pos_y + tf->y_space, tf->buffer, tf->buf_size, tf->chan_nr, tf->msg, tf->offset, cursor, w->len_x - 2*tf->x_space - tf->scrollbar_width, w->len_y - 2 * tf->y_space, w->size, &tf->select);
+	draw_messages(w->pos_x + tf->x_space, w->pos_y + tf->y_space,
+		tf->buffer, tf->buf_size, tf->chan_nr, tf->msg, tf->offset, cursor,
+		w->len_x - 2*tf->x_space - tf->scrollbar_width, w->len_y - 2 * tf->y_space,
+		w->fcat, w->size, &tf->select);
 	if (tf->nr_visible_lines && tf->select.lines[0].msg == -1)
 	{
 		tf->select.lines[0].msg = tf->msg;
@@ -2993,7 +3250,7 @@ int text_field_draw (widget_list *w)
 			tf->select.lines[i].chr = tf->buffer[tf->select.lines[i].msg].len;
 		}
 	}
-	set_font (0);	// switch to fixed
+
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
@@ -3035,7 +3292,7 @@ int text_field_set_buf_pos (int window_id, Uint32 widget_id, int msg, int offset
 	return  1;
 }
 
-int text_field_clear (int window_id, Uint32 widget_id)
+int text_field_clear(int window_id, Uint32 widget_id)
 {
 	widget_list *w = widget_find (window_id, widget_id);
 	text_field *tf;
@@ -3065,142 +3322,784 @@ int text_field_clear (int window_id, Uint32 widget_id)
 	return 1;
 }
 
-//password entry field. We act like a restricted text entry with multiple modes
-// quite straightforward - we just add or remove from the end
-int pword_keypress (widget_list *w, int mx, int my, SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_mod)
+static int text_field_change_font(widget_list *w, font_cat cat)
 {
-	Uint8 ch = key_to_char(key_unicode);
-	password_entry *pword;
-	int alt_on = key_mod & KMOD_ALT,
-	    ctrl_on = key_mod & KMOD_CTRL;
+	text_field *tf;
+	int i, nr_lines = 0, nr_vis;
 
-	if (w == NULL) {
+	if (!w || !(tf = w->widget_info))
 		return 0;
-	}
-	pword = (password_entry *) w->widget_info;
 
-	if (pword->status == P_NONE) {
-		return -1;
+	for (i = 0; i < tf->buf_size; i++)
+	{
+		int *cursor = i == tf->msg ? &(tf->cursor) : NULL;
+		tf->buffer[i].wrap_width = 0;
+		nr_lines += rewrap_message(tf->buffer+i, w->fcat, w->size,
+			w->len_x - 2*tf->x_space - tf->scrollbar_width, cursor);
 	}
 
-	if (key_code == SDLK_BACKSPACE) {
-		int i = 0;
-		while(pword->password[i] != '\0' && i < pword->max_chars)
-			i++;
-		if(i > 0)
-			pword->password[i-1] = '\0';
-		return 1;
-	} else if (!alt_on && !ctrl_on && is_printable (ch) && ch != '`' ) {
-		int i = 0;
-		while(pword->password[i] != '\0' && i < pword->max_chars-2)
-			i++;
-		pword->password[i] = ch;
-		pword->password[i+1] = '\0';
-		return 1;
-	} else {
+	nr_vis = tf->nr_visible_lines;
+	_text_field_set_nr_visible_lines(w);
+	_text_field_set_nr_lines(w, nr_lines);
+	if (tf->nr_visible_lines != nr_vis)
+		tf->select.lines = realloc(tf->select.lines, tf->nr_visible_lines * sizeof(text_field_line));
+
+	return 1;
+}
+
+static int text_field_paste(widget_list *w, const char* text)
+{
+	text_field *tf;
+	int bytes = strlen(text);
+	text_message* msg;
+	int p;
+
+	if (!w || !(tf = w->widget_info))
 		return 0;
+
+	// if not editable, don't allow paste
+	if (!(w->Flags & TEXT_FIELD_EDITABLE))
+		return 0;
+
+	msg = &tf->buffer[tf->msg];
+
+	// if can't grow and would over fill, just use what we can
+	if ((msg->len + bytes >= msg->size) && !(w->Flags & TEXT_FIELD_CAN_GROW))
+		bytes = msg->size - msg->len - 1;
+
+	resize_text_message_data (msg, msg->len + bytes);
+
+	p = tf->cursor;
+	memmove (&msg->data[p + bytes], &msg->data[p], msg->len - p + 1);
+	memcpy (&msg->data[p], text, bytes);
+	msg->len += bytes;
+	tf->cursor += bytes;
+	_text_field_find_cursor_line (tf);
+
+	return 1;
+}
+
+//password entry field. We act like a restricted text entry with multiple modes
+
+static void pword_update_draw_range_right(password_entry *entry, font_cat cat,
+	float size, int max_width)
+{
+	const unsigned char* pw = entry->password;
+	int len = strlen((const char*)pw);
+	int str_width;
+
+	if (entry->status == P_TEXT)
+	{
+		str_width = get_buf_width_zoom(pw + entry->draw_begin,
+			entry->draw_end - entry->draw_begin, cat, size);
+		if (str_width > max_width)
+		{
+			while (entry->draw_end > entry->draw_begin && str_width > max_width)
+				str_width -= get_char_width_zoom(pw[--entry->draw_end], cat, size);
+		}
+		else
+		{
+			while (entry->draw_end < len)
+			{
+				int char_width = get_char_width_zoom(pw[entry->draw_end], cat, size);
+				if (str_width + char_width > max_width)
+					break;
+				str_width += char_width;
+				++entry->draw_end;
+			}
+		}
+	}
+	else if (entry->status == P_NORMAL)
+	{
+		int sw = get_char_width_zoom('*', cat, size);
+		str_width = (entry->draw_end - entry->draw_begin) * sw;
+		if (str_width > max_width)
+		{
+			while (entry->draw_end > entry->draw_begin && str_width > max_width)
+			{
+				--entry->draw_end;
+				str_width -= sw;
+			}
+		}
+		else
+		{
+			while (entry->draw_end < len && str_width + sw <= max_width)
+			{
+				++entry->draw_end;
+				str_width += sw;
+			}
+		}
 	}
 }
-		
-int pword_field_click(widget_list *w, int mx, int my, Uint32 flags)
-{
-	password_entry *pword;
 
-	if (w == NULL) return 0;
-	pword = (password_entry*) w->widget_info;
-	if(pword->status == P_NONE) {
-		return -1;
-	} else {
-		return 1;   // Don't fall through
+static void pword_check_after_left_move(password_entry *entry, font_cat cat,
+	float size, int max_width)
+{
+	if (entry->status == P_NONE || entry->cursor_pos >= entry->draw_begin)
+		return;
+
+	entry->draw_begin = entry->cursor_pos;
+	pword_update_draw_range_right(entry, cat, size, max_width);
+}
+
+static void pword_update_draw_range_left(password_entry *entry, font_cat cat,
+	float size, int max_width)
+{
+	const unsigned char* pw = entry->password;
+	int len = strlen((const char*)pw);
+	int str_width;
+
+	if (entry->status == P_TEXT)
+	{
+		str_width = get_buf_width_zoom(pw + entry->draw_begin,
+			entry->draw_end - entry->draw_begin, cat, size);
+		if (entry->cursor_pos == len)
+			str_width += get_char_width_zoom('_', cat, size);
+		if (str_width > max_width)
+		{
+			while (entry->draw_end > entry->draw_begin && str_width > max_width)
+				str_width -= get_char_width_zoom(pw[entry->draw_begin++], cat, size);
+		}
+		else
+		{
+			while (entry->draw_begin > 0)
+			{
+				int char_width = get_char_width_zoom(pw[entry->draw_begin-1], cat, size);
+				if (str_width + char_width > max_width)
+					break;
+				str_width += char_width;
+				--entry->draw_begin;
+			}
+		}
 	}
+	else if (entry->status == P_NORMAL)
+	{
+		int sw = get_char_width_zoom('*', cat, size);
+		str_width = (entry->sel_end - entry->sel_begin) * sw;
+		if (entry->cursor_pos == len)
+			str_width += get_char_width_zoom('_', cat, size);
+		if (str_width > max_width)
+		{
+			while (entry->draw_end > entry->draw_begin && str_width > max_width)
+			{
+				++entry->draw_begin;
+				str_width -= sw;
+			}
+		}
+		else
+		{
+			while (entry->draw_begin > 0 && str_width + sw <= max_width)
+			{
+				--entry->draw_begin;
+				str_width += sw;
+			}
+		}
+	}
+}
+
+static void pword_check_after_right_move(password_entry *entry, font_cat cat,
+	float size, int max_width)
+{
+	int len;
+
+	if (entry->status == P_NONE || entry->cursor_pos < entry->draw_end)
+		return;
+
+	len = strlen((const char*)entry->password);
+	entry->draw_end = min2i(len, entry->cursor_pos+1);
+	pword_update_draw_range_left(entry, cat, size, max_width);
+}
+
+static void pword_update_after_delete(password_entry *entry, font_cat cat,
+	float size, int max_width)
+{
+	int len = strlen((const char*)entry->password);
+	entry->draw_begin = min2i(entry->draw_begin, entry->cursor_pos);
+	entry->draw_end = min2i(len, entry->cursor_pos+1);
+
+	pword_update_draw_range_right(entry, cat, size, max_width);
+	if (entry->draw_end == len)
+		pword_update_draw_range_left(entry, cat, size, max_width);
+}
+
+static void pword_update_draw_range_after_insert(password_entry *entry, font_cat cat,
+	float size, int max_width)
+{
+	int len = strlen((const char*)entry->password);
+	if (entry->draw_end > len)
+		entry->draw_end = len;
+	pword_update_draw_range_right(entry, cat, size, max_width);
+	if (entry->cursor_pos >= entry->draw_end)
+	{
+		entry->draw_end = min2i(len, entry->cursor_pos+1);
+		pword_update_draw_range_left(entry, cat, size, max_width);
+	}
+}
+
+static char* pword_get_selected_text(const password_entry *entry)
+{
+	int size, idst, isrc;
+	char *res;
+
+	if (entry->sel_begin < 0 || entry->sel_end <= entry->sel_begin)
+		return NULL;
+
+	size = entry->sel_end - entry->sel_begin + 1;
+	res = calloc(size, 1);
+	if (!res)
+		return NULL;
+
+	for (idst = 0, isrc = entry->sel_begin; isrc < entry->sel_end; ++isrc)
+	{
+		unsigned char ch = entry->password[isrc];
+		if (is_printable(ch) || ch == '\n')
+			res[idst++] = ch;
+	}
+
+	return res;
+}
+
+static void pword_delete(password_entry *entry, int begin, int end, font_cat cat,
+	float size, int max_width)
+{
+	unsigned char* pw = entry->password;
+	int len = strlen((const char*)pw);
+	memmove(pw + begin, pw + end, len - end + 1);
+	entry->cursor_pos = begin;
+	pword_update_after_delete(entry, cat, size, max_width);
+}
+
+static void pword_insert(password_entry *entry, int pos, const unsigned char* text, int len,
+	font_cat cat, float size, int max_width)
+{
+	unsigned char* pw = entry->password;
+	if (pos + len >= entry->max_chars)
+	{
+		memcpy(pw + pos, text, entry->max_chars - pos);
+	}
+	else
+	{
+		memmove(pw + pos + len, pw + pos, entry->max_chars - pos - len);
+		memcpy(pw + pos, text, len);
+	}
+	pw[entry->max_chars-1] = '\0';
+	entry->cursor_pos = min2i(pos + len, entry->max_chars);
+	pword_update_draw_range_after_insert(entry, cat, size, max_width);
+}
+
+static int pword_field_keypress(widget_list *w, int mx, int my, SDL_Keycode key_code,
+	Uint32 key_unicode, Uint16 key_mod)
+{
+	unsigned char ch = key_to_char(key_unicode);
+	password_entry *entry;
+	int shift_on = key_mod & KMOD_SHIFT,
+		alt_on = key_mod & KMOD_ALT,
+	    ctrl_on = key_mod & KMOD_CTRL;
+	unsigned char* pw;
+	int len, cpos;
+	int max_width;
+
+	if (!w || !(entry = w->widget_info))
+		return 0;
+
+	if (entry->status == P_NONE)
+		return -1;
+
+	if (w->Flags & PWORD_FIELD_NO_KEYPRESS)
+		return 0;
+
+	max_width = (int)(0.5 + w->len_x - 4*w->size);
+	pw = entry->password;
+	len = strlen((const char*)pw);
+	cpos = entry->cursor_pos;
+
+	if (entry->status == P_TEXT)
+	{
+		// Selection support only for regular text input
+		if (!alt_on && !ctrl_on && shift_on)
+		{
+			switch (key_code)
+			{
+				case SDLK_LEFT:
+					if (cpos > 0)
+					{
+						if (entry->sel_begin < 0)
+						{
+							entry->sel_end = cpos;
+							entry->sel_begin = cpos - 1;
+						}
+						else if (cpos == entry->sel_begin)
+						{
+							--entry->sel_begin;
+						}
+						else if (cpos == entry->sel_end)
+						{
+							if (--entry->sel_end < entry->sel_begin)
+								SWAP(entry->sel_begin, entry->sel_end);
+						}
+						--entry->cursor_pos;
+						pword_check_after_left_move(entry, w->fcat, w->size, max_width);
+					}
+					return 1;
+				case SDLK_RIGHT:
+					if (cpos < len)
+					{
+						if (entry->sel_begin < 0)
+						{
+							entry->sel_end = cpos + 1;
+							entry->sel_begin = cpos;
+						}
+						else if (cpos == entry->sel_begin)
+						{
+							if (++entry->sel_begin > entry->sel_end)
+								SWAP(entry->sel_begin, entry->sel_end);
+						}
+						else if (cpos == entry->sel_end)
+						{
+							++entry->sel_end;
+						}
+						++entry->cursor_pos;
+						pword_check_after_right_move(entry, w->fcat, w->size, max_width);
+					}
+					return 1;
+				case SDLK_HOME:
+					if (entry->sel_begin < 0)
+					{
+						entry->sel_end = cpos;
+					}
+					else if (cpos == entry->sel_end)
+					{
+						entry->sel_end = entry->sel_begin;
+					}
+					entry->sel_begin = 0;
+					entry->cursor_pos = 0;
+					pword_check_after_left_move(entry, w->fcat, w->size, max_width);
+					return 1;
+				case SDLK_END:
+					if (entry->sel_begin < 0)
+					{
+						entry->sel_begin = cpos;
+					}
+					else if (cpos == entry->sel_begin)
+					{
+						entry->sel_begin = entry->sel_end;
+					}
+					entry->sel_end = len;
+					entry->cursor_pos = len;
+					pword_check_after_right_move(entry, w->fcat, w->size, max_width);
+					return 1;
+			}
+		}
+
+		// Allow paste into password, but copy or cut only for regular text
+		if (KEY_DEF_CMP(K_COPY, key_code, key_mod) || KEY_DEF_CMP(K_COPY_ALT, key_code, key_mod))
+		{
+			if (entry->sel_begin >= 0 && entry->sel_end > entry->sel_begin)
+			{
+				char* sel_text = pword_get_selected_text(entry);
+				if (sel_text)
+				{
+					copy_to_clipboard(sel_text);
+					free(sel_text);
+				}
+			}
+			return 1;
+		}
+
+		if (KEY_DEF_CMP(K_CUT, key_code, key_mod))
+		{
+			char* sel_text = pword_get_selected_text(entry);
+			if (sel_text)
+			{
+				copy_to_clipboard(sel_text);
+				free(sel_text);
+
+				pword_delete(entry, entry->sel_begin, entry->sel_end, w->fcat,
+					w->size, max_width);
+			}
+			entry->sel_begin = entry->sel_end = -1;
+			return 1;
+		}
+	}
+
+	// Allow paste into password, but copy or cut only for regular text
+	if (KEY_DEF_CMP(K_PASTE, key_code, key_mod) || KEY_DEF_CMP(K_PASTE_ALT, key_code, key_mod))
+	{
+		if (entry->sel_begin >= 0 && entry->sel_end > entry->sel_begin)
+		{
+			pword_delete(entry, entry->sel_begin, entry->sel_end, w->fcat,
+					w->size, max_width);
+			entry->sel_begin = entry->sel_end = -1;
+		}
+		start_paste(w);
+		return 1;
+	}
+
+	if (!alt_on && !ctrl_on)
+	{
+		switch (key_code)
+		{
+			case SDLK_LEFT:
+				if (cpos > 0)
+				{
+					--entry->cursor_pos;
+					pword_check_after_left_move(entry, w->fcat, w->size, max_width);
+				}
+				break;
+			case SDLK_RIGHT:
+				if (cpos < len)
+				{
+					++entry->cursor_pos;
+					pword_check_after_right_move(entry, w->fcat, w->size, max_width);
+				}
+				break;
+			case SDLK_HOME:
+				entry->cursor_pos = 0;
+				pword_check_after_left_move(entry, w->fcat, w->size, max_width);
+				break;
+			case SDLK_END:
+				entry->cursor_pos = len;
+				pword_check_after_right_move(entry, w->fcat, w->size, max_width);
+				break;
+			case SDLK_DELETE:
+				if (entry->sel_begin >= 0 && entry->sel_end > entry->sel_begin)
+				{
+					pword_delete(entry, entry->sel_begin, entry->sel_end, w->fcat,
+						w->size, max_width);
+				}
+				else if (cpos < len)
+				{
+					pword_delete(entry, cpos, cpos+1, w->fcat, w->size, max_width);
+				}
+				break;
+			case SDLK_BACKSPACE:
+
+				if (entry->sel_begin >= 0 && entry->sel_end > entry->sel_begin)
+				{
+					pword_delete(entry, entry->sel_begin, entry->sel_end, w->fcat,
+						w->size, max_width);
+				}
+				else if (cpos > 0)
+				{
+					pword_delete(entry, cpos-1, cpos, w->fcat, w->size, max_width);
+				}
+				break;
+			default:
+				if (is_printable(ch))
+				{
+					if (entry->sel_begin >= 0 && entry->sel_end > entry->sel_begin)
+					{
+						pword_delete(entry, entry->sel_begin, entry->sel_end,
+							w->fcat, w->size, max_width);
+						len = strlen((const char*)pw);
+					}
+					if (len+1 < entry->max_chars)
+						pword_insert(entry, entry->cursor_pos, &ch, 1, w->fcat, w->size, max_width);
+				}
+				else
+				{
+					// Probably key-down event, which does not send unicode. Ignore.
+					return 0;
+				}
+				break;
+		}
+
+		entry->sel_begin = entry->sel_end = -1;
+		return 1;
+	}
+
+	// No idea how to handle this input
+	return 0;
+}
+
+static int pword_pos_under_mouse(password_entry* entry, int mx, int space,
+	font_cat cat, float size)
+{
+	const unsigned char* pw = entry->password;
+	int i, cw, str_width;
+
+	switch (entry->status)
+	{
+		case P_NONE:
+			return -1;
+		case P_TEXT:
+			if (mx < space)
+				// Avoid click before the first character setting the cursor position to -1
+				return entry->draw_begin;
+			for (i = entry->draw_begin, str_width = space; pw[i] && str_width <= mx; ++i)
+				str_width += get_char_width_zoom(pw[i], cat, size);
+			return (str_width <= mx) ? i : i-1;
+		case P_NORMAL:
+		default:
+			if (mx < space)
+				// Avoid click before the first character setting the cursor position to -1
+				return entry->draw_begin;
+			cw = get_char_width_zoom('*', cat, size);
+			return min2i(entry->draw_begin + (mx - space + cw - 1) / cw,
+				strlen((const char*)pw));
+	}
+}
+
+static int pword_field_click(widget_list *w, int mx, int my, Uint32 flags)
+{
+	password_entry *entry;
+	int space;
+
+	if (!w || !(entry = w->widget_info))
+		return 0;
+
+	space = (int)(0.5 + 2*w->size);
+	entry->cursor_pos = pword_pos_under_mouse(entry, mx, space, w->fcat, w->size);
+	entry->sel_begin = entry->sel_end = -1;
+
+	return 1;
+}
+
+static int pword_field_drag(widget_list *w, int mx, int my, Uint32 flags, int dx, int dy)
+{
+	password_entry *entry;
+	int space, pos, len;
+
+	if (!w || !(entry = w->widget_info) || entry->status != P_TEXT)
+		return 0;
+
+	space = (int)(0.5 + 2*w->size);
+	len = strlen((const char*)entry->password);
+	pos = pword_pos_under_mouse(entry, mx, space, w->fcat, w->size);
+	if (entry->sel_begin < 0 && pos < len)
+	{
+		entry->sel_begin = entry->drag_begin = max2i(0, pos);
+		entry->sel_end = pos + 1;
+	}
+	else if (pos <= entry->drag_begin)
+	{
+		entry->sel_begin = max2i(0, pos);
+		entry->sel_end = min2i(len, entry->drag_begin + 1);
+	}
+	else
+	{
+		entry->sel_begin = entry->drag_begin + 1;
+		entry->sel_end = min2i(len, pos + 1);
+	}
+
+	return 1;
+}
+
+static int pword_field_mouseover(widget_list *w, int mx, int my)
+{
+	password_entry *entry;
+	if (!w || !(entry = (password_entry*)w->widget_info))
+		return 0;
+
+	entry->mouseover = 1;
+	return 1;
 }
 
 static int pword_field_draw(widget_list *w)
 {
-	password_entry *pword;
-	unsigned char *text;
-	int difference;
-	int i;
+	password_entry *entry;
+	unsigned char* start;
+	size_t len;
+	int max_width, x_left, x_cursor;
+	int space = (int)(0.5 + 2*w->size);
+	int sel_begin, sel_end;
+	ver_alignment valign;
+	int draw_cursor, draw_shadow;
 
-	if (w == NULL) {
+	if (!w || !(entry = (password_entry*)w->widget_info))
 		return 0;
-	}
-	pword = (password_entry*) w->widget_info;
-	difference = (get_string_width((unsigned char*)pword->password)*w->size - w->len_x)/12;
 
-	/*if you want the text cursor, uncomment the following... as clicking goes
-	to the end of the line, and you can't jump part way through, using the text
-	cursor will not give the user the right idea*/
-	/*if(mx > 0 && mx < w->len_x && my > 0 && my < w->len_y && !(w->Flags&WIDGET_CLICK_TRANSPARENT)){
-		elwin_mouse = CURSOR_TEXT;
-	}*/
+	switch (entry->status)
+	{
+		case P_NONE:
+			start = (unsigned char*)"N/A";
+			len = 3;
+			break;
+		case P_TEXT:
+			start = entry->password + entry->draw_begin;
+			len = entry->draw_end - entry->draw_begin;
+			break;
+		case P_NORMAL:
+		default:
+		{
+			len = entry->draw_end - entry->draw_begin;
+			start = malloc(len);
+			memset(start, '*', len);
+		}
+	}
 
-	// draw the frame
-	glDisable (GL_TEXTURE_2D);
-	glColor3f (w->r, w->g, w->b);
-	glBegin (GL_LINE_LOOP);
-		glVertex3i (w->pos_x, w->pos_y, 0);
-		glVertex3i (w->pos_x + w->len_x, w->pos_y, 0);
-		glVertex3i (w->pos_x + w->len_x, w->pos_y + w->len_y, 0);
-		glVertex3i (w->pos_x, w->pos_y + w->len_y, 0);
-	if(difference > 0) {
-		glVertex3i (w->pos_x + 3, w->pos_y + w->len_y/2, 0);
+	if (!(w->Flags & PWORD_FIELD_NO_BORDER))
+	{
+		// draw the frame
+		glDisable (GL_TEXTURE_2D);
+		glColor3f (w->r, w->g, w->b);
+		glBegin (GL_LINE_LOOP);
+			glVertex3i (w->pos_x, w->pos_y, 0);
+			glVertex3i (w->pos_x + w->len_x, w->pos_y, 0);
+			glVertex3i (w->pos_x + w->len_x, w->pos_y + w->len_y, 0);
+			glVertex3i (w->pos_x, w->pos_y + w->len_y, 0);
+		if (entry->draw_begin > 0)
+			glVertex3i ((int)(w->pos_x + 3*w->size + 0.5), w->pos_y + w->len_y/2, 0);
+		glEnd ();
+		glEnable (GL_TEXTURE_2D);
 	}
-	glEnd ();
-	glEnable (GL_TEXTURE_2D);
-	
-	if (pword->status == P_NONE) {
-		draw_string_zoomed(w->pos_x + 2, w->pos_y + 2, (unsigned char*)"N/A", 1, w->size);
-	} else if(pword->status == P_TEXT) {
-		if(difference > 0) {
-			/* Only draw the end of the string */
-			draw_string_zoomed(w->pos_x + 2, w->pos_y + 2, (unsigned char*)pword->password+difference, 1, w->size);
-		} else {
-			draw_string_zoomed(w->pos_x + 2, w->pos_y + 2, (unsigned char*)pword->password, 1, w->size);
-		}
-	} else if(pword->status == P_NORMAL) {
-		text = calloc(1, pword->max_chars);
-		for(i = 0; i < pword->max_chars && pword->password[i] != '\0'; i++) {
-			text[i] = '*';
-		}
-		text[i] = '\0';
-		if(difference > 0) {
-			/* Only draw the end of the string */
-			draw_string_zoomed(w->pos_x + 2, w->pos_y + 2, text+difference, 1, w->size);
-		} else {
-			draw_string_zoomed(w->pos_x + 2, w->pos_y + 2, text, 1, w->size);
-		}
-		free(text);
+
+	x_left = (int)(w->pos_x + 2*w->size + 0.5);
+	x_cursor = x_left + get_buf_width_zoom(start, entry->cursor_pos - entry->draw_begin,
+		w->fcat, w->size);
+	max_width = w->len_x - 2*space;
+
+	sel_begin = max2i(entry->sel_begin - entry->draw_begin, 0);
+	sel_end = max2i(entry->sel_end - entry->draw_begin, 0);
+	valign = entry->status == P_NORMAL ? CENTER_PASSWORD : CENTER_LINE;
+	draw_shadow = (entry->shadow_r >= 0.0f);
+	draw_text(x_left, w->pos_y + w->len_y/2, start, len, w->fcat, TDO_MAX_WIDTH, max_width,
+		TDO_SHADOW, draw_shadow, TDO_FOREGROUND, w->r, w->g, w->b,
+		TDO_BACKGROUND, entry->shadow_r, entry->shadow_g, entry->shadow_b,
+		TDO_ZOOM, w->size, TDO_SEL_BEGIN, sel_begin, TDO_SEL_END, sel_end, TDO_VERTICAL_ALIGNMENT, valign,
+		TDO_END);
+	draw_cursor = !(w->Flags & PWORD_FIELD_NO_CURSOR)
+		&& (entry->mouseover || (w->Flags & PWORD_FIELD_DRAW_CURSOR));
+	if (draw_cursor && cur_time % (2*TF_BLINK_DELAY) < TF_BLINK_DELAY)
+	{
+		draw_text(x_cursor, w->pos_y + w->len_y/2, (const unsigned char*)"_", 1, w->fcat,
+			TDO_SHADOW, draw_shadow, TDO_FOREGROUND, w->r, w->g, w->b,
+			TDO_BACKGROUND, entry->shadow_r, entry->shadow_g, entry->shadow_b,
+			TDO_ZOOM, w->size, TDO_VERTICAL_ALIGNMENT, CENTER_LINE, TDO_END);
 	}
+
+	if (entry->status == P_NORMAL)
+		free(start);
+
+	entry->mouseover = 0;
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
 	return 1;
 }
 
+static int pword_field_paste(widget_list *w, const char* text)
+{
+	int max_width, space;
+	password_entry *entry;
+	if (!w || !(entry = w->widget_info))
+		return 0;
+	space = (int)(0.5 + 2*w->size);
+	max_width = w->len_x - 2*space;
+	pword_insert(entry, entry->cursor_pos, (const unsigned char*)text, strlen(text),
+		w->fcat, w->size, max_width);
+	return 1;
+}
+
 void pword_set_status(widget_list *w, Uint8 status)
 {
 	password_entry *pword;
-	if (w == NULL) {
-		return;
-	}
-	pword = (password_entry*) w->widget_info;
-	pword->status = status;
+	if (w && (pword = w->widget_info))
+		pword->status = status;
 }
 
-int pword_field_add_extended (int window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint8 status, float size, float r, float g, float b, unsigned char *buffer, int buffer_size)
+int pword_clear(int window_id, Uint32 widget_id)
 {
-	password_entry *T = calloc (1, sizeof (password_entry));
-	T->status = status;
-	T->password = (char*)buffer;
-	T->max_chars = buffer_size;
+	widget_list *w = widget_find (window_id, widget_id);
+	password_entry *entry;
+	if (!w || !(entry = w->widget_info))
+		return 0;
+	if (entry->max_chars)
+		entry->password[0] = '\0';
+	entry->cursor_pos = 0;
+	entry->drag_begin = 0;
+	entry->draw_end = 0;
+	entry->sel_begin = 0;
+	entry->sel_end = 0;
+	entry->drag_begin = 0;
+	entry->mouseover = 0;
+	return 1;
+}
 
-	return widget_add (window_id, wid, OnInit, x, y, lx, ly, 0, size, r, g, b, &pword_field_type, T, NULL);
+int pword_field_set_content(int window_id, Uint32 widget_id, const unsigned char* buf, size_t len)
+{
+	widget_list *w = widget_find(window_id, widget_id);
+	password_entry *entry;
+	int str_width = 0, space, max_width;
+
+	if (!w || !(entry = w->widget_info))
+		return 0;
+
+	space = (int)(0.5 + 2*w->size);
+	max_width = w->len_x - 2*space;
+
+	safe_strncpy2((char*)entry->password, (const char*)buf, entry->max_chars, len);
+	entry->sel_begin = entry->sel_end = -1;
+	entry->cursor_pos = entry->draw_begin = entry->draw_end = 0;
+	while (entry->password[entry->draw_end])
+	{
+		int chr_width = get_char_width_zoom(entry->password[entry->draw_end], w->fcat, w->size);
+		if (str_width + chr_width > max_width)
+			break;
+		str_width += chr_width;
+		++entry->draw_end;
+	}
+
+	return 1;
+}
+
+int pword_field_set_shadow_color(int window_id, Uint32 widget_id, float r, float g, float b)
+{
+	widget_list *w = widget_find(window_id, widget_id);
+	password_entry *entry;
+
+	if (!w || !(entry = w->widget_info))
+		return 0;
+
+	entry->shadow_r = r;
+	entry->shadow_g = g;
+	entry->shadow_b = b;
+	return 1;
+}
+
+int pword_field_add_extended (int window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint8 status, float size, unsigned char *buffer, int buffer_size)
+{
+	int space = (int)(0.5 + 2*size), max_width = lx - 2*space;
+	int widget_id;
+	int str_width = 0;
+	widget_list *widget;
+	password_entry *T = calloc(1, sizeof (password_entry));
+
+	T->status = status;
+	T->password = buffer;
+	T->max_chars = buffer_size;
+	T->sel_begin = T->sel_end = -1;
+	T->shadow_r = T->shadow_g = T->shadow_b = -1.0f;
+
+	if (ly != 0)
+	{
+		T->fixed_height = ly;
+	}
+	else
+	{
+		window_info *win = &windows_list.window[window_id];
+		ly = get_line_height(win->font_category, size) + 2*space;
+	}
+
+	widget_id = widget_add (window_id, wid, OnInit, x, y, lx, ly, 0, size, &pword_field_type, T, NULL);
+
+	widget = widget_find(window_id, widget_id);
+	T->draw_end = 0;
+	while (T->password[T->draw_end])
+	{
+		int chr_width = get_char_width_zoom(T->password[T->draw_end], widget->fcat, size);
+		if (str_width + chr_width > max_width)
+			break;
+		str_width += chr_width;
+		++T->draw_end;
+	}
+
+	return widget_id;
 }
 
 int pword_field_add (int window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint8 status, unsigned char *buffer, int buffer_size)
 {
- 	return pword_field_add_extended (window_id, widget_id++, OnInit, x, y, lx, ly, status, 1.0, -1.0, -1.0, -1.0, buffer, buffer_size);
+	return pword_field_add_extended (window_id, widget_id++, OnInit, x, y, lx, ly, status, 1.0, buffer, buffer_size);
 }
 
 // Multiselect
@@ -3228,22 +4127,81 @@ int multiselect_get_selected(int window_id, Uint32 widget_id)
 	}
 }
 
+static int _multiselect_selected_is_visible(int window_id, Uint32 widget_id)
+{
+	widget_list *widget = widget_find(window_id, widget_id);
+	multiselect *M;
+	int i, but_start, start_y;
+
+	if (!widget || !(M = widget->widget_info))
+		return 0;
+
+	if (M->scrollbar == -1)
+		// No scrollbar, even if the options is not visible there is nothing we can do about it
+		return 1;
+
+	but_start = vscrollbar_get_pos(M->win_id, M->scrollbar);
+	if (M->selected_button < but_start)
+		return 0;
+	if (M->selected_button == but_start)
+		return 1;
+
+	start_y = M->buttons[but_start].y;
+	for (i = but_start+1; i < M->nr_buttons; i++)
+	{
+		int button_y = M->buttons[i].y - start_y;
+		if(button_y + M->buttons[i].height > widget->len_y)
+			// Button won't be shown, and hence neither will the selected button
+			return 0;
+		if (M->selected_button == i)
+			return 1;
+	}
+
+	return 0;
+}
+
 int multiselect_set_selected(int window_id, Uint32 widget_id, int button_id)
 {
 	widget_list *widget = widget_find(window_id, widget_id);
-	multiselect *M = widget->widget_info;
+	multiselect *M = NULL;
+	if (widget == NULL)
+		return -1;
+	M = widget->widget_info;
 	if(M == NULL) {
 		return -1;
 	} else {
 		int i;
-		for (i=0; i<M->nr_buttons; i++) {
-			if (button_id == M->buttons[i].value) {			
+		for (i=0; i<M->nr_buttons; i++)
+		{
+			if (button_id == M->buttons[i].value)
+			{
 				M->selected_button = i;
+				if (M->scrollbar != -1 && !_multiselect_selected_is_visible(window_id, widget_id))
+					vscrollbar_set_pos(M->win_id, M->scrollbar, i);
+
 				return button_id;
 			}
 		}
 		return -1;
 	}
+}
+
+int multiselect_get_scrollbar_pos(int window_id, Uint32 widget_id)
+{
+	widget_list *widget = widget_find(window_id, widget_id);
+	multiselect *M = widget->widget_info;
+	if ((M == NULL) || (M->scrollbar == -1))
+		return -1;
+	return vscrollbar_get_pos(M->win_id, M->scrollbar);
+}
+
+int multiselect_set_scrollbar_pos(int window_id, Uint32 widget_id, int pos)
+{
+	widget_list *widget = widget_find(window_id, widget_id);
+	multiselect *M = widget->widget_info;
+	if ((M == NULL) || (M->scrollbar == -1))
+		return 0;
+	return vscrollbar_set_pos(M->win_id, M->scrollbar, pos);
 }
 
 int multiselect_get_height(int window_id, Uint32 widget_id)
@@ -3276,7 +4234,7 @@ static int multiselect_click(widget_list *widget, int mx, int my, Uint32 flags)
 		button_y = M->buttons[i].y - start_y;
 		if (button_y > widget->len_y - M->buttons[i].height)
 			break;
-		if((flags&ELW_LEFT_MOUSE || flags&ELW_RIGHT_MOUSE) && 
+		if((flags&ELW_LEFT_MOUSE || flags&ELW_RIGHT_MOUSE) &&
 			my > button_y && my < button_y + M->buttons[i].height && mx > M->buttons[i].x && mx < M->buttons[i].x+M->buttons[i].width) {
 				M->selected_button = i;
 			do_click_sound();
@@ -3299,22 +4257,33 @@ static int multiselect_draw(widget_list *widget)
 		int top_but = (M->scrollbar != -1) ?vscrollbar_get_pos(M->win_id, M->scrollbar) :0;
 		int start_y = M->buttons[top_but].y;
 
-		r = widget->r != -1 ? widget->r : 0.77f;
-		g = widget->g != -1 ? widget->g : 0.59f;
-		b = widget->b != -1 ? widget->b : 0.39f;
-		
-		hr = M->highlighted_red != -1 ? M->highlighted_red : 0.32f;
-		hg = M->highlighted_green != -1 ? M->highlighted_green : 0.23f;
-		hb = M->highlighted_blue != -1 ? M->highlighted_blue : 0.15f;
-		
+		r = widget->r != -1 ? widget->r : gui_color[0];
+		g = widget->g != -1 ? widget->g : gui_color[1];
+		b = widget->b != -1 ? widget->b : gui_color[2];
+
+		hr = M->highlighted_red != -1 ? M->highlighted_red : gui_invert_color[0];
+		hg = M->highlighted_green != -1 ? M->highlighted_green : gui_invert_color[1];
+		hb = M->highlighted_blue != -1 ? M->highlighted_blue : gui_invert_color[2];
+
 		for(i = top_but; i < M->nr_buttons; i++) {
 			button_y = M->buttons[i].y - start_y;
 			/* Check if the button can be fully drawn */
 			if(button_y > widget->len_y - M->buttons[i].height)
 				break;
-			draw_smooth_button(M->buttons[i].text, widget->size, widget->pos_x+M->buttons[i].x, widget->pos_y+button_y, M->buttons[i].width-2*BUTTONRADIUS*widget->size, 1, r, g, b, (i == M->selected_button), hr, hg, hb, 0.5f);
+			draw_smooth_button(M->buttons[i].text, widget->fcat, widget->size, widget->pos_x+M->buttons[i].x, widget->pos_y+button_y, M->buttons[i].width-2*BUTTONRADIUS*widget->size, 1, r, g, b, (i == M->selected_button), hr, hg, hb, 0.5f);
 		}
 	}
+	return 1;
+}
+
+static int multiselect_set_color(widget_list *widget, float r, float g, float b)
+{
+	multiselect *M = widget->widget_info;
+	if (!M)
+		return 0;
+
+	if (M->scrollbar != -1)
+		widget_set_color(M->win_id, M->scrollbar, r, g, b);
 	return 1;
 }
 
@@ -3349,7 +4318,7 @@ int multiselect_button_add_extended(int window_id, Uint32 multiselect_id, Uint16
 		M->buttons = realloc(M->buttons, sizeof(*M->buttons) * M->max_buttons * 2);
 		M->max_buttons *= 2;
 	}
-	safe_snprintf(M->buttons[current_button].text, sizeof(M->buttons[current_button].text), "%s", text);
+	safe_strncpy((char*)M->buttons[current_button].text, text, sizeof(M->buttons[current_button].text));
 	if(selected) {
 		M->selected_button = current_button;
 	}
@@ -3358,14 +4327,15 @@ int multiselect_button_add_extended(int window_id, Uint32 multiselect_id, Uint16
 	M->buttons[current_button].y = y;
 	M->buttons[current_button].width = (width == 0) ? widget->len_x : width;
 	M->buttons[current_button].height = button_height;
-	
+
 	M->nr_buttons++;
 	if(M->max_height && M->scrollbar == -1 && M->max_height < y) {
 		int i;
 
 		/* Add scrollbar */
 		M->scrollbar = vscrollbar_add_extended(window_id, widget_id++, NULL, widget->pos_x+widget->len_x-M->scrollbar_width,
-			widget->pos_y, M->scrollbar_width, M->max_height, 0, 1.0, widget->r, widget->g, widget->b, 0, 1, M->max_height);
+			widget->pos_y, M->scrollbar_width, M->max_height, 0, 1.0, 0, 1, M->max_height);
+		widget_set_color(window_id, M->scrollbar, widget->r, widget->g, widget->b);
 		widget->len_x -= M->scrollbar_width + 2;
 		widget->len_y = M->max_height;
 		/* We don't want things to look ugly. */
@@ -3375,10 +4345,10 @@ int multiselect_button_add_extended(int window_id, Uint32 multiselect_id, Uint16
 			}
 		}
 	}
-	
+
 	if (M->scrollbar != -1)
 		vscrollbar_set_bar_len(window_id, M->scrollbar, M->nr_buttons-widget->len_y/button_height);
-	
+
 	return current_button;
 }
 
@@ -3398,92 +4368,123 @@ int multiselect_add_extended(int window_id, Uint32 wid, int (*OnInit)(), Uint16 
 	T->highlighted_red = hr;
 	T->highlighted_green = hg;
 	T->highlighted_blue = hb;
- 
- 	return widget_add (window_id, wid, OnInit, x, y, width, 0, 0, size, r, g, b, &multiselect_type, T, NULL);
+
+	return widget_add (window_id, wid, OnInit, x, y, width, 0, 0, size, &multiselect_type, T, NULL);
 }
-  
+
 int multiselect_add(int window_id, int (*OnInit)(), Uint16 x, Uint16 y, int width)
 {
- 	return multiselect_add_extended(window_id, widget_id++, OnInit, x, y, width, 0, 1.0f, -1, -1, -1, -1, -1, -1, 0);
+	return multiselect_add_extended(window_id, widget_id++, OnInit, x, y, width, 0, 1.0f, -1, -1, -1, -1, -1, -1, 0);
+}
+
+int multiselect_clear(int window_id, Uint32 widget_id)
+{
+	widget_list *widget;
+	multiselect *M;
+
+	widget = widget_find(window_id, widget_id);
+	if (!widget || !(M = widget->widget_info))
+		return 0;
+
+	M->nr_buttons = 0;
+	M->next_value = 0;
+	if (M->scrollbar != -1)
+	{
+		widget_destroy(window_id, M->scrollbar);
+		M->scrollbar = -1;
+		widget->len_x += M->scrollbar_width + 2;
+	}
+
+	return 1;
 }
 
 // Spinbutton
 static int spinbutton_keypress(widget_list *widget, int mx, int my, SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_mod)
 {
 	spinbutton *button;
-	int i;
-	int i_tmp;
-
 	if(widget != NULL && (button = widget->widget_info) != NULL &&  !(key_mod & KMOD_ALT) && !(key_mod & KMOD_CTRL)) {
+		int len = strlen(button->input_buffer);
 		char ch = key_to_char(key_unicode);
 
 		switch(button->type) {
 			case SPIN_INT:
-				i_tmp = ch-'0'; //Convert char to int
-				if(ch >= '0' && ch <= '9') {
-					if(*(int *)button->data*10 + i_tmp > button->max) {
-						/* Make sure we don't exceed any limits */
-						*(int *)button->data = button->max;
-						safe_snprintf(button->input_buffer, sizeof(button->input_buffer), "%i", (int)button->max);
-					} else {
-						if(atoi(button->input_buffer) >= button->min) {
-							*(int *)button->data = *(int *)button->data * 10 + i_tmp;
-						}
-						if(button->input_buffer[0] != '0') {
-							/* Find end of string */
-							for(i = 0; button->input_buffer[i] != '\0' && i < sizeof (button->input_buffer); i++);
-							/* Append to the end */
-							if (i+1 < sizeof (button->input_buffer))
-							{
-								button->input_buffer[i] = ch;
-								button->input_buffer[i+1] = '\0';
-							}
-						}
+			{
+				int value;
+
+				if (ch >= '0' && ch <= '9')
+				{
+					if (len+1 < sizeof(button->input_buffer))
+					{
+						button->input_buffer[len] = ch;
+						button->input_buffer[len+1] = '\0';
 					}
-					return 1;
-				} else if (key_code == SDLK_BACKSPACE) {
-					if(strlen(button->input_buffer) > 0) {
-						button->input_buffer[strlen(button->input_buffer)-1] = '\0';
-					}
-					if(*(int *)button->data/10 >= button->min) {
-						*(int *)button->data /= 10;
-					}
-					return 1;
 				}
-			break;
+				else if (key_code == SDLK_BACKSPACE)
+				{
+					if (len > 0)
+						button->input_buffer[len-1] = '\0';
+				}
+				else
+				{
+					return 0;
+				}
+
+				value = atoi(button->input_buffer);
+				if (value > button->max)
+				{
+					safe_snprintf(button->input_buffer, sizeof(button->input_buffer), "%d",
+						(int)button->max);
+					*(int *)button->data = button->max;
+				}
+				else if (value >= button->min)
+				{
+					*(int *)button->data = value;
+				}
+
+				return 1;
+			}
 			case SPIN_FLOAT:
-				if(ch == ',') {
+			{
+				float value;
+
+				if (ch == ',')
 					ch = '.';
-				}
-				if((ch >= '0' && ch <= '9') || (ch == '.' && strstr(button->input_buffer, ".") == NULL)) {
+				if ((ch >= '0' && ch <= '9') || (ch == '.' && strchr(button->input_buffer, '.') == NULL))
+				{
 					/* Make sure we don't insert illegal characters here */
-					if(button->input_buffer[0] != '0' || ch == '.' || strstr(button->input_buffer, ".") != NULL) {
-						/* Find end of string */
-						for(i = 0; button->input_buffer[i] != '\0' && i < sizeof (button->input_buffer); i++);
+					if (button->input_buffer[0] != '0' || ch == '.' || strchr(button->input_buffer, '.') != NULL)
+					{
 						/* Append to the end */
-						if (i+1 < sizeof (button->input_buffer))
+						if (len+1 < sizeof(button->input_buffer))
 						{
-							button->input_buffer[i] = ch;
-							button->input_buffer[i+1] = '\0';
-						}
-						if(atof(button->input_buffer) > button->max) {
-							safe_snprintf(button->input_buffer, sizeof(button->input_buffer), "%.2f", button->max);
+							button->input_buffer[len] = ch;
+							button->input_buffer[len+1] = '\0';
 						}
 					}
-					if(atof(button->input_buffer) >= button->min && atof(button->input_buffer) <= button->max) {
-						*(float *)button->data = atof(button->input_buffer);
-					}
-					return 1;
-				} else if (key_code == SDLK_BACKSPACE) {
-					if(strlen(button->input_buffer) > 0) {
-						button->input_buffer[strlen(button->input_buffer)-1] = '\0';
-					}
-					if(atof(button->input_buffer) >= button->min) {
-						*(float *)button->data = atof(button->input_buffer);
-					}
-					return 1;
 				}
-			break;
+				else if (key_code == SDLK_BACKSPACE)
+				{
+					if (len > 0)
+						button->input_buffer[len-1] = '\0';
+				}
+				else
+				{
+					return 0;
+				}
+
+				value = atof(button->input_buffer);
+				if (value > button->max)
+				{
+					safe_snprintf(button->input_buffer, sizeof(button->input_buffer), "%.2f",
+						button->max);
+					*(float*)button->data = button->max;
+				}
+				else if (value >= button->min)
+				{
+					*(float*)button->data = value;
+				}
+				return 1;
+			}
 		}
 	}
 	return 0;
@@ -3545,7 +4546,7 @@ static int spinbutton_click(widget_list *widget, int mx, int my, Uint32 flags)
 								*(float *)button->data -= button->interval;
 							} else {
 								*(float *)button->data = button->min;
-							}								
+							}
 						break;
 					}
 					safe_snprintf(button->input_buffer, sizeof(button->input_buffer), "%.2f", *(float *)button->data);
@@ -3562,6 +4563,8 @@ static int spinbutton_draw(widget_list *widget)
 	spinbutton *button;
 	int arrow_size = 0;
 	char str[255];
+	int x_space = (int)(0.5 + widget->size*2);
+	int out_of_range = 0;
 
 	if(widget == NULL || (button = widget->widget_info) == NULL) {
 		return 0;
@@ -3572,10 +4575,10 @@ static int spinbutton_draw(widget_list *widget)
 	switch(button->type) {
 		case SPIN_INT:
 			if(atoi(button->input_buffer) < button->min) {
-				/* The input buffer has a value less than minimum. 
+				/* The input buffer has a value less than minimum.
 				 * Don't change the data variable and mark the text in red */
-				glColor3f(1, 0, 0);
-				safe_snprintf(str, sizeof (str), "%s", button->input_buffer);
+				out_of_range = 1;
+				safe_strncpy(str, button->input_buffer, sizeof(str));
 			} else {
 				*(int *)button->data = atoi(button->input_buffer);
 				safe_snprintf(str, sizeof (str), "%i", *(int *)button->data);
@@ -3583,14 +4586,14 @@ static int spinbutton_draw(widget_list *widget)
 		break;
 		case SPIN_FLOAT:
 			if(atof(button->input_buffer) < button->min) {
-				glColor3f(1, 0, 0);
-				safe_snprintf(str, sizeof (str), "%s", button->input_buffer);
+				out_of_range = 1;
+				safe_strncpy(str, button->input_buffer, sizeof(str));
 			} else {
 				char *pointer = strchr(button->input_buffer, '.');
 				int accuracy;
 				char format[10];
 
-				if(pointer == NULL) 
+				if(pointer == NULL)
 					pointer = strchr(button->input_buffer, ',');
 
 				accuracy = (pointer == NULL) ? 0 : strlen(pointer+1);
@@ -3600,18 +4603,26 @@ static int spinbutton_draw(widget_list *widget)
 				safe_snprintf(format, sizeof (format), "%%.%if", accuracy);
 				safe_snprintf(str, sizeof (str), format, *(float *)button->data);
 				if(accuracy == 0 && pointer != NULL) {
-					/* We have a . at the end of the input buffer, but 
+					/* We have a . at the end of the input buffer, but
 					 * safe_snprintf() doesn't write it, so we have to do it manually. */
 					safe_strcat (str, ".", sizeof (str));
 				}
 			}
 		break;
 	}
+
 	/* Numbers */
-	glColor3f(widget->r, widget->g, widget->b);
-	draw_string_zoomed(widget->pos_x + 2 + gx_adjust, widget->pos_y + 2 + gy_adjust, (unsigned char*)str, 1, widget->size);
+	if (out_of_range)
+		glColor3f(1, 0, 0);
+	else
+		glColor3f(widget->r, widget->g, widget->b);
+	draw_text(widget->pos_x + x_space, widget->pos_y + widget->len_y/2, (const unsigned char*)str,
+		strlen(str), widget->fcat, TDO_ZOOM, widget->size, TDO_VERTICAL_ALIGNMENT, CENTER_DIGITS,
+		TDO_END);
 	glDisable(GL_TEXTURE_2D);
+
 	/* Border */
+	glColor3f(widget->r, widget->g, widget->b);
 	glBegin(GL_LINE_LOOP);
 		glVertex3i (widget->pos_x, widget->pos_y, 0);
 		glVertex3i (widget->pos_x + widget->len_x, widget->pos_y, 0);
@@ -3624,11 +4635,10 @@ static int spinbutton_draw(widget_list *widget)
 		glVertex3i(widget->pos_x+widget->len_x-arrow_size, widget->pos_y+widget->len_y,0);
 	glEnd();
 	/* Up arrow */
-	glBegin(GL_QUADS);
+	glBegin(GL_TRIANGLES);
 		glVertex3i(widget->pos_x+widget->len_x-arrow_size + arrow_size/4, widget->pos_y + widget->len_y/4+2, 0); //Left corner
 		glVertex3i(widget->pos_x+widget->len_x-arrow_size + arrow_size/2, widget->pos_y + 2, 0); //Top
 		glVertex3i(widget->pos_x+widget->len_x-arrow_size + 3*arrow_size/4, widget->pos_y + widget->len_y/4+2, 0); //Right corner
-		glVertex3i(widget->pos_x+widget->len_x-arrow_size + arrow_size/4, widget->pos_y + widget->len_y/4+2, 0); //Back to the beginning
 	glEnd();
 	/* Button separator */
 	glBegin(GL_LINES);
@@ -3636,11 +4646,10 @@ static int spinbutton_draw(widget_list *widget)
 		glVertex3i(widget->pos_x+widget->len_x, widget->pos_y+widget->len_y/2,0);
 	glEnd();
 	/* Down arrow */
-	glBegin(GL_QUADS);
+	glBegin(GL_TRIANGLES);
 		glVertex3i(widget->pos_x+widget->len_x-arrow_size + arrow_size/4, widget->pos_y + widget->len_y - widget->len_y/4-2, 0); //Left corner
 		glVertex3i(widget->pos_x+widget->len_x-arrow_size + arrow_size/2, widget->pos_y + widget->len_y - 2, 0); //Bottom
 		glVertex3i(widget->pos_x+widget->len_x-arrow_size + 3*arrow_size/4, widget->pos_y + widget->len_y - widget->len_y/4-2, 0); //Right corner
-		glVertex3i(widget->pos_x+widget->len_x-arrow_size + arrow_size/4, widget->pos_y + widget->len_y - widget->len_y/4-2, 0); //Back to the beginning
 	glEnd();
 	glEnable(GL_TEXTURE_2D);
 #ifdef OPENGL_TRACE
@@ -3649,10 +4658,8 @@ CHECK_GL_ERRORS();
 	return 1;
 }
 
-int spinbutton_add_extended(int window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint8 data_type, void *data, float min, float max, float interval, float size, float r, float g, float b)
+int spinbutton_add_extended(int window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint8 data_type, void *data, float min, float max, float interval, float size)
 {
-	float wr = r >= 0 ? r : 0.77, wg = g >= 0 ? g : 0.59, wb = b >= 0 ? b : 0.39;
-
 	spinbutton *T = calloc (1, sizeof (spinbutton));
 	// Filling the widget info
 	T->data = data;
@@ -3671,17 +4678,33 @@ int spinbutton_add_extended(int window_id, Uint32 wid, int (*OnInit)(), Uint16 x
 		break;
 	}
 
-	return widget_add (window_id, wid, OnInit, x, y, lx, ly, 0, size, wr, wg, wb, &spinbutton_type, T, NULL);
+	return widget_add (window_id, wid, OnInit, x, y, lx, ly, 0, size, &spinbutton_type, T, NULL);
 }
 
 int spinbutton_add(int window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint8 data_type, void *data, float min, float max, float interval)
 {
-	return spinbutton_add_extended(window_id, widget_id++, OnInit, x, y, lx, ly, data_type, data, min, max, interval, 1, -1, -1, -1);
+	return spinbutton_add_extended(window_id, widget_id++, OnInit, x, y, lx, ly, data_type, data, min, max, interval, 1);
+}
+
+// Helper functions for widgets
+
+void draw_cross(int centre_x, int centre_y, int half_len, int half_width)
+{
+	glBegin(GL_QUADS);
+		glVertex2i(centre_x - half_len, centre_y - half_len + half_width);
+		glVertex2i(centre_x - half_len + half_width, centre_y - half_len);
+		glVertex2i(centre_x + half_len, centre_y + half_len - half_width);
+		glVertex2i(centre_x + half_len - half_width, centre_y + half_len);
+		glVertex2i(centre_x + half_len, centre_y - half_len + half_width);
+		glVertex2i(centre_x + half_len - half_width, centre_y - half_len);
+		glVertex2i(centre_x - half_len, centre_y + half_len - half_width);
+		glVertex2i(centre_x - half_len + half_width, centre_y + half_len);
+	glEnd();
 }
 
 
 // XML Windows
-/* 
+/*
 / This section contains the following (unused) functions:
 /	int AddXMLWindow(char *fn);
 /	int ReadXMLWindow(xmlNode *a_node);
@@ -3731,7 +4754,7 @@ int ReadXMLWindow(xmlNode * a_node)
 			win = ParseWindow (cur_node);
 		}
 	}
-	
+
 	return win;
 }
 
@@ -3788,15 +4811,15 @@ int ParseWindow (xmlNode *node)
 			}
 		}
 	}
-	
+
 	winid = create_window (name, -1, 0, pos_x, pos_y, size_x, size_y, flags);
-	
+
 	for (child = node->children; child; child = child->next)
 	{
 		if (child->type == XML_ELEMENT_NODE)
 			ParseWidget (child, winid);
 	}
-	
+
 	return winid;
 }
 
@@ -3952,7 +4975,7 @@ int ParseWidget (xmlNode *node, int winid)
 						continue;
 					}
 					break;
-				
+
 				case TABCOLLECTION:
 					//max_tabs=""
 					if ( !xmlStrcasecmp (cur_attr->name, "max_tabs") )
@@ -3974,31 +4997,31 @@ int ParseWidget (xmlNode *node, int winid)
 	switch(type)
 	{
 		case LABEL:
-			return label_add_extended (winid, id, NULL, pos_x, pos_y, flags, size, r, g, b, text);
+			return label_add_extended (winid, id, NULL, pos_x, pos_y, flags, size, text);
 		case IMAGE:
-			return image_add_extended (winid, id, NULL, pos_x, pos_y, len_x, len_y, flags, size, r, g, b, tid, u1, v1, u2, v2);
+			return image_add_extended (winid, id, NULL, pos_x, pos_y, len_x, len_y, flags, size, tid, u1, v1, u2, v2);
 		case CHECKBOX:
 		{
 			int *checked_ptr = calloc(1,sizeof(int));
 			*checked_ptr = checked;
-			return checkbox_add_extended (winid, id, NULL, pos_x, pos_y, len_x, len_y, flags, size, r, g, b, checked_ptr);
+			return checkbox_add_extended (winid, id, NULL, pos_x, pos_y, len_x, len_y, flags, size, checked_ptr);
 		}
 		case BUTTON:
-			return button_add_extended (winid, id, NULL, pos_x, pos_y, len_x, len_y, flags, size, r, g, b, text);
+			return button_add_extended (winid, id, NULL, pos_x, pos_y, len_x, len_y, flags, size, text);
 		case PROGRESSBAR:
-			return progressbar_add_extended (winid, id, NULL, pos_x, pos_y, len_x, len_y, flags, size, r, g, b, progress, NULL);
+			return progressbar_add_extended (winid, id, NULL, pos_x, pos_y, len_x, len_y, flags, size, progress, NULL);
 		case VSCROLLBAR:
-			return vscrollbar_add_extended (winid, id, NULL, pos_x, pos_y, len_x, len_y, flags, size, r, g, b, pos, pos_inc, len_y);
+			return vscrollbar_add_extended (winid, id, NULL, pos_x, pos_y, len_x, len_y, flags, size, pos, pos_inc, len_y);
 		case TABCOLLECTION:
 		{
 			xmlNode *tab;
-			int colid = tab_collection_add_extended (winid, id, NULL, pos_x, pos_y, len_x, len_y, flags, size, r, g, b, max_tabs, tag_height);
+			int colid = tab_collection_add_extended (winid, id, NULL, pos_x, pos_y, len_x, len_y, flags, size, max_tabs, tag_height, 0);
 			for (tab = node->children; tab; tab = tab->next)
 			{
 				if (tab->type == XML_ELEMENT_NODE)
 					ParseTab (tab, winid, colid);
 			}
-			
+
 			return colid;
 		}
 	}
@@ -4032,15 +5055,15 @@ int ParseTab (xmlNode *node, int winid, int colid)
 			}
 		}
 	}
-	
+
 	tabid = tab_add (winid, colid, label, tag_width, closable);
-	
+
 	for (child = node->children; child; child = child->next)
 	{
 		if (child->type == XML_ELEMENT_NODE)
 			ParseWidget (node, tabid);
 	}
-	
+
 	return tabid;
 }
 

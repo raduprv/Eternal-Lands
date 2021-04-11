@@ -27,11 +27,15 @@
 #include "gamewin.h"
 #include "gl_init.h"
 #include "hud.h"
+#ifdef JSON_FILES
+#include "json_io.h"
+#endif
 #include "sound.h"
 #include "spells.h"
 #include "text.h"
 #include "translate.h"
 
+using namespace eternal_lands;
 
 namespace Indicators
 {
@@ -40,12 +44,19 @@ namespace Indicators
 	class Vars
 	{
 		public:
-			static const float zoom(void) { return scale; }
-			static const int space(void) { return (int)(0.5 + scale * 5); }
-			static const int border(void) { return (int)(0.5 + scale * 2); }
-			static const float font_x(void) { return DEFAULT_FONT_X_LEN; }
-			static const float font_y(void) { return DEFAULT_FONT_Y_LEN; }
-			static const int y_len(void) { return static_cast<int>(border() + zoom() * font_y() + 0.5); }
+			static float zoom(void) { return scale; }
+			static int space(void) { return (int)(0.5 + scale * 5); }
+			static int border(void) { return (int)(0.5 + scale * 2); }
+			static float font_x(void)
+			{
+				return FontManager::get_instance()
+					.max_width_spacing(FontManager::Category::UI_FONT);
+			}
+			static float font_y(void)
+			{
+				return FontManager::get_instance().line_height(FontManager::Category::UI_FONT);
+			}
+			static int y_len(void) { return static_cast<int>(border() + zoom() * font_y() + 0.5); }
 			static void set_scale(float new_scale) { scale = new_scale; }
 		private:
 			static float scale;
@@ -135,7 +146,11 @@ namespace Indicators
 			void click(int mx, Uint32 flags);
 			int cm_handler(window_info *win, int widget_id, int mx, int my, int option);
 			void set_settings(unsigned int opts, unsigned int pos) { option_settings = opts; position_settings = pos; have_settings = true;}
-			void get_settings(unsigned int *opts, unsigned int *pos);
+			void get_settings(unsigned int *opts, unsigned int *pos) const;
+#ifdef JSON_FILES
+			void read_settings(const char *dict_name);
+			void write_settings(const char *dict_name) const;
+#endif
 			void ui_scale_handler(window_info *win) { x_len = 0; y_len = 0; Vars::set_scale(win->current_scale); }
 			int get_default_width(void);
 		private:
@@ -204,11 +219,11 @@ namespace Indicators
 		if (mouse_over)
 			glColor3f(1.0f,1.0f,1.0f);
 		else if (unavailable_func && unavailable_func())
-			glColor3f(0.20f,0.15f,0.10f);
+			glColor3f(gui_dull_color[0]/2, gui_dull_color[1]/2, gui_dull_color[2]/2);
 		else if (cntr_func && cntr_func())
-			glColor3f(0.99f,0.87f,0.65f);
+			glColor3fv(gui_bright_color);
 		else
-			glColor3f(0.40f,0.30f,0.20f);
+			glColor3fv(gui_dull_color);
 		draw_string_zoomed(x_pos, Vars::border(), (const unsigned char*)indicator_text.c_str(), 1, Vars::zoom());
 		mouse_over = false;
 	}
@@ -288,6 +303,9 @@ namespace Indicators
 	//
 	void Indicators_Container::init(void)
 	{
+		if (!FontManager::get_instance().is_initialized())
+			return;
+
 		std::pair<int,int> loc = get_default_location();
 
 		if (indicators.empty())
@@ -426,7 +444,7 @@ namespace Indicators
 		}
 		if (!have_active)
 		{
-			glColor3f(0.40f,0.30f,0.20f);
+			glColor3fv(gui_dull_color);
 			draw_string_zoomed(pos_x, Vars::border(), (const unsigned char *)no_indicators_str, 1, Vars::zoom());
 			pos_x += static_cast<int>(strlen(no_indicators_str) * Vars::zoom() * Vars::font_x() + 0.5);
 		}
@@ -481,9 +499,12 @@ namespace Indicators
 		std::vector<Basic_Indicator *>::iterator i = get_over(mx);
 		if (win && (i < indicators.end()))
 		{
+			eternal_lands::FontManager &fmgr = eternal_lands::FontManager::get_instance();
 			std::string tooltip("");
 			(*i)->get_tooltip(tooltip);
-			int x_offset = -static_cast<int>(Vars::border() + win->small_font_len_x * (1 + tooltip.size()) + 0.5);
+			int width = fmgr.line_width(win->font_category, (const unsigned char*)tooltip.c_str(),
+				tooltip.length(), win->current_scale_small);
+			int x_offset = -(Vars::border() + width);
 			if ((win->cur_x + x_offset) < 0)
 				x_offset = win->len_x;
 			show_help(tooltip.c_str(), x_offset, Vars::border(), win->current_scale);
@@ -592,29 +613,81 @@ namespace Indicators
 
 	//	Called when saving client settings
 	//
-	void Indicators_Container::get_settings(unsigned int *opts, unsigned int *pos)
+	void Indicators_Container::get_settings(unsigned int *opts, unsigned int *pos) const
 	{
 		unsigned int flags = 0;
 		unsigned int shift = 0;
 		unsigned int x = 0;
 		unsigned int y = 0;
 
-		std::vector<Basic_Indicator *>::iterator i;
+		if (indicators_win < 0)
+		{
+			*opts = option_settings;
+			*pos = position_settings;
+			return;
+		}
+
+		std::vector<Basic_Indicator *>::const_iterator i;
 		for (i=indicators.begin(); i<indicators.end(); ++i, shift++)
 			flags |= (((*i)->not_active()) ?1 :0) << shift;
 
-		if (!default_location && (indicators_win >= 0))
-		{
+		if (!default_location)
 			flags |= 1 << 24;
-			x = static_cast<unsigned int>(windows_list.window[indicators_win].cur_x);
-			y = static_cast<unsigned int>(windows_list.window[indicators_win].cur_y);
-		}
 		flags |= background_on << 25;
 		flags |= border_on << 26;
-
 		*opts = flags;
+
+		x = static_cast<unsigned int>(windows_list.window[indicators_win].cur_x);
+		y = static_cast<unsigned int>(windows_list.window[indicators_win].cur_y);
 		*pos = x | (y<<16);
 	}
+
+
+#ifdef JSON_FILES
+	//	Read the options from the client state file
+	//
+	void Indicators_Container::read_settings(const char *dict_name)
+	{
+		int pos_x = json_cstate_get_int(dict_name, "pos_x", 0);
+		int pos_y = json_cstate_get_int(dict_name, "pos_y", 0);
+		position_settings = (pos_x & 0xFFFF) | ((pos_y & 0xFFFF) << 16);
+
+		option_settings = json_cstate_get_unsigned_int(dict_name, "disabled_flags", 0);
+		option_settings |= json_cstate_get_bool(dict_name, "relocated", 0) << 24;
+		option_settings |= json_cstate_get_bool(dict_name, "background_on", 0) << 25;
+		option_settings |= json_cstate_get_bool(dict_name, "border_on", 0) << 26;
+		have_settings = true;
+	}
+
+
+	//	Write the options from the client state file
+	//
+	void Indicators_Container::write_settings(const char *dict_name) const
+	{
+		if (indicators_win < 0)
+		{
+			json_cstate_set_int(dict_name, "pos_x", position_settings & 0xFFFF);
+			json_cstate_set_int(dict_name, "pos_y", (position_settings >> 16 ) & 0xFFFF);
+			json_cstate_set_unsigned_int(dict_name, "disabled_flags", option_settings & 0x00FFFFFF);
+			json_cstate_set_bool(dict_name, "relocated", (option_settings >> 24) & 1);
+			json_cstate_set_bool(dict_name, "background_on", (option_settings >> 25) & 1);
+			json_cstate_set_bool(dict_name, "border_on", (option_settings >> 26) & 1);
+			return;
+		}
+
+		unsigned int disabled_flags = 0, shift = 0;
+		std::vector<Basic_Indicator *>::const_iterator  i;
+		for (i=indicators.begin(); i<indicators.end(); ++i, shift++)
+			disabled_flags |= (((*i)->not_active()) ?1 :0) << shift;
+		json_cstate_set_unsigned_int(dict_name, "disabled_flags", disabled_flags);
+
+		json_cstate_set_unsigned_int(dict_name, "pos_x", static_cast<unsigned int>(windows_list.window[indicators_win].cur_x));
+		json_cstate_set_unsigned_int(dict_name, "pos_y", static_cast<unsigned int>(windows_list.window[indicators_win].cur_y));
+		json_cstate_set_bool(dict_name, "relocated", (default_location) ?0: 1);
+		json_cstate_set_bool(dict_name, "background_on", background_on);
+		json_cstate_set_bool(dict_name, "border_on", border_on);
+	}
+#endif
 
 } // end namespace
 
@@ -629,7 +702,11 @@ extern "C"
 	void show_hud_indicators_window(void) { if (show_hud_indicators) Indicators::container.show(); }
 	void hide_hud_indicators_window(void) { Indicators::container.hide(); }
 	void toggle_hud_indicators_window(int *show) { *show = !*show; Indicators::container.toggle(*show); }
-	void set_settings_hud_indicators(unsigned int opts, unsigned int pos) { return Indicators::container.set_settings(opts, pos); }
+	void set_settings_hud_indicators(unsigned int opts, unsigned int pos) { Indicators::container.set_settings(opts, pos); }
 	void get_settings_hud_indicators(unsigned int *opts, unsigned int *pos) { Indicators::container.get_settings(opts, pos); }
+#ifdef JSON_FILES
+	void read_settings_hud_indicators(const char *dict_name) { Indicators::container.read_settings(dict_name); }
+	void write_settings_hud_indicators(const char *dict_name) { Indicators::container.write_settings(dict_name); }
+#endif
 	int get_hud_indicators_default_width(void) { if (show_hud_indicators) return Indicators::container.get_default_width(); else return 0; }
 }

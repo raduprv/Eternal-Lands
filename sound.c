@@ -36,21 +36,22 @@
 #define SLEEP_TIME 300		// Time to give CPU to other processes between loops of update_streams()
 
 #ifdef _EXTRA_SOUND_DEBUG
-/*
- #ifdef DEBUG
-#define LOCK_SOUND_LIST() { static int i; static char str[50]; snprintf(str, sizeof(str), "LOCK_SOUND_LIST %d\n", i++); log_error_detailed(str, __FILE__, __FUNCTION__, __LINE__); SDL_LockMutex(sound_list_mutex); }
-#define UNLOCK_SOUND_LIST() { static int i; static char str[50]; snprintf(str, sizeof(str), "LOCK_SOUND_LIST %d\n", i++); log_error_detailed(str, __FILE__, __FUNCTION__, __LINE__); SDL_UnlockMutex(sound_list_mutex); }
- #else // DEBUG
-#define LOCK_SOUND_LIST() { static int i; printf("LOCK_SOUND_LIST %d - %s %s:%d sources: %d\n", i++, __FILE__, __FUNCTION__, __LINE__, used_sources); SDL_LockMutex(sound_list_mutex); }
-#define UNLOCK_SOUND_LIST() { static int i; printf("UNLOCK_SOUND_LIST %d - %s %s:%d\n", i++, __FILE__, __FUNCTION__, __LINE__); SDL_UnlockMutex(sound_list_mutex); }
- #endif // DEBUG
-*/
-int locked = 0;
-char last_file[50] = "";
-char last_func[50] = "";
-int last_line = 0;
-#define	LOCK_SOUND_LIST() { int i = 0; while (locked) {	i++; if (i == 32000) printf("lock loop in %s, %s:%d - last lock: %s, %s:%d\n", __FILE__, __FUNCTION__, __LINE__, last_file, last_func, last_line); } safe_strncpy(last_file, __FILE__, strlen(last_file)); safe_strncpy(last_func, __FUNCTION__, strlen(last_func)); last_line = __LINE__; locked = 1; }
-#define	UNLOCK_SOUND_LIST() { locked = 0; }
+#include <unistd.h>
+static char last_file[50] = "";
+static char last_func[50] = "";
+static int last_line = 0;
+#define	LOCK_SOUND_LIST() \
+{ \
+	while (SDL_TryLockMutex(sound_list_mutex) != 0) \
+	{ \
+		printf("lock loop in %s, %s:%d - last lock: %s, %s:%d\n", __FILE__, __FUNCTION__, __LINE__, last_file, last_func, last_line); \
+		usleep(100); \
+	} \
+	safe_strncpy(last_file, __FILE__, strlen(last_file)); \
+	safe_strncpy(last_func, __FUNCTION__, strlen(last_func)); \
+	last_line = __LINE__; \
+}
+#define	UNLOCK_SOUND_LIST() { CHECK_AND_UNLOCK_MUTEX(sound_list_mutex); }
 #else // _EXTRA_SOUND_DEBUG
 #define	LOCK_SOUND_LIST() CHECK_AND_LOCK_MUTEX(sound_list_mutex);
 #define	UNLOCK_SOUND_LIST() CHECK_AND_UNLOCK_MUTEX(sound_list_mutex);
@@ -204,6 +205,7 @@ typedef struct
 typedef struct
 {
 	int id;
+	char file_name[256];
 	char name[MAX_SOUND_MAP_NAME_LENGTH];		// This isn't used, it is simply helpful when editing the config
 	map_sound_boundary_def boundaries[MAX_SOUND_MAP_BOUNDARIES];		// This is the boundaries for backgound and crowd sounds
 	map_sound_boundary_def walk_boundaries[MAX_SOUND_WALK_BOUNDARIES];	// This is the boundaries for walking sounds (to fake 3d objects)
@@ -406,7 +408,7 @@ int sound_bounds_check(int x, int y, map_sound_boundary_def * bounds);
 int test_bounds_angles(int x, int y, int point, map_sound_boundary_def * bounds);
 double calculate_bounds_angle(int x, int y, int point, map_sound_boundary_def * bounds);
 #ifdef DEBUG_MAP_SOUND
-void print_sound_boundary_coords(int map);
+void print_sound_boundary_coords(const char *mapname);
 #endif // DEBUG_MAP_SOUND
 /* Init functions */
 void parse_snd_devices(ALCchar * in_array, char * sound_devs);
@@ -1083,7 +1085,7 @@ int check_for_valid_stream_sound(int tx, int ty, int type)
 {
 	int i, j, snd = -1, playing, found = 0;
 
-	if (snd_cur_map > -1 && sound_map_data[snd_cur_map].id > -1)
+	if (snd_cur_map > -1 && (sound_map_data[snd_cur_map].file_name[0] != '\0' || sound_map_data[snd_cur_map].id > -1) )
 	{
 		for (i = 0; i < sound_map_data[snd_cur_map].num_boundaries; i++)
 		{
@@ -1576,7 +1578,7 @@ void play_music(int list)
 	{
 		if (fscanf (fp, "%254s", strLine) == 1)
 		{
-			my_strncp (playlist[i].file_name, strLine, MAX_PLAYLIST_FILENAME);
+			safe_strncpy(playlist[i].file_name, strLine, MAX_PLAYLIST_FILENAME);
 			playlist[i].min_x = 0;
 			playlist[i].min_y = 0;
 			playlist[i].max_x = 10000;
@@ -1622,13 +1624,13 @@ int display_song_name()
 		}
 		for (; i < comments->comments; ++i)
 		{
-			if ((artist == NULL) && (comments->comment_lengths[i] > 6) && (my_strncompare(comments->user_comments[i],"artist", 6)))
+			if ((artist == NULL) && (comments->comment_lengths[i] > 6) && (!strncasecmp(comments->user_comments[i],"artist", 6)))
 			{
 				artist = comments->user_comments[i] + 7;
 				if(title)
 					break;
 			}
-			else if ((title == NULL) && (comments->comment_lengths[i] > 6) && (my_strncompare(comments->user_comments[i],"title", 5)))
+			else if ((title == NULL) && (comments->comment_lengths[i] > 6) && (!strncasecmp(comments->user_comments[i],"title", 5)))
 			{
 				title = comments->user_comments[i] + 6;
 				if(artist)
@@ -2814,7 +2816,7 @@ void stop_all_sounds()
 		if (sounds_list[i].cookie != 0 && (!sounds_list[i].playing || sound_type_data[sounds_list[i].sound].loops == 0))
 		{
 #ifdef _EXTRA_SOUND_DEBUG
-			printf("Stopping sound %d (%s), cookie: %d, used_sources: %d\n", i, sound_type_data[sounds_list[sound_source_data[0].loaded_sound].sound].name, sounds_list[i].cookie, used_sources);
+			printf("Stopping sound %d (%s), cookie: %d, used_sources: %d\n", i, sound_type_data[sounds_list[i].sound].name, sounds_list[i].cookie, used_sources);
 #endif //_EXTRA_SOUND_DEBUG
 			stop_sound(sounds_list[i].cookie);
 		}
@@ -3336,7 +3338,7 @@ int get_boundary_walk_sound(int tx, int ty)
 {
 	int i, snd = -1;
 
-	if (snd_cur_map > -1 && sound_map_data[snd_cur_map].id > -1)
+	if (snd_cur_map > -1 && (sound_map_data[snd_cur_map].file_name[0] != '\0' || sound_map_data[snd_cur_map].id > -1) )
 	{
 		for (i = 0; i < sound_map_data[snd_cur_map].num_walk_boundaries; i++)
 		{
@@ -3405,25 +3407,25 @@ int get_tile_sound(int tile_type, char * actor_type)
 }
 
 
-void setup_map_sounds (int map_num)
+void setup_map_sounds (const char * mapname)
 {
 	int i;
 #ifdef DEBUG_MAP_SOUND
 	char str[100];
-	safe_snprintf(str, sizeof(str), "Map number: %d", map_num);
+	safe_snprintf(str, sizeof(str), "Map file name: %s", mapname);
 	LOG_TO_CONSOLE(c_red1, str);
 #endif // DEBUG_MAP_SOUND
 	// Find the index for this map in our data
 	snd_cur_map = -1;
 	for (i = 0; i < sound_num_maps; i++)
 	{
-		if (map_num == sound_map_data[i].id)
+		if (strcmp (sound_map_data[i].file_name, mapname) == 0 || get_cur_map(mapname) == sound_map_data[i].id)
 		{
 			snd_cur_map = i;
 #ifdef DEBUG_MAP_SOUND
-			safe_snprintf(str, sizeof(str), "Snd config map ID: %d, Snd config map name: %s", i, sound_map_data[i].name);
+			safe_snprintf(str, sizeof(str), "Snd config map name: %s", sound_map_data[i].name);
 			LOG_TO_CONSOLE(c_red1, str);
-			print_sound_boundary_coords(map_num);
+			print_sound_boundary_coords(mapname);
 #endif // DEBUG_MAP_SOUND
 			return;
 		}
@@ -3699,16 +3701,16 @@ double calculate_bounds_angle(int x, int y, int point, map_sound_boundary_def * 
 //
 // It is a known bug that this _does not_ scale to the map selected. The scale will stay the same as your currently loaded map!
 //
-void print_sound_boundaries(int map)
+void print_sound_boundaries(const char *mapname)
 {
 	int i, i_max, j, id = -1, scale = 6, num_def = 0;
-	char buf[100];
+	char buf[256];
 	map_sound_boundary_def *bounds;
 	bound_point p[4];
 
 	// Check if this map matches an array id
 	for (i = 0; i < MAX_SOUND_MAPS; i++) {
-		if (map == sound_map_data[i].id) {
+		if (strcmp (sound_map_data[i].file_name, mapname) == 0 || get_cur_map(mapname) == sound_map_data[i].id ) {
 			id = i;
 			break;
 		}
@@ -3722,9 +3724,9 @@ void print_sound_boundaries(int map)
 	
 	glEnable (GL_TEXTURE_2D);
 	glColor3f (1.0f, 1.0f, 1.0f);
-	safe_snprintf(buf, sizeof(buf), "Map Num: %d, Array ID: %d, Map Name: %s\nNum Bound: %d (%d def), Num Walk: %d", map, id, sound_map_data[id].name, 
+	safe_snprintf(buf, sizeof(buf), "Map File Name: %s, Array ID: %d\nMap Name: %s\nNum Bound: %d (%d def), Num Walk: %d", mapname, id, sound_map_data[id].name, 
 				  sound_map_data[id].num_boundaries, num_def, sound_map_data[id].num_walk_boundaries);
-	draw_string_zoomed(25, 180, (unsigned char*)buf, 2, 0.4);
+	draw_string_zoomed_width_font(main_map_screen_x_left, main_map_screen_y_bottom/10, (unsigned char*)buf, main_map_screen_x_right-main_map_screen_x_left,3,UI_FONT, get_global_scale());
 	glDisable(GL_TEXTURE_2D);
 	glBegin(GL_LINES);
 	// Draw boundaries for this map
@@ -3746,25 +3748,25 @@ void print_sound_boundaries(int map)
 			}
 			if (bounds->p[2].x == -1 || bounds->p[2].y == -1 || bounds->p[3].x == -1 || bounds->p[3].y == -1)
 			{
-				p[0].x = 51 + 200 * bounds->p[0].x / (tile_map_size_x * scale);
-				p[1].x = 51 + 200 * bounds->p[1].x / (tile_map_size_x * scale);
-				p[2].x = 51 + 200 * bounds->p[1].x / (tile_map_size_x * scale);
-				p[3].x = 51 + 200 * bounds->p[0].x / (tile_map_size_x * scale);
-				p[0].y = 201 - 200 * bounds->p[0].y / (tile_map_size_y * scale);
-				p[1].y = 201 - 200 * bounds->p[0].y / (tile_map_size_y * scale);
-				p[2].y = 201 - 200 * bounds->p[1].y / (tile_map_size_y * scale);
-				p[3].y = 201 - 200 * bounds->p[1].y / (tile_map_size_y * scale);
+				p[0].x = main_map_screen_x_left + (main_map_screen_x_right - main_map_screen_x_left) * bounds->p[0].x / (tile_map_size_x * scale);
+				p[1].x = main_map_screen_x_left + (main_map_screen_x_right - main_map_screen_x_left) * bounds->p[1].x / (tile_map_size_x * scale);
+				p[2].x = main_map_screen_x_left + (main_map_screen_x_right - main_map_screen_x_left) * bounds->p[1].x / (tile_map_size_x * scale);
+				p[3].x = main_map_screen_x_left + (main_map_screen_x_right - main_map_screen_x_left) * bounds->p[0].x / (tile_map_size_x * scale);
+				p[0].y = main_map_screen_y_bottom - (main_map_screen_y_bottom - main_map_screen_y_top) * bounds->p[0].y / (tile_map_size_y * scale);
+				p[1].y = main_map_screen_y_bottom - (main_map_screen_y_bottom - main_map_screen_y_top) * bounds->p[0].y / (tile_map_size_y * scale);
+				p[2].y = main_map_screen_y_bottom - (main_map_screen_y_bottom - main_map_screen_y_top) * bounds->p[1].y / (tile_map_size_y * scale);
+				p[3].y = main_map_screen_y_bottom - (main_map_screen_y_bottom - main_map_screen_y_top) * bounds->p[1].y / (tile_map_size_y * scale);
 			}
 			else
 			{
-				p[0].x = 51 + 200 * bounds->p[0].x / (tile_map_size_x * scale);
-				p[1].x = 51 + 200 * bounds->p[1].x / (tile_map_size_x * scale);
-				p[2].x = 51 + 200 * bounds->p[2].x / (tile_map_size_x * scale);
-				p[3].x = 51 + 200 * bounds->p[3].x / (tile_map_size_x * scale);
-				p[0].y = 201 - 200 * bounds->p[0].y / (tile_map_size_x * scale);
-				p[1].y = 201 - 200 * bounds->p[1].y / (tile_map_size_x * scale);
-				p[2].y = 201 - 200 * bounds->p[2].y / (tile_map_size_x * scale);
-				p[3].y = 201 - 200 * bounds->p[3].y / (tile_map_size_x * scale);
+				p[0].x = main_map_screen_x_left + (main_map_screen_x_right - main_map_screen_x_left) * bounds->p[0].x / (tile_map_size_x * scale);
+				p[1].x = main_map_screen_x_left + (main_map_screen_x_right - main_map_screen_x_left) * bounds->p[1].x / (tile_map_size_x * scale);
+				p[2].x = main_map_screen_x_left + (main_map_screen_x_right - main_map_screen_x_left) * bounds->p[2].x / (tile_map_size_x * scale);
+				p[3].x = main_map_screen_x_left + (main_map_screen_x_right - main_map_screen_x_left) * bounds->p[3].x / (tile_map_size_x * scale);
+				p[0].y = main_map_screen_y_bottom - (main_map_screen_y_bottom - main_map_screen_y_top) * bounds->p[0].y / (tile_map_size_y * scale);
+				p[1].y = main_map_screen_y_bottom - (main_map_screen_y_bottom - main_map_screen_y_top) * bounds->p[1].y / (tile_map_size_y * scale);
+				p[2].y = main_map_screen_y_bottom - (main_map_screen_y_bottom - main_map_screen_y_top) * bounds->p[2].y / (tile_map_size_y * scale);
+				p[3].y = main_map_screen_y_bottom - (main_map_screen_y_bottom - main_map_screen_y_top) * bounds->p[3].y / (tile_map_size_y * scale);
 			}
 
 			glVertex2i(p[0].x, p[0].y);
@@ -3784,21 +3786,21 @@ void print_sound_boundaries(int map)
 }
 
 // Prints the sound boundary coords for the input map to stdout
-void print_sound_boundary_coords(int map)
+void print_sound_boundary_coords(const char *mapname)
 {
 	int i, i_max, j, id = -1;
 	map_sound_boundary_def *bounds;
 
 	// Check if this map matches an array id
 	for (i = 0; i < MAX_SOUND_MAPS; i++) {
-		if (map == sound_map_data[i].id) {
+		if (strcmp (sound_map_data[i].file_name, mapname) == 0 || get_cur_map(mapname) == sound_map_data[i].id ) {
 			id = i;
 			break;
 		}
 	}
 	if (id == -1) return;	// Didn't find the map in our array so bail
 	
-	printf("Map Num: %d, Array ID: %d, Map Name: %s, ", map, id, sound_map_data[id].name);
+	printf("Map File Name: %s, Array ID: %d, Map Name: %s, ", mapname, id, sound_map_data[id].name);
 	// Print boundaries for this map
 	for (j = 0; j < 2; j++) {
 		if (j == 0) {
@@ -3925,6 +3927,7 @@ void clear_sound_data()
 	for (i = 0; i < MAX_SOUND_MAPS; i++)
 	{
 		sound_map_data[i].id = -1;
+		sound_map_data[i].file_name[0] = '\0';
 		sound_map_data[i].name[0] = '\0';
 		sound_map_data[i].num_boundaries = 0;
 		for (j = 0; j < MAX_SOUND_MAP_BOUNDARIES; j++)
@@ -4117,6 +4120,7 @@ void initial_sound_init(void)
 	{
 		sound_map_data[i].num_boundaries = sound_map_data[i].num_defaults = sound_map_data[i].num_walk_boundaries = 0;
 		sound_map_data[i].id = -1;
+		sound_map_data[i].file_name[0] = '\0';
 	}
 
 	// as clear_sound_data()
@@ -4529,7 +4533,7 @@ int add_to_sound_warnings_list(const char * text)
 	{
 		if (warnings_list[i].sound >= 0)
 		{
-			if (my_strcompare (warnings_list[i].string, right))
+			if (!strcasecmp(warnings_list[i].string, right))
 				return -1; // Already in the list
 		}
 	}
@@ -5126,17 +5130,34 @@ void parse_map_sound(const xmlNode *inNode)
 	}
 	pMap = &sound_map_data[sound_num_maps++];
 
+	sVal = xmlGetProp((xmlNode*)inNode,(const xmlChar*)"file_name");
+	if (!sVal)
+	{
+		pMap->file_name[0] = '\0';
+	}
+	else
+	{
+		safe_strncpy(pMap->file_name, (const char*)sVal, sizeof(pMap->file_name));
+		xmlFree(sVal);
+	}
+	
 	sVal = xmlGetProp((xmlNode*)inNode,(const xmlChar*)"id");
 	if (!sVal)
 	{
-		pMap->id = -1;
-		LOG_ERROR("%s: map has no id", snd_config_error);
+		pMap->id = -1;	
 	}
 	else
 	{
 		pMap->id = atoi((const char*)sVal);
 		xmlFree(sVal);
-
+	}
+	
+	if (pMap->file_name[0] == '\0' && pMap->id == -1)
+	{
+			LOG_ERROR("%s: map has no file_name or id", snd_config_error);
+	}
+	else
+	{
 		sVal = xmlGetProp((xmlNode*)inNode, (const xmlChar*)"name");
 		if (sVal)
 		{

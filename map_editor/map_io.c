@@ -68,6 +68,8 @@ void destroy_map()
 
 int save_map (const char* file_name)
 {
+	static const char* badobject_file_name = "./3dobjects/badobject.e3d"; // Stored for deleted 3D objects
+
 	int i,j;
 	map_header cur_map_header;
 	char * mem_map_header=(char *)&cur_map_header;
@@ -219,7 +221,11 @@ int save_map (const char* file_name)
 				// clear the object
 				memset (cur_3do_pointer, 0, sizeof (object3d_io));
 
-				snprintf (cur_3d_obj_io.file_name, sizeof (cur_3d_obj_io.file_name), "%s", objects_list[i]->file_name);
+				// For deleted objects, store the "bad object" file name, to make doubly sure the object
+				// is never used (e.g. for harvesting purposes).
+				safe_strncpy(cur_3d_obj_io.file_name,
+					objects_list[i]->blended == 20 ? badobject_file_name : objects_list[i]->file_name,
+					sizeof(cur_3d_obj_io.file_name));
 				cur_3d_obj_io.x_pos = objects_list[i]->x_pos;
 				cur_3d_obj_io.y_pos = objects_list[i]->y_pos;
 				cur_3d_obj_io.z_pos = objects_list[i]->z_pos;
@@ -437,10 +443,18 @@ int load_map (const char* file_name)
 #endif	//ZLIB
 	
 	//verify if we have a valid file
-	if(cur_map_header.file_sig[0]!='e')return 0;
-	if(cur_map_header.file_sig[1]!='l')return 0;
-	if(cur_map_header.file_sig[2]!='m')return 0;
-	if(cur_map_header.file_sig[3]!='f')return 0;
+	if(cur_map_header.file_sig[0]!='e'
+		|| cur_map_header.file_sig[1]!='l'
+		|| cur_map_header.file_sig[2]!='m'
+		|| cur_map_header.file_sig[3]!='f')
+	{
+#ifdef ZLIB
+		gzclose(f);
+#else
+		fclose(f);
+#endif
+		return 0;
+	}
 
 	destroy_map();//Only destroy the map now....
 
@@ -579,7 +593,7 @@ int load_map (const char* file_name)
 			else
 			{
 				add_particle_sys(cur_particles_io.file_name,cur_particles_io.x_pos,cur_particles_io.y_pos,cur_particles_io.z_pos);
-				if(particles_list[i]) particles_list[i]->ttl=-1;//Fail-safe if things fuck up...
+				if(particles_list[i]) particles_list[i]->ttl=-1;//Fail-safe if things mess up...
 			}
 		}
 

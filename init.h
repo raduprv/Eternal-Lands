@@ -234,6 +234,15 @@ typedef struct
 	unsigned int quickspell_win_options;
 	/*! @} */
 
+	/*!
+	 * \name chat window position
+	 */
+	/*! @{ */
+	int chat_win_x;
+	int chat_win_y;
+	/*! @} */
+
+
 }bin_cfg;
 
 extern char configdir[256]; /*!< the default directory where we look for configuration files */
@@ -241,11 +250,11 @@ extern char datadir[256]; /*!< the default directory where we look for data file
 
 /*!
  * \ingroup loadsave
- * \brief   Stores the window layout in the binary el.cfg file.
+ * \brief   Stores the window layout in the binary cfg file.
  *
- *		Stores the window layout and related information in the binary el.cfg file.
+ *		Stores the window layout and related information in the binary cfg file.
  *
- * \pre If el.cfg could be opened for writing, the function returns without performing any actions.
+ * \pre If the cfg file could not be opened for writing, the function returns without performing any actions.
  */
 void save_bin_cfg(void);
 

@@ -121,7 +121,7 @@ void toggle_sounds(int *var);
  */
 void disable_sound(int *var);
 
-void setup_map_sounds (int map_num);
+void setup_map_sounds (const char * mapname);
 
 /*!
  * \ingroup sound_effects
@@ -302,7 +302,7 @@ void handle_walking_sound(actor *pActor, int def_snd);
 int check_sound_loops(unsigned int cookie);
 void check_sound_alerts(const Uint8* text, size_t len, Uint8 channel);
 #ifdef DEBUG_MAP_SOUND
-void print_sound_boundaries(int map);
+void print_sound_boundaries(const char * mapname);
 #endif // DEBUG_MAP_SOUND
 
 static __inline__ void do_click_sound(){

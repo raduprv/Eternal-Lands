@@ -18,7 +18,6 @@ extern "C" {
 #define MAX_TEXT_MESSAGE_LENGTH 160 /*!< The server will disconnect us when we send longer messages */
 
 #define INPUT_MARGIN 4
-#define INPUT_HEIGHT (DEFAULT_FONT_Y_LEN + 2*INPUT_MARGIN) /* 1 line, 2 margins at 4px*/
 #define INPUT_DEFAULT_FLAGS (TEXT_FIELD_EDITABLE|TEXT_FIELD_NO_KEYPRESS|WIDGET_CLICK_TRANSPARENT)
 
 #define MAX_CHANNEL_COLORS 64
@@ -29,10 +28,18 @@ typedef struct
 	int color;
 } channelcolor;
 
-extern widget_list *input_widget;
+typedef struct
+{
+	int value;
+	const int lower;
+	const int upper;
+} max_chat_lines_def;
+
+extern max_chat_lines_def max_chat_lines;
 
 extern int use_windowed_chat;		/*!< flag indicating whether we use the channel selection bar, the chat window, or neither */
 //extern int highlight_tab_on_nick;	/*!< flag indicating whether we want to highligh chat tab on nick or not  */
+extern int console_input_at_top;	/*!< locate the input widget at the top of the screen */
 extern int chat_win;				/*!< handler for the chat window */
 extern int local_chat_separate;		/*!< if non-zero, show local chat in a separate tab */
 extern int personal_chat_separate;	/*!< if non-zero, show PMs in a different tab */
@@ -40,6 +47,7 @@ extern int guild_chat_separate;		/*!< if non-zero, show GMs in a different tab *
 extern int server_chat_separate;	/*!< if non-zero, show game messages in a different tab */
 extern int mod_chat_separate;		/*!< for moderators and newbie helpers only: if non-zero, show mod chat in a different tab */
 extern int tab_bar_win;			 /*!< handler for the tab bar window */
+extern int enable_chat_show_hide;	/*!< config option to enable show/hide of the chat system */
 
 /*!
  * \brief   Moves the chat input widget to a different window
@@ -92,7 +100,7 @@ void clear_chat_wins (void);
  * \ingroup chat_window
  * \brief   Parse text as console input
  *
- *      A common routine to parse input.  Input can be local chat, 
+ *      A common routine to parse input.  Input can be local chat,
  * 	#commands, %options channel or personal chat.
  *
  * \param data       the input text
@@ -135,9 +143,9 @@ void clear_input_line (void);
 
 /*!
  * \ingroup chat_window
- * \brief   Handle a keypress of the root window 
+ * \brief   Handle a keypress of the root window
  *
- *      Handles a keypress in the root window as if it were pressed in the chat window input field. 
+ *      Handles a keypress in the root window as if it were pressed in the chat window input field.
  *
  * \param key
  * \param unikey
@@ -168,16 +176,6 @@ void paste_in_input_field (const Uint8 *text);
  * \callgraph
  */
 void display_chat (void);
-
-/*!
- * \ingroup chat_window
- * \brief   Updates the chat window text zoom
- *
- *      Updates the chat window text zoom
- *
- * \callgraph
- */
-void chat_win_update_zoom (void);
 
 /*!
  * \ingroup chat_bar
@@ -245,7 +243,6 @@ int skip_message (const text_message *msg, Uint8 filter);
 int command_jlc(char * text, int len);
 void update_chat_win_buffers(void);
 void cleanup_chan_names(void);
-int chat_input_key(widget_list *widget, int mx, int my, SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_mod);
 void load_channel_colors();
 void save_channel_colors();
 int command_channel_colors(char * text, int len);
@@ -261,6 +258,58 @@ void set_next_tab_channel(void);
 int get_tab_bar_x(void);
 int get_tab_bar_y(void);
 int get_tabbed_chat_end_x(void);
+
+/* Consolidate all the input widget usage into functions for this module. */
+int get_input_default_height(void);
+int get_input_at_top_height(void);
+int get_input_at_bottom_height(void);
+void show_console_input(void);
+void check_owned_and_show_console_input(int window_id);
+int get_console_input_cursor(void);
+void set_console_input_cursor(int new_value);
+void update_console_input_zoom(void);
+void update_console_input_size_and_position(void);
+void check_and_get_console_input(int window_id);
+void move_console_input_on_input_resize(void);
+int have_console_input(void);
+void create_console_input(int window_id, int widget_id, int pos_x, int pos_y, int len_x, int len_y, Uint32 flags);
+void set_console_input_onkey(void);
+int console_input_active_at_top(void);
+
+void open_chat(void);
+void toggle_chat(void);
+void enable_chat_shown(void);
+int is_chat_shown(void);
+
+
+/*!
+ * \ingroup chat_window
+ *
+ * \brief	Get the current number of chat lines shown.
+ *
+ * \retval	the number of lines
+ *
+ * \callgraph
+ */
+int get_lines_to_show(void);
+
+/*!
+ * \ingroup chat_window
+ *
+ * \brief	Decrement the number of chat lines shown.
+ *
+ * \callgraph
+ */
+void dec_lines_to_show(void);
+
+/*!
+ * \ingroup chat_window
+ *
+ * \brief	Set the number of chat lines shown to zero.
+ *
+ * \callgraph
+ */
+void clear_lines_to_show(void);
 
 #ifdef __cplusplus
 } // extern "C"

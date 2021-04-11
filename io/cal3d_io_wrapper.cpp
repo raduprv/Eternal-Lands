@@ -147,9 +147,10 @@ class CalAnimationCache
 		void free_and_remove_animation(const AnimationsMap::iterator& animIt) {
 			//Remove all keyframes (via destroy()) from each track individually.
 			std::list<CalCoreTrack*>& trackList = animIt->second->getListCoreTrack();
-			for (std::list<CalCoreTrack*>::iterator trIt=trackList.begin(); trIt!=trackList.end(); trIt++) {
-				(*trIt)->destroy();
-				delete *trIt;
+			for (auto track: trackList)
+			{
+				track->destroy();
+				delete track;
 			}
 
 			//Clear the track list too.

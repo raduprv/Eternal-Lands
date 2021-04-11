@@ -15,30 +15,31 @@ extern "C" {
 
 extern int have_a_map;  /*!< flag indicating whether a map is available or not */
 
-/*! \name Action types */
-/*! @{ */
-#define ACTION_WALK 0
-#define ACTION_LOOK 1
-#define ACTION_USE 2
-#define ACTION_USE_WITEM 3
-#define ACTION_TRADE 4
-#define ACTION_ATTACK 5
-#define ACTION_WAND 6
-/*! @} */
-
-extern int action_mode; /*!< contains the current action type */
-
-/*! \name Mouse movement coordinates 
+/*! \name Mouse movement coordinates
  * @{ */
 extern int mouse_x; /*!< current x coordinate of the mouse */
 extern int mouse_y; /*!< current y coordinate of the mouse */
+/*! @} */
 
-/*! \name Mouse buttons 
+/*! \name Mouse buttons
  * @{ */
 extern int right_click; /*!< indicates the right mouse button was clicked */
 extern int middle_click; /*!< indicates the middle mouse button was clicked */
 extern int left_click; /*!< indicates the left mouse button was clicked */
 /*! @} */
+
+
+/*!
+ * set of dynamic banner colour controls
+ */
+typedef struct
+{
+	int yourself;
+	int other_players;
+	int creatures;
+} dynamic_banner_colour_def;
+
+extern dynamic_banner_colour_def dynamic_banner_colour; /*!<* health (and mana bars if yourself) change colour as the value changes */
 
 extern int view_health_bar; /*!< indicates whether we should display the health bar or not */
 extern int view_ether_bar; /*!< indicates whether we should display the ethereal bar or not */
@@ -48,6 +49,7 @@ extern int view_ether; /*!< indicates whether the current/max ethereal points of
 extern int view_chat_text_as_overtext; /*!< if this is true, then any text an actor is saying will be additionally displayed in a bubble over its head */
 extern int view_mode_instance; /*!< indicates if we have instance mode turned on, it shows monsters and our hp only, no other players, overwrites all other actor banner display options */
 extern float view_mode_instance_banner_height; /*!< factor, we use to setup how high is banner above your toon when using view_mode_instance */
+extern float view_mode_instance_damage_height; /*!< factor, we use to setup how high is heal/damage above your toon when using view_mode_instance */
 
 //instance mode banners config:
 extern int im_creature_view_names; /*!< indicates whether the names of creatures should be displayed or not in instance mode*/
@@ -79,6 +81,20 @@ extern const int video_modes_count;
 
 extern Uint32 click_time;
 
+/*!
+ * \name Screen coordinates of map borders
+ * \{
+ */
+extern int small_map_screen_x_left;
+extern int small_map_screen_x_right;
+extern int small_map_screen_y_top;
+extern int small_map_screen_y_bottom;
+extern int main_map_screen_x_left;
+extern int main_map_screen_x_right;
+extern int main_map_screen_y_top;
+extern int main_map_screen_y_bottom;
+/*! \} */
+
 extern int ati_click_workaround; /*!< if non-zero, arbitrarily multiply the read depth value by 256 to hopefully get a more reasonable value */
 
 /*!
@@ -90,7 +106,7 @@ struct draw_map
 	unsigned short x_start;
 	unsigned short y_start;
 	unsigned short x_end;
-	unsigned short y_end;       
+	unsigned short y_end;
 	char *name;
 	weather_type weather;
 };
@@ -103,13 +119,11 @@ extern struct draw_map *continent_maps; /*!< global array of maps for the contin
 extern GLuint inspect_map_text;
 extern int show_continent_map_boundaries;
 
-extern float mapmark_zoom; /*!< scaling factor for the mapmark text */
-
 /*!
  * \ingroup loadsave
  * \brief Read the map info file
  *
- *	Reads the mapinfo file which contains the information on where 
+ *	Reads the mapinfo file which contains the information on where
  *	the game maps are located on the continent map
  *
  * \callgraph
@@ -197,7 +211,7 @@ void draw_console_pic(int which_texture);
  * \param x_end     x coordinate of the scene end
  * \param y_end     y coordinate of the scene end
  */
-void draw_2d_thing(float u_start,float v_start,float u_end,float v_end,int x_start, 
+void draw_2d_thing(float u_start,float v_start,float u_end,float v_end,int x_start,
 int y_start,int x_end,int y_end);
 
 /*!
@@ -328,11 +342,16 @@ void hide_all_root_windows (void);
 
 /*!
  * \ingroup interfaces
- * \brief   Resizes all of the root windows to the new width \a w and height \a h, if necessary.
+ * \brief   Resizes all of the root windows
  *
- *      Resizes all of the root windows to the new width \a w and height \a h, if necessary, i.e if the associated *_root_win variables are greater than or equal to zero, by calling \ref resize_window for each of them.
+ *  Resizes all of the root windows from old width \a ow and height \a oh to
+ * the new width \a w and height \a h, if necessary, i.e if the associated
+ * \c *_root_win variables are greater than or equal to zero, by calling
+ * \ref resize_window for each of them.
  *
+ * \param ow    the old width of the root windows
  * \param w     the new width of the root windows
+ * \param oh    the old height of the root windows
  * \param h     the new height of the root windows
  *
  * \callgraph

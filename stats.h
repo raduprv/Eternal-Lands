@@ -195,8 +195,8 @@ typedef struct
 	Uint32 ranging_exp_next_lev; /*!< experience level to reach next ranging level */
 
 	Uint16 researching; /*!< flag to indicate whether a player is currently researching anything or not */
-	Uint16 research_completed; /*!< if a player is currently researching anything, this value will show how much pages are already read */
-	Uint16 research_total; /*!< if a player is currently researching anything, this value show the total amount of pages to read, until the book is completely read. */
+	Uint32 research_completed; /*!< if a player is currently researching anything, this value will show how much pages are already read */
+	Uint32 research_total; /*!< if a player is currently researching anything, this value show the total amount of pages to read, until the book is completely read. */
 } player_attribs;
 
 /*	Array for skills info required by stats bar.  Stored in an array
@@ -279,6 +279,8 @@ extern int floatingmessages_enabled;
 void drawactor_floatingmessages(int actor_id, float healthbar_z);
 void add_floating_message(int actor_id, char * str, int direction, float r, float g, float b, int active_time);
 void init_statsinfo_array(void);
+void init_floating_messages(void);
+void cleanup_floating_messages(void);
 
 #ifdef __cplusplus
 } // extern "C"

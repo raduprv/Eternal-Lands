@@ -1,6 +1,7 @@
 #if !defined(COMMAND_QUEUE_HPP)
 #define COMMAND_QUEUE_HPP
 
+#include <cassert>
 #include <string>
 #include <vector>
 #include <queue>

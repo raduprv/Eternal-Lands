@@ -4,10 +4,78 @@
 #include <math.h>
 #include "../asc.h"
 
+#define TOOLTIP_MOUSE_X_SHIFT 10
+#define TOOLTIP_MOUSE_Y_SHIFT 10
+#define UNSCALED_TOOLBAR_BUTTON_WIDTH 32
+#define UNSCALED_TOOLBAR_BUTTON_HEIGHT 32
+
+static int toolbar_mouseover = 0;
+static int toolbar_button_width = UNSCALED_TOOLBAR_BUTTON_WIDTH;
+int toolbar_button_height = UNSCALED_TOOLBAR_BUTTON_HEIGHT;
+
+typedef enum
+{
+	TOOLBAR_BUTTON_MODE_TILE,
+	TOOLBAR_BUTTON_MODE_2D,
+	TOOLBAR_BUTTON_MODE_3D,
+	TOOLBAR_BUTTON_MODE_PARTICLES,
+#ifdef EYE_CANDY
+	TOOLBAR_BUTTON_MODE_EYE_CANDY,
+#endif
+	TOOLBAR_BUTTON_MODE_LIGHT,
+	TOOLBAR_BUTTON_MODE_HEIGHT,
+	TOOLBAR_BUTTON_MODE_MAP,
+	TOOLBAR_BUTTON_TOOL_SELECT,
+	TOOLBAR_BUTTON_TOOL_CLONE,
+	TOOLBAR_BUTTON_TOOL_NEW,
+	TOOLBAR_BUTTON_TOOL_KILL,
+	TOOLBAR_BUTTON_SAVE_MAP,
+	TOOLBAR_BUTTON_OPEN_MAP,
+	TOOLBAR_BUTTON_NEW_MAP,
+	TOOLBAR_MAX_BUTTON
+} toolbar_button_idx;
+
+typedef struct {
+	float u_start;
+	float v_start;
+	float u_end;
+	float v_end;
+	const char* tooltip;
+} toolbar_button;
+
+static toolbar_button toolbar[TOOLBAR_MAX_BUTTON] = {
+		{ (float)64/255,  0.0f,          (float)96/255,  (float)32/255, "Mode Tile"      },
+		{ (float)32/255,  0.0f,          (float)64/255,  (float)32/255, "Mode 2D"        },
+		{ 0.0f,           0.0f,          (float)32/255,  (float)32/255, "Mode 3D"        },
+		{ (float)192/255, (float)32/255, (float)224/255, (float)64/255, "Mode Particles" },
+#ifdef EYE_CANDY
+		{ (float)224/255, (float)32/255, (float)255/255, (float)64/255, "Mode Eye Candy" },
+#endif
+		{ (float)96/255,  0.0f,          (float)128/255, (float)32/255, "Mode Light"     },
+		{ (float)160/255, (float)32/255, (float)192/255, (float)64/255, "Mode Height"    },
+		{ (float)128/255, 0.0f,          (float)160/255, (float)32/255, "Mode Map"       },
+		{ 0.0f,           (float)32/255, (float)32/255,  (float)64/255, "Select"         },
+		{ (float)32/255,  (float)32/255, (float)64/255,  (float)64/255, "Clone"          },
+		{ (float)224/255, 0.0f,          (float)256/255, (float)32/255, "New Object"     },
+		{ (float)192/255, 0.0f,          (float)224/255, (float)32/255, "Kill"           },
+		{ (float)64/255,  (float)32/255, (float)96/255,  (float)64/255, "Save Map"       },
+		{ (float)96/255,  (float)32/255, (float)128/255, (float)64/255, "Open Map"       },
+		{ (float)128/255, (float)32/255, (float)160/255, (float)64/255, "New Map"        }
+};
+
 int show_position_on_minimap=0;
+
+void set_toolbar_button_size(void)
+{
+	float scale = get_global_scale();
+	toolbar_button_width = (int)(UNSCALED_TOOLBAR_BUTTON_WIDTH*scale + 0.5);
+	toolbar_button_height = (int)(UNSCALED_TOOLBAR_BUTTON_HEIGHT*scale + 0.5);
+}
 
 int check_interface_buttons()
 {
+	toolbar_button_idx idx;
+
 #ifdef EYE_CANDY
 	if ((minimap_on) && (cur_mode==mode_eye_candy) && (eye_candy_confirmed))
 	{
@@ -17,115 +85,177 @@ int check_interface_buttons()
 		  last_ec_index = -2;
 	}
 #endif
-	if((left_click!=1 && right_click!=1) || mouse_x>=15*32 || mouse_y>=32)return -1;//no interface buttons were selected
-	if(left_click==1)
-		{
+	if ((left_click!=1 && right_click!=1)
+		|| mouse_x >= TOOLBAR_MAX_BUTTON * toolbar_button_width || mouse_y >= toolbar_button_height)
+	{
+		return -1;//no interface buttons were selected
+	}
+
+	idx = mouse_x / toolbar_button_width;
+	if (left_click == 1)
+	{
 #ifdef EYE_CANDY
-			eye_candy_done_adding_effect();
+		eye_candy_done_adding_effect();
 #endif
-			if(mouse_x>=0 && mouse_x<=31)cur_mode=mode_tile;
-			if(mouse_x>=32 && mouse_x<=63)cur_mode=mode_2d;
-			if(mouse_x>=64 && mouse_x<=95)cur_mode=mode_3d;
-			if(mouse_x>=96 && mouse_x<=127)cur_mode=mode_particles;
-#ifdef	EYE_CANDY
-			if(mouse_x>=128 && mouse_x<=160)cur_mode=mode_eye_candy;
-#endif	//EYE_CANDY
-			if(mouse_x>=160 && mouse_x<=191)cur_mode=mode_light;
-			if(mouse_x>=192 && mouse_x<=223)cur_mode=mode_height;
-			if(mouse_x>=224 && mouse_x<=255)cur_mode=mode_map;
-			if(mouse_x>=256 && mouse_x<=287)cur_tool=tool_select;
-			if(mouse_x>=288 && mouse_x<=319)cur_tool=tool_clone;
-			if(mouse_x>=320 && mouse_x<=351)
-				{
-					if(cur_mode==mode_3d)
-						{
-							SDL_Event event;
-							open_3d_obj();
-							while (SDL_PollEvent (&event));	//clears all the events
-							left_click=2;
-						}
-					if(cur_mode==mode_2d)
-						{
-							SDL_Event event;
-							open_2d_obj();
-							while (SDL_PollEvent (&event));	//clears all the events
-							left_click=2;
-						}
-					if(cur_mode==mode_particles)
-						{
-							SDL_Event event;
-							open_particles_obj();
-							while (SDL_PollEvent (&event));	//clears all the events
-							left_click=2;
-						}
-#ifdef	EYE_CANDY
-					if(cur_mode==mode_eye_candy)
-						{
-							SDL_Event event;
-//#ifdef LINUX
-							open_eye_candy_obj();
-//#endif
-							while (SDL_PollEvent (&event));	//clears all the events
-							left_click=2;
-						}
-#endif	//EYE_CANDY
-					if(cur_mode==mode_tile)
-						{
-							view_tiles_list=1;
-							display_tiles_list();
-							cur_tool=tool_select;
-							selected_tile=255;
-						}
-					if(cur_mode==mode_height)
-						{
-							display_heights_list();
-							cur_tool=tool_select;
-							selected_height=-1;
-						}
-					if(cur_mode==mode_light)
-						{
-							cur_tool=tool_select;
-							selected_light=add_light(scene_mouse_x,scene_mouse_y,3.0f,1.0f,1.0f,1.0f,1.0f,0);
-						}
-				}
-			if(mouse_x>=352 && mouse_x<=383)cur_tool=tool_kill;
-			if(mouse_x>=384 && mouse_x<=415)
-				{
-					SDL_Event event;
-					save_map_file();
-					while (SDL_PollEvent (&event));	//clears all the events
-					left_click=2;
-				}
-			if(mouse_x>=416 && mouse_x<=447)
-				{
-					SDL_Event event;
-					open_map_file();
-					while (SDL_PollEvent (&event));	//clears all the events
-					left_click=2;
-				}
 
-			if(mouse_x>=448 && mouse_x<=479)
-				{
-					display_new_map_menu ();
-				}
-
-		}
-	else if(right_click==1)
+		switch (idx)
+		{
+			case TOOLBAR_BUTTON_MODE_TILE:
+				cur_mode = mode_tile;
+				break;
+			case TOOLBAR_BUTTON_MODE_2D:
+				cur_mode = mode_2d;
+				break;
+			case TOOLBAR_BUTTON_MODE_3D:
+				cur_mode = mode_3d;
+				break;
+			case TOOLBAR_BUTTON_MODE_PARTICLES:
+				cur_mode = mode_particles;
+				break;
+#ifdef	EYE_CANDY
+			case TOOLBAR_BUTTON_MODE_EYE_CANDY:
+				cur_mode = mode_eye_candy;
+				break;
+#endif	//EYE_CANDY
+			case TOOLBAR_BUTTON_MODE_LIGHT:
+				cur_mode = mode_light;
+				break;
+			case TOOLBAR_BUTTON_MODE_HEIGHT:
+				cur_mode = mode_height;
+				break;
+			case TOOLBAR_BUTTON_MODE_MAP:
+				cur_mode = mode_map;
+				break;
+			case TOOLBAR_BUTTON_TOOL_SELECT:
+				cur_tool = tool_select;
+				break;
+			case TOOLBAR_BUTTON_TOOL_CLONE:
+				cur_tool = tool_clone;
+				break;
+			case TOOLBAR_BUTTON_TOOL_NEW:
 			{
-				if(mouse_x>=0 && mouse_x<=31)view_tile=!view_tile;
-				if(mouse_x>=32 && mouse_x<=63)view_2d=!view_2d;
-				if(mouse_x>=64 && mouse_x<=95)view_3d=!view_3d;
-				if(mouse_x>=96 && mouse_x<=127) {
-				  if(shift_on)view_particle_handles=!view_particle_handles;
-				  else view_particles=!view_particles;
+				if (cur_mode == mode_3d)
+				{
+					SDL_Event event;
+					open_3d_obj();
+					while (SDL_PollEvent (&event));	//clears all the events
+					left_click = 2;
 				}
-				if(mouse_x>=160 && mouse_x<=191)view_light=!view_light;
-				if(mouse_x>=192 && mouse_x<=223)view_height=!view_height;
-			}
-	return 1;
+				else if (cur_mode == mode_2d)
+				{
+					SDL_Event event;
+					open_2d_obj();
+					while (SDL_PollEvent (&event));	//clears all the events
+					left_click = 2;
+				}
+				else if(cur_mode == mode_particles)
+				{
+					SDL_Event event;
+					open_particles_obj();
+					while (SDL_PollEvent (&event));	//clears all the events
+					left_click = 2;
+				}
+#ifdef	EYE_CANDY
+				else if(cur_mode == mode_eye_candy)
+				{
+					SDL_Event event;
+//#ifdef LINUX
+					open_eye_candy_obj();
+//#endif
+					while (SDL_PollEvent (&event));	//clears all the events
+					left_click = 2;
+				}
+#endif	//EYE_CANDY
+				else if (cur_mode == mode_tile)
+				{
+					display_tiles_list();
+					cur_tool = tool_select;
+					selected_tile=255;
+				}
+				else if (cur_mode == mode_height)
+				{
+					display_heights_list();
+					cur_tool = tool_select;
+					selected_height = -1;
+				}
+				else if (cur_mode == mode_light)
+				{
+					cur_tool=tool_select;
+					selected_light=add_light(scene_mouse_x,scene_mouse_y,3.0f,1.0f,1.0f,1.0f,1.0f,0);
+				}
 
+				break;
+			}
+			case TOOLBAR_BUTTON_TOOL_KILL:
+				cur_tool = tool_kill;
+				break;
+			case TOOLBAR_BUTTON_SAVE_MAP:
+			{
+				SDL_Event event;
+				save_map_file();
+				while (SDL_PollEvent (&event));	//clears all the events
+				left_click=2;
+
+				break;
+			}
+			case TOOLBAR_BUTTON_OPEN_MAP:
+			{
+				SDL_Event event;
+				open_map_file();
+				while (SDL_PollEvent (&event));	//clears all the events
+				left_click = 2;
+
+				break;
+			}
+			case TOOLBAR_BUTTON_NEW_MAP:
+				display_new_map_menu();
+				break;
+			case TOOLBAR_MAX_BUTTON:
+				// Not a button, sould not get here anyway
+				break;
+		}
+	}
+	else if (right_click == 1)
+	{
+		switch (idx)
+		{
+			case TOOLBAR_BUTTON_MODE_TILE:
+				view_tile = !view_tile;
+				break;
+			case TOOLBAR_BUTTON_MODE_2D:
+				view_2d = !view_2d;
+				break;
+			case TOOLBAR_BUTTON_MODE_3D:
+				view_3d = !view_3d;
+				break;
+			case TOOLBAR_BUTTON_MODE_PARTICLES:
+				if(shift_on)
+					view_particle_handles = !view_particle_handles;
+				else
+					view_particles = !view_particles;
+				break;
+			case TOOLBAR_BUTTON_MODE_LIGHT:
+				view_light = !view_light;
+				break;
+			case TOOLBAR_BUTTON_MODE_HEIGHT:
+				view_height = !view_height;
+				break;
+			default:
+				// ignore
+				break;
+		}
+	}
+
+	return 1;
 }
 
+void check_toolbar_mouseover(void)
+{
+	if (mouse_x < TOOLBAR_MAX_BUTTON * toolbar_button_width && mouse_y < toolbar_button_height)
+		toolbar_mouseover = mouse_x / toolbar_button_width;
+	else
+		toolbar_mouseover = -1;
+}
 
 void get_world_x_y()
 {
@@ -187,24 +317,35 @@ void Leave2DMode()
 	glPopAttrib();
 }
 
-
+void draw_toolbar_button(toolbar_button_idx idx)
+{
+	const toolbar_button *button = toolbar + idx;
+	int x_start = idx * toolbar_button_width;
+	int x_end = (idx+1) * toolbar_button_width;
+	int y_start = 0;
+	int y_end = toolbar_button_height;
+	draw_2d_thing(
+		button->u_start, button->v_start,
+		button->u_end,   button->v_end,
+		x_start,         y_start,
+		x_end,           y_end
+	);
+}
 
 void draw_2d_thing(float u_start,float v_start,float u_end,float v_end,int x_start,int y_start,int x_end,int y_end)
-		{
+{
+	glTexCoord2f(u_start,v_end);
+	glVertex3i(x_start,y_end,0);
 
-			glTexCoord2f(u_start,v_end);
-			glVertex3i(x_start,y_end,0);
+	glTexCoord2f(u_start,v_start);
+	glVertex3i(x_start,y_start,0);
 
-			glTexCoord2f(u_start,v_start);
-			glVertex3i(x_start,y_start,0);
+	glTexCoord2f(u_end,v_start);
+	glVertex3i(x_end,y_start,0);
 
-			glTexCoord2f(u_end,v_start);
-			glVertex3i(x_end,y_start,0);
-
-			glTexCoord2f(u_end,v_end);
-			glVertex3i(x_end,y_end,0);
-
-		}
+	glTexCoord2f(u_end,v_end);
+	glVertex3i(x_end,y_end,0);
+}
 
 void draw_toolbar()
 {
@@ -217,84 +358,84 @@ void draw_toolbar()
 	glColor3f(1.0f,1.0f,1.0f);
 	else if(!view_tile && cur_mode!=mode_tile)glColor3f(0.3f,0.3f,0.3f);
 	else glColor3f(0.0f,1.0f,1.0f);
-	draw_2d_thing((float)64/255, 0.0f, (float)96/255, (float)32/255, 0,0,32,32);
+	draw_toolbar_button(TOOLBAR_BUTTON_MODE_TILE);
 
 	if(cur_mode!=mode_2d && view_2d)
 	glColor3f(1.0f,1.0f,1.0f);
 	else if(!view_2d && cur_mode!=mode_2d)glColor3f(0.3f,0.3f,0.3f);
 	else glColor3f(0.0f,1.0f,1.0f);
-	draw_2d_thing((float)32/255, 0.0f,(float)64/255, (float)32/255, 32,0,64,32);
+	draw_toolbar_button(TOOLBAR_BUTTON_MODE_2D);
 
 	if(cur_mode!=mode_3d && view_3d)
 	glColor3f(1.0f,1.0f,1.0f);
 	else if(!view_3d && cur_mode!=mode_3d)glColor3f(0.3f,0.3f,0.3f);
 	else glColor3f(0.0f,1.0f,1.0f);
-	draw_2d_thing(0, 0.0f, (float)32/255, (float)32/255, 64,0,96,32);
+	draw_toolbar_button(TOOLBAR_BUTTON_MODE_3D);
 
 	if(cur_mode!=mode_particles && view_particles)
 	glColor3f(1.0f,1.0f,1.0f);
 	else if(!view_particles && cur_mode!=mode_particles)glColor3f(0.3f,0.3f,0.3f);
 	else glColor3f(0.0f,1.0f,1.0f);
-	draw_2d_thing((float)192/255, (float)32/255, (float)224/255, (float)64/255, 96,0,128,32);
+	draw_toolbar_button(TOOLBAR_BUTTON_MODE_PARTICLES);
 
 #ifdef	EYE_CANDY
 	if(cur_mode!=mode_eye_candy && view_eye_candy)
 	glColor3f(1.0f,1.0f,1.0f);
 	else if(!view_eye_candy && cur_mode!=mode_eye_candy)glColor3f(0.3f,0.3f,0.3f);
 	else glColor3f(0.0f,1.0f,1.0f);
-	draw_2d_thing((float)224/255, (float)32/255, (float)255/255, (float)64/255, 128,0,160,32);
+	draw_toolbar_button(TOOLBAR_BUTTON_MODE_EYE_CANDY);
 #endif	//EYE_CANDY
 
 	if(cur_mode!=mode_light && view_light)
 	glColor3f(1.0f,1.0f,1.0f);
 	else if(!view_light && cur_mode!=mode_light)glColor3f(0.3f,0.3f,0.3f);
 	else glColor3f(0.0f,1.0f,1.0f);
-	draw_2d_thing((float)96/255, 0.0f,(float)128/255, (float)32/255, 160,0,192,32);
+	draw_toolbar_button(TOOLBAR_BUTTON_MODE_LIGHT);
 
 	if(cur_mode!=mode_height && view_height)
 	glColor3f(1.0f,1.0f,1.0f);
 	else if(!view_height && cur_mode!=mode_height)glColor3f(0.3f,0.3f,0.3f);
 	else glColor3f(0.0f,1.0f,1.0f);
-	draw_2d_thing((float)160/255, (float)32/255, (float)192/255, (float)64/255, 192,0,224,32);
-
+	draw_toolbar_button(TOOLBAR_BUTTON_MODE_HEIGHT);
 
 	if(cur_mode!=mode_map)
 	glColor3f(1.0f,1.0f,1.0f);
 	else glColor3f(0.0f,1.0f,1.0f);
-	draw_2d_thing((float)128/255, 0.0f, (float)160/255, (float)32/255, 224,0,256,32);
-
+	draw_toolbar_button(TOOLBAR_BUTTON_MODE_MAP);
 
 	if(cur_tool!=tool_select)
 	glColor3f(1.0f,1.0f,1.0f);
 	else glColor3f(0.0f,1.0f,1.0f);
-	draw_2d_thing(0, (float)32/255, (float)32/255, (float)64/255, 256,0,288,32);
+	draw_toolbar_button(TOOLBAR_BUTTON_TOOL_SELECT);
 
 	if(cur_tool!=tool_clone)
 	glColor3f(1.0f,1.0f,1.0f);
 	else glColor3f(0.0f,1.0f,1.0f);
-	draw_2d_thing((float)32/255, (float)32/255, (float)64/255, (float)64/255, 288,0,320,32);
+	draw_toolbar_button(TOOLBAR_BUTTON_TOOL_CLONE);
 
 	if(cur_tool!=tool_new)
 	glColor3f(1.0f,1.0f,1.0f);
 	else glColor3f(0.0f,1.0f,1.0f);
-	draw_2d_thing((float)224/255, 0.0f, (float)256/255, (float)32/255, 320,0,352,32);
+	draw_toolbar_button(TOOLBAR_BUTTON_TOOL_NEW);
 
 	if(cur_tool!=tool_kill)
 	glColor3f(1.0f,1.0f,1.0f);
 	else glColor3f(0.0f,1.0f,1.0f);
-	draw_2d_thing((float)192/255, 0.0f, (float)224/255, (float)32/255, 352,0,384,32);
+	draw_toolbar_button(TOOLBAR_BUTTON_TOOL_KILL);
 
 	glColor3f(1.0f,1.0f,1.0f);
-	//save
-	draw_2d_thing((float)64/255, (float)32/255, (float)96/255, (float)64/255, 384,0,416,32);
-
-	//open
-	draw_2d_thing((float)96/255, (float)32/255, (float)128/255, (float)64/255, 416,0,448,32);
-
-	//new
-	draw_2d_thing((float)128/255, (float)32/255, (float)160/255, (float)64/255, 448,0,480,32);
+	draw_toolbar_button(TOOLBAR_BUTTON_SAVE_MAP);
+	draw_toolbar_button(TOOLBAR_BUTTON_OPEN_MAP);
+	draw_toolbar_button(TOOLBAR_BUTTON_NEW_MAP);
 
 	glEnd();
+
+	if (toolbar_mouseover >= 0 && toolbar_mouseover < TOOLBAR_MAX_BUTTON && view_tooltips)
+	{
+		glColor3f(1.0f, 1.0f, 1.0f);
+		draw_string(mouse_x + TOOLTIP_MOUSE_X_SHIFT, mouse_y + TOOLTIP_MOUSE_Y_SHIFT,
+			(const unsigned char *) toolbar[toolbar_mouseover].tooltip, 1);
+	}
 }
 
 void draw_3d_obj_info()
@@ -619,7 +760,6 @@ int check_tiles_interface (window_info *win, int _x, int _y)
 
 	if (_x > win->len_x - 20 && mouse_y < 20)
 	{
-		view_tiles_list = 0;
 		return 0;
 	}
 	
@@ -726,213 +866,183 @@ void display_heights_list()
 	display_window(height_win);
 }
 
+void get_minimap_dimensions(int *x, int *y, int *width, int *height)
+{
+	int tile_size = min2i(window_width / tile_map_size_x, window_height / tile_map_size_y);
+	int w = tile_map_size_x * tile_size;
+	int h = tile_map_size_y * tile_size;
+
+	if (x)
+		*x = (window_width - w) / 2;
+	if (y)
+		*y = (window_height - h) / 2;
+	if (width)
+		*width = w;
+	if (height)
+		*height = h;
+}
 
 void check_mouse_minimap()
 {
-	int minimap_x_start=window_width/2-128;
-	int minimap_y_start;
-	int x_map_pos;
-	int y_map_pos;
-	int scale;
+	int x0, y0, y1, width, height;
+	get_minimap_dimensions(&x0, &y0, &width, &height);
+	y1 = y0 + height;
 
-	if(window_width<window_height) scale=window_width/256;
-	else scale=window_height/256;
+	if (mouse_x < x0 || mouse_y < y0 || mouse_x > x0 + width || mouse_y > y1)
+		return;
 
-	minimap_x_start/=scale;
-	minimap_y_start=10*scale;
-	
-	if(mouse_x<minimap_x_start || mouse_y<minimap_y_start
-	|| mouse_x>minimap_x_start+256*scale || mouse_y>minimap_y_start+256*scale) return;
-
-	x_map_pos=((float)(mouse_x-minimap_x_start)/(float)scale)*tile_map_size_x/256;
-	y_map_pos=tile_map_size_y-(((mouse_y-minimap_y_start))/(float)scale)*tile_map_size_y/256;
-	mx=x_map_pos*3;
-	my=y_map_pos*3;
-	minimap_on=0;
+	mx = (float)(mouse_x - x0) * 3 * tile_map_size_x / width;
+	my = (float)(y1 - mouse_y) * 3 * tile_map_size_y / height;
+	minimap_on = 0;
 }
 
 void draw_mouse_minimap()
 {
-	int minimap_x_start=window_width/2-128;
-	int minimap_y_start;
-	int x_map_pos;
-	int y_map_pos;
-	int x,y, scale;
+	int x0, y0, y1, width, height, x, y;
 
-	if(window_width<window_height) scale=window_width/256;
-	else scale=window_height/256;
+	get_minimap_dimensions(&x0, &y0, &width, &height);
+	y1 = y0 + height;
 
-	minimap_x_start/=scale;
-	minimap_y_start=10*scale;
-	
-	if(mouse_x<minimap_x_start || mouse_y<minimap_y_start
-	|| mouse_x>minimap_x_start+256*scale || mouse_y>minimap_y_start+256*scale)return;
+	if (mouse_x < x0 || mouse_y < y0 || mouse_x > x0 + width || mouse_y > y1)
+		return;
 
-	x_map_pos=((float)(mouse_x-minimap_x_start)/(float)scale)*tile_map_size_x/256;
-	y_map_pos=tile_map_size_y-(((mouse_y-minimap_y_start))/(float)scale)*tile_map_size_y/256;
-	mx=-x_map_pos*3;
-	my=-y_map_pos*3;
+	mx = (float)(mouse_x - x0) * 3 * tile_map_size_x / width;
+	my = (float)(y1 - mouse_y) * 3 * tile_map_size_y / height;
+	x = (int)(mx) / 3;
+	y = (int)(my) / 3;
 
-	for(x=-2;x!=2;x++){
-	  for(y=-2;y!=2;y++){
-	    if(y_map_pos+y>=0 && y_map_pos+y<tile_map_size_y && x_map_pos+x>=0 && x_map_pos+x<tile_map_size_x){
-	      tile_map[(int)(y_map_pos+y)*tile_map_size_x+(int)x_map_pos+x]=((cur_tool==tool_kill)?255:selected_tile);
-	      if(cur_tool==tool_kill || selected_tile == 0 || selected_tile == 20 || selected_tile == 21){
-		kill_height_map_at_texture_tile((int)(y_map_pos+y)*tile_map_size_x+(int)x_map_pos+x);
-	      }
-	    }
-	  }
-	}
-
-	map_has_changed=1;
-
-}
-
-//Generates a minimap and returns the texture's integer value
-GLuint generate_minimap()
-{
-	int x=0,y=0,i,j;
-	float scale=(float)256/tile_map_size_x;//Set the scale...
-	//img_struct * cur_img;
-	image_t* cur_img;
-	Uint32* ptr;
-	Sint32 s;
-	GLuint texture;
-	char map[256*256*4]={0};
-
-	if (scale >= 1.0f)
+	for (int xp = max2i(0, x-2); xp < min2i(tile_map_size_x, x + 2); x++)
 	{
-		s = scale;
-
-		for (y = 0; y < tile_map_size_y; y++)
+		for (int yp = max2i(0, y-2); yp < min2i(tile_map_size_y, y + 2); y++)
 		{
-			for (x = 0; x < tile_map_size_x; x++)
+			tile_map[y * tile_map_size_x + x] = ((cur_tool==tool_kill) ? 255 : selected_tile);
+			if (cur_tool==tool_kill || selected_tile == 0 || selected_tile == 20 || selected_tile == 21)
 			{
-				//Scale up
-				for (i = 0; i < scale; i++)
-				{
-					for (j = 0; j < scale; j++)
-					{
-						cur_img = &map_tiles[tile_map[x * tile_map_size_y + y]];
-
-						ptr = (Uint32*)(map + ((x * s + j) + (i + y * s) * 256) * 4);
-
-						if (cur_img->image == NULL)
-						{
-							*ptr = 0x00000000;
-						}
-						else
-						{
-							*ptr = *((Uint32 *)(cur_img->image + (((i+y*(int)scale)&(cur_img->height-1))*cur_img->width+((j+x*(int)scale)&(cur_img->width-1)))*4));
-						}
-					}
-				}
+				kill_height_map_at_texture_tile(yp * tile_map_size_x + xp);
 			}
 		}
 	}
 
-	//OK, now check the 3d objects... we want them all to show up as red dots...
-	scale=(float)3/scale;//Change the scale for 3d objects...
-	for (i = 0; i < MAX_OBJ_3D; i++)
-		{
-			if(objects_list[i] && objects_list[i]->blended!=20)
-				{
-					x=(float)objects_list[i]->x_pos/scale;
-					y=(float)objects_list[i]->y_pos/scale;
-
-					x&=255;//Just in case...
-					y&=255;
-					
-					*((Uint32*)(map+4*(x*256+y)))=0xFF0000F1;
-				}
-		}
-        
-	glGenTextures(1, &texture);
-
-        glBindTexture(GL_TEXTURE_2D, texture);
-
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-
-        if(have_arb_compression)
-                {
-                        if(have_s3_compression)
-                                glTexImage2D(GL_TEXTURE_2D, 0, COMPRESSED_RGBA_S3TC_DXT5_EXT, 256, 256, 0, GL_RGBA, GL_UNSIGNED_BYTE, map);
-                        else
-                                glTexImage2D(GL_TEXTURE_2D, 0, COMPRESSED_RGBA_ARB, 256, 256, 0, GL_RGBA, GL_UNSIGNED_BYTE, map);
-                }
-        else glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 256, 256, 0, GL_RGBA, GL_UNSIGNED_BYTE, map);
-
-        return texture;
+	map_has_changed=1;
 }
 
-
-GLuint minimap_tex;
 int map_has_changed=1;
+
+void generate_ground_tiles_texture(GLuint *texture)
+{
+	// Drawing full textures for individual tiles makes them much too small, so you cannot
+	// make out the details of the texture. With below constant, the map is divided into
+	// tile_text_frac x tile_text_frac full sized textures.
+	static const int tile_text_frac = 4;
+
+	unsigned char prev_text_id, *text_id;
+	int x0, y0, width, height, tile_size, m;
+	get_minimap_dimensions(&x0, &y0, &width, &height);
+	tile_size = width / tile_map_size_x;
+
+	m = min2i(tile_map_size_x, tile_map_size_y) / tile_text_frac;
+
+	text_id = tile_map;
+	prev_text_id = *text_id;
+	bind_texture(tile_list[prev_text_id]);
+	glBegin(GL_QUADS);
+	for (int i = 0, y = y0; i < tile_map_size_y; ++i, y += tile_size)
+	{
+		float ty0 = (float)(i%m) / m;
+		float ty1 = (float)(i%m + 1) / m;
+		for (int j = 0, x = x0; j < tile_map_size_x; ++j, x += tile_size, ++text_id)
+		{
+			if (*text_id < 255)
+			{
+				float tx0 = (float)(j%m) / m;
+				float tx1 = (float)(j%m+1) / m;
+				if (*text_id != prev_text_id)
+				{
+					glEnd();
+					prev_text_id = *text_id;
+					bind_texture(tile_list[prev_text_id]);
+					glBegin(GL_QUADS);
+				}
+
+				draw_2d_thing(tx0, ty0, tx1, ty1, x, y, x+tile_size, y+tile_size);
+			}
+		}
+	}
+	glEnd();
+
+	glDisable(GL_TEXTURE_2D);
+	glColor3f(1.0f, 0.0f, 0.0f);
+
+	// OK, now check the 3d objects... we want them all to show up as red dots...
+	glPointSize((float)min2i(window_width, window_height) / 256);
+	glBegin(GL_POINTS);
+	for (int i = 0; i < MAX_OBJ_3D; i++)
+	{
+		if (objects_list[i] && objects_list[i]->blended != 20)
+		{
+			int x = x0 + (tile_size * objects_list[i]->x_pos) / 3;
+			int y = y0 + (tile_size * objects_list[i]->y_pos) / 3;
+			glVertex2i(x, y);
+		}
+	}
+	glEnd();
+
+	glColor3f(1.0f, 1.0f, 1.0f);
+	glEnable(GL_TEXTURE_2D);
+	if (!*texture)
+		glGenTextures(1, texture);
+
+	glBindTexture(GL_TEXTURE_2D, *texture);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glReadBuffer(GL_BACK);
+	glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, x0, y0, width, height, 0);
+}
 
 void draw_minimap()
 {
-	int minimap_x_start=window_width/2-128;
-	int minimap_y_end;
-	int scale;//looks ugly if it's accurate :)...
-	float x_map_pos, y_map_pos;
-	
-	if(map_has_changed)
-	        {
-		        if(minimap_tex>0) glDeleteTextures(1,&minimap_tex);
-			minimap_tex=generate_minimap();
-		}
-	map_has_changed=0;
+	static const int marker_size = 7;
+	static GLuint ground_tiles_text = 0;
 
-	//We have the map, display the texture
-	
-	if((Uint32)last_texture!=minimap_tex)
-		{
-			glBindTexture(GL_TEXTURE_2D, minimap_tex);
-			last_texture=minimap_tex;
-		}
-	
-	if(window_width<window_height) scale=window_width/256;
-	else scale=window_height/256;
+	int x0, y0, x1, y1, width, height;
 
-        x_map_pos=(float)mx/(float)(tile_map_size_x*3.0f)*256.0f*scale;
-	y_map_pos=(float)my/(float)(tile_map_size_y*3.0f)*256.0f*scale;
-	
-	minimap_x_start/=scale*scale;
+	if (map_has_changed)
+	{
+		generate_ground_tiles_texture(&ground_tiles_text);
+		map_has_changed = 0;
+	}
 
-	glPushMatrix();
-	glScalef(scale,scale,scale);
-	
+	get_minimap_dimensions(&x0, &y0, &width, &height);
+	x1 = x0 + width;
+	y1 = y0 + height + x1-x1;
+	glBindTexture(GL_TEXTURE_2D, ground_tiles_text);
 	glBegin(GL_QUADS);
-
-	glTexCoord2f(0.0f, 0.0f); glVertex3i(minimap_x_start,10+256,0);
-	glTexCoord2f(1.0f, 0.0f); glVertex3i(minimap_x_start,10,0);
-	glTexCoord2f(1.0f, 1.0f); glVertex3i(minimap_x_start+256,10,0);
-	glTexCoord2f(0.0f, 1.0f); glVertex3i(minimap_x_start+256,10+256,0);
-	
+	draw_2d_thing(0.0f, 0.0f, 1.0f, 1.0f, x0, y0, x1, y1);
 	glEnd();
 
-	glPopMatrix();
-	
-	if(show_position_on_minimap)
-		{
-			glDisable(GL_TEXTURE_2D);
-			glColor3f(1.0f,0.0f,0.0f);
-	
-			minimap_x_start*=scale;
-			minimap_y_end=(10+256)*scale;
-	
-			glBegin(GL_LINES);
-			glVertex2i(minimap_x_start+x_map_pos-7,minimap_y_end-y_map_pos+7);
-			glVertex2i(minimap_x_start+x_map_pos+7,minimap_y_end-y_map_pos-7);
-	
-			glVertex2i(minimap_x_start+x_map_pos+7,minimap_y_end-y_map_pos+7);
-			glVertex2i(minimap_x_start+x_map_pos-7,minimap_y_end-y_map_pos-7);
-			glEnd();
-	
-			glColor3f(1.0f,1.0f,1.0f);
-			glEnable(GL_TEXTURE_2D);
-		}
+	if (show_position_on_minimap)
+	{
+		int tile_size = width / tile_map_size_x;
+		int x, y;
+
+		x = x0 + (int)(mx * tile_size) / 3;
+		y = y1 - (int)(my * tile_size) / 3;
+
+		glDisable(GL_TEXTURE_2D);
+		glColor3f(1.0f, 0.0f, 0.0f);
+
+		glLineWidth((float)min2i(window_width, window_height) / 256);
+		glBegin(GL_LINES);
+		glVertex2i(x - marker_size, y + marker_size);
+		glVertex2i(x + marker_size, y - marker_size);
+
+		glVertex2i(x + marker_size, y + marker_size);
+		glVertex2i(x - marker_size, y - marker_size);
+		glEnd();
+
+		glColor3f(1.0f, 1.0f, 1.0f);
+		glEnable(GL_TEXTURE_2D);
+	}
+
 #ifdef EYE_CANDY
 	draw_bounds_on_minimap();
 #endif
@@ -968,12 +1078,6 @@ int new_map_display_handler ()
 	else 
 		glColor3f (1.0f, 1.0f, 1.0f);
 	draw_string (2, 5*17+2, (const unsigned char*) "Large      [128x128]", 1);
-
-	if (map_size == 4)
-		glColor3f (0.0f, 0.5f, 1.0f);
-	else 
-		glColor3f (1.0f, 1.0f, 1.0f);
-	draw_string (2, 6*17+2, (const unsigned char*) "Huge       [256x256]", 1);
 
 	glColor3f (1.0f, 1.0f, 1.0f);
 	draw_string (2, 8*17+2, (const unsigned char*) "   [Ok]    [Cancel]", 1);

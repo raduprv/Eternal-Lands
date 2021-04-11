@@ -13,6 +13,10 @@ void hide_hud_indicators_window(void);
 void toggle_hud_indicators_window(int *show);
 void set_settings_hud_indicators(unsigned int opts, unsigned int pos);
 void get_settings_hud_indicators(unsigned int *opts, unsigned int *pos);
+#ifdef JSON_FILES
+void write_settings_hud_indicators(const char *dict_name);
+void read_settings_hud_indicators(const char *dict_name);
+#endif
 int get_hud_indicators_default_width(void);
 
 #ifdef __cplusplus

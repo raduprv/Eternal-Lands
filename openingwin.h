@@ -26,17 +26,6 @@ extern int opening_root_win; /*!< handler for the opening window */
  */
 void create_opening_root_window (int width, int height);
 
-/*!
- * \ingroup interface_opening
- * \brief Adjusts opening interface to new zoom value
- *
- *      Adjusts opening interface to new zoom value
- *
- * \param nlines
- * \callgraph
- */
-void opening_win_update_zoom();
-
 #ifdef __cplusplus
 } // extern "C"
 #endif

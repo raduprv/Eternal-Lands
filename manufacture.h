@@ -16,9 +16,6 @@ extern int wanted_num_recipe_entries; /*!< option window set number of recipe en
 extern int disable_manuwin_keypress; /*!< option to disable key presses in the main manu window */
 extern const int max_num_recipe_entries;  /*!< max number of recipe entries */
 
-extern int manufacture_menu_x;
-extern int manufacture_menu_y;
-
 #define NUM_MIX_SLOTS 6
 
 // we don't need the full item structure so
@@ -39,30 +36,13 @@ typedef struct
 } recipe_entry;
 
 /*!
- * \name windows handlers
- */
-/*! @{ */
-extern int manufacture_win; /*!< manufacture windows handler */
-/*! @} */
-
-/*!
  * \ingroup manufacture_window
- * \brief Sets up the \ref manufacture_list.
+ * \brief Sets up the manufacture list
  *
- *      Initializes the \ref manufacture_list used when an actor is manufacturing items with the \ref manufacture_win window.
- *
+ * Initializes the manufacture list used when an actor is manufacturing items with
+ * the \ref manufacture_win window.
  */
 void build_manufacture_list();
-
-/*!
- * \ingroup manufacture_window
- * \brief Displays the manufacture window.
- *
- *      Displays the \ref manufacture_win window. If the window was not shown before it will first initialized.
- *
- * \callgraph
- */
-void display_manufacture_menu();
 
 /*!
  * \ingroup manufacture_window

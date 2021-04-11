@@ -20,10 +20,10 @@ extern int buff_icon_size;
  * \ingroup	network_actors
  * \brief	Updates the buffs with the actor_id.
  *
- * 		Finds the player with the given actor_id and update's their buffs.
+ * 		Find the player with ID \a actor_id and update their buffs.
  *
  * \param	actor_id The server-side actor ID
- * \param	quantity The buffs.
+ * \param	in_buffs The buffs.
  */
 void update_actor_buffs(int actor_id, Uint32 in_buffs);
 

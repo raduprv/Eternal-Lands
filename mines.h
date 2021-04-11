@@ -65,7 +65,7 @@ void add_mines_from_list (const Uint8 * data);
  *
  * \callgraph
  */
-void remove_mine(int object_id);
+void remove_mine(int which_mine);
 
 /*!
  * \ingroup item

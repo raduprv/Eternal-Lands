@@ -10,17 +10,6 @@
 extern "C" {
 #endif
 
-
-/*!
- * \name windows handlers
- */
-/*! @{ */
-extern int buddy_win; /*!< The identifier of the buddy window */
-/*! @} */
-
-extern int buddy_menu_x;
-extern int buddy_menu_y;
-
 /*!
  * \ingroup	other
  * \brief	Initiates the buddy list
@@ -30,16 +19,6 @@ extern int buddy_menu_y;
  * \sa init_stuff
  */
 void init_buddy(void);
-
-/*!
- * \ingroup	buddy_window
- * \brief	Initiates the buddy window
- *
- * 		The function is used for initiating the buddy window or setting an existing buddy window to be displayed.
- *
- * \callgraph
- */
-void display_buddy(void);
 
 /*!
  * \ingroup	network_text

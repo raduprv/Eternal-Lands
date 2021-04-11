@@ -197,7 +197,7 @@ fi
 chmod +wr $serverfile
 
 # see if we intend to use non-standard build
-el_client=/usr/games/el.x86.linux.bin
+el_client=/usr/games/el.linux.bin
 if [ -r ~/.elc/el_client ]
 then
 	tmp_el_client="$(cat ~/.elc/el_client)"

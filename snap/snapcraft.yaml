@@ -1,6 +1,6 @@
 name: eternallands
 # Set to x.y.zpn / x.y.zpn-dev for stable / dev build
-version: '1.9.5p8'
+version: '1.9.5p9'
 summary: Eternal Lands is a free to play, graphical MMORPG
 description: |
   Eternal Lands is a free to play, graphical MMORPG (massively-multi-player
@@ -9,18 +9,12 @@ description: |
   of several character races but all are equal.
   See http://www.eternal-lands.com/
 grade: stable
-base: core18
+base: core20
 confinement: strict
 type: app
 icon: pkgfiles/snap-package/eternallands.png
 
 parts:
-#  nlohmann:
-#    source: https://github.com/nlohmann/json/archive/v3.7.3.zip
-#    source-checksum: sha256/e109cd4a9d1d463a62f0a81d7c6719ecd780a52fb80a22b901ed5b6fe43fb45b
-#    source-subdir: json-3.7.3
-#    plugin: cmake
-
   desktop-glib-only:
     source: https://github.com/ubuntu/snapcraft-desktop-helpers.git
     source-subdir: glib-only
@@ -30,15 +24,15 @@ parts:
     stage-packages:
       - libglib2.0-bin
 
-  client:
+  binary:
     source: https://github.com/raduprv/Eternal-Lands
     source-type: git
     # Include for stable release, comment out for dev build, comment out for latest commit dev release
-    source-tag: 1.9.5.8
-    build-packages: [build-essential, libcal3d12-dev, libsdl2-image-dev, libsdl2-net-dev, libxml2-dev, libopenal-dev, libvorbis-dev, libpng-dev]
+    source-tag: 1.9.5.9-1
+    build-packages: [build-essential, libcal3d12-dev, libsdl2-image-dev, libsdl2-net-dev, libsdl2-ttf-dev, libxml2-dev, libopenal-dev, libvorbis-dev, libpng-dev]
     plugin: cmake
     # Add -DVERSION_PREFIX=x.y.z for dev build, remove for release
-    configflags:  ["-DCMAKE_BUILD_TYPE=release", "-DEXEC=el.linux.bin"]
+    cmake-parameters:  ["-DCMAKE_BUILD_TYPE=release", "-DEXEC=el.linux.bin", "-DLOCAL_NLOHMANN_JSON=On", "-DCMAKE_INSTALL_PREFIX=/" ]
     stage-packages:
       - libglib2.0-0
       - libsdl2-net-2.0-0
@@ -49,6 +43,7 @@ parts:
       - libopenal1
       - libcal3d12v5
       - libsdl2-image-2.0-0
+      - libsdl2-ttf-2.0-0
       - libxrandr2
       - zlib1g
       - libpng16-16
@@ -64,11 +59,10 @@ parts:
       - mesa-vulkan-drivers
     after:
       - desktop-glib-only
-#     - nlohmann
 
   data:
-    source: https://github.com/raduprv/Eternal-Lands/releases/download/1.9.5.7/el_195_p7_data_files.zip
-    source-checksum: md5/c58b6f374d0f9ce3f0aa0fe4eab348d5
+    source: https://github.com/raduprv/Eternal-Lands/releases/download/1.9.5.9-1/eternallands-data_1.9.5.9-1.zip
+    source-checksum: sha256/00f105ce44998b939bb92361c113961f2220afa0a3b21e53beed35968ae23ae4
     plugin: dump
     organize:
       el_data/ : data/
@@ -78,15 +72,15 @@ parts:
       sed -i 's|^#use_new_selection.*$|#use_new_selection = 1|g' $SNAPCRAFT_PART_INSTALL/el_data/el.ini
 
   sound:
-    source: https://github.com/raduprv/Eternal-Lands/releases/download/1.9.5.2/eternallands-sound_1.9.4.zip
-    source-checksum: md5/28678c3fce12780859ab29d673658681
+    source: https://github.com/raduprv/Eternal-Lands/releases/download/1.9.5.9-1/eternallands-sound_1.9.5.9.zip
+    source-checksum: sha256/13a030bf5aca4e9e881707216f269df5826ff00345c93afac94a3f58455af542
     plugin: dump
     organize:
       '*' : data/
 
   music:
-    source: https://github.com/raduprv/Eternal-Lands/releases/download/1.9.5.2/music_full.zip
-    source-checksum: md5/95220e0df0be0eb4f2b9646cc5d6b7e5
+    source: https://github.com/raduprv/Eternal-Lands/releases/download/1.9.5.9-1/eternallands-music_1.9.5.9.zip
+    source-checksum: sha256/1ea4de25081034ac684aaebf127ab6ca8524ba5367532863d84d63837dd631ec
     plugin: dump
     organize:
       '*' : data/music/
@@ -107,4 +101,4 @@ apps:
       - audio-playback
       - desktop
     desktop: bin/eternallands.desktop
-    command: desktop-launch $SNAP/bin/launcher.sh $*
+    command: bin/desktop-launch $SNAP/bin/launcher.sh

@@ -7,8 +7,11 @@
 extern "C" {
 #endif
 
+#define MAX_WATCH_STATS	5	/*!< max number of stats watchable in hud */
+
 extern int stats_bar_win; /*!< the window id for the stats bar of the bottom HUD */
-extern int show_action_bar; /*!< saved in the el.ini file, the action points stats bar is display when true */
+extern int show_action_bar; /*!< saved in the ini file, the action points stats bar is display when true */
+extern int show_last_health_change_always; /*!< saved in the ini file, the the last health change is always display when true */
 extern int max_food_level; /*!< normally 45 but can be set from options for people with diffent values (big belly) */
 extern int lock_skills_selection; /*!< if true, disables selection from the skills bar and the stats window */
 

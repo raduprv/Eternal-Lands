@@ -7,6 +7,7 @@
 #include "elwindows.h"
 #include "init.h"
 #include "hud.h"
+#include "main.h"
 #include "missiles.h"
 #include "multiplayer.h"
 #include "named_colours.h"
@@ -21,15 +22,33 @@
 #endif
 #include "widgets.h"
 
+static const unsigned char* skill_label = (const unsigned char*)"Skill";
+static const unsigned char* total_exp_label = (const unsigned char*)"Total Exp";
+static const unsigned char* max_exp_label = (const unsigned char*)"Max Exp";
+static const unsigned char* last_exp_label = (const unsigned char*)"Last Exp";
+static const unsigned char* session_time_label = (const unsigned char*)"Session Time";
+static const unsigned char* exp_per_min_label = (const unsigned char*)"Exp/Min";
+static const unsigned char* distance_label = (const unsigned char*)"Distance";
+
 int exp_log_threshold = 5000;
 static int reconnecting = 0;
 static int last_port = -1;
 static unsigned char last_server_address[60];
 static int reset_button_id = -1;
 static int show_reset_help = 0;
-static int last_mouse_click_y = -1;
-static int last_mouse_over_y = -1;
+static int last_mouse_click_skill = -1;
+static int last_mouse_over_skill = -1;
+static int start_skills_y = -1;
 static int distance_moved = -1;
+
+static int x_border = 0;
+static int y_offset = 0;
+static int y_step = 0;
+static int tot_exp_left = 0;
+static int tot_exp_right = 0;
+static int max_exp_right = 0;
+static int last_exp_right = 0;
+
 
 static Uint32 session_exp[NUM_SKILLS];
 static Uint32 max_exp[NUM_SKILLS];
@@ -55,35 +74,98 @@ static int click_session_handler(window_info *win, int mx, int my, Uint32 flags)
 {
 	if (flags & (ELW_WHEEL_UP|ELW_WHEEL_DOWN))
 		return 0;
-	last_mouse_click_y = my;
-	do_click_sound();
+	if ((my > start_skills_y) && (my < (start_skills_y + NUM_SKILLS * y_step)))
+	{
+		last_mouse_click_skill = (my - start_skills_y) / y_step;
+		do_click_sound();
+	}
 	return 1;
 }
 
 static int mouseover_session_handler(window_info *win, int mx, int my)
 {
-	last_mouse_over_y = my;
+	if ((my > start_skills_y) && (my < (start_skills_y + NUM_SKILLS * y_step)))
+		last_mouse_over_skill = (my - start_skills_y) / y_step;;
 	return 1;
+}
+
+static void set_content_widths(window_info *win)
+{
+	float zoom = win->current_scale_small;
+	int sep_width = 2 * win->small_font_max_len_x;
+	int max_val_width = get_string_width_zoom((const unsigned char*)"88888888",
+		win->font_category, zoom);
+	int tot_exp_width = get_string_width_zoom(total_exp_label, win->font_category, zoom);
+	int max_exp_width = get_string_width_zoom(max_exp_label, win->font_category, zoom);
+	int last_exp_width = get_string_width_zoom(last_exp_label, win->font_category, zoom);
+	int max_name_width = get_string_width_zoom(skill_label, win->font_category, zoom);
+
+	for (int i =0; i < NUM_SKILLS; ++i)
+	{
+		int width = get_string_width_zoom(statsinfo[i].skillnames->name, win->font_category, zoom);
+		if (width > max_name_width)
+			max_name_width = width;
+	}
+	max_name_width = max2i(max_name_width,
+		get_string_width_zoom(session_time_label, win->font_category, zoom));
+	max_name_width = max2i(max_name_width,
+		get_string_width_zoom(exp_per_min_label, win->font_category, zoom));
+	max_name_width = max2i(max_name_width,
+		get_string_width_zoom(distance_label, win->font_category, zoom));
+
+	x_border = (int)(win->current_scale * 10);
+	y_offset = (int)(0.5 + win->default_font_len_y * 21.0 / DEFAULT_FIXED_FONT_HEIGHT);
+	y_step = (int)(0.5 + win->default_font_len_y * 16.0 / DEFAULT_FIXED_FONT_HEIGHT);
+	start_skills_y = y_offset + 2 * y_step;
+	tot_exp_left = x_border + max_name_width + sep_width;
+	tot_exp_right = tot_exp_left + max2i(max_val_width, tot_exp_width);
+	max_exp_right = tot_exp_right + sep_width + max2i(max_val_width, max_exp_width);
+	last_exp_right = max_exp_right + sep_width + max2i(max_val_width, last_exp_width);
+
+	win->min_len_x = last_exp_right + x_border;
+	win->min_len_y = y_offset + (NUM_SKILLS + 6) * y_step;
 }
 
 static int resize_session_handler(window_info *win, int new_width, int new_height)
 {
+	int width;
+	set_content_widths(win);
 	button_resize(win->window_id, reset_button_id, 0, 0, win->current_scale);
-	widget_move(win->window_id, reset_button_id, (int)(win->current_scale * 450), (int)(win->current_scale * 280));
+	width = widget_get_width(win->window_id, reset_button_id);
+	widget_move(win->window_id, reset_button_id, last_exp_right - width, y_offset + 16*y_step);
 	return 0;
+}
+
+static int ui_scale_session_handler(window_info *win)
+{
+	set_content_widths(win);
+	return 1;
+}
+
+static int change_session_font_handler(window_info *win, font_cat cat)
+{
+	if (cat != UI_FONT)
+		return 0;
+	set_content_widths(win);
+	return 1;
 }
 
 void fill_session_win(int window_id)
 {
-	set_window_custom_scale(window_id, &custom_scale_factors.stats);
+	set_window_custom_scale(window_id, MW_STATS);
 	set_window_handler(window_id, ELW_HANDLER_DISPLAY, &display_session_handler);
 	set_window_handler(window_id, ELW_HANDLER_CLICK, &click_session_handler );
 	set_window_handler(window_id, ELW_HANDLER_MOUSEOVER, &mouseover_session_handler );
 	set_window_handler(window_id, ELW_HANDLER_RESIZE, &resize_session_handler );
+	set_window_handler(window_id, ELW_HANDLER_UI_SCALE, &ui_scale_session_handler);
+	set_window_handler(window_id, ELW_HANDLER_FONT_CHANGE, &change_session_font_handler );
 
-	reset_button_id=button_add_extended(window_id, reset_button_id, NULL, 0, 0, 0, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, reset_str);
+	reset_button_id=button_add_extended(window_id, reset_button_id, NULL, 0, 0, 0, 0, 0, 1.0f, reset_str);
 	widget_set_OnClick(window_id, reset_button_id, session_reset_handler);
 	widget_set_OnMouseover(window_id, reset_button_id, mouseover_session_reset_handler);
+
+	if (window_id >= 0 && window_id < windows_list.num_windows)
+		set_content_widths(&windows_list.window[window_id]);
 }
 
 void set_last_skill_exp(size_t skill, int exp)
@@ -126,49 +208,60 @@ void update_session_distance(void)
 	}
 }
 
+static void draw_session_line(window_info *win, int x, int y, const unsigned char* skill,
+	const unsigned char* tot_exp, const unsigned char* max_exp, const unsigned char* last_exp)
+{
+	float scale = win->current_scale;
+
+	draw_string_small_zoomed(x, y, skill, 1, scale);
+	draw_string_small_zoomed_right(tot_exp_right, y, tot_exp, 1, scale);
+	draw_string_small_zoomed_right(max_exp_right, y, max_exp, 1, scale);
+	draw_string_small_zoomed_right(last_exp_right, y, last_exp, 1, scale);
+}
+
 int display_session_handler(window_info *win)
 {
 	int i;
 	Uint32 timediff;
-	char buffer[128];
+	unsigned char tot_buf[32];
+	unsigned char max_buf[32];
+	unsigned char last_buf[32];
+	unsigned char buffer[32];
 	float oa_exp;
-	int y_step = (int)(0.5 + win->current_scale * 16);
-	int extra_x_offset = (int)(0.5 + win->current_scale * 200);
-	int start_y_offset = (int)(0.5 + win->current_scale * 55);
-	int start_line_y_offset = (int)(0.5 + win->current_scale * 37);
-	int x = (int)(0.5 + win->current_scale * 10);
-	int y = (int)(0.5 + win->current_scale * 21);
+	int x = x_border;
+	int y = y_offset;
 
 	timediff = 0;
 	oa_exp = 0.0f;
 
 	glColor3f(1.0f, 1.0f, 1.0f);
-	safe_snprintf(buffer, sizeof(buffer), "%-20s%-17s%-17s%-17s",
-		"Skill", "Total Exp", "Max Exp", "Last Exp" );
-	draw_string_small_zoomed(x, y, (unsigned char*)buffer, 1, win->current_scale);
+	draw_session_line(win, x, y, skill_label, total_exp_label, max_exp_label, last_exp_label);
+
+	y += y_step;
 
 	glDisable(GL_TEXTURE_2D);
-	glColor3f(0.77f, 0.57f, 0.39f);
+	glColor3fv(gui_color);
 	glBegin(GL_LINES);
-	glVertex3i(0, start_line_y_offset, 0);
-	glVertex3i(win->len_x, start_line_y_offset, 0);
+	glVertex3i(0, y, 0);
+	glVertex3i(win->len_x, y, 0);
 	glEnd();
 	glEnable(GL_TEXTURE_2D);
 	glColor3f(1.0f, 1.0f, 1.0f);
 
-	y = start_y_offset;
+	y += y_step;
 
 	for (i=0; i<NUM_SKILLS; i++)
 	{
-		if ((last_mouse_click_y >= y) && (last_mouse_click_y < y+16))
+		if (last_mouse_click_skill == i)
 			elglColourN("global.mouseselected");
-		else if ((last_mouse_over_y >= y) && (last_mouse_over_y < y+16))
+		else if (last_mouse_over_skill == i)
 			elglColourN("global.mousehighlight");
 		else
 			glColor3f(1.0f, 1.0f, 1.0f);
-		safe_snprintf(buffer, sizeof(buffer), "%-20s%-17u%-17u%-17u",
-			statsinfo[i].skillnames->name, *(statsinfo[i].exp) - session_exp[i], max_exp[i], last_exp[i]);
-		draw_string_small_zoomed(x, y, (unsigned char*)buffer, 1, win->current_scale);
+		safe_snprintf((char*)tot_buf, sizeof(tot_buf), "%u", *(statsinfo[i].exp) - session_exp[i]);
+		safe_snprintf((char*)max_buf, sizeof(tot_buf), "%u", max_exp[i]);
+		safe_snprintf((char*)last_buf, sizeof(tot_buf), "%u", last_exp[i]);
+		draw_session_line(win, x, y, statsinfo[i].skillnames->name, tot_buf, max_buf, last_buf);
 		y += y_step;
 		if(i < NUM_SKILLS-1)
 			oa_exp += *(statsinfo[i].exp) - session_exp[i];
@@ -177,32 +270,33 @@ int display_session_handler(window_info *win)
 	y += y_step;
 
 	glColor3f(1.0f, 1.0f, 1.0f);
-	draw_string_small_zoomed(x, y, (unsigned char*)"Session Time", 1, win->current_scale);
+	draw_string_small_zoomed(x, y, session_time_label, 1, win->current_scale);
 	timediff = cur_time - session_start_time;
-	safe_snprintf(buffer, sizeof(buffer), "%02d:%02d:%02d", timediff/3600000, (timediff/60000)%60, (timediff/1000)%60);
-	draw_string_small_zoomed(x + extra_x_offset, y, (unsigned char*)buffer, 1, win->current_scale);
+	safe_snprintf((char*)buffer, sizeof(buffer), "%02d:%02d:%02d",
+		timediff/3600000, (timediff/60000)%60, (timediff/1000)%60);
+	draw_string_small_zoomed(tot_exp_left, y, buffer, 1, win->current_scale);
 
 	y += y_step;
 
-	draw_string_small_zoomed(x, y, (unsigned char*)"Exp/Min", 1, win->current_scale);
-	
+	draw_string_small_zoomed(x, y, exp_per_min_label, 1, win->current_scale);
+
 	if(timediff<=0){
 		timediff=1;
 	}
-	safe_snprintf(buffer, sizeof(buffer), "%2.2f", oa_exp/((float)timediff/60000.0f));
-	draw_string_small_zoomed(x + extra_x_offset, y, (unsigned char*)buffer, 1, win->current_scale);
+	safe_snprintf((char*)buffer, sizeof(buffer), "%2.2f", oa_exp/((float)timediff/60000.0f));
+	draw_string_small_zoomed(tot_exp_left, y, buffer, 1, win->current_scale);
 
 	y += y_step;
-	draw_string_small_zoomed(x, y, (unsigned char*)"Distance", 1, win->current_scale);
-	safe_snprintf(buffer, sizeof(buffer), "%d", (distance_moved<0) ?0: distance_moved);
-	draw_string_small_zoomed(x + extra_x_offset, y, (unsigned char*)buffer, 1, win->current_scale);
+	draw_string_small_zoomed(x, y, distance_label, 1, win->current_scale);
+	safe_snprintf((char*)buffer, sizeof(buffer), "%d", (distance_moved<0) ?0: distance_moved);
+	draw_string_small_zoomed(tot_exp_left, y, buffer, 1, win->current_scale);
 
 	if (show_reset_help)
 	{
 		show_help(session_reset_help, -TAB_MARGIN, win->len_y+10+TAB_MARGIN, win->current_scale);
 		show_reset_help = 0;
 	}
-	
+
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
@@ -227,7 +321,7 @@ void init_session(void)
 		else
 			save_server = 0;
 	}
-	
+
 	/* save the server info if first time or changed */
 	if (save_server)
 	{

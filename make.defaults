@@ -23,9 +23,13 @@ FEATURES += FASTER_STARTUP		# An attempt to reduce the startup time of EL somewh
 FEATURES += MIDDLE_MOUSE_PASTE	# Paste using the middle mouse button from the primary buffer on X systems
 # new for 1.9.4 release
 FEATURES += NEW_EYES			# Support for different eye colors, needs new data files
+# proposed for next release
+FEATURES += NEW_CURSOR			# New coloured cursors made by Emajekral (Experimental).  An old unused feature. Derive cursor2.dss from http://users.on.net/~gingerman/sky_cursor-textures.zip (cursor2.bmp + alpha).
+
 
 # Development options targetting at most 1.9.6
-#FEATURES += JSON_FILES			# switch existing binary user config files to JSON format
+FEATURES += JSON_FILES			# switch existing binary user config files to JSON format
+FEATURES += TTF                 # Add ability to use True Type system fonts
 
 ### Testing options (these options are possible for the next release and should be tested) ###
 #FEATURES += ANTI_ALIAS			# allows to enable/disable anti-aliasing in el.ini
@@ -42,6 +46,7 @@ FEATURES += NEW_EYES			# Support for different eye colors, needs new data files
 #FEATURES += USE_ALGETSOURCEI_AL_BUFFER	# disable to workaround issue with newer openal versions (also works on older versions), enable to restore original usage of alGetSourcei(pSource->source, AL_BUFFER, &buffer) for sound
 
 ### Debug options ###
+#FEATURES += ADDRSANITISER      # Enable the gcc address sanitisation options to do run-time checking.
 #FEATURES += CONTEXT_MENUS_TEST		# Enable "#cmtest" command to help test/demo the context menu code
 #FEATURES += DEBUG			# (undocumented)
 #FEATURES += DEBUG_XML			# Enables missing (optional) XML string property messages
@@ -57,9 +62,7 @@ FEATURES += NEW_EYES			# Support for different eye colors, needs new data files
 #FEATURES += TIMER_CHECK		# (undocumented)
 #FEATURES += _EXTRA_SOUND_DEBUG		# Enable debug for sound effects
 
-
 ### Other options (Experimental, unfinished, defunct or otherwise unknown) ###
-#FEATURES += NEW_CURSOR			# New coloured cursors made by Emajekral (Experimental) Extract http://users.on.net/~gingerman/sky_cursor-textures.zip into datadir/textures/
 #FEATURES += PAWN			# Experimental, not for release, will need server support to function properly. This *will* eat your cat. You've been warned. Enables the Pawn abstract machine.
 #FEATURES += UID			# use unique ID sent from server for custom looks. (INCOMPLETE)
 #FEATURES += USE_ACTORS_OPTIMIZER	# Enables actor optimizations
@@ -72,9 +75,9 @@ FEATURES += NEW_EYES			# Support for different eye colors, needs new data files
 
 PLATFORM=-march=native
 XDIR=-L/usr/X11R6/lib
-CWARN=-Wall -Wdeclaration-after-statement
+CWARN=-Wall -Wdeclaration-after-statement -W -Wno-unused-parameter -Wno-sign-compare
 # -Wno-pointer-sign -Wno-sign-compare -Werror
-CXXWARN=-Wall 
+CXXWARN=-std=c++11 -Wall -W -Wno-unused-parameter -Wno-sign-compare -Wno-cast-function-type
 # -Wno-sign-compare -Werror
 
 ## These needed to be adjusted on a per system basis based on compile options & library versions

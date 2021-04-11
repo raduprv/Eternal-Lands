@@ -8,7 +8,6 @@
 #include "gamewin.h"
 #endif
 #include "main.h"
-#include "text.h"
 #include "textures.h"
 #include "translate.h"
 

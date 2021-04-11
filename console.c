@@ -3,8 +3,6 @@
 #include <string.h>
 #include <ctype.h>
 #include <errno.h>
-#include "new_actors.h"
-#include "console.h"
 #include "asc.h"
 #include "buddy.h"
 #include "cache.h"
@@ -28,6 +26,7 @@
 #include "manufacture.h"
 #include "misc.h"
 #include "multiplayer.h"
+#include "new_actors.h"
 #include "notepad.h"
 #include "password_manager.h"
 #include "pm_log.h"
@@ -35,6 +34,7 @@
 #include "questlog.h"
 #include "sound.h"
 #include "spells.h"
+#include "stats.h"
 #include "tabs.h"
 #include "translate.h"
 #include "url.h"
@@ -56,22 +56,29 @@
 
 typedef char name_t[32];
 
-char auto_open_encyclopedia = 1;
-/* Pointer to the array holding the commands */
-command_t *commands;
-/* Array holding names we have seen (for completion) */
-name_t *name_list = NULL;
-/* Counts how many commands we have */
-Uint16 command_count = 0;
-Uint16 name_count = 0;
-/* The command buffer head pointer */
-list_node_t *command_buffer = NULL;
-/* Pointer to our position in the buffer */
-list_node_t *command_buffer_offset = NULL;
-/* The input line before we started moving around in the buffer. */
-char first_input[256] = {0};
+#define MAX_COMMAND_NAME_LEN 64
+typedef struct {
+	char command[MAX_COMMAND_NAME_LEN];
+	int (*callback)();
+} command_t;
 
-int time_warn_h, time_warn_s, time_warn_d;
+char auto_open_encyclopedia = 1;
+int time_warn_h = -1, time_warn_s = -1, time_warn_d = -1;
+
+/* Pointer to the array holding the commands */
+static command_t *commands;
+/* Array holding names we have seen (for completion) */
+static name_t *name_list = NULL;
+/* Counts how many commands we have */
+static Uint16 command_count = 0;
+static Uint16 name_count = 0;
+/* The command buffer head pointer */
+static list_node_t *command_buffer = NULL;
+/* Pointer to our position in the buffer */
+static list_node_t *command_buffer_offset = NULL;
+/* The input line before we started moving around in the buffer. */
+static char first_input[256] = {0};
+
 
 void add_line_to_history(const char *line, int len)
 {
@@ -82,6 +89,7 @@ void add_line_to_history(const char *line, int len)
 	list_push(&command_buffer, copy);
 	command_buffer_offset = NULL;
 }
+
 
 char *history_get_line_up(void)
 {
@@ -100,6 +108,7 @@ char *history_get_line_up(void)
 	}
 }
 
+
 char *history_get_line_down(void)
 {
 	if(command_buffer_offset != NULL) {
@@ -114,15 +123,20 @@ char *history_get_line_down(void)
 	return NULL;
 }
 
+
 void history_reset(void)
 {
 	command_buffer_offset = NULL;
 }
 
+
 void history_destroy(void)
 {
 	list_destroy(command_buffer);
 }
+
+
+static void cleanup_commands_help(void);
 
 void command_cleanup(void)
 {
@@ -132,9 +146,11 @@ void command_cleanup(void)
 	if(name_count > 0) {
 		free(name_list);
 	}
+	cleanup_commands_help();
 }
 
-void add_command(const char *command, int (*callback)())
+
+static void add_command(const char *command, int (*callback)())
 {
 	static int commands_size = 0;
 	int i;
@@ -160,6 +176,7 @@ void add_command(const char *command, int (*callback)())
 	command_count++;
 }
 
+
 void add_name_to_tablist(const char *name)
 {
 	static int list_size = 0;
@@ -182,9 +199,10 @@ void add_name_to_tablist(const char *name)
 	name_count++;
 }
 
+
 /* strmrchr: returns a pointer to the last occurence of c in s,
  * beginning the (reversed) search at begin */
-const char *strmrchr(const char *s, const char *begin, int c)
+static const char *strmrchr(const char *s, const char *begin, int c)
 {
 	char *copy = strdup(s);
 	char *cbegin = copy+(begin-s);
@@ -201,6 +219,7 @@ const char *strmrchr(const char *s, const char *begin, int c)
 	}
 }
 
+
 enum compl_type {
 	COMMAND = 1,
 	NAME,
@@ -213,7 +232,7 @@ struct compl_str {
 	enum compl_type type;
 };
 
-struct compl_str tab_complete(const text_message *input, unsigned int cursor_pos)
+static struct compl_str tab_complete(const text_message *input, unsigned int cursor_pos)
 {
 	static char last_complete[48] = {0};
 	static int have_last_complete = 0;
@@ -230,7 +249,7 @@ struct compl_str tab_complete(const text_message *input, unsigned int cursor_pos
 		if(!have_last_complete) {
 			if(cursor_pos > 0 &&
 				strmrchr(input_string, input_string+cursor_pos-1, ' ') != NULL) {
-				/* If we have a space in the input string, we're pretty certain 
+				/* If we have a space in the input string, we're pretty certain
 				 * it's not a PM-name, command or channel name. */
 				return_value.type = NAME;
 			} else if(*input_string == '/' || *input_string == *char_slash_str) {
@@ -248,7 +267,8 @@ struct compl_str tab_complete(const text_message *input, unsigned int cursor_pos
 		switch(return_value.type) {
 			case CHANNEL:
 				input_string++;
-				/* No break, increment twice for channel */
+                /* No break, increment twice for channel */
+				// Fallthrough
 			case NAME_PM:
 			case COMMAND:
 				input_string++;
@@ -273,7 +293,7 @@ struct compl_str tab_complete(const text_message *input, unsigned int cursor_pos
 
 			/* Isolate the word we're currently typing (and completing) */
 			for(i = 0;
-				i < sizeof(last_complete) && 
+				i+1 < sizeof(last_complete) &&
 				input_string[i] && i < cursor_pos &&
 				!isspace((unsigned char)input_string[i]);
 				i++) {
@@ -347,10 +367,11 @@ struct compl_str tab_complete(const text_message *input, unsigned int cursor_pos
 	return return_value;
 }
 
+
 void do_tab_complete(text_message *input)
 {
-	text_field *tf = input_widget->widget_info;
-	struct compl_str completed = tab_complete(input, tf->cursor);
+	int input_cursor = get_console_input_cursor();
+	struct compl_str completed = tab_complete(input, input_cursor);
 
 	if(completed.str != NULL)
 	{
@@ -359,31 +380,33 @@ void do_tab_complete(text_message *input)
 
 		/* Find the length of the data we're removing */
 		if(completed.type == NAME) {
-			const char *last_space = strmrchr(input->data, input->data+tf->cursor, ' ');
+			const char *last_space = strmrchr(input->data, input->data+input_cursor, ' ');
 			/* Name is a bit special because it can be anywhere in a string,
 			 * not just at the beginning like the other types. */
-			len = input->data+tf->cursor-1-(last_space ? last_space : (input->data-1));
+			len = input->data+input_cursor-1-(last_space ? last_space : (input->data-1));
 		} else if (completed.type == CHANNEL) {
-			len = tf->cursor-2;
+			len = input_cursor-2;
 		} else {
-			len = tf->cursor-1;
+			len = input_cursor-1;
 		}
 
 		/* Erase the current input word */
-		for (i = tf->cursor; i <= input->len; i++) {
+		for (i = input_cursor; i <= input->len; i++) {
 			input->data[i-len] = input->data[i];
 		}
 		input->len -= len;
-		tf->cursor -= len;
+		set_console_input_cursor(input_cursor - len);
 		paste_in_input_field((unsigned char*)completed.str);
 		input->len = strlen(input->data);
 	}
 }
 
+
 void reset_tab_completer(void)
 {
 	tab_complete(NULL, 0);
 }
+
 
 int test_for_console_command(char *text, int length)
 {
@@ -414,7 +437,7 @@ int test_for_console_command(char *text, int length)
 		/* Look for a matching command */
 		for(i = 0; i < command_count; i++) {
 			cmd_len = strlen(commands[i].command);
-			if(strlen(text) >= cmd_len && my_strncompare(text, commands[i].command, cmd_len) && (isspace(text[cmd_len]) || text[cmd_len] == '\0')) {
+			if(strlen(text) >= cmd_len && !strncasecmp(text, commands[i].command, cmd_len) && (isspace(text[cmd_len]) || text[cmd_len] == '\0')) {
 				/* Command matched */
 				if(commands[i].callback && commands[i].callback(text+cmd_len, length-cmd_len)) {
 					/* The command was handled and we don't want to send it to the server */
@@ -430,10 +453,12 @@ int test_for_console_command(char *text, int length)
 	return 0;
 }
 
+
 // -------- COMMAND CALLBACKS -------- //
 // Return 0 if you want the string to be sent to the server.
 // the first argument passed is the input string without the command itself
 // if ie. '#filter foo' is passed to test_for_console_command(), only ' foo' is passed to the callback.
+
 
 /* given the command text, return the start of any parameter text */
 /* e.g. find first space, then skip any spaces */
@@ -446,7 +471,8 @@ static char *getparams(char *text)
 	return text;
 }
 
-int print_emotes(char *text, int len){
+
+static int print_emotes(char *text, int len){
 
 	hash_entry *he;;
 	LOG_TO_CONSOLE(c_orange1,"EMOTES");
@@ -471,7 +497,7 @@ int add_emote(char *text, int len){
 	printf("Actor [%s] [%s]\n",text,id);
 	LOCK_ACTORS_LISTS();
 	for (j = 0; j < max_actors; j++){
-		if (!strncasecmp(actors_list[j]->actor_name, text, strlen(text)) && 
+		if (!strncasecmp(actors_list[j]->actor_name, text, strlen(text)) &&
 	  	   (actors_list[j]->actor_name[strlen(text)] == ' ' ||
 	    	   actors_list[j]->actor_name[strlen(text)] == '\0')){
 			act = actors_list[j];
@@ -492,7 +518,8 @@ int add_emote(char *text, int len){
 
 }
 
-int send_cmd(char *text, int len){
+
+static int send_cmd(char *text, int len){
 
 	int j,x;
 	char *id;
@@ -505,7 +532,7 @@ int send_cmd(char *text, int len){
 	printf("Actor [%s] [%s]\n",text,id);
 	LOCK_ACTORS_LISTS();
 	for (j = 0; j < max_actors; j++){
-		if (!strncasecmp(actors_list[j]->actor_name, text, strlen(text)) && 
+		if (!strncasecmp(actors_list[j]->actor_name, text, strlen(text)) &&
 	  	   (actors_list[j]->actor_name[strlen(text)] == ' ' ||
 	    	   actors_list[j]->actor_name[strlen(text)] == '\0')){
 			act = actors_list[j];
@@ -530,7 +557,7 @@ int send_cmd(char *text, int len){
 }
 
 
-int set_idle(char *text, int len){
+static int set_idle(char *text, int len){
 
 	int j,x;
 	char *id;
@@ -543,7 +570,7 @@ int set_idle(char *text, int len){
 	printf("Actor [%s] [%s]\n",text,id);
 	LOCK_ACTORS_LISTS();
 	for (j = 0; j < max_actors; j++){
-		if (!strncasecmp(actors_list[j]->actor_name, text, strlen(text)) && 
+		if (!strncasecmp(actors_list[j]->actor_name, text, strlen(text)) &&
 	  	   (actors_list[j]->actor_name[strlen(text)] == ' ' ||
 	    	   actors_list[j]->actor_name[strlen(text)] == '\0')){
 				struct CalMixer *mixer;
@@ -555,7 +582,7 @@ int set_idle(char *text, int len){
 			while(*id){
 				int anim_id;
 				double anim_wg;
-				
+
 				anim_id=atoi(id);
 			id++;
 				while(*id!=' '&&*id!=0) id++;
@@ -563,7 +590,7 @@ int set_idle(char *text, int len){
 			id++;
 				while(*id!=' '&&*id!=0) id++;
 				printf("setting anim %i with weight %f\n",anim_id,anim_wg);
-				if(anim_wg<0) CalMixer_ClearCycle(mixer,actors_defs[act->actor_type].cal_frames[anim_id].anim_index, 0.0f);	
+				if(anim_wg<0) CalMixer_ClearCycle(mixer,actors_defs[act->actor_type].cal_frames[anim_id].anim_index, 0.0f);
 				else CalMixer_BlendCycle(mixer,actors_defs[act->actor_type].cal_frames[anim_id].anim_index,anim_wg, 0.1f);
 			}
 			printf("command added %s\n",id);
@@ -579,7 +606,8 @@ int set_idle(char *text, int len){
 	return 1;
 }
 
-int set_action(char *text, int len){
+
+static int set_action(char *text, int len){
 
 	int j,x;
 	char *id;
@@ -592,7 +620,7 @@ int set_action(char *text, int len){
 	printf("Actor [%s] [%s]\n",text,id);
 	LOCK_ACTORS_LISTS();
 	for (j = 0; j < max_actors; j++){
-		if (!strncasecmp(actors_list[j]->actor_name, text, strlen(text)) && 
+		if (!strncasecmp(actors_list[j]->actor_name, text, strlen(text)) &&
 	  	   (actors_list[j]->actor_name[strlen(text)] == ' ' ||
 	    	   actors_list[j]->actor_name[strlen(text)] == '\0')){
 				struct CalMixer *mixer;
@@ -603,7 +631,7 @@ int set_action(char *text, int len){
 			while(*id){
 				int anim_id;
 				double anim_wg;
-				
+
 				anim_id=atoi(id);
 			id++;
 				while(*id!=' '&&*id!=0) id++;
@@ -628,8 +656,9 @@ int set_action(char *text, int len){
 }
 #endif
 
+
 #ifdef MORE_ATTACHED_ACTORS_DEBUG
-int horse_cmd(char* text, int len){
+static int horse_cmd(char* text, int len){
 
 	int j,x;
 	char *id;
@@ -642,7 +671,7 @@ int horse_cmd(char* text, int len){
 	printf("Actor [%s] [%s] [%i]\n",text,id,atoi(id));
 	LOCK_ACTORS_LISTS();
 	for (j = 0; j < max_actors; j++){
-		if (!strncasecmp(actors_list[j]->actor_name, text, strlen(text)) && 
+		if (!strncasecmp(actors_list[j]->actor_name, text, strlen(text)) &&
 	  	   (actors_list[j]->actor_name[strlen(text)] == ' ' ||
 	    	   actors_list[j]->actor_name[strlen(text)] == '\0')){
 			act = actors_list[j];
@@ -674,12 +703,13 @@ int horse_cmd(char* text, int len){
 	UNLOCK_ACTORS_LISTS();
 
 	return 1;
-	
+
 }
 #endif
 
+
 #ifdef NECK_ITEMS_DEBUG
-int set_neck(char *text, int len){
+static int set_neck(char *text, int len){
 
 	int j;
 	char *id;
@@ -691,7 +721,7 @@ int set_neck(char *text, int len){
 	printf("Actor [%s] [%s]\n",text,id);
 	LOCK_ACTORS_LISTS();
 	for (j = 0; j < max_actors; j++){
-		if (!strncasecmp(actors_list[j]->actor_name, text, strlen(text)) && 
+		if (!strncasecmp(actors_list[j]->actor_name, text, strlen(text)) &&
 	  	   (actors_list[j]->actor_name[strlen(text)] == ' ' ||
 	    	   actors_list[j]->actor_name[strlen(text)] == '\0')){
 			act = actors_list[j];
@@ -721,13 +751,14 @@ int set_neck(char *text, int len){
 #endif
 
 
-int command_cls(char *text, int len)
+static int command_cls(char *text, int len)
 {
 	clear_display_text_buffer ();
 	return 1;
 }
 
-int command_calc(char *text, int len)
+
+static int command_calc(char *text, int len)
 {
 	double res;
 	char str[100];
@@ -736,8 +767,8 @@ int command_calc(char *text, int len)
 	res = calc_exp(text, &calcerr);
 	switch (calcerr){
 		case CALCERR_OK:
-			if (trunc(res)==res) safe_snprintf (str,sizeof(str), "%s = %.0f",text,res);
-			else safe_snprintf (str,sizeof(str), "%s = %.2f",text,res);
+			if (trunc(res)==res) safe_snprintf (str,sizeof(str), "%s = %.0lf",text,res);
+			else safe_snprintf (str,sizeof(str), "%s = %.2lf",text,res);
 			LOG_TO_CONSOLE (c_orange1, str);
 			break;
 		case CALCERR_SYNTAX:
@@ -780,13 +811,14 @@ int command_calc(char *text, int len)
 	return 1;
 }
 
-int command_markpos(char *text, int len)
+
+static int command_markpos(char *text, int len)
 {
 	int map_x, map_y;
 	char *ptr = text;
 	char msg[512];
 	const char *usage = help_cmd_markpos_str;
-	
+
 	while (isspace(*ptr))
 		ptr++;
 	if (sscanf(ptr, "%d,%d ", &map_x, &map_y) != 2) {
@@ -811,6 +843,7 @@ int command_markpos(char *text, int len)
 	return 1;
 }
 
+
 int command_mark(char *text, int len)
 {
 	if (strlen(text) > 1) //check for empty marks
@@ -829,6 +862,7 @@ int command_mark(char *text, int len)
 	return 1;
 }
 
+
 int command_unmark_special(char *text, int len, int do_log)
 {
 	int i;
@@ -839,7 +873,7 @@ int command_unmark_special(char *text, int len, int do_log)
 	if(*text) {
 		for (i = 0; i < max_mark; i ++)
 		{
-			if (my_strcompare(marks[i].text, text) && (marks[i].x != -1))
+			if (!strcasecmp(marks[i].text, text) && (marks[i].x != -1))
 			{
 				char str[512];
 				marks[i].x = marks[i].y = -1;
@@ -862,13 +896,14 @@ int command_unmark_special(char *text, int len, int do_log)
 	return 1;
 }
 
+
 int command_unmark(char *text, int len)
 {
 	return command_unmark_special(text, len, 1);
 }
 
 
-int command_mark_color(char *text, int len)
+static int command_mark_color(char *text, int len)
 {
 	char str[512];
 
@@ -877,7 +912,7 @@ int command_mark_color(char *text, int len)
 
 	if(*text) {
 		int r=-1,g,b;
-		
+
 		if(sscanf(text,"%d %d %d",&r,&g,&b)==3) {
 			if(!(r>=0&&r<=255&&g>=0&&g<=255&&b>=0&&b<=255)) r=-1; //don't set color
 		} else {
@@ -893,7 +928,7 @@ int command_mark_color(char *text, int len)
 			//set color
 				curmark_r=r;
 				curmark_g=g;
-				curmark_b=b;			
+				curmark_b=b;
 		}
 	}
 	safe_snprintf (str, sizeof(str), "Current marker color is (RGB): %d %d %d", curmark_r,curmark_g,curmark_b);
@@ -902,7 +937,7 @@ int command_mark_color(char *text, int len)
 }
 
 
-int command_stats(char *text, int len)
+static int command_stats(char *text, int len)
 {
 	unsigned char protocol_name;
 
@@ -910,6 +945,7 @@ int command_stats(char *text, int len)
 	my_tcp_send(my_socket, &protocol_name, 1);
 	return 1;
 }
+
 
 int command_time(char *text, int len)
 {
@@ -919,6 +955,7 @@ int command_time(char *text, int len)
 	my_tcp_send(my_socket,&protocol_name,1);
 	return 1;
 }
+
 
 int command_ping(char *text, int len)
 {
@@ -930,6 +967,7 @@ int command_ping(char *text, int len)
 	return 1;
 }
 
+
 int command_date(char *text, int len)
 {
 	unsigned char protocol_name;
@@ -939,13 +977,15 @@ int command_date(char *text, int len)
 	return 1;
 }
 
-int command_quit(char *text, int len)
+
+static int command_quit(char *text, int len)
 {
 	exit_now = 1;
 	return 1;
 }
 
-int command_mem(char *text, int len)
+
+static int command_mem(char *text, int len)
 {
 	cache_dump_sizes(cache_system);
 #ifdef	DEBUG
@@ -953,7 +993,9 @@ int command_mem(char *text, int len)
 #endif	//DEBUG
 	return 1;
 }
-int command_ver(char *text, int len)
+
+
+static int command_ver(char *text, int len)
 {
 	char str[250];
 
@@ -962,7 +1004,8 @@ int command_ver(char *text, int len)
 	return 1;
 }
 
-int command_ignore(const char *text, int len)
+
+static int command_ignore(const char *text, int len)
 {
 	char name[MAX_USERNAME_LENGTH];
 	int i;
@@ -1016,7 +1059,8 @@ int command_ignore(const char *text, int len)
 	return 1;
 }
 
-int command_filter(char *text, int len)
+
+static int command_filter(char *text, int len)
 {
 	char name[256];
 	char str[100];
@@ -1067,7 +1111,8 @@ int command_filter(char *text, int len)
 	return 1;
 }
 
-int command_unignore(char *text, int len)
+
+static int command_unignore(char *text, int len)
 {
 	char name[MAX_USERNAME_LENGTH];
 	char str[200];
@@ -1115,7 +1160,8 @@ int command_unignore(char *text, int len)
 	return 1;
 }
 
-int command_unfilter(char *text, int len)
+
+static int command_unfilter(char *text, int len)
 {
 	char name[64];
 	char str[200];
@@ -1161,7 +1207,8 @@ int command_unfilter(char *text, int len)
 	return 1;
 }
 
-int command_glinfo (const char *text, int len)
+
+static int command_glinfo (const char *text, int len)
 {
 	const char *my_string;
 	size_t size = 8192, minlen;
@@ -1217,7 +1264,7 @@ int command_glinfo (const char *text, int len)
 	LOG_TO_CONSOLE (c_grey1, this_string);
 
 	free (this_string);
-	
+
 	return 1;
 }
 
@@ -1225,9 +1272,9 @@ int command_glinfo (const char *text, int len)
 /*  Display book names that match the specified string, or all if
  *  no string specified.  Highlighing the books that have been read.
  */
-int knowledge_command(char *text, int len)
+static int knowledge_command(char *text, int len)
 {
-	char this_string[80], count_str[60];
+	char this_string[90], count_str[60];
 	char *cr;
 	int num_read = 0, num_total = 0;
 	int show_read = 1, show_unread = 1, show_help = 0;
@@ -1279,15 +1326,17 @@ int knowledge_command(char *text, int len)
 			safe_strncpy(this_string, knowledge_list[i].name, sizeof(this_string));
 			if ( (cr = strchr(this_string, '\n')) != NULL)
 				*cr = '\0';
-			// highlight books that have been read
+			if ((!knowledge_list[i].present) && (your_info.researching == i))
+				safe_strcat(this_string, knowledge_reading_book_tag, sizeof(this_string));
+			// highlight books that have been read, unread or being read
 			if (knowledge_list[i].present)
 			{
 				if (show_read)
-					LOG_TO_CONSOLE(c_grey1,this_string);
+					LOG_TO_CONSOLE((your_info.researching == i) ?c_green2 :c_grey1,this_string);
 				++num_read;
 			}
 			else if (show_unread)
-				LOG_TO_CONSOLE(c_grey2,this_string);
+				LOG_TO_CONSOLE((your_info.researching == i) ?c_green1 :c_grey2,this_string);
 			++num_total;
 		}
 	}
@@ -1302,7 +1351,7 @@ int knowledge_command(char *text, int len)
 }
 
 
-int command_log_conn_data(char *text, int len)
+static int command_log_conn_data(char *text, int len)
 {
 	if(!log_conn_data){
 		LOG_TO_CONSOLE(c_grey1,logconn_str);
@@ -1313,14 +1362,15 @@ int command_log_conn_data(char *text, int len)
 	return 1;
 }
 
+
 // TODO: make this automatic or a better command, m is too short
-int command_msg(char *text, int len)
+static int command_msg(char *text, int len)
 {
 	int no;
 
 	// find first space, then skip any spaces
 	text = getparams(text);
-	if(my_strncompare(text, "all", 3))
+	if(!strncasecmp(text, "all", 3))
 	{
 		print_all_messages();
 	}
@@ -1332,7 +1382,8 @@ int command_msg(char *text, int len)
 	return 1;
 }
 
-int command_afk(char *text, int len)
+
+static int command_afk(char *text, int len)
 {
 	// find first space, then skip any spaces
 	while(*text && !isspace(*text)) {
@@ -1345,7 +1396,7 @@ int command_afk(char *text, int len)
 	}
 	if(!afk)
 	{
-		if (len > 0) 
+		if (len > 0)
 		{
 			safe_snprintf(afk_message, sizeof(afk_message), "%.*s", len, text);
 		}
@@ -1356,20 +1407,18 @@ int command_afk(char *text, int len)
 	}
 	return 1;
 }
-	
-int command_help(char *text, int len)
+
+
+static int command_help(char *text, int len)
 {
 	// help can open the Enc!
 	if(auto_open_encyclopedia)
-	{
-		view_tab (&tab_help_win, &tab_help_collection_id, HELP_TAB_HELP);
-	}
-	// this use to return 0 - to fall thru and send it to the server
-	// but the server does not handle the command and Entropy says it never did
+		view_tab (MW_HELP, tab_help_collection_id, HELP_TAB_HELP);
 	return 1;
 }
 
-int command_storage(char *text, int len)
+
+static int command_storage(char *text, int len)
 {
 	int i;
 
@@ -1386,7 +1435,7 @@ int command_storage(char *text, int len)
 		int nb = len - i - 1;
 		if (nb > sizeof (storage_filter) - 1)
 			nb = sizeof (storage_filter) - 1;
-		my_strncp (storage_filter, text+i+1, nb+1);
+		safe_strncpy(storage_filter, text+i+1, nb+1);
 	}
 
 	if (have_storage_list)
@@ -1412,7 +1461,8 @@ int command_storage(char *text, int len)
 	return 0;
 }
 
-int command_accept_buddy(char *text, int len)
+
+static int command_accept_buddy(char *text, int len)
 {
 	/* This command is here to make sure the requests queue is up to date */
 	text = getparams(text);
@@ -1451,7 +1501,7 @@ static int command_cast_spell(char *text, int len)
 	int index = 0;
 	int valid_looking_message = 1;
 	Uint8 str[30];
-	
+
 	/* valid messages start with the CAST_SPELL message of 39 or 0x27 */
 	text = getparams(text);
 	if (!*text || strstr(text, "27")==NULL)
@@ -1459,7 +1509,7 @@ static int command_cast_spell(char *text, int len)
 	/* skip past everything until the CAST_SPELL message type */
 	else
 		text = strstr(text, "27");
-	
+
 	/* while we have hex digit pairs to process */
 	while (valid_looking_message && strlen(text)>0 && index<30)
 	{
@@ -1488,19 +1538,19 @@ static int command_cast_spell(char *text, int len)
 		if (valid_looking_message)
 			str[index++] = d[1] + 16*d[0];
 	}
-	
+
 	/* if we're now at the end of the text, we have some message bytes and it looks valid */
 	if (!*text && index && valid_looking_message)
 		send_spell(str, index);
 	else
 		LOG_TO_CONSOLE(c_red2, invalid_spell_string_str);
-	
+
 	return 1;
 }
 
 
 /* display or test the md5sum of the current map or the specified file */
-int command_ckdata(char *text, int len)
+static int command_ckdata(char *text, int len)
 {
 	const int DIGEST_LEN = 16;
 	Uint8 digest[DIGEST_LEN];
@@ -1543,7 +1593,7 @@ int command_ckdata(char *text, int len)
 	/* calculate, display checksum if we're not matching */
 	if (*filename && el_file_exists(filename) && get_file_digest(filename, digest))
 	{
-		int i;	
+		int i;
 		for(i=0; i<DIGEST_LEN; i++)
 			sprintf(&digest_str[2*i], "%02x", (int)digest[i]);
 		digest_str[DIGEST_LEN*2] = 0;
@@ -1566,19 +1616,19 @@ int command_ckdata(char *text, int len)
 	/* if we have an expected value, compare then display an appropriate message */
 	if (*expected_digest_str)
 	{
-		if (my_strcompare(digest_str, expected_digest_str))
+		if (!strcasecmp(digest_str, expected_digest_str))
 			LOG_TO_CONSOLE(c_green2,"ckdata: File matches expected checksum");
 		else
 			LOG_TO_CONSOLE(c_red2,"ckdata: File does not match expected checksum");
 	}
-	
+
 	return 1;
-	
+
 } /* end command_ckdata() */
 
 
 /* pretend the specified key has been pressed - allows user menu to trigger keypress events */
-int command_keypress(char *text, int len)
+static int command_keypress(char *text, int len)
 {
 	text = getparams(text);
 	if (*text)
@@ -1591,6 +1641,32 @@ int command_keypress(char *text, int len)
 }
 
 
+//	Set the number of items to transfer
+//
+static int command_quantity(char *text, int len)
+{
+	char str[80];
+	int calcerr;
+	double res;
+	text = getparams(text);
+	res = calc_exp(text, &calcerr);
+	if ((calcerr != CALCERR_OK) || (res < 1.0) || (res > (double)INT_MAX))
+		LOG_TO_CONSOLE(c_red1, um_invalid_command_str);
+	else
+	{
+		// set the quantity to the result of the calculation, truncated
+		quantities.selected = ITEM_EDIT_QUANT;
+		item_quantity = quantities.quantity[ITEM_EDIT_QUANT].val = (int)res;
+		if (trunc(res)==res)
+			safe_snprintf(str, sizeof(str), "%s: %s = %d", quantity_str, text, item_quantity);
+		else
+			safe_snprintf(str, sizeof(str), "%s: %s = %.2lf -> %d", quantity_str, text, res, item_quantity);
+		LOG_TO_CONSOLE(c_green1, str);
+	}
+	return 1;
+}
+
+
 void save_local_data(void)
 {
 	save_bin_cfg();
@@ -1598,7 +1674,7 @@ void save_local_data(void)
 	save_quickspells();
 	//Save recipes
 	save_recipes();
-	// save el.ini if asked
+	// save ini file if asked
 	if (write_ini_on_exit) write_el_ini ();
 	// save notepad contents if the file was loaded
 	if (notepad_loaded) notepad_save_file();
@@ -1609,6 +1685,9 @@ void save_local_data(void)
 	unload_questlog();
 	save_item_lists();
 	save_channel_colors();
+#ifdef JSON_FILES
+	save_character_options();
+#endif
 }
 
 
@@ -1638,6 +1717,7 @@ static int session_counters(char *text, int len)
 	return 1;
 }
 
+
 /* the #save command, save local file then pass to server to save there too */
 static int command_save(char *text, int len)
 {
@@ -1645,6 +1725,7 @@ static int command_save(char *text, int len)
 	LOG_TO_CONSOLE(c_green1, full_save_str);
 	return 0; // pass onto server
 }
+
 
 /* the #disco or #disconnect command forces a server logout */
 static int command_disconnect(char *text, int len)
@@ -1655,6 +1736,7 @@ static int command_disconnect(char *text, int len)
 	return 1;
 }
 
+
 /* initilates a test for server connection, the client will enter the disconnected state if needed */
 static int command_relogin(char *text, int len)
 {
@@ -1662,10 +1744,64 @@ static int command_relogin(char *text, int len)
 	return 1;
 }
 
+
 static int command_change_pass(char *text, int len)
 {
-	passmngr_pending_pw_change(getparams(text));
-	return 0;
+	if (!passmngr_pending_pw_change(getparams(text)))
+	{
+		LOG_TO_CONSOLE(c_red1, invalid_pass);
+		LOG_TO_CONSOLE(c_red1, password_format_str);
+		return 1;
+	}
+	else
+		return 0;
+}
+
+
+static int command_reset_res(char *text, int len)
+{
+	restore_starting_video_mode();
+	LOG_TO_CONSOLE(c_yellow1, reset_res_str);
+	return 1;
+}
+
+
+static int command_set_res(char *text, int len)
+{
+	text = getparams(text);
+	if (*text)
+	{
+		int new_width = 0, new_height = 0;
+		new_width = atoi(text);
+		text = getparams(text);
+		if (*text)
+			new_height = atoi(text);
+		if ((new_width > 0) && (new_height > 0))
+		{
+			set_client_window_size(new_width, new_height);
+			LOG_TO_CONSOLE(c_yellow1, set_res_str);
+			return 1;
+		}
+	}
+	LOG_TO_CONSOLE(c_red1, um_invalid_command_str);
+	return 1;
+}
+
+
+static int command_save_res(char *text, int len)
+{
+	set_user_defined_video_mode();
+	LOG_TO_CONSOLE(c_yellow1, save_res_str);
+	return 1;
+}
+
+
+static int command_show_res(char *text, int len)
+{
+	char str[80];
+	safe_snprintf(str, sizeof(str), "%s %dx%d", show_res_str, window_width, window_height);
+	LOG_TO_CONSOLE(c_yellow1, str);
+	return 1;
 }
 
 
@@ -1673,8 +1809,179 @@ static int command_change_pass(char *text, int len)
 int cm_test_window(char *text, int len);
 #endif
 
+
+// list the #commands available
+static void commands_summary(void)
+{
+	char *str = NULL;
+	const char *delim = "  .  ";
+	const size_t str_len = 1 + (MAX_COMMAND_NAME_LEN + strlen(delim)) * command_count;
+	size_t i;
+
+	if ((str = malloc(str_len)) == NULL)
+		return;
+
+	LOG_TO_CONSOLE(c_green1, commands_help_description_help_str);
+	str[0] = '\0';
+	for(i = 0; i < command_count; i++) 
+	{
+		if (str[0] != '\0')
+			safe_strcat(str, delim, str_len);
+		safe_strcat(str, commands[i].command, str_len);
+	}
+	if (str[0] != '\0')
+		LOG_TO_CONSOLE(c_grey1, str);
+
+	free(str);
+}
+
+
+// a structure to store command name, paramaters string and description string for commands help
+typedef struct
+{
+	char *c_str;
+	char *p_str;
+	char *d_str;
+} commands_help_t;
+
+static commands_help_t *commands_help = NULL;
+static size_t commands_help_size = 0;
+static int commands_help_loaded = 0;
+
+
+// free memory used by the commands help
+static void cleanup_commands_help(void)
+{
+	size_t i;
+	if (!commands_help_size)
+		return;
+	commands_help_loaded = 0;
+	for (i = 0; i < commands_help_size; i++)
+	{
+		if (commands_help[i].c_str != NULL)
+			free(commands_help[i].c_str); 
+		if (commands_help[i].p_str != NULL)
+			free(commands_help[i].p_str); 
+		if (commands_help[i].d_str != NULL)
+			free(commands_help[i].d_str); 
+	}
+	free(commands_help);
+	commands_help_size = 0;
+	commands_help = NULL;
+}
+
+
+// Load the commands help file
+static int load_commands_help(void)
+{
+	FILE *fp = NULL;
+	char *line = NULL;
+	const char *delim = " ## ";
+	size_t delim_len = strlen(delim);
+	const size_t line_buf_len = 2048;
+	const char *filename = "commands_help.txt";
+	if ((fp = open_file_lang(filename, "r")) == NULL)
+	{
+		LOG_ERROR("%s [%s]\n", cant_open_file, filename);
+		return 0;
+	}
+	line = malloc(line_buf_len);
+	if (line == NULL)
+		return 0;
+	while (!feof(fp))
+	{
+		if ((fgets(line, line_buf_len, fp) != NULL) && (strlen(line) > 3 * delim_len))
+		{
+			size_t line_len = strlen(line);
+			size_t c_len, p_len, d_len;
+			char *c_str, *p_str, *d_str;
+			int is_valid = 0;
+			if (line[line_len - 1] == '\n')
+				line[--line_len] = '\0';
+			c_str = line;
+			p_str = strstr(c_str, delim);
+			if ((p_str != NULL) && (strlen(p_str) > delim_len))
+			{
+				d_str = strstr(p_str + delim_len, delim);
+				if ((d_str != NULL) && (strlen(d_str) > delim_len))
+				{
+					c_len = p_str - c_str;
+					p_str += delim_len;
+					p_len = d_str - p_str;
+					d_str += delim_len;
+					d_len = strlen(d_str);
+					if ((c_len > 0) && (d_len > 0))
+					{
+						commands_help = realloc(commands_help, sizeof(commands_help_t) * ++commands_help_size);
+						if (commands_help != NULL)
+						{
+							commands_help_t *ptr = &commands_help[commands_help_size - 1];
+							ptr->c_str = malloc(c_len + 1);
+							ptr->p_str = malloc(p_len + 1);
+							ptr->d_str = malloc(d_len + 1);
+							safe_strncpy2(ptr->c_str, c_str, c_len + 1, c_len);
+							safe_strncpy2(ptr->p_str, p_str, p_len + 1, p_len);
+							safe_strncpy2(ptr->d_str, d_str, d_len + 1, d_len);
+							is_valid = 1;
+						}
+					}
+				}
+			}
+			if (!is_valid)
+				LOG_ERROR("Invalid command help line [%s]\n", line);
+		}
+	}
+	free(line);
+	fclose(fp);
+	return 1;
+}
+
+
+// list all commands or show help for specified command
+static int command_commands(char *text, int len)
+{
+	text = getparams(text);
+	if (*text)
+	{
+		char str[128];
+		size_t i;
+		if (!commands_help_loaded)
+			commands_help_loaded = load_commands_help();
+		for (i = 0; i < commands_help_size; i++)
+		{
+			if (strcmp(text, commands_help[i].c_str) == 0)
+			{
+				safe_snprintf(str, sizeof(str), "%s: #%s %s",
+					commands_help_prefix_str, commands_help[i].c_str, commands_help[i].p_str);
+				LOG_TO_CONSOLE(c_green1, str);
+				LOG_TO_CONSOLE(c_grey1, commands_help[i].d_str);
+				return 1;
+			}
+		}
+		if (commands_help_size)
+		{
+			safe_snprintf(str, sizeof(str), "%s [%s]", commands_help_not_recognsed_str, text);
+			LOG_TO_CONSOLE(c_red1, str);
+		}
+		else
+			LOG_TO_CONSOLE(c_red1, commands_help_not_loaded_str);
+	}
+	else
+		commands_summary();
+	return 1;
+}
+
+
+static int command_cmp(const void *a, const void *b)
+{
+	return strcmp(((const command_t *)a)->command,
+				((command_t *)b)->command);
+}
+
+
 void init_commands(const char *filename)
 {
+	char tmp_name[MAX_COMMAND_NAME_LEN];
 	FILE *fp = open_file_data(filename, "r");
 	if(fp == NULL) {
 		LOG_ERROR("%s: %s \"%s\": %s\n", reg_error_str, cant_open_file, filename, strerror(errno));
@@ -1706,13 +2013,11 @@ void init_commands(const char *filename)
 	}
 
 #ifdef MORE_ATTACHED_ACTORS_DEBUG
-add_command("horse", &horse_cmd);
+	add_command("horse", &horse_cmd);
 #endif
-
 #ifdef NECK_ITEMS_DEBUG
 	add_command("set_neck", &set_neck);
 #endif
-	
 	add_command("emotes", &print_emotes);
 #ifdef EMOTES_DEBUG
 	add_command("add_emote", &add_emote);
@@ -1788,7 +2093,23 @@ add_command("horse", &horse_cmd);
 	add_command(cmd_relogin, &command_relogin);
 	add_command(cmd_disconnect, &command_disconnect);
 	add_command(cmd_disco, &command_disconnect);
+	add_command("q", &command_quantity);
+	safe_strncpy(tmp_name, quantity_str, MAX_COMMAND_NAME_LEN);
+	add_command(my_tolower(tmp_name), &command_quantity);
 	add_command("change_pass", &command_change_pass);
+	add_command("reset_res", &command_reset_res);
+	add_command("set_res", &command_set_res);
+	add_command("save_res", &command_save_res);
+	add_command("show_res", &command_show_res);
+	add_command("#", &command_commands);
+	add_command("set_default_fonts", &command_set_default_fonts);
+
+	// Sort the command list alphabetically so that the #command lists
+	// them sorted and the ctrl+SPACE cycles them sorted.  Assumes no
+	// other add_command() calls take place after this, otherwise the
+	// sorted order will likely be wrong.
+	qsort(commands, command_count, sizeof(command_t), command_cmp);
+
 	command_buffer_offset = NULL;
 }
 

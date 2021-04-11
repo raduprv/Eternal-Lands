@@ -72,14 +72,6 @@ void process_copy(XSelectionRequestEvent* e);
 #endif // !def OSX && !def WINDOWS
 
 /*!
- * \brief Paste the given string into the specified text widget
- *
- * \param widget text widget to receive string
- * \param text string to paste into widget
- */
-void do_paste_to_text_field (widget_list *widget, const char* text);
-
-/*!
  * \brief Initialise the copy/paste routines.
  *
  * Calls XSetErrorHandler().

@@ -9,6 +9,7 @@
 #include "chat.h"
 #include "consolewin.h"
 #include "cursors.h"
+#include "elconfig.h"
 #include "elwindows.h"
 #include "elmemory.h"
 #include "gamewin.h"
@@ -47,6 +48,13 @@ int right_click = 0;
 int middle_click = 0;
 int left_click = 0;
 
+dynamic_banner_colour_def dynamic_banner_colour =
+{
+	.yourself = 1,
+	.other_players = 1,
+	.creatures = 1
+};
+
 int have_a_map=0;
 int view_health_bar=1;
 int view_ether_bar=0;
@@ -56,6 +64,7 @@ int view_ether=0;
 int view_chat_text_as_overtext=0;
 int view_mode_instance=0;
 float view_mode_instance_banner_height=5.0f;
+float view_mode_instance_damage_height=5.0f;
 
 //instance mode banners config:
 int im_creature_view_names = 1;
@@ -68,9 +77,18 @@ int im_other_player_view_hp_bar = 0;
 int im_other_player_banner_bg = 0;
 int im_other_player_show_banner_on_damage = 0;
 
-int action_mode=ACTION_WALK;
-
 Uint32 click_time=0;
+
+int small_map_screen_x_left = 0;
+int small_map_screen_x_right = 0;
+int small_map_screen_y_top = 0;
+int small_map_screen_y_bottom = 0;
+int main_map_screen_x_left = 0;
+int main_map_screen_x_right = 0;
+int main_map_screen_y_top = 0;
+int main_map_screen_y_bottom = 0;
+
+static float map_font_scale_fac = 1.0f;
 
 static GLdouble model_mat[16];
 static GLdouble projection_mat[16];
@@ -78,8 +96,6 @@ static GLint viewport[4];
 
 // Grum: attempt to work around bug in Ati linux drivers.
 int ati_click_workaround = 0;
-
-float mapmark_zoom=0.3f;
 
 void save_scene_matrix (void)
 {
@@ -99,9 +115,9 @@ void get_world_x_y (short *scene_x, short *scene_y)
 	// a giant misconception on the part of all EL developers so far.
 	if (ati_click_workaround && bpp == 32)
 		mouse_z = ldexp (mouse_z, 8);
-	
+
 	gluUnProject (mouse_x, window_height-hud_y-mouse_y, mouse_z, model_mat, projection_mat, viewport, &sx, &sy, &sz);
-	
+
 	*scene_x = (sx / 0.5);
 	*scene_y = (sy / 0.5);
 }
@@ -152,12 +168,12 @@ void get_old_world_x_y (short *scene_x, short *scene_y)
 	}
 	i = x*2.0f;
 	j = y*2.0f;
-	
+
 	i_min = min2f(x, x+dx*len)*2.0f;
 	i_max = max2f(x, x+dx*len)*2.0f;
 	j_min = min2f(y, y+dy*len)*2.0f;
 	j_max = max2f(y, y+dy*len)*2.0f;
-	
+
 	i_min = max2i(min2i(i_min, tile_map_size_x*6), 0);
 	i_max = max2i(min2i(i_max, tile_map_size_x*6-1), 0);
 	j_min = max2i(min2i(j_min, tile_map_size_y*6), 0);
@@ -165,7 +181,7 @@ void get_old_world_x_y (short *scene_x, short *scene_y)
 
 	i = min2i(max2i(i, i_min), i_max-1);
 	j = min2i(max2i(j, j_min), j_max-1);
-	
+
 	h = 0.0f;
 	while ((i >= i_min) && (j >= j_min) && (i < i_max) && (j < j_max))
 	{
@@ -237,7 +253,7 @@ void get_old_world_x_y (short *scene_x, short *scene_y)
 		else t2 = -10e30;
 		if (t1 < t2) i += 2*sx;
 		else j += 2*sy;
-		
+
 		t = min2f(t1, t2);
 		x += dx*t;
 		y += dy*t;
@@ -504,11 +520,11 @@ void read_mapinfo (void)
 	char cont_name[64];
 	unsigned short continent, x_start, y_start, x_end, y_end;
 	char map_name[128];
-	
+
 	maps_size = DEFAULT_CONTMAPS_SIZE;
 	continent_maps = calloc (maps_size, sizeof (struct draw_map));
 	imap = 0;
-	
+
 	read_cont_info();
 	fin = open_file_data ("mapinfo.lst", "r");
 	if (fin == NULL){
@@ -561,7 +577,7 @@ void read_mapinfo (void)
 			strcpy(continent_maps[imap].name, map_name);
 			imap++;
 		}
-		
+
 		fclose (fin);
 	}
 
@@ -579,14 +595,15 @@ int switch_to_game_map(void)
 	char buffer[1024];
 	short int cur_cont;
 	static short int old_cont = -1;
-	
+	int size;
+
 	/* check we loaded the mapinfo data */
 	if (continent_maps == NULL || continent_maps[0].name == NULL)
 	{
 		LOG_TO_CONSOLE(c_yellow2,err_nomap_str);
 		return 0;
 	}
-	
+
 	if (check_image_name(map_file_name, sizeof(buffer), buffer) == 1)
 	{
 		map_text = load_texture_cached(buffer, tt_image);
@@ -600,7 +617,7 @@ int switch_to_game_map(void)
 		LOG_TO_CONSOLE(c_yellow2,err_nomap_str);
 		return 0;
 	}
-	
+
 	if (cur_map < 0)
 	{
 		cur_cont = -1;
@@ -617,25 +634,38 @@ int switch_to_game_map(void)
 #ifdef DEBUG_MAP_SOUND
 	cur_tab_map = cur_map;
 #endif // DEBUG_MAP_SOUND
-	
+
 	if(current_cursor != CURSOR_ARROW)
 	{
 		change_cursor(CURSOR_ARROW);
 	}
+
+	map_font_scale_fac = get_global_scale();
+	// Set screen coordinates of the edges of the map
+	size = min2i(4*(window_width-hud_x)/5, window_height-hud_y);
+	small_map_screen_x_left = (window_width - hud_x - 5*size/4) / 2;
+	small_map_screen_x_right = small_map_screen_x_left + size/4;
+	small_map_screen_y_top = (window_height - hud_y - size) / 2;
+	small_map_screen_y_bottom = small_map_screen_y_top + size/4;
+	main_map_screen_x_left = small_map_screen_x_right;
+	main_map_screen_x_right = main_map_screen_x_left + size;
+	main_map_screen_y_top = small_map_screen_y_top;
+	main_map_screen_y_bottom = main_map_screen_y_top + size;
+
 	return 1;
 }
 
 static void draw_mark_filter(void)
 {
-	int screen_x=0;
-	int screen_y=0;
+	int x = small_map_screen_x_left + (small_map_screen_x_right - small_map_screen_x_left) / 2;
+	int h = small_map_screen_y_bottom - small_map_screen_y_top, y = main_map_screen_y_bottom - h;
+	int text_height = get_line_height(MAPMARK_FONT, map_font_scale_fac);
 
 	// display the Mark filter title
 	glColor3f(1.0f,1.0f,0.0f);
-	screen_x = 25 - 1.5*strlen(label_mark_filter);
-	screen_y = 150 + 22;
-	draw_string_zoomed(screen_x, screen_y, (unsigned char*)label_mark_filter, 1, 0.3);
-	
+	draw_text(x, (int)(y + (h - text_height) / 2), (const unsigned char*)label_mark_filter, strlen(label_mark_filter),
+		MAPMARK_FONT, TDO_ALIGNMENT, CENTER, TDO_ZOOM, map_font_scale_fac, TDO_END);
+
 	// if filtering marks, display the label and the current filter text
 	if (mark_filter_active) {
 		char * show_mark_filter_text;
@@ -646,16 +676,17 @@ static void draw_mark_filter(void)
 			show_mark_filter_text = "_";
 		else
 		  show_mark_filter_text = mark_filter_text;
-		screen_x = 25 - 1.5*strlen(show_mark_filter_text);
-		screen_y = 150 + 29;
-		draw_string_zoomed(screen_x, screen_y, (unsigned char*)show_mark_filter_text, 1, 0.3);
+		draw_text(x, (int)(y + (h + text_height) / 2), (const unsigned char*)show_mark_filter_text,
+			strlen(show_mark_filter_text), MAPMARK_FONT, TDO_ALIGNMENT, CENTER,
+			TDO_ZOOM, map_font_scale_fac, TDO_END);
 	}
 	// display which key to activate the filter
 	else
 	{
 		char buf[20];
 		get_key_string(K_MARKFILTER, buf, sizeof(buf));
-		draw_string_zoomed(25 - 1.5*strlen(buf), 150 + 29, (const unsigned char *)buf, 1, 0.3);
+		draw_text(x, (int)(y + (h + text_height) / 2), (const unsigned char *)buf, strlen(buf), MAPMARK_FONT,
+			TDO_ALIGNMENT, CENTER, TDO_ZOOM, map_font_scale_fac, TDO_END);
 	}
 }
 
@@ -664,6 +695,9 @@ static void draw_marks(marking *the_marks, int the_max_mark, int the_tile_map_si
 	size_t i;
 	int screen_x=0;
 	int screen_y=0;
+	float mapmark_zoom = map_font_scale_fac * font_scales[MAPMARK_FONT];
+	int left = main_map_screen_x_left, width = main_map_screen_x_right - main_map_screen_x_left,
+		bottom = main_map_screen_y_bottom, height = main_map_screen_y_bottom - main_map_screen_y_top;
 
 	// crave the markings
 	for(i=0;i<the_max_mark;i++)
@@ -677,8 +711,8 @@ static void draw_marks(marking *the_marks, int the_max_mark, int the_tile_map_si
 				  && (get_string_occurance(mark_filter_text, the_marks[i].text, strlen(the_marks[i].text), 1) == -1))
 				continue;
 
-			screen_x=(51+200*x/(the_tile_map_size_x*6));
-			screen_y=201-200*y/(the_tile_map_size_y*6);
+			screen_x = left + width*x/(the_tile_map_size_x*6);
+			screen_y = bottom - height*y/(the_tile_map_size_y*6);
 
 			if(!the_marks[i].server_side) glColor3f((float)the_marks[i].r/255,(float)the_marks[i].g/255,(float)the_marks[i].b/255);//glColor3f(0.4f,1.0f,0.0f);
 			else glColor3f(0.33f,0.6f,1.0f);
@@ -686,22 +720,24 @@ static void draw_marks(marking *the_marks, int the_max_mark, int the_tile_map_si
 			glBegin(GL_LINES);
 				glVertex2i(screen_x-9*mapmark_zoom,screen_y-9*mapmark_zoom);
 				glVertex2i(screen_x+6*mapmark_zoom,screen_y+6*mapmark_zoom);
-			
+
 				glVertex2i(screen_x+6*mapmark_zoom,screen_y-9*mapmark_zoom);
 				glVertex2i(screen_x-9*mapmark_zoom,screen_y+6*mapmark_zoom);
 			glEnd();
 				glEnable(GL_TEXTURE_2D);
 				if(!the_marks[i].server_side) glColor3f((float)the_marks[i].r/255,(float)the_marks[i].g/255,(float)the_marks[i].b/255);//glColor3f(0.2f,1.0f,0.0f);
 				else glColor3f(0.33f,0.6f,1.0f);
-			draw_string_zoomed(screen_x, screen_y, (unsigned char*)the_marks[i].text, 1, mapmark_zoom);
+			draw_text(screen_x, screen_y, (const unsigned char*)the_marks[i].text, strlen(the_marks[i].text),
+				MAPMARK_FONT, TDO_ZOOM, map_font_scale_fac, TDO_END);
 		}
 	}
 }
 
 void draw_coordinates(int the_tile_map_size_x, int the_tile_map_size_y)
 {
-	int screen_x=0;
-	int screen_y=0;
+	int x = small_map_screen_x_left + (small_map_screen_x_right - small_map_screen_x_left) / 2;
+	int h = small_map_screen_y_bottom - small_map_screen_y_top, y = main_map_screen_y_bottom - h;
+	int text_height = get_line_height(MAPMARK_FONT, map_font_scale_fac);
 	int map_x, map_y;
 
 	// draw coordinates
@@ -710,17 +746,16 @@ void draw_coordinates(int the_tile_map_size_x, int the_tile_map_size_y)
 		char buf[10];
 		safe_snprintf(buf, sizeof(buf), "%d,%d", map_x, map_y);
 		glColor3f(1.0f,1.0f,0.0f);
-		screen_x = 25 - 1.5*strlen(buf);
-		screen_y = 150 + 8;
-		draw_string_zoomed(screen_x, screen_y, (unsigned char*)buf, 1, 0.3);
-		screen_x = 25 - 1.5*strlen(label_cursor_coords);
-		screen_y = 150 + 1;
-		draw_string_zoomed(screen_x, screen_y, (unsigned char*)label_cursor_coords, 1, 0.3);
+		draw_text(x, y + 1.1 * text_height, (const unsigned char*)buf, strlen(buf), MAPMARK_FONT,
+			TDO_ALIGNMENT, CENTER, TDO_ZOOM, map_font_scale_fac, TDO_END);
+		draw_text(x, y + 0.1 * text_height, (const unsigned char*)label_cursor_coords, strlen(label_cursor_coords),
+			MAPMARK_FONT, TDO_ALIGNMENT, CENTER, TDO_ZOOM, map_font_scale_fac, TDO_END);
 	}
 }
 
 void draw_game_map (int map, int mouse_mini)
-{     
+{
+	float mapmark_zoom = map_font_scale_fac * font_scales[MAPMARK_FONT];
 	int screen_x=0;
 	int screen_y=0;
 	int x=-1,y=-1;
@@ -728,6 +763,15 @@ void draw_game_map (int map, int mouse_mini)
 	GLuint map_small, map_large;
 	actor *me;
 	static int fallback_text = -1;
+	int win_width, win_height;
+	int main_l = main_map_screen_x_left, main_r = main_map_screen_x_right,
+		main_w = main_r - main_l;
+	int main_t = main_map_screen_y_top, main_b = main_map_screen_y_bottom,
+		main_h = main_b - main_t;
+	int small_l = small_map_screen_x_left, small_r = small_map_screen_x_right,
+		small_w = small_r - small_l;
+	int small_t = small_map_screen_y_top, small_b = small_map_screen_y_bottom,
+		small_h = small_b - small_t;
 
 	// if we don't have a continent texture (instance may be), fallback to blank paper
 	if (cont_text < 0)
@@ -738,7 +782,7 @@ void draw_game_map (int map, int mouse_mini)
 		}
 		cont_text = fallback_text;
 	}
-	
+
 	if(map){
 		map_small = cont_text;
 		if(inspect_map_text == 0) {
@@ -756,40 +800,44 @@ void draw_game_map (int map, int mouse_mini)
 			x_size=y_size=0;
 		}
 	}
-	
+
+	win_width = window_width - hud_x;
+	win_height = window_height - hud_y;
+
 	glDisable(GL_DEPTH_TEST);
 	glDisable(GL_LIGHTING);
-    
-	glViewport(0, 0 + hud_y, window_width-hud_x, window_height-hud_y);
+
+	glViewport(0, hud_y, win_width, win_height);
 	glMatrixMode(GL_PROJECTION);
 	glPushMatrix();
 	glLoadIdentity();
 
-	glOrtho(300, (GLdouble)0, (GLdouble)0, 200, -250.0, 250.0);
+	glOrtho(0.0, (GLdouble)win_width, (GLdouble)win_height, 0.0, -250.0, 250.0);
 	glMatrixMode(GL_MODELVIEW);
 	glPushMatrix();
 	glLoadIdentity();
 
+	glLineWidth(get_global_scale());
+
+	// Draw a black background
 	glDisable(GL_TEXTURE_2D);
 	glColor3f(0.0f, 0.0f, 0.0f);
-
 	glBegin(GL_QUADS);
-		glVertex2i(0,   0);	
-		glVertex2i(300, 0);
-		glVertex2i(300, 200);
-		glVertex2i(0,   200);
+		glVertex2i(0,         0);
+		glVertex2i(0,         win_height);
+		glVertex2i(win_width, win_height);
+		glVertex2i(win_width, 0);
 	glEnd();
 	glEnable(GL_TEXTURE_2D);
 
-	glColor3f(1.0f,1.0f,1.0f);
+	glColor3f(1.0, 1.0, 1.0);
 
 	bind_texture(map_large);
-
 	glBegin(GL_QUADS);
-		glTexCoord2f(1.0f, 1.0f); glVertex3i(50,0,0); 
-		glTexCoord2f(1.0f, 0.0f); glVertex3i(50,200,0);
-		glTexCoord2f(0.0f, 0.0f); glVertex3i(250,200,0);
-		glTexCoord2f(0.0f, 1.0f); glVertex3i(250,0,0);
+		glTexCoord2f(0.0f, 1.0f); glVertex3i(main_l, main_b, 0);
+		glTexCoord2f(0.0f, 0.0f); glVertex3i(main_l, main_t, 0);
+		glTexCoord2f(1.0f, 0.0f); glVertex3i(main_r, main_t, 0);
+		glTexCoord2f(1.0f, 1.0f); glVertex3i(main_r, main_b, 0);
 	glEnd();
 
 	if (mouse_mini)
@@ -800,12 +848,11 @@ void draw_game_map (int map, int mouse_mini)
 	glEnable(GL_ALPHA_TEST);
 
 	bind_texture(map_small);
-
 	glBegin(GL_QUADS);
-		glTexCoord2f(1.0f, 1.0f); glVertex3i(250,150,0);
-		glTexCoord2f(1.0f, 0.0f); glVertex3i(250,200,0);
-		glTexCoord2f(0.0f, 0.0f); glVertex3i(300,200,0);
-		glTexCoord2f(0.0f, 1.0f); glVertex3i(300,150,0);
+		glTexCoord2f(0.0f, 1.0f); glVertex3i(small_l, small_b, 0);
+		glTexCoord2f(0.0f, 0.0f); glVertex3i(small_l, small_t, 0);
+		glTexCoord2f(1.0f, 0.0f); glVertex3i(small_r, small_t, 0);
+		glTexCoord2f(1.0f, 1.0f); glVertex3i(small_r, small_b, 0);
 	glEnd();
 
 	glDisable(GL_ALPHA_TEST);
@@ -813,27 +860,18 @@ void draw_game_map (int map, int mouse_mini)
 	glColor3f(1.0f,1.0f,1.0f);
 
 	bind_texture(legend_text);
-
 	glBegin(GL_QUADS);
-		glTexCoord2f(1.0f, 1.0f); glVertex3i(250,50,0);
-		glTexCoord2f(1.0f, 0.0f); glVertex3i(250,150,0);
-		glTexCoord2f(0.0f, 0.0f); glVertex3i(300,150,0);
-		glTexCoord2f(0.0f, 1.0f); glVertex3i(300,50,0);
+		glTexCoord2f(0.0f, 1.0f); glVertex3i(small_l, small_b + 2*small_h, 0);
+		glTexCoord2f(0.0f, 0.0f); glVertex3i(small_l, small_b,             0);
+		glTexCoord2f(1.0f, 0.0f); glVertex3i(small_r, small_b,             0);
+		glTexCoord2f(1.0f, 1.0f); glVertex3i(small_r, small_b + 2*small_h, 0);
 	glEnd();
 
 // this is necessary for the text over map
 // need to execute this for any map now
 // because of the coordinate display - Lachesis
-	if(map/*&&(adding_mark||max_mark>0)*/){
-   		glViewport(0, 0 + hud_y, window_width-hud_x, window_height-hud_y);
-		glMatrixMode(GL_PROJECTION);
-		glPushMatrix();
-		glLoadIdentity();
-		glOrtho((GLdouble)0, (GLdouble)300, (GLdouble)200, (GLdouble)0, -250.0, 250.0);
-		glMatrixMode(GL_MODELVIEW);
-		glPushMatrix();
-		glLoadIdentity();
-
+	if(map/*&&(adding_mark||max_mark>0)*/)
+	{
 		// Draw help for toggling the mini-map
 		{
 			char buf[80];
@@ -841,16 +879,18 @@ void draw_game_map (int map, int mouse_mini)
 			glEnable(GL_TEXTURE_2D);
 			safe_snprintf(buf, sizeof(buf), "%s %s", win_minimap, get_key_string(K_MINIMAP, keybuf, sizeof(keybuf)));
 			glColor3f (1.0f, 1.0f, 0.0f);
-			draw_string_zoomed(25 - 1.5*strlen(buf), 150 + 43, (const unsigned char *)buf, 1, 0.3);
+			draw_text(small_l+small_w/2, (int)(main_t + main_h - 1.1 * get_line_height(MAPMARK_FONT, map_font_scale_fac)), (const unsigned char *)buf,
+				strlen(buf), MAPMARK_FONT, TDO_ALIGNMENT, CENTER, TDO_ZOOM, map_font_scale_fac, TDO_END);
 		}
- 
+
 		// draw a temporary mark until the text is entered
-		if (adding_mark) {
+		if (adding_mark)
+		{
 			int x = mark_x;
 			int y = mark_y;
 
-			screen_x=(51+200*x/(tile_map_size_x*6));
-			screen_y=201-200*y/(tile_map_size_y*6);
+			screen_x = main_l + main_w*x/(tile_map_size_x*6);
+			screen_y = main_b - main_h*y/(tile_map_size_y*6);
 
 			glColor3f(1.0f,1.0f,0.0f);
 			glDisable(GL_TEXTURE_2D);
@@ -863,7 +903,8 @@ void draw_game_map (int map, int mouse_mini)
 			glEnd();
 		        glEnable(GL_TEXTURE_2D);
 		        glColor3f(1.0f,1.0f,0.0f);
-			draw_string_zoomed (screen_x, screen_y, (unsigned char*)input_text_line.data, 1, mapmark_zoom);
+			draw_text(screen_x, screen_y, (const unsigned char*)input_text_line.data,
+				strlen(input_text_line.data), MAPMARK_FONT, TDO_ZOOM, map_font_scale_fac, TDO_END);
 		}
 
 		draw_mark_filter();
@@ -887,22 +928,22 @@ void draw_game_map (int map, int mouse_mini)
 		{
 			if (cur_map!=-1)
 			{
-				screen_x = 300 - (50 + 200 * ( (px * x_size / 6) + continent_maps[cur_map].x_start) / 512);
-				screen_y = 200 * ( (py * y_size / 6) + continent_maps[cur_map].y_start) / 512;
+				screen_x = main_l + main_w * ( (px * x_size / 6) + continent_maps[cur_map].x_start) / 512;
+				screen_y = main_b - main_h * ( (py * y_size / 6) + continent_maps[cur_map].y_start) / 512;
 			}
 			else
 			{
 				screen_x = screen_y = 0;
 			}
-		} 
+		}
 		else
 		{
-			screen_x=51 +200*px/(tile_map_size_x*6);
-			screen_y=201-200*py/(tile_map_size_y*6);
+			screen_x = main_l + main_w*px/(tile_map_size_x*6);
+			screen_y = main_b - main_h*py/(tile_map_size_y*6);
 		}
 
 		glColor3f(1.0f,0.0f,0.0f);
-		
+
 		glDisable(GL_TEXTURE_2D);
 		glBegin(GL_LINES);
 
@@ -914,8 +955,8 @@ void draw_game_map (int map, int mouse_mini)
 
 		glEnd();
 	}
-	
-	//ok, now let's draw our possition...
+
+	//ok, now let's draw our position...
 	if ( (me = get_our_actor ()) != NULL && inspect_map_text == 0)
 	{
 		x = me->x_tile_pos;
@@ -932,20 +973,20 @@ void draw_game_map (int map, int mouse_mini)
 	{
 		if (cur_map != -1)
 		{
-			screen_x = 300 - (50 + 200 * ( (x * x_size / 6) + continent_maps[cur_map].x_start) / 512);
-			screen_y = 200 * ( (y * y_size / 6) + continent_maps[cur_map].y_start) / 512;
+			screen_x = main_l + main_w * ( (x * x_size / 6) + continent_maps[cur_map].x_start) / 512;
+			screen_y = main_b - main_h * ( (y * y_size / 6) + continent_maps[cur_map].y_start) / 512;
 		}
 		else
 		{
 			screen_x = screen_y = 0;
 		}
-	} 
-	else 
-	{
-		screen_x=51 +200*x/(tile_map_size_x*6);
-		screen_y=201-200*y/(tile_map_size_y*6);
 	}
-	
+	else
+	{
+		screen_x = main_l + main_w*x/(tile_map_size_x*6);
+		screen_y = main_b - main_h*y/(tile_map_size_y*6);
+	}
+
 	if ( (map || !dungeon) && x != -1 )
 	{
 		glColor3f (0.0f, 0.0f, 1.0f);
@@ -968,14 +1009,10 @@ void draw_game_map (int map, int mouse_mini)
 	if(!map && show_continent_map_boundaries && cont_text!=fallback_text) {
 		int i;
 		/* Convert mouse coordinates to map coordinates (stolen from pf_get_mouse_position()) */
-		int min_mouse_x = (window_width-hud_x)/6;
-		int min_mouse_y = 0;
-		int max_mouse_x = min_mouse_x+((window_width-hud_x)/1.5);
-		int max_mouse_y = window_height - hud_y;
-		int screen_map_width = max_mouse_x - min_mouse_x;
-		int screen_map_height = max_mouse_y - min_mouse_y;
-		int m_px = ((mouse_x-min_mouse_x) * 512) / screen_map_width;
-		int m_py = 512 - ((mouse_y * 512) / screen_map_height);
+		int screen_map_width = main_map_screen_x_right - main_map_screen_x_left;
+		int screen_map_height = main_map_screen_y_bottom - main_map_screen_y_top;
+		int m_px = ((mouse_x-main_map_screen_x_left) * 512) / screen_map_width;
+		int m_py = 512 - ((mouse_y-main_map_screen_y_top) * 512) / screen_map_height;
 		int mouse_over = -1;
 
 		glColor3f (0.267f, 0.267f, 0.267f);
@@ -992,11 +1029,11 @@ void draw_game_map (int map, int mouse_mini)
 					/* Mouse over this map */
 					mouse_over = i;
 				} else {
-					int x_start = 300-(50+200*continent_maps[i].x_start/512);
-					int x_end = 300-(50+200*continent_maps[i].x_end/512);
-					int y_start = 200*continent_maps[i].y_start / 512;
-					int y_end = 200*continent_maps[i].y_end / 512;
-					
+					int x_start = main_l + main_w*continent_maps[i].x_start/512;
+					int x_end = main_l + main_w*continent_maps[i].x_end/512;
+					int y_start = main_b - main_h*continent_maps[i].y_start / 512;
+					int y_end = main_b - main_h*continent_maps[i].y_end / 512;
+
 					glVertex2i(x_start, y_start);
 					glVertex2i(x_start, y_end);
 
@@ -1014,10 +1051,10 @@ void draw_game_map (int map, int mouse_mini)
 		/* Draw border for the map with the mouse over it */
 		if(mouse_over >= 0) {
 			float flash_effect_colour = 0.90f - sin((float)SDL_GetTicks()/100.0f) / 10.0f;
-			int x_start = 300-(50+200*continent_maps[mouse_over].x_start/512);
-			int x_end = 300-(50+200*continent_maps[mouse_over].x_end/512);
-			int y_start = 200*continent_maps[mouse_over].y_start / 512;
-			int y_end = 200*continent_maps[mouse_over].y_end / 512;
+			int x_start = main_l + main_w*continent_maps[mouse_over].x_start/512;
+			int x_end = main_l + main_w*continent_maps[mouse_over].x_end/512;
+			int y_start = main_b - main_h*continent_maps[mouse_over].y_start / 512;
+			int y_end = main_b - main_h*continent_maps[mouse_over].y_end / 512;
 
 			glColor3f(flash_effect_colour, flash_effect_colour, flash_effect_colour);
 			glVertex2i(x_start, y_start);
@@ -1038,21 +1075,14 @@ void draw_game_map (int map, int mouse_mini)
 #ifdef DEBUG_MAP_SOUND
 	// If we are in map view (not continent view) draw the sound area boundaries
 	if (map) {
-		print_sound_boundaries(cur_tab_map);
+		print_sound_boundaries(map_file_name);
 	}
 #endif // DEBUG_MAP_SOUND
 
-	if (map)
-	{
-		glMatrixMode(GL_MODELVIEW);
-		glPopMatrix();
-		glMatrixMode(GL_PROJECTION);
-		glPopMatrix();
-		glMatrixMode(GL_MODELVIEW);
-	}
-
 	glEnable (GL_TEXTURE_2D);
 	glColor3f (1.0f, 1.0f, 1.0f);
+
+	glLineWidth(1.0f);
 
 	glMatrixMode (GL_MODELVIEW);
 	glPopMatrix ();
@@ -1085,10 +1115,9 @@ int put_mark_on_position(int map_x, int map_y, const char * name)
 		marks[max_mark].x = map_x;
 		marks[max_mark].y = map_y;
 		memset(marks[max_mark].text,0,sizeof(marks[max_mark].text));
-		
-		my_strncp(marks[max_mark].text,name,sizeof(marks[max_mark].text));
+
+		safe_strncpy(marks[max_mark].text,name,sizeof(marks[max_mark].text));
 		rtrim_string(marks[max_mark].text); //remove trailing white space
-		marks[max_mark].text[strlen(marks[max_mark].text)]=0;
 
 		marks[max_mark].server_side=0;
 		marks[max_mark].server_side_id=-1;
@@ -1096,7 +1125,7 @@ int put_mark_on_position(int map_x, int map_y, const char * name)
 		marks[max_mark].r=curmark_r;
 		marks[max_mark].g=curmark_g;
 		marks[max_mark].b=curmark_b;
-		
+
 		max_mark++;
 		save_markings();
 		return 1;
@@ -1121,35 +1150,29 @@ int put_mark_on_current_position(const char *name)
 
 void delete_mark_on_map_on_mouse_position(void)
 {
-	int min_mouse_x = (window_width-hud_x)/6;
-	int min_mouse_y = 0;
 	int mx , my , i;
-	int max_mouse_x = min_mouse_x+((window_width-hud_x)/1.5);
-	int max_mouse_y = window_height - hud_y;
 
-	int screen_map_width = max_mouse_x - min_mouse_x;
-	int screen_map_height = max_mouse_y - min_mouse_y;
+	int screen_map_width = main_map_screen_x_right - main_map_screen_x_left;
+	int screen_map_height = main_map_screen_y_bottom - main_map_screen_y_top;
 
-	int min_distance; 
+	int min_distance;
 	marking * closest_mark;
 
 	// FIXME (Malaclypse): should be moved above the screen_map_* init, to avoid additional computation
-	if (mouse_x < min_mouse_x
-	|| mouse_x > max_mouse_x
-	|| mouse_y < min_mouse_y
-	|| mouse_y > max_mouse_y) {
+	if (mouse_x < main_map_screen_x_left || mouse_x > main_map_screen_x_right
+		|| mouse_y < main_map_screen_y_top || mouse_y > main_map_screen_y_bottom) {
 		return;
 	}
 
-	mx = ((mouse_x - min_mouse_x) * tile_map_size_x * 6) / screen_map_width;
-	my = (tile_map_size_y * 6) - ((mouse_y * tile_map_size_y * 6) / screen_map_height);
+	mx = ((mouse_x - main_map_screen_x_left) * tile_map_size_x * 6) / screen_map_width;
+	my = (tile_map_size_y * 6) - ((mouse_y - main_map_screen_y_top) * tile_map_size_y * 6) / screen_map_height;
 
 	// delete mark closest to cursor
-	min_distance = 20*20; // only check close marks
+	min_distance = screen_map_width/10 * screen_map_height/10; // only check close marks
 	closest_mark = NULL;
 	for ( i = 0 ; i < max_mark ; i ++ ) {
 		int distance, dx, dy;
-		marking * const mark = &marks[i]; 
+		marking * const mark = &marks[i];
 
 		// skip marks not shown due to filter
 		if (mark_filter_active
@@ -1192,8 +1215,8 @@ void delete_mark_on_map_on_mouse_position(void)
 void destroy_all_root_windows (void)
 {
 	if (game_root_win >= 0) destroy_window (game_root_win);
-	if (console_root_win >= 0) destroy_window (console_root_win);
-	if (map_root_win >= 0) destroy_window (map_root_win);
+	if (get_id_MW(MW_CONSOLE) >= 0) destroy_window (get_id_MW(MW_CONSOLE));
+	if (get_id_MW(MW_TABMAP) >= 0) destroy_window (get_id_MW(MW_TABMAP));
 	if (login_root_win >= 0) destroy_window (login_root_win);
 	if (rules_root_win >= 0) destroy_window (rules_root_win);
 	if (opening_root_win >= 0) destroy_window (opening_root_win);
@@ -1204,8 +1227,8 @@ void destroy_all_root_windows (void)
 void hide_all_root_windows (void)
 {
 	if (game_root_win >= 0) hide_window (game_root_win);
-	if (console_root_win >= 0) hide_window (console_root_win);
-	if (map_root_win >= 0) hide_window (map_root_win);
+	hide_window_MW(MW_CONSOLE);
+	hide_window_MW(MW_TABMAP);
 	if (login_root_win >= 0) hide_window (login_root_win);
 	if (rules_root_win >= 0) hide_window (rules_root_win);
 	if (opening_root_win >= 0) hide_window (opening_root_win);
@@ -1214,38 +1237,18 @@ void hide_all_root_windows (void)
 	if (langsel_rootwin >= 0) hide_window (langsel_rootwin);
 }
 
-static void move_windows_proportionally(Uint32 old_w, Uint32 w, Uint32 old_h, Uint32 h)
-{
-	size_t win_id;
-	for (win_id=0; win_id < windows_list.num_windows; win_id++)
-	{
-		window_info *win = &windows_list.window[win_id];
-		if (win->owner_drawn_title_bar || ((win->flags & ELW_TITLE_BAR) &&
-			((win->pos_id == game_root_win) || (win->pos_id == newchar_root_win) || (win->pos_id == -1))))
-		{
-			int new_x = (int)(0.5 + (float)w * ((float)win->cur_x + (float)win->len_x / 2.0f) / (float)old_w - (float)win->len_x / 2.0f);
-			int new_y = (int)(0.5 + (float)h * ((float)win->cur_y + (float)win->len_y / 2.0f) / (float)old_h - (float)win->len_y / 2.0f);
-			//printf("moving %s %d/%d -> %d/%d\n", win->window_name, win->cur_x, win->cur_y, new_x, new_y);
-			move_window(win->window_id, win->pos_id, win->pos_loc, new_x, new_y);
-		}
-	}
-}
-
 void resize_all_root_windows (Uint32 ow, Uint32 w, Uint32 oh, Uint32 h)
 {
-	move_windows_proportionally(ow, w, oh, h);
+	move_windows_proportionally((float)w / (float)ow, (float)h / (float)oh);
 	if (game_root_win >= 0) resize_window (game_root_win, w, h);
-	if (console_root_win >= 0) resize_window (console_root_win, w, h);
-	if (map_root_win >= 0) resize_window (map_root_win, w, h);
+	if (get_id_MW(MW_CONSOLE) >= 0) resize_window (get_id_MW(MW_CONSOLE), w, h);
+	if (get_id_MW(MW_TABMAP) >= 0) resize_window (get_id_MW(MW_TABMAP), w, h);
 	if (login_root_win >= 0) resize_window (login_root_win, w, h);
 	if (rules_root_win >= 0) resize_window (rules_root_win, w, h);
 	if (opening_root_win >= 0) resize_window (opening_root_win, w, h);
 	if (newchar_root_win >= 0) resize_window (newchar_root_win, w, h);
 	if (update_root_win >= 0) resize_window (update_root_win, w, h);
 	if (langsel_rootwin >= 0) resize_window (langsel_rootwin, w, h);
-	if ((input_widget != NULL) && (input_widget->window_id != chat_win)) {
-		widget_resize (input_widget->window_id, input_widget->id, w-HUD_MARGIN_X, input_widget->len_y);
-		widget_move (input_widget->window_id, input_widget->id, 0, h-input_widget->len_y-HUD_MARGIN_Y);
-	}
+	input_widget_move_to_win(-1);
 	resize_newchar_hud_window();
 }

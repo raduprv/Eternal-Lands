@@ -16,15 +16,12 @@ extern "C" {
  * \name windows handlers
  */
 /*! @{ */
-extern int quickbar_win; /*!< quickbar windows handler */
-extern int quickbar_x;
-extern int quickbar_y;
 extern int quickbar_dir;
 extern int quickbar_draggable;
 extern int num_quickbar_slots;
 extern int quickbar_relocatable; /*!< flag that indicates whether the quickbar is relocatable. */
-extern int qb_action_mode; /*!< flag indicating whether we are in quickbar action mode or not */
 extern int cm_quickbar_enabled;
+extern int independant_quickbar_action_modes;
 /*! @} */
 
 
@@ -51,6 +48,15 @@ int action_item_keys(SDL_Keycode key_code, Uint16 key_mod);
  *	returns y position.
  */
 int get_quickbar_y_base(void);
+
+/*!
+ * \ingroup items_quickbar
+ * \brief Set the action mode for the quickbar window.
+ *
+ * \param new_mode  the new action mode, ignored if not one that can be used
+ *
+ */
+void set_quickbar_action_mode(int new_mode);
 
 #ifdef __cplusplus
 } // extern "C"

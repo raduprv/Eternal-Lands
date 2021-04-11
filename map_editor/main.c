@@ -41,7 +41,6 @@ int start_rendering()
 	}
 
 	/* Destroy our GL context, etc. */ 
-	destroy_map_tiles();
 #if defined(SDL2)
 	SDL_RemoveTimer(my_timer_id);
 #else

@@ -29,30 +29,29 @@ tar xfz ../temp.${version}.tar.gz
 rm ../temp.${version}.tar.gz
 
 # remove stuff that's not required
-echo "Removing unwanted files from copy"
+echo "Removing unwanted files from copy..."
 make -f Makefile.linux clean
-rm -rf animations actor_defs books generic languages map_editor \
-		pawn pawn_scripts shader/data shaders skybox temlates \
-		eye_candy/textures tmp_1_8_0 .deps macosx .git map_editor
-rm -f e3dlist.txt *.xml *.ini *.lst *.pl *.res *.dsp *.dsw .git*
+rm -rf books map_editor pawn pawn_scripts shaders skybox \
+		eye_candy/textures .deps macosx .git dev-data-files
+rm -f *.pl *.res *.dsp *.dsw .git*
 rm -f Makefile.bsd* Makefile.osx Makefile.win make.conf
-chmod -R -x *.{c,cpp,h}
+chmod -R -x *.{c,cpp,h,hpp}
 
 # make the Debian tar ball, then delete the Debian files
-echo "Making Debian tarball"
+echo "Making Debian tarball..."
 tar cfz ../${packagename}-debian-${version}.tar.gz debian
 rm -rf debian
 
 # make the final tar ball
-echo "Making client source tarball"
+echo "Making client source tarball..."
 cd ..
 tar cfz ${packagename}-${version}.tar.gz ${packagename}-${version}
 rm -rf ${packagename}-${version}
 
 
 # optionall create digital signatures
-read -p "Create digital signatures? (y/n) [y] : " opt
-if [ "$opt" != "N" -a "$opt" != "n" ]
+read -p "Create digital signatures? (y/n) [n] : " opt
+if [ "$opt" = "Y" -a "$opt" = "y" ]
 then
 	gpg --armor --sign --detach-sig ${packagename}-${version}.tar.gz
 	gpg --armor --sign --detach-sig ${packagename}-debian-${version}.tar.gz

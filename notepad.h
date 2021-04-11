@@ -14,18 +14,18 @@ extern "C" {
 
 extern int popup_win;      /*!< ID of the popup window */
 extern int notepad_loaded; /*!< boolean flag, indicating whether the notepad was loaded before. */
-extern float note_zoom;    /*!< Size of the text in the note pad */
 
 /* state structure for an input popup window */
 typedef struct
 {
-	int popup_win, parent, popup_field, popup_label, popup_ok, popup_no;
+	int popup_win, parent, popup_field, popup_line, popup_label, popup_ok, popup_no;
 	int maxlen, cols, rows, x, y;
 	int accept_do_not_close, allow_nonprint_chars;
 	void (*popup_cancel)(void *);
 	void (*popup_input)(const char *, void *);
 	Uint32 text_flags;
 	text_message popup_text;
+	unsigned char* popup_line_text;
 	void *data;
 } INPUT_POPUP;
 
@@ -82,7 +82,7 @@ void display_popup_win (INPUT_POPUP *ipu, const char* label);
 
 /*!
  * \ingroup notepad_window
- * \brief   Centres the popup window to parent window 
+ * \brief   Centres the popup window to parent window
  *
  *      Centres the popup window to parent window.
  *
@@ -110,14 +110,6 @@ void fill_notepad_window(int window_id);
  * \retval int  always 1
  */
 int notepad_save_file(void);
-
-/*!
- * \ingroup notepad_window
- * \brief   Close all but the main notepad tab
- *
- * Close all but the main notepad tab
- */
-void notepad_win_close_tabs (void);
 
 #ifdef __cplusplus
 } // extern "C"

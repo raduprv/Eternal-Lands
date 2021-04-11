@@ -35,10 +35,7 @@ typedef enum {
  * \name spells exported variables
  */
 /*! @{ */
-extern int sigil_win; /*!< handle for the sigil (spell) window */
 extern int start_mini_spells; /*!< do we start minimized? */
-extern int sigil_menu_x;
-extern int sigil_menu_y;
 extern int sigils_text; /*!< texture for spell/sigil icons */
 extern int spell_result; /*!< spell_errors type - server return status for last spell cast */
 extern int show_poison_count; /*!< true if showing poison counts in UI */
@@ -112,16 +109,6 @@ void get_active_spell_list (const Uint8 *my_spell_list);
  * \callgraph
  */
 void display_spells_we_have(void);
-
-/*!
- * \ingroup spells_window
- * \brief Displays the spells window
- *
- *      Displays the spells window
- *
- * \callgraph
- */
-void display_sigils_menu(void);
 
 /*!
  * \ingroup spells_window

@@ -713,32 +713,42 @@ struct cal_anim *get_pose_frame(int actor_type, actor *a, int pose_type, int hel
 			case EMOTE_SITTING:
 				return &actors_defs[a->actor_type].cal_frames[cal_actor_idle_sit_frame];
 			case EMOTE_STANDING:
-			    if(held) {
-				attachment_props *att_props = get_attachment_props_if_held(a);
-				if (att_props)
-					return &att_props->cal_frames[cal_attached_idle_frame];
-			    } else
-	                	// 75% chance to do idle1
-	                    if (actors_defs[a->actor_type].cal_frames[cal_actor_idle2_frame].anim_index != -1 
-				&& RAND(0, 3) == 0){
-				return &actors_defs[a->actor_type].cal_frames[cal_actor_idle2_frame]; //idle2
-	                    } else {
-        	                return &actors_defs[a->actor_type].cal_frames[cal_actor_idle1_frame]; //idle1
-			    }
+				if(held)
+				{
+					attachment_props *att_props = get_attachment_props_if_held(a);
+					if (att_props)
+						return &att_props->cal_frames[cal_attached_idle_frame];
+				}
+				else
+				{
+					// 75% chance to do idle1
+					if (actors_defs[a->actor_type].cal_frames[cal_actor_idle2_frame].anim_index != -1
+						&& RAND(0, 3) == 0)
+					{
+						return &actors_defs[a->actor_type].cal_frames[cal_actor_idle2_frame]; //idle2
+					} else {
+						return &actors_defs[a->actor_type].cal_frames[cal_actor_idle1_frame]; //idle1
+					}
+				}
+				break;
 			case EMOTE_RUNNING:
-			    if(held) {
-				attachment_props *att_props = get_attachment_props_if_held(a);
-				if (att_props)
-					return &att_props->cal_frames[cal_attached_run_frame/*get_held_actor_motion_frame(a)*/];
-			    } else
-				return &actors_defs[actor_type].cal_frames[cal_actor_run_frame/*get_actor_motion_frame(a)*/];
+				if(held)
+				{
+					attachment_props *att_props = get_attachment_props_if_held(a);
+					if (att_props)
+						return &att_props->cal_frames[cal_attached_run_frame/*get_held_actor_motion_frame(a)*/];
+				} else
+					return &actors_defs[actor_type].cal_frames[cal_actor_run_frame/*get_actor_motion_frame(a)*/];
+				break;
 			case EMOTE_WALKING:
-			    if(held) {
-				attachment_props *att_props = get_attachment_props_if_held(a);
-				if (att_props)
-					return &att_props->cal_frames[cal_attached_walk_frame/*get_held_actor_motion_frame(a)*/];
-			    } else
-				return &actors_defs[actor_type].cal_frames[cal_actor_walk_frame/*get_actor_motion_frame(a)*/];
+				if(held)
+				{
+					attachment_props *att_props = get_attachment_props_if_held(a);
+					if (att_props)
+						return &att_props->cal_frames[cal_attached_walk_frame/*get_held_actor_motion_frame(a)*/];
+				} else
+					return &actors_defs[actor_type].cal_frames[cal_actor_walk_frame/*get_actor_motion_frame(a)*/];
+				break;
 			default:
 				return NULL;
 			break;
@@ -1196,42 +1206,61 @@ void next_command()
 						{
 							case attack_down_10:
 								index++;
+							// fall-through - suppress the compile warning with this comment
 							case attack_down_9:
 								index++;
+							// fall-through
 							case attack_down_8:
 								index++;
+							// fall-through
 							case attack_down_7:
 								index++;
+							// fall-through
 							case attack_down_6:
 								index++;
+							// fall-through
 							case attack_down_5:
 								index++;
+							// fall-through
 							case attack_down_4:
 								index++;
+							// fall-through
 							case attack_down_3:
 								index++;
+							// fall-through
 							case attack_down_2:
 								index++;
+							// fall-through
 							case attack_down_1:
 								index++;
+							// fall-through
 							case attack_up_10:
 								index++;
+							// fall-through
 							case attack_up_9:
 								index++;
+							// fall-through
 							case attack_up_8:
 								index++;
+							// fall-through
 							case attack_up_7:
 								index++;
+							// fall-through
 							case attack_up_6:
 								index++;
+							// fall-through
 							case attack_up_5:
 								index++;
+							// fall-through
 							case attack_up_4:
 								index++;
+							// fall-through
 							case attack_up_3:
 								index++;
+							// fall-through
 							case attack_up_2:
 								index++;
+							// fall-through
 							case attack_up_1:
 								index++;
 								break;
@@ -2309,7 +2338,10 @@ void get_actor_damage(int actor_id, int damage)
 
 		act->damage=damage;
 		act->damage_ms=2000;
-		act->cur_health-=damage;
+		if(act->cur_health > (Uint16)damage)
+			act->cur_health -= damage;
+		else
+			act->cur_health = 0;
 
 		if (act->cur_health <= 0) {
 #ifdef NEW_SOUND
@@ -2330,7 +2362,7 @@ void get_actor_damage(int actor_id, int damage)
 				bone_y = bone_list[bone][1] + act->y_pos + 0.25;
 				bone_z = bone_list[bone][2] + ec_get_z(act);
 //				printf("ec_create_impact_blood((%f %f, %f), (%f, %f, %f), %d, %f);", bone_x, bone_y, bone_z, ((float)rand()) * blood_level / RAND_MAX / 13.0, ((float)rand()) * blood_level / RAND_MAX / 13.0, ((float)rand()) * blood_level / RAND_MAX / 13.0, (poor_man ? 6 : 10), blood_level);
-				ec_create_impact_blood(bone_x, bone_y, bone_z, ((float)rand()) * blood_level / RAND_MAX / 13.0, ((float)rand()) * blood_level / RAND_MAX / 13.0, ((float)rand()) * blood_level / RAND_MAX / 13.0, (poor_man ? 6 : 10), blood_level);
+				ec_create_impact_blood(bone_x, bone_y, bone_z, (float)rand() * blood_level / (RAND_MAX * 13.0), (float)rand() * blood_level / (RAND_MAX * 13.0), (float)rand() * blood_level / (RAND_MAX * 13.0), (poor_man ? 6 : 10), blood_level);
 			}
 		}
 	}
@@ -2338,7 +2370,6 @@ void get_actor_damage(int actor_id, int damage)
 
 void get_actor_heal(int actor_id, int quantity)
 {
-	//int i=0;
 	actor *act;
 #ifdef EXTRA_DEBUG
 	ERR();
@@ -2775,14 +2806,12 @@ int parse_emotes_defs(const xmlNode *node)
 	return ok;
 }
 
-int read_emotes_defs(const char *dir, const char *index)
+int read_emotes_defs(void)
 {
 	const xmlNode *root;
 	xmlDoc *doc;
-	char fname[120];
+	const char *fname = "emotes.xml";
 	int ok = 1;
-
-	safe_snprintf(fname, sizeof(fname), "%s/%s", dir, index);
 
 	doc = xmlReadFile(fname, NULL, 0);
 	if (doc == NULL) {

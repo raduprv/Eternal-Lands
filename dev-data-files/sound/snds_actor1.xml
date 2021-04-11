@@ -1,0 +1,710 @@
+<sound name = "Walk">
+	<variant>
+		<main_sound>sound/steps-on-wood01.ogg</main_sound>
+	<gain>1.0</gain>
+	</variant>		
+	<loops>0</loops>
+	<distance>35</distance>
+	<positional>1</positional>
+	<priority>5</priority>
+	<type>walking</type>
+</sound>
+<sound name = "Walk Giant">
+	<variant>
+		<main_sound>sound/walk_giant.ogg</main_sound>
+	<gain>1.0</gain>
+	</variant>		
+	<loops>0</loops>
+	<distance>35</distance>
+	<positional>1</positional>
+	<priority>5</priority>
+	<type>walking</type>
+</sound>
+<sound name = "Pain Male">
+	<variant>
+		<main_sound>sound/pain-male01.ogg</main_sound>
+	</variant>
+	<variant>
+		<main_sound>sound/pain-male02.ogg</main_sound>
+	</variant>
+	<variant>
+		<main_sound>sound/pain-male03.ogg</main_sound>
+	</variant>
+	<variant>
+		<main_sound>sound/pain-male04.ogg</main_sound>
+	</variant>
+	<variant>
+		<main_sound>sound/pain-male05.ogg</main_sound>
+	</variant>
+	<variant>
+		<main_sound>sound/pain-male06.ogg</main_sound>
+	</variant>		
+	<distance>35</distance>
+	<priority>3</priority>
+	<type>actor</type>
+</sound>
+<sound name = "Pain Female">
+	<variant>
+		<main_sound>sound/pain-female01.ogg</main_sound>
+	</variant>
+	<variant>
+		<main_sound>sound/pain-female02.ogg</main_sound>
+	</variant>
+	<variant>
+		<main_sound>sound/pain-female03.ogg</main_sound>
+	</variant>
+	<variant>
+		<main_sound>sound/pain-female04.ogg</main_sound>
+	</variant>
+	<variant>
+		<main_sound>sound/pain-female05.ogg</main_sound>
+	</variant>
+	<variant>
+		<main_sound>sound/pain-female06.ogg</main_sound>
+	</variant>			
+	<distance>35</distance>
+	<priority>3</priority>
+	<type>actor</type>
+</sound>
+
+<sound name = "Die Male">
+	<variant>
+	<main_sound>sound/death01.ogg</main_sound>
+	</variant>
+	<distance>35</distance>
+	<priority>3</priority>
+	<type>actor</type>
+</sound>
+<sound name = "Die Female">
+	<variant>
+	<main_sound>sound/death02.ogg</main_sound>
+	</variant>
+	<distance>35</distance>
+	<priority>3</priority>
+	<type>actor</type>
+</sound>
+<sound name = "Battlecry Female1">
+	<variant>
+		<main_sound>sound/battlecry_femaleset101.ogg</main_sound>
+		<gain>1.0</gain>
+	</variant>
+	<variant>
+		<main_sound>sound/battlecry_femaleset102.ogg</main_sound>
+		<gain>1.0</gain>
+	</variant>
+	<variant>
+		<main_sound>sound/battlecry_femaleset103.ogg</main_sound>
+		<gain>1.0</gain>
+	</variant>
+	<variant>
+		<main_sound>sound/battlecry_femaleset104.ogg</main_sound>
+		<gain>1.0</gain>
+	</variant>
+	<variant>
+		<main_sound>sound/battlecry_femaleset105.ogg</main_sound>
+		<gain>1.0</gain>
+	</variant>		
+	<distance>35</distance>
+	<priority>3</priority>
+	<type>actor</type>
+</sound>
+<sound name = "Battlecry Male1">
+	<variant>
+		<main_sound>sound/battlecry_maleset101.ogg</main_sound>
+		<gain>1.0</gain>
+	</variant>
+	<variant>
+		<main_sound>sound/battlecry_maleset102.ogg</main_sound>
+		<gain>1.0</gain>
+	</variant>
+	<variant>
+		<main_sound>sound/battlecry_maleset103.ogg</main_sound>
+		<gain>1.0</gain>
+	</variant>
+	<variant>
+		<main_sound>sound/battlecry_maleset104.ogg</main_sound>
+		<gain>1.0</gain>
+	</variant>
+	<variant>
+		<main_sound>sound/battlecry_maleset105.ogg</main_sound>
+		<gain>1.0</gain>
+	</variant>		
+	<distance>35</distance>
+	<priority>3</priority>
+	<type>actor</type>
+</sound>
+
+<sound name = "Punch">
+	<variant>
+		<main_sound>sound/whoosh-punch01.ogg</main_sound>
+	</variant>
+	<variant>
+		<main_sound>sound/whoosh-punch02.ogg</main_sound>
+	</variant>
+	<variant>
+		<main_sound>sound/whoosh-punch03.ogg</main_sound>
+	</variant>
+	<variant>
+		<main_sound>sound/whoosh-punch04.ogg</main_sound>
+	</variant>
+	<variant>
+		<main_sound>sound/whoosh-punch05.ogg</main_sound>
+	</variant>
+	<variant>
+		<main_sound>sound/whoosh-punch06.ogg</main_sound>
+	</variant>		
+	<distance>35</distance>
+	<priority>3</priority>
+	<type>actor</type>
+</sound>
+
+<sound name = "Kick">
+	<variant>
+		<main_sound>sound/kick.ogg</main_sound>
+	</variant>
+	<distance>35</distance>
+	<priority>3</priority>
+	<type>actor</type>
+</sound>
+
+<sound name = "Sword">
+	<variant>
+		<main_sound>sound/whoosh-sword01.ogg</main_sound>
+	</variant>
+	<variant>
+		<main_sound>sound/whoosh-sword02.ogg</main_sound>
+	</variant>		
+	<distance>35</distance>
+	<priority>3</priority>
+	<type>actor</type>
+</sound>
+<sound name = "Staff">
+	<variant>
+		<main_sound>sound/whoosh-staff01.ogg</main_sound>
+	</variant>
+	<variant>
+		<main_sound>sound/whoosh-staff02.ogg</main_sound>
+	</variant>
+	<variant>
+		<main_sound>sound/whoosh-staff03.ogg</main_sound>
+	</variant>
+	<variant>
+		<main_sound>sound/whoosh-staff04.ogg</main_sound>
+	</variant>		
+	<distance>35</distance>
+	<priority>3</priority>
+	<type>actor</type>
+</sound>
+
+<sound name = "Axe">
+	<variant>
+		<main_sound>sound/whoosh-hammer01.ogg</main_sound>
+	</variant>
+	<variant>
+		<main_sound>sound/whoosh-hammer02.ogg</main_sound>
+	</variant>	
+	<distance>35</distance>
+	<priority>3</priority>
+	<type>actor</type>
+</sound>
+
+<sound name = "Iron Hammer">
+	<variant>
+		<main_sound>sound/whoosh-hammer01.ogg</main_sound>
+	</variant>
+	<variant>
+		<main_sound>sound/whoosh-hammer02.ogg</main_sound>
+	</variant>		
+	<distance>35</distance>
+	<priority>3</priority>
+	<type>actor</type>
+</sound>
+<sound name = "Bow In">
+	<variant>
+		<main_sound>sound/bow01_in.ogg</main_sound>
+	</variant>
+	<distance>35</distance>
+	<priority>3</priority>
+	<type>actor</type>
+</sound>
+<sound name = "Bow Fire">
+	<variant>
+		<main_sound>sound/bow01_fire.ogg</main_sound>
+	</variant>
+	<distance>35</distance>
+	<priority>3</priority>
+	<type>actor</type>
+</sound>
+<sound name = "Bow Fire Out">
+	<variant>
+		<main_sound>sound/bow01_fireout.ogg</main_sound>
+	</variant>
+	<distance>35</distance>
+	<priority>3</priority>
+	<type>actor</type>
+</sound>
+<sound name = "Cross Bow Fire">
+	<variant>
+		<main_sound>sound/bow02_fire.ogg</main_sound>
+	</variant>
+	<distance>35</distance>
+	<priority>3</priority>
+	<type>actor</type>
+</sound>
+<sound name = "Cross Bow Fire Out">
+	<variant>
+		<main_sound>sound/bow02_fireout.ogg</main_sound>
+	</variant>
+	<distance>35</distance>
+	<priority>3</priority>
+	<type>actor</type>
+</sound>
+
+<sound name = "Eagle">
+	<variant>
+		<main_sound>sound/eagle.ogg</main_sound>
+	</variant>
+	<distance>35</distance>
+	<priority>3</priority>
+	<type>actor</type>
+</sound>	
+<sound name = "Wolf Attack">
+	<variant>
+		<main_sound>sound/wolf_attack01.ogg</main_sound>
+	</variant>
+	<variant>
+		<main_sound>sound/wolf_attack02.ogg</main_sound>
+	</variant>
+	<variant>
+		<main_sound>sound/wolf_attack03.ogg</main_sound>
+	</variant>		
+	<distance>35</distance>
+	<priority>3</priority>
+	<type>actor</type>
+</sound>
+<sound name = "WolfYelp">
+	<variant>
+		<main_sound>sound/wolf_yelp.ogg</main_sound>
+	</variant>
+	<distance>35</distance>
+	<priority>3</priority>
+	<type>actor</type>
+</sound>
+<sound name = "Chimeran Attack">
+	<variant>
+		<main_sound>sound/chimeran_attack01.ogg</main_sound>
+	</variant>
+	<variant>
+		<main_sound>sound/chimeran_attack02.ogg</main_sound>
+	</variant>
+	<variant>
+		<main_sound>sound/chimeran_attack03.ogg</main_sound>
+	</variant>
+	<variant>
+		<main_sound>sound/chimeran_attack04.ogg</main_sound>
+	</variant>
+	<variant>
+		<main_sound>sound/chimeran_attack05.ogg</main_sound>
+	</variant>		
+	<distance>35</distance>
+	<priority>3</priority>
+	<type>actor</type>
+</sound>
+<sound name = "Pig">
+	<variant>
+		<main_sound>sound/pig01.ogg</main_sound>
+	</variant>
+	<variant>
+		<main_sound>sound/pig02.ogg</main_sound>
+	</variant>
+	<variant>
+		<main_sound>sound/pig04.ogg</main_sound>
+	</variant>		
+	<distance>35</distance>
+	<priority>3</priority>
+	<type>actor</type>
+</sound>
+<sound name = "Pig Pain">
+	<variant>
+		<main_sound>sound/pig03.ogg</main_sound>
+	</variant>
+	<distance>35</distance>
+	<priority>3</priority>
+	<type>actor</type>
+</sound>
+<sound name = "Skunk">
+	<variant>
+		<main_sound>sound/skunk01.ogg</main_sound>
+	</variant>
+	<variant>
+		<main_sound>sound/skunk02.ogg</main_sound>
+	</variant>	
+	<distance>35</distance>
+	<priority>3</priority>
+	<type>actor</type>
+</sound>
+<sound name = "Raccoon">
+	<variant>
+		<main_sound>sound/raccoon01.ogg</main_sound>
+	</variant>
+	<variant>
+		<main_sound>sound/raccoon02.ogg</main_sound>
+	</variant>
+	<variant>
+		<main_sound>sound/raccoon03.ogg</main_sound>
+	</variant>	
+	<distance>35</distance>
+	<priority>3</priority>
+	<type>actor</type>
+</sound>
+<sound name = "Sheep">
+	<variant>
+		<main_sound>sound/sheep.ogg</main_sound>
+	</variant>
+	<distance>35</distance>
+	<priority>3</priority>
+	<type>actor</type>
+</sound>
+<sound name = "Imp">
+	<variant>
+		<main_sound>sound/imp01.ogg</main_sound>
+	</variant>
+	<variant>
+		<main_sound>sound/imp02.ogg</main_sound>
+	</variant>
+	<variant>
+		<main_sound>sound/imp03.ogg</main_sound>
+	</variant>
+	<variant>
+		<main_sound>sound/imp04.ogg</main_sound>
+	</variant>		
+	<distance>35</distance>
+	<priority>3</priority>
+	<type>actor</type>
+</sound>
+<sound name = "Monster1">
+	<variant>
+		<main_sound>sound/monster01.ogg</main_sound>
+	</variant>
+	<distance>35</distance>
+	<priority>3</priority>
+	<type>actor</type>
+</sound>
+<sound name = "Monster2">
+	<variant>
+		<main_sound>sound/monster02.ogg</main_sound>
+	</variant>
+	<distance>35</distance>
+	<priority>3</priority>
+	<type>actor</type>
+</sound>
+<sound name = "Monster3">
+	<variant>
+		<main_sound>sound/monster03.ogg</main_sound>
+	</variant>
+	<distance>35</distance>
+	<priority>3</priority>
+	<type>actor</type>
+</sound>
+<sound name = "Monster4">
+	<variant>
+		<main_sound>sound/monster05.ogg</main_sound>
+	</variant>
+	<distance>35</distance>
+	<priority>3</priority>
+	<type>actor</type>
+</sound>
+<sound name = "Monster5">
+	<variant>
+		<main_sound>sound/monster05.ogg</main_sound>
+	</variant>
+	<distance>35</distance>
+	<priority>3</priority>
+	<type>actor</type>
+</sound>
+<sound name = "Monster6">
+	<variant>
+		<main_sound>sound/monster06.ogg</main_sound>
+	</variant>
+	<distance>35</distance>
+	<priority>3</priority>
+	<type>actor</type>
+</sound>
+<sound name = "Monster14">
+	<variant>
+		<main_sound>sound/monster14.ogg</main_sound>
+	</variant>
+	<distance>35</distance>
+	<priority>3</priority>
+	<type>actor</type>
+</sound>
+<sound name = "Phantom Idle">
+	<variant>
+		<main_sound>sound/phantom01.ogg</main_sound>
+	</variant>
+	<variant>
+		<main_sound>sound/phantom02.ogg</main_sound>
+	</variant>	
+	<distance>35</distance>
+	<priority>3</priority>
+	<type>actor</type>
+</sound>
+<sound name = "Phantom Attack">
+	<variant>
+		<main_sound>sound/phantom03.ogg</main_sound>
+	</variant>
+	<distance>35</distance>
+	<priority>3</priority>
+	<type>actor</type>
+</sound>
+<sound name = "Dragon Idle">
+	<variant>
+		<main_sound>sound/dragon01.ogg</main_sound>
+	</variant>
+	<variant>
+		<main_sound>sound/dragon02.ogg</main_sound>
+	</variant>	
+	<distance>35</distance>
+	<priority>3</priority>
+	<type>actor</type>
+</sound>
+<sound name = "Dragon Attack">
+	<variant>
+		<main_sound>sound/dragon03.ogg</main_sound>
+	</variant>
+	<variant>
+		<main_sound>sound/dragon04.ogg</main_sound>
+	</variant>
+	<variant>
+		<main_sound>sound/dragon05.ogg</main_sound>
+	</variant>	
+	<distance>35</distance>
+	<priority>3</priority>
+	<type>actor</type>
+</sound>
+<sound name = "Lion Attack">
+	<variant>
+		<main_sound>sound/lion01.ogg</main_sound>
+	</variant>
+	<variant>
+		<main_sound>sound/lion02.ogg</main_sound>
+	</variant>
+	<variant>
+		<main_sound>sound/lion03.ogg</main_sound>
+	</variant>
+	<variant>
+		<main_sound>sound/lion04.ogg</main_sound>
+	</variant>
+	<variant>
+		<main_sound>sound/lion05.ogg</main_sound>
+	</variant>		
+	<distance>35</distance>
+	<priority>3</priority>
+	<type>actor</type>
+</sound>
+<sound name = "Rat1">
+	<variant>
+		<main_sound>sound/rat01.ogg</main_sound>
+	</variant>
+	<distance>35</distance>
+	<priority>3</priority>
+	<type>actor</type>
+</sound>
+<sound name = "Horse Idle">
+	<variant>
+		<main_sound>sound/horse01.ogg</main_sound>
+	</variant>
+	<variant>
+		<main_sound>sound/horse02.ogg</main_sound>
+	</variant>
+	<variant>
+		<main_sound>sound/horse03.ogg</main_sound>
+	</variant>	
+	<distance>35</distance>
+	<priority>3</priority>
+	<type>actor</type>
+</sound>
+<sound name = "Ow">
+	<variant>
+		<main_sound>sound/ow01.ogg</main_sound>
+	</variant>
+	<variant>
+		<main_sound>sound/ow02.ogg</main_sound>
+	</variant>
+	<variant>
+		<main_sound>sound/ow03.ogg</main_sound>
+	</variant>
+	<variant>
+		<main_sound>sound/ow04.ogg</main_sound>
+	</variant>		
+	<distance>35</distance>
+	<priority>3</priority>
+	<type>actor</type>
+</sound>	
+
+<sound name = "Battlecry Little">
+	<variant>
+		<main_sound>sound/battlecry_little01.ogg</main_sound>
+	</variant>
+	<variant>
+		<main_sound>sound/battlecry_little02.ogg</main_sound>
+	</variant>
+	<variant>
+		<main_sound>sound/battlecry_little03.ogg</main_sound>
+	</variant>
+	<variant>
+		<main_sound>sound/battlecry_little04.ogg</main_sound>
+	</variant>	
+	<distance>35</distance>
+	<priority>3</priority>
+	<type>actor</type>
+</sound>
+<sound name = "Battlecry Goblin">
+	<variant>
+		<main_sound>sound/monster07.ogg</main_sound>
+	</variant>
+	<variant>
+		<main_sound>sound/monster08.ogg</main_sound>
+	</variant>
+	<variant>
+		<main_sound>sound/monster09.ogg</main_sound>
+	</variant>
+	<variant>
+		<main_sound>sound/monster10.ogg</main_sound>
+	</variant>	
+	<distance>35</distance>
+	<priority>3</priority>
+	<type>actor</type>
+</sound>
+<sound name = "Battlecry Orc">
+	<variant>
+		<main_sound>sound/monster11.ogg</main_sound>
+	</variant>
+	<variant>
+		<main_sound>sound/monster12.ogg</main_sound>
+	</variant>
+	<variant>
+		<main_sound>sound/monster13.ogg</main_sound>
+	</variant>
+	<distance>35</distance>
+	<priority>3</priority>
+	<type>actor</type>
+</sound>
+<sound name = "Grass 2Foot">
+	<variant>
+		<main_sound>sound/steps-on-grass04.ogg</main_sound>
+	</variant>
+	<distance>35</distance>
+	<priority>3</priority>
+	<loops>0</loops>
+	<type>walking</type>
+</sound>
+<sound name = "Grass 4Foot">
+	<variant>
+		<main_sound>sound/steps-on-grass04.ogg</main_sound>
+	</variant>
+	<distance>35</distance>
+	<priority>3</priority>
+	<loops>0</loops>
+	<type>walking</type>
+</sound>
+<sound name = "Stone 2Foot">
+	<variant>
+		<main_sound>sound/steps-on-stone01.ogg</main_sound>
+	</variant>
+	<distance>35</distance>
+	<priority>3</priority>
+	<loops>0</loops>
+	<type>walking</type>
+</sound>
+<sound name = "Stone 4Foot">
+	<variant>
+		<main_sound>sound/steps-on-stone01.ogg</main_sound>
+	</variant>
+	<distance>35</distance>
+	<priority>3</priority>
+	<loops>0</loops>
+	<type>walking</type>
+</sound>
+<sound name = "Wood 2Foot">
+	<variant>
+		<main_sound>sound/steps-on-wood01.ogg</main_sound>
+	</variant>
+	<distance>35</distance>
+	<priority>3</priority>
+	<loops>0</loops>
+	<type>walking</type>
+</sound>
+<sound name = "Wood 4Foot">
+	<variant>
+		<main_sound>sound/steps-on-wood01.ogg</main_sound>
+	</variant>
+	<distance>35</distance>
+	<priority>3</priority>
+	<loops>0</loops>
+	<type>walking</type>
+</sound>
+<sound name = "Dirt 2Foot">
+	<variant>
+		<main_sound>sound/steps-on-grit02.ogg</main_sound>
+	</variant>
+	<distance>35</distance>
+	<priority>3</priority>
+	<loops>0</loops>
+	<type>walking</type>
+</sound>
+<sound name = "Dirt 4Foot">
+	<variant>
+		<main_sound>sound/steps-on-grit02.ogg</main_sound>
+	</variant>
+	<distance>35</distance>
+	<priority>3</priority>
+	<loops>0</loops>
+	<type>walking</type>
+</sound>
+<sound name = "Snow 2Foot">
+	<variant>
+		<main_sound>sound/steps-on-snow01.ogg</main_sound>
+	</variant>
+	<distance>35</distance>
+	<priority>3</priority>
+	<loops>0</loops>
+	<type>walking</type>
+</sound>
+<sound name = "Leaves 2Foot">
+	<variant>
+		<main_sound>sound/steps-on-leaves01.ogg</main_sound>
+	</variant>
+	<distance>35</distance>
+	<priority>3</priority>
+	<loops>0</loops>
+	<type>walking</type>
+</sound>
+<sound name = "Water 2Foot">
+	<variant>
+		<main_sound>sound/steps-in-water01.ogg</main_sound>
+	</variant>
+	<distance>35</distance>
+	<priority>3</priority>
+	<loops>0</loops>
+	<type>walking</type>
+</sound>
+
+
+<sound name = "Clap">
+	<variant>
+		<main_sound>sound/player_clap.ogg</main_sound>
+	</variant>
+	<distance>35</distance>
+	<priority>3</priority>
+	<type>actor</type>
+</sound>
+
+<sound name = "Jump1">
+	<variant>
+		<main_sound>sound/player_jump1.ogg</main_sound>
+	</variant>
+	<distance>35</distance>
+	<priority>3</priority>
+	<type>actor</type>
+</sound>

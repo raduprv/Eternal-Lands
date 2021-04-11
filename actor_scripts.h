@@ -100,7 +100,7 @@ void destroy_all_actors();
  *
  * 		The calls destroy_all_actors() then requests the server sends all actor informaiton.
  *
- * \param	If true, write message to the console, otherwise do it silently.
+ * \param	log_the_update If true, write message to the console, otherwise do it silently.
  *
  * \sa		destroy_all_actors
  */
@@ -195,7 +195,7 @@ int checkvisitedlist(int x, int y);
  *
  * \callgraph
  */
-int read_emotes_defs(const char *dir, const char *index);
+int read_emotes_defs();
 
 void free_emotes();
 

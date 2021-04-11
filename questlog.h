@@ -11,26 +11,6 @@ extern "C" {
 #endif
 
 /*!
- * \name windows handlers
- */
-/*! @{ */
-extern int questlog_win; /*!< handle for the questlog window */
-/*! @} */
-
-extern int questlog_menu_x;
-extern int questlog_menu_y;
-
-/*!
- * \ingroup quest_window
- * \brief Displays the questlog window
- *
- *      Displays the questlog window
- *
- * \callgraph
- */
-void display_questlog();
-
-/*!
  * \ingroup quest_window
  * \brief Loads the questlog from the users filesystem.
  *
@@ -60,7 +40,7 @@ void unload_questlog();
  *
  * \callgraph
  */
-void add_questlog(char *t, int len);
+void add_questlog(const unsigned char *t, int len);
 
 /*!
  * \ingroup quest_window
@@ -126,9 +106,9 @@ void clear_waiting_for_questlog_entry(void);
 
 /*!
  * \ingroup quest_window
- * \brief Write the questlog options to the el.cfg structure.
+ * \brief Write the questlog options to the cfg file structure.
  *
- *      Write the questlog options to the el.cfg structure.
+ *      Write the questlog options to the cfg file structure.
  *
  * \callgraph
  */
@@ -137,14 +117,38 @@ unsigned int get_options_questlog(void);
 
 /*!
  * \ingroup quest_window
- * \brief  Read the questlog options from the el.cfg structure.
+ * \brief  Read the questlog options from the cfg file structure.
  *
- *      Read the questlog options from the el.cfg structure.
+ *      Read the questlog options from the cfg file structure.
  *
  * return true if if answer is yes.
  * \callgraph
  */
 void set_options_questlog(unsigned int cfg_options);
+
+
+#ifdef JSON_FILES
+/*!
+ * \ingroup quest_window
+ * \brief Write the questlog options to the client state file.
+ *
+ *      Write the questlog options to the client state file.
+ *
+ * \callgraph
+ */
+void write_options_questlog(const char *dict_name);
+
+
+/*!
+ * \ingroup quest_window
+ * \brief Read the questlog options from the client state file.
+ *
+ *      Read the questlog options from the client state file.
+ *
+ * \callgraph
+ */
+void read_options_questlog(const char *dict_name);
+#endif
 
 
 /*!

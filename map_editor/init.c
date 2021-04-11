@@ -42,7 +42,7 @@ void read_config()
 	// Set our configdir
 	const char * tcfg = get_path_config();
 
-	my_strncp (configdir, tcfg , sizeof(configdir));
+	safe_strncpy(configdir, tcfg, sizeof(configdir));
 
 	if ( !read_el_ini () )
 	{
@@ -87,7 +87,7 @@ void init_stuff()
 	init_texture_cache();
 
 	init_vars();
-	
+
 	read_config();
 
 	file_check_datadir();
@@ -138,7 +138,6 @@ void init_stuff()
 		lights_list[i] = NULL;
 
 	new_map(256,256);
-	load_all_tiles();
 
 	//lights setup
 	build_global_light_table();
@@ -162,6 +161,7 @@ void init_stuff()
 	init_fonts();
 	icons_text=load_texture_cached("./textures/gamebuttons.bmp", tt_gui);
 	buttons_text=load_texture_cached("./textures/buttons.bmp", tt_gui);
+	set_toolbar_button_size();
 	//get the application home dir
 
 	have_multitexture=0;//debug only
@@ -174,7 +174,7 @@ void init_stuff()
 	init_browser();
 
     if(SDL_InitSubSystem(SDL_INIT_TIMER)<0)
-    { 
+    {
         char str[120];
         snprintf(str, sizeof(str), "Couldn't initialize the timer: %s\n", SDL_GetError());
         log_error(__FILE__, __LINE__, str);

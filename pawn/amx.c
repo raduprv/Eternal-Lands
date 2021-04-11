@@ -986,7 +986,10 @@ int AMXAPI amx_Init(AMX *amx,void *program)
     /* when there is a separate name table, check the maximum name length
      * in that table
      */
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Waddress-of-packed-member"
     amx_Align32((uint32_t*)&hdr->nametable);
+#pragma GCC diagnostic pop
     namelength=(uint16_t*)((unsigned char*)program + (unsigned)hdr->nametable);
     amx_Align16(namelength);
     if (*namelength>sNAMEMAX)
@@ -1867,7 +1870,7 @@ int AMXAPI amx_PushString(AMX *amx, cell *amx_addr, cell **phys_addr, const char
      * supports this too.
      */
 
-#define NEXT(cip)       goto **cip++
+#define NEXT(cip)       goto *((void*)(*cip++))
 
 int AMXAPI amx_Exec(AMX *amx, cell *retval, int index)
 {

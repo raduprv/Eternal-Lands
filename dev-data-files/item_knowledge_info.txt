@@ -1,0 +1,409 @@
+1
+#
+# Provides the mapping between knowledge id (i.e. a book) and an item.
+# So we can include the read status of the book with the description.
+#
+# the first line is the data format version
+# blank lines and lines starting with # are ignored
+# space and case are ignored, the description is not used
+# the file must be located in the data or update directory
+# data format is similar to the item_info.txt file
+# book id | item id | description
+#
+    0 |   151 | Book of Metallurgy
+    1 |   152 | Book of Metal Smelting
+    2 |   153 | Book of Metal Mining
+    3 |   154 | Book of Metal Molding
+    4 |   155 | Book of Gold Smelting
+    5 |   156 | Book of Iron Smelting
+    6 |   157 | Book of Silver Smelting
+    7 |   158 | Book of Steel Smelting
+    8 |   159 | Book of Titanium Smelting
+    9 |   439 | Book of Hydrogenium smelting
+   10 |   160 | Book of Gold Mining
+   11 |   161 | Book of Iron Mining
+   12 |   162 | Book of Silver Mining
+   13 |   163 | Book of Titanium Mining
+   14 |   164 | Book of Steel Molding
+   15 |   165 | Book of Gold Molding
+   16 |   166 | Book of Iron Molding
+   17 |   167 | Book of Silver Molding
+   18 |   168 | Book of Titanium Molding
+   19 |   169 | Weapon Construction
+   20 |   170 | Sword Construction
+   21 |   171 | Iron Sword Construction
+   22 |   172 | Iron Broad Sword Construction
+   23 |   173 | Steel Long Sword Construction
+   24 |   174 | Two Edged Steel Sword Construction
+   25 |   175 | Titanium Short Construction
+   26 |   176 | Titanium Long Construction
+   27 |   177 | Titanium Serpent Sword Construction
+   28 |   178 | Armor Construction
+   29 |   179 | Torso Armor Construction
+   30 |   180 | Feet Armor Construction
+   31 |   181 | Legs Armor Construction
+   32 |   182 | Head Armor Construction
+   33 |   183 | Leather Helmet Construction
+   34 |   184 | Iron Helmet Construction
+   35 |   185 | Iron Greaves Construction
+   36 |   186 | Iron Cuisses Construction
+   37 |   187 | Padded Leather Pants Construction
+   38 |   188 | Iron Chainmail Torso Construction
+   39 |   189 | Iron Plate Mail Construction
+   40 |   190 | Steel Chainmail Torso Construction
+   41 |   191 | Titanium Chainmail Torso Construction
+   42 |   192 | Torso Padded Leather Construction
+   43 |   193 | Shields Construction
+   44 |   194 | Iron Shield Construction
+   45 |   195 | Steel Shield Construction
+   46 |   196 | Crystal Technology
+   47 |   197 | Crystal Mining
+   48 |   198 | Quartz Mining
+   49 |   199 | Rose Quartz Mining
+   50 |   200 | Blue Quartz Mining
+   51 |   201 | Ruby Mining
+   52 |   202 | Emerald Mining
+   53 |   203 | Sapphire Mining
+   54 |   204 | Diamond Mining
+   55 |   205 | Crystal Processing
+   56 |   206 | Diamond Processing
+   57 |   207 | Sapphire Processing
+   58 |   208 | Emerald Processing
+   59 |   209 | Ruby Processing
+   60 |   210 | Jewlery Technology
+   61 |   211 | Crystal embedding
+   62 |   212 | Generic Rings Building
+   63 |   213 | Generic Medallions Building
+   64 |   214 | Diamond embedding
+   65 |   215 | Sapphire embedding
+   66 |   216 | Emerald embedding
+   67 |   217 | Ruby embedding
+   68 |   218 | Silver Rings Building
+   69 |   219 | Gold Rings Building
+   70 |   220 | Silver Medallions Building
+   71 |   221 | Gold Medallions Building
+   72 |   222 | Sun Medallion Building
+   73 |   223 | Unicorn Medallion Building
+   74 |   224 | Moon Medallion Building
+   75 |   225 | Stars Medallion Building
+   76 |   226 | VOTD Ring Building
+   77 |   227 | Naralik Ring Building
+   78 |   228 | Disengagement Ring Building
+   79 |   229 | Ring of Damage Building
+   80 |   230 | Isla Prima Ring Building
+   81 |   232 | WhiteStone Ring Building
+   82 |   231 | Portland Ring Building
+   83 |   233 | Desert Pines Ring Building
+   84 |   234 | Book of Biology
+   85 |   235 | Book of Biochemistry
+   86 |   236 | Book of Botanics
+   87 |   237 | Book of Anatomy
+   88 |   238 | Book of Advanced Alchemy
+   89 |   239 | Book of Advanced Potions
+   90 |   240 | Book of Life Essence
+   91 |   241 | Book of Death Essence
+   92 |   242 | Book of Health Essence
+   93 |   243 | Book of Magic Essence
+   94 |   244 | Book of Potion of Body Restoration
+   95 |   245 | Book of Potion of Wildness
+   96 |   246 | Book of Potion of Vitality
+   97 |   247 | Book of Potion of Coordination
+   98 |   248 | Book of Potion of Will
+   99 |   249 | Book of Potion of Physique
+  100 |   250 | Book of Potion of Feasting
+  101 |   251 | Book of Potion of Manufacturing
+  102 |   252 | Book of Potion of Summoning
+  103 |   253 | Book of Advanced Summoning
+  104 |   254 | Book of Snakes Summoning
+  105 |   255 | Book of Wolf Summoning
+  106 |   256 | Book of Boar Summoning
+  107 |   257 | Book of Skeleton Summoning
+  108 |   258 | Book of Gargoyles Summoning
+  109 |   259 | Book of Puma Summoning
+  110 |   260 | Book of Bear Summoning
+  111 |   261 | Book of Combat Tactics
+  112 |   262 | Book of Goblin Fighting
+  113 |   263 | Book of Skeleton Fighting
+  114 |   264 | Book of Gargoyle Fighting
+  115 |   265 | Book of Puma Fighting
+  116 |   266 | Book of Orc Fighting
+  117 |   267 | Book of Bear Fighting
+  118 |   268 | Book of Troll Fighting
+  119 |   269 | Book of Cyclops Fighting
+  120 |   270 | Book of Dwarf Fighting
+  121 |   271 | Book of Elf Fighting
+  122 |   272 | Book of Humans Fighting
+  123 |   324 | Book of Axe Construction
+  124 |   325 | Book of Iron Axe Construction
+  125 |   326 | Book of Steel Axe Construction
+  126 |   327 | Book of Titanium Axe Construction
+  127 |   330 | Book of Fluffy Summoning
+  128 |   331 | Chimeran Mountain Wolf Summoning
+  129 |   358 | Book of Crafting Potion
+  130 |   359 | Book of Magic Potion
+  131 |   391 | Anitora Ring Building
+  132 |   392 | Idaloran Ring Building
+  133 |   393 | Bethel Ring Building
+  134 |   394 | Sedicolis Ring Building
+  135 |   395 | Palon Vertas Ring Building
+  136 |   396 | Kusamura Ring Building
+  137 |   397 | Egratia Ring Building
+  138 |   398 | Iscalrith Ring Building
+  139 |   399 | Irinveron Ring Building
+  140 |   400 | Hulda Ring Building
+  141 |   401 | Trassian Ring Building
+  142 |   402 | Isle of the Forgotten Ring Building
+  143 |   403 | Imbroglio Islands Ring Building
+  144 |   404 | Hurquin Ring Building
+  145 |   405 | Glacmor Ring Building
+  146 |   406 | Emerald Valley Ring Building
+  147 |   411 | Book of special swords
+  148 |   412 | Book of Fire sword
+  149 |   413 | Book of Ice sword
+  150 |   414 | Book of Magic sword
+  151 |   415 | Book of Thermal sword
+  152 |   416 | Book of Iron sword of fire
+  153 |   417 | Book of Iron Broad sword of fire
+  154 |   418 | Book of Iron Broad sword of ice
+  155 |   419 | Book of Steel long sword of fire
+  156 |   420 | Book of Steel long sword of ice
+  157 |   421 | Book of Steel long sword of magic
+  158 |   422 | Book of Steel two edged sword of fire
+  159 |   423 | Book of Steel two edged sword of ice
+  160 |   424 | Book of Steel two edged sword of magic
+  161 |   425 | Book of Steel two edged sword of thermal
+  162 |   863 | Book of Titanium/Steel Short Sword of Fire
+  163 |   864 | Book of Titanium/Steel Short Sword of Ice
+  164 |   865 | Book of Titanium/Steel Short Sword of Magic
+  165 |   866 | Book of Titanium/Steel Short Sword of Thermal
+  166 |   867 | Book of Titanium/Steel Long Sword of Fire
+  167 |   868 | Book of Titanium/Steel Long Sword of Ice
+  168 |   869 | Book of Titanium/Steel Long Sword of Magic
+  169 |   870 | Book of Titanium/Steel Long Sword of Thermal
+  170 |   871 | Book of Serpent Sword of Fire
+  171 |   872 | Book of Serpent Sword of Ice
+  172 |   873 | Book of Serpent Sword of Magic
+  173 |   874 | Book of Serpent Sword of Thermal
+  174 |   426 | Book of Female Goblin Sum.
+  175 |   427 | Book of Armed Male Goblin Sum.
+  176 |   428 | Book of Armed Skeleton Sum.
+  177 |   429 | Book of Female Orc Sum.
+  178 |   430 | Book of Male Orc Sum.
+  179 |   431 | Book of Armed Female Orc Sum.
+  180 |   432 | Book of Armed Male Orc Sum.
+  181 |   433 | Book of Cyclop Sum.
+  182 |   434 | Book of Polar Bear Sum.
+  183 |   437 | Book of Hydrogenium mining
+  184 |   438 | Book of Hydrogenium molding
+  185 |   484 | Book of Wolframite Smelting
+  186 |   485 | Book of Wolframite Mining
+  187 |   486 | Book of Wolfram Molding
+  188 |   487 | Book of Steel Greaves
+  189 |   488 | Book of Steel Cuisses
+  190 |   489 | Book of Titanium Shield
+  191 |   490 | Book of Steel Helmet
+  192 |   491 | Book of Titanium Helmet
+  193 |   492 | Book of Titanium Greaves
+  194 |   493 | Book of Titanium Cuisses
+  195 |   494 | Book of Steel Plate Mail
+  196 |   495 | Book of Titanium Plate Mail
+  197 |   496 | Book of Emerald Claymore
+  198 |   497 | Book of Cutlass
+  199 |   498 | Book of Sunbreaker
+  200 |   499 | Book of Orc Slayer
+  201 |   500 | Book of Eagle Wing
+  202 |   501 | Book of Rapier
+  203 |   502 | Book of Jagged Saber
+  204 |   524 | Book of Poison Antidote
+  205 |   525 | Book of True Sight
+  206 |   526 | Book of Invisibility
+  207 |   532 | Book of Accuracy
+  208 |   533 | Book of Evasion
+  209 |   555 | Arctic Chimeran Summoning
+  210 |   556 | Yeti Summoning
+  211 |   557 | Giant Summoning
+  212 |   558 | Crown of Life Building
+  213 |   559 | Crown of Mana Building
+  214 |   560 | Ring of Mana Destruction Building
+  215 |   561 | Ring of Massive Mana Destruction Building
+  216 |   564 | Book of Gypsum Harvesting
+  217 |   565 | Book of Gypsum Molding
+  218 |   579 | Sslessar Stone Construction
+  219 |   580 | Bear Stone Construction
+  220 |   581 | Tiger Stone Construction
+  221 |   582 | Yeti Stone Construction
+  222 |   583 | Giant Spider Stone Construction
+  223 |   584 | Arctic Chim Stone Construction
+  224 |   585 | Phantom Warrior Stone Construction
+  225 |   586 | Fluffy Stone Construction
+  226 |   587 | Armed Orc Stone Construction
+  227 |   588 | Giant Stone Construction
+  228 |   589 | Potion of Alchemy Construction
+  229 |   590 | Potion of Potion Construction
+  230 |   596 | Copper Mining
+  231 |   597 | Tin Mining
+  232 |   598 | Copper Smelting
+  233 |   599 | Tin Smelting
+  234 |   600 | Copper Molding
+  235 |   601 | Tin Molding
+  236 |   602 | Bronze Plate Mail Construction
+  237 |   603 | Bronze Cuisses Construction
+  238 |   604 | Bronze Greaves Construction
+  239 |   605 | Bronze Helm Construction
+  240 |   606 | Bronze Shield Construction
+  241 |   613 | Seridium Mining
+  242 |   615 | Seridium Molding
+  243 |   614 | Seridium Smelting
+  244 |   616 | Seridium Medallion Building
+  245 |   622 | Heavenspawn Medallion Building
+  246 |   623 | Harvester Medallion Building
+  247 |   628 | Cinnabar Mining
+  248 |   629 | Mercury Extraction
+  249 |   630 | Vial Mold Building
+  250 |   631 | Alembic Building
+  251 |   632 | Medallion of Life Building
+  252 |   686 | Book of Bronze Sword
+  253 |   687 | Book of Red Dragon Torso Armor
+  254 |   688 | Book of Red Dragon Greaves Armor
+  255 |   689 | Book of Red Dragon Cuisses Armor
+  256 |   690 | Book of Red Dragon Helm Armor
+  257 |   691 | Book of Spear
+  258 |   692 | Book of Halberd
+  259 |   693 | Book of Dragon Blade
+  260 |   694 | Book of Golden Star Mace
+  261 |   695 | Book of Frying Pan
+  262 |   696 | Book of Night Visor
+  263 |   697 | Book of Caltrops
+  264 |   698 | Book of Blackpowder
+  265 |   699 | Book of Camouflage Cape
+  266 |   700 | Book of Rope
+  267 |   701 | Book of Snare
+  268 |   702 | Book of Nails
+  269 |   703 | Book of Poisoned Caltrops
+  270 |   704 | Book of Small Landmine
+  271 |   705 | Book of Saltpetre
+  272 |   706 | Book of Saving Stone
+  273 |   724 | Book of Hawk Summoning
+  274 |   725 | Book of Falcon Summoning
+  275 |   726 | Book of Potion of Engineering
+  276 |   727 | Book of Barricade
+  277 |   729 | Book of Ogre Fighting
+  278 |   730 | Book of Phantom Warrior Fighting
+  279 |   731 | Book of Fluffy Fighting
+  280 |   732 | Book of Yeti Fighting
+  281 |   733 | Book of Giant Fighting
+  282 |   734 | Book of Red Dragon Fighting
+  283 |   735 | Book of Black Dragon Fighting
+  284 |   751 | Book of Red Dragon Summoning
+  285 |   752 | Book of Astrology Indicators
+  286 |   753 | Book of A/D Indicator Building
+  287 |   754 | Book of Criticals Indicator Building
+  288 |   755 | Book of Accuracy/Magic Indicator Building
+  289 |   756 | Book of Harvest/Degrade Indicator Building
+  290 |   757 | Book of Rare/Fail Indicator Building
+  291 |   759 | Book of Lightmeter
+  292 |   840 | Book of Fabric Weaving
+  293 |   841 | Book of Red Dye
+  294 |   842 | Book of Orange Dye
+  295 |   843 | Book of Yellow Dye
+  296 |   844 | Book of Green Dye
+  297 |   845 | Book of Blue Dye
+  298 |   846 | Book of Purple Dye
+  299 |   847 | Book of Black Dye
+  300 |   848 | Book of Fabric Dyeing
+  301 |   849 | Book of Tunic
+  302 |   850 | Book of Tunic/Shirt
+  303 |   851 | Book of Robe
+  304 |   852 | Book of Robe Skirts
+  305 |   853 | Book of Baggy Pants
+  306 |   854 | Book of Scarves
+  307 |   855 | Book of Tricorn Hat
+  308 |   856 | Book of Buccaneer Hat
+  309 |   857 | Book of Santa Hat
+  310 |   858 | Book of Hood
+  311 |   859 | Book of Black Dragon Helm
+  312 |   860 | Book of Black Dragon Torso Armor
+  313 |   861 | Book of Black Dragon Cuisses
+  314 |   862 | Book of Black Dragon Greaves
+  315 |   876 | Book of No More Warlock
+  316 |   877 | Book of Medium Landmine
+  317 |   878 | Book High Explosive Mine
+  318 |   885 | Book of Invasionmeter
+  319 |   900 | Book of Bows and Crossbows
+  320 |   901 | Book of Arrows and bolts
+  321 |   902 | Book of PK arrows
+  322 |   903 | Book of Ice arrows
+  323 |   904 | Book of Fire arrows
+  324 |   905 | Book of Magic arrows
+  325 |   906 | Book of PK bolts
+  326 |   907 | Book of Ice bolts
+  327 |   908 | Book of Fire bolts
+  328 |   909 | Book of Magic bolts
+  329 |   910 | Book of Arrows/Bolts head mold
+  330 |   911 | Book of Arrow/Bolt head
+  331 |   930 | Book of RC Mine
+  332 |   931 | Book of RC Detonator
+  333 |   933 | Book of Mana Drain Ward
+  334 |   934 | Book of Mana Burn Ward
+  335 |   935 | Book of Invisibility Removal Ward
+  336 |   936 | Book of Immunity Removal Ward
+  337 |   943 | Book of Ice Dragon Torso Armor
+  338 |   944 | Book of Ice Dragon Greaves Armor
+  339 |   945 | Book of Ice Dragon Cuisses Armor
+  340 |   946 | Book of Ice Dragon Helm Armor
+  341 |   947 | Book of Scythe
+  342 |   953 | Book of Cold Protection
+  343 |   954 | Book of Heat Protection
+  344 |   955 | Book of Radiation Protection
+  345 |   958 | Book of Creature Food
+  346 |   959 | Book of Mule Glyph
+  347 |   963 | Book of Enhanced Items
+  348 |   964 | Book of Enhanced Armor
+  349 |   965 | Book of Enhanced Weapons
+  350 |   980 | Book of Speed Hax
+  351 |   983 | Book of Attack Reduction
+  352 |   984 | Book of Defense Reduction
+  353 |   985 | Dvarium Smelting
+  354 |   986 | Dvarium Mining
+  355 |   987 | Dvarium Molding
+  356 |   998 | Book of Medallion of the Gatherer
+  357 |   999 | Book of Radioactive Rapier
+  358 |  1000 | Book of Medallion of Mana
+  359 |  1001 | Book of Mage Robes
+  360 |  1002 | Book of Tunic of the Ninja
+  361 |  1014 | Big Book of Manufacturing
+  362 |  1015 | Big Book of Tailoring
+  363 |  1016 | Big Book of Crafting
+  364 |  1017 | Big Book of Potions
+  365 |  1018 | Big Book of Engineering
+  366 |  1043 | Book of Cockatrice Fighting
+  367 |  1044 | Book of AC Fighting
+  368 |  1072 | Book of Books
+  369 |  1076 | Book of Skirts
+  370 |  1077 | Book of Dresses
+  371 |  1078 | Book of Vests
+  372 |  1079 | Book of Enhanced Unicorn Medallion
+  373 |  1080 | Book of Enhanced Sun Medallion
+  374 |  1118 | Book of Blue Dragon Torso Armor
+  375 |  1119 | Book of Blue Dragon Greaves Armor
+  376 |  1120 | Book of Blue Dragon Cuisses Armor
+  377 |  1121 | Book of Blue Dragon Helm Armor
+  378 |  1122 | Book of Blue Dragon Shield
+  379 |  1123 | Book of Blue Dragon Sword
+  380 |  1125 | Book of Boots Making
+  381 |  1126 | Book of Wizard Hats Making
+  382 |  1127 | Book of Wedding Dress Making
+  383 |  1128 | Book of Peasant Dress Making
+  384 |  1130 | Book of Doublets Making
+  385 |  1131 | Book of Jackets Making
+  386 |  1132 | Book of Wedding Skirts Making
+  387 |  1133 | Book of Peasant Skirts Making
+  388 |  1134 | Book of Ice Dragons Fighting
+  389 |  1135 | Book of Blue Dragons Fighting
+  390 |  1136 | Book of Bulangiu Fighting
+  391 |  1137 | Book of Mare Bulangiu Fighting
+  392 |  1139 | Book of Treasure finder
+  393 |  1140 | Book of Pear finder
+  394 |  1143 | Book of Potion of Action Points
+  395 |  1159 | Red Dragon Helm of Life and Mana
+  396 |  1190 | Book of Wizard hat of life and mana

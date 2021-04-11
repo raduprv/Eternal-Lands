@@ -423,18 +423,18 @@ typedef enum actor_types_type
 #define frame_attack_down_1 22
 #define frame_attack_down_2 23
 #define frame_attack_down_3 24
-#define frame_attack_down_4 25 
-#define frame_attack_down_5 26 
-#define frame_attack_down_6 27 
-#define frame_attack_down_7 28 
-#define frame_attack_down_8 29 
-#define frame_attack_down_9 30 
-#define frame_attack_down_10 31 
-#define frame_attack_up_5 32 
-#define frame_attack_up_6 33 
-#define frame_attack_up_7 34 
-#define frame_attack_up_8 35 
-#define frame_attack_up_9 36 
+#define frame_attack_down_4 25
+#define frame_attack_down_5 26
+#define frame_attack_down_6 27
+#define frame_attack_down_7 28
+#define frame_attack_down_8 29
+#define frame_attack_down_9 30
+#define frame_attack_down_10 31
+#define frame_attack_up_5 32
+#define frame_attack_up_6 33
+#define frame_attack_up_7 34
+#define frame_attack_up_8 35
+#define frame_attack_up_9 36
 #define frame_attack_up_10 37
 //frame values for poses (40 different poses)
 #define frame_poses_start 100
@@ -531,8 +531,8 @@ typedef enum actor_types_type
 
 /*!
  * \name Actor commands
- * 
- * Note to other developers: #defines are generally *bad form*.  They
+ *
+ * Note to other developers: \#defines are generally *bad form*.  They
  * interfere with innocent calls, like my call to eye_candy.idle(), in very
  * confusing ways (in my case, "expected unqualified-id before numeric
  * constant").  This is what enums are for; please use them.  I'm fixing this
@@ -615,7 +615,7 @@ typedef enum actor_commands
   attack_down_8 = 65,
   attack_down_9 = 66,
   attack_down_10 = 67,
-  
+
   attack_up_5 = 68,
   attack_up_6 = 69,
   attack_up_7 = 70,
@@ -1006,80 +1006,80 @@ typedef enum
 /*! @{ */
 typedef enum {
 	//when one player uses the poison spell on another one. Player to Player
-	SPECIAL_EFFECT_POISON = 0,	
+	SPECIAL_EFFECT_POISON = 0,
 
 	//when one player heals another. Player to Player
-	SPECIAL_EFFECT_REMOTE_HEAL = 1,	
+	SPECIAL_EFFECT_REMOTE_HEAL = 1,
 
 	//when one player harms another. Player to Player
-	SPECIAL_EFFECT_HARM = 2,	
+	SPECIAL_EFFECT_HARM = 2,
 
 	//when one player casts shield on himself. Player
-	SPECIAL_EFFECT_SHIELD = 3,	
+	SPECIAL_EFFECT_SHIELD = 3,
 
 	//when one player casts restoration. Player
-	SPECIAL_EFFECT_RESTORATION = 4,	
+	SPECIAL_EFFECT_RESTORATION = 4,
 
 	//when one player casts a smite summonings. Player
-	SPECIAL_EFFECT_SMITE_SUMMONINGS = 5,	
+	SPECIAL_EFFECT_SMITE_SUMMONINGS = 5,
 
 	//when a player goes invisible. Player
-	SPECIAL_EFFECT_CLOAK = 6,	
+	SPECIAL_EFFECT_CLOAK = 6,
 
 	//when a player becomes visible. Player
-	SPECIAL_EFFECT_DECLOAK = 7,	
+	SPECIAL_EFFECT_DECLOAK = 7,
 
 	//when an invasion starts. Location
-	SPECIAL_EFFECT_INVASION_BEAMING = 8,	
+	SPECIAL_EFFECT_INVASION_BEAMING = 8,
 
 	//when a player casts heal summoned. Player
-	SPECIAL_EFFECT_HEAL_SUMMONED = 9,	
+	SPECIAL_EFFECT_HEAL_SUMMONED = 9,
 
 	//When a player casts mana drain. Player to Player.
-	SPECIAL_EFFECT_MANA_DRAIN = 10,	
+	SPECIAL_EFFECT_MANA_DRAIN = 10,
 
 	//when a player teleports to range. Player, Location
-	SPECIAL_EFFECT_TELEPORT_TO_RANGE = 11,	
+	SPECIAL_EFFECT_TELEPORT_TO_RANGE = 11,
 
 	//when a player teleports to range. Player, Location
-	SPECIAL_EFFECT_HEAL = 12,	
+	SPECIAL_EFFECT_HEAL = 12,
 
 	//when a player finds a rare stone
-	SPECIAL_EFFECT_HARVEST_RARE_STONE = 13,	
+	SPECIAL_EFFECT_HARVEST_RARE_STONE = 13,
 
 	//when a player is blessed by MN with exp
-	SPECIAL_EFFECT_HARVEST_MN_EXP_BLESSING = 14,	
+	SPECIAL_EFFECT_HARVEST_MN_EXP_BLESSING = 14,
 
 	//when a player is blessed by MN with money
-	SPECIAL_EFFECT_HARVEST_MN_MONEY_BLESSING = 15,	
+	SPECIAL_EFFECT_HARVEST_MN_MONEY_BLESSING = 15,
 
 	//when a wall colapses over a player
-	SPECIAL_EFFECT_HARVEST_WALL_COLLAPSE = 16,	
+	SPECIAL_EFFECT_HARVEST_WALL_COLLAPSE = 16,
 
 	//when a bees sting a player
-	SPECIAL_EFFECT_HARVEST_BEES = 17,	
+	SPECIAL_EFFECT_HARVEST_BEES = 17,
 
 	//when a radeon hits
-	SPECIAL_EFFECT_HARVEST_RADON = 18,	
+	SPECIAL_EFFECT_HARVEST_RADON = 18,
 
 	//when a tool breaks
-	SPECIAL_EFFECT_HARVEST_TOOL_BREAKS = 19,	
+	SPECIAL_EFFECT_HARVEST_TOOL_BREAKS = 19,
 
 	//when teleport nexus actor_id,x1,y1,x2,y2
-	SPECIAL_EFFECT_HARVEST_TELEPORT_NEXUS = 20,	
+	SPECIAL_EFFECT_HARVEST_TELEPORT_NEXUS = 20,
 
 	//when MN takes your health
-	SPECIAL_EFFECT_HARVEST_MOTHER_NATURE_PISSED = 21,	
+	SPECIAL_EFFECT_HARVEST_MOTHER_NATURE_PISSED = 21,
 
 	//when a manufacture tool breaks
-	SPECIAL_EFFECT_MANUFACTURE_TOOL_BREAKS = 22,	
+	SPECIAL_EFFECT_MANUFACTURE_TOOL_BREAKS = 22,
 
 	//when a special item is created
-	SPECIAL_EFFECT_MANUFACTURE_RARE_ITEM = 23,	
+	SPECIAL_EFFECT_MANUFACTURE_RARE_ITEM = 23,
 
 	//when a "who doesn't see me" spell is cast
 	SPECIAL_EFFECT_MAKE_PLAYER_GLOW = 24,
-	
+
 	//Summoning stuff
 	SPECIAL_EFFECT_SUMMON_RABBIT = 25,
 	SPECIAL_EFFECT_SUMMON_RAT = 26,
@@ -1117,7 +1117,7 @@ typedef enum {
 	SPECIAL_EFFECT_SUMMON_GIANT_SNAKE = 58,
 	SPECIAL_EFFECT_SUMMON_SPIDER = 59,
 	SPECIAL_EFFECT_SUMMON_TIGER = 60,
-	
+
 	// Mines stuff
 	SPECIAL_EFFECT_SMALL_MINE_GOES_BOOM = 61,
 	SPECIAL_EFFECT_MEDIUM_MINE_GOES_BOOM = 62,
@@ -1130,13 +1130,13 @@ typedef enum {
 	SPECIAL_EFFECT_UNINVIZIBILIZER_GOES_BOOM = 69,
 	SPECIAL_EFFECT_MAGIC_IMMUNITY_REMOVAL_GOES_BOOM = 70,
 
-	// Heal allies spell	
+	// Heal allies spell
 	SPECIAL_EFFECT_HEAL_ALLIES = 71,
 
 	// when one player casts heat shield on himself
-	SPECIAL_EFFECT_HEATSHIELD = 72, 
+	SPECIAL_EFFECT_HEATSHIELD = 72,
 	// when one player casts cold shield on himself
-	SPECIAL_EFFECT_COLDSHIELD = 73, 
+	SPECIAL_EFFECT_COLDSHIELD = 73,
 	// when one player casts radiation shield on himself
 	SPECIAL_EFFECT_RADIATIONSHIELD = 74,
 	// magic immunity spell
@@ -1183,5 +1183,5 @@ typedef enum {
 #ifdef __cplusplus
 } // extern "C"
 #endif
-	
+
 #endif

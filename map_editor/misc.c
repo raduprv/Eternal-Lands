@@ -188,6 +188,7 @@ void kill_3d_object(int object_id)
 	objects_list[object_id]=0;//kill any refference to it*/
 	objects_list[object_id]->blended=20;
 	selected_3d_object=-1;//we have no selected object now...
+	ew_selected_object = -1; // Hide object info in edit window too
 }
 
 void move_3d_object(int object_id)
@@ -659,23 +660,6 @@ void clone_particles_object(int object_id) {
 
 ////////////////////////////////////////////////////////////////////////////
 ////////////tile things/////////////////////////////////////////////////////
-void load_all_tiles()
-{
-	int i;
-	char str[80];
-
-	memset(map_tiles, 0, sizeof(map_tiles));
-
-	for(i = 0; i < 255; i++)
-	{
-		snprintf(str, sizeof(str), "./3dobjects/tile%i.dds", i);
-
-		tiles_no = i;
-
-		load_image_data(str, 1, 1, 1, 0, &map_tiles[i]);
-	}
-}
-
 void move_tile()
 {
 	float x_start,y_start;

@@ -160,9 +160,9 @@ namespace ec
 
 		if (bounds)
 		{
-			for (iter = particles.begin(); iter != particles.end(); iter++)
+			for (const auto& iter: particles)
 			{
-				Particle* p = iter->first;
+				Particle* p = iter.first;
 				const coord_t dist_squared = (p->pos - center).magnitude_squared();
 				if (dist_squared < MAX_DRAW_DISTANCE_SQUARED)
 					p->draw(time_diff);
@@ -170,9 +170,9 @@ namespace ec
 		}
 		else
 		{
-			for (iter = particles.begin(); iter != particles.end(); iter++)
+			for (const auto& iter: particles)
 			{
-				Particle* p = iter->first;
+				Particle* p = iter.first;
 				p->draw(time_diff);
 			}
 		}
@@ -192,20 +192,16 @@ namespace ec
 		glEnableClientState(GL_VERTEX_ARRAY);
 		glEnableClientState(GL_COLOR_ARRAY);
 
-		glColorPointer(4, GL_FLOAT, 10 * sizeof(float),
-			static_cast<char*>(0) + 0 * sizeof(float));
-		glVertexPointer(3, GL_FLOAT, 10 * sizeof(float),
-			static_cast<char*>(0) + 4 * sizeof(float));
+		glColorPointer(4, GL_FLOAT, 10 * sizeof(float), nullptr);
+		glVertexPointer(3, GL_FLOAT, 10 * sizeof(float), reinterpret_cast<void*>(4 * sizeof(float)));
 
 		ELglClientActiveTextureARB(GL_TEXTURE0);
 		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-		glTexCoordPointer(2, GL_FLOAT, 10 * sizeof(float),
-			static_cast<char*>(0) + 7 * sizeof(float));
+		glTexCoordPointer(2, GL_FLOAT, 10 * sizeof(float), reinterpret_cast<void*>(7 * sizeof(float)));
 
 		ELglClientActiveTextureARB(GL_TEXTURE1);
 		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-		glTexCoordPointer(1, GL_FLOAT, 10 * sizeof(float),
-			static_cast<char*>(0) + 9 * sizeof(float));
+		glTexCoordPointer(1, GL_FLOAT, 10 * sizeof(float), reinterpret_cast<void*>(9 * sizeof(float)));
 
 		glDrawArrays(GL_QUADS, 0, particle_count * 4);
 
@@ -240,9 +236,8 @@ namespace ec
 
 		ELglMultiTexCoord1f(GL_TEXTURE1, get_texture_coordinate(1.0f));
 		glNormalPointer(GL_FLOAT, 3 * sizeof(float),
-			static_cast<char*>(0) + vertex_count * 3 * sizeof(float));
-		glVertexPointer(3, GL_FLOAT, 3 * sizeof(float),
-			static_cast<char*>(0));
+			reinterpret_cast<void*>(vertex_count * 3 * sizeof(float)));
+		glVertexPointer(3, GL_FLOAT, 3 * sizeof(float), nullptr);
 
 		glDrawElements(GL_TRIANGLES, facet_count * 3, GL_UNSIGNED_SHORT, 0);
 
@@ -571,12 +566,11 @@ namespace ec
 		while ((int)spherical_facets.size() < polys)
 		{
 			std::vector<Facet> spherical_facets2;
-			for (std::vector<Facet>::iterator iter = spherical_facets.begin(); iter
-				!= spherical_facets.end(); iter++)
+			for (const auto& facet: spherical_facets)
 			{
-				const int p1_index = iter->f[0];
-				const int p2_index = iter->f[1];
-				const int p3_index = iter->f[2];
+				const int p1_index = facet.f[0];
+				const int p2_index = facet.f[1];
+				const int p3_index = facet.f[2];
 				const SphericalCoord p1(spherical_vertices[p1_index]);
 				const SphericalCoord p2(spherical_vertices[p2_index]);
 				const SphericalCoord p3(spherical_vertices[p3_index]);
@@ -845,11 +839,10 @@ namespace ec
 
 		ELglMultiTexCoord1f(GL_TEXTURE1, get_texture_coordinate(1.0f));
 		glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(CaplessCylindersVertex),
-			static_cast<char*>(0) + 6 * sizeof(float));
+			reinterpret_cast<void*>(6 * sizeof(float)));
 		glNormalPointer(GL_FLOAT, sizeof(CaplessCylindersVertex),
-			static_cast<char*>(0) + 3 * sizeof(float));
-		glVertexPointer(3, GL_FLOAT, sizeof(CaplessCylindersVertex),
-			static_cast<char*>(0));
+			reinterpret_cast<void*>(3 * sizeof(float)));
+		glVertexPointer(3, GL_FLOAT, sizeof(CaplessCylindersVertex), nullptr);
 
 		glDrawElements(GL_TRIANGLES, facet_count * 3, GL_UNSIGNED_SHORT, 0);
 
@@ -867,7 +860,7 @@ namespace ec
 		force = _force;
 	}
 
-	Vec3 SimpleCylinderObstruction::get_force_gradient(Particle& p)
+	Vec3 SimpleCylinderObstruction::get_force_gradient(Particle& p) const
 	{ //Vertical cylinder, infinite height.
 		const Vec3 translated_pos = p.pos - *(pos);
 
@@ -881,7 +874,7 @@ namespace ec
 			return Vec3(0.0, 0.0, 0.0);
 	}
 
-	Vec3 CappedSimpleCylinderObstruction::get_force_gradient(Particle& p)
+	Vec3 CappedSimpleCylinderObstruction::get_force_gradient(Particle& p) const
 	{ //Vertical cylinder, infinite height.
 		const Vec3 translated_pos = p.pos - *(pos);
 
@@ -909,7 +902,7 @@ namespace ec
 	}
 	;
 
-	Vec3 CylinderObstruction::get_force_gradient(Particle& p)
+	Vec3 CylinderObstruction::get_force_gradient(Particle& p) const
 	{
 		Vec3 v_offset;
 		const Vec3 v1 = p.pos - *start;
@@ -934,7 +927,7 @@ namespace ec
 			return Vec3(0.0, 0.0, 0.0);
 	}
 
-	Vec3 SphereObstruction::get_force_gradient(Particle& p)
+	Vec3 SphereObstruction::get_force_gradient(Particle& p) const
 	{
 		const Vec3 translated_pos = p.pos - *(pos);
 
@@ -948,7 +941,7 @@ namespace ec
 			return Vec3(0.0, 0.0, 0.0);
 	}
 
-	Vec3 BoxObstruction::get_force_gradient(Particle& p)
+	Vec3 BoxObstruction::get_force_gradient(Particle& p) const
 	{ // Arbitrary-rotation box.
 		const Vec3 translated_pos = p.pos - *center;
 
@@ -1293,9 +1286,8 @@ namespace ec
 	coord_t PolarCoordsBoundingRange::get_radius(const angle_t angle) const
 	{
 		float radius = 0.0;
-		for (std::vector<PolarCoordElement>::const_iterator iter =
-			elements.begin(); iter != elements.end(); iter++)
-			radius += iter->get_radius(angle);
+		for (const auto& elem: elements)
+			radius += elem.get_radius(angle);
 		return radius;
 	}
 
@@ -1304,7 +1296,7 @@ namespace ec
 		const float angle2 = (angle < 0 ? angle + 2 * PI : angle);
 		std::vector<SmoothPolygonElement>::const_iterator lower, upper;
 		lower = elements.begin() + (elements.size() - 1);
-		for (upper = elements.begin(); upper != elements.end(); upper++)
+		for (upper = elements.begin(); upper != elements.end(); ++upper)
 		{
 			if (upper->angle >= angle2)
 				break;
@@ -1358,9 +1350,8 @@ namespace ec
 	Vec3 GradientMover::get_obstruction_gradient(Particle& p) const
 	{ //Unlike normal force gradients, obstruction gradients are used in a magnitude-preserving fashion.
 		Vec3 ret(0.0, 0.0, 0.0);
-		for (std::vector<Obstruction*>::iterator iter =
-			effect->obstructions->begin(); iter != effect->obstructions->end(); iter++)
-			ret += (*iter)->get_force_gradient(p);
+		for (auto obstruction: *effect->obstructions)
+			ret += obstruction->get_force_gradient(p);
 		return ret;
 	}
 
@@ -1565,9 +1556,8 @@ namespace ec
 
 	IFSParticleSpawner::~IFSParticleSpawner()
 	{
-		for (std::vector<IFSParticleElement*>::iterator iter =
-			ifs_elements.begin(); iter != ifs_elements.end(); iter++)
-			delete *iter;
+		for (auto elem: ifs_elements)
+			delete elem;
 	}
 
 	void IFSParticleSpawner::generate(const int count, const Vec3 scale)
@@ -1754,15 +1744,12 @@ namespace ec
 
 	EyeCandy::~EyeCandy()
 	{
-		for (std::vector<Particle*>::iterator iter = particles.begin(); iter
-			!= particles.end(); iter++)
-			delete *iter;
-		for (std::vector<Effect*>::iterator iter = effects.begin(); iter
-			!= effects.end(); iter++)
-			delete *iter;
-		for (std::vector<GLenum>::iterator iter = lights.begin(); iter
-			!= lights.end(); iter++)
-			glDisable(*iter);
+		for (auto particle: particles)
+			delete particle;
+		for (auto effect: effects)
+			delete effect;
+		for (auto light: lights)
+			glDisable(light);
 	}
 
 	void EyeCandy::set_thresholds(const int _max_particles,
@@ -2219,8 +2206,8 @@ namespace ec
 			if (change_LOD> change_LOD2) //Pick whichever one is lower.
 			change_LOD = change_LOD2;
 
-			for (std::vector<Effect*>::iterator iter = effects.begin(); iter != effects.end(); iter++)
-			(*iter)->request_LOD(change_LOD);
+			for (auto effect: effects)
+				effect->request_LOD(change_LOD);
 
 			const float particle_cleanout_rate = (1.0 - std::pow(0.5f, 5.0f / (framerate * square(change_LOD))));
 			//  std::cout << (1.0 / particle_cleanout_rate) << std::endl;

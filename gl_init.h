@@ -27,9 +27,6 @@ extern int bpp; /*!< color depth to use */
 extern int video_mode; /*!< currently selected video mode */
 extern int video_user_width; /*!< userdefined window width */
 extern int video_user_height; /*!< userdefined window height */
-#ifdef WINDOWS
-extern int disable_window_adjustment; /*<! Switch off window size adjustment for window borders, task bar and the like */
-#endif
 extern int full_screen; /*!< flag that inidicates whether we are in fullscreen or windowed mode */
 extern int disable_gamma_adjust;
 extern float gamma_var; /*!< The current gamma value */
@@ -116,6 +113,7 @@ void toggle_full_screen(void);
 float get_highdpi_scale(void);					/*!< return high-dpi scaling ration - SDL_GL_GetDrawableSize()/SDL_GetWindowSize() */
 void highdpi_scale(int *width, int *height);	/*!< multiple the provided values my their high-dpi scaling values */
 void update_window_size_and_scale(void);		/*!< sets window width, height and highdpi scale values */
+void set_client_window_size(int width, int height); /*!< set the window size as specified without changing the window mode */
 /*! @} */
 
 /*!
@@ -130,6 +128,15 @@ void update_window_size_and_scale(void);		/*!< sets window width, height and hig
  * \callgraph
  */
 int print_gl_errors(const char *file, int line);
+
+/*!
+ * \ingroup video
+ * \brief   cleanup gl_window
+ *
+ *      Clean up gl_window related stuff
+ *
+ */
+void gl_window_cleanup(void);
 
 /*!
  * \name CHECK_GL_ERRORS macro - only done if DEBUG or OPENGL_TRACE defined

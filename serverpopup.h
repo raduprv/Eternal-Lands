@@ -8,7 +8,7 @@ extern "C" {
 extern int use_server_pop_win;
 extern int server_pop_chan;
 
-void display_server_popup_win(const char * const message);
+void display_server_popup_win(const unsigned char* message);
 
 #ifdef __cplusplus
 } // extern "C"

@@ -121,13 +121,13 @@ int selected_tile=255;
 int selected_height=-1;
 char move_tile_a_tile=0;
 char move_tile_a_height=0;
-int tiles_no=0;
+int tiles_no = 255;
 int tile_offset=0;
-char view_tiles_list=0;
 float x_tile_menu_offset=64;
 float y_tile_menu_offset=128;
 char view_new_map_menu=0;
 int view_grid=0;
+int view_tooltips=1;
 
 #if defined(SDL2)
 Uint16 mod_key_status;

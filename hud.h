@@ -28,7 +28,9 @@ typedef enum
 	HUD_INTERFACE_LAST      /*!< the last interface used */
 } hud_interface;
 
-extern Uint32 exp_lev[200];
+#define MAX_EXP_LEVEL 180
+extern Uint32 exp_lev[MAX_EXP_LEVEL];
+
 extern int hud_text;
 extern int hud_x;
 extern int hud_y;
@@ -60,9 +62,13 @@ void cleanup_hud(void);
  * \ingroup other
  * \brief Shows the different hud related windows if they have already been created.
  *
- *      Shows the different hud related windows, i.e. the icons, the stats bar, the miscellaneous (compass and clock) and the quickbar window if they have been created before. If none of them has been created nothing will be done.
+ * Shows the different hud related windows, i.e. the icons, the stats bar,
+ * the miscellaneous (compass and clock) and the quickbar window if they have
+ * been created before. If none of them has been created nothing will be done.
  *
- * \pre If any of \ref icons_win, \ref stats_bar_win, \ref misc_win and \ref quickbar_win is <= 0, no action will be performed.
+ * \pre
+ * If any of \ref icons_win, \ref stats_bar_win, \ref misc_win or \ref quickbar_win
+ * is <= 0, no action will be performed.
  *
  * \callgraph
  */
@@ -134,76 +140,32 @@ int get_hud_logo_size(void);
 
 /*!
  * \ingroup windows
- * \brief Get the window ID pointer using the name string
+ * \brief Shows or hides the specified window
  *
- * \param name		the name of the window
+ *      Shows the specified window by calling the appropriate display function if the window was not created before, else \ref toggle_window is called.
  *
- *	returns if sucessful, a pointer to the window id variable, otherwise NULL.
- * 
+ * \param managed_win   the window to show
+ *
+ * \pre If \a managed_win is either of MW_ITEMS, MW_SPELLS or MW_MANU window and the trade window is currently active, and error message will get logged to the console and the functions returns.
  * \callgraph
  */
-int* get_winid(const char *name);
+void view_window(enum managed_window_enum managed_win);
 
 /*!
  * \ingroup windows
- * \brief Shows the window pointed to by \a win
+ * \brief Shows the selected \a tab of the given \a managed_win.
  *
- *      Shows the window pointed to by \a win by calling the appropriate display_*_win function if \a win was not created before, else \ref toggle_window is called.
+ *      Shows the selected \a tab of the given \a managed_win.
  *
- * \param win   the id of the window to show
- * \param id    unused
- *
- * \pre If \a win is either of \ref items_win, \ref sigil_win or \ref manufacture_win and the \ref trade_win is currently active, and error message will get logged to the console and the functions returns.
- * \callgraph
- */
-void view_window(int * win, int id);
-
-/*!
- * \ingroup windows
- * \brief Shows the selected \a tab of the given \a window.
- *
- *      Shows the selected \a tab of the given \a window.
- *
- * \param window    the id of the window
+ * \param managed_win    the window
  * \param col_id    the id of the tab collection
  * \param tab       the id of the tab to show
  *
- * \pre If \a window is already visisble and \a tab is the currently selected tab, the window will be hidden.
- * \pre If \a window is already visisble but \a tab is currently not selected, then \a tab will be selected.
+ * \pre If \a managed_win is already visisble and \a tab is the currently selected tab, the window will be hidden.
+ * \pre If \a managed_win is already visisble but \a tab is currently not selected, then \a tab will be selected.
  * \callgraph
  */
-void view_tab (int *window, int *col_id, int tab);
-
-/*!
- * \ingroup windows
- * \brief Shows the \a message at the given position (\a x, \a y).
- *
- *      Shows the \a message at the given position (\a x, \a y) using the small font.
- *
- * \param message   the help message to show
- * \param x         the x coordinate of the position to draw the help message
- * \param y         the y coordinate of the position to draw the help message
- * \param scale     the multiplier for the text size
- *
- * \callgraph
- */
-void show_help(const char *message, int x, int y, float scale);
-
-/*!
- * \ingroup windows
- * \brief Shows the \a message at the given position (\a x, \a y).
- *
- *      Shows the \a message at the given position (\a x, \a y) using the default font.
- *
- * \param message   the help message to show
- * \param x         the x coordinate of the position to draw the help message
- * \param y         the y coordinate of the position to draw the help message
- * \param scale     the multiplier for the text size
- *
- * \callgraph
- */
-void show_help_big(const char *message, int x, int y, float scale);
-void show_help_coloured_scaled(const char *help_message, int x, int y, float r, float g, float b, int use_big_font, float size);
+void view_tab (enum managed_window_enum managed_win, int col_id, int tab);
 
 /*!
  * \ingroup windows
@@ -214,7 +176,7 @@ void show_help_coloured_scaled(const char *help_message, int x, int y, float r, 
  *      true if one of those is set.
  *
  *	returns true if text should be enlarged.
- * 
+ *
  * \callgraph
  */
 int enlarge_text(void);
@@ -231,7 +193,7 @@ void build_levels_table();
 
 /*!
  * \ingroup other
- * \brief   	The #exp command, show current exp levels in console.
+ * \brief   	The \#exp command, show current exp levels in console.
  * \retval	1, so command not passed to server
  */
 int show_exp(char *text, int len);

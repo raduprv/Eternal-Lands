@@ -12,15 +12,6 @@
 extern "C" {
 #endif
 
-#ifndef DEF_INFO
- #define DEF_INFO ""
-#endif
-
-typedef struct {
-	char command[64];
-	int (*callback)();
-} command_t;
-
 extern char	auto_open_encyclopedia; /*!< flag, that indicates whether the encyclopedia window should be opened automatically upon startup of the client */
 
 extern int time_warn_h;	/*!< How many minutes before the new hour to give a warning */
@@ -41,7 +32,6 @@ int test_for_console_command (char *text, int len);
 
 void command_cleanup(void);
 
-void add_command(const char *command, int (*callback)());
 void add_name_to_tablist(const char *name);
 
 void init_commands(const char *filename);
