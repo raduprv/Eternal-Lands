@@ -22,7 +22,7 @@ extern TCPsocket my_socket; /*!< our TCP socket to communiate with the server */
 /*! \name Version information
  * @{ */
 extern int always_pathfinding; /*!< use pathfinding for walk click on far visible tiles of the 3d map */
-extern int mixed_message_filter; /*!< If true, do not display console messages for mixed items when other windows are closed */
+extern int mixed_message_filter; /*!< If true, do not display console messages for mixed items when other windows are not visible */
 /*! @} */
 
 
