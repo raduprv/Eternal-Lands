@@ -636,7 +636,10 @@ namespace UserMenus
 
 		std::vector<std::string> search_paths;
 		if (include_datadir)
+		{
+			search_paths.push_back(std::string(get_path_updates()));
 			search_paths.push_back(std::string(datadir));
+		}
 		search_paths.push_back(std::string(get_path_config()));
 
 		for (size_t i=0; i<search_paths.size(); i++)
