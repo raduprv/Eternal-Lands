@@ -3587,6 +3587,18 @@ static void pword_insert(password_entry *entry, int pos, const unsigned char* te
 	pword_update_draw_range_after_insert(entry, cat, size, max_width);
 }
 
+#ifdef MIDDLE_MOUSE_PASTE
+static void pword_field_copy_to_primary(const password_entry *entry)
+{
+	char* text = pword_get_selected_text(entry);
+	if (text)
+	{
+		copy_to_primary(text);
+		free(text);
+	}
+}
+#endif // MIDDLE_MOUSE_PASTE
+
 static int pword_field_keypress(widget_list *w, int mx, int my, SDL_Keycode key_code,
 	Uint32 key_unicode, Uint16 key_mod)
 {
@@ -3639,6 +3651,9 @@ static int pword_field_keypress(widget_list *w, int mx, int my, SDL_Keycode key_
 						}
 						--entry->cursor_pos;
 						pword_check_after_left_move(entry, w->fcat, w->size, max_width);
+#ifdef MIDDLE_MOUSE_PASTE
+						pword_field_copy_to_primary(entry);
+#endif
 					}
 					return 1;
 				case SDLK_RIGHT:
@@ -3660,6 +3675,9 @@ static int pword_field_keypress(widget_list *w, int mx, int my, SDL_Keycode key_
 						}
 						++entry->cursor_pos;
 						pword_check_after_right_move(entry, w->fcat, w->size, max_width);
+#ifdef MIDDLE_MOUSE_PASTE
+						pword_field_copy_to_primary(entry);
+#endif
 					}
 					return 1;
 				case SDLK_HOME:
@@ -3674,6 +3692,9 @@ static int pword_field_keypress(widget_list *w, int mx, int my, SDL_Keycode key_
 					entry->sel_begin = 0;
 					entry->cursor_pos = 0;
 					pword_check_after_left_move(entry, w->fcat, w->size, max_width);
+#ifdef MIDDLE_MOUSE_PASTE
+					pword_field_copy_to_primary(entry);
+#endif
 					return 1;
 				case SDLK_END:
 					if (entry->sel_begin < 0)
@@ -3687,6 +3708,9 @@ static int pword_field_keypress(widget_list *w, int mx, int my, SDL_Keycode key_
 					entry->sel_end = len;
 					entry->cursor_pos = len;
 					pword_check_after_right_move(entry, w->fcat, w->size, max_width);
+#ifdef MIDDLE_MOUSE_PASTE
+					pword_field_copy_to_primary(entry);
+#endif
 					return 1;
 			}
 		}
@@ -3700,6 +3724,9 @@ static int pword_field_keypress(widget_list *w, int mx, int my, SDL_Keycode key_
 				if (sel_text)
 				{
 					copy_to_clipboard(sel_text);
+#ifdef MIDDLE_MOUSE_PASTE
+					copy_to_primary(sel_text);
+#endif
 					free(sel_text);
 				}
 			}
@@ -3712,6 +3739,9 @@ static int pword_field_keypress(widget_list *w, int mx, int my, SDL_Keycode key_
 			if (sel_text)
 			{
 				copy_to_clipboard(sel_text);
+#ifdef MIDDLE_MOUSE_PASTE
+				copy_to_primary(sel_text);
+#endif
 				free(sel_text);
 
 				pword_delete(entry, entry->sel_begin, entry->sel_end, w->fcat,
@@ -3805,6 +3835,7 @@ static int pword_field_keypress(widget_list *w, int mx, int my, SDL_Keycode key_
 		}
 
 		entry->sel_begin = entry->sel_end = -1;
+
 		return 1;
 	}
 
@@ -3852,6 +3883,11 @@ static int pword_field_click(widget_list *w, int mx, int my, Uint32 flags)
 	entry->cursor_pos = pword_pos_under_mouse(entry, mx, space, w->fcat, w->size);
 	entry->sel_begin = entry->sel_end = -1;
 
+#ifdef MIDDLE_MOUSE_PASTE
+	if (flags & ELW_MID_MOUSE)
+		start_paste_from_primary(w);
+#endif // MIDDLE_MOUSE_PASTE
+
 	return 1;
 }
 
@@ -3881,6 +3917,10 @@ static int pword_field_drag(widget_list *w, int mx, int my, Uint32 flags, int dx
 		entry->sel_begin = entry->drag_begin + 1;
 		entry->sel_end = min2i(len, pos + 1);
 	}
+
+#ifdef MIDDLE_MOUSE_PASTE
+	pword_field_copy_to_primary(entry);
+#endif
 
 	return 1;
 }
