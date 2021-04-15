@@ -1802,12 +1802,14 @@ void FontManager::add_select_options(bool add_button)
 	}
 }
 
+#ifdef TTF
 static uint32_t get_key(size_t idx, int height, bool outline)
 {
 	// It is unlikely that there will be more than 64k fonts, or that the line height wil be more
 	// than 32k pixels, so combine the three values into a single key 32-bit key.
 	return (outline << 31) | ((height & 0x7fff) << 16) | (idx & 0xffff);
 }
+#endif
 
 Font& FontManager::get(Category cat, float text_zoom)
 {
