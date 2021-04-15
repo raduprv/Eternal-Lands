@@ -470,6 +470,7 @@ class NPC_Filter
 		void set_all(void) { for (auto& i: npc_filter_map) i.second = 1; }
 		void unset_all(void) { for (auto& i: npc_filter_map) i.second = 0; }
 	private:
+		int get_max_name_width(float zoom) const;
 		// scaled
 		int npc_name_space;
 		int npc_name_border;
@@ -1238,6 +1239,20 @@ void NPC_Filter::resize_handler(window_info *win)
 }
 
 
+// Calculate the maximum string width of the NPC names
+int NPC_Filter::get_max_name_width(float zoom) const
+{
+	int max_width = 0;
+	for (const auto& iter: npc_filter_map)
+	{
+		int width = FontManager::get_instance().line_width(UI_FONT,
+			reinterpret_cast<const unsigned char*>(iter.first.c_str()), iter.first.size(), zoom);
+		max_width = std::max(max_width, width);
+	}
+	return max_width;
+}
+
+
 //	Called on creation and when scaling changes, set the starting size and position fo npc filter window
 //
 void NPC_Filter::ui_scale_handler(window_info *win)
@@ -1245,7 +1260,7 @@ void NPC_Filter::ui_scale_handler(window_info *win)
 	npc_name_space = static_cast<int>(0.5 + 3 * win->current_scale);
 	npc_name_border = static_cast<int>(0.5 + 5 * win->current_scale);
 	npc_name_box_size = static_cast<int>(0.5 + 12 * win->current_scale);
-	max_npc_name_x = npc_name_space * 3 + npc_name_box_size + MAX_USERNAME_LENGTH * win->small_font_max_len_x;
+	max_npc_name_x = npc_name_space * 3 + npc_name_box_size + get_max_name_width(win->current_scale_small);
 	max_npc_name_y = std::max(win->small_font_len_y, npc_name_box_size) + 2 * npc_name_space;
 	if ((win->pos_id >= 0) && (win->pos_id<windows_list.num_windows))
 	{
