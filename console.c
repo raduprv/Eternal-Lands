@@ -1822,6 +1822,7 @@ static void commands_summary(void)
 		return;
 
 	LOG_TO_CONSOLE(c_green1, commands_help_description_help_str);
+	LOG_TO_CONSOLE(c_green1, commands_help_search_help_str);
 	str[0] = '\0';
 	for(i = 0; i < command_count; i++) 
 	{
@@ -1933,6 +1934,34 @@ static int load_commands_help(void)
 	}
 	free(line);
 	fclose(fp);
+	return 1;
+}
+
+// list #commands where the specified text can be found in there
+// command name, parameters or description.
+static int command_commands_search(char *text, int len)
+{
+	text = getparams(text);
+	if (*text)
+	{
+		char str[256];
+		size_t i;
+		if (!commands_help_loaded)
+			commands_help_loaded = load_commands_help();
+		safe_snprintf(str, sizeof(str), "%s <%s> :-", commands_search_prefix_str, text);
+		LOG_TO_CONSOLE(c_green1, str);
+		for (i = 0; i < commands_help_size; i++)
+		{
+			if ((safe_strcasestr(commands_help[i].d_str, strlen(commands_help[i].d_str), text, strlen(text)) != NULL) ||
+				(safe_strcasestr(commands_help[i].c_str, strlen(commands_help[i].c_str), text, strlen(text)) != NULL) ||
+				(safe_strcasestr(commands_help[i].p_str, strlen(commands_help[i].p_str), text, strlen(text)) != NULL))
+			{
+				safe_snprintf(str, sizeof(str), "%s %s - %s",
+					commands_help[i].c_str, commands_help[i].p_str, commands_help[i].d_str);
+				LOG_TO_CONSOLE(c_grey1, str);
+			}
+		}
+	}
 	return 1;
 }
 
@@ -2102,6 +2131,7 @@ void init_commands(const char *filename)
 	add_command("save_res", &command_save_res);
 	add_command("show_res", &command_show_res);
 	add_command("#", &command_commands);
+	add_command("?", &command_commands_search);
 	add_command("set_default_fonts", &command_set_default_fonts);
 
 	// Sort the command list alphabetically so that the #command lists

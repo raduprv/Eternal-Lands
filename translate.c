@@ -499,9 +499,11 @@ char	name_too_long[75],
 	item_use_get_failed_str[80],
 	item_info_load_failed_str[80],
 	commands_help_prefix_str[20],
+	commands_search_prefix_str[40],
 	commands_help_not_loaded_str[60],
 	commands_help_not_recognsed_str[40],
 	commands_help_description_help_str[100],
+	commands_help_search_help_str[100],
 	cmd_ignores[20],
 	cmd_ignore[20],
 	cmd_unignore[20],
@@ -1125,9 +1127,11 @@ void init_console()
 	add_xml_identifier(misc,"item_use_get_failed",item_use_get_failed_str,"Cannot record item use in counters as problem with item: ",sizeof(item_use_get_failed_str));
 	add_xml_identifier(misc,"item_info_load_failed",item_info_load_failed_str,"Could not load the item information file",sizeof(item_info_load_failed_str));
 	add_xml_identifier(misc, "commands_help_prefix", commands_help_prefix_str, "Command", sizeof(commands_help_prefix_str));
+	add_xml_identifier(misc, "commands_search_prefix", commands_search_prefix_str, "Commands matching", sizeof(commands_search_prefix_str));
 	add_xml_identifier(misc, "commands_help_not_loaded", commands_help_not_loaded_str, "Commands help file not loaded", sizeof(commands_help_not_loaded_str));
 	add_xml_identifier(misc, "commands_help_not_recognsed", commands_help_not_recognsed_str, "Unrecognised command", sizeof(commands_help_not_recognsed_str));
-	add_xml_identifier(misc, "commands_help_description_help", commands_help_description_help_str, "For help on a particular command, use ## <command>", sizeof(commands_help_description_help_str));
+	add_xml_identifier(misc, "commands_help_description_help", commands_help_description_help_str, "For help on a particular command, use ## <command>.", sizeof(commands_help_description_help_str));
+	add_xml_identifier(misc, "commands_help_search_help", commands_help_search_help_str, "To search command name and description, use #? <search text>.", sizeof(commands_help_search_help_str));
 
 	add_xml_identifier(loading_msg,"init_opengl",init_opengl_str,"Initializing OpenGL extensions",sizeof(init_opengl_str));
 	add_xml_identifier(loading_msg,"init_random",init_random_str,"Generating random seed",sizeof(init_random_str));
