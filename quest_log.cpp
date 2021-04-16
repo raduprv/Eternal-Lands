@@ -466,7 +466,7 @@ class NPC_Filter
 		void mouseover_handler(window_info *win, int mx, int my);
 		int get_win_id(void) const { return npc_filter_win; }
 		bool is_set(const ustring& npc) { return (npc_filter_map[npc] == 1); }
-		void set(const ustring& npc) { npc_filter_map[npc] = 1; }
+		void set(const ustring& npc);
 		void set_all(void) { for (auto& i: npc_filter_map) i.second = 1; }
 		void unset_all(void) { for (auto& i: npc_filter_map) i.second = 0; }
 	private:
@@ -1214,6 +1214,17 @@ bool Quest_Entry::contains_string(const char *text_to_find) const
 	if (fulltext.find(lowercase, 0) != std::string::npos)
 		return true;
 	return false;
+}
+
+
+//	Set NPC filter to active, adding the npc to the list if need
+//
+void NPC_Filter::set(const ustring& npc)
+{
+	size_t last_size = npc_filter_map.size();
+	npc_filter_map[npc] = 1;
+	if (last_size != npc_filter_map.size() && (npc_filter_win >= 0) && (npc_filter_win < windows_list.num_windows))
+		ui_scale_npc_filter_handler(&windows_list.window[npc_filter_win]);
 }
 
 
