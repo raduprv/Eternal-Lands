@@ -16,6 +16,7 @@
 #include "icon_window.h"
 #include "init.h"
 #include "loginwin.h"
+#include "misc.h"
 #include "multiplayer.h"
 #include "queue.h"
 #include "translate.h"
@@ -41,6 +42,8 @@ static int request_box_start_x = 0;
 static int buddy_border_space = 0;
 static const int num_displayed_buddies = 16;
 static int buddy_add_win = -1;
+static int max_buddy_name_width = 0;
+static int new_max_buddy_name_width = 0;
 
 static int buddy_change_win = -1;
 static int buddy_type_input_id = -1;
@@ -166,7 +169,9 @@ static int click_buddy_handler (window_info *win, int mx, int my, Uint32 flags)
 	if(x > (win->len_x - win->box_size)) {
 		//Clicked on the scrollbar. Let it fall through.
 		return 0;
-	} else if(!queue_isempty(buddy_request_queue) && mx > (request_box_start_x - win->small_font_max_len_x) && y < (win->small_font_len_y + 1)) {
+	} else if(!queue_isempty(buddy_request_queue) &&
+			(mx > request_box_start_x) && (mx < (win->len_x - win->box_size)) &&
+			(y > 0) && (y < (win->small_font_len_y + 1))) {
 		//Clicked on the requests button
 		while(!queue_isempty(buddy_request_queue)) {
 			char *name = queue_pop(buddy_request_queue);
@@ -652,29 +657,56 @@ static int click_buddy_button_handler(widget_list *w, int mx, int my, Uint32 fla
 
 static void set_scrollbar_len(void)
 {
-	int i;
+	int buddy_win = get_id_MW(MW_BUDDY);
 	int num_buddies = 0;
+	size_t i;
+	if ((buddy_win < 0) || (buddy_win >= windows_list.num_windows))
+		return;
 	for (i = 0; i < MAX_BUDDY; i++)
 		if (buddy_list[i].type != 0xff)
 			num_buddies++;
-	vscrollbar_set_bar_len(get_id_MW(MW_BUDDY), buddy_scroll_id, ((num_buddies - num_displayed_buddies < 0) ?0: num_buddies - num_displayed_buddies));
+	vscrollbar_set_bar_len(buddy_win, buddy_scroll_id, ((num_buddies - num_displayed_buddies < 0) ?0: num_buddies - num_displayed_buddies));
 }
 
 static int ui_scale_buddy_handler(window_info *win)
 {
+	size_t i;
 	int button_len_y = win->default_font_len_y + 4*win->current_scale;
-	int name_char_width = get_max_name_width_zoom(win->font_category, win->current_scale_small);
+	int request_box_width = 0;
 
+	// the border space is used all over the UI for spacing
 	buddy_border_space = (int)(0.5 + win->current_scale * 5);
+
+	// get the maximum name width and what that would make the window width
+	// if we don't have a new width, its a scale event so recalculate from the data
+	if (!new_max_buddy_name_width)
+	{
+		max_buddy_name_width = 0;
+		for (i = 0; i < MAX_BUDDY; i++)
+			if (buddy_list[i].type != 0xff)
+				max_buddy_name_width = max2i(max_buddy_name_width, get_string_width_zoom(
+					(const unsigned char*)buddy_list[i].name, win->font_category, win->current_scale_small));
+	}
+	// else a new buddy has been added with a width greater than we had before so just use that
+	else
+		max_buddy_name_width = new_max_buddy_name_width;
+	buddy_menu_x_len = win->box_size + max_buddy_name_width + 2 * buddy_border_space;
+
+	// use the maximum width needed by the buddy name or the "add buddy" button
+	buddy_menu_x_len = max2i(buddy_menu_x_len, 2 * buddy_border_space + get_string_width_zoom(
+				(const unsigned char*)buddy_add_str, win->font_category, win->current_scale));
+
+	// get the maximum width needed by the request button
+	request_box_width = get_string_width_zoom((const unsigned char*)buddy_request_str,
+		win->font_category, win->current_scale_small) + 2 * win->small_font_max_len_x;
+	// use the maximum width needed by the current width or the request button
+	buddy_menu_x_len = max2i(buddy_menu_x_len, request_box_width + win->box_size + win->small_font_max_len_x);
+	// base the start x position on the actual window width
+	request_box_start_x = buddy_menu_x_len - request_box_width - win->box_size;
+
+	// get the required y step and overall window length
 	buddy_name_step_y = get_line_height(win->font_category, win->current_scale_small);
-
-	buddy_menu_x_len = win->box_size + MAX_USERNAME_LENGTH * name_char_width + 2 * buddy_border_space;
 	buddy_menu_y_len = button_len_y + 2* buddy_border_space + num_displayed_buddies * buddy_name_step_y;
-
-	request_box_start_x = buddy_menu_x_len - win->box_size
-		- get_string_width_zoom((const unsigned char*)buddy_request_str,
-			win->font_category, win->current_scale_small)
-		- 2 * win->small_font_max_len_x;
 
 	resize_window(win->window_id, buddy_menu_x_len, buddy_menu_y_len);
 
@@ -693,6 +725,19 @@ static int ui_scale_buddy_handler(window_info *win)
 	set_scrollbar_len();
 
 	return 1;
+}
+
+static void rescale_on_add_buddy(const char *name)
+{
+	int buddy_win = get_id_MW(MW_BUDDY);
+	window_info *win = NULL;
+	if ((buddy_win < 0) || (buddy_win >= windows_list.num_windows))
+		return;
+	win = &windows_list.window[buddy_win];
+	new_max_buddy_name_width = get_string_width_zoom((const unsigned char*)name, win->font_category, win->current_scale_small);
+	if (new_max_buddy_name_width > max_buddy_name_width)
+		ui_scale_buddy_handler(win);
+	new_max_buddy_name_width = 0;
 }
 
 static int change_buddy_font_handler(window_info *win, font_cat cat)
@@ -779,6 +824,7 @@ void add_buddy (const char *name, int type, int len)
 					LOG_TO_CONSOLE (c_green1, message);
 					flash_icon(tt_buddy, 5);
 				}
+				rescale_on_add_buddy(buddy_list[i].name);
 				break;
 			}
 		}
