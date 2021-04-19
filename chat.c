@@ -187,7 +187,7 @@ void input_widget_move_to_win(int window_id)
 		resize_chat_handler(win, win->len_x, win->len_y);
 	} else {
 		text_field *tf = input_widget->widget_info;
-		int text_height = get_text_height(tf->nr_lines, CHAT_FONT, input_widget->size);
+		int text_height = get_text_height(max2i(1, tf->nr_lines), CHAT_FONT, input_widget->size);
 		Uint32 flags;
 
 		input_widget->OnResize = input_field_resize;
@@ -1077,7 +1077,7 @@ int root_key_to_input_field (SDL_Keycode key_code, Uint32 key_unicode, Uint16 ke
 	{
 		/* Resize the input widget if needed */
 		widget_resize(input_widget->window_id, input_widget->id,
-			input_widget->len_x, tf->y_space*2 + get_text_height(tf->nr_lines, CHAT_FONT, 1.0));
+			input_widget->len_x, tf->y_space*2 + get_text_height(max2i(1, tf->nr_lines), CHAT_FONT, 1.0));
 	}
 	while(tf->buffer->data[tf->cursor] == '\r' && tf->cursor < tf->buffer->len)
 	{
@@ -1109,7 +1109,7 @@ void paste_in_input_field (const Uint8 *text)
 	if (use_windowed_chat != 2)
 	{
 		widget_resize(input_widget->window_id, input_widget->id,
-			input_widget->len_x, tf->y_space*2 + get_text_height(tf->nr_lines, CHAT_FONT, 1.0));
+			input_widget->len_x, tf->y_space*2 + get_text_height(max2i(1, tf->nr_lines), CHAT_FONT, 1.0));
 	}
 }
 
@@ -1127,7 +1127,7 @@ void put_string_in_input_field(const Uint8 *text)
 		if (use_windowed_chat != 2)
 		{
 			widget_resize(input_widget->window_id, input_widget->id,
-				input_widget->len_x, tf->y_space*2 + get_text_height(tf->nr_lines, CHAT_FONT, 1.0));
+				input_widget->len_x, tf->y_space*2 + get_text_height(max2i(1, tf->nr_lines), CHAT_FONT, 1.0));
 		}
 		if(input_widget->window_id == game_root_win) {
 			widget_unset_flags (input_widget->window_id, input_widget->id, WIDGET_DISABLED);
@@ -3043,7 +3043,7 @@ void update_console_input_zoom(void)
 		text_field *tf= input_widget->widget_info;
 		if (use_windowed_chat != 2)
 		{
-			int text_height = get_text_height(tf->nr_lines, CHAT_FONT, input_widget->size);
+			int text_height = get_text_height(max2i(1, tf->nr_lines), CHAT_FONT, input_widget->size);
 			tf->x_space = tf->y_space = INPUT_MARGIN * font_scales[CHAT_FONT];
 			widget_resize(input_widget->window_id, input_widget->id,
 				input_widget->len_x, tf->y_space * 2 + text_height);
