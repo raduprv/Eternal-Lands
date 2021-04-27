@@ -275,9 +275,11 @@ extern char
 		item_use_get_failed_str[80],
 		item_info_load_failed_str[80],
 		commands_help_prefix_str[20],
+		commands_search_prefix_str[40],
 		commands_help_not_loaded_str[60],
 		commands_help_not_recognsed_str[40],
 		commands_help_description_help_str[100],
+		commands_help_search_help_str[100],
 		cmd_ignores[20],
 		cmd_ignore[20],
 		cmd_unignore[20],
@@ -324,6 +326,9 @@ extern char
 		urlwin_clear_str[30],
 		/*draw_scene.c*/
 		low_framerate_str[100],
+		/* elconfig */
+		multiselect_find_prompt_str[40],
+		multiselect_find_help_str[80],
 		/* encyclopedia */
 		encycl_search_prompt_str[25],
 		/*filter.c*/

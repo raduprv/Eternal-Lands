@@ -12,9 +12,6 @@
 #include <map>
 #include <cassert>
 #include "exceptions/extendedexception.hpp"
-#ifdef	USE_BOOST
-#include <boost/foreach.hpp>
-#endif	/* USE_BOOST */
 
 #include "2d_objects.h"
 #include "3d_objects.h"
@@ -89,9 +86,6 @@ static inline void update_selection(Uint8 *color)
 	Uint32 i, j, idx, index;
 	float t, count;
 	IndexMap indices;
-#ifndef	USE_BOOST
-	IndexMap::const_iterator it;
-#endif	/* USE_BOOST */
 
 	idx = 0;
 	for (i = 0; i < select_size; i++)

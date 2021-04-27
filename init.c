@@ -334,22 +334,21 @@ static void read_bin_cfg(void)
 #ifdef JSON_FILES
 	if (get_use_json_user_files())
 	{
-		char fname[128];
+		char fname[256];
 		USE_JSON_DEBUG("Loading json file");
-		// try to load the json file
-
+		// if neither the json or the old cfg exist, try the data dir
+		if (!file_exists_config(client_state_filename) && !file_exists_config(cfg_filename))
 #ifdef ANDROID
-		// On addroid we can pre-set some options using the client state file included in the assets
-		if (!file_exists_config(client_state_filename))
 		{
 			do_file_exists(client_state_filename, datadir, sizeof(fname), fname);
 			safe_snprintf(fname, sizeof(fname), "%s%s", datadir, client_state_filename);
 		}
+#else
+			safe_snprintf(fname, sizeof(fname), "%s%s", datadir, client_state_filename);
+#endif
+		// else use the config json, it may still fail but will fall through to the non json code
 		else
 			safe_snprintf(fname, sizeof(fname), "%s%s", get_path_config(), client_state_filename);
-#else
-		safe_snprintf(fname, sizeof(fname), "%s%s", get_path_config(), client_state_filename);
-#endif
 		if (json_load_cstate(fname) >= 0)
 		{
 			load_cstate();

@@ -1043,7 +1043,7 @@ int display_range_handler(window_info *win)
 
 	draw_string_small_zoomed(pos_x, pos_y, (const unsigned char*)ranging_critical_rate_str,
 		1, win->current_scale);
-	safe_snprintf(str, sizeof(str), "%.2f %%", ranging_critical_rate_str,
+	safe_snprintf(str, sizeof(str), "%.2f %%",
 		range_critical_hits > 0 ? (float)range_critical_hits/range_success_hits*100 : 0.0f);
 	draw_string_small_zoomed(result_x, pos_y, (const unsigned char*)str, 1, win->current_scale);
 	pos_y += 2*step_y;

@@ -47,7 +47,7 @@ static int console_out_id = 40;
 static int console_in_id = 41;
 static int console_scrollbar_id = 42;
 
-static int CONSOLE_Y_OFFSET = 25;
+static int CONSOLE_Y_OFFSET = 0;
 static const int CONSOLE_TEXT_X_BORDER = 10;
 
 static int nr_console_lines = 0;
@@ -55,6 +55,7 @@ static int total_nr_lines = 0;
 static int scroll_up_lines = 0;
 static int console_text_changed = 0;
 static int console_text_width = -1;
+static int hud_init_on_resize = 1;
 
 #ifdef ANDROID
 static int num_to_scroll = 0;
@@ -88,7 +89,14 @@ static int display_console_handler (window_info *win)
 	if ((get_tab_bar_y() + get_input_at_top_height()) != CONSOLE_Y_OFFSET)
 	{
 		CONSOLE_Y_OFFSET = get_tab_bar_y() + get_input_at_top_height();
+		// The resize handler calls the HUD initialisation which when done from
+		// the console display handler, causes the window to flash. As the HUD interface
+		// is not actually changed when we change CONSOLE_Y_OFFSET, just the console
+		// window size, we do not need to call the HUD init function in this case.
+		// Ok, its a hack.
+		hud_init_on_resize = 0;
 		resize_window(win->window_id, win->len_x, win->len_y);
+		hud_init_on_resize = 1;
 	}
 
 #ifdef ANDROID
@@ -265,7 +273,7 @@ static int resize_console_handler (window_info *win, int width, int height)
 	if (scroll_up_lines && (total_nr_lines <= nr_console_lines))
 		scroll_up_lines = 0;
 
-	if (get_show_window(win->window_id))
+	if (get_show_window(win->window_id) && hud_init_on_resize)
 		init_hud_interface (HUD_INTERFACE_GAME);
 
 	return 1;

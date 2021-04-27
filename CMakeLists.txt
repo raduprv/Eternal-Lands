@@ -97,10 +97,7 @@ add_definitions(
 #	-DPAWN							# Experimental, not for release, will need server support to function properly. This *will* eat your cat. You've been warned. Enables the Pawn abstract machine.
 #	-DUID							# use unique ID sent from server for custom looks. (INCOMPLETE)
 #	-DUSE_ACTORS_OPTIMIZER			# Enables actor optimizations
-#	-DUSE_BOOST
-#	-DUSE_TR1						# Needs tr1 version of c++ stl, used for NEW_FILE_IO
 #	-DWRITE_XML						# dangerous to use, will wipe out some XML files that are part of the main game download
-#	-DZLIBW							# Enables being able to write gzip compressed files, requires -lzlib/-lz needed for map_editor
 )
 
 # Set the path from the git root to the sours files

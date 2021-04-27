@@ -481,12 +481,14 @@ public:
 	 *
 	 * Create a new font for the TTF font option in \a option, for text with line height \a height
 	 * pixels. This only copies the font description, and determines the point size. It does not
-	 * yet generate a texture.
+	 * yet generate a texture. If \a outline is \c true, a shadow outline will be drawn around the
+	 * glyphs, otherwise the glyphs are drawn as they are.
 	 *
-	 * \param option The font option for the font, holding file and font name
-	 * \param height The line height of the opened font
+	 * \param option  The font option for the font, holding file and font name
+	 * \param height  The line height of the opened font
+	 * \param outline Whether to draw a shadow outline around the glyphs
 	 */
-	Font(const FontOption& option, int height);
+	Font(const FontOption& option, int height, bool outline);
 #endif
 	//! Destructor
 	~Font();
@@ -503,6 +505,8 @@ public:
 	bool is_fixed_width() const { return _flags & Flags::FIXED_WIDTH; }
 	//! Check if a texture has been generated for this font
 	bool has_texture() const { return _flags & Flags::HAS_TEXTURE; }
+	//! Check if this font is drawn with an outline or not
+	bool has_outline() const { return _flags & Flags::HAS_OUTLINE; }
 	//! Check if this font failed to load
 	bool failed() const { return _flags & Flags::FAILED; }
 
@@ -850,6 +854,8 @@ private:
 		int width;
 		//! How far to advance the pen after drawing this glyph
 		int advance;
+		//! Horizontal offset for drawing the character
+		int x_off;
 		//! Offset from top of line to top of glyph
 		int top;
 		//! Offset from top of line to bottom of glyph
@@ -864,7 +870,7 @@ private:
 		float v_end;
 
 		//! Default constructor
-		Metrics(): width(0), advance(0), top(0), bottom(0), u_start(0.0), v_start(0.0),
+		Metrics(): width(0), advance(0), x_off(0), top(0), bottom(0), u_start(0.0), v_start(0.0),
 			u_end(0.0), v_end(0.0) {}
 	};
 
@@ -900,8 +906,10 @@ private:
 		FIXED_WIDTH  = 1 << 1,
 		//! Set if the texture for the font is loaded or generated
 		HAS_TEXTURE  = 1 << 2,
+		//! Set if this font has a shadow outline around the glyphs
+		HAS_OUTLINE  = 1 << 3,
 		//! Set if loading the font failed, and a fallback should be used
-		FAILED       = 1 << 3
+		FAILED       = 1 << 4
 	};
 
 	//! Name of this font. This will be shown on the multi-select button.
@@ -1143,8 +1151,8 @@ private:
 	/*!
 	 * \brief Build a texture for a TTF font
 	 *
-	 * Build a texture containing all supported glyphs from the TrueType font
-	 * associated with this font.
+	 * Build a texture containing all supported glyphs from the TrueType font associated with
+	 * this font.
 	 *
 	 * \return \c true on succes, \c false on failure.
 	 */

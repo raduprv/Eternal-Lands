@@ -19,40 +19,43 @@ set -e
 
 
 case "$1" in
-    configure)
-	
+	configure)
+
 	TARGETDIR="/usr/share/games/EternalLands/music"
 	CACHEDIR="/var/cache/eternallands"
-	DOWNLOADFILE="music_full.zip"
-	DOWNLOADURL="http://twinmoons.org.uk/el/$DOWNLOADFILE"
+	DOWNLOADURL="http://twinmoons.org.uk/el/rel/195"
+	DOWNLOADMAIN="eternallands-music_1.9.5.9.zip"
 	MD5SUM="95220e0df0be0eb4f2b9646cc5d6b7e5"
-	[ -f ~paul/el/installpkg/localdownload ] && DOWNLOADURL="http://harry/~paul/el/$DOWNLOADFILE"
+	[ -f ~paul/el/installpkg/localdownload ] && DOWNLOADURL="http://harry/~paul/el"
 
 	mkdir -p $CACHEDIR
 	cd $CACHEDIR
-	
+
+	# remove old downloads
+	rm -f music_full.zip
+
 	# if we already have an archive check the md5sum is ok and remove if not
-	[ ! -f $DOWNLOADFILE ] || echo "$MD5SUM  $DOWNLOADFILE" | md5sum -c - || rm -fv $DOWNLOADFILE
-	
+	[ ! -f $DOWNLOADMAIN ] || echo "$MD5SUM  $DOWNLOADMAIN" | md5sum -c - || rm -fv $DOWNLOADMAIN
+
 	# download the archive if we don't already have a copy, checking m5again
-	if [ ! -f $DOWNLOADFILE ]
+	if [ ! -f $DOWNLOADMAIN ]
 	then
-		wget -P "." -v --progress="dot:mega" $DOWNLOADURL
-		echo "$MD5SUM  $DOWNLOADFILE" | md5sum -c -
+		wget -P "." -v --progress="dot:mega" $DOWNLOADURL/$DOWNLOADMAIN
+		echo "$MD5SUM  $DOWNLOADMAIN" | md5sum -c -
 	fi
-	
+
 	UNPACKDIR="`mktemp -d /tmp/eternallands-music.XXXXXXXXXX`"
-	
+
 	# unpack the archive
 	cd $UNPACKDIR
 	mkdir music
 	cd music
-	unzip -q $CACHEDIR/$DOWNLOADFILE
-	
+	unzip -q $CACHEDIR/$DOWNLOADMAIN
+
 	# set the permissions
 	chown -R root:root .
 	chmod -R a=rX .
-	
+
 	# make the file lists
 	FILELIST="eternallands-music.filelist"
 	DIRLIST="eternallands-music.dirlist"
@@ -65,18 +68,18 @@ case "$1" in
 	[ ! -s $DIRLIST ] || cat $DIRLIST | xargs rmdir --ignore-fail-on-non-empty > /dev/null 2>&1 || true
 	chmod -R +w .
 	cp --remove-destination -rpf $UNPACKDIR/music/* .
-	
+
 	rm -rf $UNPACKDIR
 
-    ;;
+	;;
 
-    abort-upgrade|abort-remove|abort-deconfigure)
-    ;;
+	abort-upgrade|abort-remove|abort-deconfigure)
+	;;
 
-    *)
-        echo "postinst called with unknown argument \`$1'" >&2
-        exit 1
-    ;;
+	*)
+		echo "postinst called with unknown argument \`$1'" >&2
+		exit 1
+	;;
 esac
 
 # dh_installdeb will replace this with shell code automatically
@@ -85,5 +88,3 @@ esac
 #DEBHELPER#
 
 exit 0
-
-

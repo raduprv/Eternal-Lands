@@ -841,7 +841,7 @@ int search_files_and_apply(const char* base_path, const char *pattern, void (*fn
 
 	// First get the matching files
 	safe_snprintf(full_pattern, sizeof(full_pattern), "%s/%s", base_path, pattern);
-	if ((hFile = _findfirst(full_pattern, &c_file)) != -1L)
+	if ((hFile = _findfirst(full_pattern, &c_file)) != (intptr_t)-1)
 	{
 		errno = 0;
 		do
@@ -866,7 +866,7 @@ int search_files_and_apply(const char* base_path, const char *pattern, void (*fn
 	}
 
 	// Now find the subdirectories, and recurse into them
-	if ((hFile = _findfirst(base_path, &c_file)) != -1L)
+	if ((hFile = _findfirst(base_path, &c_file)) != (intptr_t)-1)
 	{
 		errno = 0;
 		do

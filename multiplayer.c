@@ -1046,6 +1046,10 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 					// if we don't get the product name, make sure we don't just count it as the last item.
 					else
 						counters_set_product_info("",0);
+					
+					if (!strncmp(inventory_item_string+1, "Just exp.", 9))
+						is_created_message = 1;
+					
 					if(!((is_created_message && mixed_message_filter) ||
 							get_show_window_MW(MW_ITEMS) ||
 							get_show_window_MW(MW_MANU) ||

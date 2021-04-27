@@ -337,6 +337,12 @@ static void consolidate_rotate_chat_log_status(void);
 static int elconfig_menu_x_len= 0;
 static int elconfig_menu_y_len= 0;
 static int is_mouse_over_option = 0;
+static int is_mouse_over_option_label = 0;
+static char multiselect_find_str[32] = { 0 };
+static size_t multiselect_find_str_len = 0;
+static int multiselect_find_show = 0;
+static int multiselect_find_casesensitive = 0;
+static int multiselect_find_not_found = 0;
 
 static int disable_auto_highdpi_scale = 0;
 static int delay_update_highdpi_auto_scaling = 0;
@@ -348,6 +354,15 @@ static size_t local_encyclopedia_font = 0;
 // so we need to scale them individually for high dpi support
 static float chat_font_local_scale = 1.0;
 static float name_font_local_scale = 1.0;
+
+// default fonts will be replaced if values present the ini file
+static char def_ui_font_str[80] = "20(Ubuntu-R.ttf)";
+static char def_name_font_str[80] = "20(Ubuntu-R.ttf)";
+static char def_chat_font_str[80] = "20(Ubuntu-R.ttf)";
+static char def_note_font_str[80] = "20(Ubuntu-R.ttf)";
+static char def_book_font_str[80] = "7(MarckScript-Regular.ttf)";
+static char def_rules_font_str[80] = "20(Ubuntu-R.ttf)";
+static char def_encyclopedia_font_str[80] = "8(UbuntuMono-R.ttf)";
 
 #ifdef JSON_FILES
 // Most of this code can be removed when json file use if the default of the only supported client
@@ -2114,6 +2129,7 @@ static __inline__ void check_option_var(const char* name)
 			our_vars.var[i]->func (our_vars.var[i]->var);
 			break;
 		case OPT_STRING:
+		case OPT_STRING_INI:
 		case OPT_PASSWORD:
 			value_s= (char*)our_vars.var[i]->var;
 			our_vars.var[i]->func (our_vars.var[i]->var, value_s, our_vars.var[i]->len);
@@ -2352,7 +2368,6 @@ int check_var(char *str, var_name_type type)
 	int i, *p;
 	char *ptr= str;
 	float foo;
-	input_line our_string;
 
 	i = find_var(str, type);
 	if (i < 0)
@@ -2393,17 +2408,15 @@ int check_var(char *str, var_name_type type)
 	}
 	else
 	{
-		// Strip it
-		char *tptr= our_string;
-		while (*ptr && *ptr != 0x0a && *ptr != 0x0d)
-		{
-			if (*ptr != ' ')
-				*tptr++= *ptr++; //Strip all spaces
-			else
-				ptr++;
-		}
-		*tptr= 0;
-		ptr= our_string;
+		size_t len;
+
+		// Strip spaces from front and back of the string, but not internal spaces
+		while (*ptr == ' ')
+			++ptr;
+		len = strcspn(ptr, "\r\n");
+		while (len > 0 && ptr[len-1] == ' ')
+			--len;
+		ptr[len] = '\0';
 	}
 
 	if (type == INI_FILE_VAR)
@@ -2445,6 +2458,10 @@ int check_var(char *str, var_name_type type)
 			our_vars.var[i]->config_file_val = (float)new_val;
 			return 1;
 		}
+		case OPT_STRING_INI:
+			// Needed, because var is never changed through widget
+			our_vars.var[i]->saved= 0;
+			// fallthrough
 		case OPT_STRING:
 		case OPT_PASSWORD:
 			our_vars.var[i]->func (our_vars.var[i]->var, ptr, our_vars.var[i]->len);
@@ -2540,6 +2557,7 @@ static void add_var(option_type type, char * name, char * shortname, void * var,
 			*integer=(int)def;
 			break;
 		case OPT_STRING:
+		case OPT_STRING_INI:
 		case OPT_PASSWORD:
 			our_vars.var[no]->len=(int)def;
 			break;
@@ -2586,6 +2604,58 @@ static void add_var(option_type type, char * name, char * shortname, void * var,
 }
 
 #ifndef MAP_EDITOR
+// set default fonts names and sizes
+int command_set_default_fonts(char *text, int len)
+{
+	char const * font_vars[] = { "ui_font", "name_font", "chat_font", "note_font",
+		"book_font", "rules_font", "encyclopedia_font" };
+	char const * size_vars[] = { "ui_text_size", "name_text_size", "chat_text_size",
+		"note_text_size", "book_text_size", "rules_text_size", "encyclopedia_text_size" };
+	char const * font_names[] = { def_ui_font_str, def_name_font_str, def_chat_font_str,
+		def_note_font_str, def_book_font_str, def_rules_font_str, def_encyclopedia_font_str };
+	int elconfig_win = get_id_MW(MW_CONFIG);
+	int var_idx;
+	size_t i;
+
+	for (i = 0; i < sizeof(font_vars)/sizeof(char *); i++)
+	{
+		if (strlen(font_names[i]) == 0)
+			continue;
+		var_idx = find_var(font_vars[i], INI_FILE_VAR);
+		if (var_idx >= 0)
+		{
+			var_struct *var = our_vars.var[var_idx];
+			if (check_multi_select(font_names[i], var_idx) != 1)
+				continue;
+			var->saved = 0;
+			if (elconfig_win >= 0)
+			{
+				int window_id = elconfig_tabs[var->widgets.tab_id].tab;
+				int widget_id = var->widgets.widget_id;
+				if ((window_id >= 0) && (widget_id >= 0))
+					multiselect_set_selected(window_id, widget_id, *((const int*)var->var));
+			}
+		}
+		var_idx = find_var(size_vars[i], INI_FILE_VAR);
+		if (var_idx >= 0)
+		{
+			float new_val = 1.0f;
+			var_struct *var = our_vars.var[var_idx];
+			var->func(var->var, &new_val);
+			var->saved = 0;
+		}
+	}
+	var_idx = find_var("mapmark_text_size", INI_FILE_VAR);
+	if (var_idx >= 0)
+	{
+		float new_val = 1.0f;
+		var_struct *var = our_vars.var[var_idx];
+		var->func(var->var, &new_val);
+		var->saved = 0;
+	}
+	return 1;
+}
+
 void add_multi_option_with_id(const char* name, const char* str, const char* id,
 	int add_button)
 {
@@ -2788,7 +2858,7 @@ static void init_ELC_vars(void)
 #endif
 	add_var(OPT_BOOL,"emote_filter", "emote_filter", &emote_filter, change_var, 1, "Emotes filter", "Do not display lines of text in local chat containing emotes only", CHAT);
 	add_var(OPT_BOOL,"summoning_filter", "summ_filter", &summoning_filter, change_var, 0, "Summoning filter", "Do not display lines of text in local chat containing summoning messages", CHAT);
-	add_var(OPT_BOOL,"mixed_message_filter", "mixedmessagefilter", &mixed_message_filter, change_var, 0, "Mixed item filter", "Do not display console messages for mixed items when other windows are closed", CHAT);
+	add_var(OPT_BOOL,"mixed_message_filter", "mixedmessagefilter", &mixed_message_filter, change_var, 0, "Mixed item filter", "Do not display console messages for mixed items when other windows are not visible", CHAT);
 	add_var(OPT_INT,"time_warning_hour","warn_h",&time_warn_h,change_int,-1,"Time warning for new hour","If set to -1, there will be no warning given. Otherwise, you will get a notification in console this many minutes before the new hour",CHAT, -1, 30);
 	add_var(OPT_INT,"time_warning_sun","warn_s",&time_warn_s,change_int,-1,"Time warning for dawn/dusk","If set to -1, there will be no warning given. Otherwise, you will get a notification in console this many minutes before sunrise/sunset",CHAT, -1, 30);
 	add_var(OPT_INT,"time_warning_day","warn_d",&time_warn_d,change_int,-1,"Time warning for new #day","If set to -1, there will be no warning given. Otherwise, you will get a notification in console this many minutes before the new day",CHAT, -1, 30);
@@ -2871,6 +2941,14 @@ static void init_ELC_vars(void)
 	add_var(OPT_BOOL,"big_cursors","big_cursors", &big_cursors, change_var,0,"Use Large Pointers", "When using the experiment coloured mouse pointers, use the large pointer set.", FONT);
 	add_var(OPT_FLOAT,"pointer_size","pointer_size", &pointer_size, change_float,1.0,"Coloured Pointer Size", "When using the experiment coloured mouse pointers, set the scale of the pointer. 1.0 is 1:1 scale.", FONT,0.25,4.0,0.05);
 #endif // NEW_CURSOR
+	// default fonts
+	add_var(OPT_STRING_INI,"def_ui_font", "def_ui_font", def_ui_font_str, change_string, sizeof(def_ui_font_str), "def_ui_font", "Default font for UI", FONT);
+	add_var(OPT_STRING_INI,"def_name_font", "def_name_font", def_name_font_str, change_string, sizeof(def_name_font_str), "def_name_font", "Default UI font", FONT);
+	add_var(OPT_STRING_INI,"def_chat_font", "def_chat_font", def_chat_font_str, change_string, sizeof(def_chat_font_str), "def_chat_font", "Default Chat font", FONT);
+	add_var(OPT_STRING_INI,"def_note_font", "def_note_font", def_note_font_str, change_string, sizeof(def_note_font_str), "def_note_font", "Default Note font", FONT);
+	add_var(OPT_STRING_INI,"def_book_font", "def_book_font", def_book_font_str, change_string, sizeof(def_book_font_str), "def_book_font", "Default Book font", FONT);
+	add_var(OPT_STRING_INI,"def_rules_font", "def_rules_font", def_rules_font_str, change_string, sizeof(def_rules_font_str), "def_rules_font", "Default Rules font", FONT);
+	add_var(OPT_STRING_INI,"def_encyclopedia_font", "def_encyclopedia_font", def_encyclopedia_font_str, change_string, sizeof(def_encyclopedia_font_str), "def_encyclopedia_font", "Default Encyclopedia font", FONT);
 	// FONT TAB
 
 
@@ -3148,6 +3226,7 @@ static void write_var(FILE *fout, int ivar)
 			break;
 		}
 		case OPT_STRING:
+		case OPT_STRING_INI:
 			if (strcmp(var->name, "password") == 0)
 				// Do not write the password to the file. If the user really wants it
 				// s/he should edit the file.
@@ -3336,6 +3415,8 @@ int write_el_ini (void)
 #ifdef ELC
 static int display_elconfig_handler(window_info *win)
 {
+	int help_y = win->len_y + 10;
+
 	// Draw the long description of an option
 	draw_string_zoomed_width_font(TAB_MARGIN, elconfig_menu_y_len-LONG_DESC_SPACE,
 		elconf_description_buffer, window_width, MAX_LONG_DESC_LINES, win->font_category,
@@ -3343,12 +3424,36 @@ static int display_elconfig_handler(window_info *win)
 
 	// Show the context menu help message
 	if (is_mouse_over_option)
+	{
 #ifdef ANDROID
 		show_help(long_touch_cm_options_str, 0, win->len_y + 10, win->current_scale);
 #else
-		show_help(cm_help_options_str, 0, win->len_y + 10, win->current_scale);
+		show_help(cm_help_options_str, 0, help_y, win->current_scale);
 #endif
-	is_mouse_over_option = 0;
+		help_y += win->small_font_len_y;
+		is_mouse_over_option = 0;
+	}
+
+	// Show current find string for multi-select widgets
+	if (multiselect_find_show)
+	{
+		if (multiselect_find_str_len > 0)
+		{
+			float col[2][3] = {{1.0f, 1.0f, 1.0f}, {1.0f, 0.0f, 0.0f}};
+			int ic = (multiselect_find_not_found) ?1: 0;
+			static char text[128];
+			safe_snprintf(text, sizeof(text), "%s%s: %s\n", multiselect_find_prompt_str,
+				(multiselect_find_casesensitive) ?"[Aa]" :"", multiselect_find_str);
+			draw_text(0, help_y, (const unsigned char*)text, strlen(text), UI_FONT,
+				TDO_MAX_WIDTH, window_width - 80, TDO_HELP, 1, TDO_FOREGROUND, col[ic][0], col[ic][1], col[ic][2], 
+				TDO_ZOOM, win->current_scale * DEFAULT_SMALL_RATIO, TDO_END);
+		}
+		else
+			show_help(multiselect_find_help_str, 0, help_y, win->current_scale);
+		multiselect_find_show = 0;
+	}
+
+	is_mouse_over_option_label = 0;
 
 	return 1;
 }
@@ -3432,6 +3537,98 @@ static int multiselect_click_handler(widget_list *widget, int mx, int my, Uint32
 	return 0;
 }
 
+static int multiselect_keypress_handler(widget_list *widget, int mx, int my, SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_mod)
+{
+	size_t search_offset = 0;
+	var_struct *var = NULL;
+	size_t i;
+	static Uint32 last_widget_id = (Uint32)-1;
+	static size_t last_entry = 0;
+
+	// exit if this widget does not have a scrollbar - no need for search
+	if ((widget == NULL) || (multiselect_get_scrollbar_pos(widget->window_id, widget->id) == -1))
+		return 0;
+
+	// reset if ESCAPE pressed
+	if (key_code == SDLK_ESCAPE)
+	{
+		multiselect_find_not_found = 0;
+		multiselect_find_str_len = 0;
+		multiselect_find_str[multiselect_find_str_len] = '\0';
+		last_widget_id = (Uint32)-1;
+		last_entry = 0;
+		return 1;
+	}
+
+	// start from the first entry if we change widgets
+	if (last_widget_id != widget->id)
+	{
+		last_widget_id = widget->id;
+		last_entry = 0;
+	}
+
+	// find the var with the widget id, exit if its not a multiselect
+	for (i = 0; i < our_vars.no; i++)
+	{
+		if (our_vars.var[i]->widgets.widget_id == widget->id)
+		{
+			if (our_vars.var[i]->type != OPT_MULTI)
+				return 0;
+			var = our_vars.var[i];
+			break;
+		}
+	}
+
+	// didn't find the option var so return
+	if (var == NULL)
+		return 0;
+
+	// if we press return, search for the next match after the current
+	if ((key_code == SDLK_RETURN) || (key_code == SDLK_KP_ENTER))
+		search_offset = 1;
+
+	// toggle wether we match case, the need to search for TAB is unlikely
+	else if (key_code == SDLK_TAB)
+	{
+		if (multiselect_find_str_len) // only action if we are showing a string
+			multiselect_find_casesensitive ^= 1;
+	}
+
+	// if we use the key modifying the string, search again starting from current entry
+	else if (string_input(multiselect_find_str, sizeof(multiselect_find_str), key_code, key_unicode, key_mod))
+		multiselect_find_str_len = strlen(multiselect_find_str);
+
+	// else we are not using the key so return now
+	else
+		return 0;
+
+	// reset to the first entry if the string is empty then return
+	if (multiselect_find_str_len == 0)
+	{
+		last_entry = 0;
+		return 1;
+	}
+
+	// find the entry matching the text, starting from the current unless return was pressed
+	for (i = 0; i < var->args.multi.count; i++)
+	{
+		size_t entry = (i + last_entry + search_offset) % var->args.multi.count;
+		if (multiselect_find_casesensitive)
+			multiselect_find_not_found = (strstr(var->args.multi.elems[entry].label, multiselect_find_str) == NULL);
+		else
+			multiselect_find_not_found = (safe_strcasestr(var->args.multi.elems[entry].label,
+				strlen(var->args.multi.elems[entry].label), multiselect_find_str, multiselect_find_str_len) == NULL);
+		if (!multiselect_find_not_found)
+		{
+			multiselect_set_scrollbar_pos(widget->window_id, widget->id, entry);
+			last_entry = entry;
+			break;
+		}
+	}
+
+	return 1;
+}
+
 static int mouseover_option_handler(widget_list *widget, int mx, int my)
 {
 	int i, nr_lines;
@@ -3446,6 +3643,12 @@ static int mouseover_option_handler(widget_list *widget, int mx, int my)
 	if (i == our_vars.no)
 		//We didn't find anything, abort
 		return 0;
+
+	if (!is_mouse_over_option_label && (our_vars.var[i]->type == OPT_MULTI) &&
+		(multiselect_get_scrollbar_pos(widget->window_id, widget->id) != -1))
+		// If we are over a OPT_MULTI with a scrollbar, show the search text
+		multiselect_find_show = 1;
+
 	if (i == last_description_idx)
 		// We're still on the same variable
 		return 1;
@@ -3487,7 +3690,7 @@ static int mouseover_option_handler(widget_list *widget, int mx, int my)
 
 static int mouseover_option_label_handler(widget_list *widget, int mx, int my)
 {
-	is_mouse_over_option = 1;
+	is_mouse_over_option = is_mouse_over_option_label = 1;
 	return mouseover_option_handler(widget, mx, my);
 }
 
@@ -3683,6 +3886,7 @@ static void elconfig_populate_tabs(void)
 		switch(var->type)
 		{
 			case OPT_BOOL_INI:
+			case OPT_STRING_INI:
 			case OPT_INT_INI:
 				// This variable should not be settable
 				// through the window, so don't try to add it,
@@ -3774,6 +3978,7 @@ static void elconfig_populate_tabs(void)
 				}
 				multiselect_set_selected(window_id, widget_id, *((const int*)var->var));
 				widget_set_OnClick(window_id, widget_id, multiselect_click_handler);
+				widget_set_OnKey(window_id, widget_id, (int (*)())multiselect_keypress_handler);
 			break;
 			case OPT_FLOAT_F:
 				label_id = label_add_extended(window_id, elconfig_free_widget_id++, NULL,

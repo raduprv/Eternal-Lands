@@ -1722,6 +1722,32 @@ static void drop_all_handler (void)
 	}
 }
 
+static int get_max_but_label_len(window_info * win)
+{
+	char const *but_labels[] = { sto_all_str, get_all_str, drp_all_str, mix_all_str, mix_one_str, itm_lst_str };
+	int max_width = 0;
+	char *buf = NULL;
+	size_t i;
+	if (win == NULL)
+		return 0;
+	max_width = win->box_size;
+	for (i = 0; i < sizeof(but_labels) / sizeof(char *); i++)
+	{
+		char *saveptr = NULL;
+		char *next = NULL;
+		buf = realloc(buf, strlen(but_labels[i]) + 1);
+		strcpy((char *)buf, but_labels[i]);
+		next = strtok_r(buf, " ", &saveptr);
+		while (next != NULL)
+		{
+			max_width = max2i(max_width, get_buf_width_zoom((unsigned char *)next, strlen(next), win->font_category, button_text_zoom));
+			next = strtok_r(NULL, " ", &saveptr);
+		}
+	}
+	free(buf);
+	return max_width;
+}
+
 static int show_items_handler(window_info * win)
 {
 	int i, win_x_len, win_y_len;
@@ -1749,7 +1775,7 @@ static int show_items_handler(window_info * win)
 		* min2f(1.0, 0.5 * equip_grid.height / win->small_font_len_y);
 	buttons_grid.cols = 1;
 	buttons_grid.rows = NUMBUT;
-	buttons_grid.width = 4 * get_max_char_width_zoom(win->font_category, button_text_zoom);
+	buttons_grid.width = get_max_but_label_len(win) + (int)(0.5 + 6 * button_text_zoom);
 	buttons_grid.height = equip_grid.height;
 	buttons_grid.len_x = buttons_grid.width * buttons_grid.cols;
 	buttons_grid.len_y = buttons_grid.height * buttons_grid.rows;

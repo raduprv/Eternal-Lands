@@ -380,6 +380,7 @@ Font::Font(const FontOption& option): _font_name(option.font_name()),
 
 		_metrics[pos].width = char_widths[pos];
 		_metrics[pos].advance = char_widths[pos];
+		_metrics[pos].x_off = 0;
 		_metrics[pos].top = font_nr < 2 ? top_1[pos] : 0;
 		_metrics[pos].bottom = font_nr < 2 ? bottom_1[pos] : _line_height;
 		_metrics[pos].u_start = float(col * font_block_width + skip) / 256;
@@ -398,7 +399,7 @@ Font::Font(const FontOption& option): _font_name(option.font_name()),
 }
 
 #ifdef TTF
-Font::Font(const FontOption& option, int height): _font_name(option.font_name()),
+Font::Font(const FontOption& option, int height, bool outline): _font_name(option.font_name()),
 	_file_name(option.file_name()), _flags(IS_TTF), _texture_width(0), _texture_height(0),
 	_metrics(), _block_width(0), _line_height(0), _vertical_advance(0), _font_top_offset(0),
 	_digit_center_offset(0), _password_center_offset(0), _max_advance(0), _max_digit_advance(0),
@@ -408,6 +409,8 @@ Font::Font(const FontOption& option, int height): _font_name(option.font_name())
 	_point_size = find_point_size(height);
 	if (option.is_fixed_width())
 		_flags |= Flags::FIXED_WIDTH;
+	if (outline)
+		_flags |= Flags::HAS_OUTLINE;
 }
 #endif
 
@@ -710,11 +713,11 @@ bool Font::load_texture()
 		_flags |= Flags::HAS_TEXTURE;
 		return true;
 	}
-#else
+#else // TTF
 	_texture_id = ::load_texture_cached(_file_name.c_str(), tt_font);
 	_flags |= Flags::HAS_TEXTURE;
 	return true;
-#endif
+#endif // TTF
 }
 
 void Font::bind_texture() const
@@ -747,9 +750,7 @@ void Font::set_color(int color)
 	float r = static_cast<float>(colors_list[color].r1) / 255;
 	float g = static_cast<float>(colors_list[color].g1) / 255;
 	float b = static_cast<float>(colors_list[color].b1) / 255;
-	//This fixes missing letters in the font on some clients
-	//No idea why going from 3f to 4f helps, but it does
-	glColor4f(r, g, b, 1.0);
+	glColor3f(r, g, b);
 }
 
 int Font::draw_char(unsigned char c, int x, int y, float zoom, bool ignore_color) const
@@ -779,11 +780,14 @@ int Font::draw_char(unsigned char c, int x, int y, float zoom, bool ignore_color
 	float u_start, u_end, v_start, v_end;
 	get_texture_coordinates(pos, u_start, u_end, v_start, v_end);
 
+	// Adjust for character offset in the font
+	x += _metrics[pos].x_off;
+
 	// and place the text from the graphics on the map
-	glTexCoord2f(u_start, v_start); glVertex3i(x, y, 0);
-	glTexCoord2f(u_start, v_end);   glVertex3i(x, y + char_height, 0);
-	glTexCoord2f(u_end,   v_end);   glVertex3i(x + char_width, y + char_height, 0);
-	glTexCoord2f(u_end,   v_start); glVertex3i(x + char_width, y, 0);
+	glTexCoord2f(u_start, v_start); glVertex3i(x, y - _outline, 0);
+	glTexCoord2f(u_start, v_end);   glVertex3i(x, y + char_height + _outline, 0);
+	glTexCoord2f(u_end,   v_end);   glVertex3i(x + char_width, y + char_height + _outline, 0);
+	glTexCoord2f(u_end,   v_start); glVertex3i(x + char_width, y - _outline, 0);
 
 	return advance;
 }
@@ -1027,6 +1031,14 @@ CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
 	glEnable(GL_ALPHA_TEST); // enable alpha filtering, so we have some alpha key
 	glAlphaFunc(GL_GREATER, 0.1f);
+	if (is_ttf())
+	{
+		// Only enable alpha blending for TTF fonts. The old style fonts have an alpha channel,
+		// but this has never been used before except for alpha filtering. Instead, the
+		// semi-transparent border has always been drawn as solid black.
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	}
 	bind_texture();
 	glBegin(GL_QUADS);
 
@@ -1083,6 +1095,10 @@ CHECK_GL_ERRORS();
 	}
 
 	glEnd();
+	if (is_ttf())
+	{
+		glDisable(GL_BLEND);
+	}
 	glDisable(GL_ALPHA_TEST);
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
@@ -1131,6 +1147,14 @@ void Font::draw_messages(const text_message *msgs, size_t msgs_size, int x, int 
 
  	glEnable(GL_ALPHA_TEST);	// enable alpha filtering, so we have some alpha key
 	glAlphaFunc(GL_GREATER, 0.1f);
+	if (is_ttf())
+	{
+		// Only enable alpha blending for TTF fonts. The old style fonts have an alpha channel,
+		// but this has never been used before. Instead, the semi-transparent border has always
+		// been drawn as solid black.
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	}
 	bind_texture();
 
 	int cur_x = x, cur_y = y, cur_line = 0;
@@ -1255,6 +1279,10 @@ void Font::draw_messages(const text_message *msgs, size_t msgs_size, int x, int 
 	}
 
 	glEnd();
+	if (is_ttf())
+	{
+		glDisable(GL_BLEND);
+	}
 	glDisable(GL_ALPHA_TEST);
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
@@ -1316,6 +1344,14 @@ void Font::draw_ortho_ingame_string(const unsigned char* text, size_t len,
 
 	glEnable(GL_ALPHA_TEST); // enable alpha filtering, so we have some alpha key
 	glAlphaFunc(GL_GREATER, 0.1f);
+	if (is_ttf())
+	{
+		// Only enable alpha blending for TTF fonts. The old style fonts have an alpha channel,
+		// but this has never been used before. Instead, the semi-transparent border has always
+		// been drawn as solid black.
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	}
 	bind_texture();
 	glBegin(GL_QUADS);
 
@@ -1344,10 +1380,12 @@ void Font::draw_ortho_ingame_string(const unsigned char* text, size_t len,
 				float u_start, u_end, v_start, v_end;
 				get_texture_coordinates(pos, u_start, u_end, v_start, v_end);
 
-				glTexCoord2f(u_start, v_start); glVertex3f(cur_x,            cur_y+char_height, z);
-				glTexCoord2f(u_start, v_end);   glVertex3f(cur_x,            cur_y,             z);
-				glTexCoord2f(u_end,   v_end);   glVertex3f(cur_x+char_width, cur_y,             z);
-				glTexCoord2f(u_end,   v_start); glVertex3f(cur_x+char_width, cur_y+char_height, z);
+				float x_left = cur_x + _metrics[pos].x_off;
+
+				glTexCoord2f(u_start, v_start); glVertex3f(x_left,            cur_y+char_height+_outline, z);
+				glTexCoord2f(u_start, v_end);   glVertex3f(x_left,            cur_y-_outline,             z);
+				glTexCoord2f(u_end,   v_end);   glVertex3f(x_left+char_width, cur_y-_outline,             z);
+				glTexCoord2f(u_end,   v_start); glVertex3f(x_left+char_width, cur_y+char_height+_outline, z);
 
 				cur_x += advance_spacing_pos(pos, zoom_x);
 			}
@@ -1355,6 +1393,8 @@ void Font::draw_ortho_ingame_string(const unsigned char* text, size_t len,
 	}
 
 	glEnd();
+	if (is_ttf())
+		glDisable(GL_BLEND);
 	glDisable(GL_ALPHA_TEST);
 }
 #endif // !MAP_EDITOR_2
@@ -1378,7 +1418,7 @@ bool Font::render_glyph(size_t i_glyph, int size, int y_delta, int outline_size,
 
 	};
 	static const SDL_Color white = { .r = 0xff, .g = 0xff, .b = 0xff, .a = 0xff };
-	static const SDL_Color black = { .r = 0x00, .g = 0x00, .b = 0x00, .a = 0x30 };
+	static const SDL_Color black = { .r = 0x00, .g = 0x00, .b = 0x00, .a = 0xff };
 
 	Uint16 glyph = glyphs[i_glyph];
 	if (!TTF_GlyphIsProvided(font, glyph))
@@ -1395,7 +1435,10 @@ bool Font::render_glyph(size_t i_glyph, int size, int y_delta, int outline_size,
 		glyph_surface = TTF_RenderGlyph_Blended(font, glyph, black);
 		if (!glyph_surface)
 		{
-			LOG_ERROR("Failed to render TTF glyph outline: %s", TTF_GetError());
+			const char* locale = setlocale(LC_ALL, "");
+			LOG_ERROR("Failed to render outline for TTF glyph '%lc' in font \"%s\": %s", glyphs[i_glyph],
+				_font_name.c_str(), TTF_GetError());
+			setlocale(LC_ALL, locale);
 			return false;
 		}
 
@@ -1403,7 +1446,10 @@ bool Font::render_glyph(size_t i_glyph, int size, int y_delta, int outline_size,
 		SDL_Surface *fg_surface = TTF_RenderGlyph_Blended(font, glyph, white);
 		if (!fg_surface)
 		{
-			LOG_ERROR("Failed to render TTF glyph: %s", TTF_GetError());
+			const char* locale = setlocale(LC_ALL, "");
+			LOG_ERROR("Failed to render TTF glyph '%lc' in font \"%s\": %s", glyphs[i_glyph],
+				_font_name.c_str(), TTF_GetError());
+			setlocale(LC_ALL, locale);
 			return false;
 		}
 
@@ -1414,10 +1460,13 @@ bool Font::render_glyph(size_t i_glyph, int size, int y_delta, int outline_size,
 	}
 	else
 	{
-		glyph_surface = TTF_RenderGlyph_Solid(font, glyph, white);
+		glyph_surface = TTF_RenderGlyph_Blended(font, glyph, white);
 		if (!glyph_surface)
 		{
-			LOG_ERROR("Failed to render TTF glyph: %s", TTF_GetError());
+			const char* locale = setlocale(LC_ALL, "");
+			LOG_ERROR("Failed to render TTF glyph '%lc' in font \"%s\": %s", glyphs[i_glyph],
+				_font_name.c_str(), TTF_GetError());
+			setlocale(LC_ALL, locale);
 			return false;
 		}
 	}
@@ -1428,9 +1477,12 @@ bool Font::render_glyph(size_t i_glyph, int size, int y_delta, int outline_size,
 	int row = i_glyph / font_chars_per_line;
 	int col = i_glyph % font_chars_per_line;
 
+	// Reserve space for the outline, even when it is not used
+	int row_height = size + 2 * _outline + 2;
+
 	SDL_Rect area;
 	area.x = col*size;
-	area.y = row*(size+2) + 1 + y_delta - outline_size;
+	area.y = row*row_height + 1 + y_delta + _outline - outline_size;
 	area.w = width;
 	area.h = height;
 
@@ -1444,22 +1496,41 @@ bool Font::render_glyph(size_t i_glyph, int size, int y_delta, int outline_size,
 		return false;
 	}
 
-	int y_min, y_max;
+	int y_min, y_max, x_min;
 	_metrics[i_glyph].width = width;
-	TTF_GlyphMetrics(font, glyph, nullptr, nullptr, &y_min, &y_max, &_metrics[i_glyph].advance);
+	TTF_GlyphMetrics(font, glyph, &x_min, nullptr, &y_min, &y_max, &_metrics[i_glyph].advance);
+	_metrics[i_glyph].x_off = std::min(x_min, 0);
 	_metrics[i_glyph].top = y_delta + TTF_FontAscent(font) - y_max;
 	_metrics[i_glyph].bottom = y_delta + TTF_FontAscent(font) - y_min;
 	_metrics[i_glyph].u_start = float(col * size) / surface->w;
-	_metrics[i_glyph].v_start = float(row * (size+2) + 1) / surface->h;
+	_metrics[i_glyph].v_start = float(row * row_height + 1) / surface->h;
 	_metrics[i_glyph].u_end = float(col * size + width) / surface->w;
-	_metrics[i_glyph].v_end = float(row * (size+2) + size + 1) / surface->h;
+	_metrics[i_glyph].v_end = float(row * row_height + row_height - 1) / surface->h;
 
 	return true;
 }
 
 int Font::find_point_size(int height)
 {
-	int min = 0, max = 2 * height;
+	// If the point size is too small, we may run into problems later where the size of the
+	// glyph becomes zero. This leads to an error in the generation of the texture atlas, which
+	// will reset the font to the default font. It is hard to distinguish such errors, where the
+	// font size is simply too small, from real rendering issues. So we cap the point size at a
+	// minimum of 6, which seems to be a safe limit.
+	static const int min_point_size = 6;
+
+	int min = min_point_size, max = 2 * height;
+	if (max <= min)
+	{
+		// Height is too small. Check if the font will open at the minimum point size. If not
+		// return 0 to use the default point size and hope for the best.
+		TTF_Font *font = open_font(_file_name.c_str(), min);
+		if (!font)
+			return 0;
+		TTF_CloseFont(font);
+		return min;
+	}
+
 	while (max > min + 1)
 	{
 		int mid = (min + max) / 2;
@@ -1500,13 +1571,7 @@ bool Font::build_texture_atlas()
 		return false;
 	}
 
-	// SDL_ttf versions < 2.0.15 don't take transparency into account, so don't draw shadows
-	// if the run-time version of this library version is too old.
-	const SDL_version *link_version = TTF_Linked_Version();
-	bool draw_shadow = link_version->major > 2
-		|| (link_version->major == 2 && link_version->minor > 0)
-		|| (link_version->major == 2 && link_version->minor == 0 && link_version->patch >= 15);
-	int outline_size = draw_shadow ? _outline : 0;
+	int outline_size = has_outline() ? _outline : 0;
 
 	int size = TTF_FontLineSkip(font);
 	int width = next_power_of_two(font_chars_per_line * size);
@@ -1514,7 +1579,7 @@ bool Font::build_texture_atlas()
 	// alternative view on texture coordinates (i.e. off by one pixel). Perhaps they may lose a
 	// single pixel row of a really high character, but at least we won't draw part of the character
 	// bwlow or above it.
-	int height = next_power_of_two(nr_rows * (size + 2));
+	int height = next_power_of_two(nr_rows * (size + 2 * _outline + 2));
 	SDL_Surface *image = SDL_CreateRGBSurface(SDL_SWSURFACE, width, height, 32,
 #if SDL_BYTEORDER == SDL_LIL_ENDIAN /* OpenGL RGBA masks */
 		0x000000FF,
@@ -1760,9 +1825,20 @@ void FontManager::add_select_options(bool add_button)
 	}
 }
 
+#ifdef TTF
+static uint32_t get_key(size_t idx, int height, bool outline)
+{
+	// It is unlikely that there will be more than 64k fonts, or that the line height wil be more
+	// than 32k pixels, so combine the three values into a single key 32-bit key.
+	return (outline << 31) | ((height & 0x7fff) << 16) | (idx & 0xffff);
+}
+#endif
+
 Font& FontManager::get(Category cat, float text_zoom)
 {
 	size_t idx = font_idxs[cat];
+	bool outline = cat != BOOK_FONT; // Don't draw an outline for book text
+
 	if (idx > _options.size())
 	{
 #ifdef TTF
@@ -1772,7 +1848,7 @@ Font& FontManager::get(Category cat, float text_zoom)
 			// Probably TTF was disabled, and the settings window was using a TTF font. Check if
 			// it is still available
 			int height = std::round((Font::font_block_height - 2) * text_zoom * font_scales[cat]);
-			uint32_t key = ((height & 0xffff) << 16) | 0xffff;
+			uint32_t key = get_key(0xffff, height, outline);
 			auto it = _fonts.find(key);
 			if (it != _fonts.end())
 				return it->second;
@@ -1794,14 +1870,12 @@ Font& FontManager::get(Category cat, float text_zoom)
 	int height = _options[idx].is_ttf()
 		? std::round((Font::font_block_height - 2) * text_zoom * font_scales[cat])
 		: 0;
-	// It is unlikely that there will be more than 64k fonts, or that the line height wil be more
-	// than 64k pixels, so combine the two values into a single key 32-bit key.
-	uint32_t key = ((height & 0xffff) << 16) | (idx & 0xffff);
+	uint32_t key = get_key(idx, height, outline);
 	auto it = _fonts.find(key);
 	if (it == _fonts.end())
 	{
 		// The font has not been loaded yet
-		Font font = _options[idx].is_ttf() ? Font(_options[idx], height) : Font(_options[idx]);
+		Font font = _options[idx].is_ttf() ? Font(_options[idx], height, outline) : Font(_options[idx]);
 		it = _fonts.insert(std::make_pair(key, std::move(font))).first;
 	}
 #else // TTF
