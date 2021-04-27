@@ -10,6 +10,9 @@
 #include "io/ziputil.h"
 #include "io/fileutil.h"
 #include "io/elfilewrapper.h"
+#ifdef ANDROID
+#include "io/elpathwrapper.h"
+#endif
 #include "new_update.h"
 #include "errors.h"
 #include "threads.h"
@@ -41,6 +44,32 @@ typedef struct
 	char file_name[256];
 	MD5_DIGEST digest;
 } update_info_t;
+
+#ifdef ANDROID
+// Android does not appear to have the functions to produce temporary
+// files (tmpfile() does work) so we have to do it ourselves.
+
+static _Atomic int tmp_file_num = -1;
+#define LOCAL_MAX_PATH 1024
+
+static FILE *android_tmpfile(void)
+{
+	char str[LOCAL_MAX_PATH];
+	safe_snprintf(str, LOCAL_MAX_PATH, "%s/el_tmp_file_%d", get_path_config(), ++tmp_file_num);
+	return fopen(str, "wb+");
+}
+
+void remove_android_tmpfiles(void)
+{
+	char str[LOCAL_MAX_PATH];
+	int i;
+	for (i = 0; i <= tmp_file_num; i++)
+	{
+		safe_snprintf(str, LOCAL_MAX_PATH, "%s/el_tmp_file_%d", get_path_config(), i);
+		remove(str);
+	}
+}
+#endif
 
 static Uint32 download_file(const char* file_name, FILE* file,
 	const char* server, const char* path, Uint64* file_size,
@@ -223,6 +252,8 @@ static int download_files_thread(void* _data)
 
 #ifdef WINDOWS
 	file = my_tmpfile();
+#elif ANDROID
+	file = android_tmpfile();
 #else
 	file = tmpfile();
 #endif
@@ -426,6 +457,8 @@ static Uint32 download_files(update_info_t* infos, const Uint32 count,
 
 #ifdef WINDOWS
 	file = my_tmpfile();
+#elif ANDROID
+	file = android_tmpfile();
 #else
 	file = tmpfile();
 #endif
@@ -696,6 +729,8 @@ static Uint32 build_update_list(const char* server, const char* file,
 
 #ifdef WINDOWS
 	tmp_file = my_tmpfile();
+#elif ANDROID
+	tmp_file = android_tmpfile();
 #else
 	tmp_file = tmpfile();
 #endif

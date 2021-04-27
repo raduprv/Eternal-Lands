@@ -692,7 +692,6 @@ int HandleEvent (SDL_Event *event)
 				update_particles();
 				break;
 
-#ifndef ANDROID
 			case    EVENT_UPDATES_DOWNLOADED:
 				handle_update_download((struct http_get_struct *)event->user.data1);
 				break;
@@ -700,7 +699,6 @@ int HandleEvent (SDL_Event *event)
 			case    EVENT_DOWNLOAD_COMPLETE:
 				handle_file_download((struct http_get_struct *)event->user.data1);
 				break;
-#endif
 
 #ifdef PAWN			
 			case 	EVENT_PAWN_TIMER:

@@ -803,11 +803,8 @@ void init_stuff(void)
 
 	last_save_time = time(NULL);
 
-#ifndef ANDROID
-	// ANDROID_TODO restore these?
 	init_crc_tables();
 	init_zip_archives();
-#endif
 
 	// initialize the text buffers - needed early for logging
 	init_text_buffers ();
@@ -1056,7 +1053,6 @@ void init_stuff(void)
 	olc_finish_init();
 #endif	//OLC
 
-#ifndef ANDROID
 	if(auto_update){
 		init_update();
 	}
@@ -1067,7 +1063,6 @@ void init_stuff(void)
 		start_custom_update();
 	}
 #endif  //CUSTOM_UPDATE
-#endif
 
 	have_rules=read_rules();
 	if(!have_rules){

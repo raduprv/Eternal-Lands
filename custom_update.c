@@ -278,6 +278,10 @@ void init_custom_update()
 	if ((str = (char *)calloc(sizeof(char), str_size)) == NULL)
 		return;
 
+#ifdef ANDROID
+	do_file_exists("custom_mirrors.lst", datadir, sizeof(str), str);
+#endif
+
 	for (i = 0; i < 2; i++)
 	{
 		safe_snprintf(str, str_size, "%s%s", get_path_config_base(),

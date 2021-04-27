@@ -1271,9 +1271,7 @@ void destroy_all_root_windows (void)
 	if (rules_root_win >= 0) destroy_window (rules_root_win);
 	if (opening_root_win >= 0) destroy_window (opening_root_win);
 	if (newchar_root_win >= 0) destroy_window (newchar_root_win);
-#ifndef ANDROID
 	if (update_root_win >= 0) destroy_window (update_root_win);
-#endif
 	if (langsel_rootwin >= 0) destroy_window (langsel_rootwin);
 }
 void hide_all_root_windows (void)
@@ -1285,9 +1283,7 @@ void hide_all_root_windows (void)
 	if (rules_root_win >= 0) hide_window (rules_root_win);
 	if (opening_root_win >= 0) hide_window (opening_root_win);
 	if (newchar_root_win >= 0) hide_window (newchar_root_win);
-#ifndef ANDROID
 	if (update_root_win >= 0) hide_window (update_root_win);
-#endif
 	if (langsel_rootwin >= 0) hide_window (langsel_rootwin);
 }
 
@@ -1301,9 +1297,7 @@ void resize_all_root_windows (Uint32 ow, Uint32 w, Uint32 oh, Uint32 h)
 	if (rules_root_win >= 0) resize_window (rules_root_win, w, h);
 	if (opening_root_win >= 0) resize_window (opening_root_win, w, h);
 	if (newchar_root_win >= 0) resize_window (newchar_root_win, w, h);
-#ifndef ANDROID
 	if (update_root_win >= 0) resize_window (update_root_win, w, h);
-#endif
 	if (langsel_rootwin >= 0) resize_window (langsel_rootwin, w, h);
 	input_widget_move_to_win(-1);
 	resize_newchar_hud_window();

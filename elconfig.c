@@ -2895,6 +2895,7 @@ static void init_ELC_vars(void)
 		SERVER);
 	add_var(OPT_BOOL,"write_ini_on_exit", "wini", &write_ini_on_exit, change_var, 1,"Save INI","Save options when you quit",SERVER);
 	add_var(OPT_STRING,"data_dir","dir",datadir,change_dir_name,90,"Data Directory","Place were we keep our data. Can only be changed with a Client restart.",SERVER);
+#endif // ANDROID
 	add_var(OPT_BOOL,"serverpopup","spu",&use_server_pop_win,change_var,1,"Use Special Text Window","Toggles whether server messages from channel 255 are displayed in a pop up window.",SERVER);
 	/* Note: We don't take any action on the already-running thread, as that wouldn't necessarily be good. */
 	add_var(OPT_BOOL,"autoupdate","aup",&auto_update,change_var,1,"Automatic Updates","Toggles whether updates are automatically downloaded.",SERVER);
@@ -2902,7 +2903,6 @@ static void init_ELC_vars(void)
 	add_var(OPT_BOOL,"customupdate","cup",&custom_update,change_custom_update,1,"Custom Looks Updates","Toggles whether custom look updates are automatically downloaded.",SERVER);
 	add_var(OPT_BOOL,"showcustomclothing","scc",&custom_clothing,change_custom_clothing,1,"Show Custom clothing","Toggles whether custom clothing is shown.",SERVER);
 #endif	//CUSTOM_UPDATE
-#endif // ANDROID
 #ifdef JSON_FILES
 #ifdef ANDROID
 	add_var(OPT_BOOL_INI, "use_json_user_files_v1", "usejsonuserfiles_v1", &use_json_user_files, change_use_json_user_files, 0, "Use New Format To Save User Files (.json)",

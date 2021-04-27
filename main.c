@@ -56,6 +56,9 @@
 #include "map.h"
 #include "minimap.h"
 #include "multiplayer.h"
+#ifdef ANDROID
+#include "new_update.h"
+#endif
 #include "particles.h"
 #include "password_manager.h"
 #include "pm_log.h"
@@ -363,11 +366,13 @@ int start_rendering()
 	LOG_INFO("stopp_custom_update()");
 	stopp_custom_update();
 #endif	/* CUSTOM_UPDATE */
-#ifndef ANDROID
 	LOG_INFO("clear_zip_archives()");
 	clear_zip_archives();
 	LOG_INFO("clean_update()");
 	clean_update();
+#ifdef ANDROID
+	LOG_INFO("remove_android_tmpfiles()");
+	remove_android_tmpfiles();
 #endif
 
 	LOG_INFO("cleanup_tcp()");

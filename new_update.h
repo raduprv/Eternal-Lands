@@ -45,6 +45,8 @@ Uint32 update(const char* server, const char* file, const char* dir,
 	const char* zip, progress_fnc update_progress_function,
 	void* user_data);
 
+void remove_android_tmpfiles(void);
+
 #ifdef __cplusplus
 }
 #endif

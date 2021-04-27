@@ -28,23 +28,30 @@ $(LOCAL_PATH)/$(ICONV_PATH)/include/ \
 $(LOCAL_PATH)/$(EXTRAS_PATH)/ \
 $(LOCAL_PATH)/$(GL4ES_PATH)/include/ \
 $(LOCAL_PATH)/$(GLU_PATH)/include/ \
+$(LOCAL_PATH)/$(ZLIB_PATH)/ \
 $(LOCAL_PATH)/$(MYGLOB_PATH)/include/ \
 $(LOCAL_PATH)/nlohmann_json/single_include/
 
 LOCAL_CFLAGS := \
 	-O3 -fsigned-char -frtti \
 	-DANDROID \
-	-DUSE_INLINE \
 	-DELC \
+	-D_7ZIP_ST \
+	\
+	-DCUSTOM_UPDATE \
 	-DJSON_FILES \
-	-DFASTER_MAP_LOAD \
-	-DNEW_EYES \
+	-DTTF \
+	\
 	-DCLUSTER_INSIDES \
-	-DFASTER_STARTUP \
+	-DCUSTOM_LOOK \
 	-DFUZZY_PATHS \
+	-DUSE_INLINE \
 	-DBANDWIDTH_SAVINGS \
 	-DANIMATION_SCALING \
-	-DTTF \
+	-DFASTER_MAP_LOAD \
+	-DFASTER_STARTUP \
+	-DNEW_EYES \
+	\
 	-DGIT_VERSION=\"$(ELVERSION)\"
 
 # Add your application source files here...
@@ -76,6 +83,7 @@ LOCAL_SRC_FILES := \
 	consolewin.c \
 	counters.c \
 	cursors.c \
+	custom_update.c \
 	dds.c \
 	ddsimage.c \
 	dialogues.c \
@@ -116,6 +124,8 @@ LOCAL_SRC_FILES := \
 	io/half.c \
 	io/ioapi.c \
 	io/normal.c \
+	io/zip.c \
+	io/ziputil.c \
 	io/unzip.c \
 	io/xmlcallbacks.c \
 	items.c \
@@ -140,6 +150,7 @@ LOCAL_SRC_FILES := \
 	multiplayer.c \
 	new_actors.c \
 	new_character.c \
+	new_update.c \
 	notepad.c \
 	openingwin.c \
 	particles.c \
@@ -173,6 +184,7 @@ LOCAL_SRC_FILES := \
 	timers.c \
 	trade.c \
 	translate.c \
+	update.c \
 	url.c \
 	weather.c \
 	widgets.c \

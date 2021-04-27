@@ -150,12 +150,10 @@ Uint32 check_misc(Uint32 interval, void * data)
 	{
 		countdown --;
 	}
-#ifndef ANDROID
 	if (update_countdown > 0)
 	{
 		update_countdown--;
 	}
-#endif
 	return 500;
 }
 
