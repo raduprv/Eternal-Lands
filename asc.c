@@ -286,10 +286,13 @@ int my_isupper(const char *src, int len)
 	int nr_alpha = 0;
 	int has_digit = 0;
 
+	if (!src)
+		return 0;
+
 	if (len < 0)
 		len = strlen(src);
-	if (!src || len < 3 || !src[0] || !src[1] || !src[2])
-		// string is invalid or too short
+	if (len < 3 || !src[0] || !src[1] || !src[2])
+		// string is too short
 		return 0;
 
 	for (int i = 0; i < len; ++i)
