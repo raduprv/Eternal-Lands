@@ -2013,7 +2013,7 @@ char ttf_directory[TTF_DIR_SIZE] = "/usr/share/fonts/TTF";
 #elif defined WINDOWS
 char ttf_directory[TTF_DIR_SIZE] = "C:/Windows/Fonts";
 #elif defined ANDROID
-char ttf_directory[TTF_DIR_SIZE] = "ttf";
+char ttf_directory[TTF_DIR_SIZE] = "/system/fonts";
 #elif defined OSX
 char ttf_directory[TTF_DIR_SIZE] = "/System/Library/Fonts";
 #else
