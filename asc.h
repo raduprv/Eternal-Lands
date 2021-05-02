@@ -216,15 +216,16 @@ char* safe_strcasestr (const char* haystack, size_t haystack_len, const char* ne
 
 /*!
  * \ingroup	misc_utils
- * \brief	Checks if len/2 characters of the string is uppercase
+ * \brief	Checks if the text is shouted.
  *
- * 		Checks if len/2 characters of the string is uppercase
+ * Checks if the text is shouted, meaning that it contains no lower case alphabetic characters,
+ * and either contains no digits, or more than half of the text is upper case alphabetic.
  *
  * \param	src The string to be checked
  * \param	len The length of characters you wish to check
- * \retval Sint32	Returns 1 if enough characters are uppercase, 0 if they are lowercase.
+ * \retval int	Returns 1 if enough characters are uppercase, 0 if they are lowercase.
  */
-Sint32 my_isupper(const char *src, int len);
+int my_isupper(const char *src, int len);
 
 /*!
  * \ingroup	misc_utils

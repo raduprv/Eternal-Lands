@@ -288,49 +288,43 @@ int filter_text (char *buff, int len, int size)
 	//do we need to do CAPS filtering?
 	if (caps_filter)
 	{ 
-		int idx, clen = len;
+		int idx;
 
 		// skip any coloring
 		idx = 0;
-		while (is_color (buff[idx]) && clen > 0)
+		while (idx < len && is_color(buff[idx]))
 		{
 			idx++;
-			clen--;
 		}
 
 		// handle PM's
-		if (buff[idx] == '[' || buff[idx+1] == '[')
+		if ((idx < len && buff[idx] == '[') || (idx+1 < len && buff[idx+1] == '['))
 		{
-			while (buff[idx] != '\0' && buff[idx] != ':' && clen > 0)
+			while (idx < len && buff[idx] != '\0' && buff[idx] != ':')
 			{
 				idx++;
-				clen--;
 			}
 		}
 		// or ignore first word
 		else
 		{
-			while (buff[idx] != '\0' && buff[idx] != ' ' && buff[idx] != ':' && clen > 0)
+			while (idx < len && buff[idx] != '\0' && buff[idx] != ' ' && buff[idx] != ':')
 			{
 				idx++;
-				clen--;
 			}
 		}
 		
-		while (buff[idx] != '\0' && (buff[idx] == ' ' || buff[idx] == ':' || is_color (buff[idx])) && clen > 0)
+		while (idx < len && (buff[idx] == ' ' || buff[idx] == ':' || is_color(buff[idx])))
 		{
 			idx++;
-			clen--;
 		}
 		
-		// check for hitting the EOS
-		if (buff[idx] == '\0') idx = 0;
-		// if we pass the upper test, entire line goes lower
-		if (len - idx > 4 && my_isupper (&buff[idx], clen))
+		// if we pass the upper test, lower case the line from the start index onward
+		if (len - idx > 4 && my_isupper(&buff[idx], len - idx))
 		{
 			// don't call my_tolower, since we're not sure if the string is NULL terminated
-			for (idx = 0; idx < len; idx++)
-				buff[idx] = tolower (buff[idx]);
+			for ( ; idx < len; idx++)
+				buff[idx] = tolower(buff[idx]);
 		}
 	}
 	
