@@ -2098,7 +2098,8 @@ void add_command_to_actor(int actor_id, unsigned char command)
 		switch(command) {
 		case enter_combat:
 			act->async_fighting= 1;
-			check_to_auto_disable_ranging_lock();
+			if (isme)
+				check_to_auto_disable_ranging_lock();
 			break;
 		case leave_combat:
 			act->async_fighting= 0;
