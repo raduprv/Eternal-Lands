@@ -440,13 +440,8 @@ void load_recipes (){
 #ifdef JSON_FILES
 	if (have_json_file)
 	{
-		cur_recipe = json_load_recipes(recipes_store, num_recipe_entries);
-		if ((cur_recipe >= 0) && (cur_recipe < num_recipe_entries))
-		{
-			memcpy(manu_recipe.items, recipes_store[cur_recipe].items, sizeof(recipe_item) * NUM_MIX_SLOTS);
-			fix_recipe_uids(manu_recipe.items);
-		}
-		else
+		cur_recipe = json_load_recipes(recipes_store, num_recipe_entries, manu_recipe.items);
+		if ((cur_recipe < 0) || (cur_recipe >= num_recipe_entries))
 			cur_recipe = 0;
 		return;
 	}
@@ -523,7 +518,7 @@ void save_recipes(){
 		USE_JSON_DEBUG("Saving json file");
 		/* save in json format always */
 		safe_snprintf(fname, sizeof(fname), "%srecipes_%s.json",get_path_config(), get_lowercase_username());
-		if (json_save_recipes(fname, recipes_store, num_recipe_entries, cur_recipe) < 0)
+		if (json_save_recipes(fname, recipes_store, num_recipe_entries, cur_recipe, manu_recipe.items) < 0)
 			LOG_ERROR("%s: %s \"%s\"\n", reg_error_str, cant_open_file, fname);
 		return;
 	}
