@@ -180,6 +180,7 @@ typedef struct
 	char 	*shortname; /*!< shortname of the variable */
 	int 	snlen; /*!< length of the \a shortname */
 	void 	(*func)(); /*!< routine to execute when this variable is selected. */
+	void 	(*validator_func)(); /*!< optional routine to execute to valid current value. */
 	void 	*var; /*!< data for this variable */
 	float	default_val; /*!< the default value before the config file is read */
 	float	config_file_val; /*!< the value after the config file is read */
@@ -2524,6 +2525,7 @@ static void add_var(option_type type, char * name, char * shortname, void * var,
 	our_vars.var[no]->var=var;
 	our_vars.var[no]->config_file_val = our_vars.var[no]->default_val = def;
 	our_vars.var[no]->func=func;
+	our_vars.var[no]->validator_func = NULL;
 	our_vars.var[no]->name=name;
 	our_vars.var[no]->shortname=shortname;
 	our_vars.var[no]->nlen=strlen(our_vars.var[no]->name);
@@ -2537,6 +2539,14 @@ static void add_var(option_type type, char * name, char * shortname, void * var,
 	add_options_distringid(name, &our_vars.var[no]->display, short_desc, long_desc);
 #endif //ELC
 	our_vars.var[no]->widgets.tab_id= tab_id;
+}
+
+// very few vars have validator functions, so rather than make a big change, add separately
+static void add_validator(const char * var_name, void (*validator_func)())
+{
+	int var_index = find_var(var_name, INI_FILE_VAR);
+	if (var_index != -1)
+		our_vars.var[var_index]->validator_func = validator_func;
 }
 
 #ifndef MAP_EDITOR
@@ -2667,6 +2677,54 @@ void set_multiselect_var(const char* name, int idx, int change_button)
 
 //ELC specific variables
 #ifdef ELC
+
+#ifdef TTF
+// if we change the ttf_directory string, this function is called to validate it exists
+static void ttf_dir_validator(void)
+{
+	int var_index = find_var("ttf_directory", INI_FILE_VAR);
+	if (var_index != -1)
+	{
+		int window_id = elconfig_tabs[our_vars.var[var_index]->widgets.tab_id].tab;
+		int widget_id = our_vars.var[var_index]->widgets.widget_id;
+		if ((window_id >= 0) && (widget_id >=0))
+		{
+			struct stat stat_str;
+			int file_stat = stat(our_vars.var[var_index]->var, &stat_str);
+			if ((file_stat == 0) && S_ISDIR (stat_str.st_mode))
+				widget_set_color(window_id, widget_id, gui_color[0], gui_color[1], gui_color[2]);
+			else
+				widget_set_color(window_id, widget_id, 1.0f, 0.0f, 0.0f);
+		}
+	}
+}
+#endif
+
+// check if the current language directory exists and the string does not include a trailing slash
+static void language_validator(void)
+{
+	int var_index = find_var("language", INI_FILE_VAR);
+	if (var_index != -1)
+	{
+		int window_id = elconfig_tabs[our_vars.var[var_index]->widgets.tab_id].tab;
+		int widget_id = our_vars.var[var_index]->widgets.widget_id;
+		if ((window_id >= 0) && (widget_id >=0))
+		{
+			struct stat stat_str;
+			char path[512];
+			int file_stat = -1;
+			const char *curr_lang = (char *)our_vars.var[var_index]->var;
+			size_t var_len = strlen(curr_lang);
+			safe_snprintf(path, sizeof(path), "%s/languages/%s", datadir, our_vars.var[var_index]->var);
+			file_stat = stat(path, &stat_str);
+			if ((file_stat == 0) && S_ISDIR (stat_str.st_mode) && (var_len > 0) && (curr_lang[var_len-1] != '/'))
+				widget_set_color(window_id, widget_id, gui_color[0], gui_color[1], gui_color[2]);
+			else
+				widget_set_color(window_id, widget_id, 1.0f, 0.0f, 0.0f);
+		}
+	}
+}
+
 static void init_ELC_vars(void)
 {
 	int i;
@@ -2808,6 +2866,7 @@ static void init_ELC_vars(void)
 			"Toggle the use of True Type fonts for text rendering", FONT);
 	add_var(OPT_STRING, "ttf_directory", "ttfdir", ttf_directory, change_string, sizeof(ttf_directory),
 		"TTF directory", "Scan this directory and its direct subdirectories for True Type fonts. This is only used when 'Use TTF' is enabled. Changes to this option only take effect after a restart of the client.", FONT);
+	add_validator("ttf_directory", ttf_dir_validator);
 #endif
 	add_var(OPT_FLOAT,"ui_text_size","uisize",&font_scales[UI_FONT],change_text_zoom,1,"UI Text Size","Set the size of the text in the user interface",FONT,0.8,1.2,0.01);
 	add_var(OPT_MULTI,"ui_font","uifont",&font_idxs[UI_FONT],change_font,0,"UI Font","Change the type of font used in the user interface",FONT, NULL);
@@ -2878,6 +2937,7 @@ static void init_ELC_vars(void)
 	add_var(OPT_BOOL,"rotate_chat_log","rclog",&rotate_chat_log_config_var,change_rotate_chat_log,0,"Rotate Chat Log File","Tag the chat/server message log files with year and month. You will still need to manage deletion of the old files. Requires a client restart.",SERVER);
 	add_var(OPT_BOOL,"buddy_log_notice", "buddy_log_notice", &buddy_log_notice, change_var, 1, "Log Buddy Sign On/Off", "Toggle whether to display notices when people on your buddy list log on or off", SERVER);
 	add_var(OPT_STRING,"language", "lang", lang, change_string, sizeof(lang), "Language", "Wah?", SERVER);
+	add_validator("language", language_validator);
 	add_var(OPT_STRING, "browser", "b", browser_name, change_string, sizeof(browser_name), "Browser",
 		"Location of your web browser (Windows users leave blank to use default browser)",
 		SERVER);
@@ -3636,6 +3696,8 @@ static int string_onkey_handler(widget_list *widget)
 		{
 			if(our_vars.var[i]->widgets.widget_id == widget->id)
 			{
+				if (our_vars.var[i]->validator_func != NULL)
+					our_vars.var[i]->validator_func();
 				our_vars.var[i]->saved= 0;
 				return 0;
 			}
@@ -3917,6 +3979,7 @@ static void elconfig_populate_tabs(void)
 // TODO: replace this hack by something clean.
 static int show_elconfig_handler(window_info * win) {
 	int pwinx, pwiny; window_info *pwin;
+	size_t i;
 
 	if (win->pos_id != -1) {
 		pwin= &windows_list.window[win->pos_id];
@@ -3936,6 +3999,11 @@ static int show_elconfig_handler(window_info * win) {
 #else
 	init_window(win->window_id, game_root_win, 0, win->pos_x - pwinx, win->pos_y - pwiny, win->len_x, win->len_y);
 #endif
+
+	// call any validation functions to update the var status
+	for(i = 0; i < our_vars.no; i++)
+		if (our_vars.var[i]->validator_func != NULL)
+			our_vars.var[i]->validator_func();
 
 	return 1;
 }
