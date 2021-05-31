@@ -8,6 +8,14 @@
 #include <glob.h>
 #endif
 #include <SDL_ttf.h>
+#ifdef LINUX
+//For stat() etc.. below
+#include <sys/types.h>
+#include <sys/stat.h>
+#ifndef _MSC_VER
+#include <unistd.h>
+#endif //_MSC_VER
+#endif // LINUX
 #endif // TTF
 
 #include "font.h"
@@ -1711,6 +1719,42 @@ void FontManager::initialize_ttf()
 		use_ttf = 0;
 		return;
 	}
+
+#ifdef LINUX
+	// on linux there is no standard location for TTF so try others if the current is not valid
+	struct stat stat_str;
+	int file_stat = stat(ttf_directory, &stat_str);
+	if ((file_stat != 0) || !S_ISDIR(stat_str.st_mode))
+	{
+		std::vector<std::string> alt_ttf_dir;
+		alt_ttf_dir.push_back("/usr/share/fonts/TTF");
+		alt_ttf_dir.push_back("/usr/share/fonts/truetype");
+		alt_ttf_dir.push_back("/usr/share/fonts"); // make sure comes after others with the same path
+
+		for (const auto i: alt_ttf_dir)
+		{
+			// only look to change if we are using one of the alternative locations
+			// as, the user may have deliberately set out to disabled loading system ttf
+			if (i == std::string(ttf_directory))
+			{
+				for (const auto j: alt_ttf_dir)
+				{
+					if (j != std::string(ttf_directory))
+					{
+						file_stat = stat(j.c_str(), &stat_str);
+						if ((file_stat == 0) && S_ISDIR(stat_str.st_mode))
+							safe_strncpy2(ttf_directory, j.c_str(), TTF_DIR_SIZE, j.size());
+						{
+							set_var_unsaved("ttf_directory", INI_FILE_VAR);
+							break;
+						}
+					}
+				}
+				break;
+			}
+		}
+	}
+#endif
 
 	size_t nr_existing_fonts = _options.size();
 	// First load from the game fonts directory
