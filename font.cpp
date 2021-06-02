@@ -164,7 +164,7 @@ FontOption::FontOption(size_t font_nr): _font_nr(font_nr), _file_name(), _file_b
 FontOption::FontOption(const std::string& file_name): _font_nr(std::numeric_limits<size_t>::max()),
 	_file_name(file_name), _file_base_name(), _font_name(), _is_ttf(true), _fixed_width(), _failed(false)
 {
-	TTF_Font *font = open_font(file_name.c_str(), 40);
+	TTF_Font *font = open_font(file_name, 40);
 	if (!font)
 	{
 		LOG_ERROR("Failed to open TTF font file '%s'", file_name.c_str());
@@ -1526,7 +1526,7 @@ int Font::find_point_size(int height)
 	{
 		// Height is too small. Check if the font will open at the minimum point size. If not
 		// return 0 to use the default point size and hope for the best.
-		TTF_Font *font = open_font(_file_name.c_str(), min);
+		TTF_Font *font = open_font(_file_name, min);
 		if (!font)
 			return 0;
 		TTF_CloseFont(font);
@@ -1536,7 +1536,7 @@ int Font::find_point_size(int height)
 	while (max > min + 1)
 	{
 		int mid = (min + max) / 2;
-		TTF_Font *font = open_font(_file_name.c_str(), mid);
+		TTF_Font *font = open_font(_file_name, mid);
 		if (!font)
 			return 0;
 
@@ -1565,7 +1565,7 @@ bool Font::build_texture_atlas()
 	}
 
 	int point_size = _point_size ? _point_size : ttf_point_size;
-	TTF_Font *font = open_font(_file_name.c_str(), point_size);
+	TTF_Font *font = open_font(_file_name, point_size);
 	if (!font)
 	{
 		LOG_ERROR("Failed to open TrueType font %s: %s", _file_name.c_str(), TTF_GetError());
