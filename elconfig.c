@@ -2710,14 +2710,18 @@ static void language_validator(void)
 		int widget_id = our_vars.var[var_index]->widgets.widget_id;
 		if ((window_id >= 0) && (widget_id >=0))
 		{
-			struct stat stat_str;
-			char path[512];
-			int file_stat = -1;
 			const char *curr_lang = (char *)our_vars.var[var_index]->var;
-			size_t var_len = strlen(curr_lang);
-			safe_snprintf(path, sizeof(path), "%s/languages/%s", datadir, our_vars.var[var_index]->var);
-			file_stat = stat(path, &stat_str);
-			if ((file_stat == 0) && S_ISDIR (stat_str.st_mode) && (var_len > 0) && (curr_lang[var_len-1] != '/'))
+			int string_valid = ((strlen(curr_lang) == 2) && isalpha(curr_lang[0]) && isalpha(curr_lang[1])) ?1 :0;
+			if (string_valid)
+			{
+				struct stat stat_str;
+				char path[512];
+				int file_stat = -1;
+				safe_snprintf(path, sizeof(path), "%s/languages/%s", datadir, curr_lang);
+				file_stat = stat(path, &stat_str);
+				string_valid = ((file_stat == 0) && S_ISDIR (stat_str.st_mode)) ?1 :0;
+			}
+			if (string_valid)
 				widget_set_color(window_id, widget_id, gui_color[0], gui_color[1], gui_color[2]);
 			else
 				widget_set_color(window_id, widget_id, 1.0f, 0.0f, 0.0f);
