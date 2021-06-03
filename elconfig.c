@@ -2541,6 +2541,7 @@ static void add_var(option_type type, char * name, char * shortname, void * var,
 	our_vars.var[no]->widgets.tab_id= tab_id;
 }
 
+#ifndef MAP_EDITOR
 // very few vars have validator functions, so rather than make a big change, add separately
 static void add_validator(const char * var_name, void (*validator_func)())
 {
@@ -2549,7 +2550,6 @@ static void add_validator(const char * var_name, void (*validator_func)())
 		our_vars.var[var_index]->validator_func = validator_func;
 }
 
-#ifndef MAP_EDITOR
 // set default fonts names and sizes
 int command_set_default_fonts(char *text, int len)
 {
