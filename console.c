@@ -1317,10 +1317,10 @@ static int knowledge_command(char *text, int len)
 
 	for (i=0; i<KNOWLEDGE_LIST_SIZE; i++)
 	{
+		size_t len = strlen(knowledge_list[i].name);
 		// only display books that contain the specified parameter string
 		// shows all books if no string specified
-		if ((strlen(knowledge_list[i].name) > 0) &&
-			(get_string_occurance(text, knowledge_list[i].name, strlen(knowledge_list[i].name), 1) != -1))
+		if (len > 0 && safe_strcasestr(knowledge_list[i].name, len, text, strlen(text)))
 		{
 			// remove any trailing carrage return
 			safe_strncpy(this_string, knowledge_list[i].name, sizeof(this_string));

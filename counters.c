@@ -1325,7 +1325,7 @@ void catch_counters_text(const char* text)
 	else if (!strncasecmp(text, search_str[0], search_len[0]))
 	{
 		size_t start_from = search_len[0];
-		size_t could_not_carry_index = get_string_occurance(". What a pity ", text, text_len, 1);
+		const char* could_not_carry_ptr = safe_strcasestr(text, text_len, ". What a pity ", 14);
 		while ((text_len > start_from) && (text[start_from] != ' '))
 			start_from++; /* move past the a/an/a[n] */
 		start_from++; /* move past the space */
@@ -1344,9 +1344,9 @@ void catch_counters_text(const char* text)
 		}
 
 		/* check if we were not able to carry the found thing */
-		else if (could_not_carry_index != -1)
+		else if (could_not_carry_ptr)
 		{
-			size_t thing_len = could_not_carry_index - start_from;
+			size_t thing_len = (could_not_carry_ptr - text) - start_from;
 			safe_strncpy2(to_count_name, &text[start_from], sizeof(to_count_name), thing_len);
 			safe_strcat (to_count_name, " (lost)", sizeof(to_count_name));
 			increment_counter(MISC_EVENTS, to_count_name, 1, 0);

@@ -231,9 +231,9 @@ void find_all_url(const char *source_string, const int len)
 		/* find the first of the url start strings */
 		for(i = 0; i < sizeof(search_for)/10; i++)
 		{
-			int found_at = get_string_occurance(search_for[i], source_string+next_start, len-next_start, 1);
-			if ((found_at >= 0) && (found_at < first_found))
-				first_found = found_at;
+			const char* ptr = safe_strcasestr(source_string+next_start, len-next_start, search_for[i], strlen(search_for[i]));
+			if (ptr && ptr - (source_string + next_start) < first_found)
+				first_found = ptr - (source_string + next_start);
 		}
 
 		/* if url found, store (if new) it then continue the search straight after the end */

@@ -708,7 +708,7 @@ static void draw_marks(marking *the_marks, int the_max_mark, int the_tile_map_si
 
 			// if filtering marks, don't display if it doesn't match the current filter
 			if (mark_filter_active
-				  && (get_string_occurance(mark_filter_text, the_marks[i].text, strlen(the_marks[i].text), 1) == -1))
+				&& !safe_strcasestr(the_marks[i].text, strlen(the_marks[i].text), mark_filter_text, strlen(mark_filter_text)))
 				continue;
 
 			screen_x = left + width*x/(the_tile_map_size_x*6);
@@ -1176,7 +1176,7 @@ void delete_mark_on_map_on_mouse_position(void)
 
 		// skip marks not shown due to filter
 		if (mark_filter_active
-			  && (get_string_occurance(mark_filter_text, mark->text, strlen(mark->text), 1) == -1))
+			&& !safe_strcasestr(mark->text, strlen(mark->text), mark_filter_text, strlen(mark_filter_text)))
 			continue;
 
 		// skip masked marks

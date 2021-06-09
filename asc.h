@@ -17,6 +17,7 @@
 extern "C" {
 #endif
 
+#ifndef FASTER_MAP_LOAD
 /*!
  * \ingroup	misc_utils
  * \brief	Gets the offset of a string in a char array
@@ -31,7 +32,6 @@ extern "C" {
  */
 Sint32 get_string_occurance (const char *needle, const char *haystack, const Uint32 max_len, const char beginning);
 
-#ifndef FASTER_MAP_LOAD
 /*!
  * \ingroup	misc_utils
  * \brief	Gets an integer after the given string
