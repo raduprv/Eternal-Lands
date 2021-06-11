@@ -77,17 +77,16 @@ static int version_first_digit=10;	//protocol/game version sent to server
 static int version_second_digit=28;
 
 const char * web_update_address= "http://www.eternal-lands.com/index.php?content=update";
-int icon_in_spellbar= -1;
 int port= 2000;
 unsigned char server_address[60];
 static TCPsocket my_socket= 0;
-SDLNet_SocketSet set= 0;
+static SDLNet_SocketSet set= 0;
 #define MAX_TCP_BUFFER  8192
-Uint8 tcp_in_data[MAX_TCP_BUFFER];
-Uint8 tcp_out_data[MAX_TCP_BUFFER];
-int in_data_used=0;
-int tcp_out_loc= 0;
-int previously_logged_in= 0;
+static Uint8 tcp_in_data[MAX_TCP_BUFFER];
+static Uint8 tcp_out_data[MAX_TCP_BUFFER];
+static int in_data_used=0;
+static int tcp_out_loc= 0;
+static int previously_logged_in= 0;
 volatile int disconnected= 1;
 time_t last_heart_beat;
 time_t last_save_time;
@@ -98,16 +97,16 @@ size_t inventory_item_string_id = 0;
 
 int log_conn_data= 0;
 
-int this_version_is_invalid= 0;
-int put_new_data_offset= 0;
-Uint8	tcp_cache[256];
-Uint32	tcp_cache_len= 0;
-Uint32	tcp_cache_time= 0;
+static int this_version_is_invalid= 0;
+static Uint8	tcp_cache[256];
+static Uint32	tcp_cache_len= 0;
+static Uint32	tcp_cache_time= 0;
 
 //for the client/server sync
-int server_time_stamp= 0;
-int client_time_stamp= 0;
-int client_server_delta_time= 0;
+// FIXME: these seem to be unused
+static int server_time_stamp= 0;
+static int client_time_stamp= 0;
+static int client_server_delta_time= 0;
 
 /* if non-zero, we are testing the connection, waiting for a return ping from the server */
 static Uint32 testing_server_connection_time = 0;
