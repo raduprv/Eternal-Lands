@@ -12,6 +12,7 @@
 #ifdef TTF
 #include <SDL_ttf.h>
 #endif
+#include <SDL_net.h>
 #include "astrology.h"
 #include "init.h"
 #include "2d_objects.h"

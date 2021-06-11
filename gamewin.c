@@ -558,7 +558,7 @@ static void attack_someone(int who_to_attack)
 	Uint8 str[10];
 	str[0] = ATTACK_SOMEONE;
 	*((int *)(str+1)) = SDL_SwapLE32(who_to_attack);
-	my_tcp_send (my_socket, str, 5);
+	my_tcp_send(str, 5);
 }
 
 static void touch_player(int player_to_touch)
@@ -566,7 +566,7 @@ static void touch_player(int player_to_touch)
 	Uint8 str[10];
 	str[0] = TOUCH_PLAYER;
 	*((int *)(str+1)) = SDL_SwapLE32(player_to_touch);
-	my_tcp_send (my_socket, str, 5);
+	my_tcp_send(str, 5);
 }
 
 // this is the main part of the old check_mouse_click ()
@@ -739,7 +739,7 @@ static int click_game_handler(window_info *win, int mx, int my, Uint32 flags)
 		str[0] = DROP_ITEM;
 		str[1] = item_list[item_dragged].pos;
 		*((Uint32 *) (str + 2)) = SDL_SwapLE32(item_quantity);
-		my_tcp_send(my_socket, str, 6);
+		my_tcp_send(str, 6);
 		return 1;
 	}
 
@@ -790,7 +790,7 @@ static int click_game_handler(window_info *win, int mx, int my, Uint32 flags)
 					achievements_requested(mouse_x, mouse_y, flag_ctrl);
 				str[0] = GET_PLAYER_INFO;
 				*((int *)(str+1)) = SDL_SwapLE32((int)object_under_mouse);
-				my_tcp_send (my_socket, str, 5);
+				my_tcp_send(str, 5);
 				return 1;
 			}
 			else if (thing_under_the_mouse == UNDER_MOUSE_3D_OBJ)
@@ -803,7 +803,7 @@ static int click_game_handler(window_info *win, int mx, int my, Uint32 flags)
 #endif
 				str[0] = LOOK_AT_MAP_OBJECT;
 				*((int *)(str+1)) = SDL_SwapLE32((int)object_under_mouse);
-				my_tcp_send (my_socket, str, 5);
+				my_tcp_send(str, 5);
 				return 1;
 			}
 
@@ -856,7 +856,7 @@ static int click_game_handler(window_info *win, int mx, int my, Uint32 flags)
 				return 1;
 			str[0] = TRADE_WITH;
 			*((int *)(str+1)) = SDL_SwapLE32((int)object_under_mouse);
-			my_tcp_send (my_socket, str, 5);
+			my_tcp_send(str, 5);
 			return 1;
 
 			break;
@@ -886,7 +886,7 @@ static int click_game_handler(window_info *win, int mx, int my, Uint32 flags)
 				Uint8 str[10];
 				str[0] = FIRE_MISSILE_AT_OBJECT;
 				*((int *)(str+1)) = SDL_SwapLE32((int)object_under_mouse);
-				my_tcp_send(my_socket, str, 5);
+				my_tcp_send(str, 5);
 			}
 			break;
 		}
@@ -928,7 +928,7 @@ static int click_game_handler(window_info *win, int mx, int my, Uint32 flags)
 				*((int *)(str+5)) = SDL_SwapLE32((int)-1);
 			}
 
-			my_tcp_send (my_socket, str, 9);
+			my_tcp_send(str, 9);
 			return 1;
 
 			break;
@@ -958,7 +958,7 @@ static int click_game_handler(window_info *win, int mx, int my, Uint32 flags)
 				return 1;
 			str[0] = HARVEST;
 			*((Uint16 *)(str+1)) = SDL_SwapLE16((Uint16)object_under_mouse);
-			my_tcp_send (my_socket, str, 3);
+			my_tcp_send(str, 3);
 			return 1;
 			break;
 		}
@@ -1607,11 +1607,8 @@ void hide_all_windows(void)
 
 static void toggle_sit_stand()
 {
-	Uint8 str[4];
-	//Send message to server...
-	str[0]=SIT_DOWN;
-	str[1]=!you_sit;
-	my_tcp_send(my_socket,str,2);
+	Uint8 str[2] = { SIT_DOWN, !you_sit };
+	my_tcp_send(str,2);
 }
 
 void switch_action_mode(int mode)
@@ -2025,15 +2022,13 @@ static int keypress_game_handler (window_info *win, int mx, int my, SDL_Keycode 
 	else if (KEY_DEF_CMP(K_TURNLEFT, key_code, key_mod))
 	{
 		//Moved delay to my_tcp_send
-		Uint8 str[2];
-		str[0] = TURN_LEFT;
-		my_tcp_send (my_socket, str, 1);
+		Uint8 cmd = TURN_LEFT;
+		my_tcp_send(&cmd, 1);
 	}
 	else if (KEY_DEF_CMP(K_TURNRIGHT, key_code, key_mod))
 	{
-		Uint8 str[2];
-		str[0] = TURN_RIGHT;
-		my_tcp_send (my_socket, str, 1);
+		Uint8 cmd = TURN_RIGHT;
+		my_tcp_send(&cmd, 1);
 	}
 	else if (KEY_DEF_CMP(K_ADVANCE, key_code, key_mod))
 	{

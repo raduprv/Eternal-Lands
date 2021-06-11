@@ -183,7 +183,7 @@ void Quest_Title_Request::request(void)
 	//LOG_TO_CONSOLE(c_green2,buf);
 	str[0]=WHAT_QUEST_IS_THIS_ID;
 	*((Uint16 *)(str+1)) = SDL_SwapLE16((Uint16)id);
-	my_tcp_send (my_socket, str, 3);
+	my_tcp_send(str, 3);
 	request_time = SDL_GetTicks();
 	requested = true;
 }

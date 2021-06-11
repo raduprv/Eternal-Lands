@@ -939,41 +939,34 @@ static int command_mark_color(char *text, int len)
 
 static int command_stats(char *text, int len)
 {
-	unsigned char protocol_name;
-
-	protocol_name = SERVER_STATS;
-	my_tcp_send(my_socket, &protocol_name, 1);
+	unsigned char protocol_name = SERVER_STATS;
+	my_tcp_send(&protocol_name, 1);
 	return 1;
 }
 
 
 int command_time(char *text, int len)
 {
-	unsigned char protocol_name;
-
-	protocol_name = GET_TIME;
-	my_tcp_send(my_socket,&protocol_name,1);
+	unsigned char protocol_name = GET_TIME;
+	my_tcp_send(&protocol_name, 1);
 	return 1;
 }
 
 
 int command_ping(char *text, int len)
 {
-	Uint8 str[8];
+	Uint8 str[5] = { PING };
 
-	str[0] = PING;
 	*((Uint32 *)(str+1)) = SDL_SwapLE32(SDL_GetTicks());
-	my_tcp_send(my_socket, str, 5);
+	my_tcp_send(str, 5);
 	return 1;
 }
 
 
 int command_date(char *text, int len)
 {
-	unsigned char protocol_name;
-
-	protocol_name = GET_DATE;
-	my_tcp_send(my_socket, &protocol_name, 1);
+	unsigned char protocol_name = GET_DATE;
+	my_tcp_send(&protocol_name, 1);
 	return 1;
 }
 

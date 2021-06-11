@@ -1955,9 +1955,8 @@ int	click_in_window(int win_id, int x, int y, Uint32 flags)
 		static int time=0;
 		if(time+60000<cur_time){
 			/*Server testing - required*/
-			Uint8 str[1];
-			str[0]=PING_REQUEST;
-			my_tcp_send(my_socket, str, 1);
+			Uint8 cmd = PING_REQUEST;
+			my_tcp_send(&cmd, 1);
 			time=cur_time;
 		}
 

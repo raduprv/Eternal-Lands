@@ -292,14 +292,10 @@ int load_empty_map()
 		show_window_MW(MW_CONSOLE);
 		LOG_TO_CONSOLE(c_red4, no_nomap_str);
 		LOG_ERROR(cant_change_map, "./maps/nomap.elm");
-		SDLNet_TCP_Close(my_socket);
-		disconnected = 1;
+		my_tcp_forced_quit();
 #ifdef NEW_SOUND
 		stop_all_sounds();
 #endif // NEW_SOUND
-		disconnect_time = SDL_GetTicks();
-		SDLNet_Quit();
-		LOG_TO_CONSOLE(c_red3, disconnected_from_server);
 		//Fake a map to make sure we don't get any crashes.
 #endif
 		safe_snprintf(map_file_name, sizeof(map_file_name), "./maps/nomap.elm");

@@ -1232,13 +1232,9 @@ void counters_set_spell_name(int spell_id, char *name, int len)
 void increment_spell_counter(int spell_id)
 {
 	if (!spell_names[spell_id+1]) {
-		Uint8 str[2];
-
-		str[0] = SPELL_NAME;
-		str[1] = (Sint8)spell_id;
-		my_tcp_send(my_socket, str, 2);
+		Uint8 str[2] = { SPELL_NAME, (Sint8)spell_id };
+		my_tcp_send(str, 2);
 		requested_spell_id = spell_id;
-
 	}
 	// delay the increment until we have the name
 	else

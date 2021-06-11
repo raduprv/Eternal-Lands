@@ -1,5 +1,6 @@
 #include <string.h>
 #include <time.h>
+#include <SDL_net.h>
 #include "multiplayer.h"
 #include "2d_objects.h"
 #include "3d_objects.h"
@@ -66,7 +67,7 @@
  *
  * void get_updates();
  */
-SDL_mutex* tcp_out_data_mutex = 0;
+static SDL_mutex* tcp_out_data_mutex = 0;
 
 static int client_version_major=VER_MAJOR;
 static int client_version_minor=VER_MINOR;
@@ -79,7 +80,7 @@ const char * web_update_address= "http://www.eternal-lands.com/index.php?content
 int icon_in_spellbar= -1;
 int port= 2000;
 unsigned char server_address[60];
-TCPsocket my_socket= 0;
+static TCPsocket my_socket= 0;
 SDLNet_SocketSet set= 0;
 #define MAX_TCP_BUFFER  8192
 Uint8 tcp_in_data[MAX_TCP_BUFFER];
@@ -207,7 +208,7 @@ const char *get_date(void (*callback)(const char *))
 	if (!requested_date)
 	{
 		unsigned char protocol_name = GET_DATE;
-		my_tcp_send(my_socket, &protocol_name, 1);
+		my_tcp_send(&protocol_name, 1);
 		requested_date = 1;
 	}
 
@@ -274,7 +275,7 @@ void move_to (short int x, short int y, int try_pathfinder)
 	str[0]= MOVE_TO;
 	*((short *)(str+1))= SDL_SwapLE16 (x);
 	*((short *)(str+3))= SDL_SwapLE16 (y);
-	my_tcp_send(my_socket, str, 5);
+	my_tcp_send(str, 5);
 }
 
 void send_heart_beat()
@@ -288,7 +289,7 @@ void send_heart_beat()
 #ifdef	OLC
 	len+= olc_heartbeat(command+len);
 #endif	//OLC
-	my_tcp_send(my_socket, command, len);
+	my_tcp_send(command, len);
 }
 
 /*!
@@ -328,7 +329,7 @@ static int my_locked_tcp_flush(TCPsocket my_socket)
 	return ret;
 }
 
-int my_tcp_send (TCPsocket my_socket, const Uint8 *str, int len)
+int my_tcp_send(const Uint8 *str, int len)
 {
 	Uint8 *new_str = NULL;
 	int ret_status = 0;
@@ -457,7 +458,7 @@ int my_tcp_send (TCPsocket my_socket, const Uint8 *str, int len)
 	return ret_status;
 }
 
-int my_tcp_flush(TCPsocket my_socket)
+int my_tcp_flush()
 {
 	int result;
 
@@ -468,6 +469,15 @@ int my_tcp_flush(TCPsocket my_socket)
 	CHECK_AND_UNLOCK_MUTEX(tcp_out_data_mutex);
 
 	return result;
+}
+
+void my_tcp_forced_quit()
+{
+	SDLNet_TCP_Close(my_socket);
+	disconnected = 1;
+	disconnect_time = SDL_GetTicks();
+	SDLNet_Quit();
+	LOG_TO_CONSOLE(c_red3, disconnected_from_server);
 }
 
 
@@ -505,7 +515,7 @@ void send_version_to_server(IPaddress *ip)
 #ifdef	OLC
 	len+= olc_version(str+len);
 #endif	//OLC
-	my_tcp_send(my_socket, str, len);
+	my_tcp_send(str, len);
 }
 
 void connect_to_server()
@@ -572,10 +582,8 @@ void connect_to_server()
 	//ask for the opening screen
 	if(!previously_logged_in)
 		{
-			Uint8 str[1];
-
-			str[0]= SEND_OPENING_SCREEN;
-			my_tcp_send(my_socket, str, 1);
+			Uint8 cmd = SEND_OPENING_SCREEN;
+			my_tcp_send(&cmd, 1);
 		}
 	else
 		{
@@ -631,12 +639,12 @@ void send_login_info()
 
 	joint_len = strlen((char*)str);
 	joint_len++;//send the last 0 too
-	if(my_tcp_send(my_socket, str, joint_len)<joint_len)
+	if(my_tcp_send(str, joint_len)<joint_len)
 		{
 			//we got a nasty error, log it
 		}
 
-	my_tcp_flush(my_socket);    // make sure tcp output buffer is empty
+	my_tcp_flush();    // make sure tcp output buffer is empty
 }
 
 
@@ -663,11 +671,11 @@ void send_new_char(char * user_str, char * pass_str, char skin, char hair, char 
 	str[i+j+8]= head;
 	str[i+j+9]= eyes;
 	len= i+j+10;
-	if(my_tcp_send(my_socket,str,len)<len) {
+	if(my_tcp_send(str,len)<len) {
 		//we got a nasty error, log it
 	}
 
-	my_tcp_flush(my_socket);    // make sure tcp output buffer is empty
+	my_tcp_flush();    // make sure tcp output buffer is empty
 }
 
 // TEMP LOGAND [5/25/2004]
@@ -879,7 +887,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 				command_time("", 0);
 				// print the invading monster count
 				safe_snprintf(str, sizeof(str), "%c#il", RAW_TEXT);
-				my_tcp_send(my_socket, (Uint8*)str, strlen(str+1)+1);
+				my_tcp_send((Uint8*)str, strlen(str+1)+1);
 				break;
 			}
 
@@ -1823,10 +1831,10 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 				int	len= data_length;
 				memcpy(buf, in_data, data_length);
 				len+= olc_ping_request(buf+len);
-				my_tcp_send(my_socket, buf, len);
+				my_tcp_send(buf, len);
 #else	//OLC
 				// just send the pack back as it is
-				my_tcp_send(my_socket, in_data, data_length);
+				my_tcp_send(in_data, data_length);
 #endif	//OLC
 			}
 			break;

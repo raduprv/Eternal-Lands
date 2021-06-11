@@ -347,7 +347,7 @@ void send_input_text_line (char *line, int line_len)
 	str[j] = 0;	// always a NULL at the end
 
 	len = strlen (&str[1]);
-	if (my_tcp_send (my_socket, (Uint8*)str, len+1) < len+1)
+	if (my_tcp_send((Uint8*)str, len+1) < len+1)
 	{
 		//we got a nasty error, log it
 	}

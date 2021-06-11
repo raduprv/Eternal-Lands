@@ -205,7 +205,7 @@ int start_rendering()
 #ifdef	OLC
 			olc_process();
 #endif	//OLC
-			my_tcp_flush(my_socket);    // make sure the tcp output buffer is set
+			my_tcp_flush();    // make sure the tcp output buffer is set
 
 			if (have_a_map && cur_time > last_frame_and_command_update + 60) {
 				LOCK_ACTORS_LISTS();

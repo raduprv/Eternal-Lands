@@ -1837,15 +1837,14 @@ void destroy_all_actors()
 
 void update_all_actors(int log_the_update)
 {
- 	Uint8 str[40];
+	Uint8 cmd = SEND_ME_MY_ACTORS;
 
 	//we got a nasty error, log it
 	if (log_the_update)
 		LOG_TO_CONSOLE(c_red2,resync_server);
 
 	destroy_all_actors();
-	str[0]=SEND_ME_MY_ACTORS;
-	my_tcp_send(my_socket,str,1);
+	my_tcp_send(&cmd, 1);
 }
 
 int push_command_in_actor_queue(unsigned int command, actor *act)

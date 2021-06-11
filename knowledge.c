@@ -442,7 +442,7 @@ int click_knowledge_handler(window_info *win, int mx, int my, Uint32 flags)
 			{
 				str[0] = GET_KNOWLEDGE_INFO;
 				*(Uint16 *)(str+1) = SDL_SwapLE16((short)idx);
-				my_tcp_send(my_socket,str,3);
+				my_tcp_send(str,3);
 				raw_knowledge_string[0] = '\0';
 				// Check if we display the book image and label
 				knowledge_book_id = idx;
