@@ -290,12 +290,8 @@ int load_empty_map()
 		locked_to_console = 1;
 		hide_window (game_root_win);
 		show_window_MW(MW_CONSOLE);
-		LOG_TO_CONSOLE(c_red4, no_nomap_str);
 		LOG_ERROR(cant_change_map, "./maps/nomap.elm");
-		my_tcp_forced_quit();
-#ifdef NEW_SOUND
-		stop_all_sounds();
-#endif // NEW_SOUND
+		force_server_disconnect(no_nomap_str);
 		//Fake a map to make sure we don't get any crashes.
 #endif
 		safe_snprintf(map_file_name, sizeof(map_file_name), "./maps/nomap.elm");

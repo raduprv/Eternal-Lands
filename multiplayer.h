@@ -13,7 +13,6 @@ extern "C" {
 
 extern int port; /*!< the server port we use */
 extern unsigned char server_address[60]; /*!< the server address we use */
-extern volatile int disconnected; /*!< indicates whether we are currently connected or not */
 
 /*! \name Version information
  * @{ */
@@ -65,14 +64,6 @@ Uint32 get_game_time_sec(void);
  * \return	the time difference in seconds, wrapped appropriately
 */
 Uint32 diff_game_time_sec(Uint32 ref_time);
-
-/*!
- * \brief	Set the state to disconnected from the server, showing messages and recording time.
- *
- * \param	message A message string, or NULL
- *
-*/
-void enter_disconnected_state(const char *message);
 
 /*!
  * \brief	Close connection and call enter_disconnected_state().
@@ -153,15 +144,6 @@ int my_tcp_send(const Uint8 *str, int len);
 
 int my_tcp_flush();
 
-/*!
- * \ingroup network_actors
- * \brief   Close the connection
- *
- * Close the connection to the server. This function is called when the map cannot be loaded
- * and the client cannot recover.
- */
-void my_tcp_forced_quit();
-
 
 /*!
  * \ingroup network_actors
@@ -208,7 +190,7 @@ void send_login_info();
  * \pre If the length of \a pass_str is less than 4, this function will create an error and returns.
  * \pre If the \a conf_pass_str doesn't match the \a pass_str, this function will create an error and returns.
  */
-void send_new_char(char * user_str, char * pass_str, char skin, char hair, char eyes, char shirt, char pants, char boots,char head, char type);
+void send_new_char(const char * user_str, const char * pass_str, char skin, char hair, char eyes, char shirt, char pants, char boots,char head, char type);
 
 /*!
  * \ingroup network_actors
@@ -249,6 +231,8 @@ int set_date(const char *the_string);
  * \retval	string pointer	NULL is no date ready
 */
 const char *get_date(void (*callback)(const char *));
+
+int is_disconnected();
 
 #ifdef __cplusplus
 } // extern "C"

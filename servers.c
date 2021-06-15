@@ -1,6 +1,9 @@
 #include <string.h>
 #include "servers.h"
 #include "asc.h"
+#ifdef USE_SSL
+#include "connection.h"
+#endif
 #include "elconfig.h"
 #include "errors.h"
 #include "gl_init.h"
@@ -76,8 +79,12 @@ void set_server_details()
 	// We found a valid profile so set some vars
 	LOG_DEBUG("Using the server profile: %s", servers[num].id);
 	cur_server = num;
+#ifdef USE_SSL
+	connection_set_server((char *)servers[num].address, servers[num].port);
+#else
 	safe_strncpy((char *)server_address, (char *)servers[num].address, sizeof(server_address));
 	port = servers[num].port;
+#endif
 	// Check if the config directory for the profile exists and if not then create and
 	// copy main's ini file into it
 	if (!check_configdir())
