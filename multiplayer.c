@@ -475,7 +475,7 @@ int my_tcp_send(const Uint8 *str, int len)
 	return ret_status;
 }
 
-int my_tcp_flush()
+int my_tcp_flush(void)
 {
 	int result;
 
@@ -488,7 +488,7 @@ int my_tcp_flush()
 	return result;
 }
 
-void my_tcp_forced_quit()
+void my_tcp_forced_quit(void)
 {
 	SDLNet_TCP_Close(my_socket);
 	disconnected = 1;
@@ -619,7 +619,7 @@ void connect_to_server()
 	hide_window_MW(MW_TRADE);
 	do_connect_sound();
 
-	my_tcp_flush(my_socket);    // make sure tcp output buffer is empty
+	my_tcp_flush();    // make sure tcp output buffer is empty
 }
 
 void send_login_info()

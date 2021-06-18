@@ -142,8 +142,7 @@ void move_to (short int x, short int y, int try_pathfinder);
  */
 int my_tcp_send(const Uint8 *str, int len);
 
-int my_tcp_flush();
-
+int my_tcp_flush(void);
 
 /*!
  * \ingroup network_actors
