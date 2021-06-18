@@ -3,6 +3,7 @@
 #include <cstring>
 #include <netdb.h>
 #include <netinet/tcp.h>
+#include <openssl/err.h>
 #include <unistd.h>
 #include "socket.h"
 
@@ -83,6 +84,18 @@ void TCPSocket::close()
 {
 	if (_fd >= 0)
 	{
+		if (_ssl)
+		{
+			SSL_free(_ssl);
+			_ssl = nullptr;
+		}
+		if (_ssl_ctx)
+		{
+			SSL_CTX_free(_ssl_ctx);
+			_ssl_ctx = nullptr;
+		}
+		_encrypted = false;
+
 		shutdown(_fd, SHUT_RDWR);
 		::close(_fd);
 		_fd = -1;
@@ -95,19 +108,32 @@ size_t TCPSocket::send(const std::uint8_t* data, size_t data_len)
 	if (!is_connected())
 		throw NotConnected();
 
-	ssize_t nr_bytes_sent = 0;
-	while (data_len > 0)
+	size_t nr_bytes_sent = 0;
+	if (is_encrypted())
 	{
-		ssize_t sent = ::send(_fd, data, data_len, 0);
-		if (sent < 0 && errno != EINTR)
-			// something went wrong
-			break;
-
-		if (sent > 0)
+		int ret = SSL_write_ex(_ssl, data, data_len, &nr_bytes_sent);
+		if (!ret)
 		{
-			data += sent;
-			data_len -= sent;
-			nr_bytes_sent += sent;
+			int err = SSL_get_error(_ssl, ret);
+			throw SendError(ERR_reason_error_string(err));
+		}
+	}
+	else
+	{
+		while (data_len > 0)
+		{
+			ssize_t sent;
+			sent = ::send(_fd, data, data_len, 0);
+			if (sent < 0 && errno != EINTR)
+				// something went wrong
+				throw SendError(strerror(errno));
+
+			if (sent > 0)
+			{
+				data += sent;
+				data_len -= sent;
+				nr_bytes_sent += sent;
+			}
 		}
 	}
 
@@ -144,19 +170,33 @@ size_t TCPSocket::receive(std::uint8_t* buffer, size_t max_len)
 	if (!is_connected())
 		throw NotConnected();
 
-	ssize_t nr_bytes;
-	do
+	if (is_encrypted())
 	{
-		nr_bytes = recv(_fd, buffer, max_len, 0);
+		size_t nr_bytes;
+		int ret = SSL_read_ex(_ssl, buffer, max_len, &nr_bytes);
+		if (!ret)
+		{
+			int err = SSL_get_error(_ssl, ret);
+			throw ReceiveError(ERR_reason_error_string(err));
+		}
+		return nr_bytes;
 	}
-	while (nr_bytes < 0 && errno == EINTR);
+	else
+	{
+		ssize_t nr_bytes;
+		do
+		{
+			nr_bytes = recv(_fd, buffer, max_len, 0);
+		}
+		while (nr_bytes < 0 && errno == EINTR);
 
-	if (nr_bytes == 0)
-		throw LostConnection();
-	if (nr_bytes < 0)
-		throw ReceiveError(errno);
+		if (nr_bytes == 0)
+			throw LostConnection();
+		if (nr_bytes < 0)
+			throw ReceiveError(strerror(errno));
 
-	return nr_bytes;
+		return nr_bytes;
+	}
 }
 
 void TCPSocket::set_no_delay()
@@ -166,6 +206,47 @@ void TCPSocket::set_no_delay()
 		int nodelay = 1;
 		setsockopt(_fd, IPPROTO_TCP, TCP_NODELAY, &nodelay, sizeof(nodelay));
 	}
+}
+
+void TCPSocket::encrypt()
+{
+	if (is_encrypted())
+		return;
+	if (!is_connected())
+		throw NotConnected();
+
+	if (!_ssl_ctx)
+	{
+		_ssl_ctx = SSL_CTX_new(TLS_client_method());
+		if (!_ssl_ctx)
+		{
+			unsigned long err = ERR_get_error();
+			throw EncryptError(ERR_reason_error_string(err));
+		}
+	}
+	if (!_ssl)
+	{
+		_ssl = SSL_new(_ssl_ctx);
+		if (!_ssl)
+		{
+			unsigned long err = ERR_get_error();
+			throw EncryptError(ERR_reason_error_string(err));
+		}
+	}
+	if (!SSL_set_fd(_ssl, _fd))
+	{
+		unsigned long err = ERR_get_error();
+		throw EncryptError(ERR_reason_error_string(err));
+		return;
+	}
+	int ret = SSL_connect(_ssl);
+	if (ret <= 0)
+	{
+		int err = SSL_get_error(_ssl, ret);
+		throw EncryptError(ERR_reason_error_string(err));
+	}
+
+	_encrypted = true;
 }
 
 } // namespace eternal_lands

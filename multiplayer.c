@@ -2314,6 +2314,14 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 					here_is_a_buff_duration((Uint8)in_data[3]);
 				break;
 			}
+		case LETS_ENCRYPT:
+#ifdef USE_SSL
+			handle_encryption_invitation();
+#else
+			// Nope, not encrypting
+			Uint8 msg = { LETS_ENCRYPT, 0 };
+			my_tcp_send(msg, 2);
+#endif
 		default:
 			{
 				// Unknown packet type??

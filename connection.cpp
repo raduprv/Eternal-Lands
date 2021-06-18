@@ -23,6 +23,7 @@
 #include "translate.h"
 
 int always_pathfinding = 0;
+int encrypt_connection = 1;
 
 namespace eternal_lands
 {
@@ -79,6 +80,7 @@ void Connection::connect_to_server()
 		yourself = -1;
 		you_sit = 0;
 		destroy_all_actors();
+		// FIXME: If encrypting, don't send login info until after encryption is set up
 		send_login_info();
 	}
 
@@ -113,7 +115,7 @@ void Connection::disconnect_from_server(const std::string& message)
 	if (login_root_win >= 0)
 		set_login_error(disconnected_from_server, strlen(disconnected_from_server), 1);
 
-	std::lock_guard<std::mutex> guard(_out_buffer_mutex);
+	std::lock_guard<std::mutex> guard(_out_mutex);
 	_socket.close();
 }
 
@@ -158,7 +160,7 @@ std::size_t Connection::send(std::uint8_t cmd, const std::uint8_t *data, std::si
 		return 0;
 	}
 
-	std::lock_guard<std::mutex> guard(_out_buffer_mutex);
+	std::lock_guard<std::mutex> guard(_out_mutex);
 	if (is_disconnected())
 		return 0;
 
@@ -248,6 +250,40 @@ std::size_t Connection::flush_locked()
 	_cache.clear();
 
 	return nr_bytes_sent;
+}
+
+void Connection::send_encryption_reply()
+{
+	std::uint8_t answer = encrypt_connection;
+	send(LETS_ENCRYPT, &answer, 1);
+
+	if (answer)
+	{
+		// Ensure nothing else is touching the connection
+		std::lock_guard<std::mutex> out_guard(_out_mutex);
+		std::lock_guard<std::mutex> in_guard(_in_mutex);
+		// ensure our answer is sent before we start the TLS handshake
+		flush_locked();
+		// If no error occurred sending the outgoing data, set up TLS
+		if (!is_disconnected())
+		{
+			try
+			{
+				_socket.encrypt();
+			}
+			catch (const NotConnected&)
+			{
+				// shouldn't happen
+			}
+			catch (const EncryptError& err)
+			{
+				LOG_ERROR("Failed to set up encryption: %s", err.what());
+				LOG_TO_CONSOLE(c_red1, "Failed to encrypt the data connection with the server.");
+				disconnect_from_server("Failed to set up encryption");
+				// FIXME: show a popup or something with a proper error message that lets the user turn off encryption
+			}
+		}
+	}
 }
 
 void Connection::send_heart_beat()
@@ -377,9 +413,10 @@ std::size_t Connection::do_send_data(const std::uint8_t* data, size_t data_len)
 		// shouldn't happen
 		return 0;
 	}
-	catch (const SendError&)
+	catch (const SendError& err)
 	{
-		// FIXME: Log a message
+		LOG_ERROR("Send failure: %s", err.what());
+		disconnect_from_server("Failed to send data to the server");
 		return 0;
 	}
 #endif	//OLC
@@ -437,8 +474,12 @@ void Connection::receive(queue_t *queue, int *done)
 		{
 			if (_socket.wait_incoming(timeout_ms))
 			{
-				size_t nr_bytes = _socket.receive(_in_buffer.data() + _in_buffer_used,
-					_in_buffer.size() - _in_buffer_used);
+				size_t nr_bytes;
+				{
+					std::lock_guard<std::mutex> guard(_in_mutex);
+					nr_bytes = _socket.receive(_in_buffer.data() + _in_buffer_used,
+						_in_buffer.size() - _in_buffer_used);
+				}
 				_in_buffer_used += nr_bytes;
 				process_incoming_data(queue);
 			}
@@ -464,7 +505,7 @@ void Connection::receive(queue_t *queue, int *done)
 		{
 			// An error occurred while reading data
 			_in_buffer_used = 0;
-			disconnect_from_server(strerror(err.error));
+			disconnect_from_server(err.what());
 		}
 	}
 }
@@ -531,6 +572,11 @@ extern "C" void send_new_char(const char* user_str, const char* pass_str, char s
 extern "C" void move_to(short int x, short int y, int try_pathfinder)
 {
 	Connection::get_instance().send_move_to(x, y, try_pathfinder);
+}
+
+extern "C" void handle_encryption_invitation()
+{
+	Connection::get_instance().send_encryption_reply();
 }
 
 extern "C" int my_tcp_send(const Uint8* str, int len)

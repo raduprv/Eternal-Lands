@@ -7,6 +7,7 @@
 #include <stdexcept>
 #include <string>
 #include <vector>
+#include <openssl/ssl.h>
 #ifdef WINDOWS
 #include <winsock2.h>
 typedef SOCKET SocketDescriptor;
@@ -38,8 +39,7 @@ struct NotConnected: public TCPSocketError
 };
 struct SendError: public TCPSocketError
 {
-	SendError(int error): TCPSocketError("Send error"), error(error) {}
-	int error;
+	SendError(const std::string& err_msg): TCPSocketError(err_msg) {}
 };
 struct PollError: public TCPSocketError
 {
@@ -52,8 +52,11 @@ struct LostConnection: public TCPSocketError
 };
 struct ReceiveError: public TCPSocketError
 {
-	ReceiveError(int error): TCPSocketError("Receive error"), error(error) {}
-	int error;
+	ReceiveError(const std::string& err_msg): TCPSocketError(err_msg) {}
+};
+struct EncryptError: public TCPSocketError
+{
+	EncryptError(const std::string& err_msg): TCPSocketError(err_msg) {}
 };
 
 class IPAddress
@@ -74,10 +77,11 @@ private:
 class TCPSocket
 {
 public:
-	TCPSocket(): _fd(-1), _peer(), _connected(false) {}
+	TCPSocket(): _fd(-1), _peer(), _ssl_ctx(nullptr), _ssl(nullptr), _connected(false), _encrypted(false) {}
 	~TCPSocket() { close(); }
 
 	bool is_connected() const { return _connected; }
+	bool is_encrypted() const { return _encrypted; }
 	const IPAddress& peer_address() const { return _peer; }
 
 	void connect(const std::string& address, std::uint16_t port);
@@ -88,12 +92,15 @@ public:
 	size_t receive(std::uint8_t* buffer, size_t max_len);
 
 	void set_no_delay();
+	void encrypt();
 
 private:
 	SocketDescriptor _fd;
 	IPAddress _peer;
+	SSL_CTX *_ssl_ctx;
+	SSL *_ssl;
 	bool _connected;
-
+	bool _encrypted;
 };
 
 } // namespace

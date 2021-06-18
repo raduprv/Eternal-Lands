@@ -39,7 +39,7 @@ public:
 	std::size_t send(std::uint8_t cmd, const std::uint8_t* data, std::size_t len);
 	std::size_t flush()
 	{
-		std::lock_guard<std::mutex> guard(_out_buffer_mutex);
+		std::lock_guard<std::mutex> guard(_out_mutex);
 		return flush_locked();
 	}
 	void receive(queue_t* queue, int *done);
@@ -50,6 +50,7 @@ public:
 			send_heart_beat();
 	}
 
+	void send_encryption_reply();
 	void send_login_info();
 	void send_move_to(std::int16_t x, std::int16_t y, bool try_pathfinder);
 	void send_new_char(const std::string& username, const std::string& password,
@@ -58,7 +59,7 @@ public:
 
 private:
 	static const std::uint16_t protocol_version_first_digit = 10; // protocol/game version sent to server
-	static const std::uint16_t protocol_version_second_digit = 28;
+	static const std::uint16_t protocol_version_second_digit = 29;
 	static const size_t max_out_buffer_size = 8192;
 	static const size_t max_in_buffer_size = 8192;
 	static const size_t max_cache_size = 256;
@@ -68,9 +69,10 @@ private:
 
 	TCPSocket _socket;
 
+	std::mutex _out_mutex;
 	std::vector<std::uint8_t> _out_buffer;
-	std::mutex _out_buffer_mutex;
 	std::vector<std::uint8_t> _cache;
+	std::mutex _in_mutex;
 	std::array<std::uint8_t, max_in_buffer_size> _in_buffer;
 	size_t _in_buffer_used;
 	time_t _last_heart_beat;
@@ -80,9 +82,10 @@ private:
 	std::uint32_t _connection_test_tick;
 	bool _invalid_version;
 	bool _previously_logged_in;
+	bool _in_tls_handshake;
 
 	Connection(): _server_name(), _server_port(2000), _socket(),
-		_out_buffer(), _out_buffer_mutex(), _cache(), _in_buffer(), _in_buffer_used(0),
+		_out_mutex(), _out_buffer(), _cache(), _in_mutex(), _in_buffer(), _in_buffer_used(0),
 		_last_heart_beat(0), _last_sit_tick(0), _last_turn_tick(0), _connection_test_tick(0),
 		_invalid_version(false), _previously_logged_in(false) {}
 	~Connection() { _socket.close(); }
@@ -116,6 +119,7 @@ void send_login_info(void);
 void send_new_char(const char* user_str, const char* pass_str, char skin, char hair, char eyes,
 	char shirt, char pants, char boots,char head, char type);
 void move_to (short int x, short int y, int try_pathfinder);
+void handle_encryption_invitation(void);
 int my_tcp_send(const Uint8* str, int len);
 int my_tcp_flush(void);
 int get_message_from_server(void *thread_args);
