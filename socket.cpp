@@ -6,34 +6,10 @@
 #include <openssl/err.h>
 #include <unistd.h>
 #include "socket.h"
+#include "ipaddress.h"
 
 namespace eternal_lands
 {
-
-IPAddress::IPAddress(const struct sockaddr_in *addr): _host(), _port(addr->sin_port)
-{
-	std::uint32_t host = addr->sin_addr.s_addr;
-#ifdef EL_BIG_ENDIAN
-	_host.push_back(std::uint8_t(host >> 24));
-	_host.push_back(std::uint8_t(host >> 16));
-	_host.push_back(std::uint8_t(host >> 8));
-	_host.push_back(std::uint8_t(host));
-#else // EL_BIG_ENDIAN
-	_host.push_back(std::uint8_t(host));
-	_host.push_back(std::uint8_t(host >> 8));
-	_host.push_back(std::uint8_t(host >> 16));
-	_host.push_back(std::uint8_t(host >> 24));
-	_port = (_port << 8) | (_port >> 8);
-#endif // EL_BIG_ENDIAN
-}
-
-IPAddress::IPAddress(const struct sockaddr_in6 *addr):
-	_host(addr->sin6_addr.s6_addr, addr->sin6_addr.s6_addr+16), _port(addr->sin6_port)
-{
-#ifndef EL_BIG_ENDIAN
-	_port = (_port << 8) | (_port >> 8);
-#endif // !EL_BIG_ENDIAN
-}
 
 void TCPSocket::connect(const std::string& address, std::uint16_t port)
 {
@@ -43,6 +19,7 @@ void TCPSocket::connect(const std::string& address, std::uint16_t port)
 	std::string service = std::to_string(port);
 	struct addrinfo hints;
 	std::memset(&hints, 0, sizeof(hints));
+	hints.ai_family = AF_UNSPEC;
 	hints.ai_socktype = SOCK_STREAM;
 	struct addrinfo *all_info;
 	int res = getaddrinfo(address.c_str(), service.c_str(), &hints, &all_info);
@@ -51,7 +28,11 @@ void TCPSocket::connect(const std::string& address, std::uint16_t port)
 
 	for (struct addrinfo *info = all_info; info; info = info->ai_next)
 	{
-		_fd = socket(info->ai_family, SOCK_STREAM, info->ai_protocol);
+		if (info->ai_family != AF_INET && info->ai_family != AF_INET6)
+			// We only do TCP/IP
+			continue;
+
+		_fd = socket(info->ai_family, info->ai_socktype, info->ai_protocol);
 		if (_fd >= 0)
 		{
 			int res = ::connect(_fd, info->ai_addr, info->ai_addrlen);
@@ -59,11 +40,8 @@ void TCPSocket::connect(const std::string& address, std::uint16_t port)
 			{
 				if (info->ai_family == AF_INET)
 					_peer = IPAddress(reinterpret_cast<const struct sockaddr_in*>(info->ai_addr));
-				else if (info->ai_family == AF_INET6)
-					_peer = IPAddress(reinterpret_cast<const struct sockaddr_in6*>(info->ai_addr));
 				else
-					// Ehmm... dunno?
-					_peer = IPAddress();
+					_peer = IPAddress(reinterpret_cast<const struct sockaddr_in6*>(info->ai_addr));
 				break;
 			}
 

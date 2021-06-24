@@ -367,7 +367,7 @@ void Connection::send_new_char(const std::string& username, const std::string& p
 void Connection::send_version()
 {
 	const IPAddress& server_address = _socket.peer_address();
-	const std::vector<std::uint8_t>& host = server_address.host();
+	const std::uint8_t* host = server_address.host_bytes();
 	std::uint16_t port = server_address.port();
 	const uint8_t data[64] = {
 		(protocol_version_first_digit & 0xff),

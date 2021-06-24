@@ -94,7 +94,7 @@ COBJS=2d_objects.o 3d_objects.o \
 	$(foreach FEATURE, $(FEATURES), $($(FEATURE)_COBJ))
 
 JSON_FILES_CXXOBJ = json_io.o
-USE_SSL_CXXOBJ = connection.o socket.o
+USE_SSL_CXXOBJ = connection.o ipaddress.o socket.o
 CXXOBJS=achievements.o actor_init.o books.o cal3d_wrapper.o command_queue.o \
 	context_menu.o elloggingwrapper.o engine/logging.o exceptions/extendedexception.o \
 	font.o hud_indicators.o hud_timer.o icon_window.o io/cal3d_io_wrapper.o item_info.o item_lists.o \

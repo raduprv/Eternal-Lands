@@ -15,6 +15,7 @@ typedef SOCKET SocketDescriptor;
 #include <sys/socket.h>
 typedef int SocketDescriptor;
 #endif // WINDOWS
+#include "ipaddress.h"
 
 namespace eternal_lands
 {
@@ -57,21 +58,6 @@ struct ReceiveError: public TCPSocketError
 struct EncryptError: public TCPSocketError
 {
 	EncryptError(const std::string& err_msg): TCPSocketError(err_msg) {}
-};
-
-class IPAddress
-{
-public:
-	IPAddress(): _host(), _port(0) {}
-	explicit IPAddress(const struct sockaddr_in *addr);
-	explicit IPAddress(const struct sockaddr_in6 *addr);
-
-	const std::vector<std::uint8_t>& host() const { return _host; }
-	uint16_t port() const { return _port; }
-
-private:
-	std::vector<std::uint8_t> _host;
-	std::uint16_t _port;
 };
 
 class TCPSocket
