@@ -216,11 +216,29 @@ int url_command(const char *text, int len)
 	return 1;
 }
 
+/* determine if character can delimit the end of a url */
+int is_url_end_delim(unsigned char chr)
+{
+	// from rfc1738
+	unsigned char non_url_printable_chars[] = {' ','<','>','"','{','}','|','\\','^','~','[',']','`',};
+	int i;
+	
+	if (!is_printable(chr))
+		return 1;
+		
+	for (i=0; i < sizeof(non_url_printable_chars); i++)
+		if(non_url_printable_chars[i] == chr)
+			return 1;
+			
+	return 0;
+	
+}
 
 /* find and store all urls in the provided string */
 void find_all_url(const char *source_string, const int len)
 {
 	char search_for[][10] = {"http://", "https://", "ftp://", "www."};
+	
 	int next_start = 0;
 
 	while (next_start < len)
@@ -233,7 +251,8 @@ void find_all_url(const char *source_string, const int len)
 		{
 			const char* ptr = safe_strcasestr(source_string+next_start, len-next_start, search_for[i], strlen(search_for[i]));
 			if (ptr && ptr - (source_string + next_start) < first_found)
-				first_found = ptr - (source_string + next_start);
+				if(ptr == source_string || (ptr > source_string && !isalpha(*(ptr-1))) )
+					first_found = ptr - (source_string + next_start);
 		}
 
 		/* if url found, store (if new) it then continue the search straight after the end */
@@ -249,9 +268,7 @@ void find_all_url(const char *source_string, const int len)
 			for (next_start = url_start; next_start < len; next_start++)
 			{
 				char cur_char = source_string[next_start];
-				if(!cur_char || cur_char == ' ' || cur_char == '\n' || cur_char == '<'
-					|| cur_char == '>' || cur_char == '|' || cur_char == '"' || cur_char == '\'' || cur_char == '`'
-					|| cur_char == ']' || cur_char == ';' || cur_char == '\\' || (cur_char&0x80) != 0)
+				if(!cur_char || is_url_end_delim(cur_char))
 					break;
 			}
 
