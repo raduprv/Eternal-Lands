@@ -41,7 +41,6 @@
 #endif
 #include "sound.h"
 
-#define MIN(a,b) (((a)<(b))?(a):(b))
 
 char browser_name[120];
 static Uint32 url_win_sep = 0;
@@ -253,8 +252,8 @@ void find_all_url(const char *source_string, const int len)
 		{
 			const char* ptr = safe_strcasestr(source_string+next_start, len-next_start, search_for[i], strlen(search_for[i]));
 			if (ptr && ptr - (source_string + next_start) < first_found)
-				if (strncmp(ptr, "www.", MIN(len,4)) != 0
-					|| (strncmp(ptr, "www.", MIN(len,4)) == 0
+				if (strncmp(ptr, "www.", 4) != 0
+					|| (strncmp(ptr, "www.", 4) == 0
 						&& (ptr == source_string || (ptr > source_string && !isalpha(*(ptr-1))))
 					)
 				)
