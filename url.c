@@ -239,34 +239,36 @@ int is_url_end_delim(unsigned char chr)
 /* find and store all urls in the provided string */
 void find_all_url(const char *source_string, const int len)
 {
-	char search_for[][10] = {"http://", "https://", "ftp://", "sftp://", "www."};
+	static const char* search_for[] = {"http://", "https://", "ftp://", "sftp://", "www."};
+	static const int nr_search_for = sizeof(search_for) / sizeof(*search_for);
 	int next_start = 0;
 
 	while (next_start < len)
 	{
-		int first_found = len-next_start; /* set to max */
+		int url_start = len; /* set to max */
 		int i;
 
 		/* find the first of the url start strings */
-		for(i = 0; i < sizeof(search_for)/10; i++)
+		for (i = 0; i < nr_search_for; i++)
 		{
 			const char* ptr = safe_strcasestr(source_string+next_start, len-next_start, search_for[i], strlen(search_for[i]));
-			if (ptr && ptr - (source_string + next_start) < first_found)
-				if (strncmp(ptr, "www.", 4) != 0
-					|| (strncmp(ptr, "www.", 4) == 0
-						&& (ptr == source_string || (ptr > source_string && !isalpha(*(ptr-1))))
-					)
-				)
-					first_found = ptr - (source_string + next_start);
+			if (ptr)
+			{
+				int start_idx = ptr - source_string;
+				int ptr_len = len - start_idx;
+				//The start of url is before the one found so far.
+				//For safety, if at some point we add a protocol to search for that's less than 4 characters, don't check for www. when we don't have at least 4 characters left in the source string because we can't assume the source string is null terminated.
+				if (start_idx < url_start && (!(ptr_len >= 4 && strncmp(ptr, "www.", 4) == 0) || ptr == source_string || !isalpha(*(ptr-1))))
+					url_start = start_idx;
+			}
 		}
 
 		/* if url found, store (if new) it then continue the search straight after the end */
-		if (first_found < len-next_start)
+		if (url_start < len)
 		{
 			char *new_url = NULL;
 			char *add_start = "";
 			size_t url_len;
-			int url_start = next_start + first_found;
 			int have_already = 0;
 
 			/* find the url end */
