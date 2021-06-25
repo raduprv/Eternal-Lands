@@ -41,6 +41,8 @@
 #endif
 #include "sound.h"
 
+#define MIN(a,b) (((a)<(b))?(a):(b))
+
 char browser_name[120];
 static Uint32 url_win_sep = 0;
 static float url_win_text_zoom = 1.0;
@@ -223,7 +225,8 @@ int is_url_end_delim(unsigned char chr)
 	unsigned char non_url_printable_chars[] = {' ','<','>','"','{','}','|','\\','^','~','[',']','`',};
 	int i;
 	
-	if (!is_printable(chr))
+	// character is not ascii graphic
+	if (!(chr >= 0x20 && chr <= 0x7E))
 		return 1;
 		
 	for (i=0; i < sizeof(non_url_printable_chars); i++)
@@ -237,8 +240,7 @@ int is_url_end_delim(unsigned char chr)
 /* find and store all urls in the provided string */
 void find_all_url(const char *source_string, const int len)
 {
-	char search_for[][10] = {"http://", "https://", "ftp://", "www."};
-	
+	char search_for[][10] = {"http://", "https://", "ftp://", "sftp://", "www."};
 	int next_start = 0;
 
 	while (next_start < len)
@@ -251,7 +253,11 @@ void find_all_url(const char *source_string, const int len)
 		{
 			const char* ptr = safe_strcasestr(source_string+next_start, len-next_start, search_for[i], strlen(search_for[i]));
 			if (ptr && ptr - (source_string + next_start) < first_found)
-				if(ptr == source_string || (ptr > source_string && !isalpha(*(ptr-1))) )
+				if (strncmp(ptr, "www.", MIN(len,4)) != 0
+					|| (strncmp(ptr, "www.", MIN(len,4)) == 0
+						&& (ptr == source_string || (ptr > source_string && !isalpha(*(ptr-1))))
+					)
+				)
 					first_found = ptr - (source_string + next_start);
 		}
 
