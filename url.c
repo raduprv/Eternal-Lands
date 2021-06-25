@@ -225,7 +225,7 @@ int is_url_end_delim(unsigned char chr)
 	int i;
 	
 	// character is not ascii graphic
-	if (!(chr >= 0x20 && chr <= 0x7E))
+	if (!(isascii(chr) && isprint(chr)))
 		return 1;
 		
 	for (i=0; i < sizeof(non_url_printable_chars); i++)
