@@ -66,6 +66,21 @@ void Connection::connect_to_server()
 	}
 	_socket.set_no_delay();
 
+	if (encrypt_connection)
+	{
+		try
+		{
+			_socket.encrypt();
+		}
+		catch (const EncryptError& err)
+		{
+			LOG_TO_CONSOLE(c_red1, "Failed to set up an encrypted connection");
+			_socket.close();
+			do_disconnect_sound();
+			return;
+		}
+	}
+
 	have_storage_list = 0; // With a reconnect, our cached copy of what's in storage may no longer be accurate
 
 	send_version();
@@ -250,40 +265,6 @@ std::size_t Connection::flush_locked()
 	_cache.clear();
 
 	return nr_bytes_sent;
-}
-
-void Connection::send_encryption_reply()
-{
-	std::uint8_t answer = encrypt_connection;
-	send(LETS_ENCRYPT, &answer, 1);
-
-	if (answer)
-	{
-		// Ensure nothing else is touching the connection
-		std::lock_guard<std::mutex> out_guard(_out_mutex);
-		std::lock_guard<std::mutex> in_guard(_in_mutex);
-		// ensure our answer is sent before we start the TLS handshake
-		flush_locked();
-		// If no error occurred sending the outgoing data, set up TLS
-		if (!is_disconnected())
-		{
-			try
-			{
-				_socket.encrypt();
-			}
-			catch (const NotConnected&)
-			{
-				// shouldn't happen
-			}
-			catch (const EncryptError& err)
-			{
-				LOG_ERROR("Failed to set up encryption: %s", err.what());
-				LOG_TO_CONSOLE(c_red1, "Failed to encrypt the data connection with the server.");
-				disconnect_from_server("Failed to set up encryption");
-				// FIXME: show a popup or something with a proper error message that lets the user turn off encryption
-			}
-		}
-	}
 }
 
 void Connection::send_heart_beat()
@@ -572,11 +553,6 @@ extern "C" void send_new_char(const char* user_str, const char* pass_str, char s
 extern "C" void move_to(short int x, short int y, int try_pathfinder)
 {
 	Connection::get_instance().send_move_to(x, y, try_pathfinder);
-}
-
-extern "C" void handle_encryption_invitation()
-{
-	Connection::get_instance().send_encryption_reply();
 }
 
 extern "C" int my_tcp_send(const Uint8* str, int len)

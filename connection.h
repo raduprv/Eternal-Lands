@@ -50,7 +50,6 @@ public:
 			send_heart_beat();
 	}
 
-	void send_encryption_reply();
 	void send_login_info();
 	void send_move_to(std::int16_t x, std::int16_t y, bool try_pathfinder);
 	void send_new_char(const std::string& username, const std::string& password,
