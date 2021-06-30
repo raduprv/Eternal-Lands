@@ -690,13 +690,11 @@ static void quick_use(int use_id, size_t *timer)
 		{
 			if (item_list[i].quantity)
 			{
-				// its a usabale item so try to use it
+				// it's a usable item so try to use it
 				if (item_list[i].use_with_inventory)
 				{
-					// FIXME: 3 byte message is created, but 2 passed as size. Figure out what is
-					// expected by the server.
-					Uint8 quick_use_str[3] = { USE_INVENTORY_ITEM, use_id, i };
-					my_tcp_send(quick_use_str,2);
+					Uint8 quick_use_str[2] = { USE_INVENTORY_ITEM, use_id };
+					my_tcp_send(quick_use_str, 2);
 					used_item_counter_action_use(i);
 #ifdef NEW_SOUND
 					item_list[i].action = USE_INVENTORY_ITEM;
