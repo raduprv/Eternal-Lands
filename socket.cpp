@@ -6,6 +6,7 @@
 #include <openssl/err.h>
 #include <unistd.h>
 #include "socket.h"
+#include "elloggingwrapper.h"
 #include "ipaddress.h"
 
 namespace eternal_lands
@@ -203,6 +204,13 @@ void TCPSocket::encrypt()
 			unsigned long err = ERR_get_error();
 			throw EncryptError(ERR_reason_error_string(err));
 		}
+
+		if (!SSL_CTX_load_verify_locations(_ssl_ctx, nullptr, certificates_directory))
+		{
+			unsigned long err = ERR_get_error();
+			LOG_ERROR("Failed to load certificates from directory \"%s\": %s", certificates_directory,
+				ERR_reason_error_string(err));
+		}
 	}
 	if (!_ssl)
 	{
@@ -244,6 +252,12 @@ void TCPSocket::encrypt()
 			msg = "Unknown error";
 		}
 		throw EncryptError(msg);
+	}
+
+	if (SSL_get_verify_result(_ssl) != X509_V_OK // Invalid certificate
+		|| !SSL_get_peer_certificate(_ssl))      // No server certificate at all
+	{
+		throw InvalidCertificate();
 	}
 
 	_encrypted = true;

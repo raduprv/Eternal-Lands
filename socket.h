@@ -59,6 +59,10 @@ struct EncryptError: public TCPSocketError
 {
 	EncryptError(const std::string& err_msg): TCPSocketError(err_msg) {}
 };
+struct InvalidCertificate: public EncryptError
+{
+	InvalidCertificate(): EncryptError("Invalid server certificate") {}
+};
 
 class TCPSocket
 {
@@ -88,6 +92,8 @@ public:
 	void encrypt();
 
 private:
+	static constexpr const char* certificates_directory = "certificates";
+
 	SocketDescriptor _fd;
 	IPAddress _peer;
 	SSL_CTX *_ssl_ctx;

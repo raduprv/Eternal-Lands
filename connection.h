@@ -95,6 +95,8 @@ private:
 
 	void send_heart_beat();
 	void send_version();
+
+	void show_invalid_cert_popup();
 };
 
 } // namespace eternal_lands

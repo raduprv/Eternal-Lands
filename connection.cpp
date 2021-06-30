@@ -72,6 +72,11 @@ void Connection::connect_to_server()
 		{
 			_socket.encrypt();
 		}
+		catch (const InvalidCertificate&)
+		{
+			show_invalid_cert_popup();
+			return;
+		}
 		catch (const EncryptError& err)
 		{
 			LOG_TO_CONSOLE(c_red1, "Failed to set up an encrypted connection");
@@ -108,6 +113,14 @@ void Connection::connect_to_server()
 	do_connect_sound();
 
 	flush();               // make sure tcp output buffer is empty
+}
+
+void Connection::show_invalid_cert_popup()
+{
+	// FIXME: TBD
+	LOG_TO_CONSOLE(c_red1, "The server certificate could not be verfified.");
+	_socket.close();
+	do_disconnect_sound();
 }
 
 void Connection::disconnect_from_server(const std::string& message)
