@@ -143,7 +143,7 @@ bool TCPSocket::wait_incoming(int timeout_ms)
 	return ret > 0;
 }
 
-size_t TCPSocket::receive(std::uint8_t* buffer, size_t max_len)
+size_t TCPSocket::receive_or_peek(std::uint8_t* buffer, size_t max_len, bool peek)
 {
 	if (!is_connected())
 		throw NotConnected();
@@ -162,9 +162,10 @@ size_t TCPSocket::receive(std::uint8_t* buffer, size_t max_len)
 	else
 	{
 		ssize_t nr_bytes;
+		int flags = peek ? MSG_PEEK : 0;
 		do
 		{
-			nr_bytes = recv(_fd, buffer, max_len, 0);
+			nr_bytes = recv(_fd, buffer, max_len, flags);
 		}
 		while (nr_bytes < 0 && errno == EINTR);
 
@@ -195,6 +196,7 @@ void TCPSocket::encrypt()
 
 	if (!_ssl_ctx)
 	{
+		ERR_clear_error();
 		_ssl_ctx = SSL_CTX_new(TLS_client_method());
 		if (!_ssl_ctx)
 		{
@@ -204,6 +206,7 @@ void TCPSocket::encrypt()
 	}
 	if (!_ssl)
 	{
+		ERR_clear_error();
 		_ssl = SSL_new(_ssl_ctx);
 		if (!_ssl)
 		{
@@ -211,17 +214,36 @@ void TCPSocket::encrypt()
 			throw EncryptError(ERR_reason_error_string(err));
 		}
 	}
+
+	ERR_clear_error();
 	if (!SSL_set_fd(_ssl, _fd))
 	{
 		unsigned long err = ERR_get_error();
 		throw EncryptError(ERR_reason_error_string(err));
-		return;
 	}
+
+	ERR_clear_error();
 	int ret = SSL_connect(_ssl);
 	if (ret <= 0)
 	{
-		int err = SSL_get_error(_ssl, ret);
-		throw EncryptError(ERR_reason_error_string(err));
+		int errno_save = errno;
+		int ssl_err = SSL_get_error(_ssl, ret);
+		unsigned long err = ERR_get_error();
+		const char* msg;
+
+		if (err)
+		{
+			msg = ERR_reason_error_string(err);
+		}
+		else if (ssl_err == SSL_ERROR_SYSCALL && errno_save != 0)
+		{
+			msg = strerror(errno);
+		}
+		else
+		{
+			msg = "Unknown error";
+		}
+		throw EncryptError(msg);
 	}
 
 	_encrypted = true;

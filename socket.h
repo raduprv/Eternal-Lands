@@ -75,7 +75,14 @@ public:
 
 	size_t send(const std::uint8_t* data, size_t data_len);
 	bool wait_incoming(int timeout_ms);
-	size_t receive(std::uint8_t* buffer, size_t max_len);
+	size_t receive(std::uint8_t* buffer, size_t max_len)
+	{
+		return receive_or_peek(buffer, max_len, false);
+	}
+	size_t peek(std::uint8_t* buffer, size_t max_len)
+	{
+		return receive_or_peek(buffer, max_len, true);
+	}
 
 	void set_no_delay();
 	void encrypt();
@@ -87,6 +94,8 @@ private:
 	SSL *_ssl;
 	bool _connected;
 	bool _encrypted;
+
+	size_t receive_or_peek(std::uint8_t* buffer, size_t max_len, bool peek);
 };
 
 } // namespace
