@@ -30,4 +30,11 @@ void load_server_list(const char *filename);
  */
 const char * get_server_name(void);
 
+/**
+ * \brief Free the servers list
+ *
+ * Free the memory allocated for the list of known servers.
+ */
+void free_servers(void);
+
 #endif
