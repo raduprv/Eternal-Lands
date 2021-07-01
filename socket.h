@@ -88,6 +88,17 @@ public:
 		return receive_or_peek(buffer, max_len, true);
 	}
 
+	/*!
+	 * \brief Set the blocking mode.
+	 *
+	 * Set the blocking mode for this socket. If \a blocking is \c true, the socket will block
+	 * until read or write operations can be performed. If blocking id \c false, the socket will
+	 * return immediately when no data has arrived to be received, or return a short byte count
+	 * (which can be 0) when not all data can be sent.
+	 *
+	 * \param blocking Whether to block when I/O cannot be performed immediately.
+	 */
+	void set_blocking(bool blocking);
 	void set_no_delay();
 	void encrypt();
 

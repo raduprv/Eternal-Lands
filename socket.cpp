@@ -1,6 +1,9 @@
 #ifdef USE_SSL
 
 #include <cstring>
+#ifndef WINDOWS
+#include <fcntl.h>
+#endif
 #include <netdb.h>
 #include <netinet/tcp.h>
 #include <openssl/err.h>
@@ -56,6 +59,10 @@ void TCPSocket::connect(const std::string& address, std::uint16_t port)
 
 	if (_fd == -1)
 		throw ConnectionFailure(address);
+
+	// Make client sockets blocking by default.
+	set_blocking(true);
+
 	_connected = true;
 }
 
@@ -177,6 +184,32 @@ size_t TCPSocket::receive_or_peek(std::uint8_t* buffer, size_t max_len, bool pee
 
 		return nr_bytes;
 	}
+}
+
+void TCPSocket::set_blocking(bool blocking)
+{
+	// NOTE: this code has been adapted from SDLNet
+
+#if defined(__BEOS__) && defined(SO_NONBLOCK)
+	/* On BeOS r5 there is O_NONBLOCK but it's for files only */
+	long mode = !blocking;
+	setsockopt(_fd, SOL_SOCKET, SO_NONBLOCK, &mode, sizeof(mode));
+#elif defined(O_NONBLOCK)
+	int flags = fcntl(_fd, F_GETFL, 0);
+	if (blocking)
+		flags &= ~O_NONBLOCK;
+	else
+		flags |= O_NONBLOCK;
+	fcntl(_fd, F_SETFL, flags);
+#elif defined(WIN32)
+	unsigned long mode = !blocking;
+	ioctlsocket(_fd, FIONBIO, &mode);
+#elif defined(__OS2__)
+	int mode = !blocking;
+	ioctl(_fd, FIONBIO, &mode);
+#else
+#error Unknown how to set socket blocking mode for this system.
+#endif
 }
 
 void TCPSocket::set_no_delay()
