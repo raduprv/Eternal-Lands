@@ -63,6 +63,7 @@
 #include "shader/shader.h"
 #include "sky.h"
 #include "sound.h"
+#include "servers.h"
 #include "text.h"
 #include "timers.h"
 #include "trade_log.h"
@@ -384,6 +385,9 @@ int start_rendering()
 	LOG_INFO("FreeXML()");
 	FreeXML();
 
+	LOG_INFO("Free servers list");
+	free_servers();
+
 #ifdef NEW_SOUND
 	LOG_INFO("final_sound_exit()");
 	final_sound_exit();
@@ -426,7 +430,7 @@ void	read_command_line(void)
 /* We need an additional function as the command line should be read after the config, but this
  * variable is needed to load the correct config.
  */
-char * check_server_id_on_command_line()
+const char * check_server_id_on_command_line()
 {
 	if (gargc < 2)
 		return "";

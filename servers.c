@@ -7,7 +7,8 @@
 #include "misc.h"
 #include "multiplayer.h"
 #include "io/elpathwrapper.h"
-#define MAX_SERVERS 10
+
+#define DEFAULT_SERVERS_SIZE 4
 
 typedef struct
 {
@@ -18,11 +19,12 @@ typedef struct
 	char desc[100];						// Description of the server - to be shown on in the Server Selection screen
 } server_def;
 
-server_def servers[MAX_SERVERS];		// The details of all the servers we know about
-int num_servers = 0;
-int cur_server = -1;
+static server_def* servers = NULL;		// The details of all the servers we know about
+static int servers_size = 0;
+static int num_servers = 0;
+static int cur_server = -1;
 
-char * check_server_id_on_command_line();	// From main.c
+const char* check_server_id_on_command_line();	// From main.c
 
 const char * get_server_name(void)
 {
@@ -105,6 +107,24 @@ const char * get_server_dir()
 		return "";
 }
 
+static server_def* reallocate_servers_list(int min_size)
+{
+	if (servers_size < min_size)
+	{
+		server_def* new_servers;
+		int new_size = servers_size > 0 ? 2*servers_size : DEFAULT_SERVERS_SIZE;
+		while (new_size < min_size)
+			new_size *= 2;
+		new_servers = realloc(servers, new_size * sizeof(server_def));
+		if (!new_servers)
+			return NULL;
+
+		servers = new_servers;
+		servers_size = new_size;
+	}
+	return servers;
+}
+
 void load_server_list(const char *filename)
 {
 	int f_size;
@@ -174,7 +194,7 @@ void load_server_list(const char *filename)
 					break;	// This is a comment so ignore the rest of the line
 				else if (section < 4 && (server_list_mem[i] == ' ' || server_list_mem[i] == '\t' || i == iend))
 				{
-					if (num_servers >= MAX_SERVERS)
+					if (num_servers >= servers_size && !reallocate_servers_list(num_servers + 1))
 					{
 						const char *errstg = "Fatal error: Too many servers specified in";
 						LOG_ERROR("%s %s", errstg, filename);
@@ -241,6 +261,14 @@ void load_server_list(const char *filename)
 	}
 
 	free(server_list_mem);
+}
+
+void free_servers(void)
+{
+	free(servers);
+	servers = NULL;
+	servers_size = num_servers = 0;
+	cur_server = -1;
 }
 
 
