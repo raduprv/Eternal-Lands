@@ -26,7 +26,7 @@ public:
 
 	bool is_disconnected() const { return !_socket.is_connected(); }
 
-	void set_server(const char* name, std::uint16_t port);
+	void set_server(const char* name, std::uint16_t port, bool encrypted);
 	void connect_to_server();
 	void disconnect_from_server() { disconnect_from_server("Grue?"); }
 	void disconnect_from_server(const std::string& message);
@@ -65,6 +65,7 @@ private:
 
 	std::string _server_name;
 	unsigned short _server_port;
+	bool _encrypted;
 
 	TCPSocket _socket;
 
@@ -81,9 +82,8 @@ private:
 	std::uint32_t _connection_test_tick;
 	bool _invalid_version;
 	bool _previously_logged_in;
-	bool _in_tls_handshake;
 
-	Connection(): _server_name(), _server_port(2000), _socket(),
+	Connection(): _server_name(), _server_port(2000), _encrypted(false), _socket(),
 		_out_mutex(), _out_buffer(), _cache(), _in_mutex(), _in_buffer(), _in_buffer_used(0),
 		_last_heart_beat(0), _last_sit_tick(0), _last_turn_tick(0), _connection_test_tick(0),
 		_invalid_version(false), _previously_logged_in(false) {}
@@ -109,7 +109,7 @@ extern "C"
 #endif
 
 int is_disconnected(void);
-void connection_set_server(const char* name, uint16_t port);
+void connection_set_server(const char* name, uint16_t port, int encrypted);
 void connect_to_server(void);
 void force_server_disconnect(const char *message);
 void start_testing_server_connection(void);

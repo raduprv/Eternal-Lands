@@ -23,15 +23,15 @@
 #include "translate.h"
 
 int always_pathfinding = 0;
-int encrypt_connection = 1;
 
 namespace eternal_lands
 {
 
-void Connection::set_server(const char* name, std::uint16_t port)
+void Connection::set_server(const char* name, std::uint16_t port, bool encrypted)
 {
 	_server_name = name;
 	_server_port = port;
+	_encrypted = encrypted;
 }
 
 void Connection::connect_to_server()
@@ -66,7 +66,7 @@ void Connection::connect_to_server()
 	}
 	_socket.set_no_delay();
 
-	if (encrypt_connection)
+	if (_encrypted)
 	{
 		try
 		{
@@ -513,9 +513,9 @@ extern "C" int is_disconnected()
 	return Connection::get_instance().is_disconnected();
 }
 
-extern "C" void connection_set_server(const char* name, std::uint16_t port)
+extern "C" void connection_set_server(const char* name, std::uint16_t port, int encrypted)
 {
-	Connection::get_instance().set_server(name, port);
+	Connection::get_instance().set_server(name, port, encrypted);
 }
 
 extern "C" void connect_to_server()
