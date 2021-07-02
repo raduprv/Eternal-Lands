@@ -141,7 +141,10 @@ void load_server_list(const char *filename)
 	int f_size;
 	FILE * f = NULL;
 	char *server_list_mem, *line;
-	char format[128], crypt[128];
+	char format[128];
+#ifdef USE_SSL
+	char crypt[128];
+#endif
 	
 	f = open_file_config(filename, "r");
 	if (f == NULL)
@@ -195,7 +198,10 @@ void load_server_list(const char *filename)
 	line = server_list_mem;
 	while (*line)
 	{
-		int nr_fields, crypt_pos, desc_pos;
+		int nr_fields;
+#ifdef USE_SSL
+		int crypt_pos, desc_pos;
+#endif
 		size_t iend;
 		char* comment;
 
@@ -214,8 +220,13 @@ void load_server_list(const char *filename)
 			exit(1);
 		}
 
+#ifdef USE_SSL
 		nr_fields = sscanf(line, format, servers[num_servers].id, servers[num_servers].dir,
 			servers[num_servers].address, &servers[num_servers].port, &crypt_pos, crypt, &desc_pos);
+#else
+		nr_fields = sscanf(line, format, servers[num_servers].id, servers[num_servers].dir,
+			servers[num_servers].address, &servers[num_servers].port, &servers[num_servers].desc);
+#endif
 		if (nr_fields == 4)
 		{
 			// No encryption or description field
