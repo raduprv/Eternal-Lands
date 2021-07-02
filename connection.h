@@ -51,6 +51,14 @@ public:
 	}
 
 	void send_login_info();
+	/*!
+	 * \brief Set whether a login attempt succeeded
+	 *
+	 * Set whether the last attemp to log in on the server succeeeded. This information is used
+	 * to determine whether to automaticcaly send the login information again after a reconnect,
+	 * \param success \c true if the login attempt was successful, \c false otherwise.
+	 */
+	void set_logged_in(bool success) { _previously_logged_in = success; }
 	void send_move_to(std::int16_t x, std::int16_t y, bool try_pathfinder);
 	void send_new_char(const std::string& username, const std::string& password,
 		std::uint8_t skin, std::uint8_t hair, std::uint8_t eyes, std::uint8_t shirt,
@@ -72,7 +80,6 @@ private:
 	std::mutex _out_mutex;
 	std::vector<std::uint8_t> _out_buffer;
 	std::vector<std::uint8_t> _cache;
-	std::mutex _in_mutex;
 	std::array<std::uint8_t, max_in_buffer_size> _in_buffer;
 	size_t _in_buffer_used;
 	time_t _last_heart_beat;
@@ -84,7 +91,7 @@ private:
 	bool _previously_logged_in;
 
 	Connection(): _server_name(), _server_port(2000), _encrypted(false), _socket(),
-		_out_mutex(), _out_buffer(), _cache(), _in_mutex(), _in_buffer(), _in_buffer_used(0),
+		_out_mutex(), _out_buffer(), _cache(), _in_buffer(), _in_buffer_used(0),
 		_last_heart_beat(0), _last_sit_tick(0), _last_turn_tick(0), _connection_test_tick(0),
 		_invalid_version(false), _previously_logged_in(false) {}
 	~Connection() { _socket.close(); }
@@ -117,6 +124,7 @@ void check_if_testing_server_connection(void);
 void stop_testing_server_connection(void);
 void check_heart_beat(void);
 void send_login_info(void);
+void set_logged_in(int success);
 void send_new_char(const char* user_str, const char* pass_str, char skin, char hair, char eyes,
 	char shirt, char pants, char boots,char head, char type);
 void move_to (short int x, short int y, int try_pathfinder);

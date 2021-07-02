@@ -4,6 +4,7 @@
 #define SOCKET_H
 
 #include <cstdint>
+#include <mutex>
 #include <stdexcept>
 #include <string>
 #include <vector>
@@ -26,13 +27,11 @@ struct TCPSocketError: public std::runtime_error
 };
 struct ResolutionFailure: public TCPSocketError
 {
-	ResolutionFailure(const std::string& name):
-		TCPSocketError("Failed to resolve host " + name) {}
+	ResolutionFailure(const std::string& name): TCPSocketError("Failed to resolve host " + name) {}
 };
 struct ConnectionFailure: public TCPSocketError
 {
-	ConnectionFailure(const std::string& name):
-		TCPSocketError("Failed to connect to " + name) {}
+	ConnectionFailure(const std::string& name): TCPSocketError("Failed to connect to " + name) {}
 };
 struct NotConnected: public TCPSocketError
 {
@@ -44,8 +43,7 @@ struct SendError: public TCPSocketError
 };
 struct PollError: public TCPSocketError
 {
-	PollError(int error): TCPSocketError("Poll error"), error(error) {}
-	int error;
+	PollError(const std::string& msg): TCPSocketError(msg) {}
 };
 struct LostConnection: public TCPSocketError
 {
@@ -67,15 +65,41 @@ struct InvalidCertificate: public EncryptError
 class TCPSocket
 {
 public:
-	TCPSocket(): _fd(-1), _peer(), _ssl_ctx(nullptr), _ssl(nullptr), _connected(false), _encrypted(false) {}
+	/*!
+	 * \brief Constructor
+	 *
+	 * Create a new, unconnected, client socket
+	 */
+	TCPSocket(): _fd(-1), _peer(), _ssl_ctx(nullptr), _ssl(nullptr), _ssl_mutex(),
+		_connected(false), _encrypted(false), _ssl_fatal_error(false) {}
+	//! Destructor
 	~TCPSocket() { close(); }
 
 	bool is_connected() const { return _connected; }
 	bool is_encrypted() const { return _encrypted; }
 	const IPAddress& peer_address() const { return _peer; }
 
-	void connect(const std::string& address, std::uint16_t port);
-	void close();
+	/*!
+	 * \brief Connect to the server
+	 *
+	 * Connect to the server with host name \a address on port \a port. If \a do_encrypt is \c true,
+	 * the connection will be encrypted using TLS.
+	 * \param address    The host name or IP address of the server
+	 * \param port       The port number to connect to
+	 * \param do_encrypt Whether to encrypt the connection
+	 */
+	void connect(const std::string& address, std::uint16_t port, bool do_encrypt);
+	/*!
+	 * \brief Close the connection
+	 *
+	 * Close the connection to the server.
+	 * \sa close_locked
+	 */
+	void close()
+	{
+		std::lock_guard<std::mutex> guard(_ssl_mutex);
+		close_locked();
+	}
 
 	size_t send(const std::uint8_t* data, size_t data_len);
 	bool wait_incoming(int timeout_ms);
@@ -100,17 +124,60 @@ public:
 	 */
 	void set_blocking(bool blocking);
 	void set_no_delay();
-	void encrypt();
 
 private:
 	static constexpr const char* certificates_directory = "certificates";
 
+	//! The file descriptor for this socket
 	SocketDescriptor _fd;
+	//! The address of the server this socket is connected to
 	IPAddress _peer;
+	//! The SSL context for encrypting the connection
 	SSL_CTX *_ssl_ctx;
+	//! The SSL object encrypting the connection
 	SSL *_ssl;
+	//! Mutex serializing access to the SSL object
+	std::mutex _ssl_mutex;
+	//! Whether this socket is currenty connected to the server
 	bool _connected;
+	//! Whether the connection to the server is encrypted
 	bool _encrypted;
+	//! Whether a fatal error in the TLS protocol occurred
+	bool _ssl_fatal_error;
+
+	/*!
+	 * \brief Close the socket
+	 *
+	 * Close the socket. If an encrypted connection was set up, close that as well and free the
+	 * resources associated with it.
+	 *
+	 * \note
+	 * The SSL mutex must be locked when calling this function.
+	 */
+	void close_locked();
+	/*!
+	 * \brief Encrypt the connection
+	 *
+	 * Set up encryption on the connection to the server.
+	 */
+	void encrypt();
+
+	/*!
+	 * \brief Check an SSL error
+	 *
+	 * Determine the SSL error code for the last call to an SSL read or write operation, and check
+	 * if it is potentially fatal to the SSL connection. If so, not attempt should be made to shut
+	 * down the connection cleanly.
+	 *
+	 * \note
+	 * The SSL mutex must be locked when calling this function.
+	 *
+	 * \param ret       The return value of the last SSL function call
+	 * \param errno_val The value of errno immediately after the call
+	 * \return The last error message on the error stack on error, or \c "Success" when no error
+	 * 	occurred.
+	 */
+	const char* check_ssl_error_locked(int ret, int errno_val);
 
 	size_t receive_or_peek(std::uint8_t* buffer, size_t max_len, bool peek);
 };

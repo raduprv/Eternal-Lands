@@ -48,7 +48,7 @@ void Connection::connect_to_server()
 	_socket.close();
 	try
 	{
-		_socket.connect(_server_name, _server_port);
+		_socket.connect(_server_name, _server_port, _encrypted);
 	}
 	catch (const ResolutionFailure&)
 	{
@@ -64,26 +64,17 @@ void Connection::connect_to_server()
 		do_disconnect_sound();
 		return;
 	}
-	_socket.set_no_delay();
-
-	if (_encrypted)
+	catch (const InvalidCertificate&)
 	{
-		try
-		{
-			_socket.encrypt();
-		}
-		catch (const InvalidCertificate&)
-		{
-			show_invalid_cert_popup();
-			return;
-		}
-		catch (const EncryptError& err)
-		{
-			LOG_TO_CONSOLE(c_red1, "Failed to set up an encrypted connection");
-			_socket.close();
-			do_disconnect_sound();
-			return;
-		}
+		show_invalid_cert_popup();
+		return;
+	}
+	catch (const EncryptError& err)
+	{
+		LOG_TO_CONSOLE(c_red1, "Failed to set up an encrypted connection");
+		_socket.close();
+		do_disconnect_sound();
+		return;
 	}
 
 	have_storage_list = 0; // With a reconnect, our cached copy of what's in storage may no longer be accurate
@@ -100,7 +91,6 @@ void Connection::connect_to_server()
 		yourself = -1;
 		you_sit = 0;
 		destroy_all_actors();
-		// FIXME: If encrypting, don't send login info until after encryption is set up
 		send_login_info();
 	}
 
@@ -469,11 +459,8 @@ void Connection::receive(queue_t *queue, int *done)
 			if (_socket.wait_incoming(timeout_ms))
 			{
 				size_t nr_bytes;
-				{
-					std::lock_guard<std::mutex> guard(_in_mutex);
-					nr_bytes = _socket.receive(_in_buffer.data() + _in_buffer_used,
-						_in_buffer.size() - _in_buffer_used);
-				}
+				nr_bytes = _socket.receive(_in_buffer.data() + _in_buffer_used,
+					_in_buffer.size() - _in_buffer_used);
 				_in_buffer_used += nr_bytes;
 				process_incoming_data(queue);
 			}
@@ -487,7 +474,7 @@ void Connection::receive(queue_t *queue, int *done)
 		{
 			// An error occurred while checking the socket
 			_in_buffer_used = 0;
-			disconnect_from_server(strerror(err.error));
+			disconnect_from_server(err.what());
 		}
 		catch (const LostConnection&)
 		{
@@ -554,6 +541,11 @@ extern "C" void check_heart_beat()
 extern "C" void send_login_info()
 {
 	Connection::get_instance().send_login_info();
+}
+
+extern "C" void set_logged_in(int success)
+{
+	Connection::get_instance().set_logged_in(success);
 }
 
 extern "C" void send_new_char(const char* user_str, const char* pass_str, char skin, char hair,

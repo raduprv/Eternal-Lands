@@ -94,8 +94,8 @@ static Uint8 tcp_in_data[MAX_TCP_BUFFER];
 static Uint8 tcp_out_data[MAX_TCP_BUFFER];
 static int in_data_used=0;
 static int tcp_out_loc= 0;
-#endif // !USE_SSL
 static int previously_logged_in= 0;
+#endif // !USE_SSL
 static volatile int disconnected= 1;
 time_t last_heart_beat;
 time_t last_save_time;
@@ -895,7 +895,11 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 				load_channel_colors();
 				send_video_info();
 				check_glow_perk();
+#ifdef USE_SSL
+				set_logged_in(1);
+#else // USE_SSL
 				previously_logged_in=1;
+#endif // USE_SSL
 				last_save_time= time(NULL);
 
 				// Print the game date cos its pretty (its also needed for SKY_FPV to set moons for signs, wonders, times and seasons)
@@ -1227,6 +1231,9 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 				  LOG_WARNING("CAUTION: Possibly forged LOG_IN_NOT_OK packet received.\n");
 				  break;
 				}
+#ifdef USE_SSL
+				set_logged_in(0);
+#endif
 				set_login_error ((char*)&in_data[3], data_length - 3, 1);
 			}
 			break;
