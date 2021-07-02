@@ -186,12 +186,12 @@ void load_server_list(const char *filename)
 
 #ifdef USE_SSL
 	safe_snprintf(format, sizeof(format), "%%%zus %%%zus %%%zus %%u %%n%%%zus %%n",
-		sizeof_field(server_def, id), sizeof_field(server_def, dir), sizeof_field(server_def, address),
-		sizeof(crypt));
+		sizeof_field(server_def, id) - 1, sizeof_field(server_def, dir) - 1,
+		sizeof_field(server_def, address) - 1, sizeof(crypt) - 1);
 #else // USE_SSL
 	safe_snprintf(format, sizeof(format), "%%%zus %%%zus %%%zus %%u %%%zu[^\r\n]",
-		sizeof_field(server_def, id), sizeof_field(server_def, dir), sizeof_field(server_def, address),
-		sizeof_field(server_def, desc));
+		sizeof_field(server_def, id) - 1, sizeof_field(server_def, dir) - 1,
+		sizeof_field(server_def, address) - 1, sizeof_field(server_def, desc) - 1);
 #endif // USE_SSL
 
 	num_servers = 0;
