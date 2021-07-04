@@ -668,7 +668,8 @@ static void animate_map_markers(void)
 	dt=cur_time-last_rot;
 	last_rot+=dt;
 	mark_z_rot+=0.1*dt;
-	mark_z_rot = fmodf(mark_z_rot, 360.0f);
+	if (mark_z_rot > 360.0f)
+		mark_z_rot = fmodf(mark_z_rot, 360.0f);
 }
 
 static __inline__ int filter_out(const char *mark_text)
