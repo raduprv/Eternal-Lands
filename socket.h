@@ -21,47 +21,64 @@ typedef int SocketDescriptor;
 namespace eternal_lands
 {
 
+//! Base class for error related to the TCP cllient socket
 struct TCPSocketError: public std::runtime_error
 {
 	TCPSocketError(const std::string& msg): std::runtime_error(msg) {}
 };
+//! Error thrown when the server host name cannot be resolved to an IP address
 struct ResolutionFailure: public TCPSocketError
 {
 	ResolutionFailure(const std::string& name): TCPSocketError("Failed to resolve host " + name) {}
 };
+//! Error thrown when setting up a connection to the server fails
 struct ConnectionFailure: public TCPSocketError
 {
 	ConnectionFailure(const std::string& name): TCPSocketError("Failed to connect to " + name) {}
 };
+//! Error thrown when trying to use a socket which is not connected
 struct NotConnected: public TCPSocketError
 {
 	NotConnected(): TCPSocketError("Not connected") {}
 };
+//! Error thrown when sending data over the network fails
 struct SendError: public TCPSocketError
 {
 	SendError(const std::string& err_msg): TCPSocketError(err_msg) {}
 };
+//! Error thrown when there an error occurs while watcjin for incoming network data on a socket
 struct PollError: public TCPSocketError
 {
 	PollError(const std::string& msg): TCPSocketError(msg) {}
 };
+//! Error thrown when the connection is broken while waiting for incoming traffic
 struct LostConnection: public TCPSocketError
 {
 	LostConnection(): TCPSocketError("Connection lost") {}
 };
+//! Error thrown when an error occurs while reading incoming network data
 struct ReceiveError: public TCPSocketError
 {
 	ReceiveError(const std::string& err_msg): TCPSocketError(err_msg) {}
 };
+//! Error thrown when setting up encryption on the conneection with the server fails.
 struct EncryptError: public TCPSocketError
 {
 	EncryptError(const std::string& err_msg): TCPSocketError(err_msg) {}
 };
+//! Error thrown when the certificate presented by the server cannot be validated.
 struct InvalidCertificate: public EncryptError
 {
 	InvalidCertificate(): EncryptError("Invalid server certificate") {}
 };
 
+/*!
+ * \brief Class for (client-side) network sockets
+ *
+ * Class TCPSocket represents a TCP network socket for the client side of the connection.
+ * The connection can optionally be encrypted using SSL. Client sockets are by default blocking,
+ * though that can be overriden if desired.
+ */
 class TCPSocket
 {
 public:
@@ -75,8 +92,11 @@ public:
 	//! Destructor
 	~TCPSocket() { close(); }
 
+	//! Return whether the client is currently connected to the server
 	bool is_connected() const { return _connected; }
+	//! Return whether the connection to the server is encrypted
 	bool is_encrypted() const { return _encrypted; }
+	//! Return the IP address of the server this socket is connected to
 	const IPAddress& peer_address() const { return _peer; }
 
 	/*!
@@ -101,12 +121,48 @@ public:
 		close_locked();
 	}
 
+	/*!
+	 * \brief Send data to the server
+	 *
+	 * Send \a data_len bytes of data in buffer \a data to the server,
+	 * \param data     Pointer to the data to send
+	 * \param data_len The number of bytes to send
+	 * \return The number of bytes actuallt sent. This can be less than \a data_len only if the
+	 * 	socket is non-blocking, which should not happen in regular usage.
+	 */
 	size_t send(const std::uint8_t* data, size_t data_len);
+	/*!
+	 * \brief Check for incoming data
+	 *
+	 * Check the socket for incoming network traffic, waiting at most \a timeout_ms milliseconds.
+	 * \param timeout_ms Upper limit on the number of milliseconds to wait for incoming data
+	 * \return \c true if there is data to be read, \c false if nothing has arrived within the
+	 * 	specified timeout.
+	 */
 	bool wait_incoming(int timeout_ms);
+	/*!
+	 * \brief Read incoming network data
+	 *
+	 * Read data at most \a max_len bytes of data from the server coming in over the network, into
+	 * buffer \a buffer.
+	 * \param buffer  Pointer to the buffer in which the incoming data should be stored
+	 * \param max_len The maximum number of bytes to read.
+	 * \return The actual number of bytes read.
+	 */
 	size_t receive(std::uint8_t* buffer, size_t max_len)
 	{
 		return receive_or_peek(buffer, max_len, false);
 	}
+	/*!
+	 * \brief Look at incoming network data
+	 *
+	 * Read data at most \a max_len bytes of data from the server coming in over the network, into
+	 * buffer \a buffer, wuthout removing the data from the network buffers. The next call to read()
+	 * or peek() will return the same data.
+	 * \param buffer  Pointer to the buffer in which the incoming data should be stored
+	 * \param max_len The maximum number of bytes to read.
+	 * \return The actual number of bytes read.
+	 */
 	size_t peek(std::uint8_t* buffer, size_t max_len)
 	{
 		return receive_or_peek(buffer, max_len, true);
@@ -123,9 +179,18 @@ public:
 	 * \param blocking Whether to block when I/O cannot be performed immediately.
 	 */
 	void set_blocking(bool blocking);
+	/*!
+	 * \brief Send data as soon as possible.
+	 *
+	 * This function turns off Nagle's algorithm in TCP, which buffers data so as to decrease the
+	 * overhead associated with sending data over the network. When this function is called, data
+	 * is sent as soon as possible, even when there is only a small amount of data is sent. This may
+	 * increase responsiveness, at the cost of increased network usage.
+	 */
 	void set_no_delay();
 
 private:
+	//! The directory containing SSL certificates for known servers
 	static constexpr const char* certificates_directory = "certificates";
 
 	//! The file descriptor for this socket
@@ -179,6 +244,18 @@ private:
 	 */
 	const char* check_ssl_error_locked(int ret, int errno_val);
 
+	/*!
+	 * \brief Read incoming network data
+	 *
+	 * Read data at most \a max_len bytes of data from the server coming in over the network, into
+	 * buffer \a buffer. If \a peek is \c true, the data is left in the network buffers, and a
+	 * succesive call to read() or ]eek() will return the same data. If ]a peek is \c false, the
+	 * data is removed from the network.
+	 * \param buffer  Pointer to the buffer in which the incoming data should be stored
+	 * \param max_len The maximum number of bytes to read.
+	 * \param peek    Whether to keep the data in the network buffers
+	 * \return The actual number of bytes read.
+	 */
 	size_t receive_or_peek(std::uint8_t* buffer, size_t max_len, bool peek);
 };
 
