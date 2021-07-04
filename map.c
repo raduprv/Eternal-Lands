@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
+#include <math.h>
 #include "map.h"
 #include "2d_objects.h"
 #include "3d_objects.h"
@@ -666,7 +667,7 @@ static void animate_map_markers(void)
 	dt=cur_time-last_rot;
 	last_rot+=dt;
 	mark_z_rot+=0.1*dt;
-	if(mark_z_rot>360) mark_z_rot-=360;
+	mark_z_rot = fmodf(mark_z_rot, 360.0f);
 }
 
 static void display_map_marks(void)
