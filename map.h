@@ -29,19 +29,20 @@ extern float ambient_b;
 /** @} */
 
 extern int map_type; /**< id of the type of map we are currently using */
-
 extern GLfloat* water_tile_buffer;
 extern GLfloat* terrain_tile_buffer;
+extern hash_table *server_marks; /**< table of map marks send from the server, save between sessions */
+extern int marks_3d; /**< config file flag to enable or disbale display of 3d mark marks */
 
-/**
- * @ingroup maps
- * @brief Loads an empty map
- *
- * 	Loads an empty map in case no other map file was found
- *
- * @retval int  0 if nomap.elm failed to load, otherwise 1 is returned.
- */
-int load_empty_map(void);
+/*! Structure for server marks */
+typedef struct _s_mark
+{
+	int id;
+	int x,y;
+	char map_name[50];
+	char text[100];
+} server_mark;
+
 
 /**
  * @ingroup maps
@@ -73,6 +74,15 @@ void load_marks_to_buffer(char* mapname, marking* buffer, int* max);
  *
  */
 void load_map_marks(void);
+
+/*!
+ * \ingroup maps
+ * \brief   Saves the user defined markings on maps.
+ *
+ *      Saves the user defined markings on maps. The markings are stored on a per map basis, i.e. each map gets its own save file, based on the maps .elm filename.
+ *
+ */
+void save_markings(void);
 
 /**
  * @ingroup maps
@@ -133,31 +143,45 @@ void init_buffers(void);
  */
 void free_buffers(void);
 
-void destroy_map();
+/**
+ * @ingroup maps
+ * @brief Removed the current map freeing resources.
+ *
+ * @callgraph
+ */
+void destroy_map(void);
 
-typedef struct _s_mark{
-
-	int id;
-	int x,y;
-	char map_name[50];
-	char text[100];
-
-} server_mark;
-
-
+/**
+ * @ingroup maps
+ * @brief Removes any existing severmarks and creates a new empty table.
+ *
+ * @callgraph
+ */
 void init_server_markers(void);
+
+/**
+ * @ingroup maps
+ * @brief Opens the server marks file and loads any marks into the table.
+ *
+ * @callgraph
+ */
 void load_server_markings(void);
+
+/**
+ * @ingroup maps
+ * @brief Saves any current server marks to the server marks file.
+ *
+ * @callgraph
+ */
 void save_server_markings(void);
-void animate_map_markers(void);
-void add_server_markers(void);
-void display_map_markers(void); //draw text
-void display_map_marks(void); //draw cross
-void change_3d_marks(int *rel);
-extern hash_table *server_marks;
-extern float mark_z_rot;
-extern int marks_3d;
-#define MARK_CLIP_POS 20
-#define MARK_DIST 20
+
+/**
+ * @ingroup maps
+ * @brief Animate and draw the 3d map marks.
+ *
+ * @callgraph
+ */
+void draw_3d_marks(void);
 
 /*
  * Returns the index of the map file name in the continent_maps array.

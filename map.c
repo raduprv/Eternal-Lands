@@ -43,13 +43,18 @@
 #include "mines.h"
 #include "highlight.h"
 
+#define MARK_CLIP_POS 20
+#define MARK_DIST 20
+
 int map_type=1;
 Uint32 map_flags=0;
 
 hash_table *server_marks=NULL;
 
+static int load_empty_map(void);
 
-void destroy_map()
+
+void destroy_map(void)
 {
 	int i;
 #ifdef EXTRA_DEBUG
@@ -148,7 +153,7 @@ static void init_map_loading(const char *file_name)
 	show_window(loading_win);
 }
 
-static __inline__ void build_path_map()
+static __inline__ void build_path_map(void)
 {
 	int i, x, y;
 
@@ -167,7 +172,7 @@ static __inline__ void build_path_map()
 	}
 }
 
-void updat_func(char *str, float percent)
+static void updat_func(char *str, float percent)
 {
 	update_loading_win(str, percent);
 }
@@ -282,7 +287,7 @@ void change_map (const char *mapname)
 #endif
 }
 
-int load_empty_map()
+static int load_empty_map(void)
 {
 	if (!el_load_map("./maps/nomap.elm"))
 	{
@@ -316,13 +321,15 @@ int load_empty_map()
 }
 
 
-void init_server_markers(){
+void init_server_markers(void)
+{
 	//init hash table
 	destroy_hash_table(server_marks);
 	server_marks= create_hash_table(50,hash_fn_int,cmp_fn_int,free);
 }
 
-void add_server_markers(){
+static void add_server_markers(void)
+{
 
 	hash_entry *he;
 	server_mark *sm;
@@ -408,7 +415,7 @@ void load_marks_to_buffer(char* mapname, marking* buffer, int* max)
 
 }
 
-void load_map_marks()
+void load_map_marks(void)
 {
 	//load user markers
 	load_marks_to_buffer(map_file_name, marks, &max_mark);
@@ -418,7 +425,7 @@ void load_map_marks()
 
 }
 
-void save_markings()
+void save_markings(void)
 {
 	FILE * fp;
 	char marks_file[256];
@@ -444,7 +451,8 @@ void save_markings()
 
 
 
-void load_server_markings(){
+void load_server_markings(void)
+{
 	char fname[128];
 	FILE *fp;
 	server_mark sm;
@@ -479,7 +487,8 @@ void load_server_markings(){
 }
 
 
-void save_server_markings(){
+void save_server_markings(void)
+{
 	char fname[128];
 	FILE *fp;
 	server_mark *sm;
@@ -507,13 +516,8 @@ void save_server_markings(){
 	LOG_DEBUG("Wrote server markings to file '%s'", fname);
 }
 
-//called in elconfig.c when turning markers on/off
-void change_3d_marks(int *rel){
-	*rel= !*rel;
-}
 
-
-void init_buffers()
+void init_buffers(void)
 {
 	int terrain_buffer_size;
 	int water_buffer_size;
@@ -545,7 +549,7 @@ void init_buffers()
 	init_reflection_portals(water_buffer_size);
 }
 
-void free_buffers()
+void free_buffers(void)
 {
 	if (water_tile_buffer)
 		free(water_tile_buffer);
@@ -652,10 +656,10 @@ void remove_3d_object_from_server (int id)
 #define ABS(a) ( ((a)<0)?(-(a)):(a)  )
 #define DST(xa,ya,xb,yb) ( MAX(ABS(xa-xb),ABS(ya-yb))  )
 int marks_3d=1;
-float mark_z_rot=0;
+static float mark_z_rot=0;
 
-void animate_map_markers(){
-
+static void animate_map_markers(void)
+{
 	int dt;
 	static int last_rot=0;
 
@@ -663,10 +667,10 @@ void animate_map_markers(){
 	last_rot+=dt;
 	mark_z_rot+=0.1*dt;
 	if(mark_z_rot>360) mark_z_rot-=360;
-
 }
 
-void display_map_marks(){
+static void display_map_marks(void)
+{
 	actor *me;
 	float x,y,z;
 	int i,ax,ay;
@@ -710,10 +714,10 @@ void display_map_marks(){
 	//glEnable(GL_LIGHTING);
 	glDisable(GL_BLEND);
 	glEnable(GL_TEXTURE_2D);
-
 }
 
-void display_map_markers() {
+static void display_map_markers(void)
+{
 	int ax, ay;
 	float z,x,y;
 	int i;
@@ -775,9 +779,12 @@ void display_map_markers() {
 	glPopMatrix();
 	//glEnable(GL_LIGHTING);
 	glDepthFunc(GL_LESS);
-
-
 }
 
 
-
+void draw_3d_marks(void)
+{
+	animate_map_markers();
+	display_map_markers(); //draw text
+	display_map_marks(); //draw cross
+}
