@@ -33,6 +33,7 @@ extern GLfloat* water_tile_buffer;
 extern GLfloat* terrain_tile_buffer;
 extern hash_table *server_marks; /**< table of map marks send from the server, save between sessions */
 extern int marks_3d; /**< config file flag to enable or disbale display of 3d mark marks */
+extern int filter_marks_3d; /**< apply the current mark filter to 3d map marks */
 
 /*! Structure for server marks */
 typedef struct _s_mark

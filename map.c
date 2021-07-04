@@ -657,6 +657,7 @@ void remove_3d_object_from_server (int id)
 #define ABS(a) ( ((a)<0)?(-(a)):(a)  )
 #define DST(xa,ya,xb,yb) ( MAX(ABS(xa-xb),ABS(ya-yb))  )
 int marks_3d=1;
+int filter_marks_3d = 0;
 static float mark_z_rot=0;
 
 static void animate_map_markers(void)
@@ -668,6 +669,12 @@ static void animate_map_markers(void)
 	last_rot+=dt;
 	mark_z_rot+=0.1*dt;
 	mark_z_rot = fmodf(mark_z_rot, 360.0f);
+}
+
+static __inline__ int filter_out(const char *mark_text)
+{
+	return (mark_filter_active && filter_marks_3d &&
+		!safe_strcasestr(mark_text, strlen(mark_text), mark_filter_text, strlen(mark_filter_text)));
 }
 
 static void display_map_marks(void)
@@ -692,6 +699,8 @@ static void display_map_marks(void)
 	glEnable(GL_ALPHA_TEST);
 
 	for(i=0;i<max_mark;i++){
+		if (filter_out(marks[i].text))
+			continue;
 		x=marks[i].x/2.0;
 		y=marks[i].y/2.0;
 		x += (TILESIZE_X / 2);
@@ -754,6 +763,8 @@ static void display_map_markers(void)
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 
 	for(i=0;i<max_mark;i++){
+		if (filter_out(marks[i].text))
+			continue;
 		x=marks[i].x/2.0;
 		y=marks[i].y/2.0;
 		x += (TILESIZE_X / 2);
