@@ -1328,7 +1328,8 @@ static int display_game_handler (window_info *win)
 
 	CHECK_GL_ERRORS ();
 
-	draw_3d_marks();
+	if (marks_3d)
+		draw_3d_marks();
 
 	Enter2DMode ();
 	//get the FPS, etc

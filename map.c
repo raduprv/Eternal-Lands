@@ -695,7 +695,7 @@ static void display_map_marks(void)
 		y=marks[i].y/2.0;
 		x += (TILESIZE_X / 2);
 		y += (TILESIZE_Y / 2);
-		if(DST(ax,ay,x,y)>MARK_DIST||marks[i].x<0||!marks_3d) continue;
+		if(DST(ax,ay,x,y)>MARK_DIST||marks[i].x<0) continue;
 		z = get_tile_height(marks[i].x, marks[i].y);
 		for(j=z-fr/5,ff=1;j<z+2;j+=0.1,ff=(2-(j-z))/2) {
 			if(marks[i].server_side) glColor4f(0.0f, 0.0f, 1.0f, 0.9f-(j-z)/3);
@@ -757,7 +757,7 @@ static void display_map_markers(void)
 		y=marks[i].y/2.0;
 		x += (TILESIZE_X / 2);
 		y += (TILESIZE_Y / 2);
-		if(DST(ax,ay,x,y)>MARK_DIST||marks[i].x<0||!marks_3d) continue;
+		if(DST(ax,ay,x,y)>MARK_DIST||marks[i].x<0) continue;
 		z = get_tile_height(marks[i].x, marks[i].y)+2.3;
 		gluProject(x, y, z, model, proj, view, &hx, &hy, &hz);
 		//shorten text
