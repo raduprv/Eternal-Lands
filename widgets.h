@@ -172,7 +172,7 @@ typedef struct
 {
 	int msg, offset;
 	int cursor, cursor_line;
-	int buf_size, buf_fill;
+	int buf_size;
 	int nr_lines, nr_visible_lines;
 	int update_bar;
 	int scroll_id;
