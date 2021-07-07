@@ -71,7 +71,10 @@ namespace eternal_lands
 namespace window_static_handlers
 {
 int button_click(widget_list *widget, int mx, int my, std::uint32_t flags, void* cb_ptr);
-int delete_button_click(widget_list *widget, void* cb_ptr);
+int delete_button_callback(widget_list *widget, void* cb_ptr);
+int scrollbar_click(widget_list *widget, int mx, int my, std::uint32_t flags, void* cb_ptr);
+int scrollbar_drag(widget_list *widget, int mx, int my, std::uint32_t flags, int dx, int dy, void* cb_ptr);
+int delete_scrollbar_callback(widget_list *widget, void* cb_ptr);
 } // namespace window_static_handlers
 
 /*!
@@ -80,7 +83,8 @@ int delete_button_click(widget_list *widget, void* cb_ptr);
  * Class Window is a template base class that represents a client window. The template argument
  * \a Derived is the type name of the class deriving from Window. It provides
  * access to the underlying data through getter and setter functions, and will automatically
- * register event handlers if they are implementedin \a Derived (and accessible to Window).
+ * register event handlers if they are implementedin \a Derived (and are accessible to Window,
+ * meaning most likely they must be \c public).
  */
 template <typename Derived>
 class Window
@@ -171,6 +175,16 @@ public:
 		widget_list *widget = widget_find(id(), widget_id);
 		return widget ? widget->size : 0.0;
 	}
+
+	//! Return the position of the scrolbbar with ID \a scrollbar_id in this window
+	int scrollbar_position(int scrollbar_id) { return vscrollbar_get_pos(id(), scrollbar_id); }
+	//! Return the number of lines visible in text field \a textfield_id
+	int textfield_visible_lines(int textfield_id) { return text_field_get_nr_visible_lines(id(), textfield_id); }
+
+	//! Show this window
+	void show() { show_window(id()); }
+	//! Hide this window
+	void hide() { hide_window(id()); }
 	//! Set the window flags in \a flags in addition to the current flags
 	void add_flags(std::uint32_t flags) { window().flags |= flags; }
 	//! Unset the window flags in \a flags, leaving the other flags as they are
@@ -208,8 +222,11 @@ public:
 	/*!
 	 * \brief Add a text button
 	 *
-	 * Add a text button with label \a label to this window.
+	 * Add a text button with label \a label to this window. When the button is clicked, \a callback
+	 * is called without arguments, and should return a \c bool specifying whether the event has
+	 * been handled.
 	 * \param label    The text string to draw on the button
+	 * \param callback The function to call when the button is clicked
 	 * \param x        The x coordinate of the top left corner of the widget
 	 * \param x        The y coordinate of the top left corner of the widget
 	 * \param width    The width of the widget, in pixels
@@ -220,24 +237,27 @@ public:
 	 * \return The ID of the new button
 	 */
 	template <typename Callback>
-	int add_button(const std::string& label, Callback&& on_click,
+	int add_button(const std::string& label, Callback&& callback,
 		std::uint16_t x, std::uint16_t y, std::uint32_t flags,
 		std::uint16_t width=0, std::uint16_t height=0, int (*on_init)()=nullptr, float size=-1.0)
 	{
 		float act_size = size >= 0.0 ? size : current_scale();
 		int button_id = button_add_extended(id(), _next_widget_id++, on_init, x, y, width, height,
 			flags, act_size, label.c_str());
-		widget_set_args(id(), button_id, new std::function<int()>(on_click));
+		widget_set_args(id(), button_id, new std::function<bool()>(callback));
 		widget_set_OnClick(id(), button_id, reinterpret_cast<int (*)()>(window_static_handlers::button_click));
-		widget_set_OnDestroy(id(), button_id, reinterpret_cast<int (*)()>(window_static_handlers::delete_button_click));
+		widget_set_OnDestroy(id(), button_id, reinterpret_cast<int (*)()>(window_static_handlers::delete_button_callback));
 		return button_id;
 	}
 	/*!
 	 * \brief Add a scrollbar
 	 *
-	 * Add a scrollbar to this window.
+	 * Add a scrollbar to this window. When the bar is clicked or dragged, \a callback is called
+	 * with the position of the scrollbar. It should return an \c bool specifying whether the event has
+	 * been handled.
 	 * \param bar_length    The range of the scrollbar values
 	 * \param increment     The change in value between consecutive scrollbar positions
+	 * \param callback      The function to call when the bar is scrolled (by clicking or dragging)
 	 * \param x             The x coordinate of the top left corner of the widget
 	 * \param x             The y coordinate of the top left corner of the widget
 	 * \param width         The width of the widget, in pixels
@@ -248,13 +268,19 @@ public:
 	 * \param init_position Initial value of the slider
 	 * \return The ID of the new scrollbar
 	 */
-	int add_scrollbar(int bar_length, int increment, std::uint16_t x, std::uint16_t y,
-		std::uint16_t width, std::uint16_t height, std::uint32_t flags,
+	template <typename Callback>
+	int add_scrollbar(int bar_length, int increment, Callback&& callback,
+		std::uint16_t x, std::uint16_t y, std::uint16_t width, std::uint16_t height, std::uint32_t flags,
 		int (*on_init)()=nullptr, float size=-1.0, int init_position=0)
 	{
 		float act_size = size >= 0.0 ? size : current_scale();
-		return vscrollbar_add_extended(id(), _next_widget_id++, on_init, x, y, width, height, flags,
-			act_size, init_position, increment, bar_length);
+		int scrollbar_id = vscrollbar_add_extended(id(), _next_widget_id++, on_init, x, y,
+			width, height, flags, act_size, init_position, increment, bar_length);
+		widget_set_args(id(), scrollbar_id, new std::function<bool(int)>(callback));
+		widget_set_OnClick(id(), scrollbar_id, reinterpret_cast<int (*)()>(window_static_handlers::scrollbar_click));
+		widget_set_OnDrag(id(), scrollbar_id, reinterpret_cast<int (*)()>(window_static_handlers::scrollbar_drag));
+		widget_set_OnDestroy(id(), scrollbar_id, reinterpret_cast<int (*)()>(window_static_handlers::delete_scrollbar_callback));
+		return scrollbar_id;
 	}
 	/*!
 	 * \brief Add a text field
@@ -295,21 +321,6 @@ public:
 	{
 		widget_resize(id(), widget_id, width, height);
 	}
-	/*!
-	 * \brief Change the button size
-	 *
-	 * Change the size of button \a button_id to \a width × \a height, and set the font size to
-	 * \a size. Both \a width and \a height can be zero, in which case the corresponding values
-	 * for the button remain unchanged.
-	 * \param button_id The ID of the button widget in this window
-	 * \param width     The new width of the button, or 0
-	 * \param height    The new width of the button, or 0
-	 * \param size      The new text size of the button label
-	 */
-	void resize_button(int button_id, std::uint16_t width, std::uint16_t height, float size)
-	{
-		button_resize(id(), button_id, width, height, size);
-	}
 	//! Remove the widget with ID \a widget_id from this window
 	void destroy_widget(int widget_id) { widget_destroy(id(), widget_id); }
 	//! Enable the widget with ID \a widget_id in this window
@@ -329,6 +340,46 @@ public:
 	}
 	//! Set the widget specific arguments for widget \a widget_id to \a args.
 	void set_widget_arguments(int widget_id, void* args) { widget_set_args(id(), widget_id, args); }
+
+	/*!
+	 * \brief Change the button size
+	 *
+	 * Change the size of button \a button_id to \a width × \a height, and set the font size to
+	 * \a size. Both \a width and \a height can be zero, in which case the corresponding values
+	 * for the button remain unchanged.
+	 * \param button_id The ID of the button widget in this window
+	 * \param width     The new width of the button, or 0
+	 * \param height    The new width of the button, or 0
+	 * \param size      The new text size of the button label
+	 */
+	void resize_button(int button_id, std::uint16_t width, std::uint16_t height, float size)
+	{
+		button_resize(id(), button_id, width, height, size);
+	}
+	//! Set the maximum position scrollbar \a scrollbar_id can take
+	void set_scrollbar_length(int scrollbar_id, int length)
+	{
+		vscrollbar_set_bar_len(id(), scrollbar_id, length);
+	}
+	//! Scroll scrollbar \a scrollbar_id up one tick
+	void scroll_up(int scrollbar_id) { vscrollbar_scroll_up(id(), scrollbar_id); }
+	//! Scroll scrollbar \a scrollbar_id down one tick
+	void scroll_down(int scrollbar_id) { vscrollbar_scroll_down(id(), scrollbar_id); }
+	/*!
+	 * \brief Set the display position of a text field
+	 *
+	 * Set text field \a textfield_id to start displaying at position \a position in the message
+	 * at index \a msg_idx in its buffer.
+	 */
+	void set_textfield_position(int textfield_id, std::size_t msg_idx, std::size_t position)
+	{
+		text_field_set_buf_pos(id(), textfield_id, msg_idx, position);
+	}
+	//! Scroll textfield \a textfield_id to start displaying the text at line number \a line_nr.
+	void scroll_textfield_to_line(int textfield_id, int line_nr)
+	{
+		text_field_scroll_to_line(id(), textfield_id, line_nr);
+	}
 
 	/*!
 	 * \brief Static display handler

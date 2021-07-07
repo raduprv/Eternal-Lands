@@ -1421,6 +1421,18 @@ int text_field_add_extended (int window_id, Uint32 wid, int (*OnInit)(),
 int text_field_draw (widget_list *w);
 
 /*!
+ * \ingroup textfields
+ * \brief Return the number of visible lines
+ *
+ * Return the number of lines shown by a text field.
+ *
+ * \param window_id The location of the window in the windows_list.window[] array
+ * \param widget_id The unique widget ID
+ * \retval int Return the number of visible lines on success, 0 on failure
+ */
+int text_field_get_nr_visible_lines(int window_id, int widget_id);
+
+/*!
  * \ingroup	textfields
  * \brief 	Sets the offset in the text buffer
  *
@@ -1434,6 +1446,20 @@ int text_field_draw (widget_list *w);
  * \callgraph
  */
 int text_field_set_buf_pos (int window_id, Uint32 widget_id, int msg, int offset);
+/*!
+ * \ingroup	textfields
+ * \brief Scroll to a line
+ *
+ * Set the drawing offset of the text field such that it starts drawing at line \a line_nr.
+ *
+ * \param window_id The location of the window in the windows_list.window[] array
+ * \param widget_id The unique widget ID
+ * \param line_nr   The line number to scroll to (zero based)
+ * \retval int Returns 1 on success, 0 on error
+ * \sa text_field_set_buf_pos.
+ * \callgraph
+ */
+int text_field_scroll_to_line(int window_id, Uint32 widget_id, int line_nr);
 
 /*!
  * \ingroup	textfields
