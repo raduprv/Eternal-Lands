@@ -319,6 +319,20 @@ int widget_set_OnMouseover(int window_id, Uint32 widget_id, int (*handler)());
  * \sa widget_find
  */
 int widget_set_OnKey ( int window_id, Uint32 widget_id, int (*handler)() );
+/*!
+ * \ingroup	widgets
+ * \brief 	Sets the widget's destroy handler
+ *
+ * Sets \a handler to be executed on destruction of the widget.
+ *
+ * \param   	window_id The location of the window in the windows_list.window[] array
+ * \param   	widget_id The widget's unique ID
+ * \param   	handler A function pointer to the handler.
+ * \retval int  	Returns 1 on succes or 0 on failure (when the widget was not found in the given window)
+ *
+ * \sa widget_find
+ */
+int widget_set_OnDestroy (int window_id, Uint32 widget_id, int (*handler)());
 
 /*!
  * \ingroup	widgets
