@@ -67,8 +67,8 @@ void TCPSocket::connect(const std::string& address, std::uint16_t port, bool do_
 
 	if (do_encrypt)
 		encrypt();
-
-	_connected = true;
+	else
+		_state = State::CONNECTED_UNENCRYPTED;
 }
 
 void TCPSocket::close_locked()
@@ -87,13 +87,12 @@ void TCPSocket::close_locked()
 			SSL_CTX_free(_ssl_ctx);
 			_ssl_ctx = nullptr;
 		}
-		_encrypted = false;
 		_ssl_fatal_error = false;
 
 		shutdown(_fd, SHUT_RDWR);
 		::close(_fd);
 		_fd = -1;
-		_connected = false;
+		_state = State::NOT_CONNECTED;
 	}
 }
 
@@ -315,10 +314,11 @@ void TCPSocket::encrypt()
 	if (SSL_get_verify_result(_ssl) != X509_V_OK // Invalid certificate
 		|| !SSL_get_peer_certificate(_ssl))      // No server certificate at all
 	{
+		_state = State::CONNECTED_CERTIFICATE_FAIL;
 		throw InvalidCertificate();
 	}
 
-	_encrypted = true;
+	_state = State::CONNECTED_ENCRYPTED;
 }
 
 } // namespace eternal_lands

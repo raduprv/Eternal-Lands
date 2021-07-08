@@ -88,14 +88,14 @@ public:
 	 * Create a new, unconnected, client socket
 	 */
 	TCPSocket(): _fd(-1), _peer(), _ssl_ctx(nullptr), _ssl(nullptr), _ssl_mutex(),
-		_connected(false), _encrypted(false), _ssl_fatal_error(false) {}
+		_state(State::NOT_CONNECTED), _ssl_fatal_error(false) {}
 	//! Destructor
 	~TCPSocket() { close(); }
 
 	//! Return whether the client is currently connected to the server
-	bool is_connected() const { return _connected; }
+	bool is_connected() const { return _state == State::CONNECTED_UNENCRYPTED || _state == State::CONNECTED_ENCRYPTED; }
 	//! Return whether the connection to the server is encrypted
-	bool is_encrypted() const { return _encrypted; }
+	bool is_encrypted() const { return _state == State::CONNECTED_ENCRYPTED; }
 	//! Return the IP address of the server this socket is connected to
 	const IPAddress& peer_address() const { return _peer; }
 
@@ -189,7 +189,33 @@ public:
 	 */
 	void set_no_delay();
 
+	/*!
+	 * \brief Accept a certificate
+	 *
+	 * When an SSL connection is successfully set up, but the server certificate cannot be verified,
+	 * the user can choose to accept the certificate anyway, and continue to connect. This function
+	 * changes the state of the socket to reflect that,
+	 */
+	void accept_certificate()
+	{
+		if (_state == State::CONNECTED_CERTIFICATE_FAIL)
+			_state = State::CONNECTED_ENCRYPTED;
+	}
+
 private:
+	//! Enumeration for the possible states of the connection
+	enum class State
+	{
+		//! Not connected to the server
+		NOT_CONNECTED,
+		//! Connected to the server on an unencrypted connection
+		CONNECTED_UNENCRYPTED,
+		//! Connected to the server, and encrypted, but the certifcate could not be verified
+		CONNECTED_CERTIFICATE_FAIL,
+		//! Connected on an ecnrypted connection
+		CONNECTED_ENCRYPTED
+	};
+
 	//! The directory containing SSL certificates for known servers
 	static constexpr const char* certificates_directory = "certificates";
 
@@ -203,10 +229,8 @@ private:
 	SSL *_ssl;
 	//! Mutex serializing access to the SSL object
 	std::mutex _ssl_mutex;
-	//! Whether this socket is currenty connected to the server
-	bool _connected;
-	//! Whether the connection to the server is encrypted
-	bool _encrypted;
+	//! The current state of the connection to the server
+	State _state;
 	//! Whether a fatal error in the TLS protocol occurred
 	bool _ssl_fatal_error;
 

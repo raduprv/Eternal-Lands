@@ -27,6 +27,18 @@ int always_pathfinding = 0;
 namespace eternal_lands
 {
 
+const ustring Connection::invalid_certificate_warning = to_color_char(c_red1)
+	+ ustring(reinterpret_cast<const std::uint8_t*>("Warning!\n\n"))
+	+ to_color_char(c_grey1)
+	+ reinterpret_cast<const std::uint8_t*>(
+		"The encryption certificate sent by the server could not be verified. "
+		"This could mean that someone is intercepting your connection with the game server "
+	    "(for example, to steal your password).\n\n"
+		"Click \"Close connection\" to break the connection and restart the game with "
+		"a different server, or \"Continue\" if you know and accept the risks and "
+		"wish to continue anyway."
+	);
+
 void Connection::set_server(const char* name, std::uint16_t port, bool encrypted)
 {
 	_server_name = name;
@@ -66,7 +78,13 @@ void Connection::connect_to_server()
 	}
 	catch (const InvalidCertificate&)
 	{
-		show_invalid_cert_popup();
+		_error_popup.reset(new TextPopup("Invalid certificate", invalid_certificate_warning));
+		_error_popup->add_button("Close connection", [this] { close_after_invalid_certificate(); return 1; });
+		_error_popup->add_button("Continue", [this] {
+			_socket.accept_certificate();
+			finish_connect_to_server();
+			return 1;
+		});
 		return;
 	}
 	catch (const EncryptError& err)
@@ -76,6 +94,14 @@ void Connection::connect_to_server()
 		do_disconnect_sound();
 		return;
 	}
+
+	finish_connect_to_server();
+}
+
+void Connection::finish_connect_to_server()
+{
+	if (_error_popup)
+		_error_popup->hide();
 
 	have_storage_list = 0; // With a reconnect, our cached copy of what's in storage may no longer be accurate
 
@@ -105,10 +131,13 @@ void Connection::connect_to_server()
 	flush();               // make sure tcp output buffer is empty
 }
 
-void Connection::show_invalid_cert_popup()
+void Connection::close_after_invalid_certificate()
 {
-	// FIXME: TBD
-	LOG_TO_CONSOLE(c_red1, "The server certificate could not be verfified.");
+	if (_error_popup)
+		_error_popup->hide();
+	_socket.close();
+	LOG_TO_CONSOLE(c_red1, "The server certificate could not be verified.");
+	LOG_TO_CONSOLE(c_red1, alt_x_quit);
 	_socket.close();
 	do_disconnect_sound();
 }

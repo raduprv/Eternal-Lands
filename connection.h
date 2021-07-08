@@ -11,6 +11,7 @@
 #include <vector>
 #include "queue.h"
 #include "socket.h"
+#include "textpopup.h"
 
 namespace eternal_lands
 {
@@ -65,6 +66,7 @@ public:
 		std::uint8_t pants, std::uint8_t boots, std::uint8_t head, std::uint8_t type);
 
 private:
+	static const ustring invalid_certificate_warning;
 	static const std::uint16_t protocol_version_first_digit = 10; // protocol/game version sent to server
 	static const std::uint16_t protocol_version_second_digit = 29;
 	static const size_t max_out_buffer_size = 8192;
@@ -77,11 +79,14 @@ private:
 
 	TCPSocket _socket;
 
+	std::unique_ptr<TextPopup> _error_popup;
+
 	std::mutex _out_mutex;
 	std::vector<std::uint8_t> _out_buffer;
 	std::vector<std::uint8_t> _cache;
 	std::array<std::uint8_t, max_in_buffer_size> _in_buffer;
 	size_t _in_buffer_used;
+
 	time_t _last_heart_beat;
 	std::uint32_t _last_sit_tick;
 	std::uint32_t _last_turn_tick;
@@ -90,7 +95,7 @@ private:
 	bool _invalid_version;
 	bool _previously_logged_in;
 
-	Connection(): _server_name(), _server_port(2000), _encrypted(false), _socket(),
+	Connection(): _server_name(), _server_port(2000), _encrypted(false), _socket(), _error_popup(),
 		_out_mutex(), _out_buffer(), _cache(), _in_buffer(), _in_buffer_used(0),
 		_last_heart_beat(0), _last_sit_tick(0), _last_turn_tick(0), _connection_test_tick(0),
 		_invalid_version(false), _previously_logged_in(false) {}
@@ -103,7 +108,8 @@ private:
 	void send_heart_beat();
 	void send_version();
 
-	void show_invalid_cert_popup();
+	void close_after_invalid_certificate();
+	void finish_connect_to_server();
 };
 
 } // namespace eternal_lands
