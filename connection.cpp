@@ -100,8 +100,8 @@ void Connection::connect_to_server()
 
 void Connection::finish_connect_to_server()
 {
-	if (_error_popup)
-		_error_popup->hide();
+	// Destroy error popup if it exists
+	_error_popup.reset();
 
 	have_storage_list = 0; // With a reconnect, our cached copy of what's in storage may no longer be accurate
 
@@ -133,8 +133,7 @@ void Connection::finish_connect_to_server()
 
 void Connection::close_after_invalid_certificate()
 {
-	if (_error_popup)
-		_error_popup->hide();
+	_error_popup.reset();
 	_socket.close();
 	LOG_TO_CONSOLE(c_red1, "The server certificate could not be verified.");
 	LOG_TO_CONSOLE(c_red1, alt_x_quit);
@@ -600,6 +599,11 @@ extern "C" int my_tcp_send(const Uint8* str, int len)
 extern "C" int my_tcp_flush()
 {
 	return Connection::get_instance().flush();
+}
+
+extern "C" void cleanup_tcp()
+{
+	return Connection::get_instance().clean_up();
 }
 
 extern "C" int get_message_from_server(void *thread_args)

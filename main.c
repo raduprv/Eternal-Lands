@@ -361,10 +361,8 @@ int start_rendering()
 	LOG_INFO("clean_update()");
 	clean_update();
 
-#ifndef USE_SSL
 	LOG_INFO("cleanup_tcp()");
 	cleanup_tcp();
-#endif // !USE_SSL
 
 	if (use_frame_buffer)
 	{

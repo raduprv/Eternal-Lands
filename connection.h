@@ -65,6 +65,12 @@ public:
 		std::uint8_t skin, std::uint8_t hair, std::uint8_t eyes, std::uint8_t shirt,
 		std::uint8_t pants, std::uint8_t boots, std::uint8_t head, std::uint8_t type);
 
+	void clean_up()
+	{
+		_socket.close();
+		_error_popup.reset();
+	}
+
 private:
 	static const ustring invalid_certificate_warning;
 	static const std::uint16_t protocol_version_first_digit = 10; // protocol/game version sent to server
@@ -99,7 +105,7 @@ private:
 		_out_mutex(), _out_buffer(), _cache(), _in_buffer(), _in_buffer_used(0),
 		_last_heart_beat(0), _last_sit_tick(0), _last_turn_tick(0), _connection_test_tick(0),
 		_invalid_version(false), _previously_logged_in(false) {}
-	~Connection() { _socket.close(); }
+	~Connection() { clean_up(); }
 
 	std::size_t do_send_data(const std::uint8_t* data, size_t data_len);
 	std::size_t flush_locked();
@@ -137,6 +143,7 @@ void move_to (short int x, short int y, int try_pathfinder);
 void handle_encryption_invitation(void);
 int my_tcp_send(const Uint8* str, int len);
 int my_tcp_flush(void);
+void cleanup_tcp(void);
 int get_message_from_server(void *thread_args);
 
 #ifdef __cplusplus
