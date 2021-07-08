@@ -36,6 +36,7 @@ OPTION(LOCAL_NLOHMANN_JSON "Enable if you want to use an embedded copy of nlohma
 OPTION(MARCHNATIVE "Enable -march=native compiler flag, for when not building a portable executable." Off)
 OPTION(ADDRSANITISER "Enable the gcc address sanitisation options to do run-time checking." Off)
 OPTION(TTF "Add the ability to use True Type system fonts." On)
+OPTION(USE_SSL "Encrypt the traffic with the server." On)
 
 # standard options
 add_definitions(
@@ -129,6 +130,9 @@ include(cmake/FindVorbisFile.cmake)
 include(cmake/FindCal3d.cmake)
 if (TTF)
 	include(cmake/FindSDL2TTF.cmake)
+endif()
+if (USE_SSL)
+	find_package(OpenSSL REQUIRED)
 endif()
 
 # require the nlohmann_json package if building for json files
@@ -228,6 +232,11 @@ endif()
 
 if (TTF)
 	add_definitions(-DTTF)
+endif()
+
+if (USE_SSL)
+	add_definitions(-DUSE_SSL)
+	set(SOURCES ${SOURCES} ${SD}connection.cpp cppwindows.cpp ipaddress.cpp socket.cpp textpopup.cpp)
 endif()
 
 # set the compiler flags for DEBUG and RELEASE builds
@@ -334,6 +343,10 @@ target_include_directories(${EXEC} SYSTEM PUBLIC
 if (TTF)
 	target_link_libraries(${EXEC} ${SDL2TTF_LIBRARY})
 	target_include_directories(${EXEC} SYSTEM PUBLIC ${SDL2TTF_INCLUDE_DIR})
+endif()
+
+if (USE_SSL)
+	target_link_libraries(${EXEC} ${OPENSSL_SSL_LIBRARY} ${OPENSSL_CRYPTO_LIBRARY})
 endif()
 
 install(
