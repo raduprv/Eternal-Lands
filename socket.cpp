@@ -10,10 +10,14 @@
 #include <unistd.h>
 #include "socket.h"
 #include "elloggingwrapper.h"
+#include "init.h"
+#include "io/elpathwrapper.h"
 #include "ipaddress.h"
 
 namespace eternal_lands
 {
+
+const std::string TCPSocket::certificates_directory_name = "certificates";
 
 void TCPSocket::connect(const std::string& address, std::uint16_t port, bool do_encrypt)
 {
@@ -278,11 +282,32 @@ void TCPSocket::encrypt()
 			throw EncryptError(ERR_reason_error_string(err));
 		}
 
-		if (!SSL_CTX_load_verify_locations(_ssl_ctx, nullptr, certificates_directory))
+		// Load certificates from the game data directory, as well as the user's configuration directory
+		std::string dir_names[] = {
+			datadir + ('/' + certificates_directory_name),
+			get_path_config_base() + ('/' + certificates_directory_name)
+		};
+
+		X509_STORE *store = SSL_CTX_get_cert_store(_ssl_ctx);
+		ERR_clear_error();
+		X509_LOOKUP *lookup = X509_STORE_add_lookup(store, X509_LOOKUP_hash_dir());
+		if (lookup)
+		{
+			for (const std::string& dir_name: dir_names)
+			{
+				ERR_clear_error();
+				if (!X509_LOOKUP_add_dir(lookup, dir_name.c_str(), X509_FILETYPE_PEM))
+				{
+					unsigned long err = ERR_get_error();
+					LOG_ERROR("Failed to load certificates from directory \"%s\": %s", dir_name.c_str(),
+						ERR_reason_error_string(err));
+				}
+			}
+		}
+		else
 		{
 			unsigned long err = ERR_get_error();
-			LOG_ERROR("Failed to load certificates from directory \"%s\": %s", certificates_directory,
-				ERR_reason_error_string(err));
+			LOG_ERROR("Failed to add lookup to store: %s", ERR_reason_error_string(err));
 		}
 	}
 	if (!_ssl)

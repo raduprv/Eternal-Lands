@@ -217,7 +217,7 @@ private:
 	};
 
 	//! The directory containing SSL certificates for known servers
-	static constexpr const char* certificates_directory = "certificates";
+	static const std::string certificates_directory_name;
 
 	//! The file descriptor for this socket
 	SocketDescriptor _fd;
