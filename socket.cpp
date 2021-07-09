@@ -6,7 +6,6 @@
 #else // WINDOWS
 #include <fcntl.h>
 #include <netinet/tcp.h>
-#define INVALID_SOCKET -1
 #endif // WINDOWS
 #include <openssl/err.h>
 #include <unistd.h>
@@ -20,29 +19,41 @@ namespace eternal_lands
 {
 
 const std::string TCPSocket::certificates_directory_name = "certificates";
-std::atomic_uint TCPSocket::_nr_sockets;
+std::mutex TCPSocket::_init_mutex;
+int TCPSocket::_nr_sockets = 0;
+#ifdef WINDOWS
+bool TCPSocket::_initialized = false;
+#endif // WINDOWS
 
 void TCPSocket::initialize()
 {
+	std::lock_guard<std::mutex> guard(_init_mutex);
+	if (_nr_sockets++ == 0)
+	{
 #ifdef WINDOWS
-	WSADATA wsa_data;
-	if (WSAStartup(MAKEWORD(1, 1), &wsa_data) != 0)
-		LOG_ERROR("Failed to initialize Windows socket 1.1");
-#endif
+		WSADATA wsa_data;
+		_initialized = WSAStartup(MAKEWORD(1, 1), &wsa_data) == 0;
+		if (!_initialized)
+		{
+			LOG_ERROR("Failed to initialize Windows sockets 1.1");
+		}
+#endif // WINDOWS
+	}
 }
 
 void TCPSocket::clean_up()
 {
+	std::lock_guard<std::mutex> guard(_init_mutex);
+	if (--_nr_sockets == 0)
+	{
 #ifdef WINDOWS
-	WSACleanup();
-#endif
-}
-
-TCPSocket::TCPSocket(): _fd(INVALID_SOCKET), _peer(), _ssl_ctx(nullptr), _ssl(nullptr), _ssl_mutex(),
-	_state(State::NOT_CONNECTED), _ssl_fatal_error(false)
-{
-	if (_nr_sockets++ == 0)
-		initialize();
+		if (_initialized)
+		{
+			WSACleanup();
+			_initialized = false;
+		}
+#endif // WINDOWS
+	}
 }
 
 void TCPSocket::connect(const std::string& address, std::uint16_t port, bool do_encrypt)

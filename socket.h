@@ -10,14 +10,17 @@
 #include <string>
 #include <vector>
 #include <openssl/ssl.h>
+#include "ipaddress.h"
+
 #ifdef WINDOWS
 #include <winsock2.h>
 typedef SOCKET SocketDescriptor;
 #else // WINDOWS
 #include <sys/socket.h>
 typedef int SocketDescriptor;
+#define  INVALID_SOCKET -1
 #endif // WINDOWS
-#include "ipaddress.h"
+
 
 namespace eternal_lands
 {
@@ -88,9 +91,17 @@ public:
 	 *
 	 * Create a new, unconnected, client socket
 	 */
-	TCPSocket();
+	TCPSocket(): _fd(INVALID_SOCKET), _peer(), _ssl_ctx(nullptr), _ssl(nullptr), _ssl_mutex(),
+		_state(State::NOT_CONNECTED), _ssl_fatal_error(false)
+	{
+		initialize();
+	}
 	//! Destructor
-	~TCPSocket() { close(); }
+	~TCPSocket()
+	{
+		close();
+		clean_up();
+	}
 
 	//! Return whether the client is currently connected to the server
 	bool is_connected() const { return _state == State::CONNECTED_UNENCRYPTED || _state == State::CONNECTED_ENCRYPTED; }
@@ -219,8 +230,14 @@ private:
 	//! The directory containing SSL certificates for known servers
 	static const std::string certificates_directory_name;
 
+	//! Mutex serializing access to shared network data
+	static std::mutex _init_mutex;
 	//! The number of socket objects currently existing
-	static std::atomic_uint _nr_sockets;
+	static int _nr_sockets;
+#ifdef WINDOWS
+	//! Whether the network has been initialized
+	static bool _initialized;
+#endif
 
 	//! The file descriptor for this socket
 	SocketDescriptor _fd;
