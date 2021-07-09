@@ -20,9 +20,26 @@ namespace eternal_lands
 {
 
 const std::string TCPSocket::certificates_directory_name = "certificates";
+std::once_flag TCPSocket::_initialized;
+
+void TCPSocket::initialize()
+{
+#ifdef WINDOWS
+	WSADATA wsa_data;
+	if (WSAStartup(MAKEWORD(1, 1), &wsa_data) != 0)
+		throw InitNetworkError("Unable to initialize Windows sockets 1.1");
+#endif
+}
+
+TCPSocket::TCPSocket(): _fd(INVALID_SOCKET), _peer(), _ssl_ctx(nullptr), _ssl(nullptr), _ssl_mutex(),
+	_state(State::NOT_CONNECTED), _ssl_fatal_error(false)
+{
+}
 
 void TCPSocket::connect(const std::string& address, std::uint16_t port, bool do_encrypt)
 {
+	std::call_once(_initialized, initialize);
+
 	if (_fd != INVALID_SOCKET)
 		close();
 
@@ -43,7 +60,7 @@ void TCPSocket::connect(const std::string& address, std::uint16_t port, bool do_
 			continue;
 
 		_fd = socket(info->ai_family, info->ai_socktype, info->ai_protocol);
-		if (_fd == INVALID_SOCKET)
+		if (_fd != INVALID_SOCKET)
 		{
 			int res = ::connect(_fd, info->ai_addr, info->ai_addrlen);
 			if (res == 0)
@@ -123,6 +140,7 @@ const char* TCPSocket::check_ssl_error_locked(int ret, int errno_val)
 		return ERR_reason_error_string(err);
 	if (ssl_err == SSL_ERROR_SYSCALL && errno_val != 0)
 		return strerror(errno);
+
 	return "Unknown error";
 }
 
@@ -343,6 +361,7 @@ void TCPSocket::encrypt()
 	}
 
 	ERR_clear_error();
+	errno = 0;
 	int ret = SSL_connect(_ssl);
 	if (ret <= 0)
 	{

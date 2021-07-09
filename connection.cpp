@@ -62,6 +62,13 @@ void Connection::connect_to_server()
 	{
 		_socket.connect(_server_name, _server_port, _encrypted);
 	}
+	catch (const InitNetworkError& err)
+	{
+		LOG_ERROR("Failed to initialize networking: %s", err.what());
+		LOG_TO_CONSOLE(c_red2, "Failed to initialize networking");
+		do_disconnect_sound();
+		return;
+	}
 	catch (const ResolutionFailure&)
 	{
 		LOG_TO_CONSOLE(c_red2, failed_resolve);

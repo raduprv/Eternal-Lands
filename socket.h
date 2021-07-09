@@ -26,6 +26,11 @@ struct TCPSocketError: public std::runtime_error
 {
 	TCPSocketError(const std::string& msg): std::runtime_error(msg) {}
 };
+//! Error when initializing networking
+struct InitNetworkError: public TCPSocketError
+{
+	InitNetworkError(const std::string& why): TCPSocketError("Failed to initialize networking: " + why) {}
+};
 //! Error thrown when the server host name cannot be resolved to an IP address
 struct ResolutionFailure: public TCPSocketError
 {
@@ -87,8 +92,7 @@ public:
 	 *
 	 * Create a new, unconnected, client socket
 	 */
-	TCPSocket(): _fd(-1), _peer(), _ssl_ctx(nullptr), _ssl(nullptr), _ssl_mutex(),
-		_state(State::NOT_CONNECTED), _ssl_fatal_error(false) {}
+	TCPSocket();
 	//! Destructor
 	~TCPSocket() { close(); }
 
@@ -219,6 +223,9 @@ private:
 	//! The directory containing SSL certificates for known servers
 	static const std::string certificates_directory_name;
 
+	//! Whether the network library has been initialized
+	static std::once_flag _initialized;
+
 	//! The file descriptor for this socket
 	SocketDescriptor _fd;
 	//! The address of the server this socket is connected to
@@ -233,6 +240,9 @@ private:
 	State _state;
 	//! Whether a fatal error in the TLS protocol occurred
 	bool _ssl_fatal_error;
+
+	//! Do any global initialization required for networking
+	static void initialize();
 
 	/*!
 	 * \brief Close the socket
