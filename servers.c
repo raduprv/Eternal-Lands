@@ -146,7 +146,7 @@ void load_server_list(const char *filename)
 	char crypt[128];
 #endif
 	
-	f = open_file_config(filename, "r");
+	f = open_file_config(filename, "rb");
 	if (f == NULL)
 	{
 		// Error, this is a problem!
