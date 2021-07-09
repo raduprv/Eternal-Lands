@@ -259,15 +259,6 @@ void draw_game_map (int map, int mouse_mini);
 
 /*!
  * \ingroup interfaces
- * \brief   Saves the user defined markings on maps.
- *
- *      Saves the user defined markings on maps. The markings are stored on a per map basis, i.e. each map gets its own save file, based on the maps .elm filename.
- *
- */
-void save_markings(void);
-
-/*!
- * \ingroup interfaces
  * \brief   Deletes the mark at the current mouse position and saves the changes.
  *
  *      Deletes the mark at the current mouse position and saves the changes by calling \ref save_markings.

@@ -2794,7 +2794,8 @@ static void init_ELC_vars(void)
 		sizeof(npc_mark_str), "NPC map mark template",
 		"The template used when setting a map mark from the NPC dialogue (right click name). The %s is substituted for the NPC name.",
 		HUD);
-	add_var(OPT_BOOL,"3d_map_markers","3dmarks",&marks_3d,change_3d_marks,1,"Enable 3D Map Markers","Shows user map markers in the game window",HUD);
+	add_var(OPT_BOOL,"3d_map_markers","3dmarks",&marks_3d,change_var,1,"Enable 3D Map Markers","Shows user map markers in the game window",HUD);
+	add_var(OPT_BOOL,"filter_3d_map_markers","filter3dmarks",&filter_marks_3d,change_var,0,"Filter 3D Map Markers","Apply the current mark filter to 3d map marks.",HUD);
 	add_var(OPT_BOOL,"item_window_on_drop","itemdrop",&item_window_on_drop,change_var,1,"Item Window On Drop","Toggle whether the item window shows when you drop items",HUD);
 	add_var(OPT_FLOAT,"minimap_scale", "minimapscale", &local_minimap_size_coefficient, change_minimap_scale, 0.7, "Minimap Scale", "Adjust the overall size of the minimap", HUD, 0.5, 1.5, 0.1);
 	add_var(OPT_BOOL,"rotate_minimap","rotateminimap",&rotate_minimap,change_var,1,"Rotate Minimap","Toggle whether the minimap should rotate.",HUD);
