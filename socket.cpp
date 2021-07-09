@@ -1,11 +1,13 @@
 #ifdef USE_SSL
 
 #include <cstring>
-#ifndef WINDOWS
+#ifdef WINDOWS
+#define SHUT_RDWR SD_BOTH
+#else // WINDOWS
 #include <fcntl.h>
-#endif
-#include <netdb.h>
 #include <netinet/tcp.h>
+#define INVALID_SOCKET -1
+#endif // WINDOWS
 #include <openssl/err.h>
 #include <unistd.h>
 #include "socket.h"
@@ -21,7 +23,7 @@ const std::string TCPSocket::certificates_directory_name = "certificates";
 
 void TCPSocket::connect(const std::string& address, std::uint16_t port, bool do_encrypt)
 {
-	if (_fd >= 0)
+	if (_fd != INVALID_SOCKET)
 		close();
 
 	std::string service = std::to_string(port);
@@ -41,7 +43,7 @@ void TCPSocket::connect(const std::string& address, std::uint16_t port, bool do_
 			continue;
 
 		_fd = socket(info->ai_family, info->ai_socktype, info->ai_protocol);
-		if (_fd >= 0)
+		if (_fd == INVALID_SOCKET)
 		{
 			int res = ::connect(_fd, info->ai_addr, info->ai_addrlen);
 			if (res == 0)
@@ -55,13 +57,13 @@ void TCPSocket::connect(const std::string& address, std::uint16_t port, bool do_
 
 			// Connection failed
 			::close(_fd);
-			_fd = -1;
+			_fd = INVALID_SOCKET;
 		}
 	}
 
 	freeaddrinfo(all_info);
 
-	if (_fd == -1)
+	if (_fd == INVALID_SOCKET)
 		throw ConnectionFailure(address);
 
 	// Disable Nagle's algorithm
@@ -77,7 +79,7 @@ void TCPSocket::connect(const std::string& address, std::uint16_t port, bool do_
 
 void TCPSocket::close_locked()
 {
-	if (_fd >= 0)
+	if (_fd != INVALID_SOCKET)
 	{
 		if (_ssl)
 		{
@@ -95,7 +97,7 @@ void TCPSocket::close_locked()
 
 		shutdown(_fd, SHUT_RDWR);
 		::close(_fd);
-		_fd = -1;
+		_fd = INVALID_SOCKET;
 		_state = State::NOT_CONNECTED;
 	}
 }
@@ -147,7 +149,11 @@ size_t TCPSocket::send(const std::uint8_t* data, size_t data_len)
 		{
 			ssize_t sent;
 			errno = 0;
+#ifdef WINDOWS
+			sent = ::send(_fd, reinterpret_cast<const char*>(data), data_len, 0);
+#else // WINDOWS
 			sent = ::send(_fd, data, data_len, 0);
+#endif // WINDOWS
 			if (sent < 0 && errno != EINTR)
 				// something went wrong
 				throw SendError(strerror(errno));
@@ -215,7 +221,11 @@ size_t TCPSocket::receive_or_peek(std::uint8_t* buffer, size_t max_len, bool pee
 		errno = 0;
 		do
 		{
+#ifdef WINDOWS
+			nr_bytes = recv(_fd, reinterpret_cast<char*>(buffer), max_len, flags);
+#else // WINDOWS
 			nr_bytes = recv(_fd, buffer, max_len, flags);
+#endif
 		}
 		while (nr_bytes < 0 && errno == EINTR);
 
@@ -232,7 +242,7 @@ void TCPSocket::set_blocking(bool blocking)
 {
 	// NOTE: this code has been adapted from SDLNet
 
-	if (_fd >= 0)
+	if (_fd != INVALID_SOCKET)
 	{
 #if defined(__BEOS__) && defined(SO_NONBLOCK)
 		/* On BeOS r5 there is O_NONBLOCK but it's for files only */
@@ -259,10 +269,14 @@ void TCPSocket::set_blocking(bool blocking)
 
 void TCPSocket::set_no_delay()
 {
-	if (_fd >= 0)
+	if (_fd != INVALID_SOCKET)
 	{
 		int nodelay = 1;
+#ifdef WINDOWS
+		setsockopt(_fd, IPPROTO_TCP, TCP_NODELAY, reinterpret_cast<const char*>(&nodelay), sizeof(nodelay));
+#else // WINDOWS
 		setsockopt(_fd, IPPROTO_TCP, TCP_NODELAY, &nodelay, sizeof(nodelay));
+#endif // WINDOWS
 	}
 }
 

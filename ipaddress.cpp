@@ -2,7 +2,9 @@
 
 #include <cstdlib>
 #include <cstring>
+#ifndef WINDOWS
 #include <arpa/inet.h>
+#endif // !WINDOWS
 #include "ipaddress.h"
 
 namespace eternal_lands

@@ -346,6 +346,9 @@ if (TTF)
 endif()
 
 if (USE_SSL)
+	if (CMAKE_SYSTEM_NAME MATCHES "Windows")
+		target_link_libraries(${EXEC} -lws2_32)
+	endif()
 	target_link_libraries(${EXEC} ${OPENSSL_SSL_LIBRARY} ${OPENSSL_CRYPTO_LIBRARY})
 endif()
 

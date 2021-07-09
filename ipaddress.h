@@ -5,7 +5,13 @@
 
 #include <cstdint>
 #include <string>
-#include "netdb.h"
+#ifdef WINDOWS
+#include <ws2tcpip.h>
+typedef short sa_family_t;
+typedef u_short in_port_t;
+#else // WINDOWS
+#include <netdb.h>
+#endif // WINDOWS
 
 namespace eternal_lands
 {

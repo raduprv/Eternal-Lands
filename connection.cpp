@@ -2,9 +2,9 @@
 
 #include <cstring>
 #include <thread>
+#include "connection.h"
 #include "actor_scripts.h"
 #include "asc.h"
-#include "connection.h"
 #include "console.h"
 #include "buddy.h"
 #include "counters.h"
@@ -89,6 +89,7 @@ void Connection::connect_to_server()
 	}
 	catch (const EncryptError& err)
 	{
+		LOG_ERROR("Failed to set up an encrypted connection: %s", err.what());
 		LOG_TO_CONSOLE(c_red1, "Failed to set up an encrypted connection");
 		_socket.close();
 		do_disconnect_sound();
