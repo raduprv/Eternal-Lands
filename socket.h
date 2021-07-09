@@ -3,6 +3,7 @@
 #ifndef SOCKET_H
 #define SOCKET_H
 
+#include <atomic>
 #include <cstdint>
 #include <mutex>
 #include <stdexcept>
@@ -25,11 +26,6 @@ namespace eternal_lands
 struct TCPSocketError: public std::runtime_error
 {
 	TCPSocketError(const std::string& msg): std::runtime_error(msg) {}
-};
-//! Error when initializing networking
-struct InitNetworkError: public TCPSocketError
-{
-	InitNetworkError(const std::string& why): TCPSocketError("Failed to initialize networking: " + why) {}
 };
 //! Error thrown when the server host name cannot be resolved to an IP address
 struct ResolutionFailure: public TCPSocketError
@@ -223,8 +219,8 @@ private:
 	//! The directory containing SSL certificates for known servers
 	static const std::string certificates_directory_name;
 
-	//! Whether the network library has been initialized
-	static std::once_flag _initialized;
+	//! The number of socket objects currently existing
+	static std::atomic_uint _nr_sockets;
 
 	//! The file descriptor for this socket
 	SocketDescriptor _fd;
@@ -243,6 +239,8 @@ private:
 
 	//! Do any global initialization required for networking
 	static void initialize();
+	//! Clean up after the last socket has been closed
+	static void clean_up();
 
 	/*!
 	 * \brief Close the socket

@@ -20,26 +20,33 @@ namespace eternal_lands
 {
 
 const std::string TCPSocket::certificates_directory_name = "certificates";
-std::once_flag TCPSocket::_initialized;
+std::atomic_uint TCPSocket::_nr_sockets;
 
 void TCPSocket::initialize()
 {
 #ifdef WINDOWS
 	WSADATA wsa_data;
 	if (WSAStartup(MAKEWORD(1, 1), &wsa_data) != 0)
-		throw InitNetworkError("Unable to initialize Windows sockets 1.1");
+		LOG_ERROR("Failed to initialize Windows socket 1.1");
+#endif
+}
+
+void TCPSocket::clean_up()
+{
+#ifdef WINDOWS
+	WSACleanup();
 #endif
 }
 
 TCPSocket::TCPSocket(): _fd(INVALID_SOCKET), _peer(), _ssl_ctx(nullptr), _ssl(nullptr), _ssl_mutex(),
 	_state(State::NOT_CONNECTED), _ssl_fatal_error(false)
 {
+	if (_nr_sockets++ == 0)
+		initialize();
 }
 
 void TCPSocket::connect(const std::string& address, std::uint16_t port, bool do_encrypt)
 {
-	std::call_once(_initialized, initialize);
-
 	if (_fd != INVALID_SOCKET)
 		close();
 
