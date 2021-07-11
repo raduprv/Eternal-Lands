@@ -1,3 +1,6 @@
+# This makefile is deprecated and no longer used by active developers.
+# Please consider switching to the supported CMAKE system tested on FreeBSD
+
 .PHONY: clean release docs
 
 -include make.conf

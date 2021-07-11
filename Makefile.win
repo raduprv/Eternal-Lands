@@ -1,3 +1,8 @@
+# This makefile is deprecated and no longer used by active developers.
+# Please consider switching to the supported CMAKE system.
+# A guide to setting up a windows build environment can found here:
+# https://github.com/pjbroad/el-build-methods/tree/master/windows-10/msys2
+
 .PHONY: clean release docs all
 
 # IMPORTANT: Dev-C++ doesn't seem to get this right, so you have to copy
