@@ -8,8 +8,9 @@ namespace eternal_lands
 const ustring TextPopup::default_message_separator = reinterpret_cast<const std::uint8_t*>("\n\n");
 
 TextPopup::TextPopup(const std::string& title, const ustring& text):
-	Window(title, 0, 0, 0, 0, default_window_flags), _text_widget_id(-1), _scrollbar_id(-1),
-	_button_ids(), _x_margin(0), _y_margin(0), _separator(default_message_separator)
+	Window(title, 0, 0, 0, 0, default_window_flags), _max_width(window_width),
+	_text_widget_id(-1), _scrollbar_id(-1), _button_ids(),
+	_x_margin(0), _y_margin(0), _separator(default_message_separator)
 {
 	_x_margin = std::round(default_margin * current_scale());
 	_y_margin = std::round(default_margin * current_scale());
@@ -32,7 +33,13 @@ TextPopup::~TextPopup()
 	free_text_message_data(&_message);
 }
 
-void TextPopup::add_message(const ustring& text)
+TextPopup& TextPopup::set_max_width(int width)
+{
+	_max_width = width;
+	return *this;
+}
+
+TextPopup& TextPopup::add_message(const ustring& text)
 {
 	// FIXME? Shouldn't there be a function on text_message for this?
 	resize_text_message_data(&_message, _message.len + 3*text.size() + _separator.size());
@@ -43,6 +50,8 @@ void TextPopup::add_message(const ustring& text)
 
 	// This will re-wrap the text and add a scrollbar, title and resize widget as required
 	set_size();
+
+	return *this;
 }
 
 void TextPopup::set_size()
@@ -53,14 +62,16 @@ void TextPopup::set_size()
 		+ std::max(buttons_width(), (int)(5 * DEFAULT_FIXED_FONT_WIDTH));
 	Window::set_minimum_size(min_width, min_height);
 
-	int screen_width = window_width - HUD_MARGIN_X - 2 * _x_margin;
-	int screen_height = window_height - HUD_MARGIN_Y - 2 * _y_margin;
+	int screen_width = window_width - HUD_MARGIN_X;
+	int max_width = std::min(screen_width - 2*_x_margin, std::max(min_width, _max_width));
+	int screen_height = window_height - HUD_MARGIN_Y;
+	int max_height = screen_height - 2 * _y_margin;
 
 	// Do a pre-wrap of the text to the maximum screen width we can use.
 	// This will avoid the later wrap (after the resize) changing the number of lines
 	int num_text_lines = 0;
 	if (have_text)
-		num_text_lines = rewrap_message(&_message, CHAT_FONT, 1.0, screen_width - 4*_x_margin, nullptr);
+		num_text_lines = rewrap_message(&_message, CHAT_FONT, 1.0, max_width - 4*_x_margin, nullptr);
 
 	// Calculate the text widget height from the number of lines...
 	int win_height = non_text_height();
@@ -69,9 +80,9 @@ void TextPopup::set_size()
 
 	// ...but limit to a maximum
 	bool have_scrollbar = has_scrollbar();
-	if (win_height > screen_height - (have_scrollbar ? title_height() : 0))
+	if (win_height > max_height - (have_scrollbar ? title_height() : 0))
 	{
-		win_height = screen_height - (have_scrollbar ? title_height() : 0);
+		win_height = max_height - (have_scrollbar ? title_height() : 0);
 		int text_widget_height = win_height - non_text_height();
 
 		// If we'll need a scroll bar allow for it in the width calulation
@@ -96,14 +107,14 @@ void TextPopup::set_size()
 		win_width += box_size();
 
 	// ...but limit to a maximum
-	win_width = std::min(win_width, screen_width);
+	win_width = std::min(win_width, max_width);
 
 	// Resize the window now we have the required size
 	// New sizes and positions for the widgets will be calculated by the callback
 	resize(win_width, win_height);
 
 	// Calculate the best position then move the window */
-	move(_x_margin + (screen_width - width())/2, _y_margin + (screen_height - Window::height())/2);
+	move((screen_width - width())/2, (screen_height - Window::height())/2);
 }
 
 int TextPopup::buttons_width() const

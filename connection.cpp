@@ -77,12 +77,13 @@ void Connection::connect_to_server()
 			+ warning_text;
 
 		_error_popup.reset(new TextPopup("Invalid certificate", popup_text));
-		_error_popup->add_button(close_connection_str, [this] { close_after_invalid_certificate(); return 1; });
-		_error_popup->add_button(continue_str, [this] {
-			_socket.accept_certificate();
-			finish_connect_to_server();
-			return 1;
-		});
+		_error_popup->set_max_width(80 * FontManager::get_instance().average_width_spacing(CHAT_FONT, 1.0))
+			.add_button(close_connection_str, [this] { close_after_invalid_certificate(); return 1; })
+			.add_button(continue_str, [this] {
+				_socket.accept_certificate();
+				finish_connect_to_server();
+				return 1;
+			});
 		return;
 	}
 	catch (const EncryptError& err)

@@ -36,6 +36,8 @@ public:
 	//! Destructor
 	~TextPopup();
 
+	//! Set the maximum width of the popup to \a width pixels
+	TextPopup& set_max_width(int width);
 	/*!
 	 * \brief Append text
 	 *
@@ -43,8 +45,9 @@ public:
 	 * the existing text by an empty line.
 	 *
 	 * \param text The new text to add
+	 * \return Reference to this popup
 	 */
-	void add_message(const ustring& text);
+	TextPopup& add_message(const ustring& text);
 	/*!
 	 * \brief Add a button
 	 *
@@ -54,13 +57,15 @@ public:
 	 *
 	 * \param label    The test displayed on the button
 	 * \param on_click The function to call when the button is clicked
+	 * \return Reference to this popup
 	 */
 	template <typename Callback>
-	void add_button(const std::string& label, Callback&& on_click)
+	TextPopup& add_button(const std::string& label, Callback&& on_click)
 	{
 		int id = Window::add_button(label, on_click, 0, 0, 0);
 		_button_ids.push_back(id);
 		set_size();
+		return *this;
 	}
 
 	//! Mouse click handler that forwards scroll events to the scrollbar
@@ -83,6 +88,8 @@ private:
 
 	//! The content text of the popup
 	text_message _message;
+	//! The maximum width of the popup window
+	int _max_width;
 	//! ID of the text widget displaying the text
 	int _text_widget_id;
 	//! ID of the scrollbar widget for scrolling through longer text messages
