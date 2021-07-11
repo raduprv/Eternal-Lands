@@ -3,6 +3,11 @@
 #ifndef SOCKET_H
 #define SOCKET_H
 
+/*!
+ * \file
+ * \brief C++ class for a TCP network socket
+ */
+
 #include <atomic>
 #include <cstdint>
 #include <mutex>

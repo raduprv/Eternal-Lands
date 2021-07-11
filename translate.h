@@ -615,6 +615,11 @@ extern char	reg_error_str[15],
 		cache_size_str[20],
 		/* cal.c */
 		no_animation_err_str[30],
+		/* connection.cpp */
+		warning_str[30],
+		unverified_certificate_str[400],
+		close_connection_str[30],
+		continue_str[30],
 		/*console.c*/
 		invalid_location_str[30],
 		name_too_long[75], 

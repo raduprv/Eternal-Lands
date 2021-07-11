@@ -3,6 +3,11 @@
 #ifndef CONNECTION_H
 #define CONNECTION_H
 
+/*!
+ * \file
+ * \brief Handling the connection with the server
+ */
+
 #ifdef __cplusplus
 
 #include <cstdint>
@@ -16,20 +21,53 @@
 namespace eternal_lands
 {
 
+/*!
+ * \brief Class for the connection with the server
+ *
+ * Class Connection handles the network connection with the game server. It has functions for
+ * sending message to, and receiving messages from, the game server.
+ */
 class Connection
 {
 public:
+	//! Return the singleton Connection object
 	static Connection& get_instance()
 	{
 		static Connection connection;
 		return connection;
 	}
 
+	//! Return whether the connection to the game server is currently broken
 	bool is_disconnected() const { return !_socket.is_connected(); }
 
+	/*!
+	 * \brief Set server to connect to
+	 *
+	 * Set the parameters of the server to connect to. This information is cached here so that we
+	 * can easily reconnect after a network failure.
+	 *
+	 * \param name      The host name of the server to connect to
+	 * \param port      The port number on the host to connect to
+	 * \param encrypted If \c true, encrypt the connection.
+	 */
 	void set_server(const char* name, std::uint16_t port, bool encrypted);
+	/*!
+	 * \brief Connect to the game server
+	 *
+	 * Set up a connection to the game server specified by a previous call to set_server(). If the
+	 * user was previously logged in, this also resends the login information so the user can
+	 * immediately continue playing.
+	 */
 	void connect_to_server();
+	//! Break the connection with the server with a default message
 	void disconnect_from_server() { disconnect_from_server("Grue?"); }
+	/*!
+	 * \brief Disconnect from the server
+	 *
+	 * Break the connection with the game server. and write a message to the text console.
+	 *
+	 * \param message The reason for the disconnect
+	 */
 	void disconnect_from_server(const std::string& message);
 
 	void start_connection_test();
@@ -72,7 +110,6 @@ public:
 	}
 
 private:
-	static const ustring invalid_certificate_warning;
 	static const std::uint16_t protocol_version_first_digit = 10; // protocol/game version sent to server
 	static const std::uint16_t protocol_version_second_digit = 29;
 	static const size_t max_out_buffer_size = 8192;
