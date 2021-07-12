@@ -74,7 +74,19 @@ public:
 	void check_connection_test();
 	void stop_connection_test() { _connection_test_tick = 0; }
 
+	//! Send a single byte command \a cmd without further data to the server
 	std::size_t send(std::uint8_t cmd) { return send(cmd, nullptr, 0); }
+	/*!
+	 * \brief Send a message to the server
+	 *
+	 * Send a message with command code \a cmd and \a len bytes of additional data in \a data
+	 * to the server. It is possible that the message is buffered first, to be sent later.
+	 *
+	 * \param cmd  The command code for the message
+	 * \param data Additional data for the command
+	 * \param len  The number of bytes in \a data
+	 * \return The number of bytes actually sent or buffered.
+	 */
 	std::size_t send(std::uint8_t cmd, const std::uint8_t* data, std::size_t len);
 	std::size_t flush()
 	{

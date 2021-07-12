@@ -78,8 +78,12 @@ void Connection::connect_to_server()
 
 		_error_popup.reset(new TextPopup("Invalid certificate", popup_text));
 		_error_popup->set_max_width(80 * FontManager::get_instance().average_width_spacing(CHAT_FONT, 1.0))
-			.add_button(close_connection_str, [this] { close_after_invalid_certificate(); return 1; })
+			.add_button(close_connection_str, [this] {
+				_error_popup->hide();
+				close_after_invalid_certificate(); return 1;
+			})
 			.add_button(continue_str, [this] {
+				_error_popup->hide();
 				_socket.accept_certificate();
 				finish_connect_to_server();
 				return 1;
@@ -100,9 +104,6 @@ void Connection::connect_to_server()
 
 void Connection::finish_connect_to_server()
 {
-	// Destroy error popup if it exists
-	_error_popup.reset();
-
 	have_storage_list = 0; // With a reconnect, our cached copy of what's in storage may no longer be accurate
 
 	send_version();
@@ -133,7 +134,6 @@ void Connection::finish_connect_to_server()
 
 void Connection::close_after_invalid_certificate()
 {
-	_error_popup.reset();
 	_socket.close();
 	LOG_TO_CONSOLE(c_red1, "The server certificate could not be verified.");
 	LOG_TO_CONSOLE(c_red1, alt_x_quit);
