@@ -617,6 +617,7 @@ extern char	reg_error_str[15],
 		no_animation_err_str[30],
 		/* connection.cpp */
 		warning_str[30],
+		hostname_mismatch_str[500],
 		unverified_certificate_str[400],
 		close_connection_str[30],
 		continue_str[30],

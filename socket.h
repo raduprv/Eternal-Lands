@@ -78,7 +78,17 @@ struct EncryptError: public TCPSocketError
 //! Error thrown when the certificate presented by the server cannot be validated.
 struct InvalidCertificate: public EncryptError
 {
-	InvalidCertificate(): EncryptError("Invalid server certificate") {}
+	InvalidCertificate(const std::string& err_msg): EncryptError(err_msg) {}
+};
+//! Error thrown when the host name of the game server does not match the server certificate
+struct HostnameMismatch: public InvalidCertificate
+{
+	HostnameMismatch(const std::string& serv_name, const std::string& cert_name):
+		InvalidCertificate("The host name of the game server does not match the certificate"),
+		server_name(serv_name), certificate_name(cert_name) {}
+
+	std::string server_name;
+	std::string certificate_name;
 };
 
 /*!
@@ -118,13 +128,13 @@ public:
 	/*!
 	 * \brief Connect to the server
 	 *
-	 * Connect to the server with host name \a address on port \a port. If \a do_encrypt is \c true,
+	 * Connect to the server with host name \a hostname on port \a port. If \a do_encrypt is \c true,
 	 * the connection will be encrypted using TLS.
-	 * \param address    The host name or IP address of the server
+	 * \param hostanem   The host name or IP address of the server
 	 * \param port       The port number to connect to
 	 * \param do_encrypt Whether to encrypt the connection
 	 */
-	void connect(const std::string& address, std::uint16_t port, bool do_encrypt);
+	void connect(const std::string& hostname, std::uint16_t port, bool do_encrypt);
 	/*!
 	 * \brief Close the connection
 	 *
@@ -277,9 +287,13 @@ private:
 	/*!
 	 * \brief Encrypt the connection
 	 *
-	 * Set up encryption on the connection to the server.
+	 * Set up encryption on the connection to the server. The host name \a hostname of the
+	 * selected game server must match the common name in the security certificate sent by the
+	 * server connected to.
+	 *
+	 * \param hostname The host name of the selected game server
 	 */
-	void encrypt();
+	void encrypt(const std::string& hostname);
 
 	/*!
 	 * \brief Check an SSL error

@@ -64,6 +64,32 @@ void Connection::connect_to_server()
 		do_disconnect_sound();
 		return;
 	}
+	catch (const HostnameMismatch& err)
+	{
+		std::uint8_t warning_text[1024];
+		safe_snprintf(reinterpret_cast<char*>(warning_text), sizeof(warning_text),
+			reinterpret_cast<const char*>(hostname_mismatch_str),
+			err.server_name.c_str(), err.certificate_name.c_str(), close_connection_str, continue_str);
+		ustring popup_text = to_color_char(c_red1)
+			+ ustring(reinterpret_cast<const std::uint8_t*>(warning_str))
+			+ reinterpret_cast<const std::uint8_t*>("\n\n")
+			+ to_color_char(c_grey1)
+			+ warning_text;
+
+		_error_popup.reset(new TextPopup("Hostname mismatch", popup_text));
+		_error_popup->set_max_width(80 * FontManager::get_instance().average_width_spacing(CHAT_FONT, 1.0))
+			.add_button(close_connection_str, [this] {
+				_error_popup->hide();
+				close_after_invalid_certificate(); return 1;
+			})
+			.add_button(continue_str, [this] {
+				_error_popup->hide();
+				_socket.accept_certificate();
+				finish_connect_to_server();
+				return 1;
+			});
+		return;
+	}
 	catch (const InvalidCertificate&)
 	{
 		std::uint8_t warning_text[1024];

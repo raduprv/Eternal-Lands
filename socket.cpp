@@ -8,6 +8,7 @@
 #include <netinet/tcp.h>
 #endif // WINDOWS
 #include <openssl/err.h>
+#include <openssl/x509v3.h>
 #include <unistd.h>
 #include "socket.h"
 #include "elloggingwrapper.h"
@@ -56,7 +57,7 @@ void TCPSocket::clean_up()
 	}
 }
 
-void TCPSocket::connect(const std::string& address, std::uint16_t port, bool do_encrypt)
+void TCPSocket::connect(const std::string& hostname, std::uint16_t port, bool do_encrypt)
 {
 	if (_fd != INVALID_SOCKET)
 		close();
@@ -67,9 +68,9 @@ void TCPSocket::connect(const std::string& address, std::uint16_t port, bool do_
 	hints.ai_family = AF_UNSPEC;
 	hints.ai_socktype = SOCK_STREAM;
 	struct addrinfo *all_info;
-	int res = getaddrinfo(address.c_str(), service.c_str(), &hints, &all_info);
+	int res = getaddrinfo(hostname.c_str(), service.c_str(), &hints, &all_info);
 	if (res)
-		throw ResolutionFailure(address);
+		throw ResolutionFailure(hostname);
 
 	for (struct addrinfo *info = all_info; info; info = info->ai_next)
 	{
@@ -99,7 +100,7 @@ void TCPSocket::connect(const std::string& address, std::uint16_t port, bool do_
 	freeaddrinfo(all_info);
 
 	if (_fd == INVALID_SOCKET)
-		throw ConnectionFailure(address);
+		throw ConnectionFailure(hostname);
 
 	// Disable Nagle's algorithm
 	set_no_delay();
@@ -107,7 +108,7 @@ void TCPSocket::connect(const std::string& address, std::uint16_t port, bool do_
 	set_blocking(true);
 
 	if (do_encrypt)
-		encrypt();
+		encrypt(hostname);
 	else
 		_state = State::CONNECTED_UNENCRYPTED;
 }
@@ -316,7 +317,7 @@ void TCPSocket::set_no_delay()
 	}
 }
 
-void TCPSocket::encrypt()
+void TCPSocket::encrypt(const std::string& hostname)
 {
 	if (is_encrypted())
 		return;
@@ -369,6 +370,14 @@ void TCPSocket::encrypt()
 			unsigned long err = ERR_get_error();
 			throw EncryptError(ERR_reason_error_string(err));
 		}
+
+		SSL_set_hostflags(_ssl, X509_CHECK_FLAG_NO_PARTIAL_WILDCARDS);
+	}
+
+	if (!SSL_set1_host(_ssl, hostname.c_str()))
+	{
+		unsigned long err = ERR_get_error();
+		throw EncryptError(std::string("Failed to set host name for verification: ") + ERR_reason_error_string(err));
 	}
 
 	ERR_clear_error();
@@ -387,11 +396,35 @@ void TCPSocket::encrypt()
 		throw EncryptError(msg);
 	}
 
-	if (SSL_get_verify_result(_ssl) != X509_V_OK // Invalid certificate
-		|| !SSL_get_peer_certificate(_ssl))      // No server certificate at all
+	X509* cert = SSL_get_peer_certificate(_ssl);
+	if (!cert)
+	{
+		LOG_ERROR("The server did not present an encryption certificate");
+		_state = State::CONNECTED_CERTIFICATE_FAIL;
+		throw InvalidCertificate("No certificate sent by server");
+	}
+
+	long res = SSL_get_verify_result(_ssl);
+	if (res != X509_V_OK)
 	{
 		_state = State::CONNECTED_CERTIFICATE_FAIL;
-		throw InvalidCertificate();
+		switch (res)
+		{
+			case X509_V_ERR_HOSTNAME_MISMATCH:
+			{
+				X509_NAME* name = X509_get_subject_name(cert);
+				int loc = X509_NAME_get_index_by_NID(name, NID_commonName, -1);
+				if (loc < 0)
+					throw HostnameMismatch(hostname, "<unknown>");
+				X509_NAME_ENTRY *entry = X509_NAME_get_entry(name, loc);
+				if (!entry)
+					throw HostnameMismatch(hostname, "<unknown>");
+				ASN1_STRING *cn = X509_NAME_ENTRY_get_data(entry);
+				throw HostnameMismatch(hostname, reinterpret_cast<const char*>(ASN1_STRING_get0_data(cn)));
+			}
+			default:
+				throw InvalidCertificate("The server certificate could not be verified");
+		}
 	}
 
 	_state = State::CONNECTED_ENCRYPTED;

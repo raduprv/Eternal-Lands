@@ -566,6 +566,7 @@ char	reg_error_str[15],
 	no_animation_err_str[30],
 	/* connection.cpp */
 	warning_str[30],
+	hostname_mismatch_str[500],
 	unverified_certificate_str[400],
 	close_connection_str[30],
 	continue_str[30],
@@ -1303,6 +1304,14 @@ void init_errors()
 	add_xml_identifier (misc, "book_open", book_open_err_str, "Couldn't open the book: %s!", sizeof(book_open_err_str));
 	add_xml_identifier (misc, "noanimation", no_animation_err_str, "No animation: %s!\n", sizeof(no_animation_err_str));
 	add_xml_identifier(misc, "warning", warning_str, "Warning!", sizeof(warning_str));
+	add_xml_identifier(misc, "hostname_mismatch", hostname_mismatch_str,
+		"The host name of the selected game server (%s) does not match that of the security "
+		"certificate sent by the server you connected to (%s). This could be a configuration "
+		"error in the server, or an attacker may be redirecting you to a fake game server "
+		"(for example, to steal your password).\n\n"
+		"Click \"%s\" to break the connection and restart the game with "
+		"a different server, or \"%s\" if you understand and accept the risks and "
+		"wish to continue anyway.", sizeof(hostname_mismatch_str));
 	add_xml_identifier(misc, "unverified_certificate", unverified_certificate_str,
 		"The encryption certificate sent by the server could not be verified. "
 		"This could mean that someone is intercepting your connection with the game server "
