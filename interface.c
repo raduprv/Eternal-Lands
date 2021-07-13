@@ -642,10 +642,11 @@ int switch_to_game_map(void)
 
 	map_font_scale_fac = get_global_scale();
 	// Set screen coordinates of the edges of the map
-	size = min2i(4*(window_width-hud_x)/5, window_height-hud_y);
-	small_map_screen_x_left = (window_width - hud_x - 5*size/4) / 2;
+	// Don't use hud_[xy] here, otherwise the tab map will shift under the GUI buttons in F6 mode.
+	size = min2i(4*(window_width-HUD_MARGIN_X)/5, window_height-HUD_MARGIN_Y);
+	small_map_screen_x_left = (window_width - HUD_MARGIN_X - 5*size/4) / 2;
 	small_map_screen_x_right = small_map_screen_x_left + size/4;
-	small_map_screen_y_top = (window_height - hud_y - size) / 2;
+	small_map_screen_y_top = (window_height - HUD_MARGIN_Y - size) / 2;
 	small_map_screen_y_bottom = small_map_screen_y_top + size/4;
 	main_map_screen_x_left = small_map_screen_x_right;
 	main_map_screen_x_right = main_map_screen_x_left + size;
