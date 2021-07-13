@@ -294,6 +294,9 @@ FILE * open_file_data_updates(char* filename, const char* mode, int custom){
 FILE * open_file_data_datadir(const char* filename, const char* mode) {
 	char locbuffer[MAX_PATH];
 	if (strlen(datadir) + strlen(filename) + 2 < MAX_PATH) {
+#ifdef ANDROID
+		do_file_exists(filename, datadir, sizeof(locbuffer), locbuffer); //extract it if needed
+#endif
 		safe_snprintf(locbuffer, sizeof(locbuffer), "%s/%s", datadir, filename);
 		if (!strcmp(mode, "r") || !strcmp(mode, "rb")) {
 			return fopen(locbuffer, mode);					// Don't try to create all the directories if we are only trying to read the file!

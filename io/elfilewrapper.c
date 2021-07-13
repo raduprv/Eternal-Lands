@@ -71,21 +71,24 @@ static int extract_asset_file(const char *file_name)
 	int file_size;
 	Uint8 *buffer;
 	FILE *f = NULL;
-	char new_file_name[200];
-	char sanitized_file_name[200];
+	char new_file_name[256];
+	char sanitized_file_name[256];
 
 	if (file_name[0] == '.') // strip the ./ part
 		strncpy(sanitized_file_name, &file_name[2], sizeof(sanitized_file_name));
 	else
 		strncpy(sanitized_file_name, file_name, sizeof(sanitized_file_name));
 
-
 	io = SDL_RWFromFile(sanitized_file_name, "rb");
 
 	if (io == NULL)
 	{
-		SDL_Log("!!!!!!!Couldn't find asset %s",file_name);
-		return 0;
+		// see if we have the file but tagged with ".preserve" - this works around android unwrapping .gz files.
+		// we use the new_file_name for temporary storage
+		safe_snprintf(new_file_name, sizeof(new_file_name), "%s.preserve", sanitized_file_name);
+		io = SDL_RWFromFile(new_file_name, "rb");
+		if (io == NULL)
+			return 0;
 	}
 
 	file_size = io->size(io);
@@ -652,7 +655,35 @@ static Uint32 do_file_exists(const char* file_name, const char* path,
 #ifdef ANDROID
 	// if we're looking for a file in the data dir, try extracting
 	if (strcmp(path, datadir) == 0)
-		return extract_asset_file(file_name);
+	{
+		char extract_fname[size];
+
+		safe_snprintf(extract_fname, sizeof(extract_fname), "%s.xz", file_name);
+		found = extract_asset_file(extract_fname);
+		LOG_DEBUG("Checking extract file '%s': %s.", extract_fname, found ? "found" : "not found");
+		if (found)
+		{
+			safe_snprintf(buffer, size, "%s%s", path, extract_fname);
+			return 1;
+		}
+
+		safe_snprintf(extract_fname, sizeof(extract_fname), "%s.gz", file_name);
+		found = extract_asset_file(extract_fname);
+		LOG_DEBUG("Checking extract file '%s': %s.", extract_fname, found ? "found" : "not found");
+		if (found)
+		{
+			safe_snprintf(buffer, size, "%s%s", path, extract_fname);
+			return 1;
+		}
+
+		found = extract_asset_file(file_name);
+		LOG_DEBUG("Checking extract file '%s': %s.", file_name, found ? "found" : "not found");
+		if (found)
+		{
+			safe_snprintf(buffer, size, "%s%s", path, file_name);
+			return 1;
+		}
+	}
 #endif
 
 	return 0;
