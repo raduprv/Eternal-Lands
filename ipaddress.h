@@ -10,6 +10,8 @@
 typedef short sa_family_t;
 typedef u_short in_port_t;
 #else // WINDOWS
+#include <sys/socket.h>
+#include <netinet/in.h>
 #include <netdb.h>
 #endif // WINDOWS
 
