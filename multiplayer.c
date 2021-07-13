@@ -95,8 +95,8 @@ static Uint8 tcp_out_data[MAX_TCP_BUFFER];
 static int in_data_used=0;
 static int tcp_out_loc= 0;
 static int previously_logged_in= 0;
-#endif // !USE_SSL
 static volatile int disconnected= 1;
+#endif // !USE_SSL
 time_t last_heart_beat;
 time_t last_save_time;
 #ifndef USE_SSL
