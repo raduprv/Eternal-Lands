@@ -118,8 +118,8 @@ void Connection::connect_to_server()
 	}
 	catch (const EncryptError& err)
 	{
-		LOG_ERROR("Failed to set up an encrypted connection: %s", err.what());
-		LOG_TO_CONSOLE(c_red1, "Failed to set up an encrypted connection");
+		LOG_ERROR("%s: %s", encryption_failed_str, err.what());
+		LOG_TO_CONSOLE(c_red1, encryption_failed_str);
 		_socket.close();
 		do_disconnect_sound();
 		return;
@@ -161,7 +161,7 @@ void Connection::finish_connect_to_server()
 void Connection::close_after_invalid_certificate()
 {
 	_socket.close();
-	LOG_TO_CONSOLE(c_red1, "The server certificate could not be verified.");
+	LOG_TO_CONSOLE(c_red1, cert_verification_err_str);
 	LOG_TO_CONSOLE(c_red1, alt_x_quit);
 	_socket.close();
 	do_disconnect_sound();
@@ -454,7 +454,7 @@ std::size_t Connection::do_send_data(const std::uint8_t* data, size_t data_len)
 	catch (const SendError& err)
 	{
 		LOG_ERROR("Send failure: %s", err.what());
-		disconnect_from_server("Failed to send data to the server");
+		disconnect_from_server(send_failed_str);
 		return 0;
 	}
 #endif	//OLC
