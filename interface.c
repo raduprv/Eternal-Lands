@@ -659,12 +659,12 @@ static void draw_mark_filter(void)
 {
 	int x = small_map_screen_x_left + (small_map_screen_x_right - small_map_screen_x_left) / 2;
 	int h = small_map_screen_y_bottom - small_map_screen_y_top, y = main_map_screen_y_bottom - h;
-	int text_height = get_line_height(MAPMARK_FONT, map_font_scale_fac);
+	int text_height = get_line_height(UI_FONT, map_font_scale_fac);
 
 	// display the Mark filter title
 	glColor3f(1.0f,1.0f,0.0f);
 	draw_text(x, (int)(y + (h - text_height) / 2), (const unsigned char*)label_mark_filter, strlen(label_mark_filter),
-		MAPMARK_FONT, TDO_ALIGNMENT, CENTER, TDO_ZOOM, map_font_scale_fac, TDO_END);
+		UI_FONT, TDO_ALIGNMENT, CENTER, TDO_ZOOM, map_font_scale_fac, TDO_END);
 
 	// if filtering marks, display the label and the current filter text
 	if (mark_filter_active) {
@@ -677,7 +677,7 @@ static void draw_mark_filter(void)
 		else
 		  show_mark_filter_text = mark_filter_text;
 		draw_text(x, (int)(y + (h + text_height) / 2), (const unsigned char*)show_mark_filter_text,
-			strlen(show_mark_filter_text), MAPMARK_FONT, TDO_ALIGNMENT, CENTER,
+			strlen(show_mark_filter_text), UI_FONT, TDO_ALIGNMENT, CENTER,
 			TDO_ZOOM, map_font_scale_fac, TDO_END);
 	}
 	// display which key to activate the filter
@@ -685,7 +685,7 @@ static void draw_mark_filter(void)
 	{
 		char buf[20];
 		get_key_string(K_MARKFILTER, buf, sizeof(buf));
-		draw_text(x, (int)(y + (h + text_height) / 2), (const unsigned char *)buf, strlen(buf), MAPMARK_FONT,
+		draw_text(x, (int)(y + (h + text_height) / 2), (const unsigned char *)buf, strlen(buf), UI_FONT,
 			TDO_ALIGNMENT, CENTER, TDO_ZOOM, map_font_scale_fac, TDO_END);
 	}
 }
@@ -737,7 +737,7 @@ void draw_coordinates(int the_tile_map_size_x, int the_tile_map_size_y)
 {
 	int x = small_map_screen_x_left + (small_map_screen_x_right - small_map_screen_x_left) / 2;
 	int h = small_map_screen_y_bottom - small_map_screen_y_top, y = main_map_screen_y_bottom - h;
-	int text_height = get_line_height(MAPMARK_FONT, map_font_scale_fac);
+	int text_height = get_line_height(UI_FONT, map_font_scale_fac);
 	int map_x, map_y;
 
 	// draw coordinates
@@ -746,10 +746,10 @@ void draw_coordinates(int the_tile_map_size_x, int the_tile_map_size_y)
 		char buf[10];
 		safe_snprintf(buf, sizeof(buf), "%d,%d", map_x, map_y);
 		glColor3f(1.0f,1.0f,0.0f);
-		draw_text(x, y + 1.1 * text_height, (const unsigned char*)buf, strlen(buf), MAPMARK_FONT,
+		draw_text(x, y + 1.1 * text_height, (const unsigned char*)buf, strlen(buf), UI_FONT,
 			TDO_ALIGNMENT, CENTER, TDO_ZOOM, map_font_scale_fac, TDO_END);
 		draw_text(x, y + 0.1 * text_height, (const unsigned char*)label_cursor_coords, strlen(label_cursor_coords),
-			MAPMARK_FONT, TDO_ALIGNMENT, CENTER, TDO_ZOOM, map_font_scale_fac, TDO_END);
+			UI_FONT, TDO_ALIGNMENT, CENTER, TDO_ZOOM, map_font_scale_fac, TDO_END);
 	}
 }
 
@@ -879,8 +879,8 @@ void draw_game_map (int map, int mouse_mini)
 			glEnable(GL_TEXTURE_2D);
 			safe_snprintf(buf, sizeof(buf), "%s %s", win_minimap, get_key_string(K_MINIMAP, keybuf, sizeof(keybuf)));
 			glColor3f (1.0f, 1.0f, 0.0f);
-			draw_text(small_l+small_w/2, (int)(main_t + main_h - 1.1 * get_line_height(MAPMARK_FONT, map_font_scale_fac)), (const unsigned char *)buf,
-				strlen(buf), MAPMARK_FONT, TDO_ALIGNMENT, CENTER, TDO_ZOOM, map_font_scale_fac, TDO_END);
+			draw_text(small_l+small_w/2, (int)(main_t + main_h - 1.1 * get_line_height(UI_FONT, map_font_scale_fac)), (const unsigned char *)buf,
+				strlen(buf), UI_FONT, TDO_ALIGNMENT, CENTER, TDO_ZOOM, map_font_scale_fac, TDO_END);
 		}
 
 		// draw a temporary mark until the text is entered
