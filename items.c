@@ -1318,7 +1318,7 @@ static int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 			str[1] = ITEM_INVENTORY;
 			str[2] = item_list[pos].pos;
 			*((Uint32 *)(str + 3)) = SDL_SwapLE32(item_quantity);
-			my_tcp_send(my_socket, str, 7);
+			my_tcp_send(str, 7);
 			do_drop_item_sound();
 
 			return 1;
@@ -1333,7 +1333,7 @@ static int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 				str[0] = DEPOSITE_ITEM;
 				str[1] = item_list[pos].pos;
 				*((Uint32*)(str + 2)) = SDL_SwapLE32(item_quantity);
-				my_tcp_send(my_socket, str, 6);
+				my_tcp_send(str, 6);
 				do_drop_item_sound();
 			}
 			else
@@ -1351,7 +1351,7 @@ static int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 			str[0] = DROP_ITEM;
 			str[1] = item_list[pos].pos;
 			*((Uint32 *) (str + 2)) = SDL_SwapLE32(item_quantity);
-			my_tcp_send(my_socket, str, 6);
+			my_tcp_send(str, 6);
 			do_drop_item_sound();
 			return 1;
 		}

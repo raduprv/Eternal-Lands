@@ -145,7 +145,7 @@ void close_last_window(void)
 		unsigned char protocol_name;
 		hide_window(get_id_MW(MW_BAGS));
 		protocol_name = S_CLOSE_BAG;
-		my_tcp_send(my_socket, &protocol_name, 1);
+		my_tcp_send(&protocol_name, 1);
 		return;
 	}
 

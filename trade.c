@@ -407,7 +407,7 @@ int click_trade_handler(window_info *win, int mx, int my, Uint32 flags)
 	if(left_click && (mx > win->len_x - win->box_size) && (my < win->box_size))
 	{
 		str[0]=EXIT_TRADE;
-		my_tcp_send(my_socket, str, 1);
+		my_tcp_send(str, 1);
 		hide_window(get_id_MW(MW_TRADE));
 		return 1;
 	}
@@ -423,14 +423,14 @@ int click_trade_handler(window_info *win, int mx, int my, Uint32 flags)
 				str[0] = LOOK_AT_TRADE_ITEM;
 				str[1] = pos;
 				str[2] = 0; // your trade
-				my_tcp_send(my_socket,str,3);
+				my_tcp_send(str,3);
 			}
 			else
 			{
 				str[0] = REMOVE_OBJECT_FROM_TRADE;
 				str[1] = pos;
 				*((Uint32 *)(str +2)) = SDL_SwapLE32(item_quantity);
-				my_tcp_send(my_socket, str, 6);
+				my_tcp_send(str, 6);
 				do_drag_item_sound();
 			}
 		}
@@ -449,7 +449,7 @@ int click_trade_handler(window_info *win, int mx, int my, Uint32 flags)
 				str[0] = LOOK_AT_TRADE_ITEM;
 				str[1] = pos;
 				str[2] = 1; // their trade
-				my_tcp_send(my_socket, str, 3);
+				my_tcp_send(str, 3);
 			} else if (left_click && storage_available)
 			{
 				if (others_trade_list[pos].type == ITEM_BANK)
@@ -468,7 +468,7 @@ int click_trade_handler(window_info *win, int mx, int my, Uint32 flags)
 		if ((trade_you_accepted == 2) || right_click)
 		{
 			str[0] = REJECT_TRADE;
-			my_tcp_send(my_socket, str, 1);
+			my_tcp_send(str, 1);
 			do_click_sound();
 		} else {
 			str[0] = ACCEPT_TRADE;
@@ -479,7 +479,7 @@ int click_trade_handler(window_info *win, int mx, int my, Uint32 flags)
 					str[i + 1] = (others_trade_list[i].quantity > 0) * others_trade_list[i].type;
 				trade_accepted(other_player_trade_name, your_trade_list, others_trade_list, 16);
 			}
-			my_tcp_send(my_socket, str, 17);
+			my_tcp_send(str, 17);
 			do_click_sound();
 		}
 		return 1;

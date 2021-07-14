@@ -113,7 +113,7 @@ static void select_item(int image_id, Uint16 item_id)
 				str[0] = WITHDRAW_ITEM;
 				*((Uint16*)(str+1)) = SDL_SwapLE16(storage_items[storage_item_dragged].pos);
 				*((Uint32*)(str+3)) = SDL_SwapLE32(item_quantity);
-				my_tcp_send(my_socket, str, 6);
+				my_tcp_send(str, 6);
 				do_drop_item_sound();
 				storage_item_dragged = -1;
 			}
@@ -836,7 +836,7 @@ int click_storage_handler(window_info * win, int mx, int my, Uint32 flags)
 				str[0]=LOOK_AT_STORAGE_ITEM;
 				*((Uint16*)(str+1))=SDL_SwapLE16(storage_items[cur_item_over].pos);
 
-				my_tcp_send(my_socket, str, 3);
+				my_tcp_send(str, 3);
 
 				active_storage_item=storage_items[cur_item_over].pos;
 				do_click_sound();
@@ -854,7 +854,7 @@ int click_storage_handler(window_info * win, int mx, int my, Uint32 flags)
 			str[1]=ITEM_BANK;
 			str[2]=storage_items[cur_item_over].pos;
 			*((Uint32 *)(str+3))= SDL_SwapLE32(item_quantity);
-			my_tcp_send(my_socket,str,7);
+			my_tcp_send(str,7);
 			do_drop_item_sound();
 
 			return 1;
@@ -864,7 +864,7 @@ int click_storage_handler(window_info * win, int mx, int my, Uint32 flags)
 		str[0]=WITHDRAW_ITEM;
 		*((Uint16*)(str+1))=SDL_SwapLE16(storage_items[cur_item_over].pos);
 		*((Uint32*)(str+3))=SDL_SwapLE32(item_quantity);
-		my_tcp_send(my_socket, str, 6);
+		my_tcp_send(str, 6);
 		do_drop_item_sound();
 	}
 
