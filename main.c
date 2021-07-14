@@ -70,6 +70,7 @@
 #include "shader/shader.h"
 #include "sky.h"
 #include "sound.h"
+#include "servers.h"
 #include "text.h"
 #include "timers.h"
 #include "trade_log.h"
@@ -212,7 +213,7 @@ int start_rendering()
 #ifdef	OLC
 			olc_process();
 #endif	//OLC
-			my_tcp_flush(my_socket);    // make sure the tcp output buffer is set
+			my_tcp_flush();    // make sure the tcp output buffer is set
 
 			if (have_a_map && cur_time > last_frame_and_command_update + 60) {
 				LOCK_ACTORS_LISTS();
@@ -399,6 +400,9 @@ int start_rendering()
 	LOG_INFO("FreeXML()");
 	FreeXML();
 
+	LOG_INFO("Free servers list");
+	free_servers();
+
 #ifdef NEW_SOUND
 	LOG_INFO("final_sound_exit()");
 	final_sound_exit();
@@ -441,7 +445,7 @@ void	read_command_line(void)
 /* We need an additional function as the command line should be read after the config, but this
  * variable is needed to load the correct config.
  */
-char * check_server_id_on_command_line()
+const char * check_server_id_on_command_line()
 {
 	if (gargc < 2)
 		return "";

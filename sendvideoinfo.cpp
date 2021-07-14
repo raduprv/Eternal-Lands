@@ -185,7 +185,7 @@ namespace eternal_lands
 					data[8] = i / 256;
 
 					memcpy(&data[9], caps, sizeof(caps));
-					if (my_tcp_send(my_socket, data, sizeof(data)) <
+					if (my_tcp_send(data, sizeof(data)) <
 						static_cast<int>(sizeof(data)))
 					{
 						LOG_ERROR("Error sending video info");
@@ -194,7 +194,7 @@ namespace eternal_lands
 					{
 						video_info_sent = 1;
 					}
-					my_tcp_flush(my_socket);
+					my_tcp_flush();
 				}
 			}
 			xmlFree(document);

@@ -131,7 +131,7 @@ static int context_hud_handler(window_info *win, int widget_id, int mx, int my, 
 		case CMH_LOCATION:
 			copy_next_LOCATE_ME = 1;
 			protocol_name= LOCATE_ME;
-			my_tcp_send(my_socket,&protocol_name,1);
+			my_tcp_send(&protocol_name,1);
 			break;
 		default:
 			init_misc_display();
@@ -546,7 +546,7 @@ static int click_misc_handler(window_info *win, int mx, int my, Uint32 flags)
 		unsigned char protocol_name;
 		do_click_sound();
 		protocol_name= GET_TIME;
-		my_tcp_send(my_socket,&protocol_name,1);
+		my_tcp_send(&protocol_name,1);
 		return 1;
 	}
 
@@ -568,7 +568,7 @@ static int click_misc_handler(window_info *win, int mx, int my, Uint32 flags)
 		{
 			copy_next_LOCATE_ME = 2;
 		}
-		my_tcp_send(my_socket,&protocol_name,1);
+		my_tcp_send(&protocol_name,1);
 		return 1;
 	}
 	//check to see if we clicked on the stats

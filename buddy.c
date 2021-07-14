@@ -205,7 +205,7 @@ static int click_buddy_handler (window_info *win, int mx, int my, Uint32 flags)
 		if(flags & KMOD_CTRL) {
 			//CTRL + right click, delete buddy.
 			safe_snprintf(str, sizeof(str), "%c#del_buddy %s", RAW_TEXT, buddy_list[y].name);
-			my_tcp_send(my_socket, (Uint8*)str, strlen(str+1)+1);
+			my_tcp_send((Uint8*)str, strlen(str+1)+1);
 		} else {
 			//Right click, open edit window
 			display_buddy_change(&buddy_list[y]);
@@ -250,7 +250,7 @@ static int click_add_buddy_handler(widget_list *w, int mx, int my, Uint32 flags)
 
 		string[0] = RAW_TEXT;
 		safe_snprintf(string+1, sizeof(string)-1, "#add_buddy %s", buddy_name_buffer);
-		my_tcp_send(my_socket, (Uint8*)string, strlen(string+1)+1);
+		my_tcp_send((Uint8*)string, strlen(string+1)+1);
 		hide_window(buddy_add_win);
 		buddy_name_buffer[0] = '\0';
 		description_buffer[0] = '\0';
@@ -272,7 +272,7 @@ static int click_change_buddy_handler(widget_list *w, int mx, int my, Uint32 fla
 		send_message = 0;
 	}
 	if (send_message) {
-		my_tcp_send(my_socket, (Uint8*)string, strlen(string+1)+1);
+		my_tcp_send((Uint8*)string, strlen(string+1)+1);
 	}
 	destroy_window(buddy_change_win);
 	buddy_change_win = -1;
@@ -359,11 +359,11 @@ static int click_accept_yes(widget_list *w, int mx, int my, Uint32 flags)
 	}
 	safe_snprintf(string, sizeof(string), "%c#accept_buddy %s", RAW_TEXT, accept_windows[i].name);
 
-	my_tcp_send(my_socket, (Uint8*)string, strlen(string+1)+1);
+	my_tcp_send((Uint8*)string, strlen(string+1)+1);
 	if(accept_windows[i].checkbox >= 0 && checkbox_get_checked(accept_windows[i].window_id, accept_windows[i].checkbox) > 0) {
 		safe_snprintf(string, sizeof(string), "%c#add_buddy %s", RAW_TEXT, accept_windows[i].name);
 
-		my_tcp_send(my_socket, (Uint8*)string, strlen(string+1)+1);
+		my_tcp_send((Uint8*)string, strlen(string+1)+1);
 	}
 	destroy_window(accept_windows[i].window_id);
 	accept_windows[i].window_id = -1;

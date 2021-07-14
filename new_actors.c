@@ -321,14 +321,37 @@ void custom_path(char * path, char * custom1, char * custom2) {
 }
 #endif  //CUSTOM_LOOK
 
+/*
+ * Common function to return only the player name in the specified buffer, stripped of possible leading colour
+ * codes and terminated at the end of the name, before any guild tag.
+ * The function returns index in name_buf of the character immediately after the name.
+ */ 
+static size_t get_onlyname(const char *name_buf, size_t name_buf_size, char *onlyname_buf, size_t onlyname_buf_size)
+{
+	size_t i, j;
+
+	/* step past any leading colour codes */
+	for (i = 0; (name_buf[i] != '\0') && (i < name_buf_size) && is_color(name_buf[i]); i++) /* do nothing */;
+
+	/* copy characters, terminate at the end of the name or the colour code before the guild tag */
+	for (j = 0; (name_buf[i] != '\0') && (i < name_buf_size) && is_printable(name_buf[i]) && (j < (onlyname_buf_size - 1)); i++, j++)
+		onlyname_buf[j] = name_buf[i];
+
+	/* if the name index is now on the colour code after the space bewtween name and guild tag, move back to the space */
+	if ((name_buf[i] != '\0') && !is_printable(name_buf[i]) && (i > 0) && (j > 0) && (name_buf[i-1] == ' '))
+	{
+		i--;
+		j--;
+	}
+	onlyname_buf[j] = '\0';
+	my_tolower(onlyname_buf);
+
+	return i;
+}
+
 void actor_wear_item(int actor_id,Uint8 which_part, Uint8 which_id)
 {
-	int i;
-#ifdef CUSTOM_LOOK
-	char playerpath[256], guildpath[256], onlyname[32]={0};
-	int j;
-#endif
-
+	size_t i;
 
 	for(i=0;i<max_actors;i++)
 		{
@@ -336,20 +359,9 @@ void actor_wear_item(int actor_id,Uint8 which_part, Uint8 which_id)
 				if(actors_list[i]->actor_id==actor_id)
 					{
 #ifdef CUSTOM_LOOK
+						char playerpath[256], guildpath[256], onlyname[32]={0};
+						get_onlyname(actors_list[i]->actor_name, sizeof(actors_list[i]->actor_name), onlyname, sizeof(onlyname));
 						safe_snprintf(guildpath, sizeof(guildpath), "custom/guild/%d/", actors_list[i]->body_parts->guild_id);
-						for(j=0;j<30;j++){
-                            if(actors_list[i]->actor_name[j]==' ' || actors_list[i]->actor_name[j]>125){
-								j=31;
-							}
-							else if(actors_list[i]->actor_name[0]>'z'){
-								onlyname[j]=actors_list[i]->actor_name[j+1];
-							}
-							else
-							{
-								onlyname[j]=actors_list[i]->actor_name[j];
-							}
-						}
-						my_tolower(onlyname);
 						safe_snprintf(playerpath, sizeof(playerpath), "custom/player/%s/", onlyname);
 #endif
 						if (which_part==KIND_OF_WEAPON)
@@ -621,10 +633,11 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 	int dead=0;
 	int kind_of_actor;
 	enhanced_actor *this_actor;
+#ifdef CUSTOM_LOOK
 	char playerpath[256], guildpath[256];
+#endif
 	char onlyname[32]={0};
-	Uint32 j;
-	Uint32 uniq_id; // - Post ported.... We'll come up with something later...
+	Uint32 uniq_id = 0; // - Post ported.... We'll come up with something later...
 	Uint32 guild_id;
 	double f_x_pos,f_y_pos,f_z_rot;
 	float   scale=1.0f;
@@ -811,54 +824,34 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 
 	/* build a clean player name and a guild id */
 	{
-		/* get the name string into a working buffer */
-		char buffer[256], *name, *guild;
 #ifdef UID
-		safe_strncpy(buffer,&in_data[32],sizeof(buffer));
+		const size_t name_index = 32;
 #else
-		safe_strncpy(buffer,&in_data[28],sizeof(buffer));
-		uniq_id = 0;
+		const size_t name_index = 28;
 #endif
+#ifdef NEW_EYES
+		const size_t max_name_len = len - name_index - 5;
+#else
+		const size_t max_name_len = len - name_index - 4;
+#endif
+		size_t guild_name_index = get_onlyname(&in_data[name_index], max_name_len, onlyname, sizeof(onlyname));
 
-		/* skip leading color codes */
-		for (name=buffer; *name && is_color (*name); name++) /* nothing */ ;
-		/* trim off any guild tag, leaving solely the name (onlyname)*/
-		for(j=0; name[j] && name[j]>32;j++){
-			onlyname[j]=name[j];
-		}
-
-		/* search for string end or color mark */
+		/* the guild tag is space + colour code + name (max 4 characters) */
+		guild_id = 0;
 		this_actor->guild_tag_color = 0;
-		for (guild = name; *guild && is_printable (*guild); guild++);
-		if (*guild) {
-			/* separate the two strings */
-			this_actor->guild_tag_color = from_color_char (*guild);
-			*guild = 0;
-			guild++;
-		}
-
-		/* perform case insensitive comparison/hashing */
-		my_tolower(name);
-		my_tolower(onlyname);
-
-		//perfect hashing of guildtag
- 		switch(strlen(guild))
- 		{
-		case 0:
-			guild_id = 0;
-			break;
-		case 1:
-			guild_id = guild[0];
-			break;
- 		case 2:
- 			guild_id = guild[0] + (guild[1] << 8);
- 			break;
- 		case 3:
- 			guild_id = guild[0] + (guild[1] << 8) + (guild[2] << 16);
- 			break;
- 		default:
- 			guild_id = guild[0] + (guild[1] << 8) + (guild[2] << 16) + (guild[3] << 24);
- 			break;
+		if (guild_name_index < max_name_len)
+		{
+			const char *guild = &in_data[name_index + guild_name_index];
+			size_t guild_tag_len = strnlen(guild, max_name_len - guild_name_index);
+			/* get the colour code and hash of guildtag */
+			if ((guild_tag_len > 2) && (guild_tag_len < 7) && (guild[0] == ' ') && is_color(guild[1]))
+			{
+				unsigned int shift = 0;
+				size_t j;
+				this_actor->guild_tag_color = from_color_char(guild[1]);
+				for (j = 0; (j < (guild_tag_len - 2)) && (j < 4); j++, shift += 8)
+					guild_id += guild[2+j] << shift;
+			}
 		}
 	}
 

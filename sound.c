@@ -3391,7 +3391,8 @@ int get_tile_sound(int tile_type, char * actor_type)
 				// Found a matching tile type so find the actor type
 				for (k = 0; k < sound_tile_data[i].num_sounds; k++)
 				{
-					if (get_string_occurance(actor_type, sound_tile_data[i].sounds[k].actor_types, strlen(actor_type), 0) > -1)
+					const char* tile_types = sound_tile_data[i].sounds[k].actor_types;
+					if (safe_strcasestr(tile_types, strlen(tile_types), actor_type, strlen(actor_type)))
 					{
 						// Return the sound
 						return sound_tile_data[i].sounds[k].sound;

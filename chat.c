@@ -306,13 +306,10 @@ void set_active_channels (Uint8 active, const Uint32 *channels, int nchan)
 
 static void send_active_channel (Uint8 chan)
 {
-	Uint8 msg[2];
-
 	if (chan >= CHAT_CHANNEL1 && chan <= CHAT_CHANNEL3)
 	{
-		msg[0] = SET_ACTIVE_CHANNEL;
-		msg[1] = chan;
-		my_tcp_send (my_socket, msg, 2);
+		Uint8 msg[2] = { SET_ACTIVE_CHANNEL, chan };
+		my_tcp_send(msg, 2);
 
 		current_channel = chan - CHAT_CHANNEL1;
 	}
@@ -423,7 +420,7 @@ static int close_channel (window_info *win)
 			{
 				char str[256];
 				safe_snprintf(str, sizeof(str), "%c#lc %d", RAW_TEXT, active_channels[idx]);
-				my_tcp_send(my_socket, (Uint8*)str, strlen(str+1)+1);
+				my_tcp_send((Uint8*)str, strlen(str+1)+1);
 			}
 
 			// Safe to remove?
@@ -1686,7 +1683,7 @@ static int tab_bar_button_click (widget_list *w, int mx, int my, Uint32 flags)
 			{
 				// Drop this channel via #lc
 				safe_snprintf(str, sizeof(str), "%c#lc %d", RAW_TEXT, active_channels[tabs[itab].channel-CHAT_CHANNEL1]);
-				my_tcp_send(my_socket, (Uint8*)str, strlen(str+1)+1);
+				my_tcp_send((Uint8*)str, strlen(str+1)+1);
 				// Can I remove this?
 				remove_tab(tabs[itab].channel);
 				if(current_tab == itab) {
