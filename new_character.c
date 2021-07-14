@@ -369,7 +369,7 @@ static int display_newchar_handler (window_info *win)
 		display_time = 0;
 	}
 
-	if(disconnected)
+	if(is_disconnected())
 	{
 		static int nested_flag = 0;
 		/* connect_to_server() calls draw_scene() so we need to prevent recursion */
@@ -551,7 +551,7 @@ static int keypress_newchar_handler (window_info *win, int mx, int my, SDL_Keyco
 
 	if ( check_quit_or_fullscreen (key_code, key_mod) ) {
 		return 1;
-	} else if(disconnected && !(key_mod & KMOD_ALT) && !(key_mod & KMOD_CTRL)){
+	} else if(is_disconnected() && !(key_mod & KMOD_ALT) && !(key_mod & KMOD_CTRL)){
 		connect_to_server();
 	} else if (KEY_DEF_CMP(K_CAMERAUP, key_code, key_mod)) {
 		camera_tilt_speed = -normal_camera_rotation_speed * 0.0005;

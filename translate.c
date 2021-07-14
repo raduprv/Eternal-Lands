@@ -576,6 +576,11 @@ char	reg_error_str[15],
 	cache_size_str[20],
 	/* cal.c */
 	no_animation_err_str[30],
+	/* connection.cpp */
+	warning_str[30],
+	unverified_certificate_str[400],
+	close_connection_str[30],
+	continue_str[30],
 	/* console.c */
 	invalid_location_str[30],
 	/*cursors.c*/
@@ -1309,6 +1314,16 @@ void init_errors()
 	add_xml_identifier (misc, "mapmarks", err_mapmarks_str, "Maximum number of mapmarks reached.", sizeof(err_mapmarks_str));
 	add_xml_identifier (misc, "book_open", book_open_err_str, "Couldn't open the book: %s!", sizeof(book_open_err_str));
 	add_xml_identifier (misc, "noanimation", no_animation_err_str, "No animation: %s!\n", sizeof(no_animation_err_str));
+	add_xml_identifier(misc, "warning", warning_str, "Warning!", sizeof(warning_str));
+	add_xml_identifier(misc, "unverified_certificate", unverified_certificate_str,
+		"The encryption certificate sent by the server could not be verified. "
+		"This could mean that someone is intercepting your connection with the game server "
+	    "(for example, to steal your password).\n\n"
+		"Click \"%s\" to break the connection and restart the game with "
+		"a different server, or \"%s\" if you understand and accept the risks and "
+		"wish to continue anyway.", sizeof(unverified_certificate_str));
+	add_xml_identifier(misc, "close_connection", close_connection_str, "Close connection", sizeof(close_connection_str));
+	add_xml_identifier(misc, "continue", continue_str, "Continue", sizeof(continue_str));
 	add_xml_identifier (misc, "invalid_location", invalid_location_str, "Invalid location %d,%d", sizeof(invalid_location_str));
 	add_xml_identifier (misc, "warn_currently_ignoring", warn_currently_ignoring, "Warning: %s is on your #ignore list", sizeof(warn_currently_ignoring));
 	add_xml_identifier (misc, "invalidnpcmark", invalidnpcmark_str, "Invalid string for NPC map mark.", sizeof(invalidnpcmark_str));

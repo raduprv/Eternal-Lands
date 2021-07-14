@@ -1695,7 +1695,7 @@ void auto_save_local_and_server(void)
 	actor *me;
 
 	me = get_our_actor();
-	if(!disconnected && me && !me->fighting && ((last_save_time + time_delta) <= time(NULL)))
+	if(!is_disconnected() && me && !me->fighting && ((last_save_time + time_delta) <= time(NULL)))
 	{
 		last_save_time = time(NULL);
 		save_local_data();

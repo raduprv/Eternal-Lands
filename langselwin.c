@@ -218,7 +218,7 @@ static int langsel_save_handler(widget_list *widget, int mx, int my, Uint32 flag
 		{
 			show_window (opening_root_win);
 			show_hud_windows();
-			if (disconnected)
+			if (is_disconnected())
 				connect_to_server();
 		}
 		/* unless we need to read the rules first */
