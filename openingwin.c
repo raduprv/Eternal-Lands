@@ -59,7 +59,7 @@ void switch_to_login ()
 
 int click_opening_handler ()
 {
-	if (!disconnected) switch_to_login ();
+	if (!is_disconnected()) switch_to_login ();
 	return 1;
 }
 
@@ -74,7 +74,7 @@ int keypress_opening_handler (window_info *win, int mx, int my, SDL_Keycode key_
 	{
 		return 1;
 	}
-	else if(!disconnected)
+	else if(!is_disconnected())
 	{
 		switch_to_login();
 	}

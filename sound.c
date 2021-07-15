@@ -2921,7 +2921,7 @@ void update_sound(int ms)
 		}
 		// a map change or sound-off will have stopped spell sounds,
 		// now we have our actor, we can re-enable the spell sounds
-		if (must_restart_spell_sounds && !disconnected)
+		if (must_restart_spell_sounds && !is_disconnected())
 		{
 			restart_active_spell_sounds();
 			must_restart_spell_sounds = 0;

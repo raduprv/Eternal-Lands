@@ -3222,6 +3222,20 @@ CHECK_GL_ERRORS();
 	return 1;
 }
 
+int text_field_get_nr_visible_lines(int window_id, int widget_id)
+{
+	text_field *tf;
+	widget_list *w = widget_find (window_id, widget_id);
+	if (!w)
+		return 0;
+
+	tf = (text_field *) w->widget_info;
+	if (!tf)
+		return 0;
+
+	return tf->nr_visible_lines;
+}
+
 int text_field_set_buf_pos (int window_id, Uint32 widget_id, int msg, int offset)
 {
 	text_field *tf;
@@ -3254,6 +3268,55 @@ int text_field_set_buf_pos (int window_id, Uint32 widget_id, int msg, int offset
 	tf->offset = offset;
 
 	return  1;
+}
+
+int text_field_scroll_to_line(int window_id, Uint32 widget_id, int line_nr)
+{
+	text_field *tf;
+	widget_list *w;
+	int cur_line;
+	size_t msg_idx, offset;
+
+	w = widget_find(window_id, widget_id);
+	if (!w)
+		return 0;
+
+	tf = (text_field*) w->widget_info;
+	if (!tf)
+		return 0;
+
+	if (line_nr <= 0)
+	{
+		tf->msg = 0;
+		tf->offset = 0;
+		return 1;
+	}
+
+	cur_line = 0;
+	msg_idx = offset = 0;
+	while (cur_line < line_nr && msg_idx < tf->buf_size)
+	{
+		const text_message* msg = tf->buffer + msg_idx;
+		size_t sep = offset + strcspn(msg->data + offset, "\r\n");
+		if (msg->data[sep] == '\0')
+		{
+			if (msg_idx + 1 >= tf->buf_size)
+				// When we don't have enough lines, scroll to the last one
+				break;
+			++msg_idx;
+			offset = 0;
+		}
+		else
+		{
+			offset = sep + 1;
+		}
+		++cur_line;
+	}
+
+	tf->msg = msg_idx;
+	tf->offset = offset;
+
+	return 1;
 }
 
 int text_field_clear(int window_id, Uint32 widget_id)

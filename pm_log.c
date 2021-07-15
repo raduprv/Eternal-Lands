@@ -69,7 +69,7 @@ void go_ifk()
 void check_afk_state(void)
 {
 	//AFK?
-	if(!disconnected && afk_time)
+	if(!is_disconnected() && afk_time)
 	{
 		if(cur_time-last_action_time>afk_time) 
 		{

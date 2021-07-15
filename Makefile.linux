@@ -3,11 +3,13 @@
 -include make.conf
 
 TTF_CFLAGS = $(shell pkg-config SDL2_ttf --cflags)
+USE_SSL_CFLAGS = $(shell pkg-config openssl --cflags)
 JSON_FILES_CFLAGS = -I nlohmann_json/single_include/
 ADDRSANITISER_CFLAGS=-fsanitize=address
 
 PNG_SCREENSHOT_LIBS = $(shell pkg-config libpng --libs)
 TTF_LIBS = $(shell pkg-config SDL2_ttf --libs)
+USE_SSL_LIBS = $(shell pkg-config openssl --libs)
 ADDRSANITISER_LIBS=-fsanitize=address
 PAWN_LIBS = -ldl
 
@@ -92,11 +94,12 @@ COBJS=2d_objects.o 3d_objects.o \
 	$(foreach FEATURE, $(FEATURES), $($(FEATURE)_COBJ))
 
 JSON_FILES_CXXOBJ = json_io.o
+USE_SSL_CXXOBJ = connection.o ipaddress.o socket.o
 CXXOBJS=achievements.o actor_init.o books.o cal3d_wrapper.o command_queue.o \
-	context_menu.o elloggingwrapper.o engine/logging.o exceptions/extendedexception.o \
+	context_menu.o cppwindows.o elloggingwrapper.o engine/logging.o exceptions/extendedexception.o \
 	font.o hud_indicators.o hud_timer.o icon_window.o io/cal3d_io_wrapper.o item_info.o item_lists.o \
 	named_colours.o password_manager.o optimizer.o quest_log.o select.o \
-	sendvideoinfo.o trade_log.o user_menus.o xml/xmlhelper.o eye_candy_wrapper.o \
+	sendvideoinfo.o textpopup.o trade_log.o user_menus.o xml/xmlhelper.o eye_candy_wrapper.o \
 	engine/hardwarebuffer.o xor_cipher.o \
 	eye_candy/eye_candy.o eye_candy/math_cache.o eye_candy/effect_lamp.o \
 	eye_candy/effect_candle.o \
