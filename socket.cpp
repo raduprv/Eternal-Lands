@@ -427,6 +427,9 @@ void TCPSocket::encrypt(const std::string& hostname)
 		}
 	}
 
+	const char* version = SSL_get_version(_ssl);
+	LOG_INFO("Set up an encrypted connection to server %s using %s\n", hostname.c_str(), version);
+
 	_state = State::CONNECTED_ENCRYPTED;
 }
 
