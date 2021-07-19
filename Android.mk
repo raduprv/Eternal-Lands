@@ -16,6 +16,7 @@ GL4ES_PATH := ../gl4es/
 ICONV_PATH := ../iconv/
 MYGLOB_PATH := ../myglob/
 GLU_PATH := ../glu/
+OPENSSL_PATH := ../openssl
 
 LOCAL_C_INCLUDES := \
 $(LOCAL_PATH)/$(SDL_PATH)/include \
@@ -30,7 +31,8 @@ $(LOCAL_PATH)/$(GL4ES_PATH)/include/ \
 $(LOCAL_PATH)/$(GLU_PATH)/include/ \
 $(LOCAL_PATH)/$(ZLIB_PATH)/ \
 $(LOCAL_PATH)/$(MYGLOB_PATH)/include/ \
-$(LOCAL_PATH)/nlohmann_json/single_include/
+$(LOCAL_PATH)/nlohmann_json/single_include/ \
+$(LOCAL_PATH)/$(OPENSSL_PATH)/include/
 
 LOCAL_CFLAGS := \
 	-O3 -fsigned-char -frtti \
@@ -41,6 +43,7 @@ LOCAL_CFLAGS := \
 	-DCUSTOM_UPDATE \
 	-DJSON_FILES \
 	-DTTF \
+	-DUSE_SSL \
 	\
 	-DCLUSTER_INSIDES \
 	-DCUSTOM_LOOK \
@@ -258,7 +261,13 @@ LOCAL_SRC_FILES := \
 	trade_log.cpp \
 	user_menus.cpp \
 	xml/xmlhelper.cpp \
-	xor_cipher.cpp
+	xor_cipher.cpp \
+	\
+	connection.cpp \
+	cppwindows.cpp \
+	ipaddress.cpp \
+	socket.cpp \
+	textpopup.cpp
 
 LOCAL_SHARED_LIBRARIES := \
 	SDL2 \
@@ -269,7 +278,9 @@ LOCAL_SHARED_LIBRARIES := \
 	iconv \
 	libGLU \
 	libmyglob \
-	libxml2
+	libxml2 \
+	libssl \
+	libcrypto
 
 LOCAL_STATIC_LIBRARIES := \
 	GL
