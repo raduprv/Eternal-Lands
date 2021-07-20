@@ -22,6 +22,12 @@
 #include <iomanip>
 #include <fstream>
 #include <cassert>
+#ifdef USE_SSL
+#include <openssl/rand.h>
+#endif // USE_SSL
+#ifndef WINDOWS
+#include <unistd.h>
+#endif
 
 #include "xor_cipher.hpp"
 
@@ -55,9 +61,24 @@ namespace XOR_Cipher
 		std::ifstream in(key_file_name.c_str());
 		if (!in)
 		{
-			srand (time(NULL));
-			for (size_t i=0; i<the_key_size; ++i)
-				key.push_back(rand()%256);
+			key.resize(the_key_size);
+#ifdef USE_SSL
+			if (RAND_bytes(key.data(), the_key_size) <= 0)
+			{
+#endif // USE_SSL
+				// FIXME: this is not very secure. On Windows we use no real entropy at all,
+				// and rand() is not cryptographically secure. Just enable USE_SSL for a secure key.
+				unsigned int seed;
+#ifndef WINDOWS
+				if (getentropy(&seed, sizeof(seed)) != 0)
+#endif // !WINDOWS
+					seed = time(NULL);
+				srand(seed);
+				for (auto& b: key)
+					b = rand()%256;
+#ifdef USE_SSL
+			}
+#endif
 			std::ofstream out(key_file_name.c_str(), std::ios_base::out | std::ios_base::trunc);
 			if (out)
 			{
