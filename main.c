@@ -548,7 +548,9 @@ int main(int argc, char **argv)
 	init_logging("log");
 
 	check_log_level_on_command_line();
+#ifndef USE_SSL
 	create_tcp_out_mutex();
+#endif // !USE_SSL
 	init_translatables();
 #ifdef	FSAA
 	init_fsaa_modes();
