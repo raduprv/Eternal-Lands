@@ -39,6 +39,9 @@
 #include "password_manager.h"
 #include "particles.h"
 #include "pathfinder.h"
+#ifdef PACKET_COMPRESSION
+#include "proxy_ext.h"
+#endif // PACKET_COMPRESSION
 #include "questlog.h"
 #include "queue.h"
 #include "rules.h"
@@ -2321,6 +2324,11 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 					here_is_a_buff_duration((Uint8)in_data[3]);
 				break;
 			}
+#ifdef PACKET_COMPRESSION
+		case OL_COMPRESSED_PACKET:
+			handle_proxy_command(in_data, data_length);
+			break;
+#endif // PACKET_COMPRESSION
 		default:
 			{
 				// Unknown packet type??

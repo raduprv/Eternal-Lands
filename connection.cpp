@@ -134,6 +134,14 @@ void Connection::finish_connect_to_server()
 
 	send_version();
 
+#ifdef PACKET_COMPRESSION
+	if (_encrypted)
+	{
+		std::uint8_t data = 0;
+		send(OL_COMPRESSED_PACKET, &data, 1);
+	}
+#endif
+
 	//ask for the opening screen
 	if (!_previously_logged_in)
 	{

@@ -64,6 +64,7 @@ PAWN_COBJ = pawn/amx.o pawn/amxaux.o pawn/amxcons.o pawn/amxel.o \
 	pawn/amxfloat.o pawn/amxstring.o pawn/elpawn.o
 CUSTOM_UPDATE_COBJ = custom_update.o new_update.o
 FSAA_COBJ = fsaa/fsaa_glx.o fsaa/fsaa.o
+PACKET_COMPRESSION_COBJ = proxy_ext.o
 COBJS=2d_objects.o 3d_objects.o \
 	actor_scripts.o actors.o alphamap.o asc.o astrology.o \
 	bbox_tree.o buddy.o buffs.o bags.o \
@@ -204,5 +205,14 @@ make.conf: make.defaults
 	else \
 		cp $< $@; \
 	fi
+
+pawn_scripts/features.inc: make.conf
+	echo "#if defined _features_included" > $@; \
+	echo "\t#endinput" >> $@; \
+	echo "#endif" >> $@; \
+	echo "#define _features_included" >> $@; \
+	for feature in $(FEATURES); do \
+		echo "#define $$feature" >> $@; \
+	done
 
 -include $(DEP_FILES)
