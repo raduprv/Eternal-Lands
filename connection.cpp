@@ -135,11 +135,10 @@ void Connection::finish_connect_to_server()
 	send_version();
 
 #ifdef PACKET_COMPRESSION
-	if (_encrypted)
-	{
-		std::uint8_t data = 0;
-		send(OL_COMPRESSED_PACKET, &data, 1);
-	}
+	// Send an empty OL_COMPRESSED_PACKET mesage to the server. When connected to a proxy (or
+	// the other life server) this will enable compression when a lot of data is sent at once.
+	std::uint8_t data = 0;
+	send(OL_COMPRESSED_PACKET, &data, 1);
 #endif
 
 	//ask for the opening screen
