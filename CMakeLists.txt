@@ -36,6 +36,8 @@ OPTION(LOCAL_NLOHMANN_JSON "Enable if you want to use an embedded copy of nlohma
 OPTION(MARCHNATIVE "Enable -march=native compiler flag, for when not building a portable executable." Off)
 OPTION(ADDRSANITISER "Enable the gcc address sanitisation options to do run-time checking." Off)
 OPTION(TTF "Add the ability to use True Type system fonts." On)
+OPTION(USE_SSL "Encrypt the traffic with the server." On)
+OPTION(PACKET_COMPRESSION "Add support for compressed data packets from the proxy server" On)
 
 # standard options
 add_definitions(
@@ -130,6 +132,9 @@ include(cmake/FindCal3d.cmake)
 if (TTF)
 	include(cmake/FindSDL2TTF.cmake)
 endif()
+if (USE_SSL)
+	find_package(OpenSSL REQUIRED)
+endif()
 
 # require the nlohmann_json package if building for json files
 if (JSON_FILES)
@@ -175,7 +180,7 @@ set(SOURCES
 # list the C++ source files
 set(SOURCES ${SOURCES}
 	${SD}achievements.cpp ${SD}actor_init.cpp  ${SD}books.cpp ${SD}cal3d_wrapper.cpp ${SD}command_queue.cpp ${SD}context_menu.cpp
-	${SD}elloggingwrapper.cpp  ${SD}font.cpp ${SD}hud_indicators.cpp ${SD}hud_timer.cpp ${SD}icon_window.cpp
+	${SD}cppwindows.cpp ${SD}elloggingwrapper.cpp  ${SD}font.cpp ${SD}hud_indicators.cpp ${SD}hud_timer.cpp ${SD}icon_window.cpp
 	${SD}io/cal3d_io_wrapper.cpp ${SD}item_info.cpp ${SD}item_lists.cpp ${SD}named_colours.cpp
 	${SD}optimizer.cpp ${SD}password_manager.cpp ${SD}quest_log.cpp ${SD}select.cpp ${SD}sendvideoinfo.cpp
 	${SD}trade_log.cpp ${SD}user_menus.cpp ${SD}xor_cipher.cpp ${SD}engine/hardwarebuffer.cpp ${SD}engine/logging.cpp
@@ -228,6 +233,16 @@ endif()
 
 if (TTF)
 	add_definitions(-DTTF)
+endif()
+
+if (USE_SSL)
+	add_definitions(-DUSE_SSL)
+	set(SOURCES ${SOURCES} ${SD}connection.cpp ${SD}cppwindows.cpp ${SD}ipaddress.cpp ${SD}socket.cpp ${SD}textpopup.cpp)
+endif()
+
+if (PACKET_COMPRESSION)
+	add_definitions(-DPACKET_COMPRESSION)
+	set(SOURCES ${SOURCES} ${SD}proxy_ext.c)
 endif()
 
 # set the compiler flags for DEBUG and RELEASE builds
@@ -334,6 +349,13 @@ target_include_directories(${EXEC} SYSTEM PUBLIC
 if (TTF)
 	target_link_libraries(${EXEC} ${SDL2TTF_LIBRARY})
 	target_include_directories(${EXEC} SYSTEM PUBLIC ${SDL2TTF_INCLUDE_DIR})
+endif()
+
+if (USE_SSL)
+	if (CMAKE_SYSTEM_NAME MATCHES "Windows")
+		target_link_libraries(${EXEC} -lws2_32)
+	endif()
+	target_link_libraries(${EXEC} ${OPENSSL_SSL_LIBRARY} ${OPENSSL_CRYPTO_LIBRARY})
 endif()
 
 install(
