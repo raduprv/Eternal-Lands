@@ -2544,6 +2544,16 @@ void _text_field_copy_to_primary(text_field *tf)
 
 static void update_cursor_selection(widget_list* w, int flag);
 
+static void text_field_select_realloc(text_field *tf, int pre_nr_vis)
+{
+	size_t j;
+	if ((tf == NULL) || (tf->nr_visible_lines == pre_nr_vis))
+		return;
+	tf->select.lines = realloc(tf->select.lines, tf->nr_visible_lines * sizeof (text_field_line));
+	for (j = pre_nr_vis; j < tf->nr_visible_lines; j++)
+		tf->select.lines[j].msg = tf->select.lines[j].chr = -1;
+}
+
 static int text_field_resize (widget_list *w, int width, int height)
 {
 	text_field *tf = w->widget_info;
@@ -2562,7 +2572,7 @@ static int text_field_resize (widget_list *w, int width, int height)
 
 			_text_field_set_nr_visible_lines (w);
 			if (tf->nr_visible_lines != nr_vis)
-				tf->select.lines = realloc (tf->select.lines, tf->nr_visible_lines * sizeof (text_field_line));
+				text_field_select_realloc(tf, nr_vis);
 			tf->select.sm = tf->select.em = tf->select.sc = tf->select.ec = -1;
 
 			for (i = 0; i < tf->buf_size; i++)
@@ -3342,7 +3352,7 @@ static int text_field_change_font(widget_list *w, font_cat cat)
 	_text_field_set_nr_visible_lines(w);
 	_text_field_set_nr_lines(w, nr_lines);
 	if (tf->nr_visible_lines != nr_vis)
-		tf->select.lines = realloc(tf->select.lines, tf->nr_visible_lines * sizeof(text_field_line));
+		text_field_select_realloc(tf, nr_vis);
 
 	return 1;
 }
