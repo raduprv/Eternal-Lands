@@ -412,7 +412,9 @@ void TCPSocket::encrypt(const std::string& hostname)
 		{
 			case X509_V_ERR_HOSTNAME_MISMATCH:
 			{
-				X509_NAME* name = X509_get_subject_name(cert);
+				// Mingw-w64 manages to confuse itself on the X509_NAME typedef somehow
+				//X509_NAME* name = X509_get_subject_name(cert);
+				struct X509_name_st* name = X509_get_subject_name(cert);
 				int loc = X509_NAME_get_index_by_NID(name, NID_commonName, -1);
 				if (loc < 0)
 					throw HostnameMismatch(hostname, "<unknown>");
