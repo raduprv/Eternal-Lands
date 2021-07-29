@@ -173,12 +173,23 @@ size_t TCPSocket::send(const std::uint8_t* data, size_t data_len)
 	{
 		std::lock_guard<std::mutex> guard(_ssl_mutex);
 		ERR_clear_error();
+// OpenSSL prior to 1.1.1 does not have SSL_write_ex()
+#if OPENSSL_VERSION_NUMBER >= 0x1010100f
 		int ret = SSL_write_ex(_ssl, data, data_len, &nr_bytes_sent);
 		if (!ret)
 		{
 			const char* err_msg = check_ssl_error_locked(ret, errno);
 			throw SendError(err_msg);
 		}
+#else // OpenSSL >= 1.1.1
+		int ret = SSL_write(_ssl, data, data_len);
+		if (ret <= 0)
+		{
+			const char* err_msg = check_ssl_error_locked(ret, errno);
+			throw SendError(err_msg);
+		}
+		nr_bytes_sent = ret;
+#endif // OpenSSL >= 1.1.1
 	}
 	else
 	{
@@ -241,8 +252,10 @@ size_t TCPSocket::receive_or_peek(std::uint8_t* buffer, size_t max_len, bool pee
 	if (is_encrypted())
 	{
 		std::lock_guard<std::mutex> guard(_ssl_mutex);
-		size_t nr_bytes;
 		ERR_clear_error();
+// OpenSSL prior to 1.1.1 does not have SSL_read_ex()
+#if OPENSSL_VERSION_NUMBER >= 0x1010100f
+		size_t nr_bytes;
 		int ret = SSL_read_ex(_ssl, buffer, max_len, &nr_bytes);
 		if (!ret)
 		{
@@ -250,6 +263,15 @@ size_t TCPSocket::receive_or_peek(std::uint8_t* buffer, size_t max_len, bool pee
 			throw ReceiveError(err_msg);
 		}
 		return nr_bytes;
+#else // OpenSSL >= 1.1.1
+		int ret = SSL_read(_ssl, buffer, max_len);
+		if (ret <= 0)
+		{
+			const char* err_msg = check_ssl_error_locked(ret, errno);
+			throw ReceiveError(err_msg);
+		}
+		return ret;
+#endif // OpenSSL >= 1.1.1
 	}
 	else
 	{
