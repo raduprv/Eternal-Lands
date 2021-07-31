@@ -257,7 +257,7 @@ int HandleEvent (SDL_Event *event)
 #ifdef ANDROID
 		case SDL_APP_DIDENTERFOREGROUND:
 			SDL_Log("App returned to forground");
-			if (disconnected && !locked_to_console)
+			if (is_disconnected() && !locked_to_console)
 			{
 				SDL_Log("Reconnectecing after return to forground");
 				connect_to_server();
