@@ -70,7 +70,10 @@ namespace XOR_Cipher
 				// and rand() is not cryptographically secure. Just enable USE_SSL for a secure key.
 				unsigned int seed;
 #ifndef WINDOWS
+// Glibc prior to 2.25 and older FreeBSD versions do not have getentropy()
+#if __GLIBC__ > 2 || (__GLIBC__ == 2 && __GLIBC_MINOR__ >= 25) || __FreeBSD__ >= 12
 				if (getentropy(&seed, sizeof(seed)) != 0)
+#endif // GLIBC >= 2.25 || __FreeBSD__ >= 12
 #endif // !WINDOWS
 					seed = time(NULL);
 				srand(seed);

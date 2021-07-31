@@ -77,10 +77,12 @@
 static SDL_mutex* tcp_out_data_mutex = 0;
 #endif // !USE_SSL
 
+#if !defined(GIT_VERSION) || !defined(USE_SSL)
 static int client_version_major=VER_MAJOR;
 static int client_version_minor=VER_MINOR;
 static int client_version_release=VER_RELEASE;
 static int client_version_patch=VER_BUILD;
+#endif
 #ifndef USE_SSL
 static int version_first_digit=10;	//protocol/game version sent to server
 static int version_second_digit=28;
