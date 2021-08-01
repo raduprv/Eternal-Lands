@@ -68,9 +68,11 @@ namespace Item_Info
 	//	Helper function to trim text
 	void Item::trim_text(std::string &the_string)
 	{
-		// thanks http://stackoverflow.com/questions/216823/whats-the-best-way-to-trim-stdstring
-		the_string.erase(the_string.begin(), std::find_if(the_string.begin(), the_string.end(), std::not1(std::ptr_fun<int, int>(std::isspace))));
-		the_string.erase(std::find_if(the_string.rbegin(), the_string.rend(), std::not1(std::ptr_fun<int, int>(std::isspace))).base(), the_string.end());
+		// thanks https://stackoverflow.com/questions/216823/whats-the-best-way-to-trim-stdstring
+		the_string.erase(the_string.begin(), std::find_if(the_string.begin(), the_string.end(),
+			[](unsigned char ch) { return !std::isspace(ch); }));
+		the_string.erase(std::find_if(the_string.rbegin(), the_string.rend(),
+			[](unsigned char ch) { return !std::isspace(ch); }).base(), the_string.end());
 	}
 
 

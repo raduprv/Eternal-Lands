@@ -162,8 +162,11 @@ static void reset_quickbar()
 	limit_win_scale_to_default(get_scale_WM(MW_QUICKBAR));
 	quickbar_dir = VERTICAL;
 	quickbar_draggable = 0;
-	quickbar_relocatable = 0;
-	set_var_unsaved("relocate_quickbar", INI_FILE_VAR);
+	if (quickbar_relocatable)
+	{
+		set_var_unsaved("relocate_quickbar", INI_FILE_VAR);
+		quickbar_relocatable = 0;
+	}
 	change_flags(quickbar_win, ELW_USE_UISCALE|ELW_TITLE_NONE|ELW_SHOW|ELW_USE_BACKGROUND|ELW_USE_BORDER|ELW_SHOW_LAST);
 	init_window(quickbar_win, -1, 0, default_item_quickbar_x, default_item_quickbar_y, item_quickbar_slot_size, get_quickbar_y_len());
 }
@@ -273,7 +276,7 @@ static int	click_quickbar_handler(window_info *win, int mx, int my, Uint32 flags
 {
 	int i,y;
 	int x_screen,y_screen;
-	Uint8 str[100];
+	Uint8 str[6];
 	int trigger=ELW_LEFT_MOUSE|KMOD_CTRL|KMOD_SHIFT;//flags we'll use for the quickbar relocation handling
 	int right_click = flags & ELW_RIGHT_MOUSE;
 	int ctrl_on = flags & KMOD_CTRL;
@@ -356,7 +359,7 @@ static int	click_quickbar_handler(window_info *win, int mx, int my, Uint32 flags
 									str[0]=MOVE_INVENTORY_ITEM;
 									str[1]=item_list[item_dragged].pos;
 									str[2]=y;
-									my_tcp_send(my_socket,str,3);
+									my_tcp_send(str,3);
 									item_dragged=-1;
 									do_drag_item_sound();
 									return 1;
@@ -391,7 +394,7 @@ static int	click_quickbar_handler(window_info *win, int mx, int my, Uint32 flags
 										str[0]=DROP_ITEM;
 										str[1]=item_list[i].pos;
 										*((Uint32 *)(str+2))=item_list[i].quantity;
-										my_tcp_send(my_socket, str, 6);
+										my_tcp_send(str, 6);
 										do_drop_item_sound();
 										return 1;
 									} else if(qb_action_mode==ACTION_LOOK)
@@ -399,7 +402,7 @@ static int	click_quickbar_handler(window_info *win, int mx, int my, Uint32 flags
 											click_time=cur_time;
 											str[0]=LOOK_AT_INVENTORY_ITEM;
 											str[1]=item_list[i].pos;
-											my_tcp_send(my_socket,str,2);
+											my_tcp_send(str,2);
 										}
 									else if(qb_action_mode==ACTION_USE)
 										{
@@ -407,7 +410,7 @@ static int	click_quickbar_handler(window_info *win, int mx, int my, Uint32 flags
 												{
 													str[0]=USE_INVENTORY_ITEM;
 													str[1]=item_list[i].pos;
-													my_tcp_send(my_socket,str,2);
+													my_tcp_send(str,2);
 													used_item_counter_action_use(i);
 #ifdef NEW_SOUND
 													item_list[i].action = USE_INVENTORY_ITEM;
@@ -421,7 +424,7 @@ static int	click_quickbar_handler(window_info *win, int mx, int my, Uint32 flags
 											str[0]=ITEM_ON_ITEM;
 											str[1]=item_list[use_item].pos;
 											str[2]=item_list[i].pos;
-											my_tcp_send(my_socket,str,3);
+											my_tcp_send(str,3);
 											used_item_counter_action_use(use_item);
 #ifdef NEW_SOUND
 											item_list[use_item].action = ITEM_ON_ITEM;
@@ -679,7 +682,6 @@ void init_quickbar (void)
 // try to use or auto equip the item in the slot
 static void quick_use(int use_id, size_t *timer)
 {
-	Uint8 quick_use_str[3];
 	int	i;
 
 	for(i=0; i<ITEM_NUM_ITEMS; i++)
@@ -688,13 +690,11 @@ static void quick_use(int use_id, size_t *timer)
 		{
 			if (item_list[i].quantity)
 			{
-				// its a usabale item so try to use it
+				// it's a usable item so try to use it
 				if (item_list[i].use_with_inventory)
 				{
-					quick_use_str[0]= USE_INVENTORY_ITEM;
-					quick_use_str[1]= use_id;
-					quick_use_str[2]= i;
-					my_tcp_send(my_socket,quick_use_str,2);
+					Uint8 quick_use_str[2] = { USE_INVENTORY_ITEM, use_id };
+					my_tcp_send(quick_use_str, 2);
 					used_item_counter_action_use(i);
 #ifdef NEW_SOUND
 					item_list[i].action = USE_INVENTORY_ITEM;

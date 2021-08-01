@@ -65,8 +65,13 @@ void free_actor_special_effect(int actor_id)
 	if (!initialsed)
 		initialise();
 	for(i=0; i<NUMBER_OF_SPECIAL_EFFECTS; i++)
-		if (sfx_markers[i].active && (sfx_markers[i].owner != NULL) && (sfx_markers[i].owner->actor_id == actor_id))
+	{
+		if (sfx_markers[i].active && sfx_markers[i].owner != NULL && sfx_markers[i].owner->actor_id == actor_id)
+		{
 			sfx_markers[i].active = 0;
+			sfx_markers[i].owner = NULL;
+		}
+	}
 }
 
 //Allocate a spot for a new special effect
@@ -102,6 +107,7 @@ static void add_sfx(special_effect_enum effect, Uint16 playerid, int caster)
 		case SPECIAL_EFFECT_HEAL_SUMMONED:
 		case SPECIAL_EFFECT_INVASION_BEAMING:
 		case SPECIAL_EFFECT_TELEPORT_TO_RANGE:
+			m->owner = NULL;
 			m->x = this_actor->x_tile_pos;		//static effects will not store a actor by convention
 			m->y = this_actor->y_tile_pos;		// but we need to know where they were cast
 			break;						

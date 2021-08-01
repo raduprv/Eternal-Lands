@@ -268,6 +268,12 @@ extern char
 		item_use_not_unique_str[80],
 		item_use_get_failed_str[80],
 		item_info_load_failed_str[80],
+		commands_help_prefix_str[20],
+		commands_search_prefix_str[40],
+		commands_help_not_loaded_str[60],
+		commands_help_not_recognsed_str[40],
+		commands_help_description_help_str[100],
+		commands_help_search_help_str[100],
 		cmd_ignores[20],
 		cmd_ignore[20],
 		cmd_unignore[20],
@@ -311,6 +317,9 @@ extern char
 		urlwin_clear_str[30],
 		/*draw_scene.c*/
 		low_framerate_str[100],
+		/* elconfig */
+		multiselect_find_prompt_str[40],
+		multiselect_find_help_str[80],
 		/* encyclopedia */
 		encycl_search_prompt_str[25],
 		/*filter.c*/
@@ -352,6 +361,9 @@ extern char
 		login_rules_str[120],
 		passmngr_enabled_str[70],
 		passmngr_disabled_str[70],
+		passmngr_remember_details_str[70],
+		passmngr_error_str[70],
+		password_format_str[150],
 		show_passwords_str[30],
 		login_select_window_str[30],
 		/*items.c*/
@@ -468,6 +480,7 @@ extern char
 		char_help[200],
 		invalid_pass[30],
 		show_password[30],
+		remember_details_str[30],
 		hide_password[30],
 		char_done[15],
 		char_back[15],
@@ -558,14 +571,13 @@ extern char
 		questlog_deleted_str[20],
 		/* item lists */
 		cm_item_list_selected_str[40],
-		cm_item_list_names_str[160],
+		cm_item_list_names_str[200],
 		item_list_use_help_str[40],
 		item_list_pickup_help_str[40],
 		item_list_edit_help_str[40],
 		item_list_add_help_str[40],
 		item_list_drag_help_str[40],
 		item_list_create_help_str[40],
-		item_list_magic_str[80],
 		item_list_find_str[20],
 		item_list_find_help_str[40],
 		item_list_find_help_disabled_str[40],
@@ -604,6 +616,17 @@ extern char	reg_error_str[15],
 		cache_size_str[20],
 		/* cal.c */
 		no_animation_err_str[30],
+#ifdef USE_SSL
+		/* connection.cpp */
+		warning_str[30],
+		hostname_mismatch_str[500],
+		unverified_certificate_str[400],
+		close_connection_str[30],
+		continue_str[30],
+		encryption_failed_str[100],
+		cert_verification_err_str[100],
+		send_failed_str[100],
+#endif // USE_SSL
 		/*console.c*/
 		invalid_location_str[30],
 		name_too_long[75], 

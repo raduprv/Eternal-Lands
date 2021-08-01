@@ -180,6 +180,9 @@ char
 	urlwin_clear_str[30],
 	/*draw_scene.c*/
 	low_framerate_str[100],
+	/* elconfig */
+	multiselect_find_prompt_str[40],
+	multiselect_find_help_str[80],
 	/* encyclopedia */
 	encycl_search_prompt_str[25],
 	/*gamewin.c*/
@@ -215,6 +218,9 @@ char
 	login_rules_str[120],
 	passmngr_enabled_str[70],
 	passmngr_disabled_str[70],
+	passmngr_remember_details_str[70],
+	passmngr_error_str[70],
+	password_format_str[150],
 	show_passwords_str[30],
 	login_select_window_str[30],
 	/*items.c*/
@@ -323,6 +329,7 @@ char
 	char_help[200],
 	invalid_pass[30],
 	show_password[30],
+	remember_details_str[30],
 	hide_password[30],
 	char_done[15],
 	char_back[15],
@@ -387,7 +394,7 @@ char
 	cm_minimap_menu_str[60],
 	cm_user_menu_str[200],
 	cm_item_list_selected_str[40],
-	cm_item_list_names_str[160],
+	cm_item_list_names_str[200],
 	cm_stats_bar_base_str[70],
 	cm_recipe_menu_str[100],
 	cm_manuwin_menu_str[50],
@@ -423,7 +430,6 @@ char
 	item_list_add_help_str[40],
 	item_list_drag_help_str[40],
 	item_list_create_help_str[40],
-	item_list_magic_str[80],
 	item_list_find_str[20],
 	item_list_find_help_str[40],
 	item_list_find_help_disabled_str[40];
@@ -493,6 +499,12 @@ char	name_too_long[75],
 	item_use_not_unique_str[80],
 	item_use_get_failed_str[80],
 	item_info_load_failed_str[80],
+	commands_help_prefix_str[20],
+	commands_search_prefix_str[40],
+	commands_help_not_loaded_str[60],
+	commands_help_not_recognsed_str[40],
+	commands_help_description_help_str[100],
+	commands_help_search_help_str[100],
 	cmd_ignores[20],
 	cmd_ignore[20],
 	cmd_unignore[20],
@@ -553,6 +565,15 @@ char	reg_error_str[15],
 	cache_size_str[20],
 	/* cal.c */
 	no_animation_err_str[30],
+	/* connection.cpp */
+	warning_str[30],
+	hostname_mismatch_str[500],
+	unverified_certificate_str[400],
+	close_connection_str[30],
+	continue_str[30],
+	encryption_failed_str[100],
+	cert_verification_err_str[100],
+	send_failed_str[100],
 	/* console.c */
 	invalid_location_str[30],
 	/*cursors.c*/
@@ -1115,6 +1136,12 @@ void init_console()
 	add_xml_identifier(misc,"item_use_not_unique",item_use_not_unique_str,"Cannot record item use in counters as item is not unique.",sizeof(item_use_not_unique_str));
 	add_xml_identifier(misc,"item_use_get_failed",item_use_get_failed_str,"Cannot record item use in counters as problem with item: ",sizeof(item_use_get_failed_str));
 	add_xml_identifier(misc,"item_info_load_failed",item_info_load_failed_str,"Could not load the item information file",sizeof(item_info_load_failed_str));
+	add_xml_identifier(misc, "commands_help_prefix", commands_help_prefix_str, "Command", sizeof(commands_help_prefix_str));
+	add_xml_identifier(misc, "commands_search_prefix", commands_search_prefix_str, "Commands matching", sizeof(commands_search_prefix_str));
+	add_xml_identifier(misc, "commands_help_not_loaded", commands_help_not_loaded_str, "Commands help file not loaded", sizeof(commands_help_not_loaded_str));
+	add_xml_identifier(misc, "commands_help_not_recognsed", commands_help_not_recognsed_str, "Unrecognised command", sizeof(commands_help_not_recognsed_str));
+	add_xml_identifier(misc, "commands_help_description_help", commands_help_description_help_str, "For help on a particular command, use ## <command>.", sizeof(commands_help_description_help_str));
+	add_xml_identifier(misc, "commands_help_search_help", commands_help_search_help_str, "To search command name and description, use #? <search text>.", sizeof(commands_help_search_help_str));
 
 	add_xml_identifier(loading_msg,"init_opengl",init_opengl_str,"Initializing OpenGL extensions",sizeof(init_opengl_str));
 	add_xml_identifier(loading_msg,"init_random",init_random_str,"Generating random seed",sizeof(init_random_str));
@@ -1280,6 +1307,31 @@ void init_errors()
 	add_xml_identifier (misc, "mapmarks", err_mapmarks_str, "Maximum number of mapmarks reached.", sizeof(err_mapmarks_str));
 	add_xml_identifier (misc, "book_open", book_open_err_str, "Couldn't open the book: %s!", sizeof(book_open_err_str));
 	add_xml_identifier (misc, "noanimation", no_animation_err_str, "No animation: %s!\n", sizeof(no_animation_err_str));
+#ifdef USE_SSL
+	add_xml_identifier(misc, "warning", warning_str, "Warning!", sizeof(warning_str));
+	add_xml_identifier(misc, "hostname_mismatch", hostname_mismatch_str,
+		"The host name of the selected game server (%s) does not match that of the security "
+		"certificate sent by the server you connected to (%s). This could be a configuration "
+		"error in the server, or an attacker may be redirecting you to a fake game server "
+		"(for example, to steal your password).\n\n"
+		"Click \"%s\" to break the connection and restart the game with "
+		"a different server, or \"%s\" if you understand and accept the risks and "
+		"wish to continue anyway.", sizeof(hostname_mismatch_str));
+	add_xml_identifier(misc, "unverified_certificate", unverified_certificate_str,
+		"The encryption certificate sent by the server could not be verified. "
+		"This could mean that someone is intercepting your connection with the game server "
+	    "(for example, to steal your password).\n\n"
+		"Click \"%s\" to break the connection and restart the game with "
+		"a different server, or \"%s\" if you understand and accept the risks and "
+		"wish to continue anyway.", sizeof(unverified_certificate_str));
+	add_xml_identifier(misc, "close_connection", close_connection_str, "Close connection", sizeof(close_connection_str));
+	add_xml_identifier(misc, "continue", continue_str, "Continue", sizeof(continue_str));
+	add_xml_identifier(misc, "encryption_failed", encryption_failed_str,
+		"Failed to set up an encrypted connection.", sizeof(encryption_failed_str));
+	add_xml_identifier(misc, "cert_verification_err", cert_verification_err_str,
+		"The server certificate could not be verified.", sizeof(cert_verification_err_str));
+	add_xml_identifier(misc, "send_failed", send_failed_str, "Failed to send data to the server.", sizeof(send_failed_str));
+#endif // USE_SSL
 	add_xml_identifier (misc, "invalid_location", invalid_location_str, "Invalid location %d,%d", sizeof(invalid_location_str));
 	add_xml_identifier (misc, "warn_currently_ignoring", warn_currently_ignoring, "Warning: %s is on your #ignore list", sizeof(warn_currently_ignoring));
 	add_xml_identifier (misc, "invalidnpcmark", invalidnpcmark_str, "Invalid string for NPC map mark.", sizeof(invalidnpcmark_str));
@@ -1417,6 +1469,8 @@ void init_help()
 	add_xml_identifier(misc,"reopen_storage",reopen_storage_str,"Reopen for setting to take effect",sizeof(reopen_storage_str));
 	add_xml_identifier(misc,"low",low_framerate_str,"Low framerate detected, shadows and eye candy disabled!",sizeof(low_framerate_str));
 	add_xml_identifier(misc,"encycl_search_prompt",encycl_search_prompt_str,"Enter text to find",sizeof(encycl_search_prompt_str));
+	add_xml_identifier(misc,"multiselect_find_prompt", multiselect_find_prompt_str, "Find", sizeof(multiselect_find_prompt_str));
+	add_xml_identifier(misc,"multiselect_find_help", multiselect_find_help_str, "Type text to find an option. ENTER: find next, ESC: clear, TAB: case", sizeof(multiselect_find_help_str));
 	add_xml_identifier(misc,"size",window_size_adjusted_str,"Window size adjusted to %s",sizeof(window_size_adjusted_str));
 	add_xml_identifier(misc,"reset_res",reset_res_str,"Reset window size",sizeof(reset_res_str));
 	add_xml_identifier(misc,"set_res",set_res_str,"Set window size",sizeof(set_res_str));
@@ -1427,7 +1481,10 @@ void init_help()
 	add_xml_identifier(misc,"pass",login_password_str,"Password:",sizeof(login_password_str));
 	add_xml_identifier(misc,"server",login_server_str,"Server:",sizeof(login_server_str));
 	add_xml_identifier(misc,"passmngr_enabled",passmngr_enabled_str,"Open/close password manager window.",sizeof(passmngr_enabled_str));
-	add_xml_identifier(misc,"passmngr_disabled",passmngr_disabled_str,"Password manager is disabled, see server tab in settings.",sizeof(passmngr_disabled_str));
+	add_xml_identifier(misc,"passmngr_disabled",passmngr_disabled_str,"Password manager is disabled.",sizeof(passmngr_disabled_str));
+	add_xml_identifier(misc,"passmngr_remember_details",passmngr_remember_details_str,"Use password manager to remember details.",sizeof(passmngr_remember_details_str));
+	add_xml_identifier(misc,"passmngr_error",passmngr_error_str,"WARNING: Password manager did not save invalid password.",sizeof(passmngr_error_str));
+	add_xml_identifier(misc,"password_format",password_format_str,"Passwords must be 4-15 characters and can include alpha, numeric or others characters but not space or ~.",sizeof(password_format_str));
 	add_xml_identifier(misc,"show_passwords",show_passwords_str,"Show Passwords",sizeof(show_passwords_str));
 	add_xml_identifier(misc,"login_select_window",login_select_window_str,"Select Login",sizeof(login_select_window_str));
 	add_xml_identifier(misc,"login_rules",login_rules_str,"If you log into this game, you accept the rules of Eternal Lands. Press F5 to read them in game.",sizeof(login_rules_str));
@@ -1601,6 +1658,7 @@ void init_help()
 	add_xml_identifier(new,"newchardonehelp",newchar_done_help,"When ready, click \"Done\" to create your character and enter the game.",sizeof(newchar_done_help));
 	add_xml_identifier(new,"wrongpass",invalid_pass,"Invalid password!",sizeof(invalid_pass));
 	add_xml_identifier(new,"showpass",show_password,"Show password",sizeof(show_password));
+	add_xml_identifier(new,"remember_details",remember_details_str,"Remember details",sizeof(remember_details_str));
 	add_xml_identifier(new,"hidepass",hide_password,"Hide password",sizeof(hide_password));
 	add_xml_identifier(new,"done",char_done,"Done",sizeof(char_done));
 	add_xml_identifier(new,"back",char_back,"Back",sizeof(char_back));
@@ -1678,7 +1736,7 @@ void init_help()
 	add_xml_identifier(misc, "cm_quickbar_menu", cm_quickbar_menu_str, "Enable Quickbar Menu\n--\nRelocatable Window\nMoveable Window\nRotate Window\n--\nReset Position", sizeof(cm_quickbar_menu_str));
 	add_xml_identifier(misc, "cm_hud_menu", cm_hud_menu_str, "Show Stats\nShow Stats Bars\nShow Knowledge Bar\nShow Timer\nShow Digital Clock\nShow Analogue Clock\nShow Seconds\nShow FPS\nShow Indicators\nEnable Quickbar Menu\n--\nShow Minimap\nShow Ranging Stats\n--\nEnable Sound Effects\nEnable Music\n--\nCopy Location", sizeof(cm_hud_menu_str));
 	add_xml_identifier(misc, "cm_banner_menu", cm_banner_menu_str, "Show Names\nShow Health Bars\nShow Health Numbers\nShow Ether Bar\nShow Ether Numbers\nEnable Instance Mode\nShow Speech Bubbles\nEnable Banner Background\nSit Lock\nRanging Lock\n--\nDisable This Menu\n", sizeof(cm_banner_menu_str));
-	add_xml_identifier(misc, "cm_title_menu", cm_title_menu_str, "Hide Windows\nOpaque Background\nWindows On Top\nDisable Scaling Controls\n", sizeof(cm_title_menu_str));
+	add_xml_identifier(misc, "cm_title_menu", cm_title_menu_str, "Hide Windows\nOpaque Background\nWindows On Top\nDisable Scaling Controls\n--\nCentred Window\n", sizeof(cm_title_menu_str));
 	add_xml_identifier(misc, "cm_title_help", cm_title_help_str, "Right-click for window menu", sizeof(cm_title_help_str));
 	add_xml_identifier(misc, "cm_items_menu", cm_items_menu_str, "--\nUse Small Window\nManual Window Size\nItem Window On Drop\nAllow Equipment Swap\nAlt/Ctrl-click With Any Cursor\nButtons On Left\nEquipment Grid On Left\n--\nOpen Storage (View Only)", sizeof(cm_items_menu_str));
 	add_xml_identifier(misc, "cm_storage_menu", cm_storage_menu_str, "--\nPrint Items To Console\nSort Categories Alphabetically\nSort Items Alphabetically\nDisable item filter", sizeof(cm_storage_menu_str));
@@ -1694,7 +1752,7 @@ void init_help()
 	add_xml_identifier(misc, "cm_minimap_menu", cm_minimap_menu_str, "--\nRotate Minimap\nPin Minimap\nOpen On Start", sizeof(cm_minimap_menu_str));
 	add_xml_identifier(misc, "cm_user_menu", cm_user_menu_str, "--\nMovable Window\nLock In Standard Position\nChange Standard Position\nBackground On\nBorder On\nSmall Font\nStandard Menus\n--\nShow Commands\n--\nReload Menus\nDisable Menus", sizeof(cm_user_menu_str));
 	add_xml_identifier(misc, "cm_item_list_selected", cm_item_list_selected_str, "Edit quantity\n--\nDelete", sizeof(cm_item_list_selected_str));
-	add_xml_identifier(misc, "cm_item_list_names", cm_item_list_names_str, "Create new list\nRename active list\n--\nDelete active list\n--\nDisable find list\n--\nReload from file\n--\nUse lists just for this character", sizeof(cm_item_list_names_str));
+	add_xml_identifier(misc, "cm_item_list_names", cm_item_list_names_str, "Create new list\nRename active list\n--\nUpdate active list\n--\nDelete active list\n--\nDisable find list\n--\nReload from file\n--\nUse lists just for this character", sizeof(cm_item_list_names_str));
 	add_xml_identifier(misc, "cm_stats_bar_base", cm_stats_bar_base_str, "--\nAdd Bar\nRemove Bar\nClick Lock", sizeof(cm_stats_bar_base_str));
 	add_xml_identifier(misc, "cm_recipe_menu", cm_recipe_menu_str, "Add additional recipe row\nClear selected recipe\nDelete selected recipe\nSort recipes by name", sizeof(cm_recipe_menu_str));
 	add_xml_identifier(misc, "cm_manuwin_menu", cm_manuwin_menu_str, "\n--\nDisable key presses for window", sizeof(cm_manuwin_menu_str));
@@ -1739,7 +1797,6 @@ void init_help()
 	add_xml_identifier(misc, "item_list_add_help", item_list_add_help_str, "Add to list - ctrl+left-click", sizeof(item_list_add_help_str));
 	add_xml_identifier(misc, "item_list_drag_help", item_list_drag_help_str, "Add to list - drag from inv/sto", sizeof(item_list_drag_help_str));
 	add_xml_identifier(misc, "item_list_create_help", item_list_create_help_str, "Create new list", sizeof(item_list_create_help_str));
-	add_xml_identifier(misc, "item_list_magic", item_list_magic_str, "Magical interference caused the list window to close O.O", sizeof(item_list_magic_str));
 	add_xml_identifier(misc, "item_list_find", item_list_find_str, "Find: ", sizeof(item_list_find_str));
 	add_xml_identifier(misc, "item_list_find_help", item_list_find_help_str, "Find list - type text", sizeof(item_list_find_help_str));
 	add_xml_identifier(misc, "item_list_find_help_disabled", item_list_find_help_disabled_str, "Find list - (disabled)", sizeof(item_list_find_help_disabled_str));

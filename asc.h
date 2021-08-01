@@ -17,6 +17,7 @@
 extern "C" {
 #endif
 
+#ifndef FASTER_MAP_LOAD
 /*!
  * \ingroup	misc_utils
  * \brief	Gets the offset of a string in a char array
@@ -31,7 +32,6 @@ extern "C" {
  */
 Sint32 get_string_occurance (const char *needle, const char *haystack, const Uint32 max_len, const char beginning);
 
-#ifndef FASTER_MAP_LOAD
 /*!
  * \ingroup	misc_utils
  * \brief	Gets an integer after the given string
@@ -216,15 +216,16 @@ char* safe_strcasestr (const char* haystack, size_t haystack_len, const char* ne
 
 /*!
  * \ingroup	misc_utils
- * \brief	Checks if len/2 characters of the string is uppercase
+ * \brief	Checks if the text is shouted.
  *
- * 		Checks if len/2 characters of the string is uppercase
+ * Checks if the text is shouted, meaning that it contains no lower case alphabetic characters,
+ * and either contains no digits, or more than half of the text is upper case alphabetic.
  *
  * \param	src The string to be checked
  * \param	len The length of characters you wish to check
- * \retval Sint32	Returns 1 if enough characters are uppercase, 0 if they are lowercase.
+ * \retval int	Returns 1 if enough characters are uppercase, 0 if they are lowercase.
  */
-Sint32 my_isupper(const char *src, int len);
+int my_isupper(const char *src, int len);
 
 /*!
  * \ingroup	misc_utils
@@ -236,18 +237,6 @@ Sint32 my_isupper(const char *src, int len);
  * \retval char*	Returns the src-pointer.
  */
 char *my_tolower (char *src);
-
-/*!
- * \ingroup	misc_utils
- * \brief	Splits up the char array into multiple character arrays
- *
- * 		Splits up the char array into multiple character arrays. The new arrays will have chars_per_line+3 bytes allocated. The char ** array will have a NULL pointer as the end pointer.
- *
- * \param	str The string to split
- * \param	chars_per_line The number of characters per line
- * \retval char**	Returns a char ** to the new array. You must free the memory yourself.
- */
-char ** get_lines(char * str, int chars_per_line);
 
 /*!
  * \ingroup	xml_utils

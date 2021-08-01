@@ -183,7 +183,7 @@ void Quest_Title_Request::request(void)
 	//LOG_TO_CONSOLE(c_green2,buf);
 	str[0]=WHAT_QUEST_IS_THIS_ID;
 	*((Uint16 *)(str+1)) = SDL_SwapLE16((Uint16)id);
-	my_tcp_send (my_socket, str, 3);
+	my_tcp_send(str, 3);
 	request_time = SDL_GetTicks();
 	requested = true;
 }
@@ -466,10 +466,11 @@ class NPC_Filter
 		void mouseover_handler(window_info *win, int mx, int my);
 		int get_win_id(void) const { return npc_filter_win; }
 		bool is_set(const ustring& npc) { return (npc_filter_map[npc] == 1); }
-		void set(const ustring& npc) { npc_filter_map[npc] = 1; }
+		void set(const ustring& npc);
 		void set_all(void) { for (auto& i: npc_filter_map) i.second = 1; }
 		void unset_all(void) { for (auto& i: npc_filter_map) i.second = 0; }
 	private:
+		int get_max_name_width(float zoom) const;
 		// scaled
 		int npc_name_space;
 		int npc_name_border;
@@ -1216,6 +1217,17 @@ bool Quest_Entry::contains_string(const char *text_to_find) const
 }
 
 
+//	Set NPC filter to active, adding the npc to the list if need
+//
+void NPC_Filter::set(const ustring& npc)
+{
+	size_t last_size = npc_filter_map.size();
+	npc_filter_map[npc] = 1;
+	if (last_size != npc_filter_map.size() && (npc_filter_win >= 0) && (npc_filter_win < windows_list.num_windows))
+		ui_scale_npc_filter_handler(&windows_list.window[npc_filter_win]);
+}
+
+
 //	Make sure the window size is fits the rows/cols nicely.
 //
 void NPC_Filter::resize_handler(window_info *win)
@@ -1238,6 +1250,20 @@ void NPC_Filter::resize_handler(window_info *win)
 }
 
 
+// Calculate the maximum string width of the NPC names
+int NPC_Filter::get_max_name_width(float zoom) const
+{
+	int max_width = 0;
+	for (const auto& iter: npc_filter_map)
+	{
+		int width = FontManager::get_instance().line_width(UI_FONT,
+			reinterpret_cast<const unsigned char*>(iter.first.c_str()), iter.first.size(), zoom);
+		max_width = std::max(max_width, width);
+	}
+	return max_width;
+}
+
+
 //	Called on creation and when scaling changes, set the starting size and position fo npc filter window
 //
 void NPC_Filter::ui_scale_handler(window_info *win)
@@ -1245,7 +1271,7 @@ void NPC_Filter::ui_scale_handler(window_info *win)
 	npc_name_space = static_cast<int>(0.5 + 3 * win->current_scale);
 	npc_name_border = static_cast<int>(0.5 + 5 * win->current_scale);
 	npc_name_box_size = static_cast<int>(0.5 + 12 * win->current_scale);
-	max_npc_name_x = npc_name_space * 3 + npc_name_box_size + MAX_USERNAME_LENGTH * win->small_font_max_len_x;
+	max_npc_name_x = npc_name_space * 3 + npc_name_box_size + get_max_name_width(win->current_scale_small);
 	max_npc_name_y = std::max(win->small_font_len_y, npc_name_box_size) + 2 * npc_name_space;
 	if ((win->pos_id >= 0) && (win->pos_id<windows_list.num_windows))
 	{

@@ -297,7 +297,7 @@ static int click_trade_handler(window_info *win, int mx, int my, Uint32 flags)
 		str[1]=ITEM_INVENTORY;
 		str[2]=item_list[item_dragged].pos;
 		*((Uint32 *)(str+3))= SDL_SwapLE32(item_quantity);
-		my_tcp_send(my_socket,str,7);
+		my_tcp_send(str, 7);
 		do_drop_item_sound();
 		return 1;
 	} else if(storage_available && left_click && storage_item_dragged!=-1){
@@ -310,7 +310,7 @@ static int click_trade_handler(window_info *win, int mx, int my, Uint32 flags)
 			str[2]=storage_items[storage_item_dragged].pos;
 		}
 		*((Uint32 *)(str+trade_quantity_storage_offset))= SDL_SwapLE32(item_quantity);
-		my_tcp_send(my_socket,str, 4 + trade_quantity_storage_offset );
+		my_tcp_send(str, 4 + trade_quantity_storage_offset );
 		do_drop_item_sound();
 		return 1;
 	} else if(mx > trade_border && mx < trade_border + ITEM_COLS * trade_gridsize &&
@@ -323,12 +323,12 @@ static int click_trade_handler(window_info *win, int mx, int my, Uint32 flags)
 				str[0]=LOOK_AT_TRADE_ITEM;
 				str[1]=pos;
 				str[2]=0;//your trade
-				my_tcp_send(my_socket,str,3);
+				my_tcp_send(str, 3);
 			} else {
 				str[0]=REMOVE_OBJECT_FROM_TRADE;
 				str[1]=pos;
 				*((Uint32 *)(str+2))=SDL_SwapLE32(item_quantity);
-				my_tcp_send(my_socket,str,6);
+				my_tcp_send(str, 6);
 				do_drag_item_sound();
 			}
 		}
@@ -345,7 +345,7 @@ static int click_trade_handler(window_info *win, int mx, int my, Uint32 flags)
 				str[0]=LOOK_AT_TRADE_ITEM;
 				str[1]=pos;
 				str[2]=1;//their trade
-				my_tcp_send(my_socket,str,3);
+				my_tcp_send(str, 3);
 			} else if (left_click && storage_available){
 				if(others_trade_list[pos].type==ITEM_BANK)
 					others_trade_list[pos].type=ITEM_INVENTORY;
@@ -359,7 +359,7 @@ static int click_trade_handler(window_info *win, int mx, int my, Uint32 flags)
 		//check to see if we hit the Accept box
 		if(trade_you_accepted==2 || right_click){
 			str[0]= REJECT_TRADE;
-			my_tcp_send(my_socket, str, 1);
+			my_tcp_send(str, 1);
 			do_click_sound();
 		} else {
 			str[0]= ACCEPT_TRADE;
@@ -370,7 +370,7 @@ static int click_trade_handler(window_info *win, int mx, int my, Uint32 flags)
 				}
 				trade_accepted(other_player_trade_name, your_trade_list, others_trade_list, MAX_ITEMS);
 			}
-			my_tcp_send(my_socket, str, MAX_ITEMS + 1);
+			my_tcp_send(str, MAX_ITEMS + 1);
 			do_click_sound();
 		}
 
@@ -549,7 +549,7 @@ static int close_trade_handler(window_info *win)
 {
 	// User click the close button, abort the trade
 	unsigned char msg = EXIT_TRADE;
-	my_tcp_send(my_socket, &msg, 1);
+	my_tcp_send(&msg, 1);
 	return 1;
 }
 

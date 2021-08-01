@@ -2,11 +2,20 @@
 #include <cmath>
 #include <numeric>
 #include <sstream>
+#include <limits>
 #ifdef TTF
 #ifndef WINDOWS
 #include <glob.h>
 #endif
 #include <SDL_ttf.h>
+#ifdef LINUX
+//For stat() etc.. below
+#include <sys/types.h>
+#include <sys/stat.h>
+#ifndef _MSC_VER
+#include <unistd.h>
+#endif //_MSC_VER
+#endif // LINUX
 #endif // TTF
 
 #include "font.h"
@@ -17,6 +26,7 @@
 #include "elloggingwrapper.h"
 #include "exceptions/extendedexception.hpp"
 #include "io/elpathwrapper.h"
+#include "init.h"
 #include "gl_init.h"
 #include "textures.h"
 
@@ -81,12 +91,19 @@ bool pos_selected(const select_info *sel, size_t imsg, size_t ichar)
 #ifdef TTF
 TTF_Font* open_font(const std::string& file_name, int point_size)
 {
-	// First try to interpret ttf_file_name as a path relative to ttf_directory. If that fails,
-	// try as an absolute path.
-	std::string path = ttf_directory + file_name;
+	// First try to interpret ttf_file_name as a path relative to the data directory. If that fails,
+	// try a path relative to the ttf_directory. If that also fails, try as an absolute path.
+	std::string path = datadir + file_name;
 	TTF_Font *font = TTF_OpenFont(path.c_str(), point_size);
 	if (!font)
-		font = TTF_OpenFont(file_name.c_str(), point_size);
+	{
+		path = ttf_directory + file_name;
+		font = TTF_OpenFont(path.c_str(), point_size);
+		if (!font)
+		{
+			font = TTF_OpenFont(file_name.c_str(), point_size);
+		}
+	}
 	return font;
 }
 #endif
@@ -96,7 +113,7 @@ TTF_Font* open_font(const std::string& file_name, int point_size)
 namespace eternal_lands
 {
 
-FontOption::FontOption(size_t font_nr): _font_nr(font_nr), _file_name(), _font_name(),
+FontOption::FontOption(size_t font_nr): _font_nr(font_nr), _file_name(), _file_base_name(), _font_name(),
 #ifdef TTF
 	_is_ttf(false),
 #endif
@@ -138,14 +155,16 @@ FontOption::FontOption(size_t font_nr): _font_nr(font_nr), _file_name(), _font_n
 		_failed = true;
 	}
 
+	size_t sep_pos = _file_name.find_last_of("/\\");
+	_file_base_name = sep_pos == std::string::npos ? _file_name : _file_name.substr(sep_pos + 1);
 	_fixed_width = (font_nr != 1 && font_nr != 2);
 }
 
 #ifdef TTF
 FontOption::FontOption(const std::string& file_name): _font_nr(std::numeric_limits<size_t>::max()),
-	_file_name(file_name), _font_name(), _is_ttf(true), _fixed_width(), _failed(false)
+	_file_name(file_name), _file_base_name(), _font_name(), _is_ttf(true), _fixed_width(), _failed(false)
 {
-	TTF_Font *font = open_font(file_name.c_str(), 40);
+	TTF_Font *font = open_font(file_name, 40);
 	if (!font)
 	{
 		LOG_ERROR("Failed to open TTF font file '%s'", file_name.c_str());
@@ -163,6 +182,9 @@ FontOption::FontOption(const std::string& file_name): _font_nr(std::numeric_limi
 		return;
 	}
 
+	size_t sep_pos = _file_name.find_last_of("/\\");
+	_file_base_name = sep_pos == std::string::npos ? _file_name : _file_name.substr(sep_pos + 1);
+
 	std::string name = TTF_FontFaceFamilyName(font);
 	std::string style = TTF_FontFaceStyleName(font);
 
@@ -175,15 +197,15 @@ FontOption::FontOption(const std::string& file_name): _font_nr(std::numeric_limi
 
 void FontOption::add_select_options(bool add_button) const
 {
-	add_multi_option_with_id("ui_font",    _font_name.c_str(), _file_name.c_str(), add_button);
-	add_multi_option_with_id("chat_font",  _font_name.c_str(), _file_name.c_str(), add_button);
-	add_multi_option_with_id("name_font",  _font_name.c_str(), _file_name.c_str(), add_button);
-	add_multi_option_with_id("book_font",  _font_name.c_str(), _file_name.c_str(), add_button);
-	add_multi_option_with_id("note_font",  _font_name.c_str(), _file_name.c_str(), add_button);
-	add_multi_option_with_id("rules_font", _font_name.c_str(), _file_name.c_str(), add_button);
+	add_multi_option_with_id("ui_font",    _font_name.c_str(), _file_base_name.c_str(), add_button);
+	add_multi_option_with_id("chat_font",  _font_name.c_str(), _file_base_name.c_str(), add_button);
+	add_multi_option_with_id("name_font",  _font_name.c_str(), _file_base_name.c_str(), add_button);
+	add_multi_option_with_id("book_font",  _font_name.c_str(), _file_base_name.c_str(), add_button);
+	add_multi_option_with_id("note_font",  _font_name.c_str(), _file_base_name.c_str(), add_button);
+	add_multi_option_with_id("rules_font", _font_name.c_str(), _file_base_name.c_str(), add_button);
 	if (is_fixed_width())
 	{
-		add_multi_option_with_id("encyclopedia_font", _font_name.c_str(), _file_name.c_str(),
+		add_multi_option_with_id("encyclopedia_font", _font_name.c_str(), _file_base_name.c_str(),
 			add_button);
 	}
 }
@@ -255,7 +277,7 @@ Font::Font(Font&& font): _font_name(font.font_name()), _file_name(font.file_name
 	_vertical_advance(font._vertical_advance), _font_top_offset(font._font_top_offset),
 	_digit_center_offset(font._digit_center_offset), _password_center_offset(font._password_center_offset),
 	_max_advance(font._max_advance), _max_digit_advance(font._max_digit_advance),
-	_avg_advance(font._avg_advance), _spacing(font._spacing),
+	_max_name_advance(font._max_name_advance), _avg_advance(font._avg_advance), _spacing(font._spacing),
 	_scale_x(font._scale_x), _scale_y(font._scale_y),
 #ifdef TTF
 	_point_size(font._point_size), _outline(font._outline),
@@ -270,7 +292,7 @@ Font::Font(const FontOption& option): _font_name(option.font_name()),
 	_block_width(font_block_width), _line_height(default_vertical_advance + 1),
 	_vertical_advance(default_vertical_advance), _font_top_offset(0),
 	_digit_center_offset(option.font_number() == 2 ? 10 : 9), _password_center_offset(0),
-	_max_advance(12), _max_digit_advance(12), _avg_advance(12), _spacing(0),
+	_max_advance(12), _max_digit_advance(12), _max_name_advance(12), _avg_advance(12), _spacing(0),
 	_scale_x(11.0 / 12), _scale_y(1.0),
 #ifdef TTF
 	_point_size(0), _outline(0),
@@ -319,7 +341,6 @@ Font::Font(const FontOption& option): _font_name(option.font_name()),
 			12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12,
 			12, 12, 12, 12, 12, 12
 		} };
-		_max_digit_advance = *std::max_element(char_widths.begin() + 16, char_widths.begin() + 26);
 		_spacing = 4;
 	}
 	else if (font_nr == 2)
@@ -335,7 +356,6 @@ Font::Font(const FontOption& option): _font_name(option.font_name()),
 			 8,  8, 10, 10, 10,  8, 10, 10,  8,  8,  8, 12, 12, 12,
 			10, 10, 12, 10, 12, 12
 		} };
-		_max_digit_advance = *std::max_element(char_widths.begin() + 16, char_widths.begin() + 26);
 		_spacing = 2;
 	}
 	else
@@ -343,6 +363,14 @@ Font::Font(const FontOption& option): _font_name(option.font_name()),
 		std::fill(char_widths.begin(), char_widths.end(), 12);
 		_flags |= Flags::FIXED_WIDTH;
 	}
+
+	int digit_start = get_position('0');
+	int digit_end = get_position('9') + 1;
+	int lower_start = get_position('a');
+	int lower_end = get_position('z') + 1;
+	int upper_start = get_position('A');
+	int upper_end = get_position('Z') + 1;
+	int underscore_pos = get_position('_');
 
 	for (size_t pos = 0; pos < nr_glyphs; ++pos)
 	{
@@ -354,6 +382,7 @@ Font::Font(const FontOption& option): _font_name(option.font_name()),
 
 		_metrics[pos].width = char_widths[pos];
 		_metrics[pos].advance = char_widths[pos];
+		_metrics[pos].x_off = 0;
 		_metrics[pos].top = font_nr < 2 ? top_1[pos] : 0;
 		_metrics[pos].bottom = font_nr < 2 ? bottom_1[pos] : _line_height;
 		_metrics[pos].u_start = float(col * font_block_width + skip) / 256;
@@ -363,19 +392,27 @@ Font::Font(const FontOption& option): _font_name(option.font_name()),
 	}
 	_avg_advance = calc_average_advance();
 	_password_center_offset = asterisk_centers[font_nr];
+	_max_digit_advance = *std::max_element(char_widths.begin() + digit_start, char_widths.begin() + digit_end);
+	_max_name_advance = std::max({_max_digit_advance,
+		char_widths[underscore_pos],
+		*std::max_element(char_widths.begin() + upper_start, char_widths.begin() + upper_end),
+		*std::max_element(char_widths.begin() + lower_start, char_widths.begin() + lower_end)
+	});
 }
 
 #ifdef TTF
-Font::Font(const FontOption& option, int height): _font_name(option.font_name()),
+Font::Font(const FontOption& option, int height, bool outline): _font_name(option.font_name()),
 	_file_name(option.file_name()), _flags(IS_TTF), _texture_width(0), _texture_height(0),
 	_metrics(), _block_width(0), _line_height(0), _vertical_advance(0), _font_top_offset(0),
 	_digit_center_offset(0), _password_center_offset(0), _max_advance(0), _max_digit_advance(0),
-	_avg_advance(0), _spacing(0), _scale_x(1.0), _scale_y(1.0), _point_size(),
+	_max_name_advance(0), _avg_advance(0), _spacing(0), _scale_x(1.0), _scale_y(1.0), _point_size(),
 	_outline(std::round(float(height) / (font_block_height - 2))), _texture_id()
 {
 	_point_size = find_point_size(height);
 	if (option.is_fixed_width())
 		_flags |= Flags::FIXED_WIDTH;
+	if (outline)
+		_flags |= Flags::HAS_OUTLINE;
 }
 #endif
 
@@ -415,10 +452,10 @@ int Font::width_pos(int pos, float zoom) const
 {
 	if (pos < 0)
 		return 0;
-	return std::round(_metrics[pos].advance * _scale_x * zoom);
+	return std::round((_metrics[pos].width + _spacing) * _scale_x * zoom);
 }
 
-int Font::width_spacing_pos(int pos, float zoom) const
+int Font::advance_spacing_pos(int pos, float zoom) const
 {
 	if (pos < 0)
 		return 0;
@@ -441,6 +478,11 @@ int Font::max_digit_width_spacing(float zoom) const
 	return std::round((_max_digit_advance + _spacing) * _scale_x * zoom);
 }
 
+int Font::max_name_width_spacing(float zoom) const
+{
+	return std::round((_max_name_advance + _spacing) * _scale_x * zoom);
+}
+
 int Font::line_width(const unsigned char* str, size_t len, float zoom) const
 {
 	int cur_width = 0;
@@ -450,11 +492,11 @@ int Font::line_width(const unsigned char* str, size_t len, float zoom) const
 		int pos = get_position(str[i]);
 		if (pos >= 0)
 		{
-			cur_width += width_spacing_pos(pos, zoom);
+			cur_width += advance_spacing_pos(pos, zoom);
 			last_pos = pos;
 		}
 	}
-	cur_width -= width_spacing_pos(last_pos, zoom) - width_pos(last_pos, zoom);
+	cur_width -= advance_spacing_pos(last_pos, zoom) - width_pos(last_pos, zoom);
 
 	return cur_width;
 }
@@ -463,7 +505,7 @@ int Font::line_width_spacing(const unsigned char* str, size_t len, float zoom) c
 {
 	int cur_width = 0;
 	for (size_t i = 0; i < len; ++i)
-		cur_width += width_spacing(str[i], zoom);
+		cur_width += advance_spacing(str[i], zoom);
 
 	return cur_width;
 }
@@ -567,7 +609,7 @@ std::tuple<ustring, int, int> Font::reset_soft_breaks(const unsigned char *text,
 	size_t text_len, const TextDrawOptions& options, ssize_t cursor, int *max_line_width)
 {
 	int block_width = std::ceil(_block_width * _scale_x * options.zoom());
-	int cursor_width = width_spacing('_', options.zoom());
+	int cursor_width = advance_spacing('_', options.zoom());
 
 	if (!text || options.max_width() < block_width)
 		return std::make_tuple(ustring(), 0, 0);
@@ -589,7 +631,7 @@ std::tuple<ustring, int, int> Font::reset_soft_breaks(const unsigned char *text,
 
 			// We need to be able to place a cursor at this position, so use the maximum of the
 			// cursor width and character width to determine if the character fits.
-			int chr_width = width_spacing(c, options.zoom());
+			int chr_width = advance_spacing(c, options.zoom());
 			if (cur_width + block_width <= options.max_width()
 				|| cur_width + std::max(chr_width, cursor_width) <= options.max_width())
 			{
@@ -673,11 +715,11 @@ bool Font::load_texture()
 		_flags |= Flags::HAS_TEXTURE;
 		return true;
 	}
-#else
+#else // TTF
 	_texture_id = ::load_texture_cached(_file_name.c_str(), tt_font);
 	_flags |= Flags::HAS_TEXTURE;
 	return true;
-#endif
+#endif // TTF
 }
 
 void Font::bind_texture() const
@@ -710,9 +752,7 @@ void Font::set_color(int color)
 	float r = static_cast<float>(colors_list[color].r1) / 255;
 	float g = static_cast<float>(colors_list[color].g1) / 255;
 	float b = static_cast<float>(colors_list[color].b1) / 255;
-	//This fixes missing letters in the font on some clients
-	//No idea why going from 3f to 4f helps, but it does
-	glColor4f(r, g, b, 1.0);
+	glColor3f(r, g, b);
 }
 
 int Font::draw_char(unsigned char c, int x, int y, float zoom, bool ignore_color) const
@@ -735,18 +775,21 @@ int Font::draw_char(unsigned char c, int x, int y, float zoom, bool ignore_color
 	// the pen should advance for drawing the next character. Interestingly,
 	// char_width can be larger than advance, epsecially for bold fonts. For
 	// size calculations, the only relevant quantity is advance, though.
-	int char_width = std::round((_metrics[pos].width + _spacing) * _scale_x * zoom);
-	int advance = width_spacing_pos(pos, zoom);
+	int char_width = width_pos(pos, zoom);
+	int advance = advance_spacing_pos(pos, zoom);
 	int char_height = height(zoom);
 
 	float u_start, u_end, v_start, v_end;
 	get_texture_coordinates(pos, u_start, u_end, v_start, v_end);
 
+	// Adjust for character offset in the font
+	x += _metrics[pos].x_off;
+
 	// and place the text from the graphics on the map
-	glTexCoord2f(u_start, v_start); glVertex3i(x, y, 0);
-	glTexCoord2f(u_start, v_end);   glVertex3i(x, y + char_height, 0);
-	glTexCoord2f(u_end,   v_end);   glVertex3i(x + char_width, y + char_height, 0);
-	glTexCoord2f(u_end,   v_start); glVertex3i(x + char_width, y, 0);
+	glTexCoord2f(u_start, v_start); glVertex3i(x, y - _outline, 0);
+	glTexCoord2f(u_start, v_end);   glVertex3i(x, y + char_height + _outline, 0);
+	glTexCoord2f(u_end,   v_end);   glVertex3i(x + char_width, y + char_height + _outline, 0);
+	glTexCoord2f(u_end,   v_start); glVertex3i(x + char_width, y - _outline, 0);
 
 	return advance;
 }
@@ -862,10 +905,9 @@ std::pair<size_t, size_t> Font::clip_line(const unsigned char *text, size_t len,
 		return std::make_pair(0, len);
 
 	int trunc_width = max_width;
-	int ellipsis_width = 0;
 	if (options.ellipsis())
 	{
-		ellipsis_width = line_width_spacing(ellipsis, options.zoom());
+		int ellipsis_width = line_width_spacing(ellipsis, options.zoom());
 		if (options.alignment() == TextDrawOptions::Alignment::CENTER)
 			ellipsis_width *= 2;
 		trunc_width -= ellipsis_width;
@@ -882,7 +924,7 @@ std::pair<size_t, size_t> Font::clip_line(const unsigned char *text, size_t len,
 				if (is_color(ch) && !after_color)
 					after_color = ch;
 				else
-					width -= width_spacing(ch, options.zoom());
+					width -= advance_spacing(ch, options.zoom());
 			}
 			break;
 		}
@@ -894,7 +936,7 @@ std::pair<size_t, size_t> Font::clip_line(const unsigned char *text, size_t len,
 				if (is_color(ch))
 					before_color = ch;
 				else
-					width -= width_spacing(ch, options.zoom());
+					width -= advance_spacing(ch, options.zoom());
 			}
 			break;
 		}
@@ -909,7 +951,7 @@ std::pair<size_t, size_t> Font::clip_line(const unsigned char *text, size_t len,
 					if (is_color(ch))
 						before_color = ch;
 					else
-						d_left += width_spacing(ch, options.zoom());
+						d_left += advance_spacing(ch, options.zoom());
 				}
 				else
 				{
@@ -917,7 +959,7 @@ std::pair<size_t, size_t> Font::clip_line(const unsigned char *text, size_t len,
 					if (is_color(ch) && !after_color)
 						after_color = ch;
 					else
-						d_right += width_spacing(ch, options.zoom());
+						d_right += advance_spacing(ch, options.zoom());
 				}
 			}
 			width -= d_left + d_right;
@@ -991,6 +1033,14 @@ CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
 	glEnable(GL_ALPHA_TEST); // enable alpha filtering, so we have some alpha key
 	glAlphaFunc(GL_GREATER, 0.1f);
+	if (is_ttf())
+	{
+		// Only enable alpha blending for TTF fonts. The old style fonts have an alpha channel,
+		// but this has never been used before except for alpha filtering. Instead, the
+		// semi-transparent border has always been drawn as solid black.
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	}
 	bind_texture();
 	glBegin(GL_QUADS);
 
@@ -1047,6 +1097,10 @@ CHECK_GL_ERRORS();
 	}
 
 	glEnd();
+	if (is_ttf())
+	{
+		glDisable(GL_BLEND);
+	}
 	glDisable(GL_ALPHA_TEST);
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
@@ -1059,7 +1113,7 @@ void Font::draw_messages(const text_message *msgs, size_t msgs_size, int x, int 
 {
 	int block_width = std::ceil(_block_width * _scale_x * options.zoom());
 	int line_skip = vertical_advance(options.zoom(), options.line_spacing());
-	int cursor_width = width_spacing('_', options.zoom());
+	int cursor_width = advance_spacing('_', options.zoom());
 
 	if (options.max_width() < block_width || options.max_lines() < 1)
 		// no point in trying
@@ -1095,6 +1149,14 @@ void Font::draw_messages(const text_message *msgs, size_t msgs_size, int x, int 
 
  	glEnable(GL_ALPHA_TEST);	// enable alpha filtering, so we have some alpha key
 	glAlphaFunc(GL_GREATER, 0.1f);
+	if (is_ttf())
+	{
+		// Only enable alpha blending for TTF fonts. The old style fonts have an alpha channel,
+		// but this has never been used before. Instead, the semi-transparent border has always
+		// been drawn as solid black.
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	}
 	bind_texture();
 
 	int cur_x = x, cur_y = y, cur_line = 0;
@@ -1168,7 +1230,7 @@ void Font::draw_messages(const text_message *msgs, size_t msgs_size, int x, int 
 		if (is_color(ch))
 			last_color_char = ch;
 
-		int chr_width = width_spacing(ch, options.zoom());
+		int chr_width = advance_spacing(ch, options.zoom());
 		if (cur_x - x + chr_width <= options.max_width())
 		{
 			if (i_total == cursor)
@@ -1219,6 +1281,10 @@ void Font::draw_messages(const text_message *msgs, size_t msgs_size, int x, int 
 	}
 
 	glEnd();
+	if (is_ttf())
+	{
+		glDisable(GL_BLEND);
+	}
 	glDisable(GL_ALPHA_TEST);
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
@@ -1230,7 +1296,7 @@ void Font::draw_console_separator(int x_space, int y, const TextDrawOptions& opt
 	int pos = get_position('^');
 	int char_width = width_pos(pos, options.zoom());
 	int char_height = height(options.zoom());
-	int dx = width_spacing_pos(pos, options.zoom());
+	int dx = advance_spacing_pos(pos, options.zoom());
 
 	float u_start, u_end, v_start, v_end;
 	get_texture_coordinates(pos, u_start, u_end, v_start, v_end);
@@ -1280,6 +1346,14 @@ void Font::draw_ortho_ingame_string(const unsigned char* text, size_t len,
 
 	glEnable(GL_ALPHA_TEST); // enable alpha filtering, so we have some alpha key
 	glAlphaFunc(GL_GREATER, 0.1f);
+	if (is_ttf())
+	{
+		// Only enable alpha blending for TTF fonts. The old style fonts have an alpha channel,
+		// but this has never been used before. Instead, the semi-transparent border has always
+		// been drawn as solid black.
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	}
 	bind_texture();
 	glBegin(GL_QUADS);
 
@@ -1308,17 +1382,21 @@ void Font::draw_ortho_ingame_string(const unsigned char* text, size_t len,
 				float u_start, u_end, v_start, v_end;
 				get_texture_coordinates(pos, u_start, u_end, v_start, v_end);
 
-				glTexCoord2f(u_start, v_start); glVertex3f(cur_x,            cur_y+char_height, z);
-				glTexCoord2f(u_start, v_end);   glVertex3f(cur_x,            cur_y,             z);
-				glTexCoord2f(u_end,   v_end);   glVertex3f(cur_x+char_width, cur_y,             z);
-				glTexCoord2f(u_end,   v_start); glVertex3f(cur_x+char_width, cur_y+char_height, z);
+				float x_left = cur_x + _metrics[pos].x_off;
 
-				cur_x += width_spacing_pos(pos, zoom_x);
+				glTexCoord2f(u_start, v_start); glVertex3f(x_left,            cur_y+char_height+_outline, z);
+				glTexCoord2f(u_start, v_end);   glVertex3f(x_left,            cur_y-_outline,             z);
+				glTexCoord2f(u_end,   v_end);   glVertex3f(x_left+char_width, cur_y-_outline,             z);
+				glTexCoord2f(u_end,   v_start); glVertex3f(x_left+char_width, cur_y+char_height+_outline, z);
+
+				cur_x += advance_spacing_pos(pos, zoom_x);
 			}
 		}
 	}
 
 	glEnd();
+	if (is_ttf())
+		glDisable(GL_BLEND);
 	glDisable(GL_ALPHA_TEST);
 }
 #endif // !MAP_EDITOR_2
@@ -1342,7 +1420,7 @@ bool Font::render_glyph(size_t i_glyph, int size, int y_delta, int outline_size,
 
 	};
 	static const SDL_Color white = { .r = 0xff, .g = 0xff, .b = 0xff, .a = 0xff };
-	static const SDL_Color black = { .r = 0x00, .g = 0x00, .b = 0x00, .a = 0x30 };
+	static const SDL_Color black = { .r = 0x00, .g = 0x00, .b = 0x00, .a = 0xff };
 
 	Uint16 glyph = glyphs[i_glyph];
 	if (!TTF_GlyphIsProvided(font, glyph))
@@ -1359,7 +1437,10 @@ bool Font::render_glyph(size_t i_glyph, int size, int y_delta, int outline_size,
 		glyph_surface = TTF_RenderGlyph_Blended(font, glyph, black);
 		if (!glyph_surface)
 		{
-			LOG_ERROR("Failed to render TTF glyph outline: %s", TTF_GetError());
+			const char* locale = setlocale(LC_ALL, "");
+			LOG_ERROR("Failed to render outline for TTF glyph '%lc' in font \"%s\": %s", glyphs[i_glyph],
+				_font_name.c_str(), TTF_GetError());
+			setlocale(LC_ALL, locale);
 			return false;
 		}
 
@@ -1367,7 +1448,10 @@ bool Font::render_glyph(size_t i_glyph, int size, int y_delta, int outline_size,
 		SDL_Surface *fg_surface = TTF_RenderGlyph_Blended(font, glyph, white);
 		if (!fg_surface)
 		{
-			LOG_ERROR("Failed to render TTF glyph: %s", TTF_GetError());
+			const char* locale = setlocale(LC_ALL, "");
+			LOG_ERROR("Failed to render TTF glyph '%lc' in font \"%s\": %s", glyphs[i_glyph],
+				_font_name.c_str(), TTF_GetError());
+			setlocale(LC_ALL, locale);
 			return false;
 		}
 
@@ -1378,10 +1462,13 @@ bool Font::render_glyph(size_t i_glyph, int size, int y_delta, int outline_size,
 	}
 	else
 	{
-		glyph_surface = TTF_RenderGlyph_Solid(font, glyph, white);
+		glyph_surface = TTF_RenderGlyph_Blended(font, glyph, white);
 		if (!glyph_surface)
 		{
-			LOG_ERROR("Failed to render TTF glyph: %s", TTF_GetError());
+			const char* locale = setlocale(LC_ALL, "");
+			LOG_ERROR("Failed to render TTF glyph '%lc' in font \"%s\": %s", glyphs[i_glyph],
+				_font_name.c_str(), TTF_GetError());
+			setlocale(LC_ALL, locale);
 			return false;
 		}
 	}
@@ -1392,9 +1479,12 @@ bool Font::render_glyph(size_t i_glyph, int size, int y_delta, int outline_size,
 	int row = i_glyph / font_chars_per_line;
 	int col = i_glyph % font_chars_per_line;
 
+	// Reserve space for the outline, even when it is not used
+	int row_height = size + 2 * _outline + 2;
+
 	SDL_Rect area;
 	area.x = col*size;
-	area.y = row*(size+2) + 1 + y_delta - outline_size;
+	area.y = row*row_height + 1 + y_delta + _outline - outline_size;
 	area.w = width;
 	area.h = height;
 
@@ -1408,26 +1498,45 @@ bool Font::render_glyph(size_t i_glyph, int size, int y_delta, int outline_size,
 		return false;
 	}
 
-	int y_min, y_max;
+	int y_min, y_max, x_min;
 	_metrics[i_glyph].width = width;
-	TTF_GlyphMetrics(font, glyph, nullptr, nullptr, &y_min, &y_max, &_metrics[i_glyph].advance);
+	TTF_GlyphMetrics(font, glyph, &x_min, nullptr, &y_min, &y_max, &_metrics[i_glyph].advance);
+	_metrics[i_glyph].x_off = std::min(x_min, 0);
 	_metrics[i_glyph].top = y_delta + TTF_FontAscent(font) - y_max;
 	_metrics[i_glyph].bottom = y_delta + TTF_FontAscent(font) - y_min;
 	_metrics[i_glyph].u_start = float(col * size) / surface->w;
-	_metrics[i_glyph].v_start = float(row * (size+2) + 1) / surface->h;
+	_metrics[i_glyph].v_start = float(row * row_height + 1) / surface->h;
 	_metrics[i_glyph].u_end = float(col * size + width) / surface->w;
-	_metrics[i_glyph].v_end = float(row * (size+2) + size + 1) / surface->h;
+	_metrics[i_glyph].v_end = float(row * row_height + row_height - 1) / surface->h;
 
 	return true;
 }
 
 int Font::find_point_size(int height)
 {
-	int min = 0, max = 2 * height;
+	// If the point size is too small, we may run into problems later where the size of the
+	// glyph becomes zero. This leads to an error in the generation of the texture atlas, which
+	// will reset the font to the default font. It is hard to distinguish such errors, where the
+	// font size is simply too small, from real rendering issues. So we cap the point size at a
+	// minimum of 6, which seems to be a safe limit.
+	static const int min_point_size = 6;
+
+	int min = min_point_size, max = 2 * height;
+	if (max <= min)
+	{
+		// Height is too small. Check if the font will open at the minimum point size. If not
+		// return 0 to use the default point size and hope for the best.
+		TTF_Font *font = open_font(_file_name, min);
+		if (!font)
+			return 0;
+		TTF_CloseFont(font);
+		return min;
+	}
+
 	while (max > min + 1)
 	{
 		int mid = (min + max) / 2;
-		TTF_Font *font = open_font(_file_name.c_str(), mid);
+		TTF_Font *font = open_font(_file_name, mid);
 		if (!font)
 			return 0;
 
@@ -1455,10 +1564,8 @@ bool Font::build_texture_atlas()
 		return false;
 	}
 
-	// First try to interpret ttf_file_name as a path relative to ttf_directory. If that fails,
-	// try as an absolute path.
 	int point_size = _point_size ? _point_size : ttf_point_size;
-	TTF_Font *font = open_font(_file_name.c_str(), point_size);
+	TTF_Font *font = open_font(_file_name, point_size);
 	if (!font)
 	{
 		LOG_ERROR("Failed to open TrueType font %s: %s", _file_name.c_str(), TTF_GetError());
@@ -1466,13 +1573,7 @@ bool Font::build_texture_atlas()
 		return false;
 	}
 
-	// SDL_ttf versions < 2.0.15 don't take transparency into account, so don't draw shadows
-	// if the run-time version of this library version is too old.
-	const SDL_version *link_version = TTF_Linked_Version();
-	bool draw_shadow = link_version->major > 2
-		|| (link_version->major == 2 && link_version->minor > 0)
-		|| (link_version->major == 2 && link_version->minor == 0 && link_version->patch >= 15);
-	int outline_size = draw_shadow ? _outline : 0;
+	int outline_size = has_outline() ? _outline : 0;
 
 	int size = TTF_FontLineSkip(font);
 	int width = next_power_of_two(font_chars_per_line * size);
@@ -1480,7 +1581,7 @@ bool Font::build_texture_atlas()
 	// alternative view on texture coordinates (i.e. off by one pixel). Perhaps they may lose a
 	// single pixel row of a really high character, but at least we won't draw part of the character
 	// bwlow or above it.
-	int height = next_power_of_two(nr_rows * (size + 2));
+	int height = next_power_of_two(nr_rows * (size + 2 * _outline + 2));
 	SDL_Surface *image = SDL_CreateRGBSurface(SDL_SWSURFACE, width, height, 32,
 #if SDL_BYTEORDER == SDL_LIL_ENDIAN /* OpenGL RGBA masks */
 		0x000000FF,
@@ -1529,17 +1630,33 @@ bool Font::build_texture_atlas()
 	_block_width = size;
 	_line_height = _vertical_advance = size;
 	_font_top_offset = y_delta;
-	int digit_top = std::min_element(_metrics.begin() + 16, _metrics.begin() + 26,
+
+	int digit_start = get_position('0');
+	int digit_end = get_position('9') + 1;
+	int lower_start = get_position('a');
+	int lower_end = get_position('z') + 1;
+	int upper_start = get_position('A');
+	int upper_end = get_position('Z') + 1;
+	int underscore_pos = get_position('_');
+
+	int digit_top = std::min_element(_metrics.begin() + digit_start, _metrics.begin() + digit_end,
 		[](const Metrics& m0, const Metrics& m1) { return m0.top < m1.top; })->top;
-	int digit_bottom = std::max_element(_metrics.begin() + 16, _metrics.begin() + 26,
+	int digit_bottom = std::max_element(_metrics.begin() + digit_start, _metrics.begin() + digit_end,
 		[](const Metrics& m0, const Metrics& m1) { return m0.bottom < m1.bottom; })->bottom;
 	_digit_center_offset = (digit_top + digit_bottom) / 2;
 	int pos = get_position('*');
 	_password_center_offset = (_metrics[pos].top + _metrics[pos].bottom) / 2;
 	_max_advance = std::max_element(_metrics.begin(), _metrics.end(),
 		[](const Metrics& m0, const Metrics& m1) { return m0.advance < m1.advance; })->advance;
-	_max_digit_advance = std::max_element(_metrics.begin() + 16, _metrics.begin() + 26,
+	_max_digit_advance = std::max_element(_metrics.begin() + digit_start, _metrics.begin() + digit_end,
 		[](const Metrics& m0, const Metrics& m1) { return m0.advance < m1.advance; })->advance;
+	_max_name_advance= std::max({_max_digit_advance,
+		_metrics[underscore_pos].advance,
+		std::max_element(_metrics.begin() + upper_start, _metrics.begin() + upper_end,
+			[](const Metrics& m0, const Metrics& m1) { return m0.advance < m1.advance; })->advance,
+		std::max_element(_metrics.begin() + lower_start, _metrics.begin() + lower_end,
+			[](const Metrics& m0, const Metrics& m1) { return m0.advance < m1.advance; })->advance
+	});
 	_avg_advance = calc_average_advance();
 	_scale_x = _scale_y = float(font_block_height - 2) / size;
 	_flags |= Flags::HAS_TEXTURE;
@@ -1563,7 +1680,7 @@ const std::array<size_t, NR_FONT_CATS> FontManager::_default_font_idxs
 	= { 0, 0, 0, 2, 0, 3, 0, 0 };
 std::array<size_t, NR_FONT_CATS> FontManager::font_idxs = { 0, 0, 0, 2, 0, 3, 0, 0, 0 };
 std::array<float, NR_FONT_CATS> FontManager::font_scales
-	= { 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.3, 1.0 };
+	= { 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 };
 
 bool FontManager::initialize()
 {
@@ -1603,7 +1720,60 @@ void FontManager::initialize_ttf()
 		return;
 	}
 
+#ifdef LINUX
+	// on linux there is no standard location for TTF so try others if the current is not valid
+	struct stat stat_str;
+	int file_stat = stat(ttf_directory, &stat_str);
+	if ((file_stat != 0) || !S_ISDIR(stat_str.st_mode))
+	{
+		std::vector<std::string> alt_ttf_dir;
+		alt_ttf_dir.push_back("/usr/share/fonts/TTF");
+		alt_ttf_dir.push_back("/usr/share/fonts/truetype");
+		alt_ttf_dir.push_back("/usr/share/fonts"); // make sure comes after others with the same path
+		for (const auto &i: alt_ttf_dir)
+		{
+			// only look to change if we are using one of the alternative locations
+			// as, the user may have deliberately set out to disabled loading system ttf
+			if (i == std::string(ttf_directory))
+			{
+				for (const auto &j: alt_ttf_dir)
+				{
+					if (j != std::string(ttf_directory))
+					{
+						file_stat = stat(j.c_str(), &stat_str);
+						if ((file_stat == 0) && S_ISDIR(stat_str.st_mode))
+						{
+							safe_strncpy2(ttf_directory, j.c_str(), TTF_DIR_SIZE, j.size());
+							set_var_unsaved("ttf_directory", INI_FILE_VAR);
+							break;
+						}
+					}
+				}
+				break;
+			}
+		}
+	}
+#endif
+
 	size_t nr_existing_fonts = _options.size();
+	// First load from the game fonts directory
+	std::string fonts_dir = std::string(datadir) + "/fonts";
+	for (const char* pattern: patterns)
+	{
+		search_files_and_apply(fonts_dir.c_str(), pattern,
+			[](const char *fname_ptr) {
+				size_t dir_name_len = strlen(datadir);
+				std::string fname;
+				if (!strncmp(fname_ptr, datadir, dir_name_len))
+					fname = fname_ptr + dir_name_len;
+				else
+					fname = fname_ptr;
+				FontOption option(fname);
+				if (!option.failed())
+					FontManager::get_instance()._options.push_back(std::move(option));
+			}, 0);
+	}
+	// Now search files in the user specified fonts directory
 	for (const char* pattern: patterns)
 	{
 		search_files_and_apply(ttf_directory, pattern,
@@ -1619,6 +1789,21 @@ void FontManager::initialize_ttf()
 					FontManager::get_instance()._options.push_back(std::move(option));
 			}, 1);
 	}
+
+	// Remove duplicate fonts, possibly caused by multiple copies of the same font in different
+	// directories. A font is assumed to be a duplicate of another if both the base name of the
+	// file and the font name are equal.
+	std::sort(_options.begin() + nr_existing_fonts, _options.end(),
+		[](const FontOption& f0, const FontOption& f1) {
+			if (f0.file_base_name() == f1.file_base_name())
+				return f0.font_name() < f1.font_name();
+			else
+				return f0.file_base_name() < f1.file_base_name();
+		});
+	auto new_end = std::unique(_options.begin(), _options.end(),
+		[](const FontOption& f0, const FontOption& f1) {
+			return f0.file_base_name() == f1.file_base_name() && f0.font_name() == f1.font_name(); });
+	_options.erase(new_end, _options.end());
 
 	// Sort TTF fonts by font name, but keep them after EL bundled fonts
 	std::sort(_options.begin() + nr_existing_fonts, _options.end(),
@@ -1660,9 +1845,20 @@ void FontManager::add_select_options(bool add_button)
 	}
 }
 
+#ifdef TTF
+static uint32_t get_key(size_t idx, int height, bool outline)
+{
+	// It is unlikely that there will be more than 64k fonts, or that the line height wil be more
+	// than 32k pixels, so combine the three values into a single key 32-bit key.
+	return (outline << 31) | ((height & 0x7fff) << 16) | (idx & 0xffff);
+}
+#endif
+
 Font& FontManager::get(Category cat, float text_zoom)
 {
 	size_t idx = font_idxs[cat];
+	bool outline = cat != BOOK_FONT; // Don't draw an outline for book text
+
 	if (idx > _options.size())
 	{
 #ifdef TTF
@@ -1672,15 +1868,12 @@ Font& FontManager::get(Category cat, float text_zoom)
 			// Probably TTF was disabled, and the settings window was using a TTF font. Check if
 			// it is still available
 			int height = std::round((Font::font_block_height - 2) * text_zoom * font_scales[cat]);
-			uint32_t key = ((height & 0xffff) << 16) | 0xffff;
+			uint32_t key = get_key(0xffff, height, outline);
 			auto it = _fonts.find(key);
 			if (it != _fonts.end())
 				return it->second;
 			else
-{
-printf("huh. not found\n");
 				font_idxs[cat] = idx = 0;
-}
 		}
 		else
 		{
@@ -1697,14 +1890,12 @@ printf("huh. not found\n");
 	int height = _options[idx].is_ttf()
 		? std::round((Font::font_block_height - 2) * text_zoom * font_scales[cat])
 		: 0;
-	// It is unlikely that there will be more than 64k fonts, or that the line height wil be more
-	// than 64k pixels, so combine the two values into a single key 32-bit key.
-	uint32_t key = ((height & 0xffff) << 16) | (idx & 0xffff);
+	uint32_t key = get_key(idx, height, outline);
 	auto it = _fonts.find(key);
 	if (it == _fonts.end())
 	{
 		// The font has not been loaded yet
-		Font font = _options[idx].is_ttf() ? Font(_options[idx], height) : Font(_options[idx]);
+		Font font = _options[idx].is_ttf() ? Font(_options[idx], height, outline) : Font(_options[idx]);
 		it = _fonts.insert(std::make_pair(key, std::move(font))).first;
 	}
 #else // TTF
@@ -1841,6 +2032,8 @@ int use_ttf = 0;
 char ttf_directory[TTF_DIR_SIZE] = "/usr/share/fonts/TTF";
 #elif defined WINDOWS
 char ttf_directory[TTF_DIR_SIZE] = "C:/Windows/Fonts";
+#elif defined OSX
+char ttf_directory[TTF_DIR_SIZE] = "/System/Library/Fonts";
 #else
 char ttf_directory[TTF_DIR_SIZE];
 #endif //
@@ -1858,7 +2051,7 @@ size_t get_fixed_width_font_number(size_t idx)
 
 int get_char_width_zoom(unsigned char c, font_cat cat, float zoom)
 {
-	return FontManager::get_instance().width_spacing(cat, c, zoom);
+	return FontManager::get_instance().advance_spacing(cat, c, zoom);
 }
 int get_max_char_width_zoom(font_cat cat, float zoom)
 {
@@ -1871,6 +2064,10 @@ int get_avg_char_width_zoom(font_cat cat, float zoom)
 int get_max_digit_width_zoom(font_cat cat, float zoom)
 {
 	return FontManager::get_instance().max_digit_width_spacing(cat, zoom);
+}
+int get_max_name_width_zoom(font_cat cat, float zoom)
+{
+	return FontManager::get_instance().max_name_width_spacing(cat, zoom);
 }
 int get_buf_width_zoom(const unsigned char* str, size_t len, font_cat cat, float zoom)
 {

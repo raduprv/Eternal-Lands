@@ -1,6 +1,5 @@
-eternallands (1.9.5.8-2ubuntu1) xenial; urgency=low
+eternallands (1.9.5.9-0ubuntu1) xenial; urgency=low
 
-  * 1.9.5 p9 development see:
-  * https://github.com/raduprv/Eternal-Lands/commits/master
+  * 1.9.5p9 release
 
  -- Paul Broadhead <pjbroad@twinmoons.org.uk>  Mon, 22 Jun 2020 23:18:21 +0100

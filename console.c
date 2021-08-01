@@ -3,8 +3,6 @@
 #include <string.h>
 #include <ctype.h>
 #include <errno.h>
-#include "new_actors.h"
-#include "console.h"
 #include "asc.h"
 #include "buddy.h"
 #include "cache.h"
@@ -28,6 +26,7 @@
 #include "manufacture.h"
 #include "misc.h"
 #include "multiplayer.h"
+#include "new_actors.h"
 #include "notepad.h"
 #include "password_manager.h"
 #include "pm_log.h"
@@ -57,22 +56,29 @@
 
 typedef char name_t[32];
 
-char auto_open_encyclopedia = 1;
-/* Pointer to the array holding the commands */
-command_t *commands;
-/* Array holding names we have seen (for completion) */
-name_t *name_list = NULL;
-/* Counts how many commands we have */
-Uint16 command_count = 0;
-Uint16 name_count = 0;
-/* The command buffer head pointer */
-list_node_t *command_buffer = NULL;
-/* Pointer to our position in the buffer */
-list_node_t *command_buffer_offset = NULL;
-/* The input line before we started moving around in the buffer. */
-char first_input[256] = {0};
+#define MAX_COMMAND_NAME_LEN 64
+typedef struct {
+	char command[MAX_COMMAND_NAME_LEN];
+	int (*callback)();
+} command_t;
 
-int time_warn_h, time_warn_s, time_warn_d;
+char auto_open_encyclopedia = 1;
+int time_warn_h = -1, time_warn_s = -1, time_warn_d = -1;
+
+/* Pointer to the array holding the commands */
+static command_t *commands;
+/* Array holding names we have seen (for completion) */
+static name_t *name_list = NULL;
+/* Counts how many commands we have */
+static Uint16 command_count = 0;
+static Uint16 name_count = 0;
+/* The command buffer head pointer */
+static list_node_t *command_buffer = NULL;
+/* Pointer to our position in the buffer */
+static list_node_t *command_buffer_offset = NULL;
+/* The input line before we started moving around in the buffer. */
+static char first_input[256] = {0};
+
 
 void add_line_to_history(const char *line, int len)
 {
@@ -83,6 +89,7 @@ void add_line_to_history(const char *line, int len)
 	list_push(&command_buffer, copy);
 	command_buffer_offset = NULL;
 }
+
 
 char *history_get_line_up(void)
 {
@@ -101,6 +108,7 @@ char *history_get_line_up(void)
 	}
 }
 
+
 char *history_get_line_down(void)
 {
 	if(command_buffer_offset != NULL) {
@@ -115,15 +123,20 @@ char *history_get_line_down(void)
 	return NULL;
 }
 
+
 void history_reset(void)
 {
 	command_buffer_offset = NULL;
 }
 
+
 void history_destroy(void)
 {
 	list_destroy(command_buffer);
 }
+
+
+static void cleanup_commands_help(void);
 
 void command_cleanup(void)
 {
@@ -133,9 +146,11 @@ void command_cleanup(void)
 	if(name_count > 0) {
 		free(name_list);
 	}
+	cleanup_commands_help();
 }
 
-void add_command(const char *command, int (*callback)())
+
+static void add_command(const char *command, int (*callback)())
 {
 	static int commands_size = 0;
 	int i;
@@ -161,6 +176,7 @@ void add_command(const char *command, int (*callback)())
 	command_count++;
 }
 
+
 void add_name_to_tablist(const char *name)
 {
 	static int list_size = 0;
@@ -183,9 +199,10 @@ void add_name_to_tablist(const char *name)
 	name_count++;
 }
 
+
 /* strmrchr: returns a pointer to the last occurence of c in s,
  * beginning the (reversed) search at begin */
-const char *strmrchr(const char *s, const char *begin, int c)
+static const char *strmrchr(const char *s, const char *begin, int c)
 {
 	char *copy = strdup(s);
 	char *cbegin = copy+(begin-s);
@@ -201,6 +218,7 @@ const char *strmrchr(const char *s, const char *begin, int c)
 		return s+(result-copy);
 	}
 }
+
 
 enum compl_type {
 	COMMAND = 1,
@@ -349,10 +367,11 @@ static struct compl_str tab_complete(const text_message *input, unsigned int cur
 	return return_value;
 }
 
+
 void do_tab_complete(text_message *input)
 {
-	text_field *tf = input_widget->widget_info;
-	struct compl_str completed = tab_complete(input, tf->cursor);
+	int input_cursor = get_console_input_cursor();
+	struct compl_str completed = tab_complete(input, input_cursor);
 
 	if(completed.str != NULL)
 	{
@@ -361,31 +380,33 @@ void do_tab_complete(text_message *input)
 
 		/* Find the length of the data we're removing */
 		if(completed.type == NAME) {
-			const char *last_space = strmrchr(input->data, input->data+tf->cursor, ' ');
+			const char *last_space = strmrchr(input->data, input->data+input_cursor, ' ');
 			/* Name is a bit special because it can be anywhere in a string,
 			 * not just at the beginning like the other types. */
-			len = input->data+tf->cursor-1-(last_space ? last_space : (input->data-1));
+			len = input->data+input_cursor-1-(last_space ? last_space : (input->data-1));
 		} else if (completed.type == CHANNEL) {
-			len = tf->cursor-2;
+			len = input_cursor-2;
 		} else {
-			len = tf->cursor-1;
+			len = input_cursor-1;
 		}
 
 		/* Erase the current input word */
-		for (i = tf->cursor; i <= input->len; i++) {
+		for (i = input_cursor; i <= input->len; i++) {
 			input->data[i-len] = input->data[i];
 		}
 		input->len -= len;
-		tf->cursor -= len;
+		set_console_input_cursor(input_cursor - len);
 		paste_in_input_field((unsigned char*)completed.str);
 		input->len = strlen(input->data);
 	}
 }
 
+
 void reset_tab_completer(void)
 {
 	tab_complete(NULL, 0);
 }
+
 
 int test_for_console_command(char *text, int length)
 {
@@ -432,10 +453,12 @@ int test_for_console_command(char *text, int length)
 	return 0;
 }
 
+
 // -------- COMMAND CALLBACKS -------- //
 // Return 0 if you want the string to be sent to the server.
 // the first argument passed is the input string without the command itself
 // if ie. '#filter foo' is passed to test_for_console_command(), only ' foo' is passed to the callback.
+
 
 /* given the command text, return the start of any parameter text */
 /* e.g. find first space, then skip any spaces */
@@ -448,7 +471,8 @@ static char *getparams(char *text)
 	return text;
 }
 
-int print_emotes(char *text, int len){
+
+static int print_emotes(char *text, int len){
 
 	hash_entry *he;;
 	LOG_TO_CONSOLE(c_orange1,"EMOTES");
@@ -494,7 +518,8 @@ int add_emote(char *text, int len){
 
 }
 
-int send_cmd(char *text, int len){
+
+static int send_cmd(char *text, int len){
 
 	int j,x;
 	char *id;
@@ -532,7 +557,7 @@ int send_cmd(char *text, int len){
 }
 
 
-int set_idle(char *text, int len){
+static int set_idle(char *text, int len){
 
 	int j,x;
 	char *id;
@@ -581,7 +606,8 @@ int set_idle(char *text, int len){
 	return 1;
 }
 
-int set_action(char *text, int len){
+
+static int set_action(char *text, int len){
 
 	int j,x;
 	char *id;
@@ -630,8 +656,9 @@ int set_action(char *text, int len){
 }
 #endif
 
+
 #ifdef MORE_ATTACHED_ACTORS_DEBUG
-int horse_cmd(char* text, int len){
+static int horse_cmd(char* text, int len){
 
 	int j,x;
 	char *id;
@@ -680,8 +707,9 @@ int horse_cmd(char* text, int len){
 }
 #endif
 
+
 #ifdef NECK_ITEMS_DEBUG
-int set_neck(char *text, int len){
+static int set_neck(char *text, int len){
 
 	int j;
 	char *id;
@@ -723,13 +751,14 @@ int set_neck(char *text, int len){
 #endif
 
 
-int command_cls(char *text, int len)
+static int command_cls(char *text, int len)
 {
 	clear_display_text_buffer ();
 	return 1;
 }
 
-int command_calc(char *text, int len)
+
+static int command_calc(char *text, int len)
 {
 	double res;
 	char str[100];
@@ -782,7 +811,8 @@ int command_calc(char *text, int len)
 	return 1;
 }
 
-int command_markpos(char *text, int len)
+
+static int command_markpos(char *text, int len)
 {
 	int map_x, map_y;
 	char *ptr = text;
@@ -813,6 +843,7 @@ int command_markpos(char *text, int len)
 	return 1;
 }
 
+
 int command_mark(char *text, int len)
 {
 	if (strlen(text) > 1) //check for empty marks
@@ -830,6 +861,7 @@ int command_mark(char *text, int len)
 	}
 	return 1;
 }
+
 
 int command_unmark_special(char *text, int len, int do_log)
 {
@@ -864,13 +896,14 @@ int command_unmark_special(char *text, int len, int do_log)
 	return 1;
 }
 
+
 int command_unmark(char *text, int len)
 {
 	return command_unmark_special(text, len, 1);
 }
 
 
-int command_mark_color(char *text, int len)
+static int command_mark_color(char *text, int len)
 {
 	char str[512];
 
@@ -904,50 +937,48 @@ int command_mark_color(char *text, int len)
 }
 
 
-int command_stats(char *text, int len)
+static int command_stats(char *text, int len)
 {
-	unsigned char protocol_name;
-
-	protocol_name = SERVER_STATS;
-	my_tcp_send(my_socket, &protocol_name, 1);
+	unsigned char protocol_name = SERVER_STATS;
+	my_tcp_send(&protocol_name, 1);
 	return 1;
 }
+
 
 int command_time(char *text, int len)
 {
-	unsigned char protocol_name;
-
-	protocol_name = GET_TIME;
-	my_tcp_send(my_socket,&protocol_name,1);
+	unsigned char protocol_name = GET_TIME;
+	my_tcp_send(&protocol_name, 1);
 	return 1;
 }
+
 
 int command_ping(char *text, int len)
 {
-	Uint8 str[8];
+	Uint8 str[5] = { PING };
 
-	str[0] = PING;
 	*((Uint32 *)(str+1)) = SDL_SwapLE32(SDL_GetTicks());
-	my_tcp_send(my_socket, str, 5);
+	my_tcp_send(str, 5);
 	return 1;
 }
+
 
 int command_date(char *text, int len)
 {
-	unsigned char protocol_name;
-
-	protocol_name = GET_DATE;
-	my_tcp_send(my_socket, &protocol_name, 1);
+	unsigned char protocol_name = GET_DATE;
+	my_tcp_send(&protocol_name, 1);
 	return 1;
 }
 
-int command_quit(char *text, int len)
+
+static int command_quit(char *text, int len)
 {
 	exit_now = 1;
 	return 1;
 }
 
-int command_mem(char *text, int len)
+
+static int command_mem(char *text, int len)
 {
 	cache_dump_sizes(cache_system);
 #ifdef	DEBUG
@@ -955,7 +986,9 @@ int command_mem(char *text, int len)
 #endif	//DEBUG
 	return 1;
 }
-int command_ver(char *text, int len)
+
+
+static int command_ver(char *text, int len)
 {
 	char str[250];
 
@@ -964,7 +997,8 @@ int command_ver(char *text, int len)
 	return 1;
 }
 
-int command_ignore(const char *text, int len)
+
+static int command_ignore(const char *text, int len)
 {
 	char name[MAX_USERNAME_LENGTH];
 	int i;
@@ -1018,7 +1052,8 @@ int command_ignore(const char *text, int len)
 	return 1;
 }
 
-int command_filter(char *text, int len)
+
+static int command_filter(char *text, int len)
 {
 	char name[256];
 	char str[100];
@@ -1069,7 +1104,8 @@ int command_filter(char *text, int len)
 	return 1;
 }
 
-int command_unignore(char *text, int len)
+
+static int command_unignore(char *text, int len)
 {
 	char name[MAX_USERNAME_LENGTH];
 	char str[200];
@@ -1117,7 +1153,8 @@ int command_unignore(char *text, int len)
 	return 1;
 }
 
-int command_unfilter(char *text, int len)
+
+static int command_unfilter(char *text, int len)
 {
 	char name[64];
 	char str[200];
@@ -1163,7 +1200,8 @@ int command_unfilter(char *text, int len)
 	return 1;
 }
 
-int command_glinfo (const char *text, int len)
+
+static int command_glinfo (const char *text, int len)
 {
 	const char *my_string;
 	size_t size = 8192, minlen;
@@ -1227,7 +1265,7 @@ int command_glinfo (const char *text, int len)
 /*  Display book names that match the specified string, or all if
  *  no string specified.  Highlighing the books that have been read.
  */
-int knowledge_command(char *text, int len)
+static int knowledge_command(char *text, int len)
 {
 	char this_string[90], count_str[60];
 	char *cr;
@@ -1272,10 +1310,10 @@ int knowledge_command(char *text, int len)
 
 	for (i=0; i<KNOWLEDGE_LIST_SIZE; i++)
 	{
+		size_t len = strlen(knowledge_list[i].name);
 		// only display books that contain the specified parameter string
 		// shows all books if no string specified
-		if ((strlen(knowledge_list[i].name) > 0) &&
-			(get_string_occurance(text, knowledge_list[i].name, strlen(knowledge_list[i].name), 1) != -1))
+		if (len > 0 && safe_strcasestr(knowledge_list[i].name, len, text, strlen(text)))
 		{
 			// remove any trailing carrage return
 			safe_strncpy(this_string, knowledge_list[i].name, sizeof(this_string));
@@ -1306,7 +1344,7 @@ int knowledge_command(char *text, int len)
 }
 
 
-int command_log_conn_data(char *text, int len)
+static int command_log_conn_data(char *text, int len)
 {
 	if(!log_conn_data){
 		LOG_TO_CONSOLE(c_grey1,logconn_str);
@@ -1317,8 +1355,9 @@ int command_log_conn_data(char *text, int len)
 	return 1;
 }
 
+
 // TODO: make this automatic or a better command, m is too short
-int command_msg(char *text, int len)
+static int command_msg(char *text, int len)
 {
 	int no;
 
@@ -1336,7 +1375,8 @@ int command_msg(char *text, int len)
 	return 1;
 }
 
-int command_afk(char *text, int len)
+
+static int command_afk(char *text, int len)
 {
 	// find first space, then skip any spaces
 	while(*text && !isspace(*text)) {
@@ -1361,7 +1401,8 @@ int command_afk(char *text, int len)
 	return 1;
 }
 
-int command_help(char *text, int len)
+
+static int command_help(char *text, int len)
 {
 	// help can open the Enc!
 	if(auto_open_encyclopedia)
@@ -1369,7 +1410,8 @@ int command_help(char *text, int len)
 	return 1;
 }
 
-int command_storage(char *text, int len)
+
+static int command_storage(char *text, int len)
 {
 	int i;
 
@@ -1412,7 +1454,8 @@ int command_storage(char *text, int len)
 	return 0;
 }
 
-int command_accept_buddy(char *text, int len)
+
+static int command_accept_buddy(char *text, int len)
 {
 	/* This command is here to make sure the requests queue is up to date */
 	text = getparams(text);
@@ -1500,7 +1543,7 @@ static int command_cast_spell(char *text, int len)
 
 
 /* display or test the md5sum of the current map or the specified file */
-int command_ckdata(char *text, int len)
+static int command_ckdata(char *text, int len)
 {
 	const int DIGEST_LEN = 16;
 	Uint8 digest[DIGEST_LEN];
@@ -1578,7 +1621,7 @@ int command_ckdata(char *text, int len)
 
 
 /* pretend the specified key has been pressed - allows user menu to trigger keypress events */
-int command_keypress(char *text, int len)
+static int command_keypress(char *text, int len)
 {
 	text = getparams(text);
 	if (*text)
@@ -1593,7 +1636,7 @@ int command_keypress(char *text, int len)
 
 //	Set the number of items to transfer
 //
-int command_quantity(char *text, int len)
+static int command_quantity(char *text, int len)
 {
 	char str[80];
 	int calcerr;
@@ -1649,7 +1692,7 @@ void auto_save_local_and_server(void)
 	actor *me;
 
 	me = get_our_actor();
-	if(!disconnected && me && !me->fighting && ((last_save_time + time_delta) <= time(NULL)))
+	if(!is_disconnected() && me && !me->fighting && ((last_save_time + time_delta) <= time(NULL)))
 	{
 		last_save_time = time(NULL);
 		save_local_data();
@@ -1667,6 +1710,7 @@ static int session_counters(char *text, int len)
 	return 1;
 }
 
+
 /* the #save command, save local file then pass to server to save there too */
 static int command_save(char *text, int len)
 {
@@ -1674,6 +1718,7 @@ static int command_save(char *text, int len)
 	LOG_TO_CONSOLE(c_green1, full_save_str);
 	return 0; // pass onto server
 }
+
 
 /* the #disco or #disconnect command forces a server logout */
 static int command_disconnect(char *text, int len)
@@ -1684,6 +1729,7 @@ static int command_disconnect(char *text, int len)
 	return 1;
 }
 
+
 /* initilates a test for server connection, the client will enter the disconnected state if needed */
 static int command_relogin(char *text, int len)
 {
@@ -1691,11 +1737,19 @@ static int command_relogin(char *text, int len)
 	return 1;
 }
 
+
 static int command_change_pass(char *text, int len)
 {
-	passmngr_pending_pw_change(getparams(text));
-	return 0;
+	if (!passmngr_pending_pw_change(getparams(text)))
+	{
+		LOG_TO_CONSOLE(c_red1, invalid_pass);
+		LOG_TO_CONSOLE(c_red1, password_format_str);
+		return 1;
+	}
+	else
+		return 0;
 }
+
 
 static int command_reset_res(char *text, int len)
 {
@@ -1703,6 +1757,7 @@ static int command_reset_res(char *text, int len)
 	LOG_TO_CONSOLE(c_yellow1, reset_res_str);
 	return 1;
 }
+
 
 static int command_set_res(char *text, int len)
 {
@@ -1725,12 +1780,14 @@ static int command_set_res(char *text, int len)
 	return 1;
 }
 
+
 static int command_save_res(char *text, int len)
 {
 	set_user_defined_video_mode();
 	LOG_TO_CONSOLE(c_yellow1, save_res_str);
 	return 1;
 }
+
 
 static int command_show_res(char *text, int len)
 {
@@ -1740,12 +1797,213 @@ static int command_show_res(char *text, int len)
 	return 1;
 }
 
+
 #ifdef CONTEXT_MENUS_TEST
 int cm_test_window(char *text, int len);
 #endif
 
+
+// list the #commands available
+static void commands_summary(void)
+{
+	char *str = NULL;
+	const char *delim = "  .  ";
+	const size_t str_len = 1 + (MAX_COMMAND_NAME_LEN + strlen(delim)) * command_count;
+	size_t i;
+
+	if ((str = malloc(str_len)) == NULL)
+		return;
+
+	LOG_TO_CONSOLE(c_green1, commands_help_description_help_str);
+	LOG_TO_CONSOLE(c_green1, commands_help_search_help_str);
+	str[0] = '\0';
+	for(i = 0; i < command_count; i++) 
+	{
+		if (str[0] != '\0')
+			safe_strcat(str, delim, str_len);
+		safe_strcat(str, commands[i].command, str_len);
+	}
+	if (str[0] != '\0')
+		LOG_TO_CONSOLE(c_grey1, str);
+
+	free(str);
+}
+
+
+// a structure to store command name, paramaters string and description string for commands help
+typedef struct
+{
+	char *c_str;
+	char *p_str;
+	char *d_str;
+} commands_help_t;
+
+static commands_help_t *commands_help = NULL;
+static size_t commands_help_size = 0;
+static int commands_help_loaded = 0;
+
+
+// free memory used by the commands help
+static void cleanup_commands_help(void)
+{
+	size_t i;
+	if (!commands_help_size)
+		return;
+	commands_help_loaded = 0;
+	for (i = 0; i < commands_help_size; i++)
+	{
+		if (commands_help[i].c_str != NULL)
+			free(commands_help[i].c_str); 
+		if (commands_help[i].p_str != NULL)
+			free(commands_help[i].p_str); 
+		if (commands_help[i].d_str != NULL)
+			free(commands_help[i].d_str); 
+	}
+	free(commands_help);
+	commands_help_size = 0;
+	commands_help = NULL;
+}
+
+
+// Load the commands help file
+static int load_commands_help(void)
+{
+	FILE *fp = NULL;
+	char *line = NULL;
+	const char *delim = " ## ";
+	size_t delim_len = strlen(delim);
+	const size_t line_buf_len = 2048;
+	const char *filename = "commands_help.txt";
+	if ((fp = open_file_lang(filename, "r")) == NULL)
+	{
+		LOG_ERROR("%s [%s]\n", cant_open_file, filename);
+		return 0;
+	}
+	line = malloc(line_buf_len);
+	if (line == NULL)
+		return 0;
+	while (!feof(fp))
+	{
+		if ((fgets(line, line_buf_len, fp) != NULL) && (strlen(line) > 3 * delim_len))
+		{
+			size_t line_len = strlen(line);
+			size_t c_len, p_len, d_len;
+			char *c_str, *p_str, *d_str;
+			int is_valid = 0;
+			if (line[line_len - 1] == '\n')
+				line[--line_len] = '\0';
+			c_str = line;
+			p_str = strstr(c_str, delim);
+			if ((p_str != NULL) && (strlen(p_str) > delim_len))
+			{
+				d_str = strstr(p_str + delim_len, delim);
+				if ((d_str != NULL) && (strlen(d_str) > delim_len))
+				{
+					c_len = p_str - c_str;
+					p_str += delim_len;
+					p_len = d_str - p_str;
+					d_str += delim_len;
+					d_len = strlen(d_str);
+					if ((c_len > 0) && (d_len > 0))
+					{
+						commands_help = realloc(commands_help, sizeof(commands_help_t) * ++commands_help_size);
+						if (commands_help != NULL)
+						{
+							commands_help_t *ptr = &commands_help[commands_help_size - 1];
+							ptr->c_str = malloc(c_len + 1);
+							ptr->p_str = malloc(p_len + 1);
+							ptr->d_str = malloc(d_len + 1);
+							safe_strncpy2(ptr->c_str, c_str, c_len + 1, c_len);
+							safe_strncpy2(ptr->p_str, p_str, p_len + 1, p_len);
+							safe_strncpy2(ptr->d_str, d_str, d_len + 1, d_len);
+							is_valid = 1;
+						}
+					}
+				}
+			}
+			if (!is_valid)
+				LOG_ERROR("Invalid command help line [%s]\n", line);
+		}
+	}
+	free(line);
+	fclose(fp);
+	return 1;
+}
+
+// list #commands where the specified text can be found in there
+// command name, parameters or description.
+static int command_commands_search(char *text, int len)
+{
+	text = getparams(text);
+	if (*text)
+	{
+		char str[256];
+		size_t i;
+		if (!commands_help_loaded)
+			commands_help_loaded = load_commands_help();
+		safe_snprintf(str, sizeof(str), "%s <%s> :-", commands_search_prefix_str, text);
+		LOG_TO_CONSOLE(c_green1, str);
+		for (i = 0; i < commands_help_size; i++)
+		{
+			if ((safe_strcasestr(commands_help[i].d_str, strlen(commands_help[i].d_str), text, strlen(text)) != NULL) ||
+				(safe_strcasestr(commands_help[i].c_str, strlen(commands_help[i].c_str), text, strlen(text)) != NULL) ||
+				(safe_strcasestr(commands_help[i].p_str, strlen(commands_help[i].p_str), text, strlen(text)) != NULL))
+			{
+				safe_snprintf(str, sizeof(str), "%s %s - %s",
+					commands_help[i].c_str, commands_help[i].p_str, commands_help[i].d_str);
+				LOG_TO_CONSOLE(c_grey1, str);
+			}
+		}
+	}
+	return 1;
+}
+
+
+// list all commands or show help for specified command
+static int command_commands(char *text, int len)
+{
+	text = getparams(text);
+	if (*text)
+	{
+		char str[128];
+		size_t i;
+		if (!commands_help_loaded)
+			commands_help_loaded = load_commands_help();
+		for (i = 0; i < commands_help_size; i++)
+		{
+			if (strcmp(text, commands_help[i].c_str) == 0)
+			{
+				safe_snprintf(str, sizeof(str), "%s: #%s %s",
+					commands_help_prefix_str, commands_help[i].c_str, commands_help[i].p_str);
+				LOG_TO_CONSOLE(c_green1, str);
+				LOG_TO_CONSOLE(c_grey1, commands_help[i].d_str);
+				return 1;
+			}
+		}
+		if (commands_help_size)
+		{
+			safe_snprintf(str, sizeof(str), "%s [%s]", commands_help_not_recognsed_str, text);
+			LOG_TO_CONSOLE(c_red1, str);
+		}
+		else
+			LOG_TO_CONSOLE(c_red1, commands_help_not_loaded_str);
+	}
+	else
+		commands_summary();
+	return 1;
+}
+
+
+static int command_cmp(const void *a, const void *b)
+{
+	return strcmp(((const command_t *)a)->command,
+				((command_t *)b)->command);
+}
+
+
 void init_commands(const char *filename)
 {
+	char tmp_name[MAX_COMMAND_NAME_LEN];
 	FILE *fp = open_file_data(filename, "r");
 	if(fp == NULL) {
 		LOG_ERROR("%s: %s \"%s\": %s\n", reg_error_str, cant_open_file, filename, strerror(errno));
@@ -1777,13 +2035,11 @@ void init_commands(const char *filename)
 	}
 
 #ifdef MORE_ATTACHED_ACTORS_DEBUG
-add_command("horse", &horse_cmd);
+	add_command("horse", &horse_cmd);
 #endif
-
 #ifdef NECK_ITEMS_DEBUG
 	add_command("set_neck", &set_neck);
 #endif
-
 	add_command("emotes", &print_emotes);
 #ifdef EMOTES_DEBUG
 	add_command("add_emote", &add_emote);
@@ -1860,13 +2116,22 @@ add_command("horse", &horse_cmd);
 	add_command(cmd_disconnect, &command_disconnect);
 	add_command(cmd_disco, &command_disconnect);
 	add_command("q", &command_quantity);
-	add_command(quantity_str, &command_quantity);
+	safe_strncpy(tmp_name, quantity_str, MAX_COMMAND_NAME_LEN);
+	add_command(my_tolower(tmp_name), &command_quantity);
 	add_command("change_pass", &command_change_pass);
-
 	add_command("reset_res", &command_reset_res);
 	add_command("set_res", &command_set_res);
 	add_command("save_res", &command_save_res);
 	add_command("show_res", &command_show_res);
+	add_command("#", &command_commands);
+	add_command("?", &command_commands_search);
+	add_command("set_default_fonts", &command_set_default_fonts);
+
+	// Sort the command list alphabetically so that the #command lists
+	// them sorted and the ctrl+SPACE cycles them sorted.  Assumes no
+	// other add_command() calls take place after this, otherwise the
+	// sorted order will likely be wrong.
+	qsort(commands, command_count, sizeof(command_t), command_cmp);
 
 	command_buffer_offset = NULL;
 }

@@ -261,7 +261,7 @@ void check_then_do_buff_duration_request(void)
 
 		str[0] = GET_BUFF_DURATION;
 		*((Uint16 *)(str+1)) = SDL_SwapLE16(last_requested_duration);
-		my_tcp_send (my_socket, str, 3);
+		my_tcp_send(str, 3);
 	}
 }
 
@@ -292,7 +292,7 @@ static void init_sigils(void);
 
 void repeat_spell(void){
 	if(last_spell_len > 0)
-		my_tcp_send(my_socket, last_spell_str, last_spell_len);
+		my_tcp_send(last_spell_str, last_spell_len);
 }
 
 //returns a node with tagname, starts searching from the_node
@@ -687,7 +687,7 @@ void draw_spell_icon_strings(window_info *win)
 	active_spells_size = (int)(0.5 + win->current_scale * 32);
 	active_spells_offset = (int)(0.5 + win->current_scale * 64);
 
-	y_start = window_height - hud_y - active_spells_offset - win->small_font_len_y;
+	y_start = window_height - HUD_MARGIN_Y - active_spells_offset - win->small_font_len_y;
 
 	for (i = 0; i < NUM_ACTIVE_SPELLS; i++)
 	{
@@ -860,7 +860,7 @@ void display_spells_we_have(void)
 			cur_pos=i;
 
 			x_start = (active_spells_size + 1) * cur_pos;
-			y_start = window_height - hud_y - active_spells_offset;
+			y_start = window_height - HUD_MARGIN_Y - active_spells_offset;
 
 			duration = active_spells[i].duration;
 
@@ -1645,11 +1645,8 @@ void process_network_spell (const char *data, int len)
 
 	if(mqb_data[0]->spell_id!=data[1]){
 		if(!have_spell_name(data[1])){
-			Uint8 str[2];
-
-			str[0]=SPELL_NAME;
-			str[1]=data[1];
-			my_tcp_send(my_socket, str, 2);
+			Uint8 str[2] = { SPELL_NAME, data[1] };
+			my_tcp_send(str, 2);
 		}
 
 		mqb_data[0]->spell_id=data[1];
@@ -1747,7 +1744,7 @@ static int spell_clear_handler(void)
 
 void send_spell(Uint8 *str, int len)
 {
-	my_tcp_send(my_socket, str, len);
+	my_tcp_send(str, len);
 	memcpy(last_spell_str, str, len);
 	last_spell_len = len;
 }

@@ -77,15 +77,17 @@ namespace Password_Manaager
 			void load(void);
 			void set_details(void) const;
 			void add(const std::string& user_name, const std::string& password);
-			void pending_change(const char * old_and_new_password);
-			void confirm_change(void);
+			static bool is_valid_password(const std::string &password);
+			static bool get_validated_new_pasword(const char * old_and_new_password, std::string &new_password);
+			void pending_change(const std::string& password) { pending_new_password = password; }
+			bool confirm_change(void);
 			size_t size(void) const { return logins.size(); }
 			std::vector<Login>::const_iterator begin() const { return logins.begin(); }
 			std::vector<Login>::const_iterator end() const { return logins.end(); }
 		private:
 			bool common_add(const std::string& user_name, const std::string& password);
 			void save(void);
-			std::string pending_old_and_new_password;
+			std::string pending_new_password;
 			std::vector<Login> logins;
 			std::string file_name;
 			XOR_Cipher::Cipher cipher;
@@ -130,24 +132,46 @@ namespace Password_Manaager
 		}
 	}
 
-	//	Save details when a password change is requested with a #change_pass command.  It will not be saved until confirmed.
+	//	Validates the string is a password, of the correct size and containing valid characters.
 	//
-	void Logins::pending_change(const char * old_and_new_password)
+	bool Logins::is_valid_password(const std::string &password)
 	{
-		pending_old_and_new_password = std::string(old_and_new_password);
+		if ((password.size() < MIN_PASSWORD_LEN) || (password.size() >= MAX_PASSWORD_LEN))
+			return false;
+		for (auto c: password)
+			if (!VALID_PASSWORD_CHAR(c))
+				return false;
+		return true;
+	}
+
+	//	Common function to validate the string contains two words, and that the second at least is a valid password
+	//	Returns true if the second word is a valid password and returned in the provided string
+	//
+	bool Logins::get_validated_new_pasword(const char * old_and_new_password, std::string &new_password)
+	{
+		std::istringstream iss(old_and_new_password);
+		std::vector<std::string> words((std::istream_iterator<std::string>(iss)), std::istream_iterator<std::string>());
+		if ((words.size() == 2) && is_valid_password(words[1]))
+		{
+			new_password = words[1];
+			return true;
+		}
+		else
+			return false;
 	}
 
 	//	Called when the server sends the change password confirmation.  Save the new password.
-	void Logins::confirm_change(void)
+	//
+	bool Logins::confirm_change(void)
 	{
-		std::istringstream iss(pending_old_and_new_password);
-		std::vector<std::string> words((std::istream_iterator<std::string>(iss)), std::istream_iterator<std::string>());
-		if ((words.size() == 2) && (words[1].size() < MAX_USERNAME_LENGTH))
+		bool ret_value;
+		if ((ret_value = is_valid_password(pending_new_password)))
 		{
-			add(get_username(), words[1]);
-			set_password(words[1].c_str());
+			add(get_username(), pending_new_password);
+			set_password(pending_new_password.c_str());
 		}
-		pending_old_and_new_password = std::string();
+		pending_new_password.clear();
+		return ret_value;
 	}
 
 	//	Set the current password assiociated with the current username.
@@ -470,20 +494,24 @@ extern "C"
 		}
 	}
 
-	void passmngr_pending_pw_change(const char * old_and_new_password)
+	int passmngr_pending_pw_change(const char * old_and_new_password)
 	{
+		std::string new_password;
+		if (!Password_Manaager::Logins::get_validated_new_pasword(old_and_new_password, new_password))
+			return 0;
 		if (!passmngr_enabled)
-			return;
+			return 1;
 		passmngr_init();
-		logins->pending_change(old_and_new_password);
+		logins->pending_change(new_password);
+		return 1;
 	}
 
-	void passmngr_confirm_pw_change(void)
+	int passmngr_confirm_pw_change(void)
 	{
 		if (!passmngr_enabled)
-			return;
+			return 1;
 		passmngr_init();
-		logins->confirm_change();
+		return (logins->confirm_change()) ?1: 0;
 	}
 
 	void passmngr_init(void)

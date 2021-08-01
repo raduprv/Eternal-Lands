@@ -12,6 +12,7 @@ extern "C" {
 
 // How long a username is allowed to be. This define allows for the trailing NULL
 #define MAX_USERNAME_LENGTH (15 + 1)
+#define MIN_USERNAME_LEN 3
 
 // How long a username is allowed to be. This define allows for the trailing NULL
 #define MAX_SERVER_LENGTH (15 + 1)
@@ -23,6 +24,8 @@ extern char active_password_str[MAX_USERNAME_LENGTH]; /*!< the password of the a
 extern char active_server_str[MAX_SERVER_LENGTH]; /*!< the server for the client to connect to */
 
 #define VALID_PASSWORD_CHAR(ch) (ch>=33 && ch<126)
+#define MAX_PASSWORD_LEN MAX_USERNAME_LENGTH
+#define MIN_PASSWORD_LEN 4
 
 /*!
  * \name Getters and setters for current username, password and server.

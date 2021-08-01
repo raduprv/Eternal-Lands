@@ -53,10 +53,8 @@ void go_afk()
 	LOG_TO_CONSOLE(c_green1,going_afk);
 	if(!you_sit) 
 		{
-			Uint8 str[4];
-			str[0]=SIT_DOWN;
-			str[1]=1;
-			my_tcp_send(my_socket,str,2);
+			Uint8 str[2] = { SIT_DOWN, 1 };
+			my_tcp_send(str, 2);
 		}
 	afk++;
 	save_url_count();
@@ -71,7 +69,7 @@ void go_ifk()
 void check_afk_state(void)
 {
 	//AFK?
-	if(!disconnected && afk_time)
+	if(!is_disconnected() && afk_time)
 	{
 		if(cur_time-last_action_time>afk_time) 
 		{
@@ -293,6 +291,6 @@ void send_afk_message (const char *server_msg, int len, Uint8 channel)
 	}
 	if (sendtext[1] != '\0') 
 	{
-		my_tcp_send (my_socket, sendtext, strlen ((char*)&sendtext[1]) + 1);
+		my_tcp_send(sendtext, strlen ((char*)&sendtext[1]) + 1);
 	}
 }

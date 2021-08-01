@@ -239,6 +239,7 @@ namespace ItemLists
 			void reset_position(void);
 			void make_active_visable(void);
 			void cm_names_pre_show(void);
+			int cm_name_action(int option);
 			int keypress(SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_mod);
 			void resized_name_panel(window_info *win);
 			void reset_pickup_fail_time(void) { pickup_fail_time = SDL_GetTicks(); }
@@ -275,6 +276,7 @@ namespace ItemLists
 			int last_items_list_on_left;
 			const char *desc_str;
 			Uint32 pickup_fail_time;
+			enum { CMN_CREATE, CMN_RENAME, SEP1, CMN_UPDATE, SEP2, CMN_DELETE, SEP3, CMN_DFIND, SEP4, CMN_RELOAD, SEP5, CMN_FTAG };
 	};
 
 
@@ -931,7 +933,7 @@ namespace ItemLists
 
 			cm_selected_item_menu = cm_create(cm_item_list_selected_str, cm_selected_item_handler);
 			cm_names_menu = cm_create(cm_item_list_names_str, cm_names_handler);
-			cm_bool_line(cm_names_menu, 5, &items_list_disable_find_list, 0);
+			cm_bool_line(cm_names_menu, CMN_DFIND, &items_list_disable_find_list, 0);
 			cm_set_pre_show_handler(cm_names_menu, cm_names_pre_show_handler);
 
 			names_scroll_id = vscrollbar_add_extended(win_id, 1, NULL, 0, 0, 0, 0, 0,
@@ -1028,8 +1030,9 @@ namespace ItemLists
 			if (!resizing)
 				for (size_t i=0; i<help_str.size(); ++i)
 					show_help(help_str[i], 0, static_cast<int>(0.5 + win->len_y + 10 + win->small_font_len_y * help_lines_shown++), win->current_scale);
-			help_str.clear();
 		}
+		if (!help_str.empty())
+			help_str.clear();
 
 		glDisable(GL_TEXTURE_2D);
 
@@ -1314,13 +1317,6 @@ CHECK_GL_ERRORS();
 					do_click_sound();
 				if (flags & ELW_LEFT_MOUSE)
 				{
-					// randomly close the window
-					if (!(SDL_GetTicks() & 63))
-					{
-						hide_window(Vars::win()->get_id());
-						set_shown_string(c_red2, item_list_magic_str);
-						return 0;
-					}
 					storage_item_dragged = item_dragged = -1;
 					int image_id = Vars::lists()->get_list().get_image_id(selected_item_number);
 					Uint16 item_id = Vars::lists()->get_list().get_item_id(selected_item_number);
@@ -1447,9 +1443,56 @@ CHECK_GL_ERRORS();
 	void List_Window::cm_names_pre_show(void)
 	{
 		int no_active = (Vars::lists()->valid_active_list()) ?0 :1;
-		cm_grey_line(cm_names_menu, 1, no_active);
-		cm_grey_line(cm_names_menu, 3, no_active);
-		cm_grey_line(cm_names_menu, 9, (Vars::lists()->is_using_named_lists()) ?1 :0);
+		cm_grey_line(cm_names_menu, CMN_RENAME, no_active);
+		cm_grey_line(cm_names_menu, CMN_DELETE, no_active);
+		cm_grey_line(cm_names_menu, CMN_FTAG, (Vars::lists()->is_using_named_lists()) ?1 :0);
+	}
+
+
+	//	Action the options form the list of names context menu.
+	//
+	int List_Window::cm_name_action(int option)
+	{
+		switch (option)
+		{
+			case CMN_CREATE:
+				Vars::win()->new_or_rename_list(true);
+				break;
+			case CMN_RENAME:
+				if (Vars::lists()->valid_active_list())
+					Vars::win()->new_or_rename_list(false);
+				break;
+			case CMN_UPDATE:
+				if (Vars::lists()->valid_active_list())
+				{
+					std::string current_name = Vars::lists()->get_active_name();
+					Vars::lists()->del(Vars::lists()->get_active());
+					new_list_handler(current_name.c_str(), NULL);
+					update_scroll_len();
+					make_active_visable();
+				}
+				break;
+			case CMN_DELETE:
+				if (Vars::lists()->valid_active_list())
+				{
+					Vars::lists()->del(Vars::lists()->get_active());
+					update_scroll_len();
+				}
+				break;
+			case CMN_DFIND:
+				break;
+			case CMN_RELOAD:
+				Vars::lists()->load();
+				update_scroll_len();
+				make_active_visable();
+				break;
+			case CMN_FTAG:
+				Vars::lists()->switch_to_named_lists();
+				break;
+			default:
+				return 0;
+		}
+		return 1;
 	}
 
 
@@ -1465,34 +1508,7 @@ CHECK_GL_ERRORS();
 	//
 	static int cm_names_handler(window_info *win, int widget_id, int mx, int my, int option)
 	{
-		switch (option)
-		{
-			case 0:
-				Vars::win()->new_or_rename_list(true);
-				break;
-			case 1:
-				if (Vars::lists()->valid_active_list())
-					Vars::win()->new_or_rename_list(false);
-				break;
-			case 3:
-				if (Vars::lists()->valid_active_list())
-				{
-					Vars::lists()->del(Vars::lists()->get_active());
-					ItemLists::Vars::win()->update_scroll_len();
-				}
-				break;
-			case 7:
-				Vars::lists()->load();
-				ItemLists::Vars::win()->update_scroll_len();
-				ItemLists::Vars::win()->make_active_visable();
-				break;
-			case 9:
-				Vars::lists()->switch_to_named_lists();
-				break;
-			default:
-				return 0;
-		}
-		return 1;
+		return Vars::win()->cm_name_action(option);
 	}
 
 

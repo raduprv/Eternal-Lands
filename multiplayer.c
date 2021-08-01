@@ -1,5 +1,6 @@
 #include <string.h>
 #include <time.h>
+#include <SDL_net.h>
 #include "multiplayer.h"
 #include "2d_objects.h"
 #include "3d_objects.h"
@@ -13,6 +14,9 @@
 #include "chat.h"
 #include "console.h"
 #include "consolewin.h"
+#ifdef USE_SSL
+#include "connection.h"
+#endif // USE_SSL
 #include "dialogues.h"
 #include "draw_scene.h"
 #include "elc_private.h"
@@ -35,6 +39,9 @@
 #include "password_manager.h"
 #include "particles.h"
 #include "pathfinder.h"
+#ifdef PACKET_COMPRESSION
+#include "proxy_ext.h"
+#endif // PACKET_COMPRESSION
 #include "questlog.h"
 #include "queue.h"
 #include "rules.h"
@@ -66,56 +73,71 @@
  *
  * void get_updates();
  */
-SDL_mutex* tcp_out_data_mutex = 0;
+#ifndef USE_SSL
+static SDL_mutex* tcp_out_data_mutex = 0;
+#endif // !USE_SSL
 
+#if !defined(GIT_VERSION) || !defined(USE_SSL)
 static int client_version_major=VER_MAJOR;
 static int client_version_minor=VER_MINOR;
 static int client_version_release=VER_RELEASE;
 static int client_version_patch=VER_BUILD;
+#endif
+#ifndef USE_SSL
 static int version_first_digit=10;	//protocol/game version sent to server
 static int version_second_digit=28;
+#endif // !USE_SSL
 
 const char * web_update_address= "http://www.eternal-lands.com/index.php?content=update";
-int icon_in_spellbar= -1;
 int port= 2000;
 unsigned char server_address[60];
-TCPsocket my_socket= 0;
-SDLNet_SocketSet set= 0;
 #define MAX_TCP_BUFFER  8192
-Uint8 tcp_in_data[MAX_TCP_BUFFER];
-Uint8 tcp_out_data[MAX_TCP_BUFFER];
-int in_data_used=0;
-int tcp_out_loc= 0;
-int previously_logged_in= 0;
-volatile int disconnected= 1;
+#ifndef USE_SSL
+static TCPsocket my_socket= 0;
+static SDLNet_SocketSet set= 0;
+static Uint8 tcp_in_data[MAX_TCP_BUFFER];
+static Uint8 tcp_out_data[MAX_TCP_BUFFER];
+static int in_data_used=0;
+static int tcp_out_loc= 0;
+static int previously_logged_in= 0;
+static volatile int disconnected= 1;
+#endif // !USE_SSL
 volatile int can_login= 0;
 time_t last_heart_beat;
 time_t last_save_time;
+#ifndef USE_SSL
 int always_pathfinding = 0;
+#endif // !USE_SSL
 int mixed_message_filter = 0;
 char inventory_item_string[300] = {0};
 size_t inventory_item_string_id = 0;
 
 int log_conn_data= 0;
 
-int this_version_is_invalid= 0;
-int put_new_data_offset= 0;
-Uint8	tcp_cache[256];
-Uint32	tcp_cache_len= 0;
-Uint32	tcp_cache_time= 0;
+static int this_version_is_invalid= 0;
+#ifndef USE_SSL
+static Uint8	tcp_cache[256];
+static Uint32	tcp_cache_len= 0;
+static Uint32	tcp_cache_time= 0;
+#endif // !USE_SSL
 
 //for the client/server sync
-int server_time_stamp= 0;
-int client_time_stamp= 0;
-int client_server_delta_time= 0;
+// FIXME: these seem to be unused
+static int server_time_stamp= 0;
+static int client_time_stamp= 0;
+static int client_server_delta_time= 0;
 
+#ifndef USE_SSL
 /* if non-zero, we are testing the connection, waiting for a return ping from the server */
 static Uint32 testing_server_connection_time = 0;
+#endif // !USE_SSL
 
 int yourself= -1;
 
+#ifndef USE_SSL
 static int last_sit= 0;
 static int last_turn_around = 0;
+#endif // !USE_SSL
 
 Uint32 next_second_time = 0;
 short real_game_minute = 0;
@@ -208,7 +230,7 @@ const char *get_date(void (*callback)(const char *))
 	if (!requested_date)
 	{
 		unsigned char protocol_name = GET_DATE;
-		my_tcp_send(my_socket, &protocol_name, 1);
+		my_tcp_send(&protocol_name, 1);
 		requested_date = 1;
 	}
 
@@ -222,7 +244,7 @@ static void invalidate_date(void)
 
 /*	End date handling code */
 
-
+#ifndef USE_SSL
 void create_tcp_out_mutex()
 {
 	tcp_out_data_mutex = SDL_CreateMutex();
@@ -237,6 +259,7 @@ void cleanup_tcp()
 	set=NULL;
 	SDLNet_Quit();
 }
+#endif // !USE_SSL
 
 #ifdef DEBUG
 void print_packet(const char *in_data, int len){
@@ -257,7 +280,7 @@ void print_packet(const char *in_data, int len){
 }
 #endif
 
-
+#ifndef USE_SSL
 void move_to (short int x, short int y, int try_pathfinder)
 {
 	Uint8 str[5];
@@ -275,7 +298,7 @@ void move_to (short int x, short int y, int try_pathfinder)
 	str[0]= MOVE_TO;
 	*((short *)(str+1))= SDL_SwapLE16 (x);
 	*((short *)(str+3))= SDL_SwapLE16 (y);
-	my_tcp_send(my_socket, str, 5);
+	my_tcp_send(str, 5);
 }
 
 void send_heart_beat()
@@ -289,7 +312,7 @@ void send_heart_beat()
 #ifdef	OLC
 	len+= olc_heartbeat(command+len);
 #endif	//OLC
-	my_tcp_send(my_socket, command, len);
+	my_tcp_send(command, len);
 }
 
 /*!
@@ -329,7 +352,7 @@ static int my_locked_tcp_flush(TCPsocket my_socket)
 	return ret;
 }
 
-int my_tcp_send (TCPsocket my_socket, const Uint8 *str, int len)
+int my_tcp_send(const Uint8 *str, int len)
 {
 	Uint8 *new_str = NULL;
 	int ret_status = 0;
@@ -458,7 +481,7 @@ int my_tcp_send (TCPsocket my_socket, const Uint8 *str, int len)
 	return ret_status;
 }
 
-int my_tcp_flush(TCPsocket my_socket)
+int my_tcp_flush(void)
 {
 	int result;
 
@@ -471,8 +494,16 @@ int my_tcp_flush(TCPsocket my_socket)
 	return result;
 }
 
+void my_tcp_forced_quit(void)
+{
+	SDLNet_TCP_Close(my_socket);
+	disconnected = 1;
+	disconnect_time = SDL_GetTicks();
+	SDLNet_Quit();
+	LOG_TO_CONSOLE(c_red3, disconnected_from_server);
+}
 
-void send_version_to_server(IPaddress *ip)
+static void send_version_to_server(IPaddress *ip)
 {
 	Uint8 str[64];
 	int	len;
@@ -506,7 +537,7 @@ void send_version_to_server(IPaddress *ip)
 #ifdef	OLC
 	len+= olc_version(str+len);
 #endif	//OLC
-	my_tcp_send(my_socket, str, len);
+	my_tcp_send(str, len);
 }
 
 void connect_to_server()
@@ -566,6 +597,7 @@ void connect_to_server()
 			SDL_Quit();
 			exit(2);
 		}
+
 	disconnected= 0;
 	have_storage_list = 0;  //With a reconnect, our cached copy of what's in storage may no longer be accurate
 
@@ -575,10 +607,8 @@ void connect_to_server()
 	//ask for the opening screen
 	if(!previously_logged_in)
 		{
-			Uint8 str[1];
-
-			str[0]= SEND_OPENING_SCREEN;
-			my_tcp_send(my_socket, str, 1);
+			Uint8 cmd = SEND_OPENING_SCREEN;
+			my_tcp_send(&cmd, 1);
 		}
 	else
 		{
@@ -597,7 +627,7 @@ void connect_to_server()
 	hide_window_MW(MW_TRADE);
 	do_connect_sound();
 
-	my_tcp_flush(my_socket);    // make sure tcp output buffer is empty
+	my_tcp_flush();    // make sure tcp output buffer is empty
 }
 
 void send_login_info()
@@ -634,16 +664,15 @@ void send_login_info()
 
 	joint_len = strlen((char*)str);
 	joint_len++;//send the last 0 too
-	if(my_tcp_send(my_socket, str, joint_len)<joint_len)
+	if(my_tcp_send(str, joint_len)<joint_len)
 		{
 			//we got a nasty error, log it
 		}
 
-	my_tcp_flush(my_socket);    // make sure tcp output buffer is empty
+	my_tcp_flush();    // make sure tcp output buffer is empty
 }
 
-
-void send_new_char(char * user_str, char * pass_str, char skin, char hair, char eyes, char shirt, char pants, char boots,char head, char type)
+void send_new_char(const char * user_str, const char * pass_str, char skin, char hair, char eyes, char shirt, char pants, char boots,char head, char type)
 {
 	int i,j,len;
 	unsigned char str[120];
@@ -666,12 +695,13 @@ void send_new_char(char * user_str, char * pass_str, char skin, char hair, char 
 	str[i+j+8]= head;
 	str[i+j+9]= eyes;
 	len= i+j+10;
-	if(my_tcp_send(my_socket,str,len)<len) {
+	if(my_tcp_send(str,len)<len) {
 		//we got a nasty error, log it
 	}
 
-	my_tcp_flush(my_socket);    // make sure tcp output buffer is empty
+	my_tcp_flush();    // make sure tcp output buffer is empty
 }
+#endif // !USE_SSL
 
 // TEMP LOGAND [5/25/2004]
 #ifndef NPC_SAY_OVERTEXT
@@ -873,7 +903,11 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 				load_channel_colors();
 				send_video_info();
 				check_glow_perk();
+#ifdef USE_SSL
+				set_logged_in(1);
+#else // USE_SSL
 				previously_logged_in=1;
+#endif // USE_SSL
 				last_save_time= time(NULL);
 
 				// Print the game date cos its pretty (its also needed for SKY_FPV to set moons for signs, wonders, times and seasons)
@@ -882,7 +916,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 				command_time("", 0);
 				// print the invading monster count
 				safe_snprintf(str, sizeof(str), "%c#il", RAW_TEXT);
-				my_tcp_send(my_socket, (Uint8*)str, strlen(str+1)+1);
+				my_tcp_send((Uint8*)str, strlen(str+1)+1);
 				break;
 			}
 
@@ -1045,6 +1079,10 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 					// if we don't get the product name, make sure we don't just count it as the last item.
 					else
 						counters_set_product_info("",0);
+					
+					if (!strncmp(inventory_item_string+1, "Just exp.", 9))
+						is_created_message = 1;
+					
 					if(!((is_created_message && mixed_message_filter) ||
 							get_show_window_MW(MW_ITEMS) ||
 							get_show_window_MW(MW_MANU) ||
@@ -1201,6 +1239,9 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 				  LOG_WARNING("CAUTION: Possibly forged LOG_IN_NOT_OK packet received.\n");
 				  break;
 				}
+#ifdef USE_SSL
+				set_logged_in(0);
+#endif
 				set_login_error ((char*)&in_data[3], data_length - 3, 1);
 			}
 			break;
@@ -1358,7 +1399,11 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 				  LOG_WARNING("CAUTION: Possibly forged PONG packet received.\n");
 				  break;
 				}
+#ifdef USE_SSL
+				stop_testing_server_connection();
+#else // USE_SSL
 				testing_server_connection_time = 0;
+#endif // USE_SSL
 				safe_snprintf(str, sizeof(str), "%s: %i ms",server_latency, SDL_GetTicks()-SDL_SwapLE32(*((Uint32 *)(in_data+3))));
 				LOG_TO_CONSOLE(c_green1,str);
 			}
@@ -1822,10 +1867,10 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 				int	len= data_length;
 				memcpy(buf, in_data, data_length);
 				len+= olc_ping_request(buf+len);
-				my_tcp_send(my_socket, buf, len);
+				my_tcp_send(buf, len);
 #else	//OLC
 				// just send the pack back as it is
-				my_tcp_send(my_socket, in_data, data_length);
+				my_tcp_send(in_data, data_length);
 #endif	//OLC
 			}
 			break;
@@ -2284,6 +2329,11 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 					here_is_a_buff_duration((Uint8)in_data[3]);
 				break;
 			}
+#ifdef PACKET_COMPRESSION
+		case OL_COMPRESSED_PACKET:
+			handle_proxy_command(in_data, data_length);
+			break;
+#endif // PACKET_COMPRESSION
 		default:
 			{
 				// Unknown packet type??
@@ -2296,9 +2346,9 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 		}
 }
 
-
+#ifndef USE_SSL
 /* Set the state to *disconnected from the server*, showing messages and recording time. */
-void enter_disconnected_state(const char *message)
+static void enter_disconnected_state(const char *message)
 {
 	char str[256];
 	short tgm = real_game_minute;
@@ -2315,6 +2365,8 @@ void enter_disconnected_state(const char *message)
 #endif // NEW_SOUND
 	disconnect_time = SDL_GetTicks();
 	clear_now_harvesting();
+	if (login_root_win >= 0)
+		set_login_error(disconnected_from_server, strlen(disconnected_from_server), 1);
 }
 
 /* for a disconnect from the server and the normal reconnect on keypress */
@@ -2333,7 +2385,6 @@ void start_testing_server_connection(void)
 	command_ping(NULL,0);
 }
 
-
 /* Called from the main thread 500 ms timer, check if testing server connection */
 void check_if_testing_server_connection(void)
 {
@@ -2347,7 +2398,6 @@ void check_if_testing_server_connection(void)
 		}
 	}
 }
-
 
 static void process_data_from_server(queue_t *queue)
 {
@@ -2425,3 +2475,9 @@ int get_message_from_server(void *thread_args)
 
 	return 1;
 }
+
+int is_disconnected()
+{
+	return disconnected;
+}
+#endif // !USE_SSL

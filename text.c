@@ -347,7 +347,7 @@ void send_input_text_line (char *line, int line_len)
 	str[j] = 0;	// always a NULL at the end
 
 	len = strlen (&str[1]);
-	if (my_tcp_send (my_socket, (Uint8*)str, len+1) < len+1)
+	if (my_tcp_send((Uint8*)str, len+1) < len+1)
 	{
 		//we got a nasty error, log it
 	}
@@ -561,7 +561,8 @@ int filter_or_ignore_text (char *text_to_add, int len, int size, Uint8 channel)
 		}
 		else if (!strncasecmp(text_to_add+1, "Great, you changed your password!", 33))
 		{
-			passmngr_confirm_pw_change();
+			if (!passmngr_confirm_pw_change())
+				LOG_TO_CONSOLE(c_red1, passmngr_error_str);
 		}
 		else if (!strncasecmp(text_to_add+1, "Glow on!", 8))
 		{
@@ -641,15 +642,26 @@ int filter_or_ignore_text (char *text_to_add, int len, int size, Uint8 channel)
 			if (get_true_knowledge_info(text_to_add+1))
 				return 0;
 		}
+		else if (!strncasecmp(text_to_add+1, "Your buddy list is now empty.", 29)) {
+			clear_buddy();
+		}
 		else {
-			static Uint32 last_time[] = { 0, 0 };
-			static int done_one[] = { 0, 0 };
-			int match_index = -1;
-			if (!strncasecmp(text_to_add+1, "You are too far away! Get closer!", 33))
-				match_index = 0;
-			else if (!strncasecmp(text_to_add+1, "Can't do, your target is already fighting with someone else,", 60))
-				match_index = 1;
-			if (match_index > -1)
+			static const char* rate_limit_msgs[] = {
+				"You are too far away! Get closer!",
+				"Can't do, your target is already fighting with someone else,",
+				"You need to equip a quiver first!"
+			};
+			static const int nr_msgs = sizeof(rate_limit_msgs) / sizeof(*rate_limit_msgs);
+			static Uint32 last_time[] = { 0, 0, 0 };
+			static int done_one[] = { 0, 0, 0 };
+			int match_index;
+			for (match_index = 0; match_index < nr_msgs; ++match_index)
+			{
+				const char* msg = rate_limit_msgs[match_index];
+				if (!strncasecmp(text_to_add+1, msg, strlen(msg)))
+					break;
+			}
+			if (match_index < nr_msgs)
 			{
 				Uint32 new_time = SDL_GetTicks();
 				clear_now_harvesting();

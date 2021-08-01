@@ -100,18 +100,25 @@ int GetWidgetType (const char *w);
 int disable_double_click = 0;
 
 // Forward declarations for widget types;
+static int label_draw(widget_list *W);
 static int label_resize (widget_list *w, int width, int height);
 static int free_widget_info (widget_list *widget);
+static int image_draw(widget_list *W);
+static int checkbox_draw(widget_list *W);
 static int checkbox_click(widget_list *W, int mx, int my, Uint32 flags);
 static int button_draw(widget_list *w);
 static int square_button_draw(widget_list *w);
 static int button_change_font(widget_list *W, font_cat cat);
+static int progressbar_draw(widget_list *W);
+static int vscrollbar_draw(widget_list *W);
 static int vscrollbar_click(widget_list *W, int mx, int my, Uint32 flags);
 static int vscrollbar_drag(widget_list *W, int x, int y, Uint32 flags, int dx, int dy);
+static int tab_collection_draw (widget_list *w);
 static int tab_collection_click(widget_list *W, int x, int y, Uint32 flags);
 static int tab_collection_keypress(widget_list *W, int mx, int my, SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_mod);
 static int free_tab_collection(widget_list *widget);
 static int tab_collection_change_font(widget_list *w, font_cat font);
+static int text_field_draw(widget_list *w);
 static int text_field_click(widget_list *w, int mx, int my, Uint32 flags);
 static int text_field_drag(widget_list *w, int mx, int my, Uint32 flags, int dx, int dy);
 static int text_field_resize (widget_list *w, int width, int height);
@@ -715,7 +722,7 @@ int label_add(int window_id, int (*OnInit)(), const char *text, Uint16 x, Uint16
 	return label_add_extended (window_id, widget_id++, OnInit, x, y, 0, 1.0, text);
 }
 
-int label_draw(widget_list *W)
+static int label_draw(widget_list *W)
 {
 	label *l = (label *)W->widget_info;
 	if(W->r != -1.0) {
@@ -769,7 +776,7 @@ int image_add(int window_id, int (*OnInit)(), int id, Uint16 x, Uint16 y, Uint16
 	return image_add_extended(window_id, widget_id++, OnInit, x, y, lx, ly, 0, 1.0, id, u1, v1, u2, v2, -1);
 }
 
-int image_draw(widget_list *W)
+static int image_draw(widget_list *W)
 {
 	image *i = (image *)W->widget_info;
 	bind_texture(i->id);
@@ -790,17 +797,6 @@ CHECK_GL_ERRORS();
 	return 1;
 }
 
-int image_set_id(int window_id, Uint32 widget_id, int id)
-{
-	widget_list *w = widget_find(window_id, widget_id);
-	if(w){
-		image *l = (image *) w->widget_info;
-		l->id = id;
-		return 1;
-	}
-	return 0;
-}
-
 int image_set_uv(int window_id, Uint32 widget_id, float u1, float v1, float u2, float v2)
 {
 	widget_list *w = widget_find(window_id, widget_id);
@@ -817,7 +813,7 @@ int image_set_uv(int window_id, Uint32 widget_id, float u1, float v1, float u2, 
 
 
 // Checkbox
-int checkbox_draw(widget_list *W)
+static int checkbox_draw(widget_list *W)
 {
 	checkbox *c = (checkbox *)W->widget_info;
 	glDisable(GL_TEXTURE_2D);
@@ -1084,17 +1080,6 @@ CHECK_GL_ERRORS();
 }
 
 
-int button_set_text(int window_id, Uint32 widget_id, const char *text)
-{
-	widget_list *w = widget_find(window_id, widget_id);
-	if(w){
-		button *l = (button *) w->widget_info;
-		safe_strncpy((char*)l->text, text, sizeof(l->text));
-		return 1;
-	}
-	return 0;
-}
-
 // Progressbar
 int progressbar_add(int window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly)
 {
@@ -1114,7 +1099,7 @@ int progressbar_add_extended(int window_id, Uint32 wid, int (*OnInit)(), Uint16 
 	return widget_add (window_id, wid, OnInit, x, y, lx, ly, Flags, size, &progressbar_type, T, NULL);
 }
 
-int progressbar_draw(widget_list *W)
+static int progressbar_draw(widget_list *W)
 {
 	progressbar *b = (progressbar *)W->widget_info;
 	int pixels = (b->progress/100) * W->len_x;
@@ -1167,16 +1152,6 @@ CHECK_GL_ERRORS();
 	return 0;
 }
 
-float progressbar_get_progress(int window_id, Uint32 widget_id)
-{
-	widget_list *w = widget_find(window_id, widget_id);
-	if(w){
-		progressbar *c = (progressbar *)w->widget_info;
-		return c->progress;
-	}
-	return -1;
-}
-
 int progressbar_set_progress(int window_id, Uint32 widget_id, float progress)
 {
 	widget_list *w = widget_find(window_id, widget_id);
@@ -1190,7 +1165,7 @@ int progressbar_set_progress(int window_id, Uint32 widget_id, float progress)
 
 
 // Vertical scrollbar
-int vscrollbar_draw(widget_list *W)
+static int vscrollbar_draw(widget_list *W)
 {
 	int drawn_bar_len = 0;
 	vscrollbar *c = (vscrollbar *)W->widget_info;
@@ -1415,17 +1390,6 @@ int tab_collection_get_tab_nr (int window_id, Uint32 col_id, int tab_id)
 	return -1;
 }
 
-int tab_collection_get_nr_tabs (int window_id, Uint32 widget_id)
-{
-	widget_list *w = widget_find (window_id, widget_id);
-	if (w)
-	{
-		tab_collection *t = (tab_collection *) w->widget_info;
-		return t->nr_tabs;
-	}
-	return -1;
-}
-
 int tab_collection_calc_tab_height(font_cat cat, float size)
 {
 	return 2 * get_line_height(cat, size);
@@ -1515,7 +1479,7 @@ static int free_tab_collection(widget_list *widget)
 	return 1;
 }
 
-int tab_collection_draw (widget_list *w)
+static int tab_collection_draw (widget_list *w)
 {
 	tab_collection *col;
 	int itab, ytagtop, ytagbot, xstart, xend, xmax;
@@ -1524,6 +1488,7 @@ int tab_collection_draw (widget_list *w)
 	int h;
 	int xtxt, ytxt;
 	float tab_corner;
+	int right_margin = 0;
 
 	if (!w) return 0;
 
@@ -1537,6 +1502,9 @@ int tab_collection_draw (widget_list *w)
 	arw_width = btn_size / 4;
 	cur_start = cur_end = xstart;
 	tab_corner = h / 5.0f;
+
+	if ((w->window_id >= 0) && (w->window_id < windows_list.num_windows))
+		right_margin = col->tabs_right_margin * windows_list.window[w->window_id].current_scale;
 
 	glDisable(GL_TEXTURE_2D);
 
@@ -1575,7 +1543,7 @@ int tab_collection_draw (widget_list *w)
 	for (itab = col->tab_offset; itab < col->nr_tabs; itab++)
 	{
 		xend = xstart + col->tabs[itab].tag_width;
-		xmax = w->pos_x + w->len_x;
+		xmax = w->pos_x + w->len_x - right_margin;
 		if (itab < col->nr_tabs - 1)
 			xmax -= h;
 
@@ -1587,7 +1555,7 @@ int tab_collection_draw (widget_list *w)
 			// the end of the available width
 			glBegin (GL_LINES);
 				glVertex3f (xstart - 2 * tab_corner, ytagtop, 0);
-				glVertex3f (w->pos_x + w->len_x - h, ytagtop, 0);
+				glVertex3f (w->pos_x + w->len_x - h - right_margin, ytagtop, 0);
 			glEnd ();
 			break;
 		}
@@ -1668,7 +1636,7 @@ int tab_collection_draw (widget_list *w)
 	if (itab < col->nr_tabs)
 	{
 		// draw a "move right" button
-		xstart = w->pos_x + w->len_x - btn_size;
+		xstart = w->pos_x + w->len_x - right_margin - btn_size;
 
 		if(w->r!=-1.0)
 			glColor3f(w->r, w->g, w->b);
@@ -1724,6 +1692,7 @@ CHECK_GL_ERRORS();
 static int tab_collection_click(widget_list *W, int x, int y, Uint32 flags)
 {
 	tab_collection *col = (tab_collection *) W->widget_info;
+	int right_margin = 0;
 
 	// only handle mouse button clicks, not scroll wheels moves
 	if ( (flags & ELW_MOUSE_BUTTON) == 0) return 0;
@@ -1735,7 +1704,13 @@ static int tab_collection_click(widget_list *W, int x, int y, Uint32 flags)
 		return 1;
 	}
 
-	if (col->tab_last_visible < col->nr_tabs-1 && x >= W->len_x - col->button_size && x <= W->len_x && y >= 0 && y <= col->button_size)
+	if ((W->window_id >= 0) && (W->window_id < windows_list.num_windows))
+		right_margin = col->tabs_right_margin * windows_list.window[W->window_id].current_scale;
+
+	if ((col->tab_last_visible < col->nr_tabs - 1) &&
+		(x >= W->len_x - col->button_size - right_margin) &&
+		(x <= W->len_x - right_margin) &&
+		(y >= 0) && (y <= col->button_size))
 	{
 		if (col->tab_offset < col->nr_tabs-1)
 			col->tab_offset++;
@@ -1909,7 +1884,7 @@ static int tab_collection_keypress(widget_list *W, int mx, int my, SDL_Keycode k
 	return 0;
 }
 
-int tab_collection_add_extended (int window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, int max_tabs)
+int tab_collection_add_extended (int window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, int max_tabs, int right_margin)
 {
 	int itab;
 	window_info *win = &windows_list.window[window_id];
@@ -1924,6 +1899,7 @@ int tab_collection_add_extended (int window_id, Uint32 wid, int (*OnInit)(), Uin
 	T->nr_tabs = 0;
 	T->tag_height = tab_collection_calc_tab_height(win->font_category, size);
 	T->button_size = (9 * T->tag_height) / 10;
+	T->tabs_right_margin = right_margin;
 	T->cur_tab = 0;
 	T->tab_offset = 0;
 	T->tab_last_visible = 0;
@@ -1933,7 +1909,7 @@ int tab_collection_add_extended (int window_id, Uint32 wid, int (*OnInit)(), Uin
 
 int tab_collection_add (int window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly)
 {
-	return tab_collection_add_extended (window_id, widget_id++, OnInit, x, y, lx, ly, 0, 1.0, 0);
+	return tab_collection_add_extended (window_id, widget_id++, OnInit, x, y, lx, ly, 0, 1.0, 0, 0);
 }
 
 int tab_add (int window_id, Uint32 col_id, const char *label, Uint16 tag_width, int closable, Uint32 flags)
@@ -2532,6 +2508,16 @@ void _text_field_copy_to_primary(text_field *tf)
 
 static void update_cursor_selection(widget_list* w, int flag);
 
+static void text_field_select_realloc(text_field *tf, int pre_nr_vis)
+{
+	size_t j;
+	if ((tf == NULL) || (tf->nr_visible_lines == pre_nr_vis))
+		return;
+	tf->select.lines = realloc(tf->select.lines, tf->nr_visible_lines * sizeof (text_field_line));
+	for (j = pre_nr_vis; j < tf->nr_visible_lines; j++)
+		tf->select.lines[j].msg = tf->select.lines[j].chr = -1;
+}
+
 static int text_field_resize (widget_list *w, int width, int height)
 {
 	text_field *tf = w->widget_info;
@@ -2550,7 +2536,7 @@ static int text_field_resize (widget_list *w, int width, int height)
 
 			_text_field_set_nr_visible_lines (w);
 			if (tf->nr_visible_lines != nr_vis)
-				tf->select.lines = realloc (tf->select.lines, tf->nr_visible_lines * sizeof (text_field_line));
+				text_field_select_realloc(tf, nr_vis);
 			tf->select.sm = tf->select.em = tf->select.sc = tf->select.ec = -1;
 
 			for (i = 0; i < tf->buf_size; i++)
@@ -3123,7 +3109,7 @@ int text_field_add (int window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 l
 		TEXT_FIELD_BORDER, 0, 1.0, buf, buf_size, FILTER_ALL, x_space, y_space);
 }
 
-int text_field_draw (widget_list *w)
+static int text_field_draw(widget_list *w)
 {
 	text_field *tf;
 	int cursor;
@@ -3246,6 +3232,20 @@ CHECK_GL_ERRORS();
 	return 1;
 }
 
+int text_field_get_nr_visible_lines(int window_id, int widget_id)
+{
+	text_field *tf;
+	widget_list *w = widget_find (window_id, widget_id);
+	if (!w)
+		return 0;
+
+	tf = (text_field *) w->widget_info;
+	if (!tf)
+		return 0;
+
+	return tf->nr_visible_lines;
+}
+
 int text_field_set_buf_pos (int window_id, Uint32 widget_id, int msg, int offset)
 {
 	text_field *tf;
@@ -3278,6 +3278,55 @@ int text_field_set_buf_pos (int window_id, Uint32 widget_id, int msg, int offset
 	tf->offset = offset;
 
 	return  1;
+}
+
+int text_field_scroll_to_line(int window_id, Uint32 widget_id, int line_nr)
+{
+	text_field *tf;
+	widget_list *w;
+	int cur_line;
+	size_t msg_idx, offset;
+
+	w = widget_find(window_id, widget_id);
+	if (!w)
+		return 0;
+
+	tf = (text_field*) w->widget_info;
+	if (!tf)
+		return 0;
+
+	if (line_nr <= 0)
+	{
+		tf->msg = 0;
+		tf->offset = 0;
+		return 1;
+	}
+
+	cur_line = 0;
+	msg_idx = offset = 0;
+	while (cur_line < line_nr && msg_idx < tf->buf_size)
+	{
+		const text_message* msg = tf->buffer + msg_idx;
+		size_t sep = offset + strcspn(msg->data + offset, "\r\n");
+		if (msg->data[sep] == '\0')
+		{
+			if (msg_idx + 1 >= tf->buf_size)
+				// When we don't have enough lines, scroll to the last one
+				break;
+			++msg_idx;
+			offset = 0;
+		}
+		else
+		{
+			offset = sep + 1;
+		}
+		++cur_line;
+	}
+
+	tf->msg = msg_idx;
+	tf->offset = offset;
+
+	return 1;
 }
 
 int text_field_clear(int window_id, Uint32 widget_id)
@@ -3330,7 +3379,7 @@ static int text_field_change_font(widget_list *w, font_cat cat)
 	_text_field_set_nr_visible_lines(w);
 	_text_field_set_nr_lines(w, nr_lines);
 	if (tf->nr_visible_lines != nr_vis)
-		tf->select.lines = realloc(tf->select.lines, tf->nr_visible_lines * sizeof(text_field_line));
+		text_field_select_realloc(tf, nr_vis);
 
 	return 1;
 }
@@ -3575,6 +3624,20 @@ static void pword_insert(password_entry *entry, int pos, const unsigned char* te
 	pword_update_draw_range_after_insert(entry, cat, size, max_width);
 }
 
+#if !defined OSX && !defined WINDOWS
+#ifdef MIDDLE_MOUSE_PASTE
+static void pword_field_copy_to_primary(const password_entry *entry)
+{
+	char* text = pword_get_selected_text(entry);
+	if (text)
+	{
+		copy_to_primary(text);
+		free(text);
+	}
+}
+#endif // MIDDLE_MOUSE_PASTE
+#endif
+
 static int pword_field_keypress(widget_list *w, int mx, int my, SDL_Keycode key_code,
 	Uint32 key_unicode, Uint16 key_mod)
 {
@@ -3627,6 +3690,11 @@ static int pword_field_keypress(widget_list *w, int mx, int my, SDL_Keycode key_
 						}
 						--entry->cursor_pos;
 						pword_check_after_left_move(entry, w->fcat, w->size, max_width);
+#if !defined OSX && !defined WINDOWS
+#ifdef MIDDLE_MOUSE_PASTE
+						pword_field_copy_to_primary(entry);
+#endif
+#endif
 					}
 					return 1;
 				case SDLK_RIGHT:
@@ -3648,6 +3716,11 @@ static int pword_field_keypress(widget_list *w, int mx, int my, SDL_Keycode key_
 						}
 						++entry->cursor_pos;
 						pword_check_after_right_move(entry, w->fcat, w->size, max_width);
+#if !defined OSX && !defined WINDOWS
+#ifdef MIDDLE_MOUSE_PASTE
+						pword_field_copy_to_primary(entry);
+#endif
+#endif
 					}
 					return 1;
 				case SDLK_HOME:
@@ -3662,6 +3735,11 @@ static int pword_field_keypress(widget_list *w, int mx, int my, SDL_Keycode key_
 					entry->sel_begin = 0;
 					entry->cursor_pos = 0;
 					pword_check_after_left_move(entry, w->fcat, w->size, max_width);
+#if !defined OSX && !defined WINDOWS
+#ifdef MIDDLE_MOUSE_PASTE
+					pword_field_copy_to_primary(entry);
+#endif
+#endif
 					return 1;
 				case SDLK_END:
 					if (entry->sel_begin < 0)
@@ -3675,6 +3753,11 @@ static int pword_field_keypress(widget_list *w, int mx, int my, SDL_Keycode key_
 					entry->sel_end = len;
 					entry->cursor_pos = len;
 					pword_check_after_right_move(entry, w->fcat, w->size, max_width);
+#if !defined OSX && !defined WINDOWS
+#ifdef MIDDLE_MOUSE_PASTE
+					pword_field_copy_to_primary(entry);
+#endif
+#endif
 					return 1;
 			}
 		}
@@ -3688,6 +3771,11 @@ static int pword_field_keypress(widget_list *w, int mx, int my, SDL_Keycode key_
 				if (sel_text)
 				{
 					copy_to_clipboard(sel_text);
+#if !defined OSX && !defined WINDOWS
+#ifdef MIDDLE_MOUSE_PASTE
+					copy_to_primary(sel_text);
+#endif
+#endif
 					free(sel_text);
 				}
 			}
@@ -3700,6 +3788,11 @@ static int pword_field_keypress(widget_list *w, int mx, int my, SDL_Keycode key_
 			if (sel_text)
 			{
 				copy_to_clipboard(sel_text);
+#if !defined OSX && !defined WINDOWS
+#ifdef MIDDLE_MOUSE_PASTE
+				copy_to_primary(sel_text);
+#endif
+#endif
 				free(sel_text);
 
 				pword_delete(entry, entry->sel_begin, entry->sel_end, w->fcat,
@@ -3793,6 +3886,7 @@ static int pword_field_keypress(widget_list *w, int mx, int my, SDL_Keycode key_
 		}
 
 		entry->sel_begin = entry->sel_end = -1;
+
 		return 1;
 	}
 
@@ -3840,6 +3934,13 @@ static int pword_field_click(widget_list *w, int mx, int my, Uint32 flags)
 	entry->cursor_pos = pword_pos_under_mouse(entry, mx, space, w->fcat, w->size);
 	entry->sel_begin = entry->sel_end = -1;
 
+#if !defined OSX && !defined WINDOWS
+#ifdef MIDDLE_MOUSE_PASTE
+	if (flags & ELW_MID_MOUSE)
+		start_paste_from_primary(w);
+#endif // MIDDLE_MOUSE_PASTE
+#endif
+
 	return 1;
 }
 
@@ -3869,6 +3970,12 @@ static int pword_field_drag(widget_list *w, int mx, int my, Uint32 flags, int dx
 		entry->sel_begin = entry->drag_begin + 1;
 		entry->sel_end = min2i(len, pos + 1);
 	}
+
+#if !defined OSX && !defined WINDOWS
+#ifdef MIDDLE_MOUSE_PASTE
+	pword_field_copy_to_primary(entry);
+#endif
+#endif
 
 	return 1;
 }
@@ -3979,13 +4086,6 @@ static int pword_field_paste(widget_list *w, const char* text)
 	return 1;
 }
 
-void pword_set_status(widget_list *w, Uint8 status)
-{
-	password_entry *pword;
-	if (w && (pword = w->widget_info))
-		pword->status = status;
-}
-
 int pword_clear(int window_id, Uint32 widget_id)
 {
 	widget_list *w = widget_find (window_id, widget_id);
@@ -4028,20 +4128,6 @@ int pword_field_set_content(int window_id, Uint32 widget_id, const unsigned char
 		++entry->draw_end;
 	}
 
-	return 1;
-}
-
-int pword_field_set_shadow_color(int window_id, Uint32 widget_id, float r, float g, float b)
-{
-	widget_list *w = widget_find(window_id, widget_id);
-	password_entry *entry;
-
-	if (!w || !(entry = w->widget_info))
-		return 0;
-
-	entry->shadow_r = r;
-	entry->shadow_g = g;
-	entry->shadow_b = b;
 	return 1;
 }
 
@@ -4151,7 +4237,10 @@ static int _multiselect_selected_is_visible(int window_id, Uint32 widget_id)
 int multiselect_set_selected(int window_id, Uint32 widget_id, int button_id)
 {
 	widget_list *widget = widget_find(window_id, widget_id);
-	multiselect *M = widget->widget_info;
+	multiselect *M = NULL;
+	if (widget == NULL)
+		return -1;
+	M = widget->widget_info;
 	if(M == NULL) {
 		return -1;
 	} else {
@@ -4169,6 +4258,24 @@ int multiselect_set_selected(int window_id, Uint32 widget_id, int button_id)
 		}
 		return -1;
 	}
+}
+
+int multiselect_get_scrollbar_pos(int window_id, Uint32 widget_id)
+{
+	widget_list *widget = widget_find(window_id, widget_id);
+	multiselect *M = widget->widget_info;
+	if ((M == NULL) || (M->scrollbar == -1))
+		return -1;
+	return vscrollbar_get_pos(M->win_id, M->scrollbar);
+}
+
+int multiselect_set_scrollbar_pos(int window_id, Uint32 widget_id, int pos)
+{
+	widget_list *widget = widget_find(window_id, widget_id);
+	multiselect *M = widget->widget_info;
+	if ((M == NULL) || (M->scrollbar == -1))
+		return 0;
+	return vscrollbar_set_pos(M->win_id, M->scrollbar, pos);
 }
 
 int multiselect_get_height(int window_id, Uint32 widget_id)
@@ -4668,389 +4775,3 @@ void draw_cross(int centre_x, int centre_y, int half_len, int half_width)
 		glVertex2i(centre_x - half_len + half_width, centre_y + half_len);
 	glEnd();
 }
-
-
-// XML Windows
-/*
-/ This section contains the following (unused) functions:
-/	int AddXMLWindow(char *fn);
-/	int ReadXMLWindow(xmlNode *a_node);
-/	int ParseWindow(xmlNode *node);
-/	int ParseWidget(xmlNode *node, int winid);
-/	int ParseTab(xmlNode *node, int winid, int colid);
-/	int GetWidgetType(const char *w);
-/ As well as definitions for symbolic constants for all of the widget types.
-*/
-/*
-
-#define LABEL		1
-#define IMAGE		2
-#define CHECKBOX	3
-#define BUTTON		4
-#define PROGRESSBAR	5
-#define VSCROLLBAR	6
-#define TABCOLLECTION	7
-#define TEXTFIELD	8
-#define PWORDFIELD	9
-#define MULTISELECT	10
-#define SPINBUTTON	11
-
-int AddXMLWindow (char *fn)
-{
-	xmlDocPtr doc = xmlReadFile (fn, NULL, 0);
-	int w;
-
-	if (doc == NULL)
-		return -1;
-
-	w = ReadXMLWindow( xmlDocGetRootElement (doc) );
-	xmlFreeDoc(doc);
-
-	return w;
-}
-
-int ReadXMLWindow(xmlNode * a_node)
-{
-	xmlNode *cur_node = NULL;
-	static int win;
-
-	for (cur_node = a_node; cur_node; cur_node = cur_node->next)
-	{
-		if (cur_node->type == XML_ELEMENT_NODE)
-		{
-			win = ParseWindow (cur_node);
-		}
-	}
-
-	return win;
-}
-
-int ParseWindow (xmlNode *node)
-{
-	xmlAttr *cur_attr = NULL;
-	xmlNode *child = NULL;
-
-	Uint8 name[256] = "Default";
-	int pos_x = 0, pos_y = 0, size_x = 320, size_y = 240;
-	Uint32 flags = ELW_WIN_DEFAULT;
-	int winid;
-
-	for (cur_attr = node->properties; cur_attr; cur_attr = cur_attr->next)
-	{
-		if (cur_attr->type == XML_ATTRIBUTE_NODE)
-		{
-			//name=""
-			if ( !xmlStrcasecmp (cur_attr->name,"name") )
-			{
-				char *p = name;
-				my_xmlStrncopy (&p, cur_attr->children->content, sizeof (name) );
-				continue;
-			}
-			//pos_x=""
-			if ( !xmlStrcasecmp (cur_attr->name, "pos_x") )
-			{
-				pos_x = atoi (cur_attr->children->content);
-				continue;
-			}
-			//pos_y=""
-			if (!xmlStrcasecmp (cur_attr->name, "pos_y"))
-			{
-				pos_y = atoi (cur_attr->children->content);
-				continue;
-			}
-			//size_x=""
-			if ( !xmlStrcasecmp (cur_attr->name, "size_x") )
-			{
-				size_x = atoi (cur_attr->children->content);
-				continue;
-			}
-			//size_y=""
-			if ( !xmlStrcasecmp (cur_attr->name, "size_y") )
-			{
-				size_y = atoi (cur_attr->children->content);
-				continue;
-			}
-			//flags=""
-			if ( !xmlStrcasecmp (cur_attr->name, "flags") )
-			{
-				flags = atoi (cur_attr->children->content);
-				continue;
-			}
-		}
-	}
-
-	winid = create_window (name, -1, 0, pos_x, pos_y, size_x, size_y, flags);
-
-	for (child = node->children; child; child = child->next)
-	{
-		if (child->type == XML_ELEMENT_NODE)
-			ParseWidget (child, winid);
-	}
-
-	return winid;
-}
-
-int ParseWidget (xmlNode *node, int winid)
-{
-	xmlAttr *cur_attr = NULL;
-
-	int pos_x = 0, pos_y = 0, len_x = 0, len_y = 0, type = GetWidgetType (node->name), checked = 1, pos = 0, pos_inc = 1;
-	Uint32 flags = 0, id = widget_id++, tid = 0, max_tabs = 0, tag_height = 0;
-	float size = 1.0, r = 1.0, g = 1.0, b = 1.0, u1 = 0.0, u2 = 1.0, v1 = 0.0, v2 = 1.0, progress = 0.0;
-	char text[256] = {'\0'};
-
-	for (cur_attr = node->properties; cur_attr; cur_attr = cur_attr->next)
-	{
-		if (cur_attr->type == XML_ATTRIBUTE_NODE)
-		{
-			//pos_x=""
-			if ( !xmlStrcasecmp (cur_attr->name, "pos_x") )
-			{
-				pos_x = atoi (cur_attr->children->content);
-				continue;
-			}
-			//pos_y=""
-			if ( !xmlStrcasecmp (cur_attr->name, "pos_y") )
-			{
-				pos_y = atoi (cur_attr->children->content);
-				continue;
-			}
-			//len_x=""
-			if ( !xmlStrcasecmp (cur_attr->name, "len_x") )
-			{
-				len_x = atoi (cur_attr->children->content);
-				continue;
-			}
-			//len_y=""
-			if ( !xmlStrcasecmp (cur_attr->name, "len_y") )
-			{
-				len_y = atoi (cur_attr->children->content);
-				continue;
-			}
-			//flags=""
-			if ( !xmlStrcasecmp (cur_attr->name, "flags") )
-			{
-				flags = atoi (cur_attr->children->content);
-				continue;
-			}
-			//size=""
-			if ( !xmlStrcasecmp (cur_attr->name, "size") )
-			{
-				size = atof (cur_attr->children->content);
-				continue;
-			}
-			//r=""
-			if ( !xmlStrcasecmp (cur_attr->name, "r") )
-			{
-				r = atof (cur_attr->children->content);
-				continue;
-			}
-			//g=""
-			if ( !xmlStrcasecmp (cur_attr->name, "g") )
-			{
-				g = atof (cur_attr->children->content);
-				continue;
-			}
-			//b=""
-			if ( !xmlStrcasecmp (cur_attr->name, "b") )
-			{
-				b = atof (cur_attr->children->content);
-				continue;
-			}
-			//id=""
-			if ( !xmlStrcasecmp (cur_attr->name,"id") )
-			{
-				id = atof (cur_attr->children->content);
-				widget_id--;
-				continue;
-			}
-
-			switch (type)
-			{
-				case LABEL:
-				case BUTTON:
-					//text=""
-					if ( !xmlStrcasecmp (cur_attr->name, "text") )
-					{
-						char *p = text;
-						my_xmlStrncopy (&p, cur_attr->children->content, 255);
-						continue;
-					}
-					break;
-				case IMAGE:
-					//u1=""
-					if ( !xmlStrcasecmp (cur_attr->name,"u1") )
-					{
-						u1 = atof (cur_attr->children->content);
-						continue;
-					}
-					//u2=""
-					if ( !xmlStrcasecmp (cur_attr->name, "u2") )
-					{
-						u2 = atof (cur_attr->children->content);
-						continue;
-					}
-					//v1=""
-					if ( !xmlStrcasecmp (cur_attr->name, "v1") )
-					{
-						v1 = atof (cur_attr->children->content);
-						continue;
-					}
-					//v2=""
-					if ( !xmlStrcasecmp (cur_attr->name, "v2") )
-					{
-						v2 = atof (cur_attr->children->content);
-						continue;
-					}
-					//id=""
-					if ( !xmlStrcasecmp (cur_attr->name, "tid") )
-					{
-						tid = atoi (cur_attr->children->content);
-						continue;
-					}
-					break;
-
-				case CHECKBOX:
-					//checked=""
-					if ( !xmlStrcasecmp (cur_attr->name, "checked") )
-					{
-						checked = atoi (cur_attr->children->content);
-						continue;
-					}
-					break;
-
-				case PROGRESSBAR:
-					//progress=""
-					if ( !xmlStrcasecmp (cur_attr->name, "progress") )
-					{
-						progress = atof (cur_attr->children->content);
-						continue;
-					}
-					break;
-
-				case VSCROLLBAR:
-					//pos=""
-					if ( !xmlStrcasecmp (cur_attr->name, "pos") )
-					{
-						pos = atoi (cur_attr->children->content);
-						continue;
-					}
-					//pos_inc=""
-					if ( !xmlStrcasecmp (cur_attr->name, "pos_inc") )
-					{
-						pos_inc = atoi (cur_attr->children->content);
-						continue;
-					}
-					break;
-
-				case TABCOLLECTION:
-					//max_tabs=""
-					if ( !xmlStrcasecmp (cur_attr->name, "max_tabs") )
-					{
-						max_tabs = atoi (cur_attr->children->content);
-						continue;
-					}
-					//tag_height=""
-					if ( !xmlStrcasecmp (cur_attr->name, "tag_height") )
-					{
-						tag_height = atoi (cur_attr->children->content);
-						continue;
-					}
-					break;
-			}
-		}
-	}
-
-	switch(type)
-	{
-		case LABEL:
-			return label_add_extended (winid, id, NULL, pos_x, pos_y, flags, size, text);
-		case IMAGE:
-			return image_add_extended (winid, id, NULL, pos_x, pos_y, len_x, len_y, flags, size, tid, u1, v1, u2, v2);
-		case CHECKBOX:
-		{
-			int *checked_ptr = calloc(1,sizeof(int));
-			*checked_ptr = checked;
-			return checkbox_add_extended (winid, id, NULL, pos_x, pos_y, len_x, len_y, flags, size, checked_ptr);
-		}
-		case BUTTON:
-			return button_add_extended (winid, id, NULL, pos_x, pos_y, len_x, len_y, flags, size, text);
-		case PROGRESSBAR:
-			return progressbar_add_extended (winid, id, NULL, pos_x, pos_y, len_x, len_y, flags, size, progress, NULL);
-		case VSCROLLBAR:
-			return vscrollbar_add_extended (winid, id, NULL, pos_x, pos_y, len_x, len_y, flags, size, pos, pos_inc, len_y);
-		case TABCOLLECTION:
-		{
-			xmlNode *tab;
-			int colid = tab_collection_add_extended (winid, id, NULL, pos_x, pos_y, len_x, len_y, flags, size, max_tabs, tag_height);
-			for (tab = node->children; tab; tab = tab->next)
-			{
-				if (tab->type == XML_ELEMENT_NODE)
-					ParseTab (tab, winid, colid);
-			}
-
-			return colid;
-		}
-	}
-
-	return -1;
-}
-
-int ParseTab (xmlNode *node, int winid, int colid)
-{
-	int tag_width = 0, closable = 0, tabid;
-	char label[64] = {'\0'};
-	xmlAttr *cur_attr = NULL;
-	xmlNode *child;
-
-	for (cur_attr = node->properties; cur_attr; cur_attr = cur_attr->next)
-	{
-		if (cur_attr->type == XML_ATTRIBUTE_NODE)
-		{
-			if ( !xmlStrcasecmp (cur_attr->name, "label") )
-			{
-				char *p = label;
-				my_xmlStrncopy ( &p, cur_attr->children->content, sizeof (label) );
-			}
-			else if ( !xmlStrcasecmp (cur_attr->name, "tag_width") )
-			{
-				tag_width = atoi (cur_attr->children->content);
-			}
-			else if ( !xmlStrcasecmp (cur_attr->name, "closable") )
-			{
-				closable = atoi (cur_attr->children->content);
-			}
-		}
-	}
-
-	tabid = tab_add (winid, colid, label, tag_width, closable);
-
-	for (child = node->children; child; child = child->next)
-	{
-		if (child->type == XML_ELEMENT_NODE)
-			ParseWidget (node, tabid);
-	}
-
-	return tabid;
-}
-
-int GetWidgetType (const char *w)
-{
-	if(!xmlStrcasecmp(w, "LABEL"))
-		return LABEL;
-	if(!xmlStrcasecmp(w, "IMAGE"))
-		return IMAGE;
-	if(!xmlStrcasecmp(w, "CHECKBOX"))
-		return CHECKBOX;
-	if(!xmlStrcasecmp(w, "BUTTON"))
-		return BUTTON;
-	if(!xmlStrcasecmp(w, "PROGRESSBAR"))
-		return PROGRESSBAR;
-	if(!xmlStrcasecmp(w, "VSCROLLBAR"))
-		return VSCROLLBAR;
-	if(!xmlStrcasecmp(w, "TABCOLLECTION"))
-		return TABCOLLECTION;
-
-	return 0;
-}
-*/

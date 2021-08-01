@@ -50,7 +50,7 @@
 #include <stdlib.h>
 #include "zlib.h"
 
-#if defined(USE_FILE32API) || defined(OSX)
+#if defined(USE_FILE32API) || defined(OSX) || defined(BSD)
 #define fopen64 fopen
 #define ftello64 ftell
 #define fseeko64 fseek

@@ -150,6 +150,8 @@ public:
 	size_t font_number() const { return _font_nr; }
 	//! Return the file name of the font
     const std::string& file_name() const { return _file_name; }
+	//! Return the base file name of the font, without a path prefix
+    const std::string& file_base_name() const { return _file_base_name; }
     //! Return the display name of the font
     const std::string& font_name() const { return _font_name; }
 #ifdef TTF
@@ -175,6 +177,8 @@ private:
 	size_t _font_nr;
 	//! File name of the font file or texture image
     std::string _file_name;
+	//! Base file name of the font file or texture image, without any preceding path
+    std::string _file_base_name;
 	//! Return the display name of the font
     std::string _font_name;
 #ifdef TTF
@@ -477,12 +481,14 @@ public:
 	 *
 	 * Create a new font for the TTF font option in \a option, for text with line height \a height
 	 * pixels. This only copies the font description, and determines the point size. It does not
-	 * yet generate a texture.
+	 * yet generate a texture. If \a outline is \c true, a shadow outline will be drawn around the
+	 * glyphs, otherwise the glyphs are drawn as they are.
 	 *
-	 * \param option The font option for the font, holding file and font name
-	 * \param height The line height of the opened font
+	 * \param option  The font option for the font, holding file and font name
+	 * \param height  The line height of the opened font
+	 * \param outline Whether to draw a shadow outline around the glyphs
 	 */
-	Font(const FontOption& option, int height);
+	Font(const FontOption& option, int height, bool outline);
 #endif
 	//! Destructor
 	~Font();
@@ -499,6 +505,8 @@ public:
 	bool is_fixed_width() const { return _flags & Flags::FIXED_WIDTH; }
 	//! Check if a texture has been generated for this font
 	bool has_texture() const { return _flags & Flags::HAS_TEXTURE; }
+	//! Check if this font is drawn with an outline or not
+	bool has_outline() const { return _flags & Flags::HAS_OUTLINE; }
 	//! Check if this font failed to load
 	bool failed() const { return _flags & Flags::FAILED; }
 
@@ -518,7 +526,7 @@ public:
 	/*!
 	 * \brief Get the width of a character
 	 *
-	 * Get the width of character \a c when drawn in this font at zoom level \a zoom.
+	 * Get the drawing width of character \a c when drawn in this font at zoom level \a zoom.
 	 *
 	 * \param c    The character of which to determine the width
 	 * \param zoom The zoom factor for drawing the glyph
@@ -529,18 +537,18 @@ public:
 		return width_pos(get_position(c), zoom);
 	}
 	/*!
-	 * \brief Get the width of a character plus spacing
+	 * \brief Get the pen advancement of a character, plus spacing
 	 *
-	 * Get the width of character \a c when drawn in this font at zoom level \a zoom,
-	 * plus the spacing between two characters.
+	 * Get how far the pen is advanced after drawing character \a c in this font at zoom level
+	 * \a zoom. The spacing between two characters is added to the advancement.
 	 *
 	 * \param c    The character of which to determine the width
 	 * \param zoom The zoom factor for drawing the glyph
 	 * \return The width of \a c and spacing, in pixels.
 	 */
-	int width_spacing(unsigned char c, float zoom=1.0) const
+	int advance_spacing(unsigned char c, float zoom=1.0) const
 	{
-		return width_spacing_pos(get_position(c), zoom);
+		return advance_spacing_pos(get_position(c), zoom);
 	}
 	/*!
 	 * \brief Get the maximum character width, plus spacing
@@ -589,6 +597,16 @@ public:
 	 * \return The maximum width of a digit character including spacing, in pixels.
 	 */
 	int max_digit_width_spacing(float zoom=1.0) const;
+	/*!
+	 * \brief The maximum width of a single name character
+	 *
+	 * Return the maximum pen advancement for a single name character ('0'-'9', 'a'-'z', 'A'-'Z', or '_')
+	 * when drawn in this font at zoom level \a text_zoom, and include the spacing between characters.
+	 *
+	 * \param zoom The scale factor for the text
+	 * \return The maximum name character width incuding spacing, in pixels.
+	 */
+	int max_name_width_spacing(float zoom=1.0) const;
 	/*!
 	 * \brief Calculate the width of a string
 	 *
@@ -836,6 +854,8 @@ private:
 		int width;
 		//! How far to advance the pen after drawing this glyph
 		int advance;
+		//! Horizontal offset for drawing the character
+		int x_off;
 		//! Offset from top of line to top of glyph
 		int top;
 		//! Offset from top of line to bottom of glyph
@@ -850,7 +870,7 @@ private:
 		float v_end;
 
 		//! Default constructor
-		Metrics(): width(0), advance(0), top(0), bottom(0), u_start(0.0), v_start(0.0),
+		Metrics(): width(0), advance(0), x_off(0), top(0), bottom(0), u_start(0.0), v_start(0.0),
 			u_end(0.0), v_end(0.0) {}
 	};
 
@@ -886,8 +906,10 @@ private:
 		FIXED_WIDTH  = 1 << 1,
 		//! Set if the texture for the font is loaded or generated
 		HAS_TEXTURE  = 1 << 2,
+		//! Set if this font has a shadow outline around the glyphs
+		HAS_OUTLINE  = 1 << 3,
 		//! Set if loading the font failed, and a fallback should be used
-		FAILED       = 1 << 3
+		FAILED       = 1 << 4
 	};
 
 	//! Name of this font. This will be shown on the multi-select button.
@@ -916,8 +938,10 @@ private:
 	int _password_center_offset;
 	//! Maximum width of a glyph
 	int _max_advance;
-	//! Maximum width of a digit 0-9
+	//! Maximum width of a digit '0'-'9'
 	int _max_digit_advance;
+	//! Maximum width of a name character '0'-'9', 'A'-'Z', 'a'-'z' or '_'
+	int _max_name_advance;
 	//! "Typical" character width for English text
 	int _avg_advance;
 	//! Distance between characters when drawn (at default zoom level)
@@ -963,16 +987,16 @@ private:
 	 */
 	int width_pos(int pos, float zoom=1.0) const;
 	/*!
-	 * \brief Get the width of a character plus spacing
+	 * \brief Get the pen advancement of a character, plus spacing
 	 *
-	 * Get the width of the glyph at position \a pos in the texture when drawn
-	 * in this font at zoom level \a zoom, plus the spacing between two
-	 * characters.
+	 * Get how far the pen is advanced after drawing the glyph at position \a pos in the texture,
+	 * when drawn in this font at zoom level \a zoom. The spacing between two characters is added
+	 * to the advancement.
 	 *
 	 * \param pos  The position of the glyph in the texture
 	 * \param zoom The zoom factor for drawing the glyph
 	 */
-	int width_spacing_pos(int pos, float zoom=1.0) const;
+	int advance_spacing_pos(int pos, float zoom=1.0) const;
 	/*!
 	 * \brief Get vertical coordinates
 	 *
@@ -1127,8 +1151,8 @@ private:
 	/*!
 	 * \brief Build a texture for a TTF font
 	 *
-	 * Build a texture containing all supported glyphs from the TrueType font
-	 * associated with this font.
+	 * Build a texture containing all supported glyphs from the TrueType font associated with
+	 * this font.
 	 *
 	 * \return \c true on succes, \c false on failure.
 	 */
@@ -1208,19 +1232,19 @@ public:
 	}
 
 	/*!
-	 * \brief The width of a single character
+	 * \brief Get the pend advancement of a character, plus spacing
 	 *
-	 * Return the width of a single character including spacing, when drawn
-	 * in the font for category \a cat, at zoom level \a text_zoom.
+	 * Get how far the pen is advanced after drawing character \a c in the font for category \a cat,
+	 * at zoom level \a zoom. The spacing between two characters is added to the advancement.
 	 *
 	 * \param cat       The font category for the font used
 	 * \param c         The character for which to get the width
 	 * \param text_zoom The scale factor for the text
 	 * \return The width of the character and spacing, in pixels.
 	 */
-	int width_spacing(Category cat, unsigned char c, float text_zoom=1.0)
+	int advance_spacing(Category cat, unsigned char c, float text_zoom=1.0)
 	{
-		return get(cat, text_zoom).width_spacing(c, text_zoom * font_scales[cat]);
+		return get(cat, text_zoom).advance_spacing(c, text_zoom * font_scales[cat]);
 	}
 	/*!
 	 * \brief The maximum width of a single character
@@ -1267,6 +1291,21 @@ public:
 	int max_digit_width_spacing(Category cat, float text_zoom=1.0)
 	{
 		return get(cat, text_zoom).max_digit_width_spacing(text_zoom * font_scales[cat]);
+	}
+	/*!
+	 * \brief The maximum width of a single name character
+	 *
+	 * Return the maximum pen advancement for a single name character ('0'-'9', 'a'-'z', 'A'-'Z', or '_')
+	 * when drawn in the font for category \a cat at zoom level \a text_zoom, and include the
+	 * spacing between characters.
+	 *
+	 * \param cat       The font category for the font used
+	 * \param text_zoom The scale factor for the text
+	 * \return The maximum name character width incuding spacing, in pixels.
+	 */
+	int max_name_width_spacing(Category cat, float text_zoom=1.0)
+	{
+		return get(cat, text_zoom).max_name_width_spacing(text_zoom * font_scales[cat]);
 	}
 	/*!
 	 * \brief Calculate the width of a string
@@ -1743,6 +1782,19 @@ int get_avg_char_width_zoom(font_cat cat, float text_zoom);
  * \return The maximum digit character width incuding spacing, in pixels.
  */
 int get_max_digit_width_zoom(font_cat cat, float text_zoom);
+/*!
+ * \ingroup text_font
+ * \brief The maximum width of a single name character
+ *
+ * Return the maximum pen advancement for a single name character ('0'-'9', 'a'-'z', 'A'-'Z', or '_')
+ * when drawn in the font for category \a cat at zoom level \a text_zoom, and include the
+ * spacing between characters.
+ *
+ * \param cat       The font category for the font used
+ * \param text_zoom The scale factor for the text
+ * \return The maximum name character width incuding spacing, in pixels.
+ */
+int get_max_name_width_zoom(font_cat cat, float text_zoom);
 /*!
  * \ingroup text_font
  * \brief Calculate the width of a string

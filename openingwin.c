@@ -59,20 +59,33 @@ void switch_to_login ()
 
 int click_opening_handler ()
 {
-	switch_to_login();
+	if (!is_disconnected()) switch_to_login ();
 	return 1;
 }
 
 int keypress_opening_handler (window_info *win, int mx, int my, SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_mod)
 {
+#ifndef MAP_EDITOR2
+	int alt_on = key_mod & KMOD_ALT;
+	int ctrl_on = key_mod & KMOD_CTRL;
+#endif
+
 	if(check_quit_or_fullscreen(key_code, key_mod))
 	{
 		return 1;
 	}
-	else
+	else if(!is_disconnected())
 	{
 		switch_to_login();
 	}
+#ifndef MAP_EDITOR2
+	else if (!alt_on && !ctrl_on)
+	{
+		connect_to_server();
+	}
+#endif
+	else
+		return 0;
 	return 1;
 }
 

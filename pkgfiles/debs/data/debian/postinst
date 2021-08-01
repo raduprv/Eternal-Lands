@@ -20,12 +20,12 @@ set -e
 
 case "$1" in
 	configure)
-	
+
 	TARGETDIR="/usr/share/games/EternalLands"
 	CACHEDIR="/var/cache/eternallands"
-	DOWNLOADURL="http://twinmoons.org.uk/el/git"
-	DOWNLOADMAIN="el_data_20201214.zip"
-	MD5SUMMAIN="fc968e82c61e4ba48de03a3d20c6dc4c"
+	DOWNLOADURL="http://twinmoons.org.uk/el/rel/195"
+	DOWNLOADMAIN="eternallands-data_1.9.5.9-1.zip"
+	MD5SUMMAIN="82c0b5601faed923fb30d01906e25ca3"
 	# post release updates
 	#DOWNLOADUPDATE1=""
 	#MD5SUMUPDATE1=""
@@ -34,17 +34,17 @@ case "$1" in
 
 	mkdir -p $CACHEDIR
 	cd $CACHEDIR
-	
+
 	# remove old downloads
-	rm -f el_195_data_files.zip el_195_1_data_files.zip el_195_p7_data_files.zip el_195_latest_data.zip
+	rm -f el_195_data_files.zip el_195_1_data_files.zip el_195_p7_data_files.zip \
+		el_195_latest_data.zip el_data_20201214.zip eternallands-data_1.9.5.9.zip
 
 	# if we already have an archive check the md5sum is ok and remove if not
 	[ ! -f "$DOWNLOADMAIN" ] || echo "$MD5SUMMAIN  $DOWNLOADMAIN" | md5sum -c - || rm -fv $DOWNLOADMAIN
 	# post release updates
 	#[ ! -f "$DOWNLOADUPDATE1" ] || echo "$MD5SUMUPDATE1  $DOWNLOADUPDATE1" | md5sum -c - || rm -fv $DOWNLOADUPDATE1
-	
-	
-	# Use existing file or download it 
+
+	# Use existing file or download it
 	if [ ! -f "$DOWNLOADMAIN" ]
 	then
 		wget -P "." -v --progress="dot:mega" --no-check-certificate $DOWNLOADURL/$DOWNLOADMAIN
@@ -75,31 +75,31 @@ case "$1" in
 	mv sl servers.lst
 	chown -R root:root .
 	chmod -R a=rX .
-	
+
 	# make the file lists
 	FILELIST="eternallands-data.filelist"
 	DIRLIST="eternallands-data.dirlist"
 	find . -type f -exec echo \"{}\" \; > $TARGETDIR/$FILELIST
 	find . -type d ! -name "." -exec echo \"{}\" \; | sort -r > $TARGETDIR/$DIRLIST
-	
+
 	# remove any existing files in the lists then move the new files into the target directory
 	cd $TARGETDIR/
 	[ ! -s $FILELIST ] || cat $FILELIST | xargs rm -f || true
 	[ ! -s $DIRLIST ] || cat $DIRLIST | xargs rmdir --ignore-fail-on-non-empty > /dev/null 2>&1 || true
 	chmod -R +w .
 	cp --remove-destination -rpf $UNPACKDIR/el_data/* .
-	
+
 	rm -rf $UNPACKDIR
-	
-    ;;
 
-    abort-upgrade|abort-remove|abort-deconfigure)
-    ;;
+	;;
 
-    *)
-        echo "postinst called with unknown argument \`$1'" >&2
-        exit 1
-    ;;
+	abort-upgrade|abort-remove|abort-deconfigure)
+	;;
+
+	*)
+		echo "postinst called with unknown argument \`$1'" >&2
+		exit 1
+	;;
 esac
 
 # dh_installdeb will replace this with shell code automatically

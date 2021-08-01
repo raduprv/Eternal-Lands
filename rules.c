@@ -851,7 +851,7 @@ static void switch_rules_to_next ()
 	show_hud_windows();
 	destroy_window (rules_root_win);
 	rules_root_win = -1;
-	//if (disconnected) connect_to_server();
+	if (is_disconnected()) connect_to_server();
 }
 
 static int rules_root_scroll_handler ()

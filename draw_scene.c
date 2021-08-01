@@ -574,13 +574,11 @@ void update_camera()
 		if      (adjust >=  180) adjust -= 360.0;
 		else if (adjust <= -180) adjust += 360.0;
 		if (adjust > 35){
-			Uint8 str[2];
-			str[0] = TURN_LEFT;
-			my_tcp_send (my_socket, str, 1);
+			Uint8 cmd = TURN_LEFT;
+			my_tcp_send(&cmd, 1);
 		} else if (adjust < -35){
-			Uint8 str[2];
-			str[0] = TURN_RIGHT;
-			my_tcp_send (my_socket, str, 1);
+			Uint8 cmd = TURN_RIGHT;
+			my_tcp_send(&cmd, 1);
 		}
 	}
 	adjust_view = 0;

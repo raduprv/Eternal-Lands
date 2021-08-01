@@ -19,6 +19,10 @@
 #
 # Example for windows using msys2
 #   cmake -G "MSYS Makefiles" -DCMAKE_INCLUDE_PATH="/mingw64/local/include" -DCMAKE_LIBRARY_PATH="/mingw64/local/lib" ..
+#
+# Example for FreeBSD (sorry about the iconv hack)
+#	cmake -DLOCAL_NLOHMANN_JSON=On ../Eternal-Lands/ -DIconv_LIBRARIES="-L/usr/local/lib -liconv"
+#
 
 cmake_minimum_required(VERSION 3.5.0)
 
@@ -32,6 +36,8 @@ OPTION(LOCAL_NLOHMANN_JSON "Enable if you want to use an embedded copy of nlohma
 OPTION(MARCHNATIVE "Enable -march=native compiler flag, for when not building a portable executable." Off)
 OPTION(ADDRSANITISER "Enable the gcc address sanitisation options to do run-time checking." Off)
 OPTION(TTF "Add the ability to use True Type system fonts." On)
+OPTION(USE_SSL "Encrypt the traffic with the server." On)
+OPTION(PACKET_COMPRESSION "Add support for compressed data packets from the proxy server" On)
 
 # standard options
 add_definitions(
@@ -97,10 +103,7 @@ add_definitions(
 #	-DPAWN							# Experimental, not for release, will need server support to function properly. This *will* eat your cat. You've been warned. Enables the Pawn abstract machine.
 #	-DUID							# use unique ID sent from server for custom looks. (INCOMPLETE)
 #	-DUSE_ACTORS_OPTIMIZER			# Enables actor optimizations
-#	-DUSE_BOOST
-#	-DUSE_TR1						# Needs tr1 version of c++ stl, used for NEW_FILE_IO
 #	-DWRITE_XML						# dangerous to use, will wipe out some XML files that are part of the main game download
-#	-DZLIBW							# Enables being able to write gzip compressed files, requires -lzlib/-lz needed for map_editor
 )
 
 # Set the path from the git root to the sours files
@@ -116,7 +119,7 @@ find_package(OpenAL REQUIRED)
 find_package(ZLIB REQUIRED)
 find_package(PNG REQUIRED)
 find_package(LibXml2 REQUIRED)
-if (CMAKE_SYSTEM_NAME MATCHES "Linux")
+if (CMAKE_SYSTEM_NAME MATCHES "Linux" OR CMAKE_SYSTEM_NAME MATCHES "FreeBSD")
 	find_package(X11 REQUIRED)
 endif()
 if (CMAKE_SYSTEM_NAME MATCHES "Windows")
@@ -128,6 +131,9 @@ include(cmake/FindVorbisFile.cmake)
 include(cmake/FindCal3d.cmake)
 if (TTF)
 	include(cmake/FindSDL2TTF.cmake)
+endif()
+if (USE_SSL)
+	find_package(OpenSSL REQUIRED)
 endif()
 
 # require the nlohmann_json package if building for json files
@@ -174,7 +180,7 @@ set(SOURCES
 # list the C++ source files
 set(SOURCES ${SOURCES}
 	${SD}achievements.cpp ${SD}actor_init.cpp  ${SD}books.cpp ${SD}cal3d_wrapper.cpp ${SD}command_queue.cpp ${SD}context_menu.cpp
-	${SD}elloggingwrapper.cpp  ${SD}font.cpp ${SD}hud_indicators.cpp ${SD}hud_timer.cpp ${SD}icon_window.cpp
+	${SD}cppwindows.cpp ${SD}elloggingwrapper.cpp  ${SD}font.cpp ${SD}hud_indicators.cpp ${SD}hud_timer.cpp ${SD}icon_window.cpp
 	${SD}io/cal3d_io_wrapper.cpp ${SD}item_info.cpp ${SD}item_lists.cpp ${SD}named_colours.cpp
 	${SD}optimizer.cpp ${SD}password_manager.cpp ${SD}quest_log.cpp ${SD}select.cpp ${SD}sendvideoinfo.cpp
 	${SD}trade_log.cpp ${SD}user_menus.cpp ${SD}xor_cipher.cpp ${SD}engine/hardwarebuffer.cpp ${SD}engine/logging.cpp
@@ -229,6 +235,16 @@ if (TTF)
 	add_definitions(-DTTF)
 endif()
 
+if (USE_SSL)
+	add_definitions(-DUSE_SSL)
+	set(SOURCES ${SOURCES} ${SD}connection.cpp ${SD}cppwindows.cpp ${SD}ipaddress.cpp ${SD}socket.cpp ${SD}textpopup.cpp)
+endif()
+
+if (PACKET_COMPRESSION)
+	add_definitions(-DPACKET_COMPRESSION)
+	set(SOURCES ${SOURCES} ${SD}proxy_ext.c)
+endif()
+
 # set the compiler flags for DEBUG and RELEASE builds
 set(CMAKE_C_FLAGS "${EXTRA_C_FLAGS} -Wall -Wdeclaration-after-statement -W -Wno-unused-parameter -Wno-sign-compare -D_GNU_SOURCE=1 -D_REENTRANT")
 set(CMAKE_C_FLAGS_DEBUG "-Og -ggdb -pipe -fno-strict-aliasing")
@@ -251,6 +267,11 @@ elseif (CMAKE_SYSTEM_NAME MATCHES "Windows")
 	set(EXTRA_LD_FLAGS "${EXTRA_LD_FLAGS} -mwindows")
 	set(SOURCES ${SOURCES} ${SD}elc_private.rc)
 	set(CMAKE_RC_COMPILE_OBJECT "<CMAKE_RC_COMPILER> -i <SOURCE> -o <OBJECT>")
+elseif (CMAKE_SYSTEM_NAME MATCHES "FreeBSD")
+	if (NOT EXEC)
+		set(EXEC "el.bsd.bin")
+	endif()
+	add_definitions(-DBSD)
 else()
 	message( FATAL_ERROR "Unknown platform [${CMAKE_SYSTEM_NAME}]" )
 endif()
@@ -328,6 +349,13 @@ target_include_directories(${EXEC} SYSTEM PUBLIC
 if (TTF)
 	target_link_libraries(${EXEC} ${SDL2TTF_LIBRARY})
 	target_include_directories(${EXEC} SYSTEM PUBLIC ${SDL2TTF_INCLUDE_DIR})
+endif()
+
+if (USE_SSL)
+	if (CMAKE_SYSTEM_NAME MATCHES "Windows")
+		target_link_libraries(${EXEC} -lws2_32)
+	endif()
+	target_link_libraries(${EXEC} ${OPENSSL_SSL_LIBRARY} ${OPENSSL_CRYPTO_LIBRARY})
 endif()
 
 install(
