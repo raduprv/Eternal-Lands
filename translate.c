@@ -570,6 +570,9 @@ char	reg_error_str[15],
 	unverified_certificate_str[400],
 	close_connection_str[30],
 	continue_str[30],
+	no_encryption_support_str[100],
+	no_encryption_response_str[100],
+	now_encrypted_str[100],
 	encryption_failed_str[100],
 	cert_verification_err_str[100],
 	send_failed_str[100],
@@ -1325,6 +1328,13 @@ void init_errors()
 		"wish to continue anyway.", sizeof(unverified_certificate_str));
 	add_xml_identifier(misc, "close_connection", close_connection_str, "Close connection", sizeof(close_connection_str));
 	add_xml_identifier(misc, "continue", continue_str, "Continue", sizeof(continue_str));
+	add_xml_identifier(misc, "no_encryption_support", no_encryption_support_str,
+		"The server does not support encrypting the connection.", sizeof(no_encryption_support_str));
+	add_xml_identifier(misc, "no_encryption_response", no_encryption_response_str,
+		"The server did not respond to a request to encrypt the connection.",
+		sizeof(no_encryption_response_str));
+	add_xml_identifier(misc, "now_encrypted", now_encrypted_str,
+		"The connection is now encrypted.", sizeof(now_encrypted_str));
 	add_xml_identifier(misc, "encryption_failed", encryption_failed_str,
 		"Failed to set up an encrypted connection.", sizeof(encryption_failed_str));
 	add_xml_identifier(misc, "cert_verification_err", cert_verification_err_str,

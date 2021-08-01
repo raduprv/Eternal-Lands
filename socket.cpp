@@ -10,6 +10,7 @@
 #include <openssl/err.h>
 #include <openssl/x509v3.h>
 #include <unistd.h>
+#include "client_serv.h"
 #include "socket.h"
 #include "elloggingwrapper.h"
 #include "init.h"
@@ -57,7 +58,7 @@ void TCPSocket::clean_up()
 	}
 }
 
-void TCPSocket::connect(const std::string& hostname, std::uint16_t port, bool do_encrypt)
+void TCPSocket::connect(const std::string& hostname, std::uint16_t port)
 {
 	if (_fd != INVALID_SOCKET)
 		close();
@@ -107,10 +108,7 @@ void TCPSocket::connect(const std::string& hostname, std::uint16_t port, bool do
 	// Make client sockets blocking by default.
 	set_blocking(true);
 
-	if (do_encrypt)
-		encrypt(hostname);
-	else
-		_state = State::CONNECTED_UNENCRYPTED;
+	_state = State::CONNECTED_UNENCRYPTED;
 }
 
 void TCPSocket::close_locked()
@@ -134,8 +132,10 @@ void TCPSocket::close_locked()
 		shutdown(_fd, SHUT_RDWR);
 		::close(_fd);
 		_fd = INVALID_SOCKET;
-		_state = State::NOT_CONNECTED;
+		_peer = IPAddress();
 	}
+
+	_state = State::NOT_CONNECTED;
 }
 
 const char* TCPSocket::check_ssl_error_locked(int ret, int errno_val)
@@ -166,7 +166,12 @@ const char* TCPSocket::check_ssl_error_locked(int ret, int errno_val)
 size_t TCPSocket::send(const std::uint8_t* data, size_t data_len)
 {
 	if (!is_connected())
-		throw NotConnected();
+	{
+		if (in_tls_handshake())
+			throw InTlsHandshake();
+		else
+			throw NotConnected();
+	}
 
 	size_t nr_bytes_sent = 0;
 	if (is_encrypted())
@@ -220,7 +225,7 @@ size_t TCPSocket::send(const std::uint8_t* data, size_t data_len)
 
 bool TCPSocket::wait_incoming(int timeout_ms)
 {
-	if (!is_connected())
+	if (!is_connected() && !in_tls_handshake())
 		throw NotConnected();
 
 	struct timeval select_timeout;
@@ -247,7 +252,12 @@ bool TCPSocket::wait_incoming(int timeout_ms)
 size_t TCPSocket::receive_or_peek(std::uint8_t* buffer, size_t max_len, bool peek)
 {
 	if (!is_connected())
-		throw NotConnected();
+	{
+		if (in_tls_handshake())
+			throw InTlsHandshake();
+		else
+			throw NotConnected();
+	}
 
 	if (is_encrypted())
 	{
@@ -401,6 +411,9 @@ void TCPSocket::encrypt(const std::string& hostname)
 		unsigned long err = ERR_get_error();
 		throw EncryptError(std::string("Failed to set host name for verification: ") + ERR_reason_error_string(err));
 	}
+
+	// Until the TLS handshake finishes, stop users from sending or receiving on this socket
+	_state = State::CONNECTED_INITIALIZING_ENCRYPTION;
 
 	ERR_clear_error();
 	if (!SSL_set_fd(_ssl, _fd))

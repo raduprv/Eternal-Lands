@@ -2331,6 +2331,14 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 			handle_proxy_command(in_data, data_length);
 			break;
 #endif // PACKET_COMPRESSION
+#ifdef USE_SSL
+		case LETS_ENCRYPT:
+			if (data_length < 4)
+				LOG_WARNING("CAUTION: Possibly forged/invalid LETS_ENCRYPT packet received.\n");
+			else
+				start_tls_handshake(in_data[3] != 0);
+			break;
+#endif
 		default:
 			{
 				// Unknown packet type??
