@@ -727,6 +727,7 @@ typedef enum
 #define GET_TIME 231
 #define SERVER_STATS 232
 #define ORIGINAL_IP 233
+#define LETS_ENCRYPT 234
 /*! @} */
 
 /*!

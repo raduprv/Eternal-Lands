@@ -2,6 +2,9 @@
 #include <string.h>
 #include "elconfig.h"
 #include "chat.h"
+#ifdef USE_SSL
+#include "connection.h"
+#endif // USE_SSL
 #include "context_menu.h"
 #include "hud.h"
 #include "init.h"
@@ -2419,8 +2422,12 @@ int	click_in_window(int win_id, int x, int y, Uint32 flags)
 		static int time=0;
 		if(time+60000<cur_time){
 			/*Server testing - required*/
+#ifdef USE_SSL
+			send_ping_request();
+#else // USE_SSL
 			Uint8 cmd = PING_REQUEST;
 			my_tcp_send(&cmd, 1);
+#endif // USE_SSL
 			time=cur_time;
 		}
 
