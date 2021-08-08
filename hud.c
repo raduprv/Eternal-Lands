@@ -198,6 +198,10 @@ int hud_click(window_info *win, int mx, int my, Uint32 flags)
 	{
 		if (logo_click_to_url)
 			open_web_link(LOGO_URL_LINK);
+#ifdef ANDROID
+		else
+			toggle_active_input();
+#endif
 		return 1;
 	}
 	return 0;
