@@ -46,6 +46,8 @@ void Connection::connect_to_server()
 	draw_scene();	// update the screen
 
 	_socket.close();
+	_out_buffer.clear();
+	_awaiting_encrypt_response = false;
 	try
 	{
 		_socket.connect(_server_name, _server_port);
@@ -209,7 +211,6 @@ void Connection::finish_connect_to_server()
 
 void Connection::close_after_invalid_certificate()
 {
-	_socket.close();
 	LOG_TO_CONSOLE(c_red1, cert_verification_err_str);
 	LOG_TO_CONSOLE(c_red1, alt_x_quit);
 	_socket.close();
