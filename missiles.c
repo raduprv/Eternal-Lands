@@ -52,6 +52,7 @@ int begin_lost_missiles = -1;
 int end_lost_missiles = -1;
 
 int range_total_shots = 0;
+int range_exp_at_shot = 0;
 int range_success_hits = 0;
 int range_critical_hits = 0;
 
@@ -469,6 +470,7 @@ int missiles_fire_arrow(actor *a, float target[3], MissileShotType shot_type)
 	if(a->actor_id == yourself)
 	{
 		range_total_shots++;
+		range_exp_at_shot=get_session_exp_ranging();
 		if (shot_type == MISSED_SHOT)
 		{
 			add_floating_message(a->actor_id, "miss", FLOATINGMESSAGE_NORTH, 1.0, 0.55, 0.0, 1250);
@@ -1010,7 +1012,7 @@ int display_range_handler(window_info *win)
 			range_critical_hits > 0 ? (float)range_critical_hits/range_success_hits*100 : 0.0f);
 		LOG_TO_CONSOLE(c_green1, str);
 		safe_snprintf(str, sizeof(str), "%-*s %.2f exp", max_len, ranging_exp_per_arrow_str,
-			range_total_shots > 0 ? (float)get_session_exp_ranging()/range_total_shots : 0.0f);
+			range_total_shots > 0 ? (float)range_exp_at_shot/range_total_shots : 0.0f);
 		LOG_TO_CONSOLE(c_green1, str);
 
 		print_to_console = 0;
@@ -1052,7 +1054,7 @@ int display_range_handler(window_info *win)
 	draw_string_small_zoomed(pos_x, pos_y, (const unsigned char*)ranging_exp_per_arrow_str,
 		2, win->current_scale);
 	safe_snprintf(str, sizeof(str), "%.2f exp",
-		range_total_shots > 0 ? (float)get_session_exp_ranging()/range_total_shots : 0.0f);
+		range_total_shots > 0 ? (float)range_exp_at_shot/range_total_shots : 0.0f);
 	draw_string_small_zoomed(result_x, pos_y, (const unsigned char*)str, 1, win->current_scale);
 
 	return 1;
