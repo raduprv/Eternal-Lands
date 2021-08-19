@@ -52,7 +52,7 @@ int begin_lost_missiles = -1;
 int end_lost_missiles = -1;
 
 int range_total_shots = 0;
-int range_exp_at_shot = 0;
+static int range_exp_at_shot = 0;
 int range_success_hits = 0;
 int range_critical_hits = 0;
 
