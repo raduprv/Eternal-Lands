@@ -187,6 +187,8 @@ namespace ELGL_Colour
 		add("popup.normaltext", Colour_Tuple(0.3f, 0.6f, 1.0f, 1.0f));
 		add("popup.optiontext", Colour_Tuple(0.6f, 0.3f, 1.0f, 1.0f));
 		add("popup.optiontextmouseover", Colour_Tuple(1.0f, 1.0f, 1.0f, 1.0f));
+		add("banner.mana.full", Colour_Tuple(0.3f, 0.3f, 1.0f, 0.0f));
+		add("banner.mana.zero", Colour_Tuple(0.7f, 0.7f, 1.0f, 0.0f));
 	}
 
 } // end namespace

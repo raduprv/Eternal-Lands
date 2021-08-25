@@ -17,6 +17,7 @@
 #include "load_gl_extensions.h"
 #include "map.h"
 #include "missiles.h"
+#include "named_colours.h"
 #include "new_actors.h"
 #include "platform.h"
 #include "shadows.h"
@@ -400,17 +401,37 @@ static void set_health_color(actor * actor_id, float percent, float multiplier, 
 
 static void set_mana_color(float percent, float multiplier, float a)
 {
-	float c;
+	static int have_colours = 0;
+	static GLfloat full_mana[3], zero_mana[3];
+	GLfloat use_colours[3];
+	size_t i;
 
+	// get the mana colour range
+	if (!have_colours)
+	{
+		elglGetColour3v("banner.mana.full", full_mana);
+		elglGetColour3v("banner.mana.zero", zero_mana);
+		have_colours = 1;
+	}
+
+	// not dynamic so just to full mana colour
 	if (!dynamic_banner_colour.yourself)
-		percent = 1.0f;
+	{
+		glColor4f(multiplier * full_mana[0], multiplier * full_mana[1], full_mana[2], a);
+		return;
+	}
 
-	c=0.6f - percent*0.6f;
+	// dynamic so find step between full and zero mana for each colour
+	for (i = 0; i < 3; i++)
+	{
+		use_colours[i] = full_mana[i] + (zero_mana[i] - full_mana[i]) * (1.0f - percent);
+		if (use_colours[i] < 0.0f)
+			use_colours[i] = 0.0f;
+		else if (use_colours[i] > 1.0f)
+			use_colours[i] = 1.0f;
+	}
 
-	if(c<0.0f)c=0.0f;
-	else if(c>1.0f)c=1.0f;
-
-	glColor4f(c,c,2.0f, a);
+	glColor4f(multiplier * use_colours[0], multiplier * use_colours[1], use_colours[2], a);
 }
 
 
