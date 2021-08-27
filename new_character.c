@@ -5,7 +5,7 @@
 #include "new_character.h"
 #include "2d_objects.h"
 #include "3d_objects.h"
-#include "actors.h"
+#include "actors_list.h"
 #include "actor_scripts.h"
 #include "asc.h"
 #include "bbox_tree.h"
@@ -386,12 +386,9 @@ static int display_newchar_handler (window_info *win)
 	//see if we have to load a model (male or female)
 	if (creating_char && !our_actor.our_model){
 		move_camera();//Make sure we lag a little...
+		yourself = 0;
 		our_actor.our_model = add_actor_interface (our_actor.def->x, our_actor.def->y, our_actor.def->z_rot, 1.0f, our_actor.race,
 			inputs[0].str, our_actor.skin, our_actor.hair, our_actor.eyes, our_actor.shirt, our_actor.pants, our_actor.boots, our_actor.head);
-		yourself = 0;
-		LOCK_ACTORS_LISTS();
-		set_our_actor (our_actor.our_model);
-		UNLOCK_ACTORS_LISTS();
 	}
 
 	if (!(main_count%10))
@@ -841,13 +838,18 @@ static void add_text_to_buffer(int color, const char * text, int time_to_display
 
 static void create_character(void)
 {
+	actor *act = lock_and_get_self();
+	int bad_password = strncasecmp(inputs[1].str, act->actor_name, strlen(act->actor_name)) == 0;
+
+	release_actors_list();
+
 	if(inputs[0].pos<3){
 		add_text_to_buffer(c_red2, error_username_length, DEF_MESSAGE_TIMEOUT);
 		return;
 	} else if(inputs[1].pos<4){
 		add_text_to_buffer(c_red2, error_password_length, DEF_MESSAGE_TIMEOUT);
 		return;
-	} else if(!strncasecmp(inputs[1].str, actors_list[0]->actor_name, strlen(actors_list[0]->actor_name))){
+	} else if(bad_password){
 		add_text_to_buffer(c_red2, error_bad_pass, DEF_MESSAGE_TIMEOUT);
 		return;
 	} else if(strcmp(inputs[1].str, inputs[2].str)){
@@ -1014,6 +1016,7 @@ static int keypress_namepass_handler (window_info *win, int mx, int my, SDL_Keyc
 	Uint8 ch = key_to_char (key_unicode);
 	int ret=0;
 	struct input_text * t=&inputs[active];
+	actor *act;
 
 	if (clear_player_name)
 	{
@@ -1068,10 +1071,11 @@ static int keypress_namepass_handler (window_info *win, int mx, int my, SDL_Keyc
 		}
 	}
 
+	act = lock_and_get_self();
 	if(active>0){
 		//Password/confirm
 		if((inputs[1].pos > 0) && (inputs[2].pos > 0) && ret){
-			if(!strncasecmp(inputs[1].str, actors_list[0]->actor_name, strlen(actors_list[0]->actor_name))){
+			if(!strncasecmp(inputs[1].str, act->actor_name, strlen(act->actor_name))){
 				add_text_to_buffer(c_red2, error_bad_pass, DEF_MESSAGE_TIMEOUT);
 			} else if(strcmp(inputs[1].str, inputs[2].str)){
 				add_text_to_buffer(c_red2, error_pass_no_match, DEF_MESSAGE_TIMEOUT);
@@ -1080,9 +1084,9 @@ static int keypress_namepass_handler (window_info *win, int mx, int my, SDL_Keyc
 			}
 		}
 	} else {
-		safe_strncpy(actors_list[0]->actor_name, inputs[0].str,
-			sizeof(actors_list[0]->actor_name));
+		safe_strncpy(act->actor_name, inputs[0].str, sizeof(act->actor_name));
 	}
+	release_actors_list();
 
 	return ret;
 }

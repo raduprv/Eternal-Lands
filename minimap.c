@@ -2,6 +2,7 @@
 #include <string.h>
 #include <SDL.h>
 #include "minimap.h"
+#include "actors_list.h"
 #include "asc.h"
 #include "buddy.h"
 #include "colors.h"
@@ -112,13 +113,14 @@ static __inline__ int is_within_radius(float mx, float my,float px,float py,floa
 		return 0;
 }
 
-static __inline__ void draw_actor_points(window_info *win, float zoom_multip, float px, float py)
+static void draw_actor_points(window_info *win, float zoom_multip, float px, float py)
 {
 	float size_x = float_minimap_size / (tile_map_size_x * 6);
 	float size_y = float_minimap_size / (tile_map_size_y * 6);
-	actor *a;
 	int i;
 	float x, y;
+	size_t max_actors;
+	actor** actors_list;
 
 	glPushMatrix();
 	glDisable(GL_TEXTURE_2D);
@@ -133,11 +135,12 @@ static __inline__ void draw_actor_points(window_info *win, float zoom_multip, fl
 
 	glBegin(GL_POINTS);
 
+	actors_list = lock_and_get_actors_list(&max_actors);
 	for (i = 0; i < max_actors; i++)
 	{
 		if (actors_list[i])
 		{
-			a = actors_list[i];
+			actor *a = actors_list[i];
 			if (a->attached_actor != -1 && a->actor_id == -1)
 				continue;
 			x = a->x_tile_pos * size_x;
@@ -179,6 +182,7 @@ static __inline__ void draw_actor_points(window_info *win, float zoom_multip, fl
 			glVertex2f(x, y);
 		}
 	}
+	release_actors_list();
 	
 	// mines
 	for (i = 0; i < NUM_MINES; i++)

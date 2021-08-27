@@ -24,6 +24,7 @@
  #include "alphamap.h"
  #include "bags.h"
  #include "buddy.h"
+ #include "buffs.h"
  #include "chat.h"
  #include "console.h"
  #include "context_menu.h"

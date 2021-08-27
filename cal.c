@@ -1,5 +1,5 @@
 #include <stdlib.h>
-#include "actors.h"
+#include "actors_list.h"
 #include "actor_init.h"
 #include "cal.h"
 #include "draw_scene.h"
@@ -215,24 +215,17 @@ void handle_cur_emote(actor *pActor){
 
 
 
-void cal_actor_set_anim_delay(int id, struct cal_anim anim, float delay)
+static void cal_actor_set_anim_delay(actor* pActor, actor *attached, struct cal_anim anim,
+	float delay)
 {
-	actor *pActor = actors_list[id];
 	struct CalMixer *mixer;
 	int i;
 
-	//char str[255];
-	//sprintf(str, "actor:%d anim:%d type:%d delay:%f\0",id,anim.anim_index,anim.kind,delay);
-	//LOG_TO_CONSOLE(c_green2,str);
-
-	if (pActor==NULL)
+	if (pActor->calmodel==NULL || pActor->cur_anim.anim_index==anim.anim_index)
+	{
+		release_actors_list();
 		return;
-
-	if (pActor->calmodel==NULL)
-		return;
-
-	if (pActor->cur_anim.anim_index==anim.anim_index)
-		return;
+	}
 
 	//this shouldnt happend but its happends if actor doesnt have
 	//animation so we add this workaround to prevent "freezing"
@@ -243,7 +236,7 @@ void cal_actor_set_anim_delay(int id, struct cal_anim anim, float delay)
 			pActor->sitting=0;
 		}
 		pActor->stop_animation=0;
-		att_props = get_attachment_props_if_held(pActor);
+		att_props = get_attachment_props_if_held(pActor, attached);
 		if (att_props)
 		{
 			anim.anim_index = att_props->cal_frames[cal_attached_idle_frame].anim_index;
@@ -340,12 +333,11 @@ void cal_actor_set_anim_delay(int id, struct cal_anim anim, float delay)
 #ifdef NEW_SOUND
 		cal_play_anim_sound(pActor, pActor->cur_anim,0);
 #endif
-
 }
 
-void cal_actor_set_anim(int id,struct cal_anim anim)
+void cal_actor_set_anim_locked(actor *pActor, actor *attached, struct cal_anim anim)
 {
-	cal_actor_set_anim_delay(id, anim, 0.05f);
+	cal_actor_set_anim_delay(pActor, attached, anim, 0.05f);
 }
 
 #ifdef NEW_SOUND

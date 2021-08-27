@@ -1,6 +1,6 @@
 #ifdef ECDEBUGWIN
 
-#include "actors.h"
+#include "actors_list.h"
 #include "cal.h"
 #include "client_serv.h"
 #include "eye_candy_wrapper.h"
@@ -1008,82 +1008,51 @@ static int ecdw_magic_immunity_handler(void)
 
 static int ecdw_remote_heal_handler(void)
 {
-	actor *target= NULL;
-	int i;
-	for (i = 0; i < max_actors; i++)
-	{
-		if (actors_list[i] && actors_list[i] != get_actor_ptr_from_id(yourself))
-		{
-			target = actors_list[i];
-		}
-	}
+	actor *target;
+	actor * me = lock_and_get_self_and_target(&target);
 	if (target != NULL)
 	{
-		ec_create_glow_remote_heal(get_actor_ptr_from_id(yourself),
-			(poor_man ? 6 : 10));
-		ec_create_targetmagic_remote_heal2(get_actor_ptr_from_id(yourself),
-			target, (poor_man ? 6 : 10));
+		ec_create_glow_remote_heal(me, (poor_man ? 6 : 10));
+		ec_create_targetmagic_remote_heal2(me, target, (poor_man ? 6 : 10));
+		release_actors_list();
 	}
 	return 1;
 }
 
 static int ecdw_poison_handler(void)
 {
-	actor *target= NULL;
-	int i;
-	for (i = 0; i < max_actors; i++)
-	{
-		if (actors_list[i] && actors_list[i] != get_actor_ptr_from_id(yourself))
-		{
-			target = actors_list[i];
-		}
-	}
+	actor *target;
+	actor *me = lock_and_get_self_and_target(&target);
 	if (target != NULL)
 	{
-		ec_create_glow_poison(get_actor_ptr_from_id(yourself), (poor_man ? 6
-			: 10));
-		ec_create_targetmagic_poison2(get_actor_ptr_from_id(yourself), target,
-			(poor_man ? 6 : 10));
+		ec_create_glow_poison(me, (poor_man ? 6 : 10));
+		ec_create_targetmagic_poison2(me, target, (poor_man ? 6 : 10));
+		release_actors_list();
 	}
 	return 1;
 }
 
 static int ecdw_harm_handler(void)
 {
-	actor *target= NULL;
-	int i;
-	for (i = 0; i < max_actors; i++)
-	{
-		if (actors_list[i] && actors_list[i] != get_actor_ptr_from_id(yourself))
-		{
-			target = actors_list[i];
-		}
-	}
+	actor *target;
+	actor *me = lock_and_get_self_and_target(&target);
 	if (target != NULL)
 	{
-		ec_create_glow_harm(get_actor_ptr_from_id(yourself),
-			(poor_man ? 6 : 10));
-		ec_create_targetmagic_harm2(get_actor_ptr_from_id(yourself), target,
-			(poor_man ? 6 : 10));
+		ec_create_glow_harm(me, (poor_man ? 6 : 10));
+		ec_create_targetmagic_harm2(me, target, (poor_man ? 6 : 10));
+		release_actors_list();
 	}
 	return 1;
 }
 
 static int ecdw_mana_drain_handler(void)
 {
-	actor *target= NULL;
-	int i;
-	for (i = 0; i < max_actors; i++)
-	{
-		if (actors_list[i] && actors_list[i] != get_actor_ptr_from_id(yourself))
-		{
-			target = actors_list[i];
-		}
-	}
+	actor *target;
+	actor *me = lock_and_get_self_and_target(&target);
 	if (target != NULL)
 	{
-		ec_create_targetmagic_drain_mana2(get_actor_ptr_from_id(yourself),
-			target, (poor_man ? 6 : 10));
+		ec_create_targetmagic_drain_mana2(me, target, (poor_man ? 6 : 10));
+		release_actors_list();
 	}
 	return 1;
 }
@@ -1147,152 +1116,96 @@ static int ecdw_tptpr_handler(void)
 
 static int ecdw_breathe_fire_handler(void)
 {
-	actor *target= NULL;
-	int i;
-	for (i = 0; i < max_actors; i++)
-	{
-		if (actors_list[i] && actors_list[i] != get_actor_ptr_from_id(yourself))
-		{
-			target = actors_list[i];
-		}
-	}
+	actor *target;
+	actor *me = lock_and_get_self_and_target(&target);
 	if (target != NULL)
 	{
-		ec_create_breath_fire2(get_actor_ptr_from_id(yourself), target,
-			(poor_man ? 6 : 10), 1.0);
+		ec_create_breath_fire2(me, target, (poor_man ? 6 : 10), 1.0);
+		release_actors_list();
 	}
 	return 1;
 }
 
 static int ecdw_breathe_ice_handler(void)
 {
-	actor *target= NULL;
-	int i;
-	for (i = 0; i < max_actors; i++)
-	{
-		if (actors_list[i] && actors_list[i] != get_actor_ptr_from_id(yourself))
-		{
-			target = actors_list[i];
-		}
-	}
+	actor *target;
+	actor *me = lock_and_get_self_and_target(&target);
 	if (target != NULL)
 	{
-		ec_create_breath_ice2(get_actor_ptr_from_id(yourself), target,
-			(poor_man ? 6 : 10), 1.0);
+		ec_create_breath_ice2(me, target, (poor_man ? 6 : 10), 1.0);
+		release_actors_list();
 	}
 	return 1;
 }
 
 static int ecdw_breathe_poison_handler(void)
 {
-	actor *target= NULL;
-	int i;
-	for (i = 0; i < max_actors; i++)
-	{
-		if (actors_list[i] && actors_list[i] != get_actor_ptr_from_id(yourself))
-		{
-			target = actors_list[i];
-		}
-	}
+	actor *target;
+	actor *me = lock_and_get_self_and_target(&target);
 	if (target != NULL)
 	{
-		ec_create_breath_poison2(get_actor_ptr_from_id(yourself), target,
-			(poor_man ? 6 : 10), 1.0);
+		ec_create_breath_poison2(me, target, (poor_man ? 6 : 10), 1.0);
+		release_actors_list();
 	}
 	return 1;
 }
 
 static int ecdw_breathe_magic_handler(void)
 {
-	actor *target= NULL;
-	int i;
-	for (i = 0; i < max_actors; i++)
-	{
-		if (actors_list[i] && actors_list[i] != get_actor_ptr_from_id(yourself))
-		{
-			target = actors_list[i];
-		}
-	}
+	actor *target;
+	actor *me = lock_and_get_self_and_target(&target);
 	if (target != NULL)
 	{
-		ec_create_breath_magic2(get_actor_ptr_from_id(yourself), target,
-			(poor_man ? 6 : 10), 1.0);
+		ec_create_breath_magic2(me, target, (poor_man ? 6 : 10), 1.0);
+		release_actors_list();
 	}
 	return 1;
 }
 
 static int ecdw_breathe_lightning_handler(void)
 {
-	actor *target= NULL;
-	int i;
-	for (i = 0; i < max_actors; i++)
-	{
-		if (actors_list[i] && actors_list[i] != get_actor_ptr_from_id(yourself))
-		{
-			target = actors_list[i];
-		}
-	}
+	actor *target;
+	actor *me = lock_and_get_self_and_target(&target);
 	if (target != NULL)
 	{
-		ec_create_breath_lightning2(get_actor_ptr_from_id(yourself), target,
-			(poor_man ? 6 : 10), 1.0);
+		ec_create_breath_lightning2(me, target, (poor_man ? 6 : 10), 1.0);
+		release_actors_list();
 	}
 	return 1;
 }
 
 static int ecdw_breathe_wind_handler(void)
 {
-	actor *target= NULL;
-	int i;
-	for (i = 0; i < max_actors; i++)
-	{
-		if (actors_list[i] && actors_list[i] != get_actor_ptr_from_id(yourself))
-		{
-			target = actors_list[i];
-		}
-	}
+	actor *target;
+	actor *me = lock_and_get_self_and_target(&target);
 	if (target != NULL)
 	{
-		ec_create_breath_wind2(get_actor_ptr_from_id(yourself), target,
-			(poor_man ? 6 : 10), 1.0);
+		ec_create_breath_wind2(me, target, (poor_man ? 6 : 10), 1.0);
+		release_actors_list();
 	}
 	return 1;
 }
 
 static int ecdw_life_drain_handler(void)
 {
-	actor *target= NULL;
-	int i;
-	for (i = 0; i < max_actors; i++)
-	{
-		if (actors_list[i] && actors_list[i] != get_actor_ptr_from_id(yourself))
-		{
-			target = actors_list[i];
-		}
-	}
+	actor *target;
+	actor *me = lock_and_get_self_and_target(&target);
 	if (target != NULL)
 	{
-		ec_create_targetmagic_life_drain2(get_actor_ptr_from_id(yourself),
-			target, (poor_man ? 6 : 10));
+		ec_create_targetmagic_life_drain2(me, target, (poor_man ? 6 : 10));
+		release_actors_list();
 	}
 	return 1;
 }
 
 static int ecdw_tptr_handler(void)
 {
-	actor *target= NULL;
-	int i;
-	for (i = 0; i < max_actors; i++)
-	{
-		if (actors_list[i] && actors_list[i] != get_actor_ptr_from_id(yourself))
-		{
-			target = actors_list[i];
-		}
-	}
+	actor *target;
+	actor *me = lock_and_get_self_and_target(&target);
 	if (target != NULL)
 	{
-		ec_create_targetmagic_teleport_to_range2(
-			get_actor_ptr_from_id(yourself), target, (poor_man ? 6 : 10));
+		ec_create_targetmagic_teleport_to_range2(me, target, (poor_man ? 6 : 10));
+		release_actors_list();
 	}
 	return 1;
 }
@@ -1327,648 +1240,396 @@ static int ecdw_harv_queen_handler(void)
 
 static int ecdw_summon_rabbit_handler(void)
 {
-	actor *target= NULL;
-	int i;
-	for (i = 0; i < max_actors; i++)
-	{
-		if (actors_list[i] && actors_list[i] != get_actor_ptr_from_id(yourself))
-		{
-			target = actors_list[i];
-		}
-	}
+	actor *target = lock_and_get_target();
 	if (target != NULL)
 	{
 		ec_create_summon_rabbit2(target, (poor_man ? 6 : 10));
+		release_actors_list();
 	}
 	return 1;
 }
 
 static int ecdw_summon_rat_handler(void)
 {
-	actor *target= NULL;
-	int i;
-	for (i = 0; i < max_actors; i++)
-	{
-		if (actors_list[i] && actors_list[i] != get_actor_ptr_from_id(yourself))
-		{
-			target = actors_list[i];
-		}
-	}
+	actor *target = lock_and_get_target();
 	if (target != NULL)
 	{
 		ec_create_summon_rat2(target, (poor_man ? 6 : 10));
+		release_actors_list();
 	}
 	return 1;
 }
 
 static int ecdw_summon_beaver_handler(void)
 {
-	actor *target= NULL;
-	int i;
-	for (i = 0; i < max_actors; i++)
-	{
-		if (actors_list[i] && actors_list[i] != get_actor_ptr_from_id(yourself))
-		{
-			target = actors_list[i];
-		}
-	}
+	actor *target = lock_and_get_target();
 	if (target != NULL)
 	{
 		ec_create_summon_beaver2(target, (poor_man ? 6 : 10));
+		release_actors_list();
 	}
 	return 1;
 }
 
 static int ecdw_summon_skunk_handler(void)
 {
-	actor *target= NULL;
-	int i;
-	for (i = 0; i < max_actors; i++)
-	{
-		if (actors_list[i] && actors_list[i] != get_actor_ptr_from_id(yourself))
-		{
-			target = actors_list[i];
-		}
-	}
+	actor *target = lock_and_get_target();
 	if (target != NULL)
 	{
 		ec_create_summon_skunk2(target, (poor_man ? 6 : 10));
+		release_actors_list();
 	}
 	return 1;
 }
 
 static int ecdw_summon_racoon_handler(void)
 {
-	actor *target= NULL;
-	int i;
-	for (i = 0; i < max_actors; i++)
-	{
-		if (actors_list[i] && actors_list[i] != get_actor_ptr_from_id(yourself))
-		{
-			target = actors_list[i];
-		}
-	}
+	actor *target = lock_and_get_target();
 	if (target != NULL)
 	{
 		ec_create_summon_racoon2(target, (poor_man ? 6 : 10));
+		release_actors_list();
 	}
 	return 1;
 }
 
 static int ecdw_summon_deer_handler(void)
 {
-	actor *target= NULL;
-	int i;
-	for (i = 0; i < max_actors; i++)
-	{
-		if (actors_list[i] && actors_list[i] != get_actor_ptr_from_id(yourself))
-		{
-			target = actors_list[i];
-		}
-	}
+	actor *target = lock_and_get_target();
 	if (target != NULL)
 	{
 		ec_create_summon_deer2(target, (poor_man ? 6 : 10));
+		release_actors_list();
 	}
 	return 1;
 }
 
 static int ecdw_summon_green_snake_handler(void)
 {
-	actor *target= NULL;
-	int i;
-	for (i = 0; i < max_actors; i++)
-	{
-		if (actors_list[i] && actors_list[i] != get_actor_ptr_from_id(yourself))
-		{
-			target = actors_list[i];
-		}
-	}
+	actor *target = lock_and_get_target();
 	if (target != NULL)
 	{
 		ec_create_summon_green_snake2(target, (poor_man ? 6 : 10));
+		release_actors_list();
 	}
 	return 1;
 }
 
 static int ecdw_summon_red_snake_handler(void)
 {
-	actor *target= NULL;
-	int i;
-	for (i = 0; i < max_actors; i++)
-	{
-		if (actors_list[i] && actors_list[i] != get_actor_ptr_from_id(yourself))
-		{
-			target = actors_list[i];
-		}
-	}
+	actor *target = lock_and_get_target();
 	if (target != NULL)
 	{
 		ec_create_summon_red_snake2(target, (poor_man ? 6 : 10));
+		release_actors_list();
 	}
 	return 1;
 }
 
 static int ecdw_summon_brown_snake_handler(void)
 {
-	actor *target= NULL;
-	int i;
-	for (i = 0; i < max_actors; i++)
-	{
-		if (actors_list[i] && actors_list[i] != get_actor_ptr_from_id(yourself))
-		{
-			target = actors_list[i];
-		}
-	}
+	actor *target = lock_and_get_target();
 	if (target != NULL)
 	{
 		ec_create_summon_brown_snake2(target, (poor_man ? 6 : 10));
+		release_actors_list();
 	}
 	return 1;
 }
 
 static int ecdw_summon_fox_handler(void)
 {
-	actor *target= NULL;
-	int i;
-	for (i = 0; i < max_actors; i++)
-	{
-		if (actors_list[i] && actors_list[i] != get_actor_ptr_from_id(yourself))
-		{
-			target = actors_list[i];
-		}
-	}
+	actor *target = lock_and_get_target();
 	if (target != NULL)
 	{
 		ec_create_summon_fox2(target, (poor_man ? 6 : 10));
+		release_actors_list();
 	}
 	return 1;
 }
 
 static int ecdw_summon_boar_handler(void)
 {
-	actor *target= NULL;
-	int i;
-	for (i = 0; i < max_actors; i++)
-	{
-		if (actors_list[i] && actors_list[i] != get_actor_ptr_from_id(yourself))
-		{
-			target = actors_list[i];
-		}
-	}
+	actor *target = lock_and_get_target();
 	if (target != NULL)
 	{
 		ec_create_summon_boar2(target, (poor_man ? 6 : 10));
+		release_actors_list();
 	}
 	return 1;
 }
 
 static int ecdw_summon_wolf_handler(void)
 {
-	actor *target= NULL;
-	int i;
-	for (i = 0; i < max_actors; i++)
-	{
-		if (actors_list[i] && actors_list[i] != get_actor_ptr_from_id(yourself))
-		{
-			target = actors_list[i];
-		}
-	}
+	actor *target = lock_and_get_target();
 	if (target != NULL)
 	{
 		ec_create_summon_wolf2(target, (poor_man ? 6 : 10));
+		release_actors_list();
 	}
 	return 1;
 }
 
 static int ecdw_summon_skeleton_handler(void)
 {
-	actor *target= NULL;
-	int i;
-	for (i = 0; i < max_actors; i++)
-	{
-		if (actors_list[i] && actors_list[i] != get_actor_ptr_from_id(yourself))
-		{
-			target = actors_list[i];
-		}
-	}
+	actor *target = lock_and_get_target();
 	if (target != NULL)
 	{
 		ec_create_summon_skeleton2(target, (poor_man ? 6 : 10));
+		release_actors_list();
 	}
 	return 1;
 }
 
 static int ecdw_summon_small_garg_handler(void)
 {
-	actor *target= NULL;
-	int i;
-	for (i = 0; i < max_actors; i++)
-	{
-		if (actors_list[i] && actors_list[i] != get_actor_ptr_from_id(yourself))
-		{
-			target = actors_list[i];
-		}
-	}
+	actor *target = lock_and_get_target();
 	if (target != NULL)
 	{
 		ec_create_summon_small_gargoyle2(target, (poor_man ? 6 : 10));
+		release_actors_list();
 	}
 	return 1;
 }
 
 static int ecdw_summon_medium_garg_handler(void)
 {
-	actor *target= NULL;
-	int i;
-	for (i = 0; i < max_actors; i++)
-	{
-		if (actors_list[i] && actors_list[i] != get_actor_ptr_from_id(yourself))
-		{
-			target = actors_list[i];
-		}
-	}
+	actor *target = lock_and_get_target();
 	if (target != NULL)
 	{
 		ec_create_summon_medium_gargoyle2(target, (poor_man ? 6 : 10));
+		release_actors_list();
 	}
 	return 1;
 }
 
 static int ecdw_summon_large_garg_handler(void)
 {
-	actor *target= NULL;
-	int i;
-	for (i = 0; i < max_actors; i++)
-	{
-		if (actors_list[i] && actors_list[i] != get_actor_ptr_from_id(yourself))
-		{
-			target = actors_list[i];
-		}
-	}
+	actor *target = lock_and_get_target();
 	if (target != NULL)
 	{
 		ec_create_summon_large_gargoyle2(target, (poor_man ? 6 : 10));
+		release_actors_list();
 	}
 	return 1;
 }
 
 static int ecdw_summon_puma_handler(void)
 {
-	actor *target= NULL;
-	int i;
-	for (i = 0; i < max_actors; i++)
-	{
-		if (actors_list[i] && actors_list[i] != get_actor_ptr_from_id(yourself))
-		{
-			target = actors_list[i];
-		}
-	}
+	actor *target = lock_and_get_target();
 	if (target != NULL)
 	{
 		ec_create_summon_puma2(target, (poor_man ? 6 : 10));
+		release_actors_list();
 	}
 	return 1;
 }
 
 static int ecdw_summon_fem_gob_handler(void)
 {
-	actor *target= NULL;
-	int i;
-	for (i = 0; i < max_actors; i++)
-	{
-		if (actors_list[i] && actors_list[i] != get_actor_ptr_from_id(yourself))
-		{
-			target = actors_list[i];
-		}
-	}
+	actor *target = lock_and_get_target();
 	if (target != NULL)
 	{
 		ec_create_summon_female_goblin2(target, (poor_man ? 6 : 10));
+		release_actors_list();
 	}
 	return 1;
 }
 
 static int ecdw_summon_polar_bear_handler(void)
 {
-	actor *target= NULL;
-	int i;
-	for (i = 0; i < max_actors; i++)
-	{
-		if (actors_list[i] && actors_list[i] != get_actor_ptr_from_id(yourself))
-		{
-			target = actors_list[i];
-		}
-	}
+	actor *target = lock_and_get_target();
 	if (target != NULL)
 	{
 		ec_create_summon_polar_bear2(target, (poor_man ? 6 : 10));
+		release_actors_list();
 	}
 	return 1;
 }
 
 static int ecdw_summon_bear_handler(void)
 {
-	actor *target= NULL;
-	int i;
-	for (i = 0; i < max_actors; i++)
-	{
-		if (actors_list[i] && actors_list[i] != get_actor_ptr_from_id(yourself))
-		{
-			target = actors_list[i];
-		}
-	}
+	actor *target = lock_and_get_target();
 	if (target != NULL)
 	{
 		ec_create_summon_bear2(target, (poor_man ? 6 : 10));
+		release_actors_list();
 	}
 	return 1;
 }
 
 static int ecdw_summon_armed_male_gob_handler(void)
 {
-	actor *target= NULL;
-	int i;
-	for (i = 0; i < max_actors; i++)
-	{
-		if (actors_list[i] && actors_list[i] != get_actor_ptr_from_id(yourself))
-		{
-			target = actors_list[i];
-		}
-	}
+	actor *target = lock_and_get_target();
 	if (target != NULL)
 	{
 		ec_create_summon_armed_male_goblin2(target, (poor_man ? 6 : 10));
+		release_actors_list();
 	}
 	return 1;
 }
 
 static int ecdw_summon_armed_skeleton_handler(void)
 {
-	actor *target= NULL;
-	int i;
-	for (i = 0; i < max_actors; i++)
-	{
-		if (actors_list[i] && actors_list[i] != get_actor_ptr_from_id(yourself))
-		{
-			target = actors_list[i];
-		}
-	}
+	actor *target = lock_and_get_target();
 	if (target != NULL)
 	{
 		ec_create_summon_armed_skeleton2(target, (poor_man ? 6 : 10));
+		release_actors_list();
 	}
 	return 1;
 }
 
 static int ecdw_summon_fem_orc_handler(void)
 {
-	actor *target= NULL;
-	int i;
-	for (i = 0; i < max_actors; i++)
-	{
-		if (actors_list[i] && actors_list[i] != get_actor_ptr_from_id(yourself))
-		{
-			target = actors_list[i];
-		}
-	}
+	actor *target = lock_and_get_target();
 	if (target != NULL)
 	{
 		ec_create_summon_female_orc2(target, (poor_man ? 6 : 10));
+		release_actors_list();
 	}
 	return 1;
 }
 
 static int ecdw_summon_male_orc_handler(void)
 {
-	actor *target= NULL;
-	int i;
-	for (i = 0; i < max_actors; i++)
-	{
-		if (actors_list[i] && actors_list[i] != get_actor_ptr_from_id(yourself))
-		{
-			target = actors_list[i];
-		}
-	}
+	actor *target = lock_and_get_target();
 	if (target != NULL)
 	{
 		ec_create_summon_male_orc2(target, (poor_man ? 6 : 10));
+		release_actors_list();
 	}
 	return 1;
 }
 
 static int ecdw_summon_armed_fem_orc_handler(void)
 {
-	actor *target= NULL;
-	int i;
-	for (i = 0; i < max_actors; i++)
-	{
-		if (actors_list[i] && actors_list[i] != get_actor_ptr_from_id(yourself))
-		{
-			target = actors_list[i];
-		}
-	}
+	actor *target = lock_and_get_target();
 	if (target != NULL)
 	{
 		ec_create_summon_armed_female_orc2(target, (poor_man ? 6 : 10));
+		release_actors_list();
 	}
 	return 1;
 }
 
 static int ecdw_summon_armed_male_orc_handler(void)
 {
-	actor *target= NULL;
-	int i;
-	for (i = 0; i < max_actors; i++)
-	{
-		if (actors_list[i] && actors_list[i] != get_actor_ptr_from_id(yourself))
-		{
-			target = actors_list[i];
-		}
-	}
+	actor *target = lock_and_get_target();
 	if (target != NULL)
 	{
 		ec_create_summon_armed_male_orc2(target, (poor_man ? 6 : 10));
+		release_actors_list();
 	}
 	return 1;
 }
 
 static int ecdw_summon_cyclops_handler(void)
 {
-	actor *target= NULL;
-	int i;
-	for (i = 0; i < max_actors; i++)
-	{
-		if (actors_list[i] && actors_list[i] != get_actor_ptr_from_id(yourself))
-		{
-			target = actors_list[i];
-		}
-	}
+	actor *target = lock_and_get_target();
 	if (target != NULL)
 	{
 		ec_create_summon_cyclops2(target, (poor_man ? 6 : 10));
+		release_actors_list();
 	}
 	return 1;
 }
 
 static int ecdw_summon_fluffy_handler(void)
 {
-	actor *target= NULL;
-	int i;
-	for (i = 0; i < max_actors; i++)
-	{
-		if (actors_list[i] && actors_list[i] != get_actor_ptr_from_id(yourself))
-		{
-			target = actors_list[i];
-		}
-	}
+	actor *target = lock_and_get_target();
 	if (target != NULL)
 	{
 		ec_create_summon_fluffy2(target, (poor_man ? 6 : 10));
+		release_actors_list();
 	}
 	return 1;
 }
 
 static int ecdw_summon_phantom_warrior_handler(void)
 {
-	actor *target= NULL;
-	int i;
-	for (i = 0; i < max_actors; i++)
-	{
-		if (actors_list[i] && actors_list[i] != get_actor_ptr_from_id(yourself))
-		{
-			target = actors_list[i];
-		}
-	}
+	actor *target = lock_and_get_target();
 	if (target != NULL)
 	{
 		ec_create_summon_phantom_warrior2(target, (poor_man ? 6 : 10));
+		release_actors_list();
 	}
 	return 1;
 }
 
 static int ecdw_summon_mchim_handler(void)
 {
-	actor *target= NULL;
-	int i;
-	for (i = 0; i < max_actors; i++)
-	{
-		if (actors_list[i] && actors_list[i] != get_actor_ptr_from_id(yourself))
-		{
-			target = actors_list[i];
-		}
-	}
+	actor *target = lock_and_get_target();
 	if (target != NULL)
 	{
 		ec_create_summon_mountain_chimeran2(target, (poor_man ? 6 : 10));
+		release_actors_list();
 	}
 	return 1;
 }
 
 static int ecdw_summon_yeti_handler(void)
 {
-	actor *target= NULL;
-	int i;
-	for (i = 0; i < max_actors; i++)
-	{
-		if (actors_list[i] && actors_list[i] != get_actor_ptr_from_id(yourself))
-		{
-			target = actors_list[i];
-		}
-	}
+	actor *target = lock_and_get_target();
 	if (target != NULL)
 	{
 		ec_create_summon_yeti2(target, (poor_man ? 6 : 10));
+		release_actors_list();
 	}
 	return 1;
 }
 
 static int ecdw_summon_achim_handler(void)
 {
-	actor *target= NULL;
-	int i;
-	for (i = 0; i < max_actors; i++)
-	{
-		if (actors_list[i] && actors_list[i] != get_actor_ptr_from_id(yourself))
-		{
-			target = actors_list[i];
-		}
-	}
+	actor *target = lock_and_get_target();
 	if (target != NULL)
 	{
 		ec_create_summon_arctic_chimeran2(target, (poor_man ? 6 : 10));
+		release_actors_list();
 	}
 	return 1;
 }
 
 static int ecdw_summon_giant_handler(void)
 {
-	actor *target= NULL;
-	int i;
-	for (i = 0; i < max_actors; i++)
-	{
-		if (actors_list[i] && actors_list[i] != get_actor_ptr_from_id(yourself))
-		{
-			target = actors_list[i];
-		}
-	}
+	actor *target = lock_and_get_target();
 	if (target != NULL)
 	{
 		ec_create_summon_giant2(target, (poor_man ? 6 : 10));
+		release_actors_list();
 	}
 	return 1;
 }
 
 static int ecdw_summon_giant_snake_handler(void)
 {
-	actor *target= NULL;
-	int i;
-	for (i = 0; i < max_actors; i++)
-	{
-		if (actors_list[i] && actors_list[i] != get_actor_ptr_from_id(yourself))
-		{
-			target = actors_list[i];
-		}
-	}
+	actor *target = lock_and_get_target();
 	if (target != NULL)
 	{
 		ec_create_summon_giant_snake2(target, (poor_man ? 6 : 10));
+		release_actors_list();
 	}
 	return 1;
 }
 
 static int ecdw_summon_spider_handler(void)
 {
-	actor *target= NULL;
-	int i;
-	for (i = 0; i < max_actors; i++)
-	{
-		if (actors_list[i] && actors_list[i] != get_actor_ptr_from_id(yourself))
-		{
-			target = actors_list[i];
-		}
-	}
+	actor *target = lock_and_get_target();
 	if (target != NULL)
 	{
 		ec_create_summon_spider2(target, (poor_man ? 6 : 10));
+		release_actors_list();
 	}
 	return 1;
 }
 
 static int ecdw_summon_tiger_handler(void)
 {
-	actor *target= NULL;
-	int i;
-	for (i = 0; i < max_actors; i++)
-	{
-		if (actors_list[i] && actors_list[i] != get_actor_ptr_from_id(yourself))
-		{
-			target = actors_list[i];
-		}
-	}
+	actor *target = lock_and_get_target();
 	if (target != NULL)
 	{
 		ec_create_summon_tiger2(target, (poor_man ? 6 : 10));
+		release_actors_list();
 	}
 	return 1;
 }
@@ -2060,19 +1721,24 @@ static int ecdw_remote_smite_summons_handler(void)
 	int targetcount = 0;
 	int i;
 	ec_reference ref = ec_create_generic();
+	size_t max_actors;
+	actor *me;
+	actor **actors_list = lock_and_get_list_and_self(&max_actors, &me);
+
 	for (i = 0; i < max_actors; i++)
 	{
-		if (actors_list[i] && actors_list[i] != get_actor_ptr_from_id(yourself))
+		if (actors_list[i] && actors_list[i] != me)
 		{
-			ec_add_target(ref, actors_list[i]->x_pos, actors_list[i]->y_pos,
-				1.5);
+			ec_add_target(ref, actors_list[i]->x_pos, actors_list[i]->y_pos, 1.5);
 			targetcount++;
 		}
 	}
 	if (targetcount > 0)
 	{
-		ec_launch_targetmagic_smite_summoned(ref, get_actor_ptr_from_id(yourself)->x_pos, get_actor_ptr_from_id(yourself)->y_pos, 1.5, (poor_man ? 6 : 10));
+		ec_launch_targetmagic_smite_summoned(ref, me->x_pos, me->y_pos, 1.5, (poor_man ? 6 : 10));
 	}
+
+	release_actors_list();
 	return 1;
 }
 
@@ -2221,115 +1887,89 @@ static int ecdw_level_up_ran_handler(void)
 
 static int ecdw_normal_arrow_handler(int type)
 {
-	actor *origin = get_actor_ptr_from_id(yourself);
-	actor *target= NULL;
 	float origin_f[3];
 	float target_f[3];
-	int i;
-	for (i = 0; i < max_actors; i++)
-	{
-		if (actors_list[i] && actors_list[i] != origin)
-		{
-			target = actors_list[i];
-		}
-	}
-	if (target != NULL && origin != NULL)
+	actor *target;
+	actor *origin = lock_and_get_self_and_target(&target);
+
+	if (target != NULL)
 	{
 		cal_get_actor_bone_absolute_position(origin, get_actor_bone_id(origin, body_top_bone), NULL, origin_f);
 		cal_get_actor_bone_absolute_position(target, get_actor_bone_id(target, body_top_bone), NULL, target_f);
 		missiles_add(0, origin_f, target_f, 0.0, 0);
+
+		release_actors_list();
 	}
 	return 1;
 }
 
 static int ecdw_magic_arrow_handler(int type)
 {
-	actor *origin = get_actor_ptr_from_id(yourself);
-	actor *target= NULL;
 	float origin_f[3];
 	float target_f[3];
-	int i;
-	for (i = 0; i < max_actors; i++)
-	{
-		if (actors_list[i] && actors_list[i] != origin)
-		{
-			target = actors_list[i];
-		}
-	}
-	if (target != NULL && origin != NULL)
+	actor *target;
+	actor *origin = lock_and_get_self_and_target(&target);
+
+	if (target != NULL)
 	{
 		cal_get_actor_bone_absolute_position(origin, get_actor_bone_id(origin, body_top_bone), NULL, origin_f);
 		cal_get_actor_bone_absolute_position(target, get_actor_bone_id(target, body_top_bone), NULL, target_f);
 		missiles_add(1, origin_f, target_f, 0.0, 0);
+
+		release_actors_list();
 	}
 	return 1;
 }
 
 static int ecdw_fire_arrow_handler(int type)
 {
-	actor *origin = get_actor_ptr_from_id(yourself);
-	actor *target= NULL;
 	float origin_f[3];
 	float target_f[3];
-	int i;
-	for (i = 0; i < max_actors; i++)
-	{
-		if (actors_list[i] && actors_list[i] != origin)
-		{
-			target = actors_list[i];
-		}
-	}
-	if (target != NULL && origin != NULL)
+	actor *target;
+	actor *origin = lock_and_get_self_and_target(&target);
+
+	if (target != NULL)
 	{
 		cal_get_actor_bone_absolute_position(origin, get_actor_bone_id(origin, body_top_bone), NULL, origin_f);
 		cal_get_actor_bone_absolute_position(target, get_actor_bone_id(target, body_top_bone), NULL, target_f);
 		missiles_add(2, origin_f, target_f, 0.0, 0);
+
+		release_actors_list();
 	}
 	return 1;
 }
 
 static int ecdw_ice_arrow_handler(int type)
 {
-	actor *origin = get_actor_ptr_from_id(yourself);
-	actor *target= NULL;
 	float origin_f[3];
 	float target_f[3];
-	int i;
-	for (i = 0; i < max_actors; i++)
-	{
-		if (actors_list[i] && actors_list[i] != origin)
-		{
-			target = actors_list[i];
-		}
-	}
-	if (target != NULL && origin != NULL)
+	actor *target;
+	actor *origin = lock_and_get_self_and_target(&target);
+	if (target != NULL)
 	{
 		cal_get_actor_bone_absolute_position(origin, get_actor_bone_id(origin, body_top_bone), NULL, origin_f);
 		cal_get_actor_bone_absolute_position(target, get_actor_bone_id(target, body_top_bone), NULL, target_f);
 		missiles_add(3, origin_f, target_f, 0.0, 0);
+
+		release_actors_list();
 	}
 	return 1;
 }
 
 static int ecdw_explosive_arrow_handler(int type)
 {
-	actor *origin = get_actor_ptr_from_id(yourself);
-	actor *target= NULL;
 	float origin_f[3];
 	float target_f[3];
-	int i;
-	for (i = 0; i < max_actors; i++)
-	{
-		if (actors_list[i] && actors_list[i] != origin)
-		{
-			target = actors_list[i];
-		}
-	}
-	if (target != NULL && origin != NULL)
+	actor *target;
+	actor *origin = lock_and_get_self_and_target(&target);
+
+	if (target != NULL)
 	{
 		cal_get_actor_bone_absolute_position(origin, get_actor_bone_id(origin, body_top_bone), NULL, origin_f);
 		cal_get_actor_bone_absolute_position(target, get_actor_bone_id(target, body_top_bone), NULL, target_f);
 		missiles_add(4, origin_f, target_f, 0.0, 0);
+
+		release_actors_list();
 	}
 	return 1;
 }

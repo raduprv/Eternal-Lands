@@ -7,6 +7,7 @@
 
 #include "buffs.h"
 
+#include "actors_list.h"
 #include "client_serv.h"
 #include "eye_candy_wrapper.h"
 #include "font.h" // for ALT_INGAME_FONT_X_LEN
@@ -20,149 +21,160 @@
 int view_buffs = 1;
 int buff_icon_size = 32;
 
+// Forward declaration
+static void update_buff_eye_candy(actor *act);
+
+
 void update_actor_buffs(int actor_id, Uint32 in_buffs)
 {
-	actor *act;
+	actor *act, *attached;
 #ifdef EXTRA_DEBUG
 	ERR();
 #endif
-	act = get_actor_ptr_from_id(actor_id);
 
-	if(!act){
+	act = lock_and_get_actor_and_attached_from_id(actor_id, &attached);
+	if(!act)
 		//if we got here, it means we don't have this actor, so get it from the server...
-	} else {
-		if (in_buffs & BUFF_DOUBLE_SPEED)
-			act->step_duration = actors_defs[act->actor_type].step_duration / 2;
-		else
-			act->step_duration = actors_defs[act->actor_type].step_duration;
-		if (act->attached_actor >= 0)
-		{
-			actors_list[act->attached_actor]->buffs = in_buffs & BUFF_DOUBLE_SPEED;
-			actors_list[act->attached_actor]->step_duration = act->step_duration;
-		}
-		act->buffs = in_buffs;
-#ifdef BUFF_DEBUG
-		{
-			int i, num_buffs = 0;
-			for (i = 0; i < NUM_BUFFS; i++)
-			{
-				if (act->buffs & ((Uint32)pow(2, i))) {
-					num_buffs++;
-				}
-			}
-			printf("update_actor_buffs: name %s id %i num buffs: %i\n", act->actor_name, act->actor_id, num_buffs);
-		}
-		if (in_buffs & BUFF_INVISIBILITY) {
-			printf(" invisibility ON\n");
-		}
-//		else {
-//			printf(" invisibility off\n");
-//		}
-		if (in_buffs & BUFF_MAGIC_IMMUNITY) {
-			printf(" magic immunity ON\n");
-		}
-//		else {
-//			printf(" magic immunity off\n");
-//		}
-		if (in_buffs & BUFF_MAGIC_PROTECTION) {
-			printf(" magic protection ON\n");
-		}
-//		else {
-//			printf(" magic protection off\n");
-//		}
-		if (in_buffs & BUFF_COLD_SHIELD) {
-			printf(" cold shield ON\n");
-		}
-//		else {
-//			printf(" cold shield off\n");
-//		}
-		if (in_buffs & BUFF_HEAT_SHIELD) {
-			printf(" heat shield ON\n");
-		}
-//		else {
-//			printf(" heat shield off\n");
-//		}
-		if (in_buffs & BUFF_RADIATION_SHIELD) {
-			printf(" radiation shield ON\n");
-		}
-//		else {
-//			printf(" radiation shield off\n");
-//		}
-		if (in_buffs & BUFF_SHIELD) {
-			printf(" shield ON\n");
-		}
-//		else {
-//			printf(" shield off\n");
-//		}
-		if (in_buffs & BUFF_TRUE_SIGHT) {
-			printf(" true sight ON\n");
-		}
-//		else {
-//			printf(" true sight off\n");
-//		}
-		if (in_buffs & BUFF_ACCURACY) {
-			printf(" accuracy ON\n");
-		}
-//		else {
-//			printf(" accuracy off\n");
-//		}
-		if (in_buffs & BUFF_EVASION) {
-			printf(" evasion ON\n");
-		}
-//		else {
-//			printf(" evasion off\n");
-//		}
-		if (in_buffs & BUFF_DOUBLE_SPEED) {
-			printf(" double speed ON\n");
-		}
-//		else {
-//			printf(" double speed off\n");
-//		}
-#endif // BUFF_DEBUG
-		update_buff_eye_candy(actor_id);
-	}
+		return;
+
+	update_actor_buffs_locked(act, attached, in_buffs);
+
+	release_actors_list();
 }
 
-void update_buff_eye_candy(int actor_id) {
-	actor *act;
-	act = get_actor_ptr_from_id(actor_id);
-	if (act) {
-		int i = 0; // loop index
-		// turn on eye candy effects
-		Uint32 buff_index = (Uint32)(0.5 + log(BUFF_SHIELD)/log(2));
-		if (act->buffs & BUFF_SHIELD && act->ec_buff_reference[buff_index] == NULL) {
-			act->ec_buff_reference[buff_index] = ec_create_ongoing_shield2(act, 1.0, 1.0, (poor_man ? 6 : 10), 1.0);
+void update_actor_buffs_locked(actor *act, actor *attached, Uint32 in_buffs)
+{
+	if (in_buffs & BUFF_DOUBLE_SPEED)
+		act->step_duration = actors_defs[act->actor_type].step_duration / 2;
+	else
+		act->step_duration = actors_defs[act->actor_type].step_duration;
+	if (act->attached_actor >= 0)
+	{
+		attached->buffs = in_buffs & BUFF_DOUBLE_SPEED;
+		attached->step_duration = act->step_duration;
+	}
+	act->buffs = in_buffs;
+#ifdef BUFF_DEBUG
+	{
+		int i, num_buffs = 0;
+		for (i = 0; i < NUM_BUFFS; i++)
+		{
+			if (act->buffs & ((Uint32)pow(2, i))) {
+				num_buffs++;
+			}
 		}
-		buff_index = (Uint32)(0.5 + log(BUFF_MAGIC_PROTECTION)/log(2));
-		if (act->buffs & BUFF_MAGIC_PROTECTION && act->ec_buff_reference[buff_index] == NULL) {
-			act->ec_buff_reference[buff_index] = ec_create_ongoing_magic_protection2(act, 1.0, 1.0, (poor_man ? 6 : 10), 1.0);
-		}
+		printf("update_actor_buffs: name %s id %i num buffs: %i\n", act->actor_name, act->actor_id, num_buffs);
+	}
+
+	if (in_buffs & BUFF_INVISIBILITY) {
+		printf(" invisibility ON\n");
+	}
+//	else {
+//		printf(" invisibility off\n");
+//	}
+	if (in_buffs & BUFF_MAGIC_IMMUNITY) {
+		printf(" magic immunity ON\n");
+	}
+//	else {
+//		printf(" magic immunity off\n");
+//	}
+	if (in_buffs & BUFF_MAGIC_PROTECTION) {
+		printf(" magic protection ON\n");
+	}
+//	else {
+//		printf(" magic protection off\n");
+//	}
+	if (in_buffs & BUFF_COLD_SHIELD) {
+		printf(" cold shield ON\n");
+	}
+//	else {
+//		printf(" cold shield off\n");
+//	}
+	if (in_buffs & BUFF_HEAT_SHIELD) {
+		printf(" heat shield ON\n");
+	}
+//	else {
+//		printf(" heat shield off\n");
+//	}
+	if (in_buffs & BUFF_RADIATION_SHIELD) {
+		printf(" radiation shield ON\n");
+	}
+//	else {
+//		printf(" radiation shield off\n");
+//	}
+	if (in_buffs & BUFF_SHIELD) {
+		printf(" shield ON\n");
+	}
+//	else {
+//		printf(" shield off\n");
+//	}
+	if (in_buffs & BUFF_TRUE_SIGHT) {
+		printf(" true sight ON\n");
+	}
+//	else {
+//		printf(" true sight off\n");
+//	}
+	if (in_buffs & BUFF_ACCURACY) {
+		printf(" accuracy ON\n");
+	}
+//	else {
+//		printf(" accuracy off\n");
+//	}
+	if (in_buffs & BUFF_EVASION) {
+		printf(" evasion ON\n");
+	}
+//	else {
+//		printf(" evasion off\n");
+//	}
+	if (in_buffs & BUFF_DOUBLE_SPEED) {
+		printf(" double speed ON\n");
+	}
+//	else {
+//		printf(" double speed off\n");
+//	}
+#endif // BUFF_DEBUG
+
+	update_buff_eye_candy(act);
+}
+
+static void update_buff_eye_candy(actor *act)
+{
+	Uint32 buff_index;
+
+	// turn on eye candy effects
+	buff_index = (Uint32)(0.5 + log(BUFF_SHIELD)/log(2));
+	if (act->buffs & BUFF_SHIELD && act->ec_buff_reference[buff_index] == NULL) {
+		act->ec_buff_reference[buff_index] = ec_create_ongoing_shield2(act, 1.0, 1.0, (poor_man ? 6 : 10), 1.0);
+	}
+	buff_index = (Uint32)(0.5 + log(BUFF_MAGIC_PROTECTION)/log(2));
+	if (act->buffs & BUFF_MAGIC_PROTECTION && act->ec_buff_reference[buff_index] == NULL) {
+		act->ec_buff_reference[buff_index] = ec_create_ongoing_magic_protection2(act, 1.0, 1.0, (poor_man ? 6 : 10), 1.0);
+	}
 /*
  * not yet implemented
-		if (act->buffs & BUFF_POISONED && act->ec_buff_reference[((Uint32)(log(BUFF_POISONED)/log(2)))] == NULL) {
-			act->ec_buff_reference[((Uint32)(log(BUFF_POISONED)/log(2)))] = ec_create_ongoing_poison2(act, 1.0, 1.0, (poor_man ? 6 : 10), 1.0);
-		}
+	if (act->buffs & BUFF_POISONED && act->ec_buff_reference[((Uint32)(log(BUFF_POISONED)/log(2)))] == NULL) {
+		act->ec_buff_reference[((Uint32)(log(BUFF_POISONED)/log(2)))] = ec_create_ongoing_poison2(act, 1.0, 1.0, (poor_man ? 6 : 10), 1.0);
+	}
 */
 // removed by Roja's request
-//		if (act->buffs & BUFF_MAGIC_IMMUNITY && act->ec_buff_reference[((Uint32)(log(BUFF_MAGIC_IMMUNITY)/log(2)))] == NULL) {
-//			act->ec_buff_reference[((Uint32)(log(BUFF_MAGIC_IMMUNITY)/log(2)))] = ec_create_ongoing_magic_immunity2(act, 1.0, 1.0, (poor_man ? 6 : 10), 1.0);
-//		}
-		// turn off effects
-		for (i = 0; i < NUM_BUFFS; i++) {
-			if (act->ec_buff_reference[i] != NULL && !(act->buffs & ((Uint32)(0.5 + pow(2, i))))) {
-				ec_recall_effect(act->ec_buff_reference[i]);
-				act->ec_buff_reference[i] = NULL;
-			}
+//	if (act->buffs & BUFF_MAGIC_IMMUNITY && act->ec_buff_reference[((Uint32)(log(BUFF_MAGIC_IMMUNITY)/log(2)))] == NULL) {
+//		act->ec_buff_reference[((Uint32)(log(BUFF_MAGIC_IMMUNITY)/log(2)))] = ec_create_ongoing_magic_immunity2(act, 1.0, 1.0, (poor_man ? 6 : 10), 1.0);
+//	}
+	// turn off effects
+	for (int i = 0; i < NUM_BUFFS; i++) {
+		if (act->ec_buff_reference[i] != NULL && !(act->buffs & ((Uint32)(0.5 + pow(2, i))))) {
+			ec_recall_effect(act->ec_buff_reference[i]);
+			act->ec_buff_reference[i] = NULL;
 		}
 	}
 }
 
-void draw_buffs(int actor_id, float x, float y,float z)
+void draw_buffs(actor *act, float x, float y,float z)
 {
 	int scale_buff_icon_size = (int)(0.5 + buff_icon_size * get_global_scale());
-	actor *act;
-	act = get_actor_ptr_from_id(actor_id);
-	if (act && act->buffs) {
+
+	if (act->buffs)
+	{
 		// texture coords
 		float u_start,v_start,u_end,v_end;
 		// current texture

@@ -4,7 +4,7 @@
 #include <time.h>
 #include "text.h"
 #include "achievements.h"
-#include "actors.h"
+#include "actors_list.h"
 #include "asc.h"
 #include "books.h"
 #include "buddy.h"
@@ -397,22 +397,19 @@ int parse_text_for_emote_commands(const char *text, int len)
 	if(j>=20||name[j]) return 0; 		//out of bound or not terminated
 
 	//check if we are saying text
-	LOCK_ACTORS_LISTS();
+	act = lock_and_get_actor_from_id(yourself);
 
-	act = get_actor_ptr_from_id(yourself);
-	if (!act){
-		UNLOCK_ACTORS_LISTS();
+	if (!act)
+	{
 		LOG_ERROR("Unable to find actor who just said local text?? name: %s", name);
 		return 1;		// Eek! We don't have an actor match... o.O
 	}
 
 	if (!(!strncasecmp(act->actor_name, name, strlen(name)) &&
 			(act->actor_name[strlen(name)] == ' ' ||
-			act->actor_name[strlen(name)] == '\0'))){
-		//we are not saying this text, return
-		//UNLOCK_ACTORS_LISTS();
-		//return 0;
-			itsme=0;
+			act->actor_name[strlen(name)] == '\0')))
+	{
+		itsme=0;
 	} else itsme=1;
 
 	j=0;
@@ -432,7 +429,8 @@ int parse_text_for_emote_commands(const char *text, int len)
 		}
 	} while(text[i++]);
 	//printf("ef=%i, wf=%i, filter=>%i\n",ef,wf,emote_filter);
-	UNLOCK_ACTORS_LISTS();
+
+	release_actors_list();
 
 	return  ((ef==wf) ? (emote_filter):(0));
 
@@ -846,6 +844,8 @@ void check_chat_text_to_overtext (const Uint8 *text_to_add, int len, Uint8 chann
 
 		if (i < len)
 		{
+			actor* act;
+
 			playerName[j] = '\0';
 			while ( j > 0 && !ALLOWED_CHAR_IN_NAME (playerName[j]) )
 				playerName[j--] = '\0';
@@ -858,24 +858,12 @@ void check_chat_text_to_overtext (const Uint8 *text_to_add, int len, Uint8 chann
 				i++; j++;
 			}
 			textbuffer[j] = '\0';
-			for (i = 0; i < max_actors; i++)
+
+			act = lock_and_get_actor_from_name(playerName);
+			if (act)
 			{
-				char actorName[128];
-				j = 0;
-				// Strip clan info
-				while ( ALLOWED_CHAR_IN_NAME (actors_list[i]->actor_name[j]) )
-				{
-					actorName[j] = actors_list[i]->actor_name[j];
-					j++;
-					if ( j >= sizeof (actorName) )
-						return;	// over buffer
-				}
-				actorName[j] = '\0';
-				if (strcmp (actorName, playerName) == 0)
-				{
-					add_displayed_text_to_actor (actors_list[i], textbuffer);
-					break;
-				}
+				add_displayed_text_to_actor (act, textbuffer);
+				release_actors_list();
 			}
 		}
 	}

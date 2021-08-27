@@ -6,6 +6,9 @@
 #ifndef __TRANSLATE_H__
 #define __TRANSLATE_H__
 #include <libxml/parser.h>
+#ifdef ELC
+#include "stats.h"
+#endif
 
 #ifdef __cplusplus
 extern "C" {
@@ -27,10 +30,6 @@ typedef struct
 	int saved_desc;            /*!< saved_desc */
 #endif
 } dichar;
-
-#ifdef ELC
-#include "stats.h"
-#endif
 
 /*! 
  * Defines a normal xml-node and a pointer to the variable the content should be saved to.

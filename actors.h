@@ -18,7 +18,6 @@
 #include "client_serv.h"
 #include "platform.h"
 #include "tiles.h"
-#include "buffs.h"
 #include "eye_candy_types.h"
 #include "hash.h"
 
@@ -77,6 +76,9 @@ typedef struct
 #define GLOW_MAGIC 4	/*!< RGB: 0.5, 0.4, 0.0*/
 extern glow_color glow_colors[10]; /*!< Holds the glow colours defined in GLOW_**/
 /*! \} */
+
+// keep in sync with client_serv.h !!!
+#define NUM_BUFFS 11
 
 /*!
  * The near_actor structure holds information about the actors within range. It is filled once every frame.
@@ -391,20 +393,6 @@ typedef struct
 	char state; /*!< The state of the action (0: aim needed, 1: aim done, 2: fire needed, 3: fire done) */
 } range_action;
 
-#define MY_HORSE(a) (actors_list[actors_list[a]->attached_actor])
-#define MY_HORSE_ID(a) (actors_list[a]->attached_actor)
-#define HAS_HORSE(a) ((MY_HORSE_ID(a)>=0)&&(MY_HORSE(a)->actor_id<0))
-#define IS_HORSE(a) (actors_list[a]->attached_actor>=0&&actors_list[a]->actor_id<0)
-#define ACTOR(a) (actors_list[a])
-#define ACTOR_WEAPON(a) (&(actors_defs[ACTOR(a)->actor_type].weapon[ACTOR(a)->cur_weapon]))
-
-#define HORSE_FIGHT_ROTATION 60
-#define HORSE_RANGE_ROTATION 45
-#define HORSE_FIGHT_TIME 180
-void rotate_actor_and_horse(int id, int mul);
-
-
-
 #define MAX_EMOTE_LEN 20
 #define MAX_EMOTE_FRAME 8
 
@@ -674,34 +662,16 @@ typedef struct
 #define	SELECTION_RENDER_PASS	4
 
 extern SDL_mutex *actors_lists_mutex;	/*!< Used for locking between the timer and main threads*/
-extern actor *actors_list[MAX_ACTORS];	/*!< A list holding all of the actors*/
 extern actor *your_actor; /*!< A pointer to your own character, if available. Shares a mutex with \see actors_list */
-extern int	max_actors;		/*!< The current number of actors in the actors_list + 1*/
 extern actor_types actors_defs[MAX_ACTOR_DEFS];	/*!< The actor definitions*/
 
 extern attached_actors_types attached_actors_defs[MAX_ACTOR_DEFS]; /*!< The definitions for the attached actors */
 
-
-static __inline__ int is_actor_barehanded(actor *act, int hand){
-	if(hand==EMOTE_BARE_L)
-		return (act->cur_shield==SHIELD_NONE||act->cur_shield==QUIVER_ARROWS||act->cur_shield==QUIVER_BOLTS);
-	else
-		return (act->cur_weapon==WEAPON_NONE||act->cur_weapon==GLOVE_FUR||act->cur_weapon==GLOVE_LEATHER);
+//! Return \a act's current weapon
+static inline weapon_part *actor_weapon(const actor *act)
+{
+	return &(actors_defs[act->actor_type].weapon[act->cur_weapon]);
 }
-
-
-/*!
- * \ingroup	display_actors
- * \brief	Draws the actors banner (healthbar, name, etc)
- *
- * 		This function is used for drawing the healthbar, the name, the damage, the healthpoints (cur/max) and the text bubbles
- *
- * \param	actor_id Is a pointer to the actor we wish to draw
- * \param	offset_z Is the z offset, found by the current MD2 frames max_z.
- *
- * \callgraph
- */
-void draw_actor_banner(actor * actor_id, float offset_z);
 
 /*!
  * \ingroup	display_actors
@@ -713,6 +683,7 @@ void draw_actor_banner(actor * actor_id, float offset_z);
  */
 void display_actors(int banner, int render_pass);
 
+actor* create_actor_attachment(actor* parent, int attachment_type);
 void add_actor_attachment (int actor_id, int attachment_type);
 
 void remove_actor_attachment (int actor_id);
@@ -729,17 +700,6 @@ void remove_actor_attachment (int actor_id);
  * \callgraph
  */
 void add_actor_from_server (const char * in_data, int len);
-
-/*!
- * \ingroup	display_actors
- * \brief	Inititates the actors_list (sets all pointers to NULL).
- *
- * 		Sets all actor pointers in the actors_list to NULL and creates the actors_list mutex.
- *
- * \sa		actors_list
- * \sa		LOCK_ACTORS_LISTS
- */
-extern void	init_actors_lists();
 
 #ifdef MUTEX_DEBUG
 extern SDL_threadID have_actors_lock;
@@ -795,23 +755,7 @@ void	add_displayed_text_to_actor( actor * actor_ptr, const char* text);
  */
 actor *	get_actor_ptr_from_id( int actor_id );
 
-void end_actors_lists(void);
-
 int on_the_move (const actor *act);
-
-/*!
- * \ingroup display_actors
- * \brief   Return actor close clicked coords.
- *
- * \param tile_x the x coord of the clicked tile
- * \param tile_y the y coord of the clicked tile
- * \param max_distance the maximum distance between the clicked coord and the actor
- *
- * \callgraph
- * \retval the actor id or -1 for no actor
- *
- */
-int get_closest_actor(int tile_x, int tile_y, float max_distance);
 
 /*!
  * \ingroup	display_actors
@@ -825,19 +769,6 @@ int get_closest_actor(int tile_x, int tile_y, float max_distance);
 static __inline__ actor *get_our_actor ()
 {
 	return your_actor;
-}
-
-/*!
- * \ingroup	display_actors
- * \brief	Set the pointer to your own character
- *
- *	Set the pointer to your own character to \a act.
- *
- * \param act New pointer to your character.
- */
-static __inline__ void set_our_actor (actor *act)
-{
-	your_actor = act;
 }
 
 /*!
@@ -855,7 +786,7 @@ static __inline__ float get_actor_z(actor *a)
  * \param a the actor
  * \return the scale factor of the actor
  */
-static __inline__ float get_actor_scale(actor *a)
+static __inline__ float get_actor_scale(const actor *a)
 {
 	float scale = a->scale;
 	scale *= actors_defs[a->actor_type].actor_scale;
@@ -867,7 +798,7 @@ static __inline__ float get_actor_scale(actor *a)
  * \param in_act the actor
  * \param out_rot the resulting matrix (3x3 matrix: 9 floats)
  */
-void get_actor_rotation_matrix(actor *in_act, float *out_rot);
+void get_actor_rotation_matrix(const actor *in_act, float *out_rot);
 
 /*!
  * \brief Transforms a local position on a char to an absolute position
@@ -892,7 +823,7 @@ void remember_new_summoned(const char *summoned_name);
  *
  * \param new_actor Pointer to the new actor
  */
-void check_if_new_actor_last_summoned(actor *new_actor);
+void check_if_new_actor_last_summoned(const actor *new_actor);
 
 /*!
  * \brief Get the actor ID of the last summoned creature
@@ -901,37 +832,18 @@ void check_if_new_actor_last_summoned(actor *new_actor);
  */
 int get_id_last_summoned(void);
 
-static __inline__ int is_actor_held(actor *act)
+static __inline__ attachment_props* get_attachment_props_if_held(actor *act, actor *attached)
 {
-    return ((act->attached_actor >= 0) &&
-		((act->actor_id < 0 && // the actor is the attachment
-              !attached_actors_defs[act->actor_type].actor_type[actors_list[act->attached_actor]->actor_type].is_holder) ||
-             (act->actor_id >= 0 && // the actor is the parent of the attachment
-              attached_actors_defs[actors_list[act->attached_actor]->actor_type].actor_type[act->actor_type].is_holder)));
-}
-
-static __inline__ attachment_props* get_attachment_props_if_held(actor *act)
-{
-	if (act->attached_actor < 0)
+	if (!attached)
 		return NULL;
 	else if (act->actor_id < 0 && // the actor is the attachment
-			 !attached_actors_defs[act->actor_type].actor_type[actors_list[act->attached_actor]->actor_type].is_holder)
-		return &attached_actors_defs[act->actor_type].actor_type[actors_list[act->attached_actor]->actor_type];
+			 !attached_actors_defs[act->actor_type].actor_type[attached->actor_type].is_holder)
+		return &attached_actors_defs[act->actor_type].actor_type[attached->actor_type];
     else if (act->actor_id >= 0 && // the actor is the parent of the attachment
-			 attached_actors_defs[actors_list[act->attached_actor]->actor_type].actor_type[act->actor_type].is_holder)
-		return &attached_actors_defs[actors_list[act->attached_actor]->actor_type].actor_type[act->actor_type];
+			 attached_actors_defs[attached->actor_type].actor_type[act->actor_type].is_holder)
+		return &attached_actors_defs[attached->actor_type].actor_type[act->actor_type];
 	else
 		return NULL;
-}
-
-static __inline__ int get_held_actor_motion_frame(actor *act)
-{
-	if (act->attached_actor < 0)
-		return cal_attached_walk_frame;
-	else if (actors_list[act->attached_actor]->buffs & BUFF_DOUBLE_SPEED)
-		return cal_attached_run_frame;
-	else
-		return cal_attached_walk_frame;
 }
 
 static __inline__ int get_actor_motion_frame(actor *act)

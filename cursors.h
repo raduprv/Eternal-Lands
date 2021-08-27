@@ -6,8 +6,6 @@
 #ifndef __CURSORS_H__
 #define __CURSORS_H__
 
-#include "actors.h"
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -48,7 +46,6 @@ extern "C" {
 #endif
 /*! @} */
 
-extern actor *actor_under_mouse;
 extern int object_under_mouse;
 extern int thing_under_the_mouse;
 extern int current_cursor;

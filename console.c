@@ -3,6 +3,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <errno.h>
+#include "actors_list.h"
 #include "asc.h"
 #include "buddy.h"
 #include "cache.h"
@@ -486,7 +487,6 @@ static int print_emotes(char *text, int len){
 
 #ifdef EMOTES_DEBUG
 int add_emote(char *text, int len){
-
 	int j;
 	char *id;
 	actor *act=NULL;
@@ -495,24 +495,21 @@ int add_emote(char *text, int len){
 	id=&text[j+1];
 	text++;
 	printf("Actor [%s] [%s]\n",text,id);
-	LOCK_ACTORS_LISTS();
-	for (j = 0; j < max_actors; j++){
-		if (!strncasecmp(actors_list[j]->actor_name, text, strlen(text)) &&
-	  	   (actors_list[j]->actor_name[strlen(text)] == ' ' ||
-	    	   actors_list[j]->actor_name[strlen(text)] == '\0')){
-			act = actors_list[j];
-			LOG_TO_CONSOLE(c_orange1, "actor found, adding emote");
-			printf("actor found\n");
-			add_emote_to_actor(act->actor_id,atoi(id));
-			printf("message added %s\n",id);
-		}
-	}
-	if (!act){
-		UNLOCK_ACTORS_LISTS();
+
+	act = lock_and_get_actor_from_name(text);
+	if (!act)
+	{
 		LOG_TO_CONSOLE(c_orange1, "actor not found");
 		return 1;
 	}
-	UNLOCK_ACTORS_LISTS();
+
+	LOG_TO_CONSOLE(c_orange1, "actor found, adding emote");
+	printf("actor found\n");
+	add_emote_to_actor(act->actor_id,atoi(id));
+	printf("message added %s\n",id);
+
+	release_actors_list();
+
 	*(id-1)=' ';
 	return 1;
 
@@ -530,28 +527,26 @@ static int send_cmd(char *text, int len){
 	x=j;
 	text++;
 	printf("Actor [%s] [%s]\n",text,id);
-	LOCK_ACTORS_LISTS();
-	for (j = 0; j < max_actors; j++){
-		if (!strncasecmp(actors_list[j]->actor_name, text, strlen(text)) &&
-	  	   (actors_list[j]->actor_name[strlen(text)] == ' ' ||
-	    	   actors_list[j]->actor_name[strlen(text)] == '\0')){
-			act = actors_list[j];
-			LOG_TO_CONSOLE(c_orange1, "actor found, adding command");
-			printf("actor found\n");
-			while(*id){
-			add_command_to_actor(act->actor_id,atoi(id));
-			id++;
-				while(*id!=' '&&*id!=0) id++;
-			}
-			printf("command added %s\n",id);
-		}
-	}
-	if (!act){
-		UNLOCK_ACTORS_LISTS();
+
+	act = lock_and_get_actor_from_name(text);
+	if (!act)
+	{
 		LOG_TO_CONSOLE(c_orange1, "actor not found");
 		return 1;
 	}
-	UNLOCK_ACTORS_LISTS();
+
+	LOG_TO_CONSOLE(c_orange1, "actor found, adding command");
+	printf("actor found\n");
+	while(*id)
+	{
+		add_command_to_actor(act->actor_id,atoi(id));
+		id++;
+		while(*id!=' '&&*id!=0) id++;
+	}
+	printf("command added %s\n",id);
+
+	release_actors_list();
+
 	text[x-1]=' ';
 	return 1;
 }
@@ -561,47 +556,45 @@ static int set_idle(char *text, int len){
 
 	int j,x;
 	char *id;
-	actor *act=NULL;
+	actor *act;
+	struct CalMixer *mixer;
 
 	for(j=1;j<len;j++) if(text[j]==' ') {text[j]=0; break;}
 	id=&text[j+1];
 	x=j;
 	text++;
 	printf("Actor [%s] [%s]\n",text,id);
-	LOCK_ACTORS_LISTS();
-	for (j = 0; j < max_actors; j++){
-		if (!strncasecmp(actors_list[j]->actor_name, text, strlen(text)) &&
-	  	   (actors_list[j]->actor_name[strlen(text)] == ' ' ||
-	    	   actors_list[j]->actor_name[strlen(text)] == '\0')){
-				struct CalMixer *mixer;
-			act = actors_list[j];
-				mixer=CalModel_GetMixer(act->calmodel);
-			LOG_TO_CONSOLE(c_orange1, "actor found, adding anims");
-			printf("actor found\n");
-			CalMixer_ClearCycle(mixer,act->cur_anim.anim_index, 0.0f);
-			while(*id){
-				int anim_id;
-				double anim_wg;
 
-				anim_id=atoi(id);
-			id++;
-				while(*id!=' '&&*id!=0) id++;
-				anim_wg=atof(id);
-			id++;
-				while(*id!=' '&&*id!=0) id++;
-				printf("setting anim %i with weight %f\n",anim_id,anim_wg);
-				if(anim_wg<0) CalMixer_ClearCycle(mixer,actors_defs[act->actor_type].cal_frames[anim_id].anim_index, 0.0f);
-				else CalMixer_BlendCycle(mixer,actors_defs[act->actor_type].cal_frames[anim_id].anim_index,anim_wg, 0.1f);
-			}
-			printf("command added %s\n",id);
-		}
-	}
-	if (!act){
-		UNLOCK_ACTORS_LISTS();
+	act = lock_and_get_actor_from_name(text);
+	if (!act)
+	{
 		LOG_TO_CONSOLE(c_orange1, "actor not found");
 		return 1;
 	}
-	UNLOCK_ACTORS_LISTS();
+
+	mixer=CalModel_GetMixer(act->calmodel);
+	LOG_TO_CONSOLE(c_orange1, "actor found, adding anims");
+	printf("actor found\n");
+	CalMixer_ClearCycle(mixer,act->cur_anim.anim_index, 0.0f);
+	while(*id)
+	{
+		int anim_id;
+		double anim_wg;
+
+		anim_id=atoi(id);
+		id++;
+		while(*id!=' '&&*id!=0) id++;
+		anim_wg=atof(id);
+		id++;
+		while(*id!=' '&&*id!=0) id++;
+		printf("setting anim %i with weight %f\n",anim_id,anim_wg);
+		if(anim_wg<0) CalMixer_ClearCycle(mixer,actors_defs[act->actor_type].cal_frames[anim_id].anim_index, 0.0f);
+		else CalMixer_BlendCycle(mixer,actors_defs[act->actor_type].cal_frames[anim_id].anim_index,anim_wg, 0.1f);
+	}
+	printf("command added %s\n",id);
+
+	release_actors_list();
+
 	text[x-1]=' ';
 	return 1;
 }
@@ -611,46 +604,44 @@ static int set_action(char *text, int len){
 
 	int j,x;
 	char *id;
-	actor *act=NULL;
+	actor *act;
+	struct CalMixer *mixer;
 
 	for(j=1;j<len;j++) if(text[j]==' ') {text[j]=0; break;}
 	id=&text[j+1];
 	x=j;
 	text++;
 	printf("Actor [%s] [%s]\n",text,id);
-	LOCK_ACTORS_LISTS();
-	for (j = 0; j < max_actors; j++){
-		if (!strncasecmp(actors_list[j]->actor_name, text, strlen(text)) &&
-	  	   (actors_list[j]->actor_name[strlen(text)] == ' ' ||
-	    	   actors_list[j]->actor_name[strlen(text)] == '\0')){
-				struct CalMixer *mixer;
-			act = actors_list[j];
-				mixer=CalModel_GetMixer(act->calmodel);
-			LOG_TO_CONSOLE(c_orange1, "actor found, adding anims");
-			printf("actor found\n");
-			while(*id){
-				int anim_id;
-				double anim_wg;
 
-				anim_id=atoi(id);
-			id++;
-				while(*id!=' '&&*id!=0) id++;
-				anim_wg=atof(id);
-			id++;
-				while(*id!=' '&&*id!=0) id++;
-				printf("setting action %i with weight %f\n",anim_id,anim_wg);
-				if(anim_wg<0) CalMixer_RemoveAction(mixer,actors_defs[act->actor_type].cal_frames[anim_id].anim_index);
-				else CalMixer_ExecuteActionExt(mixer,actors_defs[act->actor_type].cal_frames[anim_id].anim_index,0.0f,0.0f,anim_wg, 1);
-			}
-			printf("command added %s\n",id);
-		}
-	}
-	if (!act){
-		UNLOCK_ACTORS_LISTS();
+	act = lock_and_get_actor_from_name(text);
+	if (!act)
+	{
 		LOG_TO_CONSOLE(c_orange1, "actor not found");
 		return 1;
 	}
-	UNLOCK_ACTORS_LISTS();
+
+	mixer=CalModel_GetMixer(act->calmodel);
+	LOG_TO_CONSOLE(c_orange1, "actor found, adding anims");
+	printf("actor found\n");
+	while(*id)
+	{
+		int anim_id;
+		double anim_wg;
+
+		anim_id=atoi(id);
+		id++;
+		while(*id!=' '&&*id!=0) id++;
+		anim_wg=atof(id);
+		id++;
+		while(*id!=' '&&*id!=0) id++;
+		printf("setting action %i with weight %f\n",anim_id,anim_wg);
+		if(anim_wg<0) CalMixer_RemoveAction(mixer,actors_defs[act->actor_type].cal_frames[anim_id].anim_index);
+		else CalMixer_ExecuteActionExt(mixer,actors_defs[act->actor_type].cal_frames[anim_id].anim_index,0.0f,0.0f,anim_wg, 1);
+	}
+	printf("command added %s\n",id);
+
+	release_actors_list();
+
 	text[x-1]=' ';
 	return 1;
 }
@@ -663,44 +654,42 @@ static int horse_cmd(char* text, int len){
 	int j,x;
 	char *id;
 	actor *act=NULL;
+	int actor_id, has_horse;
 
 	for(j=1;j<len;j++) if(text[j]==' ') {text[j]=0; break;}
 	id=&text[j+1];
 	x=j;
 	text++;
 	printf("Actor [%s] [%s] [%i]\n",text,id,atoi(id));
-	LOCK_ACTORS_LISTS();
-	for (j = 0; j < max_actors; j++){
-		if (!strncasecmp(actors_list[j]->actor_name, text, strlen(text)) &&
-	  	   (actors_list[j]->actor_name[strlen(text)] == ' ' ||
-	    	   actors_list[j]->actor_name[strlen(text)] == '\0')){
-			act = actors_list[j];
-			LOG_TO_CONSOLE(c_orange1, "actor found, adding horse");
-		}
-	}
-	text[x-1]=' ';
 
-	if (!act){
-		UNLOCK_ACTORS_LISTS();
+	act = lock_and_get_actor_from_name(text);
+	text[x-1]=' ';
+	if (!act)
+	{
 		LOG_TO_CONSOLE(c_orange1,"Actor doesn't exist");
 		return 1;		// Eek! We don't have an actor match... o.O
 	}
 
-	act->sit_idle=act->stand_idle=0;
+	LOG_TO_CONSOLE(c_orange1, "actor found, adding horse");
 
-	if(act->attached_actor>=0){
+	act->sit_idle=act->stand_idle=0;
+	actor_id = act->actor_id;
+	has_horse = act->attached_actor >= 0;
+
+	release_actors_list();
+
+	if (has_horse){
 		//remove horse
-		remove_actor_attachment(act->actor_id);
+		remove_actor_attachment(actor_id);
 		LOG_TO_CONSOLE(c_orange1,"De-horsified");
 
 	} else {
 		//add horse
 		int hh=atoi(id);
 		if (hh<=0) hh=200;
-		add_actor_attachment(act->actor_id, hh);
+		add_actor_attachment(actor_id, hh);
 		LOG_TO_CONSOLE(c_orange1,"Horsified");
 	}
-	UNLOCK_ACTORS_LISTS();
 
 	return 1;
 
@@ -719,31 +708,28 @@ static int set_neck(char *text, int len){
 	id=&text[j+1];
 	text++;
 	printf("Actor [%s] [%s]\n",text,id);
-	LOCK_ACTORS_LISTS();
-	for (j = 0; j < max_actors; j++){
-		if (!strncasecmp(actors_list[j]->actor_name, text, strlen(text)) &&
-	  	   (actors_list[j]->actor_name[strlen(text)] == ' ' ||
-	    	   actors_list[j]->actor_name[strlen(text)] == '\0')){
-			act = actors_list[j];
-			LOG_TO_CONSOLE(c_orange1, "actor found, adding neck item");
-			printf("actor found\n");
-			if(atoi(id)) {
-				//wear
-				unwear_item_from_actor(act->actor_id,KIND_OF_NECK);
-				actor_wear_item(act->actor_id,KIND_OF_NECK, atoi(id));
-			} else {
-				//unwear
-				unwear_item_from_actor(act->actor_id,KIND_OF_NECK);
 
-			}
-		}
-	}
-	if (!act){
-		UNLOCK_ACTORS_LISTS();
+	act = lock_and_get_actor_from_name(text);
+	if (!act)
+	{
 		LOG_TO_CONSOLE(c_orange1, "actor not found");
 		return 1;
 	}
-	UNLOCK_ACTORS_LISTS();
+
+	LOG_TO_CONSOLE(c_orange1, "actor found, adding neck item");
+	printf("actor found\n");
+	if(atoi(id)) {
+		//wear
+		unwear_item_from_actor(act->actor_id,KIND_OF_NECK);
+		actor_wear_item(act->actor_id,KIND_OF_NECK, atoi(id));
+	} else {
+		//unwear
+		unwear_item_from_actor(act->actor_id,KIND_OF_NECK);
+
+	}
+
+	release_actors_list();
+
 	*(id-1)=' ';
 	return 1;
 

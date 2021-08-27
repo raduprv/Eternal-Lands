@@ -12,7 +12,6 @@
 #include "io/elpathwrapper.h"
 
 #define DEFAULT_SERVERS_SIZE 4
-#define sizeof_field(TYPE, NAME) sizeof(((TYPE*)0)->NAME)
 
 typedef struct
 {

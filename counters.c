@@ -2,7 +2,7 @@
 #include <ctype.h>
 #include "counters.h"
 #include "context_menu.h"
-#include "actors.h"
+#include "actors_list.h"
 #include "asc.h"
 #include "elconfig.h"
 #include "elwindows.h"
@@ -1016,7 +1016,7 @@ const char *strip_actor_name (const char *actor_name)
 /*
  * Called by increment_death_counter if it wasn't our character that died.
  */
-static void increment_kill_counter(actor *me, actor *them)
+static void increment_kill_counter(const actor *me, const actor *them)
 {
 	int x1, y1, x2, y2;
 	static int face_offsets[8][2] = {{0,1},{1,1},{1,0},{1,-1},{0,-1},{-1,-1},{-1,0},{-1,1}};
@@ -1043,7 +1043,7 @@ static void increment_kill_counter(actor *me, actor *them)
 	increment_counter(KILLS, strip_actor_name(them->actor_name), 1,	0);
 }
 
-void increment_range_kill_counter(actor *me, actor *them)
+static void increment_range_kill_counter(const actor *me, const actor *them)
 {
 	if (them->last_range_attacker_id == me->actor_id)
 		increment_counter(KILLS, strip_actor_name(them->actor_name), 1,	0);
@@ -1052,16 +1052,13 @@ void increment_range_kill_counter(actor *me, actor *them)
 /*
  * Called whenever an actor dies.
  */
-void increment_death_counter(actor *a)
+void increment_death_counter(const actor *me, const actor *act,
+	actor **actors_list, size_t max_actors)
 {
 	int found_death_reason = 0;
-	actor *me = get_actor_ptr_from_id(yourself);
 
-	if (!me) {
-		return;
-	}
-
-	if (a == me) {
+	if (act == me)
+	{
 		/* If we have intercepted a message from the server that telling us that
 		 * we have been killed by someone, the counter has already been incremented */
 		if (killed_by_player) {
@@ -1083,13 +1080,12 @@ void increment_death_counter(actor *a)
 		}
 
 		if (!found_death_reason && me->async_fighting) {
-			int x1, y1, x2, y2;
-			int i;
-			actor *them;
-			static int face_offsets[8][2] = {{0,1},{1,1},{1,0},{1,-1},{0,-1},{-1,-1},{-1,0},{-1,1}};
+			static const int face_offsets[8][2] = {{0,1},{1,1},{1,0},{1,-1},{0,-1},{-1,-1},{-1,0},{-1,1}};
 
-			for (i = 0; i < max_actors; i++) {
-				them = actors_list[i];
+			for (size_t i = 0; i < max_actors; i++)
+			{
+				int x1, y1, x2, y2;
+				actor *them = actors_list[i];
 
 				if (!them->async_fighting ||
 					// PK deaths are handled with text messages from the server now
@@ -1131,16 +1127,19 @@ void increment_death_counter(actor *a)
 			}
 		}
 	}
-	else { // a != me
+	else { // act != me
 		/* if the dead actor is a player, we don't have to check it because if
 		 * we've killed him, we already catched it from a server message */
-		if (a->is_enhanced_model && (a->kind_of_actor == HUMAN ||
-									 a->kind_of_actor == PKABLE_HUMAN)) return;
+		if (act->is_enhanced_model
+			&& (act->kind_of_actor == HUMAN || act->kind_of_actor == PKABLE_HUMAN))
+		{
+			return;
+		}
 
-		if (a->last_range_attacker_id < 0)
-			increment_kill_counter(me, a);
+		if (act->last_range_attacker_id < 0)
+			increment_kill_counter(me, act);
 		else
-			increment_range_kill_counter(me, a);
+			increment_range_kill_counter(me, act);
 	}
 }
 

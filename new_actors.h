@@ -30,6 +30,7 @@ extern float sitting; /*!< used to compute several actor related z values */
  * \sa actor_wear_item
  */
 void unwear_item_from_actor(int actor_id,Uint8 which_part);
+void unwear_item_from_actor_locked(actor *act, Uint8 which_part);
 
 /*!
  * \ingroup display_actors

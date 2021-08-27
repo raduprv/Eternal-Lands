@@ -2,7 +2,7 @@
 
 #include "cluster.h"
 #ifndef MAP_EDITOR
-#include "actors.h"
+#include "actors_list.h"
 #endif
 
 static short* clusters = NULL;
@@ -149,8 +149,16 @@ void destroy_clusters_array ()
 #ifndef MAP_EDITOR
 short get_actor_cluster ()
 {
-	actor *me = get_our_actor ();
-	return me ? me->cluster : 0;
+	// FIXME? Locking the actors list every time just to get the cluster seems excessive. Maybe
+	// store an atomic in the actors list?
+	short cluster = 0;
+	actor *me = lock_and_get_self();
+	if (me)
+	{
+		cluster = me->cluster;
+		release_actors_list();
+	}
+	return cluster;
 }
 #endif
 

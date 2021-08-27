@@ -1,6 +1,6 @@
 #include <stdlib.h>
 #include "pathfinder.h"
-#include "actors.h"
+#include "actors_list.h"
 #include "events.h"
 #include "gl_init.h"
 #include "hud.h"
@@ -276,19 +276,9 @@ int checkvisitedlist(int x, int y)
 	return visited;
 }
 
-static int pf_is_tile_occupied(int x, int y)
+static inline int pf_is_tile_occupied(int x, int y)
 {
-	int i;
-
-	for (i = 0; i < max_actors; i++) {
-		if(actors_list[i]) {
-			if (actors_list[i]->x_tile_pos == x && actors_list[i]->y_tile_pos == y) {
-				return 1;
-			}
-		}
-	}
-
-	return 0;
+	return actor_occupies_tile(x, y);
 }
 
 void pf_move()

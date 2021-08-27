@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "stats.h"
+#include "actors_list.h"
 #include "asc.h"
 #include "draw_scene.h"
 #include "elconfig.h"
@@ -1082,7 +1083,7 @@ void cleanup_floating_messages(void)
 }
 
 
-static void draw_floatingmessage(floating_message *message, float healthbar_z) {
+static void draw_floatingmessage(const actor *me, floating_message *message, float healthbar_z) {
         float cut;
         double f, width, y, x, z;
         double model[16],proj[16];
@@ -1107,7 +1108,7 @@ static void draw_floatingmessage(floating_message *message, float healthbar_z) {
         }
         else
         {
-			gluProject(0.0, 0.0, healthbar_z * get_actor_scale(your_actor), model, proj, view, &x, &y, &z);
+			gluProject(0.0, 0.0, healthbar_z * get_actor_scale(me), model, proj, view, &x, &y, &z);
 			y += 50*font_scales[NAME_FONT]; // size of the actor name/bar
         }
 
@@ -1153,7 +1154,7 @@ static void draw_floatingmessage(floating_message *message, float healthbar_z) {
 
 }
 
-void drawactor_floatingmessages(int actor_id, float healthbar_z) {
+void drawactor_floatingmessages(int actor_id, const actor *me, float healthbar_z) {
         int i;
 
         if (actor_id < 0) return;
@@ -1168,7 +1169,7 @@ void drawactor_floatingmessages(int actor_id, float healthbar_z) {
                                 if(floating_messages[i].first_time+floating_messages[i].active_time<cur_time){
                                         free_message(i);
                                 } else if(floating_messages[i].actor_id==actor_id)
-                                        draw_floatingmessage(&floating_messages[i], healthbar_z);
+                                        draw_floatingmessage(me, &floating_messages[i], healthbar_z);
                         }
                 }
         }
@@ -1180,7 +1181,7 @@ void drawactor_floatingmessages(int actor_id, float healthbar_z) {
                                 if(floating_messages[i].first_time+floating_messages[i].active_time<cur_time){
                                         free_message(i);
                                 } else if(floating_messages[i].actor_id==actor_id)
-                                        draw_floatingmessage(&floating_messages[i], healthbar_z);
+                                        draw_floatingmessage(me, &floating_messages[i], healthbar_z);
                         }
                 }
         }

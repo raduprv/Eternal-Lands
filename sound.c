@@ -5,6 +5,7 @@
 #include <SDL_thread.h>
 #include <math.h>
 #include "sound.h"
+#include "actors_list.h"
 #include "asc.h"
 #include "draw_scene.h"
 #include "elconfig.h"
@@ -1409,6 +1410,7 @@ int update_streams(void * dummy)
 {
     int sleep, day_time, i, tx, ty;
 	ALfloat gain = 0.0;
+	actor *your_actor;
 
    	sleep = SLEEP_TIME;
 
@@ -1423,7 +1425,7 @@ int update_streams(void * dummy)
 		
 		day_time = (game_minute >= 30 && game_minute < 60 * 3 + 30);
 
-		LOCK_ACTORS_LISTS();
+		your_actor = lock_and_get_self();
 		// Get our position
 		if (your_actor)
 		{
@@ -1435,6 +1437,8 @@ int update_streams(void * dummy)
 			tx = 0;
 			ty = 0;
 		}
+		release_actors_list();
+
 		if (have_a_map && (tx > 0 || ty > 0))
 		{
 			// Check if we need to start or stop any streams
@@ -1482,7 +1486,6 @@ int update_streams(void * dummy)
 			}
 			UNLOCK_SOUND_LIST();
 		}
-		UNLOCK_ACTORS_LISTS();
 	}
 #ifdef _EXTRA_SOUND_DEBUG
 	printf("Exiting streams thread. have_music: %d, music_on: %d, have_sound: %d, sound_on: %d, exit_now: %d\n", have_music, music_on, have_sound, sound_on, exit_now);
@@ -2879,6 +2882,8 @@ void update_sound(int ms)
 	sound_variants *pVariant;
 	ALint state;
 
+	size_t max_actors;
+	actor** actors_list;
 	int source;
 	int x, y, distanceSq, maxDistSq;
 	int relative;
@@ -2896,7 +2901,7 @@ void update_sound(int ms)
 	if (num_types < 1 || no_sound)
 		return;
 
-	LOCK_ACTORS_LISTS();
+	actors_list = lock_and_get_actors_list(&max_actors);
 	// Check if we have our actor
 	if (your_actor)
 	{
@@ -2979,7 +2984,7 @@ void update_sound(int ms)
 	if (!inited)
 	{
 		UNLOCK_SOUND_LIST();
-		UNLOCK_ACTORS_LISTS();
+		release_actors_list();
 		return;
 	}
 
@@ -2992,7 +2997,7 @@ void update_sound(int ms)
 	if (!used_sources)
 	{
 		UNLOCK_SOUND_LIST();
-		UNLOCK_ACTORS_LISTS();
+		release_actors_list();
 		return;
 	}
 
@@ -3031,7 +3036,7 @@ void update_sound(int ms)
 		alSourcefv(sound_source_data[source].source, AL_POSITION, sourcePos);
 	}
 
-	UNLOCK_ACTORS_LISTS();
+	release_actors_list();
 	
 	// Finally, update all the sources
 	i = 0;

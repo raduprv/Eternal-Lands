@@ -914,7 +914,6 @@ void init_stuff(void)
 
 
 	update_loading_win(init_lists_str, 2);
-	init_actors_lists();
 	update_loading_win("init particles", 4);
 	memset(tile_list, 0, sizeof(tile_list));
 	memset(lights_list, 0, sizeof(lights_list));

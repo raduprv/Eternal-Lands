@@ -2,6 +2,7 @@
 #include <math.h>
 #include <string.h>
 #include "draw_scene.h"
+#include "actors_list.h"
 #include "bbox_tree.h"
 #include "cal.h"
 #include "console.h"
@@ -203,11 +204,10 @@ void move_camera ()
 	float x, y, z;
 	// float head_pos[3];
 	float follow_speed;
-	actor *me = get_our_actor ();
 
-    if(!me){
+	actor *me = lock_and_get_self();
+	if(!me)
 		return;
-	}
 
 	x = (float)me->x_pos+0.25f;
 	y = (float)me->y_pos+0.25f;
@@ -232,6 +232,8 @@ void move_camera ()
 	} else {
 		z = get_tile_height(me->x_tile_pos, me->y_tile_pos) + sitting;
 	}
+
+	release_actors_list();
 
 	if(first_person||ext_cam){
 		follow_speed = 150.0f;
@@ -339,7 +341,7 @@ void update_camera()
 	static float old_camera_y = 0;
 	static float old_camera_z = 0;
 	float adjust;
-	actor *me = get_our_actor();
+	actor *me = lock_and_get_self();
 
 	old_rx=rx;
 	old_rz=rz;
@@ -563,7 +565,7 @@ void update_camera()
 	}
 
 	//Make Character Turn with Camera
-	if (have_mouse && !on_the_move (get_our_actor ()))
+	if (have_mouse && !on_the_move(me))
 	{
 		adjust = rz;
 		//without this the character will turn the wrong way when camera_kludge
@@ -583,6 +585,8 @@ void update_camera()
 	}
 	adjust_view = 0;
 	last_update = cur_time;
+
+	release_actors_list();
 }
 
 #if !defined(MAP_EDITOR)

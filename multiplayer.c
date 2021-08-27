@@ -5,7 +5,7 @@
 #include "2d_objects.h"
 #include "3d_objects.h"
 #include "asc.h"
-#include "actors.h"
+#include "actors_list.h"
 #include "actor_scripts.h"
 #include "achievements.h"
 #include "books.h"
@@ -822,7 +822,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 #endif
 				// allow for multiple packets in a row
 				while(data_length >= 5){
-					destroy_actor(SDL_SwapLE16(*((short *)(in_data+3))));
+					remove_and_destroy_actor_and_attached(SDL_SwapLE16(*((short *)(in_data+3))));
 					in_data+= 2;
 					data_length-= 2;
 				}
@@ -1285,10 +1285,8 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 				  LOG_WARNING("CAUTION: Possibly forged YOU_ARE packet received.\n");
 				  break;
 				}
-				LOCK_ACTORS_LISTS();
 				yourself= SDL_SwapLE16(*((short *)(in_data+3)));
-				set_our_actor (get_actor_ptr_from_id (yourself));
-				UNLOCK_ACTORS_LISTS();
+				set_self();
 			}
 			break;
 

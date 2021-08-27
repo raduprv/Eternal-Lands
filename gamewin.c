@@ -4,6 +4,7 @@
 #include "gamewin.h"
 #include "actor_init.h"
 #include "actor_scripts.h"
+#include "actors_list.h"
 #include "achievements.h"
 #include "asc.h"
 #include "buddy.h"
@@ -430,11 +431,11 @@ static int mouseover_game_handler (window_info *win, int mx, int my)
 	else if (thing_under_the_mouse==UNDER_MOUSE_3D_OBJ && objects_list[object_under_mouse])
 	{
 		int range_weapon_equipped;
-		LOCK_ACTORS_LISTS();
+		actor *your_actor = lock_and_get_self();
 		range_weapon_equipped = (your_actor &&
 								 your_actor->cur_weapon >= BOW_LONG &&
 								 your_actor->cur_weapon <= BOW_CROSS);
-		UNLOCK_ACTORS_LISTS();
+		release_actors_list();
 		if(action_mode==ACTION_LOOK)
 		{
 			elwin_mouse = CURSOR_EYE;
@@ -534,7 +535,7 @@ static int mouseover_game_handler (window_info *win, int mx, int my)
 		{
 			elwin_mouse = CURSOR_WAND;
 		}
-		else if((mod_key_status & KMOD_ALT) || action_mode==ACTION_ATTACK || (actor_under_mouse && !actor_under_mouse->dead))
+		else if((mod_key_status & KMOD_ALT) || action_mode==ACTION_ATTACK || actor_under_mouse_alive())
 		{
 			elwin_mouse = CURSOR_ATTACK;
 		}
@@ -578,6 +579,7 @@ static int click_game_handler(window_info *win, int mx, int my, Uint32 flags)
 	int force_walk = (flag_ctrl && flag_right && !flag_alt);
 	int shift_on = flags & KMOD_SHIFT;
 	int range_weapon_equipped;
+	actor *your_actor;
 
 	if ((flags & ELW_MOUSE_BUTTON_WHEEL) == ELW_MID_MOUSE)
 		// Don't handle middle button clicks
@@ -608,11 +610,11 @@ static int click_game_handler(window_info *win, int mx, int my, Uint32 flags)
 	if (hud_click(win, mx, my, flags))
 		return 1;
 
-	LOCK_ACTORS_LISTS();
+	your_actor = lock_and_get_self();
 	range_weapon_equipped = (your_actor &&
 							 your_actor->cur_weapon >= BOW_LONG &&
 							 your_actor->cur_weapon <= BOW_CROSS);
-	UNLOCK_ACTORS_LISTS();
+	release_actors_list();
 
 	if (!force_walk)
 	{
@@ -994,24 +996,25 @@ static int click_game_handler(window_info *win, int mx, int my, Uint32 flags)
 
 			if (target_close_clicked_creature)
 			{
-				int closest_actor = get_closest_actor(x, y, 0.8f);
-				if (closest_actor != -1)
+				actor *this_actor = lock_and_get_nearest_actor(x, y, 0.8f);
+				if (this_actor)
 				{
-					actor *this_actor = get_actor_ptr_from_id(closest_actor);
-					if (this_actor != NULL)
+					int x = this_actor->x_tile_pos;
+					int y = this_actor->y_tile_pos;
+					int actor_id = this_actor->actor_id;
+
+					release_actors_list();
+					if (spell_result == 3)
 					{
-						if (spell_result == 3)
-						{
-							add_highlight(this_actor->x_tile_pos,this_actor->y_tile_pos, HIGHLIGHT_TYPE_SPELL_TARGET);
-							touch_player(closest_actor);
-							return 1;
-						}
-						else if (!is_ranging_locked && !is_sit_locked)
-						{
-							add_highlight(this_actor->x_tile_pos, this_actor->y_tile_pos, HIGHLIGHT_TYPE_ATTACK_TARGET);
-							attack_someone(closest_actor);
-							return 1;
-						}
+						add_highlight(x, y, HIGHLIGHT_TYPE_SPELL_TARGET);
+						touch_player(actor_id);
+						return 1;
+					}
+					else if (!is_ranging_locked && !is_sit_locked)
+					{
+						add_highlight(x, y, HIGHLIGHT_TYPE_ATTACK_TARGET);
+						attack_someone(actor_id);
+						return 1;
 					}
 				}
 			}
@@ -1042,11 +1045,13 @@ static int click_game_handler(window_info *win, int mx, int my, Uint32 flags)
 					missiles_fire_a_to_xyz(yourself, target);
 				}
 				else {
-					char in_aim_mode;
-					actor *cur_actor = get_actor_ptr_from_id(yourself);
-					LOCK_ACTORS_LISTS();
-					in_aim_mode = cur_actor->in_aim_mode;
-					UNLOCK_ACTORS_LISTS();
+					char in_aim_mode = 0;
+					actor *cur_actor = lock_and_get_actor_from_id(yourself);
+					if (cur_actor)
+					{
+						in_aim_mode = cur_actor->in_aim_mode;
+						release_actors_list();
+					}
 					if (in_aim_mode == 1)
 						add_command_to_actor(yourself, leave_aim_mode);
 					move_to(x, y, 1);
@@ -1124,19 +1129,13 @@ static int display_game_handler (window_info *win)
 	static int shadows_were_disabled=0;
 	static int eye_candy_was_disabled=0;
 	unsigned char str[180];
-	int i;
+// 	int i;
 	int any_reflection = 0;
 	int mouse_rate;
 
 	if (!have_a_map) return 1;
 	if (yourself==-1) return 1; //we don't have ourselves
-
-	for(i=0; i<max_actors; i++)
-	{
-        	if(actors_list[i] && actors_list[i]->actor_id == yourself)
-			break;
-	}
-	if(i > max_actors) return 1;//we still don't have ourselves
+	if (!have_self()) return 1;
 
 #ifdef CLUSTER_INSIDES
 	current_cluster = get_actor_cluster();

@@ -14,6 +14,9 @@
 extern "C" {
 #endif
 
+//! Get the size of field \a NAME in struct \a TYPE
+#define sizeof_field(TYPE, NAME) sizeof(((TYPE*)0)->NAME)
+
 #define BUTTONRADIUS 15
 
 /*!
