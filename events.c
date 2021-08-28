@@ -18,6 +18,7 @@
 #include "gamewin.h"
 #include "gl_init.h"
 #include "interface.h"
+#include "new_character.h"
 #include "particles.h"
 #include "pathfinder.h"
 #include "paste.h"
@@ -51,7 +52,8 @@ static void enter_minimised_state(void)
 static void leave_minimised_state(void)
 {
 	max_fps = limit_fps;
-	update_all_actors(0);
+	if (!get_show_window(newchar_root_win))
+		update_all_actors(0);
 	//printf("left minimised\n");
 }
 
