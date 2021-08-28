@@ -396,9 +396,12 @@ static void toggle_first_person(void)
 {
 	if (first_person == 0){
 		//rotate camera where actor is looking at
-		actor *me = get_our_actor();
+		actor *me = lock_and_get_self();
 		if (me)
+		{
 			rz=me->z_rot;
+			release_actors_list();
+		}
 		rx=-90;
 		first_person = 1;
 		fol_cam = 0;
@@ -1386,7 +1389,7 @@ static int display_game_handler (window_info *win)
 		int fps_y;
 #ifdef	DEBUG
 		int y_cnt = 10;
-		actor *me = get_our_actor ();
+		actor *me = lock_and_get_self();
 
 		glColor3f (1.0f, 1.0f, 1.0f);
 		if(me){
@@ -1399,6 +1402,8 @@ static int display_game_handler (window_info *win)
 			safe_snprintf((char*)str,sizeof(str),"Coords: %.3g %.3g",me->x_pos, me->y_pos);
  			draw_string_zoomed (0, win->len_y - hud_y - (y_cnt--) * win->default_font_len_y, str, 1, win->current_scale);
 		}
+
+		release_actors_list();
 
 		safe_snprintf((char*)str, sizeof(str), "lights: ambient=(%.2f,%.2f,%.2f,%.2f) diffuse=(%.2f,%.2f,%.2f,%.2f)",
 					  ambient_light[0], ambient_light[1], ambient_light[2], ambient_light[3],
@@ -1771,20 +1776,36 @@ int keypress_root_common (SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_m
     // scale the current actor
 	else if((key_code == SDLK_p) && shift_on && ctrl_on && !alt_on)
 	{
-		get_our_actor()->scale *= 1.05;
+		actor *me = lock_and_get_self();
+		if (me)
+		{
+			me->scale *= 1.05;
+			release_actors_list();
+		}
 	}
 	else if((key_code == SDLK_o) && shift_on && ctrl_on && !alt_on)
 	{
-		get_our_actor()->scale /= 1.05;
+		actor *me = lock_and_get_self();
+		if (me)
+		{
+			me->scale /= 1.05;
+			release_actors_list();
+		}
 	}
 	else if((key_code == SDLK_h) && shift_on && ctrl_on && !alt_on)
 	{
-		if (get_our_actor())
+		actor *me = lock_and_get_self();
+		if (me)
 		{
-			if (get_our_actor()->attached_actor < 0)
-				add_actor_attachment(get_our_actor()->actor_id, 200);
+			int actor_id = me->actor_id;
+			int has_no_attachment = (me->attached_actor < 0);
+
+			release_actors_list();
+
+			if (has_no_attachment)
+				add_actor_attachment(actor_id, 200);
 			else
-				remove_actor_attachment(get_our_actor()->actor_id);
+				remove_actor_attachment(actor_id);
 		}
 	}
 #endif // DEBUG

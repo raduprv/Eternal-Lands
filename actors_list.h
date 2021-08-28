@@ -25,29 +25,31 @@ public:
 #endif
 	typedef std::vector<actor*> Storage;
 
-	class Guard
+	template <typename T>
+	class Locked
 	{
 	public:
-		Guard(Storage& list, Mutex& mutex): _mutex(mutex), _list(list)
+		Locked(T& obj, Mutex& mutex): _mutex(mutex), _obj(obj)
 		{
 			_mutex.lock();
 		}
-		~Guard()
+		~Locked()
 		{
 			_mutex.unlock();
 		}
 
-		actor*& operator[](size_t idx) { return _list[idx]; }
-		Storage* operator->() { return &_list; }
-		Storage::const_iterator begin() const { return _list.begin(); }
-		Storage::const_iterator end() const { return _list.end(); }
-		Storage::iterator begin() { return _list.begin(); }
-		Storage::iterator end() { return _list.end(); }
+		const T& operator*() const { return _obj; }
+		T& operator*() { return _obj; }
+		const T* operator->() const { return &_obj; }
+		T* operator->() { return &_obj; }
 
 	private:
 		Mutex& _mutex;
-		Storage& _list;
+		T& _obj;
 	};
+
+	typedef Locked<Storage> LockedList;
+	typedef Locked<actor*> LockedActorPtr;
 
 	static ActorsList& get_instance()
 	{
@@ -55,7 +57,8 @@ public:
 		return actors_list;
 	}
 
-	Guard get() { return Guard(_list, _mutex); }
+	LockedList get() { return LockedList(_list, _mutex); }
+	LockedActorPtr get_self() { return LockedActorPtr(_self, _mutex); }
 
 	Storage& get_locked()
 	{

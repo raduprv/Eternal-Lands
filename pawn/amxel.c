@@ -2,7 +2,7 @@
 
 #include <string.h>
 #include <math.h>
-#include "../actors.h"
+#include "../actors_list.h"
 #include "../actor_scripts.h"
 #include "../asc.h"
 #include "../bbox_tree.h"
@@ -196,7 +196,7 @@ static cell AMX_NATIVE_CALL n_clear_timers (AMX *amx, const cell *params)
 static cell AMX_NATIVE_CALL n_get_position (AMX *amx, const cell *params)
 {
 	cell *x_addr, *y_addr;
-	actor *me = get_our_actor ();
+	actor *me = lock_and_get_self();
 	
 	if (!me)
 		// Uh oh, we don't exist!
@@ -207,6 +207,8 @@ static cell AMX_NATIVE_CALL n_get_position (AMX *amx, const cell *params)
 	
 	*x_addr = (cell) me->x_tile_pos;
 	*y_addr = (cell) me->y_tile_pos;
+
+	release_actors_list();
 	
 	return 0;
 }

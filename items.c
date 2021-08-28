@@ -3,6 +3,7 @@
 #include <math.h>
 #include <limits.h>
 #include "items.h"
+#include "actors_list.h"
 #include "asc.h"
 #include "colors.h"
 #include "client_serv.h"
@@ -1130,7 +1131,6 @@ static int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 	int shift_on = flags & KMOD_SHIFT;
 	int alt_on = flags & KMOD_ALT;
 	int pos;
-	actor *me;
 
 	// only handle mouse button clicks, not scroll wheels moves (unless its the mix button)
 	if (((flags & ELW_MOUSE_BUTTON) == 0) && (over_button(win, mx, my) != BUT_MIX)) return 0;
@@ -1379,10 +1379,11 @@ static int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 	// Get All button
 	else if(over_button(win, mx, my)==BUT_GET){
 		int x,y;
-		me = get_our_actor ();
+		actor *me = lock_and_get_self();
 		if(!me)return(1);
 		x=me->x_tile_pos;
 		y=me->y_tile_pos;
+		release_actors_list();
 		items_get_bag(x,y);
 	}
 

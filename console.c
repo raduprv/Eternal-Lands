@@ -1675,16 +1675,19 @@ void save_local_data(void)
 void auto_save_local_and_server(void)
 {
 	time_t time_delta = 60 * 90;
-	actor *me;
+	actor *me = lock_and_get_self();
+	if (!me)
+		return;
 
-	me = get_our_actor();
-	if(!is_disconnected() && me && !me->fighting && ((last_save_time + time_delta) <= time(NULL)))
+	if(!is_disconnected() && !me->fighting && ((last_save_time + time_delta) <= time(NULL)))
 	{
 		last_save_time = time(NULL);
 		save_local_data();
 		LOG_TO_CONSOLE(c_green1, full_save_str);
 		send_input_text_line("#save", 5);
 	}
+
+	release_actors_list();
 }
 
 

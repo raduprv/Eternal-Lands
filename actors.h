@@ -751,25 +751,10 @@ void	add_displayed_text_to_actor( actor * actor_ptr, const char* text);
  *
  * \param	actor_id The server-side actor_id - NOT the position in the actors_list
  * \retval actor*	A pointer to the actor with the given ID. If the actor is not found it returns NULL
- * \sa		get_our_actor
  */
 actor *	get_actor_ptr_from_id( int actor_id );
 
 int on_the_move (const actor *act);
-
-/*!
- * \ingroup	display_actors
- * \brief	Return a pointer to your own character, if available
- *
- *	Return a pointer to your own character, if available. This inline
- *	function simply returns \ref your_actor.
- *
- * \return A pointer to your character, or NULL if that is not available.
- */
-static __inline__ actor *get_our_actor ()
-{
-	return your_actor;
-}
 
 /*!
  * \brief Get the Z position of an actor according to its position on the height map

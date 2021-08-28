@@ -484,13 +484,14 @@ static int display_minimap_handler(window_info *win)
 	//draw minimap
 
 	//get player position in window coordinates
-	if( (me = get_our_actor ()) == NULL)
+	if( (me = lock_and_get_self()) == NULL)
 	{
 		//Don't know who we are? can't draw then
 		return 0;
 	}
 	px = me->x_tile_pos * size_x;
 	py = float_minimap_size - (me->y_tile_pos * size_y);
+	release_actors_list();
 
 	glTranslatef(0.0f, win->title_height, 0.0f);
 
@@ -523,9 +524,10 @@ CHECK_GL_ERRORS();
 static int minimap_walkto(int mx, int my)
 {
 	float fmx = mx, fmy = my;
-	actor *me;
+	int res;
+	const actor *me;
 
-	if ( (me = get_our_actor ()) == NULL)
+	if ( (me = lock_and_get_self()) == NULL)
 		return 0;
 
 	rotate_click_coords(&fmx,&fmy);
@@ -536,12 +538,11 @@ static int minimap_walkto(int mx, int my)
 		+ minimap_tiles_distance * 2 * fmy/float_minimap_size;
 
 	/* Do path finding */
-	if (pf_find_path(fmx, fmy))
-	{
-		return 1;
-	}
+	res = pf_find_path(me, fmx, fmy);
 
-	return 0;
+	release_actors_list();
+
+	return res;
 }
 
 static void increase_zoom()

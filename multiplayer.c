@@ -286,12 +286,16 @@ void move_to (short int x, short int y, int try_pathfinder)
 
 	if (try_pathfinder && always_pathfinding)
 	{
-		actor *me = get_our_actor();
-		/* check distance */
-		if (me && (abs(me->x_tile_pos-x)+abs(me->y_tile_pos-y)) > 2)
+		const actor *me = lock_and_get_self();
+		if (me)
+		{
 			/* if path finder fails, try standard move */
-			if (pf_find_path(x,y))
+			int path_found = abs(me->x_tile_pos-x) + abs(me->y_tile_pos-y) > 2
+				&& pf_find_path(me, x, y);
+			release_actors_list();
+			if (path_found)
 				return;
+		}
 	}
 
 	str[0]= MOVE_TO;
@@ -354,7 +358,8 @@ static int my_locked_tcp_flush(TCPsocket my_socket)
 int my_tcp_send(const Uint8 *str, int len)
 {
 	Uint8 *new_str = NULL;
-	int ret_status = 0;
+	int ret_status = 0, moving = 0;
+	actor *me;
 
 	CHECK_AND_LOCK_MUTEX(tcp_out_data_mutex);
 
@@ -377,9 +382,13 @@ int my_tcp_send(const Uint8 *str, int len)
 	// Grum: Adapted. Converting every movement to a path caused too much
 	// trouble. Instead we now check the current actor animation for
 	// movement.
-	if ((str[0] == TURN_LEFT || str[0] == TURN_RIGHT) && on_the_move (get_our_actor ()))
+	me = lock_and_get_self();
+	moving = me && on_the_move(me);
+	release_actors_list();
+
+	if ((str[0] == TURN_LEFT || str[0] == TURN_RIGHT) && moving)
 		return 0;
-	if (str[0] == DROP_ITEM  && on_the_move (get_our_actor ()))
+	if (str[0] == DROP_ITEM  && moving)
 	{
 		// I thought about having a bit of code here that counts attempts, and after say 5,
 		// announces on #abuse something like "#abuse I attempted to bagspam, but was thwarted,

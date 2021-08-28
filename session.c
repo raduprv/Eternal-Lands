@@ -2,7 +2,7 @@
 #include <stddef.h>
 #include <ctype.h>
 #include "session.h"
-#include "actors.h"
+#include "actors_list.h"
 #include "asc.h"
 #include "elwindows.h"
 #include "init.h"
@@ -197,7 +197,7 @@ void set_session_exp_to_current(void)
 void update_session_distance(void)
 {
 	static int last_x = -1, last_y = -1;
-	actor *me = get_our_actor ();
+	actor *me = lock_and_get_self();
 	if (me == NULL)
 		return;
 	if ((me->x_tile_pos != last_x) || (me->y_tile_pos != last_y))
@@ -206,6 +206,7 @@ void update_session_distance(void)
 		last_y = me->y_tile_pos;
 		distance_moved++;
 	}
+	release_actors_list();
 }
 
 static void draw_session_line(window_info *win, int x, int y, const unsigned char* skill,

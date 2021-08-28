@@ -3,6 +3,7 @@
 #include <string.h>
 #include <ctype.h>
 #include "storage.h"
+#include "actors_list.h"
 #include "asc.h"
 #include "context_menu.h"
 #include "dialogues.h"
@@ -839,13 +840,17 @@ void print_items(void)
 	int i;
 	actor *me;
 
-	me = get_our_actor();
+	me = lock_and_get_self();
 	if (me)
-		if(me->fighting)
+	{
+		int fighting = me->fighting;
+		release_actors_list();
+		if (fighting)
 		{
 			LOG_TO_CONSOLE(c_red1, "You can't do this during combat!");
 			return;
 		}
+	}
 
 	/* request the description for each item */
 	number_to_print = next_item_to_print = 0;

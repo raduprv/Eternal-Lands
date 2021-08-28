@@ -5,6 +5,7 @@
 #include "map.h"
 #include "2d_objects.h"
 #include "3d_objects.h"
+#include "actors_list.h"
 #include "asc.h"
 #include "bbox_tree.h"
 #include "consolewin.h"
@@ -684,10 +685,11 @@ static void display_map_marks(void)
 	float fr = mark_z_rot/360;
 	float j,ff=0;
 
-	me = get_our_actor();
+	me = lock_and_get_self();
 	if(!me) return;
 	ax = me->x_pos;
 	ay = me->y_pos;
+	release_actors_list();
 
 	glDisable(GL_TEXTURE_2D);
 	glDisable(GL_LIGHTING);
@@ -738,10 +740,11 @@ static void display_map_markers(void)
 	char tmpb[4];
 	actor *me;
 
-	me = get_our_actor();
+	me = lock_and_get_self();
 	if(!me) return;
 	ax = me->x_pos;
 	ay = me->y_pos;
+	release_actors_list();
 
 	glGetDoublev(GL_MODELVIEW_MATRIX, model);
 	glGetDoublev(GL_PROJECTION_MATRIX, proj);

@@ -41,7 +41,7 @@ actor_types actors_defs[MAX_ACTOR_DEFS];
 
 attached_actors_types attached_actors_defs[MAX_ACTOR_DEFS];
 
-static void draw_actor_overtext(actor* actor_ptr, double x, double y, double z); /* forward declaration */
+static void draw_actor_overtext(actor* actor_ptr, const actor *me, double x, double y, double z); /* forward declaration */
 
 int no_near_actors=0;
 #ifdef NEW_SOUND
@@ -746,7 +746,7 @@ static void draw_actor_banner(actor *actor_id, const actor *me, float offset_z)
 	glEnable(GL_TEXTURE_2D);
 
 	if ((actor_id->current_displayed_text_time_left>0)&&(actor_id->current_displayed_text[0] != 0)){
-		draw_actor_overtext(actor_id, hx, y_top, hz);
+		draw_actor_overtext(actor_id, me, hx, y_top, hz);
 	}
 
 	glMatrixMode(GL_PROJECTION);
@@ -829,7 +829,8 @@ CHECK_GL_ERRORS();
 }
 
 //-- Logan Dugenoux [5/26/2004]
-static void draw_actor_overtext(actor* actor_ptr, double x, double y, double z)
+static void draw_actor_overtext(actor* actor_ptr, const actor *me,
+	double x, double y, double z)
 {
 	int lines = min2i(actor_ptr->current_displayed_text_lines, MAX_CURRENT_DISPLAYED_TEXT_LINES);
 	float font_scale = 0.14f / ALT_INGAME_FONT_X_LEN;
@@ -837,7 +838,6 @@ static void draw_actor_overtext(actor* actor_ptr, double x, double y, double z)
 	int text_width, line_height, text_height;
 	float margin;
 
-	actor *me = get_our_actor();
 	if (me && me != actor_ptr)
 	{
 		const float s_rx = sin(rx * M_PI / 180);
@@ -900,8 +900,7 @@ void draw_actor_without_banner(actor * actor_id, Uint32 use_lightning, Uint32 us
 	double x_pos,y_pos,z_pos;
 	float x_rot,y_rot,z_rot;
 	//if first person, dont draw actor
-	actor *me = get_our_actor();
-	if (me&&me->actor_id==actor_id->actor_id&&first_person) return;
+	if (actor_id->actor_id == yourself && first_person) return;
 	if (use_textures)
 	{
 		if (actor_id->is_enhanced_model)

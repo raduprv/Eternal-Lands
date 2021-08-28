@@ -4,6 +4,7 @@
 #include <SDL.h>
 #include <errno.h>
 #include "interface.h"
+#include "actors_list.h"
 #include "asc.h"
 #include "bbox_tree.h"
 #include "chat.h"
@@ -958,16 +959,16 @@ void draw_game_map (int map, int mouse_mini)
 	}
 
 	//ok, now let's draw our position...
-	if ( (me = get_our_actor ()) != NULL && inspect_map_text == 0)
+	x = y = -1;
+	me = lock_and_get_self();
+	if (me)
 	{
-		x = me->x_tile_pos;
-		y = me->y_tile_pos;
-	}
-	else
-	{
-		//We don't exist (usually happens when teleporting)
-		x = -1;
-		y = -1;
+		if (inspect_map_text == 0)
+		{
+			x = me->x_tile_pos;
+			y = me->y_tile_pos;
+		}
+		release_actors_list();
 	}
 
 	if (!map)
@@ -1139,11 +1140,15 @@ void put_mark_on_map_on_mouse_position(void)
 }
 int put_mark_on_current_position(const char *name)
 {
-	actor *me = get_our_actor ();
-
+	actor *me = lock_and_get_self();
 	if (me != NULL)
 	{
-		if (put_mark_on_position(me->x_tile_pos, me->y_tile_pos, name))
+		int map_x = me->x_tile_pos;
+		int map_y = me->y_tile_pos;
+
+		release_actors_list();
+
+		if (put_mark_on_position(map_x, map_y, name))
 			return 1;
 	}
 	return 0;

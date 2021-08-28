@@ -143,7 +143,7 @@ static void pf_add_tile_to_open_list(PF_TILE *current, PF_TILE *neighbour)
 	neighbour->state = PF_STATE_OPEN;
 }
 
-static Uint32 pf_movement_timer_callback(Uint32 interval, void* UNUSED(param))
+static Uint32 pf_movement_timer_callback_locked(const actor* me, Uint32 interval)
 {
 	SDL_Event e;
 
@@ -151,29 +151,31 @@ static Uint32 pf_movement_timer_callback(Uint32 interval, void* UNUSED(param))
 	e.user.code = EVENT_MOVEMENT_TIMER;
 	SDL_PushEvent(&e);
 
-	if (get_our_actor())
-		return get_our_actor()->step_duration * 10;
-	else
-		return interval;
+	return me ? me->step_duration * 10 : interval;
 }
 
-int pf_find_path(int x, int y)
+static Uint32 pf_movement_timer_callback(Uint32 interval, void* UNUSED(param))
 {
-	actor *me;
+	const actor *me = lock_and_get_self();
+	Uint32 res = pf_movement_timer_callback_locked(me, interval);
+	if(me)
+		release_actors_list();
+
+	return res;
+}
+
+int pf_find_path(const actor* me, int x, int y)
+{
 	int i;
 	int attempts= 0;
 
 	pf_destroy_path();
 
-	me = get_our_actor();
-	if (!me)
-		return -1;
-
-	pf_src_tile = pf_get_tile(me->x_tile_pos, me->y_tile_pos);
 	pf_dst_tile = pf_get_tile(x, y);
-
 	if (!pf_dst_tile || pf_dst_tile->z == 0)
 		return 0;
+
+	pf_src_tile = pf_get_tile(me->x_tile_pos, me->y_tile_pos);
 
 	for (i = 0; i < tile_map_size_x*tile_map_size_y*6*6; i++)
 	{
@@ -192,7 +194,7 @@ int pf_find_path(int x, int y)
 		{
 			pf_follow_path = 1;
 
-			pf_movement_timer_callback(0, NULL);
+			pf_movement_timer_callback_locked(me, 0);
 			pf_movement_timer = SDL_AddTimer(me->step_duration * 10,
 				pf_movement_timer_callback, NULL);
 			break;
@@ -286,12 +288,17 @@ void pf_move()
 	int x, y;
 	actor *me;
 
-	if (!pf_follow_path || !(me = get_our_actor())) {
+	if (!pf_follow_path)
 		return;
-	}
+
+	me = lock_and_get_self();
+	if (!me)
+		return;
 
 	x = me->x_tile_pos;
 	y = me->y_tile_pos;
+
+	release_actors_list();
 
 	if (PF_DIFF(x, pf_dst_tile->x) < 2 && PF_DIFF(y, pf_dst_tile->y) < 2) {
 		pf_destroy_path();
@@ -371,27 +378,35 @@ void pf_move_to_mouse_position()
 {
 	int x, y, clicked_x, clicked_y;
 	int tries;
+	const actor *me;
 
 	if (!pf_get_mouse_position(mouse_x, mouse_y, &clicked_x, &clicked_y)) return;
 	x = clicked_x; y = clicked_y;
 
-	if (pf_find_path(x, y))
+	me = lock_and_get_self();
+	if (!me)
 		return;
 
-	for (x= clicked_x-3, tries= 0; x <= clicked_x+3 && tries < 4 ; x++)
+	if (!pf_find_path(me, x, y))
 	{
-		for (y= clicked_y-3; y <= clicked_y+3 && tries < 4; y++)
+		for (x= clicked_x-3, tries= 0; x <= clicked_x+3 && tries < 4 ; x++)
 		{
-			if (x == clicked_x && y == clicked_y)
-				continue;
-
-			pf_dst_tile = pf_get_tile(x, y);
-			if (pf_dst_tile && pf_dst_tile->z > 0)
+			for (y= clicked_y-3; y <= clicked_y+3 && tries < 4; y++)
 			{
-				if (pf_find_path(x, y))
-					return;
-				tries++;
+				if (x == clicked_x && y == clicked_y)
+					continue;
+
+				pf_dst_tile = pf_get_tile(x, y);
+				if (pf_dst_tile && pf_dst_tile->z > 0)
+				{
+					if (pf_find_path(me, x, y))
+						goto path_found;
+					tries++;
+				}
 			}
 		}
 	}
+
+path_found:
+	release_actors_list();
 }

@@ -5,6 +5,7 @@
 #include "shadows.h"
 #include "2d_objects.h"
 #include "3d_objects.h"
+#include "actors_list.h"
 #include "bbox_tree.h"
 #include "cal.h"
 #include "cursors.h"
@@ -559,7 +560,9 @@ void setup_shadow_mapping()
 	if (first_person)
 	{
 		float head_pos[3];
-        cal_get_actor_bone_local_position(get_our_actor(), get_actor_bone_id(get_our_actor(), head_bone), NULL, head_pos);
+		actor *me = lock_and_get_self();
+        cal_get_actor_bone_local_position(me, get_actor_bone_id(me, head_bone), NULL, head_pos);
+		release_actors_list();
 		glTranslatef(head_pos[0], head_pos[1], 0.0);
 	}
 	glRotatef(rz, 0.0f, 0.0f, 1.0f);
