@@ -871,18 +871,18 @@ void set_on_idle(actor *act, actor *attached)
 		{
 			// Both for horses and actors
 			if(is_horse(act))
-				cal_actor_set_anim_locked(act, attached,
+				cal_actor_set_anim(act, attached,
 					actors_defs[act->actor_type].cal_frames[cal_actor_combat_idle_frame]);
 			else if (actor_weapon(act)->turn_horse && act->horse_rotated)
-				cal_actor_set_anim_locked(act, attached,
+				cal_actor_set_anim(act, attached,
 					actors_defs[act->actor_type].cal_frames[cal_actor_combat_idle_held_frame]);
 			else
-				cal_actor_set_anim_locked(act, attached,
+				cal_actor_set_anim(act, attached,
 					actors_defs[act->actor_type].cal_frames[cal_actor_combat_idle_held_unarmed_frame]);
 		}
 		else
 		{
-			cal_actor_set_anim_locked(act, attached,
+			cal_actor_set_anim(act, attached,
 				actors_defs[act->actor_type].cal_frames[cal_actor_combat_idle_frame]);
 		}
 	}
@@ -895,18 +895,18 @@ void set_on_idle(actor *act, actor *attached)
 				&& act->cur_anim.anim_index != actors_defs[act->actor_type].cal_frames[cal_actor_idle2_frame].anim_index)
 			{
 				//printf("%i, horse on idle from %i\n",thecount, actor->cur_anim.anim_index);
-				cal_actor_set_anim_locked(act, attached,
+				cal_actor_set_anim(act, attached,
 					*get_pose_frame(act->actor_type, act, attached, EMOTE_STANDING, 0));
 			}
 		}
 		else if (act->attached_actor >= 0)
 		{
-			cal_actor_set_anim_locked(act, attached,
+			cal_actor_set_anim(act, attached,
 				actors_defs[act->actor_type].weapon[act->cur_weapon].cal_frames[cal_weapon_range_idle_held_frame]);
 		}
 		else
 		{
-			cal_actor_set_anim_locked(act, attached,
+			cal_actor_set_anim(act, attached,
 				actors_defs[act->actor_type].weapon[act->cur_weapon].cal_frames[cal_weapon_range_idle_frame]);
 		}
 	}
@@ -921,7 +921,7 @@ void set_on_idle(actor *act, actor *attached)
 				attachment_props *att_props = get_attachment_props_if_held(act, attached);
 				struct cal_anim *ca = get_pose_frame(act->actor_type, act, attached,
 					EMOTE_STANDING, att_props != NULL);
-				cal_actor_set_anim_locked(act, attached, *ca);
+				cal_actor_set_anim(act, attached, *ca);
 				//printf("setting standing pose\n");
 			}
 			else
@@ -938,7 +938,7 @@ void set_on_idle(actor *act, actor *attached)
 		// We are sitting, see if we can activate the sit idle
 		if (!act->sit_idle || act->cur_anim.anim_index < 0)
 		{
-			cal_actor_set_anim_locked(act, attached,
+			cal_actor_set_anim(act, attached,
 				*get_pose_frame(act->actor_type, act, attached, EMOTE_SITTING, 0));
 			//printf("setting sitting pose\n");
 			act->sit_idle = 1;
@@ -1214,13 +1214,13 @@ void next_command(actor **actors_list, size_t max_actors)
 					// Obsolete
 					break;
 				case die1:
-					cal_actor_set_anim_locked(act, attached,
+					cal_actor_set_anim(act, attached,
 						actors_defs[actor_type].cal_frames[cal_actor_die1_frame]);
 					act->stop_animation=1;
 					act->dead=1;
 					break;
 				case die2:
-					cal_actor_set_anim_locked(act, attached,
+					cal_actor_set_anim(act, attached,
 						actors_defs[actor_type].cal_frames[cal_actor_die2_frame]);
 					act->stop_animation=1;
 					act->dead=1;
@@ -1234,51 +1234,51 @@ void next_command(actor **actors_list, size_t max_actors)
 					{
 						if (horse && !actor_weapon(act)->unarmed)
 						{
-							cal_actor_set_anim_locked(act, attached,
+							cal_actor_set_anim(act, attached,
 								att_props->cal_frames[cal_attached_pain_armed_frame]);
 						}
 						else
 						{
-							cal_actor_set_anim_locked(act, attached,
+							cal_actor_set_anim(act, attached,
 								att_props->cal_frames[cal_attached_pain_frame]);
 						}
 					}
 					else
 					{
-						cal_actor_set_anim_locked(act, attached,
+						cal_actor_set_anim(act, attached,
 							actors_defs[actor_type].cal_frames[painframe]);
 					}
 					act->stop_animation=1;
 					break;
 				}
 				case pick:
-					cal_actor_set_anim_locked(act, attached,
+					cal_actor_set_anim(act, attached,
 						actors_defs[actor_type].cal_frames[cal_actor_pick_frame]);
 					act->stop_animation=1;
 					break;
 				case drop:
-					cal_actor_set_anim_locked(act, attached,
+					cal_actor_set_anim(act, attached,
 						actors_defs[actor_type].cal_frames[cal_actor_drop_frame]);
 					act->stop_animation=1;
 					break;
 				case harvest:
-					cal_actor_set_anim_locked(act, attached,
+					cal_actor_set_anim(act, attached,
 						actors_defs[actor_type].cal_frames[cal_actor_harvest_frame]);
 					act->stop_animation=1;
 					LOG_TO_CONSOLE(c_green2,"Harvesting!");
 					break;
 				case cast:
-					cal_actor_set_anim_locked(act, attached,
+					cal_actor_set_anim(act, attached,
 						actors_defs[actor_type].cal_frames[cal_actor_attack_cast_frame]);
 					act->stop_animation=1;
 					break;
 				case ranged:
-					cal_actor_set_anim_locked(act, attached,
+					cal_actor_set_anim(act, attached,
 						actors_defs[actor_type].cal_frames[cal_actor_attack_ranged_frame]);
 					act->stop_animation=1;
 					break;
 				case sit_down:
-					cal_actor_set_anim_locked(act, attached,
+					cal_actor_set_anim(act, attached,
 						actors_defs[actor_type].cal_frames[cal_actor_sit_down_frame]);
 					act->stop_animation=1;
 					act->sitting=1;
@@ -1287,7 +1287,7 @@ void next_command(actor **actors_list, size_t max_actors)
 					break;
 				case stand_up:
 					//LOG_TO_CONSOLE(c_green2,"stand_up");
-					cal_actor_set_anim_locked(act, attached,
+					cal_actor_set_anim(act, attached,
 						actors_defs[actor_type].cal_frames[cal_actor_stand_up_frame]);
 					act->stop_animation=1;
 					act->sitting=0;
@@ -1310,24 +1310,24 @@ void next_command(actor **actors_list, size_t max_actors)
 						{
 							if (fight_k || act->horse_rotated)
 								rotate_actor_and_horse_locked(act, horse, mul_angle);
-							cal_actor_set_anim_locked(act, attached,
+							cal_actor_set_anim(act, attached,
 								actors_defs[actor_type].cal_frames[combat_held_frame]);
 						}
 						else
 						{
-							cal_actor_set_anim_locked(act, attached,
+							cal_actor_set_anim(act, attached,
 								actors_defs[actor_type].cal_frames[combat_held_unarmed_frame]);
 						}
 
 						// horse enter combat
 						horse->fighting=fight_k;
 						horse->stop_animation=1;
-						cal_actor_set_anim_locked(horse, attached,
+						cal_actor_set_anim(horse, attached,
 							actors_defs[horse->actor_type].cal_frames[combat_frame]);
 					}
 					else
 					{
-						cal_actor_set_anim_locked(act, attached,
+						cal_actor_set_anim(act, attached,
 							actors_defs[actor_type].cal_frames[combat_frame]);
 					}
 
@@ -1427,13 +1427,13 @@ void next_command(actor **actors_list, size_t max_actors)
 						{
 							// Actor does combat anim
 							index+=cal_weapon_attack_up_1_held_frame; //30; //select held weapon animations
-							cal_actor_set_anim_locked(act, attached,
+							cal_actor_set_anim(act, attached,
 								actors_defs[actor_type].weapon[act->cur_weapon].cal_frames[index]);
 						}
 						else
 						{
 							// Normal weapon animation
-							cal_actor_set_anim_locked(act, attached,
+							cal_actor_set_anim(act, attached,
 								actors_defs[actor_type].weapon[act->cur_weapon].cal_frames[index]);
 						}
 					}
@@ -1444,14 +1444,14 @@ void next_command(actor **actors_list, size_t max_actors)
 						{
 							// Non enhanced model with a horse
 							index+=cal_actor_attack_up_1_held_frame;
-							cal_actor_set_anim_locked(act, attached,
+							cal_actor_set_anim(act, attached,
 								actors_defs[actor_type].cal_frames[index]);
 						}
 						else
 						{
 							// Select normal actor att frames
 							index +=cal_actor_attack_up_1_frame;
-							cal_actor_set_anim_locked(act, attached,
+							cal_actor_set_anim(act, attached,
 								actors_defs[actor_type].cal_frames[index]);
 						}
 					}
@@ -1498,12 +1498,12 @@ void next_command(actor **actors_list, size_t max_actors)
 						attachment_props *att_props = get_attachment_props_if_held(act, attached);
 						if (att_props)
 						{
-							cal_actor_set_anim_locked(act, attached,
+							cal_actor_set_anim(act, attached,
 								*get_pose_frame(act->actor_type, act, attached, EMOTE_MOTION(act), 1));
 						}
 						else
 						{
-							cal_actor_set_anim_locked(act, attached,
+							cal_actor_set_anim(act, attached,
 								actors_defs[actor_type].cal_frames[turnframe]);
 						}
 					}
@@ -1531,12 +1531,12 @@ void next_command(actor **actors_list, size_t max_actors)
 							horse->in_aim_mode=1;
 							// We could start a horse_ranged_in
 							set_on_idle(horse, act);
-							cal_actor_set_anim_locked(act, attached,
+							cal_actor_set_anim(act, attached,
 								actors_defs[actor_type].weapon[act->cur_weapon].cal_frames[cal_weapon_range_in_held_frame]);
 						}
 						else
 						{
-							cal_actor_set_anim_locked(act, attached,
+							cal_actor_set_anim(act, attached,
 								actors_defs[actor_type].weapon[act->cur_weapon].cal_frames[cal_weapon_range_in_frame]);
 						}
 
@@ -1557,13 +1557,13 @@ void next_command(actor **actors_list, size_t max_actors)
 							act->actor_id, cur_time);
 						if (horse)
 						{
-							cal_actor_set_anim_locked(act, attached,
+							cal_actor_set_anim(act, attached,
 								actors_defs[actor_type].weapon[act->cur_weapon].cal_frames[cal_weapon_range_idle_held_frame]);
 							//if (!act->horse_rotated) {rotate_actor_and_horse(act, horse, -1); act->horse_rotated=1;}
 						}
 						else
 						{
-							cal_actor_set_anim_locked(act, attached,
+							cal_actor_set_anim(act, attached,
 								actors_defs[actor_type].weapon[act->cur_weapon].cal_frames[cal_weapon_range_idle_frame]);
 						}
 						act->cal_h_rot_start = act->cal_h_rot_start * (1.0 - act->cal_rotation_blend)
@@ -1641,7 +1641,7 @@ void next_command(actor **actors_list, size_t max_actors)
 						act->actor_id);
 					if (horse)
 					{
-						cal_actor_set_anim_locked(act, attached,
+						cal_actor_set_anim(act, attached,
 							actors_defs[actor_type].weapon[act->cur_weapon].cal_frames[cal_weapon_range_out_held_frame]);
 						if (act->horse_rotated)
 						{
@@ -1651,7 +1651,7 @@ void next_command(actor **actors_list, size_t max_actors)
 					}
 					else
 					{
-						cal_actor_set_anim_locked(act, attached,
+						cal_actor_set_anim(act, attached,
 							actors_defs[actor_type].weapon[act->cur_weapon].cal_frames[cal_weapon_range_out_frame]);
 					}
 					act->cal_h_rot_start = act->cal_h_rot_start * (1.0 - act->cal_rotation_blend)
@@ -1699,12 +1699,12 @@ void next_command(actor **actors_list, size_t max_actors)
 						//if(act->actor_id==yourself) printf("%i, enter reload\n",thecount);
 						if (horse)
 						{
-							cal_actor_set_anim_locked(act, attached,
+							cal_actor_set_anim(act, attached,
 								actors_defs[actor_type].weapon[act->cur_weapon].cal_frames[cal_weapon_range_fire_held_frame]);
 						}
 						else
 						{
-							cal_actor_set_anim_locked(act, attached,
+							cal_actor_set_anim(act, attached,
 								actors_defs[actor_type].weapon[act->cur_weapon].cal_frames[cal_weapon_range_fire_frame]);
 						}
 						act->in_aim_mode = 1;
@@ -1718,12 +1718,12 @@ void next_command(actor **actors_list, size_t max_actors)
 						//if (act->actor_id==yourself) printf("%i, enter fire & leave\n",thecount);
 						if (horse)
 						{
-							cal_actor_set_anim_locked(act, attached,
+							cal_actor_set_anim(act, attached,
 								actors_defs[actor_type].weapon[act->cur_weapon].cal_frames[cal_weapon_range_fire_out_held_frame]);
 						}
 						else
 						{
-							cal_actor_set_anim_locked(act, attached,
+							cal_actor_set_anim(act, attached,
 								actors_defs[actor_type].weapon[act->cur_weapon].cal_frames[cal_weapon_range_fire_out_frame]);
 						}
 						act->in_aim_mode = 2;
@@ -1852,7 +1852,7 @@ void next_command(actor **actors_list, size_t max_actors)
 						if (last_command < move_n || last_command > move_nw)
 						{
 							// Update the frame name too
-							cal_actor_set_anim_locked(act, attached, *walk_anim);
+							cal_actor_set_anim(act, attached, *walk_anim);
 							act->stop_animation=0;
 						}
 

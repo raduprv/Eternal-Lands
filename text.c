@@ -661,10 +661,16 @@ int filter_or_ignore_text (char *text_to_add, int len, int size, Uint8 channel)
 			}
 			if (match_index < nr_msgs)
 			{
+				actor *me;
 				Uint32 new_time = SDL_GetTicks();
 				clear_now_harvesting();
-				if(your_actor != NULL)
-					add_highlight(your_actor->x_tile_pos,your_actor->y_tile_pos, HIGHLIGHT_SOFT_FAIL);
+
+				me = lock_and_get_self();
+				if (me)
+				{
+					add_highlight(me->x_tile_pos, me->y_tile_pos, HIGHLIGHT_SOFT_FAIL);
+					release_actors_list();
+				}
 				/* suppress further messages within for 5 seconds of last */
 				if (done_one[match_index] && ((new_time - last_time[match_index]) < 5000))
 					return 0;

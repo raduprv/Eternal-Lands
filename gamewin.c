@@ -434,11 +434,18 @@ static int mouseover_game_handler (window_info *win, int mx, int my)
 	else if (thing_under_the_mouse==UNDER_MOUSE_3D_OBJ && objects_list[object_under_mouse])
 	{
 		int range_weapon_equipped;
-		actor *your_actor = lock_and_get_self();
-		range_weapon_equipped = (your_actor &&
-								 your_actor->cur_weapon >= BOW_LONG &&
-								 your_actor->cur_weapon <= BOW_CROSS);
-		release_actors_list();
+		actor *me = lock_and_get_self();
+		if (me)
+		{
+			range_weapon_equipped = me->cur_weapon >= BOW_LONG &&
+									me->cur_weapon <= BOW_CROSS;
+			release_actors_list();
+		}
+		else
+		{
+			range_weapon_equipped = 0;
+		}
+
 		if(action_mode==ACTION_LOOK)
 		{
 			elwin_mouse = CURSOR_EYE;
@@ -582,7 +589,7 @@ static int click_game_handler(window_info *win, int mx, int my, Uint32 flags)
 	int force_walk = (flag_ctrl && flag_right && !flag_alt);
 	int shift_on = flags & KMOD_SHIFT;
 	int range_weapon_equipped;
-	actor *your_actor;
+	actor *me;
 
 	if ((flags & ELW_MOUSE_BUTTON_WHEEL) == ELW_MID_MOUSE)
 		// Don't handle middle button clicks
@@ -613,11 +620,17 @@ static int click_game_handler(window_info *win, int mx, int my, Uint32 flags)
 	if (hud_click(win, mx, my, flags))
 		return 1;
 
-	your_actor = lock_and_get_self();
-	range_weapon_equipped = (your_actor &&
-							 your_actor->cur_weapon >= BOW_LONG &&
-							 your_actor->cur_weapon <= BOW_CROSS);
-	release_actors_list();
+	me = lock_and_get_self();
+	if (me)
+	{
+		range_weapon_equipped = me->cur_weapon >= BOW_LONG &&
+								me->cur_weapon <= BOW_CROSS;
+		release_actors_list();
+	}
+	else
+	{
+		range_weapon_equipped = 0;
+	}
 
 	if (!force_walk)
 	{
@@ -871,9 +884,14 @@ static int click_game_handler(window_info *win, int mx, int my, Uint32 flags)
 		{
 			if (object_under_mouse == -1)
 				return 1;
-			if (you_sit && sit_lock && !flag_ctrl){
-				if(your_actor != NULL)
-					add_highlight(your_actor->x_tile_pos,your_actor->y_tile_pos, HIGHLIGHT_TYPE_LOCK);
+			if (you_sit && sit_lock && !flag_ctrl)
+			{
+				actor *me = lock_and_get_self();
+				if (me)
+				{
+					add_highlight(me->x_tile_pos, me->y_tile_pos, HIGHLIGHT_TYPE_LOCK);
+					release_actors_list();
+				}
 				return 1;
 			}
 			if (thing_under_the_mouse == UNDER_MOUSE_PLAYER || thing_under_the_mouse == UNDER_MOUSE_NPC || thing_under_the_mouse == UNDER_MOUSE_ANIMAL)
@@ -1024,8 +1042,12 @@ static int click_game_handler(window_info *win, int mx, int my, Uint32 flags)
 
 			if (is_ranging_locked || is_sit_locked)
 			{
-				if(your_actor != NULL)
-					add_highlight(your_actor->x_tile_pos,your_actor->y_tile_pos, HIGHLIGHT_TYPE_LOCK);
+				actor *me = lock_and_get_self();
+				if (me)
+				{
+					add_highlight(me->x_tile_pos, me->y_tile_pos, HIGHLIGHT_TYPE_LOCK);
+					release_actors_list();
+				}
 				return 1;
 			}
 
@@ -1733,46 +1755,103 @@ int keypress_root_common (SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_m
 	}
 	else if((key_code == SDLK_z) && shift_on && ctrl_on && !alt_on)
 	{
-		ec_create_mine_detonate(your_actor->x_pos + 0.25f, your_actor->y_pos + 0.25f, 0, MINE_TYPE_SMALL_MINE, (poor_man ? 6 : 10));
+		actor *me = lock_and_get_self();
+		if (me)
+		{
+			ec_create_mine_detonate(me->x_pos + 0.25f, me->y_pos + 0.25f, 0, MINE_TYPE_SMALL_MINE,
+				(poor_man ? 6 : 10));
+			release_actors_list();
+		}
 	}
 	else if((key_code == SDLK_x) && shift_on && ctrl_on && !alt_on)
 	{
-		ec_create_mine_detonate(your_actor->x_pos + 0.25f, your_actor->y_pos + 0.25f, 0, MINE_TYPE_MEDIUM_MINE, (poor_man ? 6 : 10));
+		actor *me = lock_and_get_self();
+		if (me)
+		{
+			ec_create_mine_detonate(me->x_pos + 0.25f, me->y_pos + 0.25f, 0, MINE_TYPE_MEDIUM_MINE,
+				(poor_man ? 6 : 10));
+			release_actors_list();
+		}
 	}
 	else if((key_code == SDLK_c) && shift_on && ctrl_on && !alt_on)
 	{
-		ec_create_mine_detonate(your_actor->x_pos + 0.25f, your_actor->y_pos + 0.25f, 0, MINE_TYPE_HIGH_EXPLOSIVE_MINE, (poor_man ? 6 : 10));
+		actor *me = lock_and_get_self();
+		if (me)
+		{
+			ec_create_mine_detonate(me->x_pos + 0.25f, me->y_pos + 0.25f, 0,
+				MINE_TYPE_HIGH_EXPLOSIVE_MINE, (poor_man ? 6 : 10));
+			release_actors_list();
+		}
 	}
 	else if((key_code == SDLK_v) && shift_on && ctrl_on && !alt_on)
 	{
-		ec_create_mine_detonate(your_actor->x_pos + 0.25f, your_actor->y_pos + 0.25f, 0, MINE_TYPE_TRAP, (poor_man ? 6 : 10));
+		actor *me = lock_and_get_self();
+		if (me)
+		{
+			ec_create_mine_detonate(me->x_pos + 0.25f, me->y_pos + 0.25f, 0, MINE_TYPE_TRAP,
+				(poor_man ? 6 : 10));
+			release_actors_list();
+		}
 	}
 	else if((key_code == SDLK_b) && shift_on && ctrl_on && !alt_on)
 	{
-		ec_create_mine_detonate(your_actor->x_pos + 0.25f, your_actor->y_pos + 0.25f, 0, MINE_TYPE_CALTROP, (poor_man ? 6 : 10));
+		actor *me = lock_and_get_self();
+		if (me)
+		{
+			ec_create_mine_detonate(me->x_pos + 0.25f, me->y_pos + 0.25f, 0, MINE_TYPE_CALTROP,
+				(poor_man ? 6 : 10));
+			release_actors_list();
+		}
 	}
 	else if((key_code == SDLK_n) && shift_on && ctrl_on && !alt_on)
 	{
-		ec_create_mine_detonate(your_actor->x_pos + 0.25f, your_actor->y_pos + 0.25f, 0, MINE_TYPE_POISONED_CALTROP, (poor_man ? 6 : 10));
+		actor *me = lock_and_get_self();
+		if (me)
+		{
+			ec_create_mine_detonate(me->x_pos + 0.25f, me->y_pos + 0.25f, 0,
+				MINE_TYPE_POISONED_CALTROP, (poor_man ? 6 : 10));
+			release_actors_list();
+		}
 	}
 	else if((key_code == SDLK_m) && shift_on && ctrl_on && !alt_on)
 	{
-		ec_create_mine_detonate(your_actor->x_pos + 0.25f, your_actor->y_pos + 0.25f, 0, MINE_TYPE_MANA_BURNER, (poor_man ? 6 : 10));
+		actor *me = lock_and_get_self();
+		if (me)
+		{
+			ec_create_mine_detonate(me->x_pos + 0.25f, me->y_pos + 0.25f, 0, MINE_TYPE_MANA_BURNER,
+				(poor_man ? 6 : 10));
+			release_actors_list();
+		}
 	}
 	else if((key_code == SDLK_j) && shift_on && ctrl_on && !alt_on)
 	{
-		ec_create_mine_detonate(your_actor->x_pos + 0.25f, your_actor->y_pos + 0.25f, 0, MINE_TYPE_MANA_DRAINER, (poor_man ? 6 : 10));
+		actor *me = lock_and_get_self();
+		if (me)
+		{
+			ec_create_mine_detonate(me->x_pos + 0.25f, me->y_pos + 0.25f, 0, MINE_TYPE_MANA_DRAINER,
+				(poor_man ? 6 : 10));
+			release_actors_list();
+		}
 	}
 	else if((key_code == SDLK_k) && shift_on && ctrl_on && !alt_on)
 	{
-		ec_create_mine_detonate(your_actor->x_pos + 0.25f, your_actor->y_pos + 0.25f, 0, MINE_TYPE_UNINVIZIBILIZER, (poor_man ? 6 : 10));
+		actor *me = lock_and_get_self();
+		if (me)
+		{
+			ec_create_mine_detonate(me->x_pos + 0.25f, me->y_pos + 0.25f, 0,
+				MINE_TYPE_UNINVIZIBILIZER, (poor_man ? 6 : 10));
+			release_actors_list();
+		}
 	}
 	else if((key_code == SDLK_l) && shift_on && ctrl_on && !alt_on)
 	{
-		ec_create_mine_detonate(your_actor->x_pos + 0.25f, your_actor->y_pos + 0.25f, 0, MINE_TYPE_MAGIC_IMMUNITY_REMOVAL, (poor_man ? 6 : 10));
+		actor *me = lock_and_get_self();
+		if (me)
+		{
+			ec_create_mine_detonate(me->x_pos + 0.25f, me->y_pos + 0.25f, 0,
+				MINE_TYPE_MAGIC_IMMUNITY_REMOVAL, (poor_man ? 6 : 10));
+		}
 	}
-#endif
-#ifdef DEBUG
     // scale the current actor
 	else if((key_code == SDLK_p) && shift_on && ctrl_on && !alt_on)
 	{

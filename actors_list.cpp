@@ -39,9 +39,9 @@ do {\
 	LOCK(m); \
 	std::lock_guard<Mutex> g(m, std::adopt_lock_t())
 #else // ACTORS_LIST_MUTEX_DEBUG
-#define LOCK(m) mutex.lock()
+#define LOCK(m) m.lock()
 #define GUARD(g, m) std::lock_guard<Mutex> g(m)
-#endif
+#endif // ACTORS_LIST_MUTEX_DEBUG
 
 namespace eternal_lands
 {

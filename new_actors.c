@@ -1071,7 +1071,7 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 			actor->last_anim_update= cur_time;
 
 			if(dead){
-				cal_actor_set_anim_locked(actor, attached,
+				cal_actor_set_anim(actor, attached,
 					actors_defs[actor->actor_type].cal_frames[cal_actor_die1_frame]);
 				actor->stop_animation=1;
 				CalModel_Update(actor->calmodel,1000);

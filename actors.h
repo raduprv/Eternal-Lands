@@ -662,7 +662,6 @@ typedef struct
 #define	SELECTION_RENDER_PASS	4
 
 extern SDL_mutex *actors_lists_mutex;	/*!< Used for locking between the timer and main threads*/
-extern actor *your_actor; /*!< A pointer to your own character, if available. Shares a mutex with \see actors_list */
 extern actor_types actors_defs[MAX_ACTOR_DEFS];	/*!< The actor definitions*/
 
 extern attached_actors_types attached_actors_defs[MAX_ACTOR_DEFS]; /*!< The definitions for the attached actors */

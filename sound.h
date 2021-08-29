@@ -365,18 +365,6 @@ void play_music(int list);
 
 /*!
  * \ingroup music
- * \brief Updates the music and brings the sound system in sync.
- *
- *      Updates the music and brings the sound system in sync.
- *
- * \param dummy currently not used
- * \retval int  always returns 0.
- * \callgraph
- */
-int update_streams(void *dummy);
-
-/*!
- * \ingroup music
  * \brief Turns music off and stops playback of music.
  *
  *      Turns music off and stops playback of music.

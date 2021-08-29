@@ -66,7 +66,7 @@ int do_transition(actor *act){
 
 
 #ifdef NEW_SOUND
-void cal_play_anim_sound(actor *pActor, struct cal_anim anim, int is_emote){
+static void cal_play_anim_sound(actor *pActor, struct cal_anim anim, int is_emote){
 
 	unsigned int *cookie;
 
@@ -335,7 +335,7 @@ static void cal_actor_set_anim_delay(actor* pActor, actor *attached, struct cal_
 #endif
 }
 
-void cal_actor_set_anim_locked(actor *pActor, actor *attached, struct cal_anim anim)
+void cal_actor_set_anim(actor *pActor, actor *attached, struct cal_anim anim)
 {
 	cal_actor_set_anim_delay(pActor, attached, anim, 0.05f);
 }

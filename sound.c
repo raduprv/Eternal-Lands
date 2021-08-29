@@ -1406,11 +1406,11 @@ int check_stream(stream_data * stream, int day_time, int tx, int ty)
 	return 1;		// Stream is continuing (but may be fading down)
 }
 
-int update_streams(void * dummy)
+static int update_streams(void * dummy)
 {
     int sleep, day_time, i, tx, ty;
 	ALfloat gain = 0.0;
-	actor *your_actor;
+	actor *me;
 
    	sleep = SLEEP_TIME;
 
@@ -1425,19 +1425,19 @@ int update_streams(void * dummy)
 		
 		day_time = (game_minute >= 30 && game_minute < 60 * 3 + 30);
 
-		your_actor = lock_and_get_self();
 		// Get our position
-		if (your_actor)
+		me = lock_and_get_self();
+		if (me)
 		{
-			tx = your_actor->x_pos * 2;
-			ty = your_actor->y_pos * 2;
+			tx = me->x_pos * 2;
+			ty = me->y_pos * 2;
+			release_actors_list();
 		}
 		else
 		{
 			tx = 0;
 			ty = 0;
 		}
-		release_actors_list();
 
 		if (have_a_map && (tx > 0 || ty > 0))
 		{
@@ -2293,9 +2293,9 @@ unsigned int add_server_sound(int type, int x, int y, int gain)
 }
 
 // Wrapper function for adding walking sounds.
-unsigned int add_walking_sound(int type, int x, int y, int me, float scale)
+unsigned int add_walking_sound(int type, int x, int y, int is_me, float scale)
 {
-	return add_sound_object_gain(type, x, y, me, scale);
+	return add_sound_object_gain(type, x, y, is_me, scale);
 }
 
 /* Wrapper function for adding map based particle sounds
@@ -2354,7 +2354,8 @@ unsigned int add_death_sound(actor * act)
 	snd = actors_defs[act->actor_type].cal_frames[cal_actor_die1_frame].sound;
 	if (snd > -1)
 	{
-		return add_sound_object_gain(snd, act->x_pos, act->y_pos, act == your_actor ? 1 : 0, 1.0f);
+		int is_me = act->actor_id == yourself;
+		return add_sound_object_gain(snd, act->x_pos, act->y_pos, is_me, 1.0f);
 	}
 	return 0;
 }
@@ -2364,24 +2365,27 @@ unsigned int add_battlecry_sound(actor * act)
 	// Maybe play a battlecry sound
 	if (act && rand() % 3 == 2)			// 1 chance in 3 to play
 	{
+		int is_me = act->actor_id == yourself;
 		return add_sound_object_gain(actors_defs[act->actor_type].battlecry.sound,
 										act->x_pos * 2,
-										act->x_pos * 2,
-										act == your_actor ? 1 : 0,
+										act->y_pos * 2,
+										is_me,
 										actors_defs[act->actor_type].battlecry.scale
 									);
 	}
 	return 0;
 }
 
-unsigned int add_sound_object(int type, int x, int y, int me)
+unsigned int add_sound_object(int type, int x, int y, int is_me)
 {
-	return add_sound_object_gain(type, x, y, me, 1.0f);
+	return add_sound_object_gain(type, x, y, is_me, 1.0f);
 }
 
-unsigned int add_sound_object_gain(int type, int x, int y, int me, float initial_gain)
+unsigned int add_sound_object_gain(int type, int x, int y, int is_me, float initial_gain)
 {
-	int tx, ty, distanceSq, sound_num, cookie;
+	int my_x = 0, my_y = 0;
+	actor *me;
+	int distanceSq, sound_num, cookie;
 	sound_type *pNewType;
 	float maxDistanceSq = 0.0f;
 
@@ -2395,27 +2399,28 @@ unsigned int add_sound_object_gain(int type, int x, int y, int me, float initial
 		return 0;
 
 	// Get our position
-	if (your_actor)
+	// NOTE: unfortunately, this requires a recursive mutex, as the actors list may already be
+	// locked by the same thread. The alternative, passing me down the call chain, is
+	// impractical because of the many code paths that can reach this point.
+	me = lock_and_get_self();
+	if (me)
 	{
-		tx = your_actor->x_pos * 2;
-		ty = your_actor->y_pos * 2;
+		my_x = me->x_pos * 2;
+		my_y = me->y_pos * 2;
+		release_actors_list();
 	}
-	else
-	{
-		tx = 0;
-		ty = 0;
-	}
+
 #ifdef _EXTRA_SOUND_DEBUG
 	printf("Trying to add sound: %d (%s) at %d, %d. Position: %d, %d, Gain: %f\n", type, type > -1 ? sound_type_data[type].name : "not defined", x, y, tx, ty, initial_gain);
 #endif //_EXTRA_SOUND_DEBUG
 	if (type == -1)			// Invalid sound, ignore
 		return 0;
 
-	if (me)
+	if (is_me)
 	{
 		// Override the x & y values to use the camera (listener) position because its me
-		x = tx;
-		y = ty;
+		x = my_x;
+		y = my_y;
 	}
 
 	// Check it's a valid type, get pType as a pointer to the type data
@@ -2490,7 +2495,7 @@ unsigned int add_sound_object_gain(int type, int x, int y, int me, float initial
 		sounds_list[sound_num].loaded = 1;
 	
 		// Check if we are playing this sound now (and need to load it into a source)
-		distanceSq = (tx - x) * (tx - x) + (ty - y) * (ty - y);
+		distanceSq = (my_x - x) * (my_x - x) + (my_y - y) * (my_y - y);
 		maxDistanceSq = pNewType->distance * pNewType->distance;
 
 		if (!pNewType->positional || (distanceSq <= maxDistanceSq))
@@ -2883,7 +2888,7 @@ void update_sound(int ms)
 	ALint state;
 
 	size_t max_actors;
-	actor** actors_list;
+	actor **actors_list, *me;
 	int source;
 	int x, y, distanceSq, maxDistSq;
 	int relative;
@@ -2901,25 +2906,25 @@ void update_sound(int ms)
 	if (num_types < 1 || no_sound)
 		return;
 
-	actors_list = lock_and_get_actors_list(&max_actors);
+	actors_list = lock_and_get_list_and_self(&max_actors, &me);
 	// Check if we have our actor
-	if (your_actor)
+	if (me)
 	{
 		// Set our position and the listener variables
-		tx = your_actor->x_pos * 2;
-		ty = your_actor->y_pos * 2;
+		tx = me->x_pos * 2;
+		ty = me->y_pos * 2;
 		listenerPos[0] = tx;
 		listenerPos[1] = ty;
-		if (your_actor->z_rot > 0 && your_actor->z_rot < 180) {
+		if (me->z_rot > 0 && me->z_rot < 180) {
 			listenerOri[0] = 1;
-		} else if (your_actor->z_rot > 180 && your_actor->z_rot < 360) {
+		} else if (me->z_rot > 180 && me->z_rot < 360) {
 			listenerOri[0] = -1;
 		} else {
 			listenerOri[0] = 0;
 		}
-		if (your_actor->z_rot > 315 || your_actor->z_rot < 90) {
+		if (me->z_rot > 315 || me->z_rot < 90) {
 			listenerOri[1] = 1;
-		} else if (your_actor->z_rot > 135 && your_actor->z_rot < 225) {
+		} else if (me->z_rot > 135 && me->z_rot < 225) {
 			listenerOri[1] = -1;
 		} else {
 			listenerOri[1] = 0;

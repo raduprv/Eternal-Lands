@@ -19,10 +19,18 @@ class ActorsList
 {
 public:
 #ifdef ACTORS_LIST_MUTEX_DEBUG
+ #ifdef ACTORS_LIST_NO_RECURSIVE_MUTEX
 	typedef std::timed_mutex Mutex;
-#else
+ #else // ACTORS_LIST_NO_RECURSIVE_MUTEX
+	typedef std::recursive_timed_mutex Mutex;
+ #endif // ACTORS_LIST_NO_RECURSIVE_MUTEX
+#else // ACTORS_LIST_MUTEX_DEBUG
+ #ifdef ACTORS_LIST_NO_RECURSIVE_MUTEX
 	typedef std::mutex Mutex;
-#endif
+ #else // ACTORS_LIST_NO_RECURSIVE_MUTEX
+	typedef std::recursive_mutex Mutex;
+ #endif // ACTORS_LIST_NO_RECURSIVE_MUTEX
+#endif // ACTORS_LIST_MUTEX_DEBUG
 	typedef std::vector<actor*> Storage;
 
 	template <typename T>

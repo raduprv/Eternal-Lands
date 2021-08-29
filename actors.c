@@ -35,7 +35,6 @@
 #endif	/* FSAA */
 
 SDL_mutex *actors_lists_mutex = NULL;	//used for locking between the timer and main threads
-actor *your_actor = NULL;
 
 actor_types actors_defs[MAX_ACTOR_DEFS];
 
@@ -1617,7 +1616,7 @@ void add_actor_from_server (const char *in_data, int len)
 		if(actor->calmodel){
 			model_attach_mesh(actor, actors_defs[actor_type].shirt[0].mesh_index);
 			if(dead){
-				cal_actor_set_anim_locked(actor, attached,
+				cal_actor_set_anim(actor, attached,
 					actors_defs[actor->actor_type].cal_frames[cal_actor_die1_frame]);
 				actor->stop_animation=1;
 				CalModel_Update(actor->calmodel,1000);

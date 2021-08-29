@@ -2,6 +2,7 @@
 #include <string.h>
 #include <errno.h>
 #include "spells.h"
+#include "actors_list.h"
 #include "asc.h"
 #include "cursors.h"
 #include "context_menu.h"
@@ -825,19 +826,25 @@ static void time_out(const float x_start, const float y_start, const float grids
 
 void display_spells_we_have(void)
 {
+	actor *me;
 	Uint32 i;
 	float scale, duration;
 
-	if (your_actor != NULL)
+	me = lock_and_get_self();
+	if (me)
 	{
 		static int last_actor_type = -1;
 		if (last_actor_type < 0)
-			last_actor_type = your_actor->actor_type;
-		if (last_actor_type != your_actor->actor_type)
 		{
-			last_actor_type = your_actor->actor_type;
+			last_actor_type = me->actor_type;
+		}
+		else if (last_actor_type != me->actor_type)
+		{
+			last_actor_type = me->actor_type;
 			rerequest_durations();
 		}
+
+		release_actors_list();
 	}
 
 #ifdef OPENGL_TRACE

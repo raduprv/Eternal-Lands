@@ -46,7 +46,7 @@ struct cal_anim cal_load_anim(actor_types *act, const char *str, int duration);
 #define cal_cycle_blending_delay  0.1f	/*!< time in seconds for blending from cycle to action or cycle. */
 #define cal_action_blending_delay 0.6f	/*!< time in seconds for blending from action to action or cycle. */
 
-void cal_actor_set_anim_locked(actor *pActor, actor *attached, struct cal_anim anim);
+void cal_actor_set_anim(actor *pActor, actor *attached, struct cal_anim anim);
 
 /*!
  * \brief Gets the local position of char bone

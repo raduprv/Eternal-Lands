@@ -3,6 +3,7 @@
 
 #include "bags.h"
 #include "3d_objects.h"
+#include "actors_list.h"
 #include "asc.h"
 #include "cursors.h"
 #include "elconfig.h"
@@ -152,6 +153,7 @@ static float get_bag_tilt(float pos_x, float pos_y, int bag_id, int map_x, int m
 
 void put_bag_on_ground(int bag_x,int bag_y,int bag_id)
 {
+	actor *me;
 	float x,y,z;
 	int obj_3d_id;
 #ifdef NEW_SOUND
@@ -189,14 +191,20 @@ void put_bag_on_ground(int bag_x,int bag_y,int bag_id)
 	}
 	else
 		add_particle_sys_at_tile("./particles/bag_in.part", bag_x, bag_y, 1);
+
 #ifdef NEW_SOUND
-	if (your_actor && bag_x == your_actor->x_pos * 2 && bag_y == your_actor->y_pos * 2)
+	me = lock_and_get_self();
+	if (me)
 	{
-		snd = get_sound_index_for_particle_file_name("./particles/bag_in.part");
-		if (snd >= 0)
+		if (bag_x == me->x_pos * 2 && bag_y == me->y_pos * 2)
 		{
-			add_sound_object (snd, bag_x, bag_y, 0);
+			snd = get_sound_index_for_particle_file_name("./particles/bag_in.part");
+			if (snd >= 0)
+			{
+				add_sound_object (snd, bag_x, bag_y, 0);
+			}
 		}
+		release_actors_list();
 	}
 #endif // NEW_SOUND
 
@@ -288,6 +296,7 @@ void remove_item_from_ground(Uint8 pos)
 
 void remove_bag(int bag_id)
 {
+	actor *me;
 #ifdef NEW_SOUND
 	int snd;
 #endif // NEW_SOUND
@@ -311,14 +320,20 @@ void remove_bag(int bag_id)
 	}
 	else
 		add_particle_sys_at_tile ("./particles/bag_out.part", bag_list[bag_id].x, bag_list[bag_id].y, 1);
+
 #ifdef NEW_SOUND
-	if (your_actor && bag_list[bag_id].x == your_actor->x_pos * 2 && bag_list[bag_id].y == your_actor->y_pos * 2)
+	me = lock_and_get_self();
+	if (me)
 	{
-		snd = get_sound_index_for_particle_file_name("./particles/bag_out.part");
-		if (snd >= 0)
+		if (bag_list[bag_id].x == me->x_pos * 2 && bag_list[bag_id].y == me->y_pos * 2)
 		{
-			add_sound_object (snd, bag_list[bag_id].x, bag_list[bag_id].y, 0);
+			snd = get_sound_index_for_particle_file_name("./particles/bag_out.part");
+			if (snd >= 0)
+			{
+				add_sound_object (snd, bag_list[bag_id].x, bag_list[bag_id].y, 0);
+			}
 		}
+		release_actors_list();
 	}
 #endif // NEW_SOUND
 
