@@ -2071,7 +2071,6 @@ void init_commands(const char *filename)
 	add_command("find", &history_grep);
 	add_command("save", &command_save);
 	add_command("url", &url_command);
-	add_command("chat_to_counters", &chat_to_counters_command);
 	add_command(cmd_session_counters, &session_counters);
 	add_command("exp", &show_exp);
 #ifdef CONTEXT_MENUS_TEST
