@@ -804,10 +804,7 @@ namespace JSON_IO_Client_State
 	void Client_State::delete_var(const char *section_name, const char *var_name)
 	{
 		if (state_write.contains(section_name) && state_write[section_name].contains(var_name))
-		{
 			state_write[section_name].erase(var_name);
-			std::cout << "deleteing " << section_name << " - " << var_name << std::endl;
-		}
 	}
 
 }
