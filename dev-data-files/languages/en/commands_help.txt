@@ -111,6 +111,7 @@ show_spell ##  ## Useful for user menus, display the spell name and spell codes 
 stats ##  ## Display some basic information and stats for the game server.
 sto ##  ## Opens the storage window and display your storage slot usage.
 storage ##  ## Opens the storage window and display your storage slot usage.
+summon_attack ## [<option letter>] | [help] ## Set the attack mode for summoned creatures. If no paramater specified, the the mode will toggle between "Attack and Will" and "No Attack".  Otherwise, shows help.
 time ##  ## Display the current in-game time.
 unalias ## <number> ## Unset the specified command #number alias.
 unfilter ## <text> ## Remove <text> from your local filters.
