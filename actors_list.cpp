@@ -324,7 +324,7 @@ bool ActorsList::add_attachment(int actor_id, actor *attached)
 	GUARD(guard, _mutex);
 
 	size_t parent_idx = find_index_for_id(actor_id);
-	if (parent_idx < _list.size())
+	if (parent_idx >= _list.size())
 	{
 		LOG_ERROR("unable to add an attached actor: actor with id %d doesn't exist!", actor_id);
 		return false;
@@ -450,10 +450,13 @@ actor* ActorsList::remove_locked(size_t idx)
 	actor* res = _list[idx];
 	if (res->attached_actor >= 0 && res->attached_actor < _list.size())
 		_list[res->attached_actor]->attached_actor = -1;
-	actor* last = _list.back();
-	if (last->attached_actor >= 0 && last->attached_actor < _list.size())
-		_list[last->attached_actor]->attached_actor = int(idx);
-	_list[idx] = last;
+	if (idx < _list.size() - 1)
+	{
+		actor* last = _list.back();
+		if (last->attached_actor >= 0 && last->attached_actor < _list.size())
+			_list[last->attached_actor]->attached_actor = int(idx);
+		_list[idx] = last;
+	}
 	_list.pop_back();
 
 	if (res == _self)
