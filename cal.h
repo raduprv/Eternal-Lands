@@ -55,7 +55,7 @@ void cal_actor_set_anim(actor *pActor, actor *attached, struct cal_anim anim);
  * \param in_shift a shift according to the orientation of the bone (can be NULL)
  * \param out_pos the resulting position
  */
-void cal_get_actor_bone_local_position(actor *in_act, int in_bone_id, float *in_shift, float *out_pos);
+void cal_get_actor_bone_local_position(const actor *in_act, int in_bone_id, float *in_shift, float *out_pos);
 
 /*!
  * \brief Gets the absolute position of char bone

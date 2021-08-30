@@ -219,7 +219,7 @@ int get_skeleton(struct CalCoreModel *cal_model, const char *skeleton_name)
 	return skeletons_count-1;
 }
 
-int get_actor_bone_id(actor *act, cal_bone_name name)
+int get_actor_bone_id(const actor *act, cal_bone_name name)
 {
 	int skel_type;
 	if (!act || act->actor_type < 0) return -1;

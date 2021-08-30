@@ -721,7 +721,7 @@ int on_the_move (const actor *act);
  * \param a the actor
  * \return the Z position of the actor
  */
-static __inline__ float get_actor_z(actor *a)
+static __inline__ float get_actor_z(const actor *a)
 {
 	return get_tile_height(a->x_tile_pos, a->y_tile_pos);
 }
@@ -752,7 +752,8 @@ void get_actor_rotation_matrix(const actor *in_act, float *out_rot);
  * \param in_act_rot the rotation matrix of the actor (computed inside if NULL)
  * \param out_pos the resulting position
  */
-void transform_actor_local_position_to_absolute(actor *in_act, float *in_local_pos, float *in_act_rot, float *out_pos);
+void transform_actor_local_position_to_absolute(const actor *in_act, float *in_local_pos,
+	float *in_act_rot, float *out_pos);
 
 void draw_actor_without_banner(actor * actor_id, Uint32 use_lightning, Uint32 use_textures, Uint32 use_glow);
 

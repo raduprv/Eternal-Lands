@@ -1700,7 +1700,7 @@ void get_actor_rotation_matrix(const actor *in_act, float *out_rot)
 	MAT3_MULT(out_rot, tmp_rot2, tmp_rot1);
 }
 
-void transform_actor_local_position_to_absolute(actor *in_act, float *in_local_pos, float *in_act_rot, float *out_pos)
+void transform_actor_local_position_to_absolute(const actor *in_act, float *in_local_pos, float *in_act_rot, float *out_pos)
 {
 	float scale = get_actor_scale(in_act);
 	float rot[9];

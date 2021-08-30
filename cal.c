@@ -816,7 +816,7 @@ CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
 }
 
-void cal_get_actor_bone_local_position(actor *in_act, int in_bone_id, float *in_shift, float *out_pos)
+void cal_get_actor_bone_local_position(const actor *in_act, int in_bone_id, float *in_shift, float *out_pos)
 {
 	struct CalSkeleton *skel;
 	struct CalBone *bone;
