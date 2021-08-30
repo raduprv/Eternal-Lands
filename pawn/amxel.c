@@ -217,7 +217,8 @@ static cell AMX_NATIVE_CALL n_get_actor_from_name (AMX *amx, const cell* params)
 {
 	char name[256];
 	cell *pstr;
-	int i, size, max_size;
+	int actor_id, max_size, size;
+	actor *act;
 
 	amx_GetAddr (amx, params[1], &pstr);
 	amx_GetString (name, pstr, 0, sizeof (name));
@@ -227,31 +228,21 @@ static cell AMX_NATIVE_CALL n_get_actor_from_name (AMX *amx, const cell* params)
 	if (size > max_size)
 		size = max_size;
 
-	LOCK_ACTORS_LISTS ();
-	for (i = 0; i < max_actors; i++)
-	{
-		if (actors_list[i] 
-		    && strncasecmp (actors_list[i]->actor_name, name, size) == 0 
-		    && (size == max_size || !is_printable (actors_list[i]->actor_name[size]))
-		   )
-			break;
-	}
-	if (i >= max_actors)
-		i = -1;
-	UNLOCK_ACTORS_LISTS ();
+	act = lock_and_get_actor_from_name(name);
+	if (!act)
+		return -1;
 
-	return (cell) i;
+	actor_id = act->actor_id;
+	release_actors_list();
+
+	return (cell) actor_id;
 }
 
 static cell AMX_NATIVE_CALL n_add_local_actor_command (AMX *amx, const cell* params)
 {
-	int idx = params[1];
+	int actor_id = params[1];
 	unsigned char cmd = params[2];
-
-	if (idx < 0 || idx >= max_actors || !actors_list[idx])
-		return -1;
-
-	add_command_to_actor (actors_list[idx]->actor_id, cmd);
+	add_command_to_actor(actor_id, cmd);
 	return 0;
 }
 
