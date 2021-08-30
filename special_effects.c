@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include "special_effects.h"
+#include "actors_list.h"
 #include "asc.h"
 #include "elconfig.h"
 #include "highlight.h"
@@ -46,11 +47,6 @@ static int initialsed = 0;
 
 int sfx_enabled = 1;
 
-/* TODO not used any more
-const static float dx = (TILESIZE_X / 6);
-const static float dy = (TILESIZE_Y / 6);
-*/
-
 static void initialise(void)
 {
 	size_t i;
@@ -90,7 +86,7 @@ static special_effect *get_free_special_effect() {
 static void add_sfx(special_effect_enum effect, Uint16 playerid, int caster)
 {
 	Uint8 str[70];
-	actor *this_actor = get_actor_ptr_from_id(playerid);
+	actor *me;
 	special_effect *m = get_free_special_effect();
 	if (m == NULL) 
 	{
@@ -98,7 +94,9 @@ static void add_sfx(special_effect_enum effect, Uint16 playerid, int caster)
 		LOG_TO_CONSOLE (c_purple2, str);
 		return;
 	}
-	if (this_actor == NULL ) return;
+	me = lock_and_get_self();
+	if (!me)
+		return;
 		
 	// this switch is for differentiating static vs mobile effects
 	switch (effect)
@@ -108,15 +106,17 @@ static void add_sfx(special_effect_enum effect, Uint16 playerid, int caster)
 		case SPECIAL_EFFECT_INVASION_BEAMING:
 		case SPECIAL_EFFECT_TELEPORT_TO_RANGE:
 			m->owner = NULL;
-			m->x = this_actor->x_tile_pos;		//static effects will not store a actor by convention
-			m->y = this_actor->y_tile_pos;		// but we need to know where they were cast
+			m->x = me->x_tile_pos;		//static effects will not store a actor by convention
+			m->y = me->y_tile_pos;		// but we need to know where they were cast
 			break;						
 		default:								// all others are movable effects
-			m->owner = this_actor;				//let sfx_marker know who is target of effect
+			m->owner = me;				//let sfx_marker know who is target of effect
 			m->x = m->owner->x_tile_pos;		// NOTE: x_tile_pos is 2x x_pos (and same for y)
 			m->y = m->owner->y_tile_pos;
 			break;
 	}
+
+	release_actors_list();
 
 	m->type = effect;
 	m->last_time = cur_time;					//global cur_time
@@ -715,7 +715,10 @@ void parse_special_effect(special_effect_enum sfx, const Uint16 *data)
 			break;
 	}
 
-	caster = get_actor_ptr_from_id(var_a);
+	if (need_target)
+		caster = lock_and_get_actor_pair_from_id(var_a, var_b, &target);
+	else
+		caster = lock_and_get_actor_from_id(var_a);
 	if (caster == NULL)
 		return;
 
@@ -736,10 +739,10 @@ void parse_special_effect(special_effect_enum sfx, const Uint16 *data)
 // 	x = caster->x_pos;
 // 	y = caster->y_pos;
 
-	if (need_target) {	
-		target = get_actor_ptr_from_id(var_b);
-		if (target == NULL)
-			return;
+	if (need_target && !target)
+	{
+		release_actors_list();
+		return;
 	}
 
 	if (use_eye_candy) {
@@ -999,6 +1002,9 @@ void parse_special_effect(special_effect_enum sfx, const Uint16 *data)
 //			ec_launch_targetmagic_smite_summoned(ref, caster, (poor_man ? 6 : 10));
 //			ec_create_targetmagic_life_drain(caster, target, (poor_man ? 6 : 10));
 	} /* if (use_eye_candy) */
+
+	release_actors_list();
+
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE

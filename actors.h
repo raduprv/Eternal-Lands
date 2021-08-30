@@ -733,25 +733,24 @@ extern SDL_threadID have_actors_lock;
 
 /*!
  * \ingroup	network_text
- * \brief	Adds the text to the actor given by actor_ptr
+ * \brief	Adds the text to the actor
  *
- * 		Adds text from the actor to overhead text.
+ * 		Adds text from the actor identified by its server ID \a actor_id, to overhead text.
  *
- * \param	actor_ptr A pointer to the actor
+ * \param	actor_id The server ID of the actor
  * \param	text The text we wish to add to the current_displayed_text buffer in the actors structure.
  */
-void	add_displayed_text_to_actor( actor * actor_ptr, const char* text);
-
+void add_displayed_text_to_actor_id(int actor_id, const char* text);
 /*!
- * \ingroup	misc_utils
- * \brief	Gets a pointer to the actor given by the actor_id
+ * \ingroup	network_text
+ * \brief	Adds the text to the actor
  *
- * 		The function is used for getting a pointer to the actor with the given actor_id (the server-side actor id).
+ * 		Adds text from the actor identified by name \a name, to overhead text.
  *
- * \param	actor_id The server-side actor_id - NOT the position in the actors_list
- * \retval actor*	A pointer to the actor with the given ID. If the actor is not found it returns NULL
+ * \param	name The name of the actor
+ * \param	text The text we wish to add to the current_displayed_text buffer in the actors structure.
  */
-actor *	get_actor_ptr_from_id( int actor_id );
+void add_displayed_text_to_actor_name(const char* name, const char* text);
 
 int on_the_move (const actor *act);
 

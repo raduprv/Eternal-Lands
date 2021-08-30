@@ -103,6 +103,23 @@ std::pair<actor*, actor*> ActorsList::lock_and_get_actor_and_attached_from_id(in
 	return { act, attached };
 }
 
+std::pair<actor*, actor*> ActorsList::lock_and_get_actor_pair_from_id(int actor_id1, int actor_id2)
+{
+	LOCK(_mutex);
+	size_t idx = find_index_for_id(actor_id1);
+	if (idx >= _list.size())
+	{
+		_mutex.unlock();
+		return { nullptr, nullptr };
+	}
+	actor* act1 = _list[idx];
+
+	idx = find_index_for_id(actor_id2);
+	actor* act2 = idx < _list.size() ? _list[idx] : nullptr;
+
+	return { act1, act2 };
+}
+
 actor* ActorsList::lock_and_get_actor_from_name(const char* name)
 {
 	size_t name_len = std::strlen(name);
@@ -497,6 +514,14 @@ extern "C" actor* lock_and_get_actor_and_attached_from_id(int actor_id, actor **
 	std::tie(act, *horse) = ActorsList::get_instance()
 		.lock_and_get_actor_and_attached_from_id(actor_id);
 	return act;
+}
+
+extern "C" actor* lock_and_get_actor_pair_from_id(int actor_id1, int actor_id2, actor **act2)
+{
+	actor *act1;
+	std::tie(act1, *act2) = ActorsList::get_instance()
+		.lock_and_get_actor_pair_from_id(actor_id1, actor_id2);
+	return act1;
 }
 
 extern "C" actor* lock_and_get_actor_from_name(const char* name)

@@ -952,57 +952,89 @@ void display_ecdebugwin(void)
 
 static int ecdw_restoration_handler(void)
 {
-	ec_create_selfmagic_restoration2(get_actor_ptr_from_id(yourself),
-		(poor_man ? 6 : 10));
+	actor *me = lock_and_get_self();
+	if (me)
+	{
+		ec_create_selfmagic_restoration2(me, (poor_man ? 6 : 10));
+		release_actors_list();
+	}
 	return 1;
 }
 
 static int ecdw_shield_handler(void)
 {
-	ec_create_selfmagic_shield_generic(get_actor_ptr_from_id(yourself),
-		(poor_man ? 6 : 10), SPECIAL_EFFECT_SHIELD);
+	actor *me = lock_and_get_self();
+	if (me)
+	{
+		ec_create_selfmagic_shield_generic(me, (poor_man ? 6 : 10), SPECIAL_EFFECT_SHIELD);
+		release_actors_list();
+	}
 	return 1;
 }
 
 static int ecdw_coldshield_handler(void)
 {
-	ec_create_selfmagic_shield_generic(get_actor_ptr_from_id(yourself),
-		(poor_man ? 6 : 10), SPECIAL_EFFECT_COLDSHIELD);
+	actor *me = lock_and_get_self();
+	if (me)
+	{
+		ec_create_selfmagic_shield_generic(me, (poor_man ? 6 : 10), SPECIAL_EFFECT_COLDSHIELD);
+		release_actors_list();
+	}
 	return 1;
 }
 
 static int ecdw_heatshield_handler(void)
 {
-	ec_create_selfmagic_shield_generic(get_actor_ptr_from_id(yourself),
-		(poor_man ? 6 : 10), SPECIAL_EFFECT_HEATSHIELD);
+	actor *me = lock_and_get_self();
+	if (me)
+	{
+		ec_create_selfmagic_shield_generic(me, (poor_man ? 6 : 10), SPECIAL_EFFECT_HEATSHIELD);
+		release_actors_list();
+	}
 	return 1;
 }
 
 static int ecdw_radiationshield_handler(void)
 {
-	ec_create_selfmagic_shield_generic(get_actor_ptr_from_id(yourself),
-		(poor_man ? 6 : 10), SPECIAL_EFFECT_RADIATIONSHIELD);
+	actor *me = lock_and_get_self();
+	if (me)
+	{
+		ec_create_selfmagic_shield_generic(me, (poor_man ? 6 : 10), SPECIAL_EFFECT_RADIATIONSHIELD);
+		release_actors_list();
+	}
 	return 1;
 }
 
 static int ecdw_heal_handler(void)
 {
-	ec_create_selfmagic_heal2(get_actor_ptr_from_id(yourself), (poor_man ? 6
-		: 10));
+	actor *me = lock_and_get_self();
+	if (me)
+	{
+		ec_create_selfmagic_heal2(me, (poor_man ? 6 : 10));
+		release_actors_list();
+	}
 	return 1;
 }
 
 static int ecdw_b2g_handler(void)
 {
-	ec_create_selfmagic_bones_to_gold2(get_actor_ptr_from_id(yourself),
-		(poor_man ? 6 : 10));
+	actor *me = lock_and_get_self();
+	if (me)
+	{
+		ec_create_selfmagic_bones_to_gold2(me, (poor_man ? 6 : 10));
+		release_actors_list();
+	}
 	return 1;
 }
 
 static int ecdw_magic_immunity_handler(void)
 {
-	ec_create_selfmagic_magic_immunity2(get_actor_ptr_from_id(yourself),
-		(poor_man ? 6 : 10));
+	actor *me = lock_and_get_self();
+	if (me)
+	{
+		ec_create_selfmagic_magic_immunity2(me, (poor_man ? 6 : 10));
+		release_actors_list();
+	}
 	return 1;
 }
 
@@ -1059,58 +1091,90 @@ static int ecdw_mana_drain_handler(void)
 
 static int ecdw_alert_handler(void)
 {
-	ec_create_alert2(get_actor_ptr_from_id(yourself), (poor_man ? 6 : 10));
+	actor *me = lock_and_get_self();
+	if (me)
+	{
+		ec_create_alert2(me, (poor_man ? 6 : 10));
+		release_actors_list();
+	}
 	return 1;
 }
 
 static int ecdw_harv_rare_stone_handler(void)
 {
-	ec_create_harvesting_rare_stone2(get_actor_ptr_from_id(yourself),
-		(poor_man ? 6 : 10));
+	actor *me = lock_and_get_self();
+	if (me)
+	{
+		ec_create_harvesting_rare_stone2(me, (poor_man ? 6 : 10));
+		release_actors_list();
+	}
 	return 1;
 }
 
 static int ecdw_mine_high_exp_detonate_handler(void)
 {
-	ec_create_mine_detonate2(get_actor_ptr_from_id(yourself), 
-	MINE_TYPE_HIGH_EXPLOSIVE_MINE, (poor_man ? 6 : 10));
+	actor *me = lock_and_get_self();
+	if (me)
+	{
+		ec_create_mine_detonate2(me, MINE_TYPE_HIGH_EXPLOSIVE_MINE, (poor_man ? 6 : 10));
+		release_actors_list();
+	}
 	return 1;
 }
 
 static int ecdw_harv_goldbag_handler(void)
 {
-	ec_create_harvesting_bag_of_gold2(get_actor_ptr_from_id(yourself),
-		(poor_man ? 6 : 10));
+	actor *me = lock_and_get_self();
+	if (me)
+	{
+		ec_create_harvesting_bag_of_gold2(me, (poor_man ? 6 : 10));
+		release_actors_list();
+	}
 	return 1;
 }
 
 static int ecdw_harv_bee_handler(void)
 {
-	ec_create_harvesting_bees2(get_actor_ptr_from_id(yourself), (poor_man ? 6
-		: 10));
+	actor *me = lock_and_get_self();
+	if (me)
+	{
+		ec_create_harvesting_bees2(me, (poor_man ? 6 : 10));
+		release_actors_list();
+	}
 	return 1;
 }
 
 static int ecdw_level_up_oa_handler(void)
 {
-	ec_create_glow_level_up_default(get_actor_ptr_from_id(yourself),
-		(poor_man ? 6 : 10));
-	ec_create_glow_level_up_oa(get_actor_ptr_from_id(yourself), (poor_man ? 6
-		: 10));
+	actor *me = lock_and_get_self();
+	if (me)
+	{
+		ec_create_glow_level_up_default(me, (poor_man ? 6 : 10));
+		ec_create_glow_level_up_oa(me, (poor_man ? 6 : 10));
+		release_actors_list();
+	}
 	return 1;
 }
 
 static int ecdw_magic_protection_handler(void)
 {
-	ec_create_selfmagic_magic_protection2(get_actor_ptr_from_id(yourself),
-		(poor_man ? 6 : 10));
+	actor *me = lock_and_get_self();
+	if (me)
+	{
+		ec_create_selfmagic_magic_protection2(me, (poor_man ? 6 : 10));
+		release_actors_list();
+	}
 	return 1;
 }
 
 static int ecdw_tptpr_handler(void)
 {
-	ec_create_selfmagic_teleport_to_the_portals_room2(
-		get_actor_ptr_from_id(yourself), (poor_man ? 6 : 10));
+	actor *me = lock_and_get_self();
+	if (me)
+	{
+		ec_create_selfmagic_teleport_to_the_portals_room2(me, (poor_man ? 6 : 10));
+		release_actors_list();
+	}
 	return 1;
 }
 
@@ -1212,29 +1276,45 @@ static int ecdw_tptr_handler(void)
 
 static int ecdw_harv_radon_handler(void)
 {
-	ec_create_harvesting_radon_pouch2(get_actor_ptr_from_id(yourself),
-		(poor_man ? 6 : 10));
+	actor *me = lock_and_get_self();
+	if (me)
+	{
+		ec_create_harvesting_radon_pouch2(me, (poor_man ? 6 : 10));
+		release_actors_list();
+	}
 	return 1;
 }
 
 static int ecdw_harv_cavern_wall_handler(void)
 {
-	ec_create_harvesting_cavern_wall2(get_actor_ptr_from_id(yourself),
-		(poor_man ? 6 : 10));
+	actor *me = lock_and_get_self();
+	if (me)
+	{
+		ec_create_harvesting_cavern_wall2(me, (poor_man ? 6 : 10));
+		release_actors_list();
+	}
 	return 1;
 }
 
 static int ecdw_harv_mother_nature_handler(void)
 {
-	ec_create_harvesting_mother_nature2(get_actor_ptr_from_id(yourself),
-		(poor_man ? 6 : 10));
+	actor *me = lock_and_get_self();
+	if (me)
+	{
+		ec_create_harvesting_mother_nature2(me, (poor_man ? 6 : 10));
+		release_actors_list();
+	}
 	return 1;
 }
 
 static int ecdw_harv_queen_handler(void)
 {
-	ec_create_harvesting_queen_of_nature2(get_actor_ptr_from_id(yourself),
-		(poor_man ? 6 : 10));
+	actor *me = lock_and_get_self();
+	if (me)
+	{
+		ec_create_harvesting_queen_of_nature2(me, (poor_man ? 6 : 10));
+		release_actors_list();
+	}
 	return 1;
 }
 
@@ -1636,82 +1716,124 @@ static int ecdw_summon_tiger_handler(void)
 
 static int ecdw_level_up_att_handler(void)
 {
-	ec_create_glow_level_up_default(get_actor_ptr_from_id(yourself),
-		(poor_man ? 6 : 10));
-	ec_create_glow_level_up_att(get_actor_ptr_from_id(yourself), (poor_man ? 6
-		: 10));
+	actor *me = lock_and_get_self();
+	if (me)
+	{
+		ec_create_glow_level_up_default(me, (poor_man ? 6 : 10));
+		ec_create_glow_level_up_att(me, (poor_man ? 6 : 10));
+		release_actors_list();
+	}
 	return 1;
 }
 
 static int ecdw_level_up_def_handler(void)
 {
-	ec_create_glow_level_up_default(get_actor_ptr_from_id(yourself),
-		(poor_man ? 6 : 10));
-	ec_create_glow_level_up_def(get_actor_ptr_from_id(yourself), (poor_man ? 6
-		: 10));
+	actor *me = lock_and_get_self();
+	if (me)
+	{
+		ec_create_glow_level_up_default(me, (poor_man ? 6 : 10));
+		ec_create_glow_level_up_def(me, (poor_man ? 6 : 10));
+		release_actors_list();
+	}
 	return 1;
 }
 
 static int ecdw_mine_small_detonate_handler(void)
 {
-	ec_create_mine_detonate2(get_actor_ptr_from_id(yourself), 
-	MINE_TYPE_SMALL_MINE, (poor_man ? 6 : 10));
+	actor *me = lock_and_get_self();
+	if (me)
+	{
+		ec_create_mine_detonate2(me, MINE_TYPE_SMALL_MINE, (poor_man ? 6 : 10));
+		release_actors_list();
+	}
 	return 1;
 }
 
 static int ecdw_mine_medium_detonate_handler(void)
 {
-	ec_create_mine_detonate2(get_actor_ptr_from_id(yourself), 
-	MINE_TYPE_MEDIUM_MINE, (poor_man ? 6 : 10));
+	actor *me = lock_and_get_self();
+	if (me)
+	{
+		ec_create_mine_detonate2(me, MINE_TYPE_MEDIUM_MINE, (poor_man ? 6 : 10));
+		release_actors_list();
+	}
 	return 1;
 }
 
 static int ecdw_mine_trap_detonate_handler(void)
 {
-	ec_create_mine_detonate2(get_actor_ptr_from_id(yourself), MINE_TYPE_TRAP,
-		(poor_man ? 6 : 10));
+	actor *me = lock_and_get_self();
+	if (me)
+	{
+		ec_create_mine_detonate2(me, MINE_TYPE_TRAP, (poor_man ? 6 : 10));
+		release_actors_list();
+	}
 	return 1;
 }
 
 static int ecdw_mine_caltrop_detonate_handler(void)
 {
-	ec_create_mine_detonate2(get_actor_ptr_from_id(yourself), 
-	MINE_TYPE_CALTROP, (poor_man ? 6 : 10));
+	actor *me = lock_and_get_self();
+	if (me)
+	{
+		ec_create_mine_detonate2(me, MINE_TYPE_CALTROP, (poor_man ? 6 : 10));
+		release_actors_list();
+	}
 	return 1;
 }
 
 static int ecdw_mine_poisoned_caltrop_detonate_handler(void)
 {
-	ec_create_mine_detonate2(get_actor_ptr_from_id(yourself), 
-	MINE_TYPE_POISONED_CALTROP, (poor_man ? 6 : 10));
+	actor *me = lock_and_get_self();
+	if (me)
+	{
+		ec_create_mine_detonate2(me, MINE_TYPE_POISONED_CALTROP, (poor_man ? 6 : 10));
+		release_actors_list();
+	}
 	return 1;
 }
 
 static int ecdw_mine_mana_drainer_detonate_handler(void)
 {
-	ec_create_mine_detonate2(get_actor_ptr_from_id(yourself), 
-	MINE_TYPE_MANA_DRAINER, (poor_man ? 6 : 10));
+	actor *me = lock_and_get_self();
+	if (me)
+	{
+		ec_create_mine_detonate2(me, MINE_TYPE_MANA_DRAINER, (poor_man ? 6 : 10));
+		release_actors_list();
+	}
 	return 1;
 }
 
 static int ecdw_mine_mana_burner_detonate_handler(void)
 {
-	ec_create_mine_detonate2(get_actor_ptr_from_id(yourself), 
-	MINE_TYPE_MANA_BURNER, (poor_man ? 6 : 10));
+	actor *me = lock_and_get_self();
+	if (me)
+	{
+		ec_create_mine_detonate2(me, MINE_TYPE_MANA_BURNER, (poor_man ? 6 : 10));
+		release_actors_list();
+	}
 	return 1;
 }
 
 static int ecdw_mine_uninvisibilizer_detonate_handler(void)
 {
-	ec_create_mine_detonate2(get_actor_ptr_from_id(yourself), 
-	MINE_TYPE_UNINVIZIBILIZER, (poor_man ? 6 : 10));
+	actor *me = lock_and_get_self();
+	if (me)
+	{
+		ec_create_mine_detonate2(me, MINE_TYPE_UNINVIZIBILIZER, (poor_man ? 6 : 10));
+		release_actors_list();
+	}
 	return 1;
 }
 
 static int ecdw_mine_magic_immunity_removal_detonate_handler(void)
 {
-	ec_create_mine_detonate2(get_actor_ptr_from_id(yourself), 
-	MINE_TYPE_MAGIC_IMMUNITY_REMOVAL, (poor_man ? 6 : 10));
+	actor *me = lock_and_get_self();
+	if (me)
+	{
+		ec_create_mine_detonate2(me, MINE_TYPE_MAGIC_IMMUNITY_REMOVAL, (poor_man ? 6 : 10));
+		release_actors_list();
+	}
 	return 1;
 }
 
@@ -1744,29 +1866,45 @@ static int ecdw_remote_smite_summons_handler(void)
 
 static int ecdw_ongoing_magic_protection_handler(void)
 {
-	ec_create_ongoing_magic_protection2(get_actor_ptr_from_id(yourself), 1.0,
-		1.0, (poor_man ? 6 : 10), 1.0);
+	actor *me = lock_and_get_self();
+	if (me)
+	{
+		ec_create_ongoing_magic_protection2(me, 1.0, 1.0, (poor_man ? 6 : 10), 1.0);
+		release_actors_list();
+	}
 	return 1;
 }
 
 static int ecdw_ongoing_shield_handler(void)
 {
-	ec_create_ongoing_shield2(get_actor_ptr_from_id(yourself), 1.0, 1.0,
-		(poor_man ? 6 : 10), 1.0);
+	actor *me = lock_and_get_self();
+	if (me)
+	{
+		ec_create_ongoing_shield2(me, 1.0, 1.0, (poor_man ? 6 : 10), 1.0);
+		release_actors_list();
+	}
 	return 1;
 }
 
 static int ecdw_ongoing_magic_immunity_handler(void)
 {
-	ec_create_ongoing_magic_immunity2(get_actor_ptr_from_id(yourself), 1.0,
-		1.0, (poor_man ? 6 : 10), 1.0);
+	actor *me = lock_and_get_self();
+	if (me)
+	{
+		ec_create_ongoing_magic_immunity2(me, 1.0, 1.0, (poor_man ? 6 : 10), 1.0);
+		release_actors_list();
+	}
 	return 1;
 }
 
 static int ecdw_ongoing_poison_handler(void)
 {
-	ec_create_ongoing_poison2(get_actor_ptr_from_id(yourself), 1.0, 1.0,
-		(poor_man ? 6 : 10), 1.0);
+	actor *me = lock_and_get_self();
+	if (me)
+	{
+		ec_create_ongoing_poison2(me, 1.0, 1.0, (poor_man ? 6 : 10), 1.0);
+		release_actors_list();
+	}
 	return 1;
 }
 
@@ -1778,110 +1916,138 @@ static int ecdw_ongoing_clear_handler(void)
 
 static int ecdw_ongoing_harvesting_handler(void)
 {
-	ec_create_ongoing_harvesting2(get_actor_ptr_from_id(yourself), 1.0, 1.0,
-		(poor_man ? 6 : 10), 1.0);
+	actor *me = lock_and_get_self();
+	if (me)
+	{
+		ec_create_ongoing_harvesting2(me, 1.0, 1.0, (poor_man ? 6 : 10), 1.0);
+		release_actors_list();
+	}
 	return 1;
 }
 
 static int ecdw_level_up_har_handler(void)
 {
-	ec_create_glow_level_up_default(get_actor_ptr_from_id(yourself),
-		(poor_man ? 6 : 10));
-	ec_create_glow_level_up_har(get_actor_ptr_from_id(yourself), (poor_man ? 6
-		: 10));
+	actor *me = lock_and_get_self();
+	if (me)
+	{
+		ec_create_glow_level_up_default(me, (poor_man ? 6 : 10));
+		ec_create_glow_level_up_har(me, (poor_man ? 6 : 10));
+		release_actors_list();
+	}
 	return 1;
 }
 
 static int ecdw_level_up_alc_handler(void)
 {
-	ec_create_glow_level_up_default(get_actor_ptr_from_id(yourself),
-		(poor_man ? 6 : 10));
-	ec_create_glow_level_up_alc_left(get_actor_ptr_from_id(yourself),
-		(poor_man ? 6 : 10));
-	ec_create_glow_level_up_alc_right(get_actor_ptr_from_id(yourself),
-		(poor_man ? 6 : 10));
+	actor *me = lock_and_get_self();
+	if (me)
+	{
+		ec_create_glow_level_up_default(me, (poor_man ? 6 : 10));
+		ec_create_glow_level_up_alc_left(me, (poor_man ? 6 : 10));
+		ec_create_glow_level_up_alc_right(me, (poor_man ? 6 : 10));
+		release_actors_list();
+	}
 	return 1;
 }
 
 static int ecdw_level_up_mag_handler(void)
 {
-	ec_create_glow_level_up_default(get_actor_ptr_from_id(yourself),
-		(poor_man ? 6 : 10));
-	ec_create_glow_level_up_mag(get_actor_ptr_from_id(yourself), (poor_man ? 6
-		: 10));
+	actor *me = lock_and_get_self();
+	if (me)
+	{
+		ec_create_glow_level_up_default(me, (poor_man ? 6 : 10));
+		ec_create_glow_level_up_mag(me, (poor_man ? 6 : 10));
+		release_actors_list();
+	}
 	return 1;
 }
 
 static int ecdw_level_up_pot_handler(void)
 {
-	ec_create_glow_level_up_default(get_actor_ptr_from_id(yourself),
-		(poor_man ? 6 : 10));
-	ec_create_glow_level_up_pot_left(get_actor_ptr_from_id(yourself),
-		(poor_man ? 6 : 10));
-	ec_create_glow_level_up_pot_right(get_actor_ptr_from_id(yourself),
-		(poor_man ? 6 : 10));
+	actor *me = lock_and_get_self();
+	if (me)
+	{
+		ec_create_glow_level_up_default(me, (poor_man ? 6 : 10));
+		ec_create_glow_level_up_pot_left(me, (poor_man ? 6 : 10));
+		ec_create_glow_level_up_pot_right(me, (poor_man ? 6 : 10));
+		release_actors_list();
+	}
 	return 1;
 }
 
 static int ecdw_level_up_sum_handler(void)
 {
-	ec_create_glow_level_up_default(get_actor_ptr_from_id(yourself),
-		(poor_man ? 6 : 10));
-	ec_create_glow_level_up_sum(get_actor_ptr_from_id(yourself), (poor_man ? 6
-		: 10));
+	actor *me = lock_and_get_self();
+	if (me)
+	{
+		ec_create_glow_level_up_default(me, (poor_man ? 6 : 10));
+		ec_create_glow_level_up_sum(me, (poor_man ? 6 : 10));
+		release_actors_list();
+	}
 	return 1;
 }
 
 static int ecdw_level_up_man_handler(void)
 {
-	ec_create_glow_level_up_default(get_actor_ptr_from_id(yourself),
-		(poor_man ? 6 : 10));
-	ec_create_glow_level_up_man_left(get_actor_ptr_from_id(yourself),
-		(poor_man ? 6 : 10));
-	ec_create_glow_level_up_man_right(get_actor_ptr_from_id(yourself),
-		(poor_man ? 6 : 10));
+	actor *me = lock_and_get_self();
+	if (me)
+	{
+		ec_create_glow_level_up_default(me, (poor_man ? 6 : 10));
+		ec_create_glow_level_up_man_left(me, (poor_man ? 6 : 10));
+		ec_create_glow_level_up_man_right(me, (poor_man ? 6 : 10));
+		release_actors_list();
+	}
 	return 1;
 }
 
 static int ecdw_level_up_cra_handler(void)
 {
-	ec_create_glow_level_up_default(get_actor_ptr_from_id(yourself),
-		(poor_man ? 6 : 10));
-	ec_create_glow_level_up_cra_left(get_actor_ptr_from_id(yourself),
-		(poor_man ? 6 : 10));
-	ec_create_glow_level_up_cra_right(get_actor_ptr_from_id(yourself),
-		(poor_man ? 6 : 10));
+	actor *me = lock_and_get_self();
+	if (me)
+	{
+		ec_create_glow_level_up_default(me, (poor_man ? 6 : 10));
+		ec_create_glow_level_up_cra_left(me, (poor_man ? 6 : 10));
+		ec_create_glow_level_up_cra_right(me, (poor_man ? 6 : 10));
+		release_actors_list();
+	}
 	return 1;
 }
 
 static int ecdw_level_up_eng_handler(void)
 {
-	ec_create_glow_level_up_default(get_actor_ptr_from_id(yourself),
-		(poor_man ? 6 : 10));
-	ec_create_glow_level_up_eng_left(get_actor_ptr_from_id(yourself),
-		(poor_man ? 6 : 10));
-	ec_create_glow_level_up_eng_right(get_actor_ptr_from_id(yourself),
-		(poor_man ? 6 : 10));
+	actor *me = lock_and_get_self();
+	if (me)
+	{
+		ec_create_glow_level_up_default(me, (poor_man ? 6 : 10));
+		ec_create_glow_level_up_eng_left(me, (poor_man ? 6 : 10));
+		ec_create_glow_level_up_eng_right(me, (poor_man ? 6 : 10));
+		release_actors_list();
+	}
 	return 1;
 }
 
 static int ecdw_level_up_tai_handler(void)
 {
-	ec_create_glow_level_up_default(get_actor_ptr_from_id(yourself),
-		(poor_man ? 6 : 10));
-	ec_create_glow_level_up_tai_left(get_actor_ptr_from_id(yourself),
-		(poor_man ? 6 : 10));
-	ec_create_glow_level_up_tai_right(get_actor_ptr_from_id(yourself),
-		(poor_man ? 6 : 10));
+	actor *me = lock_and_get_self();
+	if (me)
+	{
+		ec_create_glow_level_up_default(me, (poor_man ? 6 : 10));
+		ec_create_glow_level_up_tai_left(me, (poor_man ? 6 : 10));
+		ec_create_glow_level_up_tai_right(me, (poor_man ? 6 : 10));
+		release_actors_list();
+	}
 	return 1;
 }
 
 static int ecdw_level_up_ran_handler(void)
 {
-	ec_create_glow_level_up_default(get_actor_ptr_from_id(yourself),
-		(poor_man ? 6 : 10));
-	ec_create_glow_level_up_ran(get_actor_ptr_from_id(yourself), (poor_man ? 6
-		: 10));
+	actor *me = lock_and_get_self();
+	if (me)
+	{
+		ec_create_glow_level_up_default(me, (poor_man ? 6 : 10));
+		ec_create_glow_level_up_ran(me, (poor_man ? 6 : 10));
+		release_actors_list();
+	}
 	return 1;
 }
 
@@ -1976,28 +2142,40 @@ static int ecdw_explosive_arrow_handler(int type)
 
 static int ecdw_harv_tool_break_handler(void)
 {
-	ec_create_harvesting_tool_break(get_actor_ptr_from_id(yourself),
-		(poor_man ? 6 : 10));
+	actor *me = lock_and_get_self();
+	if (me)
+	{
+		ec_create_harvesting_tool_break(me, (poor_man ? 6 : 10));
+		release_actors_list();
+	}
 	return 1;
 }
 
 static int ecdw_wind_leaves_handler(void)
 {
 	ec_bounds *bounds = ec_create_bounds_list();
-	actor *act = get_actor_ptr_from_id(yourself);
-	ec_add_smooth_polygon_bound(bounds, 2.0, 2.5);
-
-	ec_create_wind_leaves(act->x_pos, act->y_pos, act->z_pos, 1.0, 1.0, 1.0, 0.1, bounds, act->x_pos + 3.0, act->y_pos + 5.0, act->z_pos);
+	actor *me = lock_and_get_self();
+	if (me)
+	{
+		ec_add_smooth_polygon_bound(bounds, 2.0, 2.5);
+		ec_create_wind_leaves(me->x_pos, me->y_pos, me->z_pos, 1.0, 1.0, 1.0, 0.1, bounds,
+			me->x_pos + 3.0, me->y_pos + 5.0, me->z_pos);
+		release_actors_list();
+	}
 	return 1;
 }
 
 static int ecdw_clouds_handler(void)
 {
 	ec_bounds *bounds = ec_create_bounds_list();
-	actor *act = get_actor_ptr_from_id(yourself);
-	ec_add_smooth_polygon_bound(bounds, 2.0, 2.5);
-
-	ec_create_cloud(act->x_pos, act->y_pos, act->z_pos, 1.0, 1.0, 0.1, bounds, (poor_man ? 6 : 10));
+	actor *me = lock_and_get_self();
+	if (me)
+	{
+		ec_add_smooth_polygon_bound(bounds, 2.0, 2.5);
+		ec_create_cloud(me->x_pos, me->y_pos, me->z_pos, 1.0, 1.0, 0.1, bounds,
+			(poor_man ? 6 : 10));
+		release_actors_list();
+	}
 	return 1;
 }
 

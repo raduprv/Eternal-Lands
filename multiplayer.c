@@ -4,10 +4,10 @@
 #include "multiplayer.h"
 #include "2d_objects.h"
 #include "3d_objects.h"
-#include "asc.h"
 #include "actors_list.h"
 #include "actor_scripts.h"
 #include "achievements.h"
+#include "asc.h"
 #include "books.h"
 #include "buddy.h"
 #include "buffs.h"
@@ -1858,8 +1858,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 				  break;
 				}
 				safe_strncpy2(buf, (char*)in_data + 5, sizeof(buf), data_length - 5);
-				add_displayed_text_to_actor(
-					get_actor_ptr_from_id( SDL_SwapLE16(*((Uint16 *)(in_data+3))) ), buf);
+				add_displayed_text_to_actor_id(SDL_SwapLE16(*((Uint16 *)(in_data+3))), buf);
 			}
 			break;
 
@@ -2100,9 +2099,10 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 #ifdef BUFF_DEBUG
 			{
 				int actor_id = SDL_SwapLE16(*((short *)(in_data+3)));
-				actor *act = get_actor_ptr_from_id(actor_id);
+				actor *act = lock_and_get_actor_from_id(actor_id);
 				if(act){
 					printf("SEND_BUFFS received for actor %s\n", act->actor_name);
+					release_actors_list();
 				}
 				else {
 					printf("SEND_BUFFS received for actor ID %i\n", actor_id);

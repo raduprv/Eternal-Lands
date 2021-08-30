@@ -1,5 +1,6 @@
 #include "3d_objects.h"
 #include "actor_scripts.h"
+#include "actors_list.h"
 #include "asc.h"
 #include "cal.h"
 #include "cal3d_wrapper.h"
@@ -650,19 +651,16 @@ void missiles_clean_range_actions_queue(actor *act)
 void missiles_aim_at_b(int actor1_id, int actor2_id)
 {
 	actor *act1, *act2;
-
-	LOCK_ACTORS_LISTS();
-	act1 = get_actor_ptr_from_id(actor1_id);
-	act2 = get_actor_ptr_from_id(actor2_id);
-
-	if (!act1) {
+	act1 = lock_and_get_actor_pair_from_id(actor1_id, actor2_id, &act2);
+	if (!act1)
+	{
 		LOG_ERROR("the actor %d does not exists!", actor1_id);
-		UNLOCK_ACTORS_LISTS();
 		return;
 	}
-	if (!act2) {
+	if (!act2)
+	{
 		LOG_ERROR("the actor %d does not exists!", actor2_id);
-		UNLOCK_ACTORS_LISTS();
+		release_actors_list();
 		return;
 	}
 
@@ -684,27 +682,24 @@ void missiles_aim_at_b(int actor1_id, int actor2_id)
 		action->reload = 0;
 		action->state = 0;
 		++act1->range_actions_count;
-		UNLOCK_ACTORS_LISTS();
+
+		release_actors_list();
 
 		add_command_to_actor(actor1_id, enter_aim_mode);
 	}
-	else	{
+	else
+	{
 		LOG_ERROR("%s (%d): unable to add a new aim action, the queue is full!",
 				  act1->actor_name, actor1_id);
-		UNLOCK_ACTORS_LISTS();
+		release_actors_list();
 	}
 }
 
 void missiles_aim_at_xyz(int actor_id, float *target)
 {
-	actor *act;
-
-	LOCK_ACTORS_LISTS();
-	act = get_actor_ptr_from_id(actor_id);
-
+	actor *act = lock_and_get_actor_from_id(actor_id);
 	if (!act) {
 		LOG_ERROR("the actor %d does not exists!", actor_id);
-		UNLOCK_ACTORS_LISTS();
 		return;
 	}
 
@@ -726,38 +721,39 @@ void missiles_aim_at_xyz(int actor_id, float *target)
 		action->reload = 0;
 		action->state = 0;
 		++act->range_actions_count;
-		UNLOCK_ACTORS_LISTS();
+
+		release_actors_list();
 
 		add_command_to_actor(actor_id, enter_aim_mode);
 	}
-	else {
+	else
+	{
 		LOG_ERROR("%s (%d): unable to add a new aim action, the queue is full!",
 				  act->actor_name, actor_id);
-		UNLOCK_ACTORS_LISTS();
+		release_actors_list();
 	}
 }
 
 void missiles_fire_a_to_b(int actor1_id, int actor2_id)
 {
 	actor *act1, *act2;
-
-	LOCK_ACTORS_LISTS();
-	act1 = get_actor_ptr_from_id(actor1_id);
-	act2 = get_actor_ptr_from_id(actor2_id);
-
-	if (!act1) {
+	act1 = lock_and_get_actor_pair_from_id(actor1_id, actor2_id, &act2);
+	if (!act1)
+	{
 		LOG_ERROR("missiles_fire_a_to_b: the actor %d does not exists!", actor1_id);
-		UNLOCK_ACTORS_LISTS();
 		return;
 	}
-	if (!act2) {
+	if (!act2)
+	{
 		LOG_ERROR("missiles_fire_a_to_b: the actor %d does not exists!", actor2_id);
-		UNLOCK_ACTORS_LISTS();
+		release_actors_list();
 		return;
 	}
 
 	if (act1->range_actions_count <= MAX_RANGE_ACTION_QUEUE &&
-		act1->range_actions_count > 0) {
+		act1->range_actions_count > 0)
+	{
+		int act2_is_target = act2->actor_type == 97;
 		range_action *action = &act1->range_actions[act1->range_actions_count-1];
 
 		missiles_log_message("%s (%d): will fire to actor %d", act1->actor_name, actor1_id, actor2_id);
@@ -770,31 +766,27 @@ void missiles_fire_a_to_b(int actor1_id, int actor2_id)
 
 		act2->last_range_attacker_id = actor1_id;
 
-		UNLOCK_ACTORS_LISTS();
+		release_actors_list();
 
 		add_command_to_actor(actor1_id, aim_mode_fire);
-		if (act2->actor_type == 97)
+		if (act2_is_target)
 		{
 			add_command_to_actor(actor2_id, pain1);
 		}
 	}
-	else {
+	else
+	{
 		LOG_ERROR("%s (%d): unable to add a fire action, the queue is empty!",
 				  act1->actor_name, actor1_id);
-		UNLOCK_ACTORS_LISTS();
+		release_actors_list();
 	}
 }
 
 void missiles_fire_a_to_xyz(int actor_id, float *target)
 {
-	actor *act;
-
-	LOCK_ACTORS_LISTS();
-	act = get_actor_ptr_from_id(actor_id);
-
+	actor *act = lock_and_get_actor_from_id(actor_id);
 	if (!act) {
 		LOG_ERROR("missiles_fire_a_to_xyz: the actor %d does not exists!", actor_id);
-		UNLOCK_ACTORS_LISTS();
 		return;
 	}
 
@@ -809,37 +801,37 @@ void missiles_fire_a_to_xyz(int actor_id, float *target)
 		action->fire_actor = -1;
 		action->state = 2;
 
-		UNLOCK_ACTORS_LISTS();
+		release_actors_list();
 
 		add_command_to_actor(actor_id, aim_mode_fire);
 	}
-	else {
+	else
+	{
 		LOG_ERROR("%s (%d): unable to add a fire action, the queue is empty!",
 				  act->actor_name, actor_id);
-		UNLOCK_ACTORS_LISTS();
+		release_actors_list();
 	}
 }
 
 void missiles_fire_xyz_to_b(float *origin, int actor_id)
 {
-	actor * act;
+	actor *act;
 	float target[3];
 
 	missiles_log_message("missile was fired from %f,%f,%f to actor %d", origin[0], origin[1], origin[2], actor_id);
 
-	LOCK_ACTORS_LISTS();
-	act = get_actor_ptr_from_id(actor_id);
-
-	if (!act) {
+	act = lock_and_get_actor_from_id(actor_id);
+	if (!act)
+	{
 		LOG_ERROR("the actor %d does not exists!", actor_id);
-		UNLOCK_ACTORS_LISTS();
 		return;
 	}
 
 	cal_get_actor_bone_absolute_position(act, get_actor_bone_id(act, body_top_bone), NULL, target);
 	missiles_test_target_validity(target, "missiles_fire_xyz_to_b");
 	act->last_range_attacker_id = -1;
-	UNLOCK_ACTORS_LISTS();
+
+	release_actors_list();
 
 	// here, there's no way to know if the target is missed or not as we don't know the actor who fired!
 	missiles_add(0, origin, target, 0.0, 0);

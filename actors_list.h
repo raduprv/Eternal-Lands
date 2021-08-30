@@ -81,6 +81,7 @@ public:
 	actor* lock_and_get_actor_from_id(int actor_id);
 	std::pair<actor*, actor*> lock_and_get_self_and_actor_from_id(int actor_id);
 	std::pair<actor*, actor*> lock_and_get_actor_and_attached_from_id(int actor_id);
+	std::pair<actor*, actor*> lock_and_get_actor_pair_from_id(int actor_id1, int actor_id2);
 	actor* lock_and_get_actor_from_name(const char* name);
 	actor* lock_and_get_actor_at_index(int idx);
 	std::pair<actor*, actor*> lock_and_get_self_and_actor_at_index(int idx);
@@ -133,6 +134,7 @@ actor* lock_and_get_self();
 actor* lock_and_get_actor_from_id(int id);
 actor* lock_and_get_self_and_actor_from_id(int actor_id, actor **act);
 actor* lock_and_get_actor_and_attached_from_id(int actor_id, actor **horse);
+actor* lock_and_get_actor_pair_from_id(int actor_id1, int actor_id2, actor **act2);
 actor* lock_and_get_actor_from_name(const char* name);
 actor* lock_and_get_actor_at_index(int idx);
 actor* lock_and_get_self_and_actor_at_index(int idx, actor **act);

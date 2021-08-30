@@ -1112,6 +1112,15 @@ static inline void rotate_actor_and_horse_range(actor *act, actor *horse, int mu
 	rotate_actor_and_horse_by(act, horse, mul, HORSE_RANGE_ROTATION);
 }
 
+static inline actor* find_actor_ptr(actor **actors_list, size_t max_actors, int actor_id)
+{
+	for (size_t i = 0; i < max_actors; ++i)
+	{
+		if (actors_list[i]->actor_id == actor_id)
+			return actors_list[i];
+	}
+	return NULL;
+}
 
 //in case the actor is not busy, and has commands in it's que, execute them
 void next_command(actor **actors_list, size_t max_actors)
@@ -1575,8 +1584,8 @@ void next_command(actor **actors_list, size_t max_actors)
 						 * we recompute it's position */
 						if (action->aim_actor >= 0)
 						{
-							// FIXME: don't use get_actor_ptr_from_id
-							actor *aim_actor = get_actor_ptr_from_id(action->aim_actor);
+							actor *aim_actor = find_actor_ptr(actors_list, max_actors,
+								action->aim_actor);
 							if (aim_actor) {
 								cal_get_actor_bone_absolute_position(aim_actor, get_actor_bone_id(aim_actor, body_top_bone), NULL, action->aim_position);
 							}
@@ -1755,8 +1764,8 @@ void next_command(actor **actors_list, size_t max_actors)
 					}
 					else if (action->fire_actor >= 0)
 					{
-						// XXX FIXME: don't use get_actor_ptr_from_id
-						actor *fire_actor = get_actor_ptr_from_id(action->fire_actor);
+						actor *fire_actor = find_actor_ptr(actors_list, max_actors,
+							action->fire_actor);
 						if (fire_actor)
 						{
 							cal_get_actor_bone_absolute_position(fire_actor, get_actor_bone_id(fire_actor, body_top_bone), NULL, action->fire_position);

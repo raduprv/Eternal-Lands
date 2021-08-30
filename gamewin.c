@@ -852,11 +852,12 @@ static int click_game_handler(window_info *win, int mx, int my, Uint32 flags)
 					(thing_under_the_mouse == UNDER_MOUSE_ANIMAL ||
 					 thing_under_the_mouse == UNDER_MOUSE_PLAYER))
 				{
-					actor *this_actor = get_actor_ptr_from_id(object_under_mouse);
+					actor *this_actor = lock_and_get_actor_from_id(object_under_mouse);
 					if(this_actor != NULL)
 					{
 						add_highlight(this_actor->x_tile_pos,this_actor->y_tile_pos, HIGHLIGHT_TYPE_SPELL_TARGET);
-						touch_player((int)object_under_mouse);
+						release_actors_list();
+						touch_player(object_under_mouse);
 					}
 				}
 			}
@@ -896,10 +897,15 @@ static int click_game_handler(window_info *win, int mx, int my, Uint32 flags)
 			}
 			if (thing_under_the_mouse == UNDER_MOUSE_PLAYER || thing_under_the_mouse == UNDER_MOUSE_NPC || thing_under_the_mouse == UNDER_MOUSE_ANIMAL)
 			{
-				if (object_under_mouse>=0){
-					actor *this_actor = get_actor_ptr_from_id(object_under_mouse);
+				if (object_under_mouse>=0)
+				{
+					actor *this_actor = lock_and_get_actor_from_id(object_under_mouse);
 					if(this_actor != NULL)
-						add_highlight(this_actor->x_tile_pos,this_actor->y_tile_pos, HIGHLIGHT_TYPE_ATTACK_TARGET);
+					{
+						add_highlight(this_actor->x_tile_pos,this_actor->y_tile_pos,
+							HIGHLIGHT_TYPE_ATTACK_TARGET);
+						release_actors_list();
+					}
 				}
 				attack_someone((int)object_under_mouse);
 				return 1;
@@ -1071,10 +1077,10 @@ static int click_game_handler(window_info *win, int mx, int my, Uint32 flags)
 				}
 				else {
 					char in_aim_mode = 0;
-					actor *cur_actor = lock_and_get_actor_from_id(yourself);
-					if (cur_actor)
+					actor *me = lock_and_get_self();
+					if (me)
 					{
-						in_aim_mode = cur_actor->in_aim_mode;
+						in_aim_mode = me->in_aim_mode;
 						release_actors_list();
 					}
 					if (in_aim_mode == 1)
@@ -2275,11 +2281,20 @@ static int keypress_game_handler (window_info *win, int mx, int my, SDL_Keycode 
 
 	else if (key_code == SDLK_F9)
 	{
-		actor *me = get_actor_ptr_from_id (yourself);
-		if (key_mod & KMOD_SHIFT)
-			remove_fire_at_tile(me->x_pos * 2, me->y_pos * 2);
-		else
-			add_fire_at_tile(1, me->x_pos * 2, me->y_pos * 2, get_tile_height(me->x_tile_pos, me->y_tile_pos));
+		actor *me = lock_and_get_self();
+		if (me)
+		{
+			if (key_mod & KMOD_SHIFT)
+			{
+				remove_fire_at_tile(me->x_pos * 2, me->y_pos * 2);
+			}
+			else
+			{
+				add_fire_at_tile(1, me->x_pos * 2, me->y_pos * 2,
+					get_tile_height(me->x_tile_pos, me->y_tile_pos));
+			}
+			release_actors_list();
+		}
 	}
 #ifdef DEBUG
 	else if (key_code == SDLK_F10)

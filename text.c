@@ -850,8 +850,6 @@ void check_chat_text_to_overtext (const Uint8 *text_to_add, int len, Uint8 chann
 
 		if (i < len)
 		{
-			actor* act;
-
 			playerName[j] = '\0';
 			while ( j > 0 && !ALLOWED_CHAR_IN_NAME (playerName[j]) )
 				playerName[j--] = '\0';
@@ -865,12 +863,7 @@ void check_chat_text_to_overtext (const Uint8 *text_to_add, int len, Uint8 chann
 			}
 			textbuffer[j] = '\0';
 
-			act = lock_and_get_actor_from_name(playerName);
-			if (act)
-			{
-				add_displayed_text_to_actor (act, textbuffer);
-				release_actors_list();
-			}
+			add_displayed_text_to_actor_name(playerName, textbuffer);
 		}
 	}
 }

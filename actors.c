@@ -1658,7 +1658,7 @@ void add_actor_from_server (const char *in_data, int len)
 //--- LoganDugenoux [5/25/2004]
 #define MS_PER_CHAR	200
 #define MINI_BUBBLE_MS	500
-void add_displayed_text_to_actor(actor *actor_ptr, const char* text)
+static void add_displayed_text_to_actor(actor *actor_ptr, const char* text)
 {
 	char *dest = actor_ptr->current_displayed_text;
 	const size_t size = sizeof(actor_ptr->current_displayed_text);
@@ -1668,14 +1668,24 @@ void add_displayed_text_to_actor(actor *actor_ptr, const char* text)
 	actor_ptr->current_displayed_text_time_left = MINI_BUBBLE_MS + strlen(text) * MS_PER_CHAR;
 }
 
-//--- LoganDugenoux [5/25/2004]
-actor *	get_actor_ptr_from_id( int actor_id )
+void add_displayed_text_to_actor_id(int actor_id, const char* text)
 {
-	// FIXME: this function needs to go, as it returns a pointer without locking
 	actor *act = lock_and_get_actor_from_id(actor_id);
 	if (act)
+	{
+		add_displayed_text_to_actor(act, text);
 		release_actors_list();
-	return act;
+	}
+}
+
+void add_displayed_text_to_actor_name(const char* name, const char* text)
+{
+	actor *act = lock_and_get_actor_from_name(name);
+	if (act)
+	{
+		add_displayed_text_to_actor(act, text);
+		release_actors_list();
+	}
 }
 
 int on_the_move (const actor *act){
