@@ -46,6 +46,18 @@ do {\
 namespace eternal_lands
 {
 
+ActorsList::LockedList ActorsList::get()
+{
+	LOCK(_mutex);
+	return LockedList(*this, _mutex);
+}
+
+ActorsList::LockedActorPtr ActorsList::get_self()
+{
+	LOCK(_mutex);
+	return LockedActorPtr(_self, _mutex);
+}
+
 actor* ActorsList::lock_and_get_self()
 {
 	LOCK(_mutex);
@@ -58,13 +70,10 @@ actor* ActorsList::lock_and_get_self()
 actor* ActorsList::lock_and_get_actor_from_id(int actor_id)
 {
 	LOCK(_mutex);
-	size_t idx = find_index_for_id(actor_id);
-	if (idx >= _list.size())
-	{
+	actor *act = get_actor_from_id_locked(actor_id);
+	if (!act)
 		_mutex.unlock();
-		return nullptr;
-	}
-	return _list[idx];
+	return act;
 }
 
 std::pair<actor*, actor*> ActorsList::lock_and_get_self_and_actor_from_id(int actor_id)
@@ -76,27 +85,26 @@ std::pair<actor*, actor*> ActorsList::lock_and_get_self_and_actor_from_id(int ac
 		return { nullptr, nullptr };
 	}
 
-	size_t idx = find_index_for_id(actor_id);
-	if (idx >= _list.size())
+	actor *act = get_actor_from_id_locked(actor_id);
+	if (!act)
 	{
 		_mutex.unlock();
 		return { nullptr, nullptr };
 	}
 
-	return { _self, _list[idx] };
+	return { _self, act };
 }
 
 std::pair<actor*, actor*> ActorsList::lock_and_get_actor_and_attached_from_id(int actor_id)
 {
 	LOCK(_mutex);
-	size_t idx = find_index_for_id(actor_id);
-	if (idx >= _list.size())
+	actor *act = get_actor_from_id_locked(actor_id);
+	if (!act)
 	{
 		_mutex.unlock();
 		return { nullptr, nullptr };
 	}
 
-	actor *act = _list[idx];
 	int att_idx = act->attached_actor;
 	actor *attached = (att_idx >= 0 && att_idx < _list.size()) ? _list[att_idx] : nullptr;
 
@@ -106,17 +114,14 @@ std::pair<actor*, actor*> ActorsList::lock_and_get_actor_and_attached_from_id(in
 std::pair<actor*, actor*> ActorsList::lock_and_get_actor_pair_from_id(int actor_id1, int actor_id2)
 {
 	LOCK(_mutex);
-	size_t idx = find_index_for_id(actor_id1);
-	if (idx >= _list.size())
+	actor *act1 = get_actor_from_id_locked(actor_id1);
+	if (!act1)
 	{
 		_mutex.unlock();
 		return { nullptr, nullptr };
 	}
-	actor* act1 = _list[idx];
 
-	idx = find_index_for_id(actor_id2);
-	actor* act2 = idx < _list.size() ? _list[idx] : nullptr;
-
+	actor *act2 = get_actor_from_id_locked(actor_id2);
 	return { act1, act2 };
 }
 
@@ -145,13 +150,10 @@ actor* ActorsList::lock_and_get_actor_at_index(int idx)
 		return nullptr;
 
 	LOCK(_mutex);
-	if (idx >= _list.size())
-	{
+	actor *act = get_actor_at_index_locked(idx);
+	if (!act)
 		_mutex.unlock();
-		return nullptr;
-	}
-
-	return _list[idx];
+	return act;
 }
 
 std::pair<actor*, actor*> ActorsList::lock_and_get_self_and_actor_at_index(int idx)
@@ -171,17 +173,10 @@ std::pair<actor*, actor*> ActorsList::lock_and_get_self_and_actor_at_index(int i
 
 std::pair<actor*, actor*> ActorsList::lock_and_get_actor_and_attached_at_index(int idx)
 {
-	if (idx < 0)
+	actor *act = lock_and_get_actor_at_index(idx);
+	if (!act)
 		return { nullptr, nullptr };
 
-	LOCK(_mutex);
-	if (idx >= _list.size())
-	{
-		_mutex.unlock();
-		return { nullptr, nullptr };
-	}
-
-	actor *act = _list[idx];
 	int att_idx = act->attached_actor;
 	actor *attached = (att_idx >= 0 && att_idx < _list.size()) ? _list[att_idx] : nullptr;
 
@@ -356,10 +351,9 @@ actor* ActorsList::remove_attachment(int actor_id)
 {
 	GUARD(guard, _mutex);
 
-	size_t parent_idx = find_index_for_id(actor_id);
-	if (parent_idx < _list.size())
+	actor *parent = get_actor_from_id_locked(actor_id);
+	if (parent)
 	{
-		actor *parent = _list[parent_idx];
 		int attached_idx = parent->attached_actor;
 		if (attached_idx >= 0 && attached_idx < _list.size())
 		{
@@ -393,9 +387,7 @@ bool ActorsList::have_self()
 void ActorsList::set_self()
 {
 	GUARD(guard, _mutex);
-	size_t idx = find_index_for_id(yourself);
-	if (idx < _list.size())
-		_self = _list[idx];
+	_self = get_actor_from_id_locked(yourself);
 }
 
 int ActorsList::set_actor_under_mouse(int idx)
@@ -429,6 +421,18 @@ bool ActorsList::actor_occupies_tile(int x, int y)
 	return std::find_if(_list.begin(), _list.end(),
 		[x, y](const actor* act) { return act->x_tile_pos == x && act->y_tile_pos == y; }
 	) != _list.end();
+}
+
+actor *ActorsList::get_actor_from_id_locked(int actor_id)
+{
+	Storage::iterator iter = std::find_if(_list.begin(), _list.end(),
+		[actor_id](actor* act) { return act->actor_id == actor_id; });
+	return iter != _list.end() ? *iter : nullptr;
+}
+
+actor *ActorsList::get_actor_at_index_locked(int idx)
+{
+	return idx >= 0 && idx < _list.size() ? _list[idx] : nullptr;
 }
 
 size_t ActorsList::find_index_for_id(int actor_id)

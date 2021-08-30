@@ -102,7 +102,7 @@ typedef std::vector<ec_object_obstruction*> ec_object_obstructions;
 #ifndef MAP_EDITOR
 struct ec_actor_obstruction
 {
-	actor* obstructing_actor;
+	int obstructing_actor_id;
 	ec::Vec3 center;
 	ec::Obstruction* obstruction;
 };
@@ -176,18 +176,23 @@ void ec_heartbeat()
 			fire_obstructions_list.push_back(obstruction->obstruction);
 	}
 #ifndef MAP_EDITOR
+	auto list = eternal_lands::ActorsList::get_instance().get();
 	for (auto obstruction: actor_obstructions)
 	{
-		obstruction->center.x = obstruction->obstructing_actor->x_pos;
-		obstruction->center.y = ec_get_z(obstruction->obstructing_actor);
-		obstruction->center.z = -obstruction->obstructing_actor->y_pos;
-		const float dist_squared = (obstruction->center - ec::Vec3(-camera_x, -camera_z, camera_y)).magnitude_squared();
-		if (dist_squared> MAX_OBSTRUCT_DISTANCE_SQUARED)
-			continue;
-		obstruction->center.x += X_OFFSET;
-		obstruction->center.y += Y_OFFSET;
-		obstruction->center.z -= 0.25;
-		general_obstructions_list.push_back(obstruction->obstruction);
+		actor *act = list.get_actor_from_id(obstruction->obstructing_actor_id);
+		if (act)
+		{
+			obstruction->center.x = act->x_pos;
+			obstruction->center.y = ec_get_z(act);
+			obstruction->center.z = -act->y_pos;
+			const float dist_squared = (obstruction->center - ec::Vec3(-camera_x, -camera_z, camera_y)).magnitude_squared();
+			if (dist_squared> MAX_OBSTRUCT_DISTANCE_SQUARED)
+				continue;
+			obstruction->center.x += X_OFFSET;
+			obstruction->center.y += Y_OFFSET;
+			obstruction->center.z -= 0.25;
+			general_obstructions_list.push_back(obstruction->obstruction);
+		}
 	}
 	// Last but not least... the actor.
 	self_actor.center.x = -camera_x;
@@ -1919,7 +1924,7 @@ extern "C" void ec_actor_delete(actor* _actor)
 	}
 	for (ec_actor_obstructions::iterator iter = actor_obstructions.begin(); iter != actor_obstructions.end(); ++iter)
 	{
-		if ((*iter)->obstructing_actor == _actor)
+		if ((*iter)->obstructing_actor_id == _actor->actor_id)
 		{
 			for (std::vector<ec::Obstruction*>::iterator iter2 = general_obstructions_list.begin(); iter2 != general_obstructions_list.end(); ++iter2)
 			{
@@ -1940,7 +1945,7 @@ extern "C" void ec_actor_delete(actor* _actor)
 extern "C" void ec_add_actor_obstruction(actor* _actor, float force)
 {
 	ec_actor_obstruction* obstruction = new ec_actor_obstruction;
-	obstruction->obstructing_actor = _actor;
+	obstruction->obstructing_actor_id = _actor->actor_id;
 	obstruction->center = ec::Vec3(_actor->x_pos + X_OFFSET, ec_get_z(_actor), -(_actor->y_pos + Y_OFFSET));
 	obstruction->obstruction = new ec::CappedSimpleCylinderObstruction(&(obstruction->center), 0.55, force, obstruction->center.y, obstruction->center.y + 0.9);
 	actor_obstructions.push_back(obstruction);

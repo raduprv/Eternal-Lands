@@ -37,10 +37,7 @@ public:
 	class Locked
 	{
 	public:
-		Locked(T& obj, Mutex& mutex): _mutex(mutex), _obj(obj)
-		{
-			_mutex.lock();
-		}
+		Locked(T& obj, Mutex& mutex): _mutex(mutex), _obj(obj) {}
 		~Locked()
 		{
 			_mutex.unlock();
@@ -56,7 +53,13 @@ public:
 		T& _obj;
 	};
 
-	typedef Locked<Storage> LockedList;
+	struct LockedList: public Locked<ActorsList>
+	{
+		LockedList(ActorsList& list, Mutex& mutex): Locked<ActorsList>(list, mutex) {}
+
+		actor* get_actor_from_id(int actor_id) { return (*this)->get_actor_from_id_locked(actor_id); }
+		actor* get_actor_at_index(int idx) { return (*this)->get_actor_at_index_locked(idx); }
+	};
 	typedef Locked<actor*> LockedActorPtr;
 
 	static ActorsList& get_instance()
@@ -65,8 +68,8 @@ public:
 		return actors_list;
 	}
 
-	LockedList get() { return LockedList(_list, _mutex); }
-	LockedActorPtr get_self() { return LockedActorPtr(_self, _mutex); }
+	LockedList get();
+	LockedActorPtr get_self();
 
 	Storage& get_locked()
 	{
@@ -116,6 +119,8 @@ private:
 
 	ActorsList(): _list(), _mutex(), _self(nullptr),  _actor_under_mouse(nullptr) {}
 
+	actor *get_actor_from_id_locked(int actor_id);
+	actor *get_actor_at_index_locked(int idx);
 	size_t find_index_for_id(int actor_id);
 
 	actor* remove_locked(size_t idx);

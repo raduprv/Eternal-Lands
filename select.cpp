@@ -327,7 +327,7 @@ extern "C" void reset_under_the_mouse()
 						}
 
 						auto actors_list = eternal_lands::ActorsList::get_instance().get();
-						actor* actor = (*actors_list)[selections[i].id];
+						actor* actor = actors_list.get_actor_at_index(selections[i].id);
 						if (actor)
 						{
 							if (actor->has_alpha)
