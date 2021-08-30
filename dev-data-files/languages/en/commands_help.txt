@@ -65,7 +65,6 @@ calc ## <text> ## Display the result of the calculation specified by <text>.
 cast_spell ## <spell codes> ## Useful for user menus, cast a spell specified by the spell codes.  See #show_spell.
 change_pass ## <old password> <new password> ## Changes your password to <new password>.
 channel_colors ##  ## List the currently defined channel colours.
-chat_to_counters ##  ## Warning: Clear and re-populate break and misc counters from current chat log file.
 ckdata ## <checksum> <map path> ## Debug: Check the specified map (elm) file has the specified checksum.
 cls ##  ## Clears all the text from your console.
 commands ##  ## List all the #commands.
