@@ -33,7 +33,7 @@ static const float Y_OFFSET = 0.25;
 typedef struct {
 	short x;		// used to store x_tile_pos and y_tile_pos
 	short y;		// will probably need a z too eventually
-	actor *owner;	// will be NULL for stationary effects
+	int owner_id;	// will be NULL for stationary effects
 	int timeleft;
 	int lifespan;	// total lifespan of effect
 	int type;		// type of effect / spell that was cast
@@ -62,10 +62,10 @@ void free_actor_special_effect(int actor_id)
 		initialise();
 	for(i=0; i<NUMBER_OF_SPECIAL_EFFECTS; i++)
 	{
-		if (sfx_markers[i].active && sfx_markers[i].owner != NULL && sfx_markers[i].owner->actor_id == actor_id)
+		if (sfx_markers[i].active && sfx_markers[i].owner_id == actor_id)
 		{
 			sfx_markers[i].active = 0;
-			sfx_markers[i].owner = NULL;
+			sfx_markers[i].owner_id = -1;
 		}
 	}
 }
@@ -86,7 +86,7 @@ static special_effect *get_free_special_effect() {
 static void add_sfx(special_effect_enum effect, Uint16 playerid, int caster)
 {
 	Uint8 str[70];
-	actor *me;
+	actor *act;
 	special_effect *m = get_free_special_effect();
 	if (m == NULL) 
 	{
@@ -94,8 +94,9 @@ static void add_sfx(special_effect_enum effect, Uint16 playerid, int caster)
 		LOG_TO_CONSOLE (c_purple2, str);
 		return;
 	}
-	me = lock_and_get_self();
-	if (!me)
+
+	act = lock_and_get_actor_from_id(playerid);
+	if (!act)
 		return;
 		
 	// this switch is for differentiating static vs mobile effects
@@ -105,14 +106,14 @@ static void add_sfx(special_effect_enum effect, Uint16 playerid, int caster)
 		case SPECIAL_EFFECT_HEAL_SUMMONED:
 		case SPECIAL_EFFECT_INVASION_BEAMING:
 		case SPECIAL_EFFECT_TELEPORT_TO_RANGE:
-			m->owner = NULL;
-			m->x = me->x_tile_pos;		//static effects will not store a actor by convention
-			m->y = me->y_tile_pos;		// but we need to know where they were cast
+			m->owner_id = -1;
+			m->x = act->x_tile_pos;		//static effects will not store a actor by convention
+			m->y = act->y_tile_pos;		// but we need to know where they were cast
 			break;						
-		default:								// all others are movable effects
-			m->owner = me;				//let sfx_marker know who is target of effect
-			m->x = m->owner->x_tile_pos;		// NOTE: x_tile_pos is 2x x_pos (and same for y)
-			m->y = m->owner->y_tile_pos;
+		default:						// all others are movable effects
+			m->owner_id = playerid;		// let sfx_marker know who is target of effect
+			m->x = act->x_tile_pos;		// NOTE: x_tile_pos is 2x x_pos (and same for y)
+			m->y = act->y_tile_pos;
 			break;
 	}
 
@@ -145,77 +146,6 @@ static void add_sfx(special_effect_enum effect, Uint16 playerid, int caster)
 	m->active = 1;
 	m->caster = caster;							// should = 1 if caster of spell, 0 otherwise
 }
-
-/* TODO not used any more
-//basic shape template that allows for rotation and duplication
-static void do_shape_spikes(float x, float y, float z, float center_offset_x, float center_offset_y, float base_offset_z, float a)
-{
-	int i;
-	
-	//save the world
-	glPushMatrix();
-		glTranslatef(x,y,z);
-
-		glRotatef(270.0f*a, 0.0f, 0.0f, 1.0f);
-
-		//now create eight copies of the object, each separated by 45 degrees
-		for (i = 0; i < 8; i++)
-		{
-			glRotatef(45.f, 0.0f, 0.0f, 1.0f);
-			glBegin(GL_POLYGON);
-			glVertex3f( - 2.0f*dx - center_offset_x,  - 2.0f*dy - center_offset_y, base_offset_z);
-			glVertex3f( - 1.0f*dx - center_offset_x,  - 2.0f*dy - center_offset_y, base_offset_z);
-			glVertex3f( - 0.0f*dx - center_offset_x,  - 0.0f*dy - center_offset_y, base_offset_z);
-			glVertex3f( - 2.0f*dx - center_offset_x,  - 1.0f*dy - center_offset_y, base_offset_z);
-			glVertex3f( - 2.0f*dx - center_offset_x,  - 2.0f*dy - center_offset_y, base_offset_z);
-			glEnd();
-		}
-	//return to the world
-	glPopMatrix();
-#ifdef OPENGL_TRACE
-CHECK_GL_ERRORS();
-#endif //OPENGL_TRACE
-}
-*/
-
-/* TODO not used any more
-//example halos moving in opposite directions, not yet optimized, and still just an example
-static void do_double_spikes(float x, float y, float z, float center_offset_x, float center_offset_y, float base_offset_z, float a)
-{
-	int i;
-	
-	//save the world
-	glPushMatrix();
-		glTranslatef(x,y,z);
-
-		glRotatef(270.0f*a, 0.0f, 0.0f, 1.0f);
-
-		//now create eight copies of the object, each separated by 45 degrees
-		for (i = 0; i < 8; i++)
-		{
-			glRotatef(45.f, 0.0f, 0.0f, 1.0f);
-			glBegin(GL_POLYGON);
-			glVertex3f( - 2.0f*dx - center_offset_x,  - 2.0f*dy - center_offset_y, 0.5+base_offset_z);
-			glVertex3f( - 1.0f*dx - center_offset_x,  - 2.0f*dy - center_offset_y, 0.5+base_offset_z);
-			glVertex3f( - 0.0f*dx - center_offset_x,  - 0.0f*dy - center_offset_y, 0.5+base_offset_z);
-			glVertex3f( - 2.0f*dx - center_offset_x,  - 1.0f*dy - center_offset_y, 0.5+base_offset_z);
-			glVertex3f( - 2.0f*dx - center_offset_x,  - 2.0f*dy - center_offset_y, 0.5+base_offset_z);
-			glEnd();
-			glBegin(GL_POLYGON);
-			glVertex3f( - 2.0f*dx - center_offset_x,  - 2.0f*dy - center_offset_y, 0.5-base_offset_z);
-			glVertex3f( - 1.0f*dx - center_offset_x,  - 2.0f*dy - center_offset_y, 0.5-base_offset_z);
-			glVertex3f( - 0.0f*dx - center_offset_x,  - 0.0f*dy - center_offset_y, 0.5-base_offset_z);
-			glVertex3f( - 2.0f*dx - center_offset_x,  - 1.0f*dy - center_offset_y, 0.5-base_offset_z);
-			glVertex3f( - 2.0f*dx - center_offset_x,  - 2.0f*dy - center_offset_y, 0.5-base_offset_z);
-			glEnd();
-		}
-	//return to the world
-	glPopMatrix();
-#ifdef OPENGL_TRACE
-CHECK_GL_ERRORS();
-#endif //OPENGL_TRACE
-}
-*/
 
 static void draw_heal_effect(float x, float y, float z, float age)
 {
@@ -469,9 +399,15 @@ static void display_special_effect(special_effect *marker) {
 			y= (float)marker->y/2 + (TILESIZE_Y / 2);	// "static" tile based effects
 			break;						
 		default:										// all others are movable effects
-			x = marker->owner->x_pos + (TILESIZE_X / 2);	// movable effects need current position
-			y = marker->owner->y_pos + (TILESIZE_X / 2);
+		{
+			const actor *act = lock_and_get_actor_from_id(marker->owner_id);
+			if (!act)
+				return;
+			x = act->x_pos + (TILESIZE_X / 2);	// movable effects need current position
+			y = act->y_pos + (TILESIZE_X / 2);
+			release_actors_list();
 			break;
+		}
 	}
 		
 	switch (marker->type) {
