@@ -328,9 +328,7 @@ namespace UserMenus
 			windows_list.window[win_id].cm_id = CM_INIT_VALUE;
 		}
 
-		context_id = cm_create(cm_title_menu_str, NULL);
-		cm_bool_line(context_id, 1, &windows_list.window[win_id].opaque, NULL);
-		cm_bool_line(context_id, 2, &windows_on_top, "windows_on_top");
+		context_id = cm_title_create_menu(&windows_list.window[win_id], cm_title_menu_str, NULL);
 		cm_add(context_id, cm_user_menu_str, context_handler);
 		cm_add_window(context_id, win_id);
 

@@ -388,9 +388,7 @@ namespace Indicators
 			cm_menu << cm_indicators_str;
 			for (i=indicators.begin(); i<indicators.end(); ++i)
 				cm_menu << (*i)->get_context_menu_str() << std::endl;
-			cm_menu_id = cm_create(cm_title_menu_str, NULL);
-			cm_bool_line(cm_menu_id, 1, &windows_list.window[indicators_win].opaque, NULL);
-			cm_bool_line(cm_menu_id, 2, &windows_on_top, "windows_on_top");
+			cm_menu_id = cm_title_create_menu(&windows_list.window[indicators_win], cm_title_menu_str, NULL);
 			cm_add(cm_menu_id, cm_menu.str().c_str(), cm_indicators_handler);
 			cm_bool_line(cm_menu_id, CMHI_RELOC, &cm_relocatable, 0);
 			cm_bool_line(cm_menu_id, CMHI_BACKGROUND, &background_on, 0);
