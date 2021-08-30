@@ -6,12 +6,6 @@
 #ifndef __ACTORS_H__
 #define __ACTORS_H__
 
-#ifdef MUTEX_DEBUG
-#include <assert.h>
-#include <stdlib.h>
-#include <SDL.h>
-#endif
-#include <SDL_mutex.h>
 #include "bbox_tree.h"
 #include "cal_types.h"
 #include "chat.h"
@@ -661,7 +655,6 @@ typedef struct
 #define	SHADOW_RENDER_PASS	3
 #define	SELECTION_RENDER_PASS	4
 
-extern SDL_mutex *actors_lists_mutex;	/*!< Used for locking between the timer and main threads*/
 extern actor_types actors_defs[MAX_ACTOR_DEFS];	/*!< The actor definitions*/
 
 extern attached_actors_types attached_actors_defs[MAX_ACTOR_DEFS]; /*!< The definitions for the attached actors */
@@ -699,37 +692,6 @@ void remove_actor_attachment (int actor_id);
  * \callgraph
  */
 void add_actor_from_server (const char * in_data, int len);
-
-#ifdef MUTEX_DEBUG
-extern SDL_threadID have_actors_lock;
-/*!
- * \ingroup mutex
- * \name Actor list thread synchronization
- */
-/*! @{ */
-#define	LOCK_ACTORS_LISTS() 	\
-	{\
-		fprintf(stderr,"Last locked by: %s %s %d\n",__FILE__,__FUNCTION__,__LINE__);\
-		if(SDL_LockMutex(actors_lists_mutex)==-1) {fprintf(stderr,"The mutex on %s %s %d was not locked even though we asked it to!\n",__FILE__,__FUNCTION__,__LINE__); abort(); }\
-		assert(have_actors_lock==0); have_actors_lock=SDL_ThreadID(); \
-	}
-#define	UNLOCK_ACTORS_LISTS() 	\
-	{\
-		fprintf(stderr,"Last unlocked by: %s %s %d\n",__FILE__,__FUNCTION__,__LINE__);\
-		assert(have_actors_lock); assert(have_actors_lock==SDL_ThreadID()); have_actors_lock=0; \
-		if(SDL_UnlockMutex(actors_lists_mutex)==-1)  {fprintf(stderr,"The mutex on %s %s %d was not unlocked even though we asked it to!\n",__FILE__,__FUNCTION__,__LINE__); abort(); }\
-	}
-/*! @} */
-#else
-/*!
- * \ingroup mutex
- * \name Actor list thread synchronization
- */
-/*! @{ */
-#define LOCK_ACTORS_LISTS()	SDL_LockMutex(actors_lists_mutex)
-#define UNLOCK_ACTORS_LISTS()	SDL_UnlockMutex(actors_lists_mutex)
-/*! @} */
-#endif
 
 /*!
  * \ingroup	network_text

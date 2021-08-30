@@ -92,7 +92,6 @@ add_definitions(
 #	-DEXTRA_DEBUG					# (undocumented)
 #	-DMEMORY_DEBUG					# gather information about memory allocation and freeing
 #	-DMISSILES_DEBUG				# Enables debug for missiles feature. It will create a file missiles_log.txt file in your settings directory.
-#	-DMUTEX_DEBUG					# (undocumented)
 #	-DOPENGL_TRACE					# make far more frequent checks for OpenGL errors (requires -DDEBUG to be of any use). Will make error_log.txt a lot larger.
 #	-DTIMER_CHECK					# (undocumented)
 #	-D_EXTRA_SOUND_DEBUG			# Enable debug for sound effects

@@ -49,10 +49,6 @@ float distanceSq_to_near_enhanced_actors;
 #endif // NEW_SOUND
 near_actor near_actors[MAX_ACTORS];
 
-#ifdef MUTEX_DEBUG
-SDL_threadID have_actors_lock = 0;
-#endif
-
 int cm_mouse_over_banner = 0;		/* use to trigger banner context menu */
 
 //return the newly allocated actor

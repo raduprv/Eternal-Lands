@@ -59,7 +59,6 @@ FEATURES += PACKET_COMPRESSION  # Add support for compressed data packets from t
 #FEATURES += EXTRA_DEBUG		# (undocumented)
 #FEATURES += MEMORY_DEBUG		# gather information about memory allocation and freeing
 #FEATURES += MISSILES_DEBUG		# Enables debug for missiles feature. It will create a file missiles_log.txt file in your settings directory.
-#FEATURES += MUTEX_DEBUG		# (undocumented)
 #FEATURES += OPENGL_TRACE		# make far more frequent checks for OpenGL errors (requires -DDEBUG to be of any use). Will make error_log.txt a lot larger.
 #FEATURES += TIMER_CHECK		# (undocumented)
 #FEATURES += _EXTRA_SOUND_DEBUG		# Enable debug for sound effects
