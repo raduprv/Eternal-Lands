@@ -2011,20 +2011,6 @@ void destroy_actor(actor *act)
 	free(act);
 }
 
-void remove_and_destroy_actor_and_attached(int actor_id)
-{
-	actor *act = remove_actor_from_list(actor_id);
-	if (act)
-	{
-		if (act->attached_actor >= 0)
-		{
-			actor *attached = remove_actor_from_list(act->attached_actor);
-			destroy_actor(attached);
-		}
-		destroy_actor(act);
-	}
-}
-
 void destroy_all_actors()
 {
 	remove_and_destroy_all_actors();

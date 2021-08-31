@@ -89,7 +89,6 @@ void free_actor_data(actor *act);
  * \sa		destroy_all_actors
  */
 void destroy_actor(actor *act);
-void remove_and_destroy_actor_and_attached(int actor_id);
 
 /*!
  * \ingroup	network_actors

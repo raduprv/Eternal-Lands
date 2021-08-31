@@ -67,6 +67,12 @@ actor* ActorsList::lock_and_get_self()
 	return nullptr;
 }
 
+ActorsList::Storage& ActorsList::lock_and_get_actors_list()
+{
+	LOCK(_mutex);
+	return _list;
+}
+
 actor* ActorsList::lock_and_get_actor_from_id(int actor_id)
 {
 	LOCK(_mutex);
@@ -274,77 +280,10 @@ std::pair<actor*, actor*> ActorsList::lock_and_get_self_and_target()
 }
 #endif // ECDEBUGWIN
 
-void ActorsList::add(actor* act, actor *attached)
+void ActorsList::remove_and_destroy(int actor_id)
 {
 	GUARD(guard, _mutex);
-
-	// Find out if there is another actor with this ID.
-	// Ideally this shouldn't happen, but just in case
-	size_t idx = find_index_for_id(act->actor_id);
-	if (idx < _list.size())
-	{
-		LOG_ERROR(duplicate_actors_str, act->actor_id, _list[idx]->actor_name, act->actor_name);
-		remove_and_destroy_locked(idx);
-	}
-
-	if (act->is_enhanced_model && act->kind_of_actor == COMPUTER_CONTROLLED_HUMAN)
-	{
-		Storage::iterator iter = std::find_if(_list.begin(), _list.end(),
-			[act](const actor* other) {
-				return (other->kind_of_actor == COMPUTER_CONTROLLED_HUMAN
-							|| other->kind_of_actor == PKABLE_COMPUTER_CONTROLLED)
-					&& strcasecmp(act->actor_name, other->actor_name) == 0;
-			});
-		if (iter != _list.end())
-		{
-			LOG_ERROR("%s(%d) = %s => %s\n", duplicate_npc_actor, act->actor_id,
-				(*iter)->actor_name, act->actor_name);
-			remove_and_destroy_locked(iter - _list.begin());
-		}
-	}
-
-	_list.push_back(act);
-
-	if (act->actor_id == yourself)
-		_self = act;
-
-	if (attached)
-	{
-		size_t attached_idx = _list.size();
-		size_t parent_idx = attached_idx - 1;
-		_list.push_back(attached);
-
-		attached->attached_actor = int(parent_idx);
-		act->attached_actor = int(attached_idx);
-	}
-}
-
-bool ActorsList::add_attachment(int actor_id, actor *attached)
-{
-	GUARD(guard, _mutex);
-
-	size_t parent_idx = find_index_for_id(actor_id);
-	if (parent_idx >= _list.size())
-	{
-		LOG_ERROR("unable to add an attached actor: actor with id %d doesn't exist!", actor_id);
-		return false;
-	}
-	actor *parent = _list[parent_idx];
-
-	size_t attached_idx = _list.size();
-	_list.push_back(attached);
-
-	attached->attached_actor = int(parent_idx);
-	parent->attached_actor = int(attached_idx);
-
-	return true;
-}
-
-actor *ActorsList::remove(int actor_id)
-{
-	GUARD(guard, _mutex);
-	size_t idx = find_index_for_id(actor_id);
-	return idx < _list.size() ? remove_locked(idx) : nullptr;
+	remove_and_destroy_locked(actor_id);
 }
 
 actor* ActorsList::remove_attachment(int actor_id)
@@ -357,7 +296,7 @@ actor* ActorsList::remove_attachment(int actor_id)
 		int attached_idx = parent->attached_actor;
 		if (attached_idx >= 0 && attached_idx < _list.size())
 		{
-			actor *attached = remove_locked(attached_idx);
+			actor *attached = remove_at_index_locked(attached_idx);
 			parent->attachment_shift[0] = parent->attachment_shift[1] = parent->attachment_shift[2] = 0.0f;
 			return attached;
 		}
@@ -442,7 +381,69 @@ size_t ActorsList::find_index_for_id(int actor_id)
 	return iter - _list.begin();
 }
 
-actor* ActorsList::remove_locked(size_t idx)
+void ActorsList::add_locked(actor* act, actor *attached)
+{
+	// Find out if there is another actor with this ID.
+	// Ideally this shouldn't happen, but just in case
+	size_t idx = find_index_for_id(act->actor_id);
+	if (idx < _list.size())
+	{
+		LOG_ERROR(duplicate_actors_str, act->actor_id, _list[idx]->actor_name, act->actor_name);
+		remove_and_destroy_at_index_locked(idx);
+	}
+
+	if (act->is_enhanced_model && act->kind_of_actor == COMPUTER_CONTROLLED_HUMAN)
+	{
+		Storage::iterator iter = std::find_if(_list.begin(), _list.end(),
+			[act](const actor* other) {
+				return (other->kind_of_actor == COMPUTER_CONTROLLED_HUMAN
+							|| other->kind_of_actor == PKABLE_COMPUTER_CONTROLLED)
+					&& strcasecmp(act->actor_name, other->actor_name) == 0;
+			});
+		if (iter != _list.end())
+		{
+			LOG_ERROR("%s(%d) = %s => %s\n", duplicate_npc_actor, act->actor_id,
+				(*iter)->actor_name, act->actor_name);
+			remove_and_destroy_at_index_locked(iter - _list.begin());
+		}
+	}
+
+	_list.push_back(act);
+
+	if (act->actor_id == yourself)
+		_self = act;
+
+	if (attached)
+	{
+		size_t attached_idx = _list.size();
+		size_t parent_idx = attached_idx - 1;
+		_list.push_back(attached);
+
+		attached->attached_actor = int(parent_idx);
+		act->attached_actor = int(attached_idx);
+	}
+}
+
+bool ActorsList::add_attachment_locked(int actor_id, actor *attached)
+{
+	size_t parent_idx = find_index_for_id(actor_id);
+	if (parent_idx >= _list.size())
+	{
+		LOG_ERROR("unable to add an attached actor: actor with id %d doesn't exist!", actor_id);
+		return false;
+	}
+	actor *parent = _list[parent_idx];
+
+	size_t attached_idx = _list.size();
+	_list.push_back(attached);
+
+	attached->attached_actor = int(parent_idx);
+	parent->attached_actor = int(attached_idx);
+
+	return true;
+}
+
+actor* ActorsList::remove_at_index_locked(size_t idx)
 {
 	if (idx >= _list.size())
 		return nullptr;
@@ -467,14 +468,21 @@ actor* ActorsList::remove_locked(size_t idx)
 	return res;
 }
 
-void ActorsList::remove_and_destroy_locked(size_t idx)
+void ActorsList::remove_and_destroy_locked(int actor_id)
 {
-	actor* act = remove_locked(idx);
+	size_t idx = find_index_for_id(actor_id);
+	if (idx < _list.size())
+		remove_and_destroy_at_index_locked(idx);
+}
+
+void ActorsList::remove_and_destroy_at_index_locked(size_t idx)
+{
+	actor* act = remove_at_index_locked(idx);
 	if (act)
 	{
 		if (act->attached_actor >= 0 && act->attached_actor <= _list.size())
 		{
-			actor *attached = remove_locked(act->attached_actor);
+			actor *attached = remove_at_index_locked(act->attached_actor);
 			::destroy_actor(attached);
 		}
 		::destroy_actor(act);
@@ -487,7 +495,7 @@ using namespace eternal_lands;
 
 extern "C" actor** lock_and_get_actors_list(std::size_t *len)
 {
-	ActorsList::Storage& list = ActorsList::get_instance().get_locked();
+	ActorsList::Storage& list = ActorsList::get_instance().lock_and_get_actors_list();
 	if (len)
 		*len = list.size();
 	return list.data();
@@ -588,14 +596,14 @@ extern "C" void add_actor_to_list(actor* act, actor *attached)
 	ActorsList::get_instance().add(act, attached);
 }
 
-extern "C" actor* remove_actor_from_list(int actor_id)
-{
-	return ActorsList::get_instance().remove(actor_id);
-}
-
 extern "C" int add_attachment_to_list(int actor_id, actor *attached)
 {
-	return ActorsList::get_instance().add_attachment(actor_id, attached);
+	return ActorsList::get_instance().get().add_attachment(actor_id, attached);
+}
+
+extern "C" void remove_and_destroy_actor_from_list(int actor_id)
+{
+	ActorsList::get_instance().remove_and_destroy(actor_id);
 }
 
 extern "C" actor* remove_attachment_from_list(int actor_id)

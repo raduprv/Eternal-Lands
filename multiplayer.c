@@ -831,7 +831,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 #endif
 				// allow for multiple packets in a row
 				while(data_length >= 5){
-					remove_and_destroy_actor_and_attached(SDL_SwapLE16(*((short *)(in_data+3))));
+					remove_and_destroy_actor_from_list(SDL_SwapLE16(*((short *)(in_data+3))));
 					in_data+= 2;
 					data_length-= 2;
 				}
