@@ -1210,6 +1210,7 @@ void display_actors(int banner, int render_pass)
 			actor *cur_actor = lock_and_get_actor_at_index(near_actors[i].actor);
 			if (cur_actor)
 			{
+				int actor_id = cur_actor->actor_id;
 				int kind_of_actor = cur_actor->kind_of_actor;
 				int is_enhanced_model = cur_actor->is_enhanced_model;
 
@@ -1220,7 +1221,7 @@ void display_actors(int banner, int render_pass)
 				{
 					if (kind_of_actor == NPC)
 					{
-						anything_under_the_mouse(near_actors[i].actor, UNDER_MOUSE_NPC);
+						anything_under_the_mouse(actor_id, UNDER_MOUSE_NPC);
 					}
 					else
 					{
@@ -1230,11 +1231,11 @@ void display_actors(int banner, int render_pass)
 								(kind_of_actor == PKABLE_HUMAN ||
 								 kind_of_actor == PKABLE_COMPUTER_CONTROLLED)))
 						{
-							anything_under_the_mouse(near_actors[i].actor, UNDER_MOUSE_PLAYER);
+							anything_under_the_mouse(actor_id, UNDER_MOUSE_PLAYER);
 						}
 						else
 						{
-							anything_under_the_mouse(near_actors[i].actor, UNDER_MOUSE_ANIMAL);
+							anything_under_the_mouse(actor_id, UNDER_MOUSE_ANIMAL);
 						}
 					}
 				}
@@ -1254,6 +1255,7 @@ void display_actors(int banner, int render_pass)
 				actor *cur_actor = lock_and_get_actor_at_index(near_actors[i].actor);
 				if (cur_actor)
 				{
+					int actor_id = cur_actor->actor_id;
 					int kind_of_actor = cur_actor->kind_of_actor;
 					int is_enhanced_model = cur_actor->is_enhanced_model;
 
@@ -1264,7 +1266,7 @@ void display_actors(int banner, int render_pass)
 					{
 						if (kind_of_actor == NPC)
 						{
-							anything_under_the_mouse(near_actors[i].actor, UNDER_MOUSE_NPC);
+							anything_under_the_mouse(actor_id, UNDER_MOUSE_NPC);
 						}
 						else
 						{
@@ -1274,11 +1276,11 @@ void display_actors(int banner, int render_pass)
 									(kind_of_actor == PKABLE_HUMAN ||
 									 kind_of_actor == PKABLE_COMPUTER_CONTROLLED)))
 							{
-								anything_under_the_mouse(near_actors[i].actor, UNDER_MOUSE_PLAYER);
+								anything_under_the_mouse(actor_id, UNDER_MOUSE_PLAYER);
 							}
 							else
 							{
-								anything_under_the_mouse(near_actors[i].actor, UNDER_MOUSE_ANIMAL);
+								anything_under_the_mouse(actor_id, UNDER_MOUSE_ANIMAL);
 							}
 						}
 					}
@@ -1304,6 +1306,7 @@ void display_actors(int banner, int render_pass)
 				actor *cur_actor = lock_and_get_actor_at_index(near_actors[i].actor);
 				if (cur_actor)
 				{
+					int actor_id = cur_actor->actor_id;
 					int kind_of_actor = cur_actor->kind_of_actor;
 					int is_enhanced_model = cur_actor->is_enhanced_model;
 
@@ -1329,7 +1332,7 @@ void display_actors(int banner, int render_pass)
 					{
 						if (kind_of_actor == NPC)
 						{
-							anything_under_the_mouse(near_actors[i].actor, UNDER_MOUSE_NPC);
+							anything_under_the_mouse(actor_id, UNDER_MOUSE_NPC);
 						}
 						else
 						{
@@ -1339,11 +1342,11 @@ void display_actors(int banner, int render_pass)
 									(kind_of_actor == PKABLE_HUMAN ||
 									 kind_of_actor == PKABLE_COMPUTER_CONTROLLED)))
 							{
-								anything_under_the_mouse(near_actors[i].actor, UNDER_MOUSE_PLAYER);
+								anything_under_the_mouse(actor_id, UNDER_MOUSE_PLAYER);
 							}
 							else
 							{
-								anything_under_the_mouse(near_actors[i].actor, UNDER_MOUSE_ANIMAL);
+								anything_under_the_mouse(actor_id, UNDER_MOUSE_ANIMAL);
 							}
 						}
 					}

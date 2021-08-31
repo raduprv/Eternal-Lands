@@ -153,7 +153,28 @@ public:
 	LockedActorPtr get_self();
 
 	Storage& lock_and_get_actors_list();
+	/*!
+	 * \brief Find yourself
+	 *
+	 * Lock the actors list, and return the player's own actor. If the player's actor cannot be
+	 * found, \c nullptr is returned and the list is unlocked.
+	 * \note On succesful return, the caller is responsible for unlocking the actors list by calling
+	 *       release().
+	 * \note On an error return (result is \c nullptr), the actors list is already unlocked
+	 * \return Pointer to the actor
+	 */
 	actor* lock_and_get_self();
+	/*!
+	 * \brief Find an actor by ID
+	 *
+	 * Lock the actors list, and return the actor identified by the server with ID \a actor_id. If
+	 * no actor with ID \a actor_id can be found, \c nullptr is returned and the list is unlocked.
+	 * \note On succesful return, the caller is responsible for unlocking the actors list by calling
+	 *       release().
+	 * \note On an error return (result is \c nullptr), the actors list is already unlocked
+	 * \param actor_id The ID of the actor to look for
+	 * \return Pointer to the actor
+	 */
 	actor* lock_and_get_actor_from_id(int actor_id);
 	std::pair<actor*, actor*> lock_and_get_self_and_actor_from_id(int actor_id);
 	std::pair<actor*, actor*> lock_and_get_actor_and_attached_from_id(int actor_id);
@@ -241,8 +262,16 @@ public:
 	 */
 	void set_self();
 
-	int set_actor_under_mouse(int idx);
+	/*!
+	 * \brief Set the actor currently under the mouse
+	 *
+	 * Set the actor currently under the mouse cursor to that with ID \a actor_id.
+	 * \param actor_id The server ID of the actor under the cursor
+	 */
+	void set_actor_under_mouse(int actor_id);
+	//! Clear the actor currently under the mouse
 	void clear_actor_under_mouse();
+	//! Return whether the actor under the mouse cursor is alive
 	bool actor_under_mouse_alive();
 
 	/*!

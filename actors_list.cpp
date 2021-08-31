@@ -322,29 +322,22 @@ void ActorsList::set_self()
 	_self = get_actor_from_id_locked(yourself);
 }
 
-int ActorsList::set_actor_under_mouse(int idx)
-{
-	if (idx < 0)
-		return -1;
-
-	GUARD(guard, _mutex);
-	if (idx >= _list.size())
-		return -1;
-
-	_actor_under_mouse = _list[idx];
-	return _actor_under_mouse->actor_id;
-}
-
-bool ActorsList::actor_under_mouse_alive()
+void ActorsList::set_actor_under_mouse(int actor_id)
 {
 	GUARD(guard, _mutex);
-	return _actor_under_mouse && !_actor_under_mouse->dead;
+	_actor_under_mouse = get_actor_from_id_locked(actor_id);
 }
 
 void ActorsList::clear_actor_under_mouse()
 {
 	GUARD(guard, _mutex);
 	_actor_under_mouse = nullptr;
+}
+
+bool ActorsList::actor_under_mouse_alive()
+{
+	GUARD(guard, _mutex);
+	return _actor_under_mouse && !_actor_under_mouse->dead;
 }
 
 bool ActorsList::actor_occupies_tile(int x, int y)

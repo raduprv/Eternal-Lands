@@ -134,9 +134,8 @@ static inline void update_selection(Uint8 *color)
 			case UNDER_MOUSE_NPC:
 			case UNDER_MOUSE_ANIMAL:
 			{
-				int id = eternal_lands::ActorsList::get_instance().set_actor_under_mouse(selections[index].id);
-				if (id >= 0)
-					object_under_mouse = id;
+				eternal_lands::ActorsList::get_instance().set_actor_under_mouse(selections[index].id);
+				object_under_mouse = selections[index].id;
 				break;
 			}
 			default:
@@ -187,7 +186,7 @@ static inline int old_anything_under_the_mouse(int object_id, int object_type)
 		if ((object_type == UNDER_MOUSE_PLAYER) || (object_type==UNDER_MOUSE_NPC) ||
 			(object_type==UNDER_MOUSE_ANIMAL))
 		{
-			object_id = eternal_lands::ActorsList::get_instance().set_actor_under_mouse(object_id);
+			eternal_lands::ActorsList::get_instance().set_actor_under_mouse(object_id);
 		}
 		else
 		{
@@ -327,7 +326,7 @@ extern "C" void reset_under_the_mouse()
 						}
 
 						auto actors_list = eternal_lands::ActorsList::get_instance().get();
-						actor* actor = actors_list.get_actor_at_index(selections[i].id);
+						actor* actor = actors_list.get_actor_from_id(selections[i].id);
 						if (actor)
 						{
 							if (actor->has_alpha)
