@@ -680,7 +680,7 @@ static int horse_cmd(char* text, int len){
 
 	if (has_horse){
 		//remove horse
-		remove_actor_attachment(actor_id);
+		remove_and_destroy_attachment_from_list(actor_id);
 		LOG_TO_CONSOLE(c_orange1,"De-horsified");
 
 	} else {

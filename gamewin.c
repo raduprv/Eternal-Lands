@@ -1890,7 +1890,7 @@ int keypress_root_common (SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_m
 			if (has_no_attachment)
 				add_actor_attachment(actor_id, 200);
 			else
-				remove_actor_attachment(actor_id);
+				remove_and_destroy_attachment_from_list(actor_id);
 		}
 	}
 #endif // DEBUG

@@ -280,41 +280,34 @@ std::pair<actor*, actor*> ActorsList::lock_and_get_self_and_target()
 }
 #endif // ECDEBUGWIN
 
+void ActorsList::add(actor *act, actor *attached)
+{
+	GUARD(guard, _mutex);
+	add_locked(act, attached);
+}
+
+bool ActorsList::add_attachment(int actor_id, actor *attached)
+{
+	GUARD(guard, _mutex);
+	return add_attachment_locked(actor_id, attached);
+}
+
 void ActorsList::remove_and_destroy(int actor_id)
 {
 	GUARD(guard, _mutex);
 	remove_and_destroy_locked(actor_id);
 }
 
-actor* ActorsList::remove_attachment(int actor_id)
+void ActorsList::remove_and_destroy_attachment(int actor_id)
 {
 	GUARD(guard, _mutex);
-
-	actor *parent = get_actor_from_id_locked(actor_id);
-	if (parent)
-	{
-		int attached_idx = parent->attached_actor;
-		if (attached_idx >= 0 && attached_idx < _list.size())
-		{
-			actor *attached = remove_at_index_locked(attached_idx);
-			parent->attachment_shift[0] = parent->attachment_shift[1] = parent->attachment_shift[2] = 0.0f;
-			return attached;
-		}
-	}
-	return nullptr;
+	remove_and_destroy_attachment_locked(actor_id);
 }
 
 void ActorsList::clear()
 {
 	GUARD(guard, _mutex);
-
-	_self = nullptr;
-	_actor_under_mouse = nullptr;
-	for (actor* act: _list)
-	{
-		::destroy_actor(act);
-	}
-	_list.clear();
+	clear_locked();
 }
 
 bool ActorsList::have_self()
@@ -489,6 +482,32 @@ void ActorsList::remove_and_destroy_at_index_locked(size_t idx)
 	}
 }
 
+void ActorsList::remove_and_destroy_attachment_locked(int actor_id)
+{
+	actor *parent = get_actor_from_id_locked(actor_id);
+	if (parent)
+	{
+		int attached_idx = parent->attached_actor;
+		if (attached_idx >= 0 && attached_idx < _list.size())
+		{
+			remove_and_destroy_at_index_locked(attached_idx);
+			parent->attachment_shift[0] = parent->attachment_shift[1]
+				= parent->attachment_shift[2] = 0.0f;
+		}
+	}
+}
+
+void ActorsList::clear_locked()
+{
+	_self = nullptr;
+	_actor_under_mouse = nullptr;
+	for (actor* act: _list)
+	{
+		::destroy_actor(act);
+	}
+	_list.clear();
+}
+
 } // namespace eternal_lands
 
 using namespace eternal_lands;
@@ -606,14 +625,14 @@ extern "C" void remove_and_destroy_actor_from_list(int actor_id)
 	ActorsList::get_instance().remove_and_destroy(actor_id);
 }
 
-extern "C" actor* remove_attachment_from_list(int actor_id)
+extern "C" void remove_and_destroy_attachment_from_list(int actor_id)
 {
-	return ActorsList::get_instance().remove_attachment(actor_id);
+	ActorsList::get_instance().remove_and_destroy_attachment(actor_id);
 }
 
 extern "C" void remove_and_destroy_all_actors()
 {
-	return ActorsList::get_instance().clear();
+	ActorsList::get_instance().clear();
 }
 
 extern "C" int have_self()

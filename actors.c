@@ -280,17 +280,6 @@ void add_actor_attachment(int actor_id, int attachment_type)
 	}
 }
 
-void remove_actor_attachment(int actor_id)
-{
-	actor *attached = remove_attachment_from_list(actor_id);
-	if (attached)
-	{
-		free_actor_special_effect(attached->actor_id);
-		free_actor_data(attached);
-		free(attached);
-	}
-}
-
 static void set_health_color(actor * actor_id, float percent, float multiplier, float a)
 {
 	float r,g;

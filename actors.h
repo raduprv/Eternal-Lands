@@ -678,8 +678,6 @@ void display_actors(int banner, int render_pass);
 actor* create_actor_attachment(actor* parent, int attachment_type);
 void add_actor_attachment (int actor_id, int attachment_type);
 
-void remove_actor_attachment (int actor_id);
-
 /*!
  * \ingroup	network_actors
  * \brief	Adds an actor from the in_data
