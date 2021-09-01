@@ -1161,7 +1161,7 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 	{
 		// If fighting turn the horse and the fighter
 		actor->fighting=1;
-		if(actor->attached_actor>=0)
+		if (attached)
 		{
 			//printf("A fighting horse! (%s)\n", actor->actor_name);
 			attached->fighting=1;
