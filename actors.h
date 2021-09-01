@@ -74,24 +74,10 @@ extern glow_color glow_colors[10]; /*!< Holds the glow colours defined in GLOW_*
 // keep in sync with client_serv.h !!!
 #define NUM_BUFFS 11
 
-/*!
- * The near_actor structure holds information about the actors within range. It is filled once every frame.
- */
-typedef struct {
-	int actor;//offset in the actors_list
-	int select;
-	int buffs;	// The buffs on this actor
-	int type;
-	int alpha;
-	int ghost;//If it's a ghost or not
-} near_actor;
-
-extern int no_near_actors;
 #ifdef NEW_SOUND
 extern int no_near_enhanced_actors;
 extern float distanceSq_to_near_enhanced_actors;
 #endif // NEW_SOUND
-extern near_actor near_actors[MAX_ACTORS];
 
 /*!
  * The enhanced actor structure holds information about the actors extensions such as if the actor is wearing any armour, weapons etc.

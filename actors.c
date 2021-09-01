@@ -34,7 +34,17 @@
 #include "fsaa/fsaa.h"
 #endif	/* FSAA */
 
-SDL_mutex *actors_lists_mutex = NULL;	//used for locking between the timer and main threads
+/*!
+ * The near_actor structure holds information about the actors within range. It is filled once every frame.
+ */
+typedef struct {
+	int actor;//offset in the actors_list
+	int select;
+	int buffs;	// The buffs on this actor
+	int type;
+	int alpha;
+	int ghost;//If it's a ghost or not
+} near_actor;
 
 actor_types actors_defs[MAX_ACTOR_DEFS];
 
@@ -42,12 +52,12 @@ attached_actors_types attached_actors_defs[MAX_ACTOR_DEFS];
 
 static void draw_actor_overtext(actor* actor_ptr, const actor *me, double x, double y, double z); /* forward declaration */
 
-int no_near_actors=0;
+static int no_near_actors=0;
 #ifdef NEW_SOUND
 int no_near_enhanced_actors = 0;
 float distanceSq_to_near_enhanced_actors;
 #endif // NEW_SOUND
-near_actor near_actors[MAX_ACTORS];
+static near_actor near_actors[MAX_ACTORS];
 
 int cm_mouse_over_banner = 0;		/* use to trigger banner context menu */
 
