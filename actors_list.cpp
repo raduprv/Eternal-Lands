@@ -85,20 +85,10 @@ actor* ActorsList::lock_and_get_actor_from_id(int actor_id)
 std::pair<actor*, actor*> ActorsList::lock_and_get_self_and_actor_from_id(int actor_id)
 {
 	LOCK(_mutex);
-	if (!_self)
-	{
+	auto res = get_self_and_actor_from_id_locked(actor_id);
+	if (!res.first)
 		_mutex.unlock();
-		return { nullptr, nullptr };
-	}
-
-	actor *act = get_actor_from_id_locked(actor_id);
-	if (!act)
-	{
-		_mutex.unlock();
-		return { nullptr, nullptr };
-	}
-
-	return { _self, act };
+	return res;
 }
 
 std::pair<actor*, actor*> ActorsList::lock_and_get_actor_and_attached_from_id(int actor_id)
@@ -353,6 +343,18 @@ actor *ActorsList::get_actor_from_id_locked(int actor_id)
 	Storage::iterator iter = std::find_if(_list.begin(), _list.end(),
 		[actor_id](actor* act) { return act->actor_id == actor_id; });
 	return iter != _list.end() ? *iter : nullptr;
+}
+
+std::pair<actor*, actor*> ActorsList::get_self_and_actor_from_id_locked(int actor_id)
+{
+	if (!_self)
+		return { nullptr, nullptr };
+
+	actor *act = get_actor_from_id_locked(actor_id);
+	if (!act)
+		return { nullptr, nullptr };
+
+	return { _self, act };
 }
 
 actor *ActorsList::get_actor_at_index_locked(int idx)

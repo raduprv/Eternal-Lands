@@ -135,6 +135,10 @@ public:
 
 		actor* get_self() { return (*this)->_self; }
 		actor* get_actor_from_id(int actor_id) { return (*this)->get_actor_from_id_locked(actor_id); }
+		std::pair<actor*, actor*> get_self_and_actor_from_id(int actor_id)
+		{
+			return (*this)->get_self_and_actor_from_id_locked(actor_id);
+		}
 		actor* get_actor_at_index(int idx) { return (*this)->get_actor_at_index_locked(idx); }
 	};
 	//! Type definition for an actor pointer protected by the actors list mutex
@@ -176,6 +180,19 @@ public:
 	 * \return Pointer to the actor
 	 */
 	actor* lock_and_get_actor_from_id(int actor_id);
+	/*!
+	 * \brief Find self and another actor
+	 *
+	 * Lock the actors list, and find the actor with ID \a actor_id in the actors list. Return
+	 * a pair of pointers (self, act), where the first is a pointer to the player's own actor,
+	 * and the second is the requested actor. If either actor cannot be found, a pair of
+	 * \c nullptr's is returned and the list is unlocked.
+	 * \note On succesful return, the caller is responsible for unlocking the actors list by calling
+	 *       release().
+	 * \note On an error return (both pointers are \c nullptr), the actors list is already unlocked
+	 * \param actor_id The ID of the actor to look for
+	 * \return Pointers to the actors
+	 */
 	std::pair<actor*, actor*> lock_and_get_self_and_actor_from_id(int actor_id);
 	std::pair<actor*, actor*> lock_and_get_actor_and_attached_from_id(int actor_id);
 	std::pair<actor*, actor*> lock_and_get_actor_pair_from_id(int actor_id1, int actor_id2);
@@ -308,6 +325,17 @@ private:
 	 * \return Pointer to the actor
 	 */
 	actor *get_actor_from_id_locked(int actor_id);
+	/*!
+	 * \brief Find self and another actor
+	 *
+	 * Lock the actors list, and find the actor with ID \a actor_id in the actors list. Return
+	 * a pair of pointers (self, act), where the first is a pointer to the player's own actor,
+	 * and the second is the requested actor. If either actor cannot be found, a pair of
+	 * \c nullptr's is returned.
+	 * \param actor_id The ID of the actor to look for
+	 * \return Pointers to the actors
+	 */
+	std::pair<actor*, actor*> get_self_and_actor_from_id_locked(int actor_id);
 	actor *get_actor_at_index_locked(int idx);
 	size_t find_index_for_id(int actor_id);
 
