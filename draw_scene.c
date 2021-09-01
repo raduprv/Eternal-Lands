@@ -227,7 +227,8 @@ void move_camera ()
 
 		//attachment_props *att_props = get_attachment_props_if_held(me);
 		//z += (me->sitting ? 0.7 : 1.5) * get_actor_scale(me);
-		if (me->attached_actor>=0) z+=me->z_pos + me->attachment_shift[Z]+2.0*get_actor_scale(me);
+		if (has_attachment(me))
+			z+=me->z_pos + me->attachment_shift[Z]+2.0*get_actor_scale(me);
 		else z += (me->sitting ? 0.7 : 1.5) * get_actor_scale(me);
 	} else {
 		z = get_tile_height(me->x_tile_pos, me->y_tile_pos) + sitting;

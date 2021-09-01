@@ -100,31 +100,23 @@ static int thecount=0;
 
 static inline actor* get_attached(const actor* act, actor **actors_list, size_t max_actors)
 {
-	int idx = act->attached_actor;
-	if (idx >= 0 && idx < max_actors)
-		return actors_list[idx];
-	else
-		return NULL;
+	int id = act->attached_actor_id;
+	return id >= 0 ? find_actor_ptr(actors_list, max_actors, id) : NULL;
 }
 
 static inline actor* get_horse(const actor* act, actor **actors_list, size_t max_actors)
 {
 	actor *horse = get_attached(act, actors_list, max_actors);
-	return horse->actor_id < 0 ? horse : NULL;
+	return horse->actor_id >= HORSE_ID_OFFSET ? horse : NULL;
 }
 
-static inline int is_horse(const actor *act)
-{
-	return act->attached_actor >= 0 && act->actor_id < 0;
-}
-
-static inline int is_actor_held(actor *act, actor *attached)
+static inline int is_actor_held(const actor *act, const actor *attached)
 {
 	if (!attached)
 		return 0;
-    return ((act->actor_id < 0 // the actor is the attachment
+    return ((act->actor_id >= HORSE_ID_OFFSET // the actor is the attachment
 				&& !attached_actors_defs[act->actor_type].actor_type[attached->actor_type].is_holder)
-			|| (act->actor_id >= 0 // the actor is the parent of the attachment
+			|| (act->actor_id < HORSE_ID_OFFSET // the actor is the parent of the attachment
 				&& attached_actors_defs[attached->actor_type].actor_type[act->actor_type].is_holder)
 			);
 }
@@ -371,7 +363,7 @@ void animate_actors()
 			continue;
 
 		attached = get_attached(act, actors_list, max_actors);
-		horse = (attached && attached->actor_id < 0) ? attached : NULL;
+		horse = (attached && is_horse(attached)) ? attached : NULL;
 
 #ifdef	ANIMATION_SCALING
 		time_diff = update_actor_animation_speed(act, actors_time_diff);
@@ -652,7 +644,7 @@ void move_to_next_frame()
 			continue;
 
 		attached = get_attached(act, actors_list, max_actors);
-		horse = (attached && attached->actor_id < 0) ? attached : NULL;
+		horse = (attached && is_horse(attached)) ? attached : NULL;
 
 		if (act->calmodel)
 		{
@@ -867,7 +859,7 @@ void set_on_idle(actor *act, actor *attached)
 
 	if (act->fighting)
 	{
-		if (act->attached_actor>=0)
+		if (attached)
 		{
 			// Both for horses and actors
 			if(is_horse(act))
@@ -888,7 +880,7 @@ void set_on_idle(actor *act, actor *attached)
 	}
 	else if (act->in_aim_mode == 1)
 	{
-		if (act->actor_id < 0)
+		if (is_horse(act))
 		{
 			// Ranging horse
 			if (act->cur_anim.anim_index != actors_defs[act->actor_type].cal_frames[cal_actor_idle1_frame].anim_index
@@ -899,7 +891,7 @@ void set_on_idle(actor *act, actor *attached)
 					*get_pose_frame(act->actor_type, act, attached, EMOTE_STANDING, 0));
 			}
 		}
-		else if (act->attached_actor >= 0)
+		else if (attached)
 		{
 			cal_actor_set_anim(act, attached,
 				actors_defs[act->actor_type].weapon[act->cur_weapon].cal_frames[cal_weapon_range_idle_held_frame]);
@@ -1094,32 +1086,9 @@ void rotate_actor_and_horse_locked(actor *act, actor *horse, int mul)
 	rotate_actor_and_horse_by(act, horse, mul, HORSE_FIGHT_ROTATION);
 }
 
-void rotate_actor_and_horse(int id, int mul)
-{
-	actor *act, *horse;
-
-	act = lock_and_get_actor_and_attached_at_index(id, &horse);
-	if (act)
-	{
-		if (horse)
-			rotate_actor_and_horse_locked(act, horse, mul);
-		release_actors_list();
-	}
-}
-
 static inline void rotate_actor_and_horse_range(actor *act, actor *horse, int mul)
 {
 	rotate_actor_and_horse_by(act, horse, mul, HORSE_RANGE_ROTATION);
-}
-
-static inline actor* find_actor_ptr(actor **actors_list, size_t max_actors, int actor_id)
-{
-	for (size_t i = 0; i < max_actors; ++i)
-	{
-		if (actors_list[i]->actor_id == actor_id)
-			return actors_list[i];
-	}
-	return NULL;
 }
 
 //in case the actor is not busy, and has commands in it's que, execute them
@@ -1156,7 +1125,7 @@ void next_command(actor **actors_list, size_t max_actors)
 			continue;
 
 		attached = get_attached(act, actors_list, max_actors);
-		horse = (attached && attached->actor_id < 0) ? attached : NULL;
+		horse = (attached && is_horse(attached)) ? attached : NULL;
 
 		// Are we playing an emote?
 		if (act->cur_emote.active

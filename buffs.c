@@ -48,7 +48,7 @@ void update_actor_buffs_locked(actor *act, actor *attached, Uint32 in_buffs)
 		act->step_duration = actors_defs[act->actor_type].step_duration / 2;
 	else
 		act->step_duration = actors_defs[act->actor_type].step_duration;
-	if (act->attached_actor >= 0)
+	if (attached)
 	{
 		attached->buffs = in_buffs & BUFF_DOUBLE_SPEED;
 		attached->step_duration = act->step_duration;

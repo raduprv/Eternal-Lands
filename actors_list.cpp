@@ -94,17 +94,10 @@ std::pair<actor*, actor*> ActorsList::lock_and_get_self_and_actor_from_id(int ac
 std::pair<actor*, actor*> ActorsList::lock_and_get_actor_and_attached_from_id(int actor_id)
 {
 	LOCK(_mutex);
-	actor *act = get_actor_from_id_locked(actor_id);
-	if (!act)
-	{
+	auto res = get_actor_and_attached_from_id_locked(actor_id);
+	if (!res.first)
 		_mutex.unlock();
-		return { nullptr, nullptr };
-	}
-
-	int att_idx = act->attached_actor;
-	actor *attached = (att_idx >= 0 && att_idx < _list.size()) ? _list[att_idx] : nullptr;
-
-	return { act, attached };
+	return res;
 }
 
 std::pair<actor*, actor*> ActorsList::lock_and_get_actor_pair_from_id(int actor_id1, int actor_id2)
@@ -138,45 +131,6 @@ actor* ActorsList::lock_and_get_actor_from_name(const char* name)
 		return *iter;
 	_mutex.unlock();
 	return nullptr;
-}
-
-actor* ActorsList::lock_and_get_actor_at_index(int idx)
-{
-	if (idx < 0)
-		return nullptr;
-
-	LOCK(_mutex);
-	actor *act = get_actor_at_index_locked(idx);
-	if (!act)
-		_mutex.unlock();
-	return act;
-}
-
-std::pair<actor*, actor*> ActorsList::lock_and_get_self_and_actor_at_index(int idx)
-{
-	if (idx < 0)
-		return { nullptr, nullptr };
-
-	LOCK(_mutex);
-	if (!_self || idx >= _list.size())
-	{
-		_mutex.unlock();
-		return { nullptr, nullptr };
-	}
-
-	return { _self, _list[idx] };
-}
-
-std::pair<actor*, actor*> ActorsList::lock_and_get_actor_and_attached_at_index(int idx)
-{
-	actor *act = lock_and_get_actor_at_index(idx);
-	if (!act)
-		return { nullptr, nullptr };
-
-	int att_idx = act->attached_actor;
-	actor *attached = (att_idx >= 0 && att_idx < _list.size()) ? _list[att_idx] : nullptr;
-
-	return { act, attached };
 }
 
 actor* ActorsList::lock_and_get_nearest_actor(int tile_x, int tile_y, float max_distance)
@@ -357,9 +311,17 @@ std::pair<actor*, actor*> ActorsList::get_self_and_actor_from_id_locked(int acto
 	return { _self, act };
 }
 
-actor *ActorsList::get_actor_at_index_locked(int idx)
+std::pair<actor*, actor*> ActorsList::get_actor_and_attached_from_id_locked(int actor_id)
 {
-	return idx >= 0 && idx < _list.size() ? _list[idx] : nullptr;
+	actor *act = get_actor_from_id_locked(actor_id);
+	if (!act)
+		return { nullptr, nullptr };
+
+	actor *attached = has_attachment(act)
+		? get_actor_from_id_locked(act->attached_actor_id)
+		: nullptr;
+
+	return { act, attached };
 }
 
 size_t ActorsList::find_index_for_id(int actor_id)
@@ -403,30 +365,29 @@ void ActorsList::add_locked(actor* act, actor *attached)
 
 	if (attached)
 	{
-		size_t attached_idx = _list.size();
-		size_t parent_idx = attached_idx - 1;
 		_list.push_back(attached);
-
-		attached->attached_actor = int(parent_idx);
-		act->attached_actor = int(attached_idx);
+		attached->attached_actor_id = act->actor_id;
+		act->attached_actor_id = attached->actor_id;
 	}
 }
 
 bool ActorsList::add_attachment_locked(int actor_id, actor *attached)
 {
-	size_t parent_idx = find_index_for_id(actor_id);
-	if (parent_idx >= _list.size())
+	actor *parent = get_actor_from_id_locked(actor_id);
+	if (!parent)
 	{
 		LOG_ERROR("unable to add an attached actor: actor with id %d doesn't exist!", actor_id);
 		return false;
 	}
-	actor *parent = _list[parent_idx];
+	if (has_attachment(parent))
+	{
+		LOG_ERROR("actor with ID %d already has an attachment", actor_id);
+		return false;
+	}
 
-	size_t attached_idx = _list.size();
 	_list.push_back(attached);
-
-	attached->attached_actor = int(parent_idx);
-	parent->attached_actor = int(attached_idx);
+	attached->attached_actor_id = parent->actor_id;
+	parent->attached_actor_id = attached->actor_id;
 
 	return true;
 }
@@ -437,15 +398,13 @@ actor* ActorsList::remove_at_index_locked(size_t idx)
 		return nullptr;
 
 	actor* res = _list[idx];
-	if (res->attached_actor >= 0 && res->attached_actor < _list.size())
-		_list[res->attached_actor]->attached_actor = -1;
-	if (idx < _list.size() - 1)
+	if (has_attachment(res))
 	{
-		actor* last = _list.back();
-		if (last->attached_actor >= 0 && last->attached_actor < _list.size())
-			_list[last->attached_actor]->attached_actor = int(idx);
-		_list[idx] = last;
+		actor *att = get_actor_from_id_locked(res->attached_actor_id);
+		if (att)
+			att->attached_actor_id = -1;
 	}
+	_list[idx] = _list.back();
 	_list.pop_back();
 
 	if (res == _self)
@@ -468,11 +427,8 @@ void ActorsList::remove_and_destroy_at_index_locked(size_t idx)
 	actor* act = remove_at_index_locked(idx);
 	if (act)
 	{
-		if (act->attached_actor >= 0 && act->attached_actor <= _list.size())
-		{
-			actor *attached = remove_at_index_locked(act->attached_actor);
-			::destroy_actor(attached);
-		}
+		if (has_attachment(act))
+			remove_and_destroy_locked(act->attached_actor_id);
 		::destroy_actor(act);
 	}
 }
@@ -480,14 +436,14 @@ void ActorsList::remove_and_destroy_at_index_locked(size_t idx)
 void ActorsList::remove_and_destroy_attachment_locked(int actor_id)
 {
 	actor *parent = get_actor_from_id_locked(actor_id);
-	if (parent)
+	if (parent && has_attachment(parent))
 	{
-		int attached_idx = parent->attached_actor;
-		if (attached_idx >= 0 && attached_idx < _list.size())
+		size_t idx = find_index_for_id(parent->attached_actor_id);
+		if (idx < _list.size())
 		{
-			remove_and_destroy_at_index_locked(attached_idx);
-			parent->attachment_shift[0] = parent->attachment_shift[1]
-				= parent->attachment_shift[2] = 0.0f;
+			actor *attached = remove_at_index_locked(idx);
+			if (attached)
+				::destroy_actor(attached);
 		}
 	}
 }
@@ -556,25 +512,6 @@ extern "C" actor* lock_and_get_actor_pair_from_id(int actor_id1, int actor_id2, 
 extern "C" actor* lock_and_get_actor_from_name(const char* name)
 {
 	return ActorsList::get_instance().lock_and_get_actor_from_name(name);
-}
-
-extern "C" actor* lock_and_get_actor_at_index(int idx)
-{
-	return ActorsList::get_instance().lock_and_get_actor_at_index(idx);
-}
-
-extern "C" actor* lock_and_get_self_and_actor_at_index(int idx, actor **act)
-{
-	actor *self;
-	std::tie(self, *act) = ActorsList::get_instance().lock_and_get_self_and_actor_at_index(idx);
-	return self;
-}
-
-extern "C" actor* lock_and_get_actor_and_attached_at_index(int idx, actor **horse)
-{
-	actor *act;
-	std::tie(act, *horse) = ActorsList::get_instance().lock_and_get_actor_and_attached_at_index(idx);
-	return act;
 }
 
 extern "C" actor* lock_and_get_nearest_actor(int tile_x, int tile_y, float max_distance)

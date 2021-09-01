@@ -19,6 +19,9 @@
 extern "C" {
 #endif
 
+//! The offset for actor IDs for horses. Actual ID is HORSE_ID_OFFSET + ID of the rider.
+#define HORSE_ID_OFFSET 0x10000
+
 #define	MAX_FILE_PATH	128	// the max chars allowed int a path/filename for actor textures/masks
 #define MAX_ACTOR_DEFS  256
 #define MAX_ACTORS      1000    /*!< The maximum number of actors the client can hold */
@@ -626,7 +629,7 @@ typedef struct
 
 	int step_duration;
 
-	int attached_actor;
+	int attached_actor_id;
 	float attachment_shift[3];
 
 #ifdef CLUSTER_INSIDES
@@ -644,6 +647,18 @@ typedef struct
 extern actor_types actors_defs[MAX_ACTOR_DEFS];	/*!< The actor definitions*/
 
 extern attached_actors_types attached_actors_defs[MAX_ACTOR_DEFS]; /*!< The definitions for the attached actors */
+
+//! Check whether actor \a act has an attachment (horse or rider)
+static inline int has_attachment(const actor *act)
+{
+	return act->attached_actor_id >= 0;
+}
+
+//! Return whether actor \a act is a horse
+static inline int is_horse(const actor *act)
+{
+	return act->attached_actor_id >= 0 && act->actor_id >= HORSE_ID_OFFSET;
+}
 
 //! Return \a act's current weapon
 static inline weapon_part *actor_weapon(const actor *act)

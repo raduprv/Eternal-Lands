@@ -210,7 +210,6 @@ void free_emotes();
 #define HORSE_RANGE_ROTATION 45
 #define HORSE_FIGHT_TIME 180
 
-void rotate_actor_and_horse(int id, int mul);
 void rotate_actor_and_horse_locked(actor* act, actor *horse, int mul);
 
 #ifdef __cplusplus

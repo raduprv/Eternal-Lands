@@ -151,7 +151,7 @@ static actor* create_enhanced_actor(enhanced_actor *this_actor, float x_pos, flo
 	our_actor->sit_idle=0;
 	our_actor->body_parts=this_actor;
 
-	our_actor->attached_actor = -1;
+	our_actor->attached_actor_id = -1;
 	our_actor->attachment_shift[0] = our_actor->attachment_shift[1] = our_actor->attachment_shift[2] = 0.0;
 
 #ifdef CLUSTER_INSIDES

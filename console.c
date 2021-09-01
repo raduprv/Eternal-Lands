@@ -674,7 +674,7 @@ static int horse_cmd(char* text, int len){
 
 	act->sit_idle=act->stand_idle=0;
 	actor_id = act->actor_id;
-	has_horse = act->attached_actor >= 0;
+	has_horse = has_attachment(act);
 
 	release_actors_list();
 

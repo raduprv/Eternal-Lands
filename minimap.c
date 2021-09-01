@@ -141,7 +141,8 @@ static void draw_actor_points(window_info *win, float zoom_multip, float px, flo
 		if (actors_list[i])
 		{
 			actor *a = actors_list[i];
-			if (a->attached_actor != -1 && a->actor_id == -1)
+			if (is_horse(a))
+				// Don't draw horses
 				continue;
 			x = a->x_tile_pos * size_x;
 			y = float_minimap_size - (a->y_tile_pos * size_y);

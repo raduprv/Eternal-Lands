@@ -139,7 +139,10 @@ public:
 		{
 			return (*this)->get_self_and_actor_from_id_locked(actor_id);
 		}
-		actor* get_actor_at_index(int idx) { return (*this)->get_actor_at_index_locked(idx); }
+		std::pair<actor*, actor*> get_actor_and_attached_from_id(int actor_id)
+		{
+			return (*this)->get_actor_and_attached_from_id_locked(actor_id);
+		}
 	};
 	//! Type definition for an actor pointer protected by the actors list mutex
 	typedef Locked<actor*> LockedActorPtr;
@@ -194,12 +197,22 @@ public:
 	 * \return Pointers to the actors
 	 */
 	std::pair<actor*, actor*> lock_and_get_self_and_actor_from_id(int actor_id);
+	/*!
+	 * \brief Find an actor and its attached actor
+	 *
+	 * Lock the actors list, and find the actor with ID \a actor_id and its attached actor in the
+	 * actors list. If the actor has no attachment, the second pointer returned will be a \c nullptr.
+	 * If no actor with ID \a actor_id can be found, the first returned pointer will be \a nullptr,
+	 * and the list is unlocked.
+	 * \note On succesful return, the caller is responsible for unlocking the actors list by calling
+	 *       release().
+	 * \note On an error return (first pointer is \c nullptr), the actors list is already unlocked
+	 * \param actor_id The ID of the actor to look for
+	 * \return Pointers to the actors
+	 */
 	std::pair<actor*, actor*> lock_and_get_actor_and_attached_from_id(int actor_id);
 	std::pair<actor*, actor*> lock_and_get_actor_pair_from_id(int actor_id1, int actor_id2);
 	actor* lock_and_get_actor_from_name(const char* name);
-	actor* lock_and_get_actor_at_index(int idx);
-	std::pair<actor*, actor*> lock_and_get_self_and_actor_at_index(int idx);
-	std::pair<actor*, actor*> lock_and_get_actor_and_attached_at_index(int idx);
 	actor* lock_and_get_nearest_actor(int tile_x, int tile_y, float max_distance);
 	std::pair<Storage&, actor*> lock_and_get_list_and_self();
 #ifdef ECDEBUGWIN
@@ -336,7 +349,17 @@ private:
 	 * \return Pointers to the actors
 	 */
 	std::pair<actor*, actor*> get_self_and_actor_from_id_locked(int actor_id);
-	actor *get_actor_at_index_locked(int idx);
+	/*!
+	 * \brief Find an actor and its attached actor
+	 *
+	 * Lock the actors list, and find the actor with ID \a actor_id and its attached actor in the
+	 * actors list. If the actor has no attachment, the second pointer returned will be a \c nullptr.
+	 * If no actor with ID \a actor_id can be found, the first returned pointer will be \a nullptr.
+	 * \param actor_id The ID of the actor to look for
+	 * \return Pointers to the actors
+	 */
+	std::pair<actor*, actor*> get_actor_and_attached_from_id_locked(int actor_id);
+
 	size_t find_index_for_id(int actor_id);
 
 	/*!
@@ -392,10 +415,6 @@ actor* lock_and_get_self_and_actor_from_id(int actor_id, actor **act);
 actor* lock_and_get_actor_and_attached_from_id(int actor_id, actor **horse);
 actor* lock_and_get_actor_pair_from_id(int actor_id1, int actor_id2, actor **act2);
 actor* lock_and_get_actor_from_name(const char* name);
-actor* lock_and_get_actor_at_index(int idx);
-actor* lock_and_get_self_and_actor_at_index(int idx, actor **act);
-actor* lock_and_get_actor_and_attached_at_index(int idx, actor **horse);
-actor* lock_and_get_self_and_actor_at_index(int idx, actor **act);
 actor* lock_and_get_nearest_actor(int tile_x, int tile_y, float max_distance);
 actor** lock_and_get_list_and_self(size_t *len, actor **self);
 #ifdef ECDEBUGWIN
@@ -413,6 +432,16 @@ float self_scale(void);
 void clear_actor_under_mouse(void);
 int actor_under_mouse_alive(void);
 int actor_occupies_tile(int x, int y);
+
+static inline actor* find_actor_ptr(actor **actors_list, size_t max_actors, int actor_id)
+{
+	for (size_t i = 0; i < max_actors; ++i)
+	{
+		if (actors_list[i]->actor_id == actor_id)
+			return actors_list[i];
+	}
+	return NULL;
+}
 
 #ifdef __cplusplus
 } // extern "C"

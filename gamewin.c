@@ -1883,7 +1883,7 @@ int keypress_root_common (SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_m
 		if (me)
 		{
 			int actor_id = me->actor_id;
-			int has_no_attachment = (me->attached_actor < 0);
+			int has_no_attachment = !has_attachment(me);
 
 			release_actors_list();
 

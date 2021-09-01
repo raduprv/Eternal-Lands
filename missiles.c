@@ -438,7 +438,7 @@ float missiles_compute_actor_rotation(float *out_h_rot, float *out_v_rot,
 						 from[0], from[1], from[2], to[0], to[1], to[2], *out_v_rot);
 /*#ifdef MORE_ATTACHED_ACTORS
 	//no horses can be processed here
-	if(in_act->attached_actor>=0) actor_rotation-=HORSE_FIGHT_ROTATION;
+	if(has_attachment(in_act)) actor_rotation-=HORSE_FIGHT_ROTATION;
 #endif*/
 	return actor_rotation;
 

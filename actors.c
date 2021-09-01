@@ -38,7 +38,7 @@
  * The near_actor structure holds information about the actors within range. It is filled once every frame.
  */
 typedef struct {
-	int actor;//offset in the actors_list
+	int actor_id;
 	int select;
 	int buffs;	// The buffs on this actor
 	int type;
@@ -179,7 +179,7 @@ static actor* create_actor (int actor_type, char * skin_name, float x_pos, float
 	our_actor->stand_idle=0;
 	our_actor->sit_idle=0;
 
-	our_actor->attached_actor = -1;
+	our_actor->attached_actor_id = -1;
 	our_actor->attachment_shift[0] = our_actor->attachment_shift[1] = our_actor->attachment_shift[2] = 0.0;
 
 	for (i = 0; i < NUM_BUFFS; i++)
@@ -201,6 +201,7 @@ static actor* create_actor (int actor_type, char * skin_name, float x_pos, float
 actor* create_actor_attachment(actor* parent, int attachment_type)
 {
 	actor *attached;
+	int attachment_id;
 
 	if (attachment_type < 0 || attachment_type >= MAX_ACTOR_DEFS
 		|| (attachment_type > 0 && actors_defs[attachment_type].actor_type != attachment_type) )
@@ -209,9 +210,10 @@ actor* create_actor_attachment(actor* parent, int attachment_type)
 		return NULL;
 	}
 
+	attachment_id = HORSE_ID_OFFSET + parent->actor_id;
 	attached = create_actor(attachment_type, actors_defs[attachment_type].skin_name,
 		parent->x_pos, parent->y_pos, parent->z_pos, parent->z_rot, get_actor_scale(parent),
-		0, 0, 0, 0, 0, 0, 0, -1);
+		0, 0, 0, 0, 0, 0, 0, attachment_id);
 	if (!attached)
 		return NULL;
 
@@ -942,7 +944,7 @@ void draw_actor_without_banner(actor * actor_id, Uint32 use_lightning, Uint32 us
 	glRotatef(x_rot, 1.0f, 0.0f, 0.0f);
 	glRotatef(y_rot, 0.0f, 1.0f, 0.0f);
 
-	if (actor_id->attached_actor >= 0)
+	if (has_attachment(actor_id))
 		glTranslatef(actor_id->attachment_shift[0], actor_id->attachment_shift[1], actor_id->attachment_shift[2]);
 
 	if (use_animation_program)
@@ -983,7 +985,7 @@ static void draw_actor_banner_new(actor *actor_id, const actor *me)
 
 	glTranslatef(x_pos + 0.25f, y_pos + 0.25f, z_pos);
 
-	if (actor_id->attached_actor >= 0)
+	if (has_attachment(actor_id))
 	{
 		glRotatef(180 - actor_id->z_rot, 0.0f, 0.0f, 1.0f);
 		glTranslatef(actor_id->attachment_shift[0], actor_id->attachment_shift[1], actor_id->attachment_shift[2]);
@@ -1064,9 +1066,10 @@ void get_actors_in_range()
 		)
 		{
 			// if we have an attached actor, we maybe have to modify the position of the current actor
-			if (actors_list[i]->attached_actor >= 0)
+			if (has_attachment(actors_list[i]))
 			{
-				actor *att = actors_list[actors_list[i]->attached_actor];
+				actor *att = find_actor_ptr(actors_list, max_actors,
+					actors_list[i]->attached_actor_id);
 				attachment_props *att_props;
 				float loc_pos[3];
 				float att_pos[3];
@@ -1117,7 +1120,7 @@ void get_actors_in_range()
 
 			if (aabb_in_frustum(bbox))
 			{
-				near_actors[no_near_actors].actor = i;
+				near_actors[no_near_actors].actor_id = actors_list[i]->actor_id;
 				near_actors[no_near_actors].ghost = actors_list[i]->ghost;
 				near_actors[no_near_actors].buffs = actors_list[i]->buffs;
 				near_actors[no_near_actors].select = 0;
@@ -1128,8 +1131,7 @@ void get_actors_in_range()
 				}
 				else
 				{
-					near_actors[no_near_actors].alpha =
-						actors_list[i]->has_alpha;
+					near_actors[no_near_actors].alpha = actors_list[i]->has_alpha;
 				}
 
 				actors_list[i]->max_z = actors_list[i]->bbox.bbmax[Z];
@@ -1203,6 +1205,8 @@ void display_actors(int banner, int render_pass)
 #endif	/* FSAA */
 	for (i = 0; i < no_near_actors; i++)
 	{
+		int actor_id = near_actors[i].actor_id;
+
 		if (near_actors[i].ghost || (near_actors[i].buffs & BUFF_INVISIBILITY))
 		{
 			if ((render_pass == DEFAULT_RENDER_PASS) ||
@@ -1217,10 +1221,9 @@ void display_actors(int banner, int render_pass)
 		}
 		else
 		{
-			actor *cur_actor = lock_and_get_actor_at_index(near_actors[i].actor);
+			actor *cur_actor = lock_and_get_actor_from_id(actor_id);
 			if (cur_actor)
 			{
-				int actor_id = cur_actor->actor_id;
 				int kind_of_actor = cur_actor->kind_of_actor;
 				int is_enhanced_model = cur_actor->is_enhanced_model;
 
@@ -1259,13 +1262,13 @@ void display_actors(int banner, int render_pass)
 		glAlphaFunc(GL_GREATER, 0.4f);
 		for (i = 0; i < no_near_actors; i++)
 		{
+			int actor_id = near_actors[i].actor_id;
 
 			if (near_actors[i].alpha && !(near_actors[i].ghost || (near_actors[i].buffs & BUFF_INVISIBILITY)))
 			{
-				actor *cur_actor = lock_and_get_actor_at_index(near_actors[i].actor);
+				actor *cur_actor = lock_and_get_actor_from_id(actor_id);
 				if (cur_actor)
 				{
-					int actor_id = cur_actor->actor_id;
 					int kind_of_actor = cur_actor->kind_of_actor;
 					int is_enhanced_model = cur_actor->is_enhanced_model;
 
@@ -1310,13 +1313,13 @@ void display_actors(int banner, int render_pass)
 
 		for (i = 0; i < no_near_actors; i++)
 		{
+			int actor_id = near_actors[i].actor_id;
 
 			if (near_actors[i].ghost || (near_actors[i].buffs & BUFF_INVISIBILITY))
 			{
-				actor *cur_actor = lock_and_get_actor_at_index(near_actors[i].actor);
+				actor *cur_actor = lock_and_get_actor_from_id(actor_id);
 				if (cur_actor)
 				{
-					int actor_id = cur_actor->actor_id;
 					int kind_of_actor = cur_actor->kind_of_actor;
 					int is_enhanced_model = cur_actor->is_enhanced_model;
 
@@ -1399,10 +1402,10 @@ void display_actors(int banner, int render_pass)
 		for (i = 0; i < no_near_actors; i++)
 		{
 			actor *act;
-			actor *me = lock_and_get_self_and_actor_at_index(near_actors[i].actor, &act);
+			actor *me = lock_and_get_self_and_actor_from_id(near_actors[i].actor_id, &act);
 			if (act)
 			{
-				if (act->actor_id >= 0)
+				if (!is_horse(act))
 					draw_actor_banner_new(act, me);
 				release_actors_list();
 			}
@@ -1719,7 +1722,7 @@ void transform_actor_local_position_to_absolute(const actor *in_act, float *in_l
 	out_pos[1] = out_pos[1] * scale + in_act->y_pos + 0.25;
 	out_pos[2] = out_pos[2] * scale + get_actor_z(in_act);
 
-	if (in_act->attached_actor >= 0)
+	if (has_attachment(in_act))
 	{
 		float shift[3];
 		MAT3_VECT3_MULT(shift, in_act_rot, in_act->attachment_shift);
