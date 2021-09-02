@@ -1,13 +1,13 @@
 #ifndef __JSON_IO_H
 #define __JSON_IO_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include "chat.h"
 #include "counters.h"
 #include "manufacture.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #define USE_JSON_DEBUG(message) {}
 //#define USE_JSON_DEBUG(message) {printf("%s:%d %s\n", __FUNCTION__, __LINE__, message);}

@@ -8,7 +8,7 @@
 
 #include <SDL_types.h>
 
-#include "actors.h"			// Should we just move the function that needs this include away?
+#include "actors_list.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -70,7 +70,7 @@ void set_on_idle(actor *act, actor *attached);
  * \param max_actors  The number of actors in \a actors_list
  * \callgraph
  */
-void next_command(actor **actors_list, size_t max_actors);
+void next_command(locked_list_ptr list);
 
 /*!
  * \brief Free all the data that is contained in an actor

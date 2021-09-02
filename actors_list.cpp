@@ -52,6 +52,12 @@ ActorsList::LockedList ActorsList::get()
 	return LockedList(*this, _mutex);
 }
 
+ActorsList::LockedList* ActorsList::get_ptr()
+{
+	LOCK(_mutex);
+	return new LockedList(*this, _mutex);
+}
+
 ActorsList::LockedActorPtr ActorsList::get_self()
 {
 	LOCK(_mutex);
@@ -65,12 +71,6 @@ actor* ActorsList::lock_and_get_self()
 		return _self;
 	_mutex.unlock();
 	return nullptr;
-}
-
-ActorsList::Storage& ActorsList::lock_and_get_actors_list()
-{
-	LOCK(_mutex);
-	return _list;
 }
 
 actor* ActorsList::lock_and_get_actor_from_id(int actor_id)
@@ -103,34 +103,16 @@ std::pair<actor*, actor*> ActorsList::lock_and_get_actor_and_attached_from_id(in
 std::pair<actor*, actor*> ActorsList::lock_and_get_actor_pair_from_id(int actor_id1, int actor_id2)
 {
 	LOCK(_mutex);
-	actor *act1 = get_actor_from_id_locked(actor_id1);
-	if (!act1)
-	{
-		_mutex.unlock();
-		return { nullptr, nullptr };
-	}
-
-	actor *act2 = get_actor_from_id_locked(actor_id2);
-	return { act1, act2 };
+	return get_actor_pair_from_id_locked(actor_id1, actor_id2);
 }
 
 actor* ActorsList::lock_and_get_actor_from_name(const char* name)
 {
-	size_t name_len = std::strlen(name);
-	if (name_len >= sizeof_field(actor, actor_name))
-		return nullptr;
-
 	LOCK(_mutex);
-	Storage::iterator iter = std::find_if(_list.begin(), _list.end(),
-		[name, name_len](actor* act) {
-			return !strncasecmp(act->actor_name, name, name_len)
-				&& (act->actor_name[name_len] == ' ' || act->actor_name[name_len] == '\0');
-		}
-	);
-	if (iter != _list.end())
-		return *iter;
-	_mutex.unlock();
-	return nullptr;
+	actor *act = get_actor_from_name_locked(name);
+	if (!act)
+		_mutex.unlock();
+	return act;
 }
 
 actor* ActorsList::lock_and_get_nearest_actor(int tile_x, int tile_y, float max_distance)
@@ -177,12 +159,6 @@ actor* ActorsList::lock_and_get_nearest_actor(int tile_x, int tile_y, float max_
 	if (!nearest_actor)
 		_mutex.unlock();
 	return nearest_actor;
-}
-
-std::pair<ActorsList::Storage&, actor*> ActorsList::lock_and_get_list_and_self()
-{
-	LOCK(_mutex);
-	return { _list, _self };
 }
 
 #ifdef ECDEBUGWIN
@@ -324,6 +300,34 @@ std::pair<actor*, actor*> ActorsList::get_actor_and_attached_from_id_locked(int 
 	return { act, attached };
 }
 
+std::pair<actor*, actor*> ActorsList::get_actor_pair_from_id_locked(int actor_id1, int actor_id2)
+{
+	actor *act1 = get_actor_from_id_locked(actor_id1);
+	if (!act1)
+	{
+		_mutex.unlock();
+		return { nullptr, nullptr };
+	}
+
+	actor *act2 = get_actor_from_id_locked(actor_id2);
+	return { act1, act2 };
+}
+
+actor* ActorsList::get_actor_from_name_locked(const char* name)
+{
+	size_t name_len = std::strlen(name);
+	if (name_len >= sizeof_field(actor, actor_name))
+		return nullptr;
+
+	Storage::iterator iter = std::find_if(_list.begin(), _list.end(),
+		[name, name_len](actor* act) {
+			return !strncasecmp(act->actor_name, name, name_len)
+				&& (act->actor_name[name_len] == ' ' || act->actor_name[name_len] == '\0');
+		}
+	);
+	return (iter != _list.end()) ? *iter : nullptr;
+}
+
 size_t ActorsList::find_index_for_id(int actor_id)
 {
 	Storage::iterator iter = std::find_if(_list.begin(), _list.end(),
@@ -463,12 +467,36 @@ void ActorsList::clear_locked()
 
 using namespace eternal_lands;
 
-extern "C" actor** lock_and_get_actors_list(std::size_t *len)
+extern "C" locked_list_ptr get_locked_actors_list()
 {
-	ActorsList::Storage& list = ActorsList::get_instance().lock_and_get_actors_list();
-	if (len)
-		*len = list.size();
-	return list.data();
+	return ActorsList::get_instance().get_ptr();
+}
+
+extern "C" actor* get_self(locked_list_ptr list)
+{
+	return list->get_self();
+}
+
+extern "C" actor* get_actor_from_id(locked_list_ptr list, int actor_id)
+{
+	return list->get_actor_from_id(actor_id);
+}
+
+extern "C" void for_each_actor(locked_list_ptr list, void (*fun)(actor*, void*, locked_list_ptr),
+	void* data)
+{
+	list->for_each_actor(fun, data);
+}
+
+extern "C" void for_each_actor_and_attached(locked_list_ptr list,
+	void (*fun)(actor*, actor*, void*, locked_list_ptr), void* data)
+{
+	list->for_each_actor_and_attached(fun, data);
+}
+
+extern "C" void release_locked_actors_list(locked_list_ptr list)
+{
+	delete list;
 }
 
 extern "C" void release_actors_list()
@@ -517,15 +545,6 @@ extern "C" actor* lock_and_get_actor_from_name(const char* name)
 extern "C" actor* lock_and_get_nearest_actor(int tile_x, int tile_y, float max_distance)
 {
 	return ActorsList::get_instance().lock_and_get_nearest_actor(tile_x, tile_y, max_distance);
-}
-
-extern "C" actor** lock_and_get_list_and_self(size_t *len, actor **self)
-{
-	std::pair<ActorsList::Storage& , actor*> tmp = ActorsList::get_instance()
-		.lock_and_get_list_and_self();
-	*len = tmp.first.size();
-	*self = tmp.second;
-	return tmp.first.data();
 }
 
 #ifdef ECDEBUGWIN

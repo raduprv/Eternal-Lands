@@ -113,14 +113,66 @@ static __inline__ int is_within_radius(float mx, float my,float px,float py,floa
 		return 0;
 }
 
+static void draw_actor_point(actor* act, void* data, locked_list_ptr list)
+{
+	float x, y;
+	float size_x = float_minimap_size / (tile_map_size_x * 6);
+	float size_y = float_minimap_size / (tile_map_size_y * 6);
+	float zoom_multip = *((const float*)data);
+
+	if (is_horse(act))
+		// Don't draw horses
+		return;
+
+	x = act->x_tile_pos * size_x;
+	y = float_minimap_size - (act->y_tile_pos * size_y);
+
+	glColor4f(0.0f,0.0f,0.0f,1.0f);
+	glVertex2f(x+2*zoom_multip, y+2*zoom_multip);
+
+	if (act->kind_of_actor == NPC)
+		elglColourN("minimap.npc");
+	else if (act->actor_id == yourself)
+		elglColourN("minimap.yourself");
+	else if (act->is_enhanced_model && (act->kind_of_actor ==  PKABLE_HUMAN || act->kind_of_actor == PKABLE_COMPUTER_CONTROLLED))
+		elglColourN("minimap.pkable");
+	else if (act->is_enhanced_model && is_in_buddylist(act->actor_name))
+		elglColourN("minimap.buddy");
+	else if (is_color ((unsigned char)act->actor_name[0]))
+	{
+		if (act->is_enhanced_model && is_in_buddylist(act->actor_name))
+			elglColourN("minimap.buddy");
+		else
+		{	// Use the colour of their name. This gives purple bots, green demigods, etc.
+			int color = from_color_char (act->actor_name[0]);
+			glColor4ub (colors_list[color].r1,
+				colors_list[color].g1,
+				colors_list[color].b1, 255);
+		}
+	}
+	else if (!act->is_enhanced_model)
+	{
+		if (act->dead)
+			elglColourN("minimap.deadcreature");
+		else // alive
+			elglColourN("minimap.creature");
+	}
+	else
+	{
+		elglColourN("minimap.otherplayer");
+	}
+
+	// Draw it!
+	glVertex2f(x, y);
+}
+
 static void draw_actor_points(window_info *win, float zoom_multip, float px, float py)
 {
+	float x, y;
 	float size_x = float_minimap_size / (tile_map_size_x * 6);
 	float size_y = float_minimap_size / (tile_map_size_y * 6);
 	int i;
-	float x, y;
-	size_t max_actors;
-	actor** actors_list;
+	locked_list_ptr actors_list;
 
 	glPushMatrix();
 	glDisable(GL_TEXTURE_2D);
@@ -135,55 +187,9 @@ static void draw_actor_points(window_info *win, float zoom_multip, float px, flo
 
 	glBegin(GL_POINTS);
 
-	actors_list = lock_and_get_actors_list(&max_actors);
-	for (i = 0; i < max_actors; i++)
-	{
-		if (actors_list[i])
-		{
-			actor *a = actors_list[i];
-			if (is_horse(a))
-				// Don't draw horses
-				continue;
-			x = a->x_tile_pos * size_x;
-			y = float_minimap_size - (a->y_tile_pos * size_y);
-
-			glColor4f(0.0f,0.0f,0.0f,1.0f);
-			glVertex2f(x+2*zoom_multip, y+2*zoom_multip);
-
-			if (a->kind_of_actor == NPC)
-				elglColourN("minimap.npc");
-			else if(a->actor_id == yourself)
-				elglColourN("minimap.yourself");
-			else if(a->is_enhanced_model && (a->kind_of_actor ==  PKABLE_HUMAN || a->kind_of_actor == PKABLE_COMPUTER_CONTROLLED))
-				elglColourN("minimap.pkable");
-			else if(a->is_enhanced_model && is_in_buddylist(a->actor_name))
-				elglColourN("minimap.buddy");
-			else if (is_color ((unsigned char)a->actor_name[0]))
-			{
-				if(a->is_enhanced_model && is_in_buddylist(a->actor_name))
-					elglColourN("minimap.buddy");
-				else
-				{	// Use the colour of their name. This gives purple bots, green demigods, etc.
-					int color = from_color_char (a->actor_name[0]);
-					glColor4ub (colors_list[color].r1,
-						colors_list[color].g1,
-						colors_list[color].b1, 255);
-				}
-			}
-			else if(!a->is_enhanced_model)
-			{
-				if (a->dead) 
-					elglColourN("minimap.deadcreature");
-				else // alive
-					elglColourN("minimap.creature");
-			}
-			else
-				elglColourN("minimap.otherplayer");
-			// Draw it!
-			glVertex2f(x, y);
-		}
-	}
-	release_actors_list();
+	actors_list = get_locked_actors_list();
+	for_each_actor(actors_list, draw_actor_point, &zoom_multip);
+	release_locked_actors_list(actors_list);
 	
 	// mines
 	for (i = 0; i < NUM_MINES; i++)

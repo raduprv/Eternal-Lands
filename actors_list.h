@@ -125,6 +125,24 @@ public:
 	{
 		LockedList(ActorsList& list, Mutex& mutex): Locked<ActorsList>(list, mutex) {}
 
+		template <typename T>
+		void for_each_actor(T fun, void* data)
+		{
+			for (actor* act: (*this)->_list)
+				fun(act, data, this);
+		}
+		template <typename T>
+		void for_each_actor_and_attached(T fun, void* data)
+		{
+			for (actor* act: (*this)->_list)
+			{
+				actor *attached = has_attachment(act)
+					? get_actor_from_id(act->attached_actor_id)
+					: nullptr;
+				fun(act, attached, data, this);
+			}
+		}
+
 		void add(actor* act, actor *attached) { (*this)->add_locked(act, attached); }
 		bool add_attachment(int actor_id, actor *attached)
 		{
@@ -143,6 +161,14 @@ public:
 		{
 			return (*this)->get_actor_and_attached_from_id_locked(actor_id);
 		}
+		std::pair<actor*, actor*> get_actor_pair_from_id(int actor_id1, int actor_id2)
+		{
+			return (*this)->get_actor_pair_from_id_locked(actor_id1, actor_id2);
+		}
+		actor* get_actor_from_name(const char* name)
+		{
+			return (*this)->get_actor_from_name_locked(name);
+		}
 	};
 	//! Type definition for an actor pointer protected by the actors list mutex
 	typedef Locked<actor*> LockedActorPtr;
@@ -156,10 +182,11 @@ public:
 
 	//! Get a guarded proxy to this actors list
 	LockedList get();
+	//! Get a guarded proxy to this actors list
+	LockedList* get_ptr();
 	//! Get a guarded proxy to the player's own actor
 	LockedActorPtr get_self();
 
-	Storage& lock_and_get_actors_list();
 	/*!
 	 * \brief Find yourself
 	 *
@@ -211,10 +238,34 @@ public:
 	 * \return Pointers to the actors
 	 */
 	std::pair<actor*, actor*> lock_and_get_actor_and_attached_from_id(int actor_id);
+	/*!
+	 * \brief Find a pair of actors
+	 *
+	 * Lock the actors list, and find the pair of actors identified by their IDs \a actor_id1 and
+	 * \a actor_id2. If the first actor cannot be found, a pair of \c nullptr's is returned, and
+	 * the list is unlocked. If only the second actor cannot be found, the second pointer returned
+	 * is \c nullptr, but the list remains locked.
+	 * \note On succesful return, the caller is responsible for unlocking the actors list by calling
+	 *       release().
+	 * \note On an error return (first pointer is \c nullptr), the actors list is already unlocked
+	 * \param actor_id1 The ID of the first actor to look for
+	 * \param actor_id2 The ID of the second actor to look for
+	 * \return Pointers to the actors
+	 */
 	std::pair<actor*, actor*> lock_and_get_actor_pair_from_id(int actor_id1, int actor_id2);
+	/*!
+	 * \brief Find an actor by name
+	 *
+	 * Lock the actors list, and return the actor with name \a name (disregarding letter case). If
+	 * no actor with name \a name can be found, \c nullptr is returned and the list is unlocked.
+	 * \note On succesful return, the caller is responsible for unlocking the actors list by calling
+	 *       release().
+	 * \note On an error return (result is \c nullptr), the actors list is already unlocked
+	 * \param name The name of the actor to look for
+	 * \return Pointer to the actor
+	 */
 	actor* lock_and_get_actor_from_name(const char* name);
 	actor* lock_and_get_nearest_actor(int tile_x, int tile_y, float max_distance);
-	std::pair<Storage&, actor*> lock_and_get_list_and_self();
 #ifdef ECDEBUGWIN
 	actor* lock_and_get_target();
 	std::pair<actor*, actor*> lock_and_get_self_and_target();
@@ -359,6 +410,30 @@ private:
 	 * \return Pointers to the actors
 	 */
 	std::pair<actor*, actor*> get_actor_and_attached_from_id_locked(int actor_id);
+	/*!
+	 * \brief Find a pair of actors
+	 *
+	 * Lock the actors list, and find the pair of actors identified by their IDs \a actor_id1 and
+	 * \a actor_id2. If the first actor cannot be found, a pair of \c nullptr's is returned, and
+	 * the list is unlocked. If only the second actor cannot be found, the second pointer returned
+	 * is \c nullptr, but the list remains locked.
+	 * \note On succesful return, the caller is responsible for unlocking the actors list by calling
+	 *       release().
+	 * \note On an error return (first pointer is \c nullptr), the actors list is already unlocked
+	 * \param actor_id1 The ID of the first actor to look for
+	 * \param actor_id2 The ID of the second actor to look for
+	 * \return Pointers to the actors
+	 */
+	std::pair<actor*, actor*> get_actor_pair_from_id_locked(int actor_id1, int actor_id2);
+	/*!
+	 * \brief Find an actor by name
+	 *
+	 * Lock the actors list, and return the actor with name \a name (disregarding letter case). If
+	 * no actor with name \a name can be found, \c nullptr is returned.
+	 * \param name The name of the actor to look for
+	 * \return Pointer to the actor
+	 */
+	actor* get_actor_from_name_locked(const char* name);
 
 	size_t find_index_for_id(int actor_id);
 
@@ -403,12 +478,25 @@ private:
 
 } // namespace eternal_lands
 
+typedef eternal_lands::ActorsList::LockedList locked_list;
+typedef locked_list *locked_list_ptr;
+
 extern "C"
 {
 #endif // __cplusplus
 
-actor** lock_and_get_actors_list(size_t* len);
-void release_actors_list(void);
+#ifndef __cplusplus
+typedef struct locked_list *locked_list_ptr;
+#endif // __cplusplus
+
+locked_list_ptr get_locked_actors_list(void);
+actor* get_self(locked_list_ptr list);
+actor* get_actor_from_id(locked_list_ptr list, int actor_id);
+void for_each_actor(locked_list_ptr list, void (*fun)(actor*, void*, locked_list_ptr), void* data);
+void for_each_actor_and_attached(locked_list_ptr list,
+	void (*fun)(actor*, actor*, void*, locked_list_ptr), void* data);
+void release_locked_actors_list(locked_list_ptr list);
+
 actor* lock_and_get_self();
 actor* lock_and_get_actor_from_id(int id);
 actor* lock_and_get_self_and_actor_from_id(int actor_id, actor **act);
@@ -416,11 +504,12 @@ actor* lock_and_get_actor_and_attached_from_id(int actor_id, actor **horse);
 actor* lock_and_get_actor_pair_from_id(int actor_id1, int actor_id2, actor **act2);
 actor* lock_and_get_actor_from_name(const char* name);
 actor* lock_and_get_nearest_actor(int tile_x, int tile_y, float max_distance);
-actor** lock_and_get_list_and_self(size_t *len, actor **self);
 #ifdef ECDEBUGWIN
 actor* lock_and_get_target(void);
 actor* lock_and_get_self_and_target(actor **target);
 #endif
+void release_actors_list(void);
+
 void add_actor_to_list(actor *act, actor *attached);
 void remove_and_destroy_actor_from_list(int actor_id);
 int add_attachment_to_list(int actor_id, actor *attached);

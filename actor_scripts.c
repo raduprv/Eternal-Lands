@@ -337,196 +337,187 @@ static Uint32 update_actor_animation_speed(actor* a, const float time_diff)
 }
 #endif	/* ANIMATION_SCALING */
 
-void animate_actors()
+static void animate_actor(actor *act, actor *attached, void* data, locked_list_ptr list)
 {
-	actor **actors_list;
-	size_t max_actors;
+	actor *horse = (attached && is_horse(attached)) ? attached : NULL;
 #ifdef	ANIMATION_SCALING
-	static int last_update = 0;
-	int i, actors_time_diff, time_diff, tmp_time_diff;
+	int actors_time_diff, time_diff;
 
-	actors_time_diff = cur_time - last_update;
+	actors_time_diff = *((const int*)data);
+	time_diff = update_actor_animation_speed(act, actors_time_diff);
 #else	/* ANIMATION_SCALING */
-	int i;
-	static int last_update= 0;
-    int time_diff = cur_time-last_update;
-    int tmp_time_diff;
+    int time_diff = *((const int*)data);
 #endif	/* ANIMATION_SCALING */
 
-	// lock the actors_list so that nothing can interere with this look
-	actors_list = lock_and_get_actors_list(&max_actors);
-	for (i=0; i<max_actors; i++)
+	if(act->moving)
 	{
-		actor *attached, *horse;
-		actor *act = actors_list[i];
-		if (!act)
-			continue;
-
-		attached = get_attached(act, actors_list, max_actors);
-		horse = (attached && is_horse(attached)) ? attached : NULL;
-
 #ifdef	ANIMATION_SCALING
-		time_diff = update_actor_animation_speed(act, actors_time_diff);
-#endif	/* ANIMATION_SCALING */
-		if(act->moving)
-		{
-#ifdef	ANIMATION_SCALING
-			tmp_time_diff = min2i(act->movement_time_left + 40, time_diff);
+		int tmp_time_diff = min2i(act->movement_time_left + 40, time_diff);
 
-			act->x_pos += act->move_x_speed * tmp_time_diff;
-			act->y_pos += act->move_y_speed * tmp_time_diff;
-			act->z_pos += act->move_z_speed * tmp_time_diff;
+		act->x_pos += act->move_x_speed * tmp_time_diff;
+		act->y_pos += act->move_y_speed * tmp_time_diff;
+		act->z_pos += act->move_z_speed * tmp_time_diff;
 #else	/* ANIMATION_SCALING */
-			if (time_diff <= act->movement_time_left+40)
-			{
-				act->x_pos += act->move_x_speed*time_diff;
-				act->y_pos += act->move_y_speed*time_diff;
-				act->z_pos += act->move_z_speed*time_diff;
-			}
-			else
-			{
-				act->x_pos += act->move_x_speed*act->movement_time_left;
-				act->y_pos += act->move_y_speed*act->movement_time_left;
-				act->z_pos += act->move_z_speed*act->movement_time_left;
-			}
+		if (time_diff <= act->movement_time_left+40)
+		{
+			act->x_pos += act->move_x_speed*time_diff;
+			act->y_pos += act->move_y_speed*time_diff;
+			act->z_pos += act->move_z_speed*time_diff;
+		}
+		else
+		{
+			act->x_pos += act->move_x_speed*act->movement_time_left;
+			act->y_pos += act->move_y_speed*act->movement_time_left;
+			act->z_pos += act->move_z_speed*act->movement_time_left;
+		}
 #endif	/* ANIMATION_SCALING */
-			act->movement_time_left -= time_diff;
-			if (act->movement_time_left <= 0)
+		act->movement_time_left -= time_diff;
+		if (act->movement_time_left <= 0)
+		{
+			// We moved all the way
+			Uint8 last_command;
+			int dx, dy;
+
+			act->moving= 0;	//don't move next time, ok?
+			//now, we need to update the x/y_tile_pos, and round off
+			//the x/y_pos according to x/y_tile_pos
+			last_command= act->last_command;
+			//if(HAS_HORSE(i)) {MY_HORSE(i)->busy=0; if(act->actor_id==yourself) printf("%i, %s wakes up Horse\n",thecount, act->actor_name);}
+			if (get_motion_vector(last_command, &dx, &dy))
 			{
-				// We moved all the way
-				Uint8 last_command;
-				int dx, dy;
+				act->x_tile_pos += dx;
+				act->y_tile_pos += dy;
 
-				act->moving= 0;	//don't move next time, ok?
-				//now, we need to update the x/y_tile_pos, and round off
-				//the x/y_pos according to x/y_tile_pos
-				last_command= act->last_command;
-				//if(HAS_HORSE(i)) {MY_HORSE(i)->busy=0; if(act->actor_id==yourself) printf("%i, %s wakes up Horse\n",thecount, act->actor_name);}
-				if (get_motion_vector(last_command, &dx, &dy))
+				act->busy = 0;
+				//if(act->actor_id==yourself) printf("%i, unbusy(moved)\n", thecount);
+				//if(act->actor_id<0) printf("%i, unbusy horse(moved)\n", thecount);
+
+				if (act->que[0] >= move_n && act->que[0] <= move_nw)
 				{
-					act->x_tile_pos += dx;
-					act->y_tile_pos += dy;
-
-					act->busy = 0;
-					//if(act->actor_id==yourself) printf("%i, unbusy(moved)\n", thecount);
-					//if(act->actor_id<0) printf("%i, unbusy horse(moved)\n", thecount);
-
-					if (act->que[0] >= move_n && act->que[0] <= move_nw)
-					{
-						next_command(actors_list, max_actors);
-					}
-					else
-					{
-						act->x_pos= act->x_tile_pos*0.5;
-						act->y_pos= act->y_tile_pos*0.5;
-						act->z_pos= get_actor_z(act);
-					}
+					next_command(list);
 				}
 				else
 				{
-					act->busy = 0;
-					//if(act->actor_id==yourself) printf("%i, unbusy(moved2)\n", thecount);
-					//if(act->actor_id<0) printf("%i, unbusy horse(moved2)\n", thecount);
-
+					act->x_pos= act->x_tile_pos*0.5;
+					act->y_pos= act->y_tile_pos*0.5;
+					act->z_pos= get_actor_z(act);
 				}
-			}
-		} // moving
-
-		if (act->rotating)
-		{
-#ifdef	ANIMATION_SCALING
-			tmp_time_diff = min2i(act->rotate_time_left, time_diff);
-			act->rotate_time_left -= time_diff;
-
-			if (act->rotate_time_left <= 0)
-			{
-				// We rotated all the way
-				act->rotating = 0;//don't rotate next time, ok?
-			}
-#else	/* ANIMATION_SCALING */
-			act->rotate_time_left -= time_diff;
-			if (act->rotate_time_left <= 0)
-			{
-				// We rotated all the way
-				act->rotating= 0;//don't rotate next time, ok?
-				tmp_time_diff = time_diff + act->rotate_time_left;
-/*
-#ifdef MORE_ATTACHED_ACTORS					
-				if(act->actor_id==yourself) printf("%i, rot: %i\n",thecount,act->rotating);
-				if(act->actor_id<0) printf("%i, (horse) rot: %i\n",thecount,act->rotating);
-#endif
-*/
 			}
 			else
 			{
-				tmp_time_diff = time_diff;
-			}
-#endif	/* ANIMATION_SCALING */
-			act->x_rot+= act->rotate_x_speed*tmp_time_diff;
-			act->y_rot+= act->rotate_y_speed*tmp_time_diff;
-			act->z_rot+= act->rotate_z_speed*tmp_time_diff;
-			if(act->z_rot >= 360) {
-				act->z_rot -= 360;
-			} else if (act->z_rot <= 0) {
-				act->z_rot += 360;
-			}
-			//if(act->actor_id==yourself) printf("%i, rotating: z_rot %f,  status %i-%i\n",thecount,act->z_rot,act->rotating,act->moving);
-			//if(act->actor_id<0) printf("%i, rotating (horse): z_rot %f,  status %i-%i\n",thecount,act->z_rot,act->rotating,act->moving);
-		} // rotating
+				act->busy = 0;
+				//if(act->actor_id==yourself) printf("%i, unbusy(moved2)\n", thecount);
+				//if(act->actor_id<0) printf("%i, unbusy horse(moved2)\n", thecount);
 
-#ifdef	ANIMATION_SCALING
-		act->anim_time += (time_diff*act->cur_anim.duration_scale)/1000.0;
-#else	/* ANIMATION_SCALING */
-		act->anim_time += ((cur_time-last_update)*act->cur_anim.duration_scale)/1000.0;
-#endif	/* ANIMATION_SCALING */
-		/*if(act->anim_time>=act->cur_anim.duration) {
-			if (HAS_HORSE(i)||IS_HORSE(i)) {
-					if(MY_HORSE(i)->anim_time<MY_HORSE(i)->cur_anim.duration) {
-						MY_HORSE(i)->anim_time=MY_HORSE(i)->cur_anim.duration;
-						printf("%i, ANIMATION FORCED\n",thecount);
-					}
-			}
-		}*/
-#ifndef	DYNAMIC_ANIMATIONS
-		if (act->calmodel!=NULL)
-		{
-			//check if emote animation is ended, then remove it
-			handle_cur_emote(act);
-
-#ifdef MORE_EMOTES
-			if(act->startIdle != act->endIdle)
-			{
-				if (do_transition(act))
-				{
-					act->stand_idle = act->sit_idle = 0; //force set_on_idle
-					set_on_idle(act, attached);
-				}
-			}
-#endif // MORE_EMOTES
-#ifdef	ANIMATION_SCALING
-			CalModel_Update(act->calmodel, (time_diff * act->cur_anim.duration_scale) / 1000.0f);
-#else	/* ANIMATION_SCALING */
-			CalModel_Update(act->calmodel, (((cur_time-last_update)*act->cur_anim.duration_scale)/1000.0));
-#endif	/* ANIMATION_SCALING */
-			build_actor_bounding_box(act);
-			{
-				int wasbusy = act->busy;
-				missiles_rotate_actor_bones(act);
-				if (horse && act->busy != wasbusy)
-				{
-					//if(act->actor_id==yourself) printf("%i, %s is no more busy due to missiles_rotate_actor_bones!! Setting the horse free...\n",thecount, act->actor_name);
-					unfreeze_horse(act, horse);
-				}
-			}
-			if (use_animation_program)
-			{
-				set_transformation_buffers(act);
 			}
 		}
-#endif // !DYNAMIC_ANIMATIONS
+	} // moving
+
+	if (act->rotating)
+	{
+#ifdef	ANIMATION_SCALING
+		int tmp_time_diff = min2i(act->rotate_time_left, time_diff);
+		act->rotate_time_left -= time_diff;
+
+		if (act->rotate_time_left <= 0)
+		{
+			// We rotated all the way
+			act->rotating = 0;//don't rotate next time, ok?
+		}
+#else	/* ANIMATION_SCALING */
+		act->rotate_time_left -= time_diff;
+		if (act->rotate_time_left <= 0)
+		{
+			// We rotated all the way
+			act->rotating= 0;//don't rotate next time, ok?
+			tmp_time_diff = time_diff + act->rotate_time_left;
+/*
+#ifdef MORE_ATTACHED_ACTORS
+			if(act->actor_id==yourself) printf("%i, rot: %i\n",thecount,act->rotating);
+			if(act->actor_id<0) printf("%i, (horse) rot: %i\n",thecount,act->rotating);
+#endif
+*/
+		}
+		else
+		{
+			tmp_time_diff = time_diff;
+		}
+#endif	/* ANIMATION_SCALING */
+		act->x_rot+= act->rotate_x_speed*tmp_time_diff;
+		act->y_rot+= act->rotate_y_speed*tmp_time_diff;
+		act->z_rot+= act->rotate_z_speed*tmp_time_diff;
+		if(act->z_rot >= 360) {
+			act->z_rot -= 360;
+		} else if (act->z_rot <= 0) {
+			act->z_rot += 360;
+		}
+		//if(act->actor_id==yourself) printf("%i, rotating: z_rot %f,  status %i-%i\n",thecount,act->z_rot,act->rotating,act->moving);
+		//if(act->actor_id<0) printf("%i, rotating (horse): z_rot %f,  status %i-%i\n",thecount,act->z_rot,act->rotating,act->moving);
+	} // rotating
+
+#ifdef	ANIMATION_SCALING
+	act->anim_time += (time_diff*act->cur_anim.duration_scale)/1000.0;
+#else	/* ANIMATION_SCALING */
+	act->anim_time += ((cur_time-last_update)*act->cur_anim.duration_scale)/1000.0;
+#endif	/* ANIMATION_SCALING */
+	/*if(act->anim_time>=act->cur_anim.duration) {
+		if (HAS_HORSE(i)||IS_HORSE(i)) {
+				if(MY_HORSE(i)->anim_time<MY_HORSE(i)->cur_anim.duration) {
+					MY_HORSE(i)->anim_time=MY_HORSE(i)->cur_anim.duration;
+					printf("%i, ANIMATION FORCED\n",thecount);
+				}
+		}
+	}*/
+#ifndef	DYNAMIC_ANIMATIONS
+	if (act->calmodel!=NULL)
+	{
+		//check if emote animation is ended, then remove it
+		handle_cur_emote(act);
+
+#ifdef MORE_EMOTES
+		if(act->startIdle != act->endIdle)
+		{
+			if (do_transition(act))
+			{
+				act->stand_idle = act->sit_idle = 0; //force set_on_idle
+				set_on_idle(act, attached);
+			}
+		}
+#endif // MORE_EMOTES
+#ifdef	ANIMATION_SCALING
+		CalModel_Update(act->calmodel, (time_diff * act->cur_anim.duration_scale) / 1000.0f);
+#else	/* ANIMATION_SCALING */
+		CalModel_Update(act->calmodel, (((cur_time-last_update)*act->cur_anim.duration_scale)/1000.0));
+#endif	/* ANIMATION_SCALING */
+		build_actor_bounding_box(act);
+		{
+			int wasbusy = act->busy;
+			missiles_rotate_actor_bones(act);
+			if (horse && act->busy != wasbusy)
+			{
+				//if(act->actor_id==yourself) printf("%i, %s is no more busy due to missiles_rotate_actor_bones!! Setting the horse free...\n",thecount, act->actor_name);
+				unfreeze_horse(act, horse);
+			}
+		}
+		if (use_animation_program)
+		{
+			set_transformation_buffers(act);
+		}
 	}
-	// unlock the actors_list since we are done now
-	release_actors_list();
+#endif // !DYNAMIC_ANIMATIONS
+}
+
+void animate_actors()
+{
+	static int last_update = 0;
+
+	locked_list_ptr list;
+	int time_diff = cur_time - last_update;
+
+	// lock the actors_list so that nothing can interfere with this look
+	list = get_locked_actors_list();
+	for_each_actor_and_attached(list, animate_actor, &time_diff);
+	release_locked_actors_list(list);
 
 	last_update = cur_time;
 }
@@ -624,153 +615,138 @@ void flush_delayed_item_changes(actor *a)
 	a->delayed_item_changes_count = 0;
 }
 
-int coun= 0;
-void move_to_next_frame()
+static void move_actor_to_next_frame(actor* act, actor *attached, void* UNUSED(data),
+	locked_list_ptr UNUSED(list))
 {
-	actor **actors_list;
-	size_t max_actors;
-	int i;
-	//int numFrames=0;
-	//char frame_exists;
-	//struct CalMixer *mixer;
-	//char str[255];
+	actor *horse = (attached && is_horse(attached)) ? attached : NULL;
 
-	actors_list = lock_and_get_actors_list(&max_actors);
-	for(i=0;i<max_actors;i++)
+	if (act->calmodel)
 	{
-		actor *attached, *horse;
-		actor *act = actors_list[i];
-		if (!act)
-			continue;
-
-		attached = get_attached(act, actors_list, max_actors);
-		horse = (attached && is_horse(attached)) ? attached : NULL;
-
-		if (act->calmodel)
+		if (act->stop_animation == 1 && act->anim_time >= act->cur_anim.duration)
 		{
-			if (act->stop_animation == 1 && act->anim_time >= act->cur_anim.duration)
+			//if(act->actor_id==yourself) printf("%i, unbusy: anim %i, anim_time %f, duration %f\n",thecount,act->cur_anim.anim_index,act->anim_time,act->cur_anim.duration);
+			//if(act->actor_id<0&&MY_HORSE(i)->actor_id==yourself) printf("%i, (horse) unbusy: anim %i, anim_time %f, duration %f\n",thecount,act->cur_anim.anim_index,act->anim_time,act->cur_anim.duration);
+
+			if (horse)
 			{
-				//if(act->actor_id==yourself) printf("%i, unbusy: anim %i, anim_time %f, duration %f\n",thecount,act->cur_anim.anim_index,act->anim_time,act->cur_anim.duration);
-				//if(act->actor_id<0&&MY_HORSE(i)->actor_id==yourself) printf("%i, (horse) unbusy: anim %i, anim_time %f, duration %f\n",thecount,act->cur_anim.anim_index,act->anim_time,act->cur_anim.duration);
-
-				if (horse)
+				//rotations during idle animation like when server sends turn_n..turn_nw
+				//need to be synchronized on the minimum remaining animation time between
+				//the idle of the horse and the actor.
+				if (
+					/*(horse->anim_time < horse->cur_anim.duration) &&*/
+					horse->cur_anim.kind==cycle)
 				{
-					//rotations during idle animation like when server sends turn_n..turn_nw
-					//need to be synchronized on the minimum remaining animation time between
-					//the idle of the horse and the actor.
-					if (
-						/*(horse->anim_time < horse->cur_anim.duration) &&*/
-						horse->cur_anim.kind==cycle)
-					{
-						//horse->anim_time = horse->cur_anim.duration;
-						horse->busy = 0;
-						horse->in_aim_mode = 0;
-						set_on_idle(horse, act);
-						//horse->stop_animation=0;
-						//if(act->actor_id==yourself) printf("%i, %s stops Horse\n",thecount, act->actor_name);
-					}
-				}
-				else if (is_horse(act))
-				{
-					if (attached && attached->anim_time < attached->cur_anim.duration)
-					{
-						//wait for actor
-						//if(attached->actor_id==yourself) printf("%i, Horse waits for %s\n",thecount, attached->actor_name);
-						continue;
-					}
-				}
-					
-				act->busy = 0;
-				if (act->in_aim_mode == 2)
-				{
-					// we really leave the aim mode only when the animation is finished
-					act->in_aim_mode = 0;
-					missiles_log_message("%s (%d): leaving range mode finished!\n",
-						act->actor_name, act->actor_id);
-
+					//horse->anim_time = horse->cur_anim.duration;
+					horse->busy = 0;
+					horse->in_aim_mode = 0;
+					set_on_idle(horse, act);
+					//horse->stop_animation=0;
+					//if(act->actor_id==yourself) printf("%i, %s stops Horse\n",thecount, act->actor_name);
 				}
 			}
-		}
-
-		if (act->in_aim_mode == 0)
-		{
-			if (act->is_enhanced_model != 0)
+			else if (is_horse(act))
 			{
-				if (get_actor_texture_ready(act->texture_id))
+				if (attached && attached->anim_time < attached->cur_anim.duration)
 				{
-					use_ready_actor_texture(act->texture_id);
+					//wait for actor
+					//if(attached->actor_id==yourself) printf("%i, Horse waits for %s\n",thecount, attached->actor_name);
+					return;
 				}
 			}
 
-			if (act->delayed_item_changes_count > 0)
+			act->busy = 0;
+			if (act->in_aim_mode == 2)
 			{
 				// we really leave the aim mode only when the animation is finished
-				act->delay_texture_item_changes = 0;
+				act->in_aim_mode = 0;
+				missiles_log_message("%s (%d): leaving range mode finished!\n",
+					act->actor_name, act->actor_id);
 
-				// then we do all the item changes that have been delayed
-				flush_delayed_item_changes(act);
-
-				act->delay_texture_item_changes = 1;
 			}
-		}
-
-		// we change the idle animation only when the previous one is finished
-		if (act->stand_idle && act->anim_time >= act->cur_anim.duration - 0.2)
-		{
-			if (!is_actor_held(act, attached))
-			{
-				set_on_idle(act, attached);
-			}
-		}
-
-		if (act->cur_anim.anim_index==-1) {
-			act->busy=0;
-			//if(act->actor_id==yourself) printf("%i, unbusy(-1)\n", thecount);
-			//if(act->actor_id<0) printf("%i, unbusy horse(-1)\n", thecount);
-		}
-
-		//first thing, decrease the damage time, so we will see the damage splash only for 2 seconds
-		if(act->damage_ms) {
-			act->damage_ms-=80;
-			if(act->damage_ms<0)act->damage_ms=0;
-		}
-
-		//9 frames, not moving, and another command is queued farther on (based on how long we've done this action)
-		if(!act->moving && !act->rotating){
-
-			/*	act->stop_animation=1;	//force stopping, not looping
-				act->busy=0;	//ok, take the next command
-				LOG_TO_CONSOLE(c_green2,"FREE");
-				//Idle here?
-			*/
-		}
-
-		if(act->stop_animation) {
-
-			//we are done with this guy
-			//Should we go into idle here?
-		}
-
-		if (horse
-			&& !act->busy
-			&& act->actor_id >= 0
-			&& ((act->last_command >= enter_aim_mode && act->last_command <= aim_mode_fire)
-				|| (act->last_command >= enter_combat && act->last_command <= leave_combat)))
-		{
-			unfreeze_horse(act, horse);
-		}
-		if (horse && act->in_aim_mode == 3) // when no_action==1
-		{
-			act->in_aim_mode=0;
-			unfreeze_horse(act, horse);
-			//printf("%i,Unfreeze after no_action==1\n",thecount);
 		}
 	}
 
-	release_actors_list();
+	if (act->in_aim_mode == 0)
+	{
+		if (act->is_enhanced_model != 0)
+		{
+			if (get_actor_texture_ready(act->texture_id))
+			{
+				use_ready_actor_texture(act->texture_id);
+			}
+		}
+
+		if (act->delayed_item_changes_count > 0)
+		{
+			// we really leave the aim mode only when the animation is finished
+			act->delay_texture_item_changes = 0;
+
+			// then we do all the item changes that have been delayed
+			flush_delayed_item_changes(act);
+
+			act->delay_texture_item_changes = 1;
+		}
+	}
+
+	// we change the idle animation only when the previous one is finished
+	if (act->stand_idle && act->anim_time >= act->cur_anim.duration - 0.2)
+	{
+		if (!is_actor_held(act, attached))
+		{
+			set_on_idle(act, attached);
+		}
+	}
+
+	if (act->cur_anim.anim_index==-1) {
+		act->busy=0;
+		//if(act->actor_id==yourself) printf("%i, unbusy(-1)\n", thecount);
+		//if(act->actor_id<0) printf("%i, unbusy horse(-1)\n", thecount);
+	}
+
+	//first thing, decrease the damage time, so we will see the damage splash only for 2 seconds
+	if(act->damage_ms) {
+		act->damage_ms-=80;
+		if(act->damage_ms<0)act->damage_ms=0;
+	}
+
+	//9 frames, not moving, and another command is queued farther on (based on how long we've done this action)
+	if(!act->moving && !act->rotating){
+
+		/*	act->stop_animation=1;	//force stopping, not looping
+			act->busy=0;	//ok, take the next command
+			LOG_TO_CONSOLE(c_green2,"FREE");
+			//Idle here?
+		*/
+	}
+
+	if(act->stop_animation) {
+
+		//we are done with this guy
+		//Should we go into idle here?
+	}
+
+	if (horse
+		&& !act->busy
+		&& act->actor_id >= 0
+		&& ((act->last_command >= enter_aim_mode && act->last_command <= aim_mode_fire)
+			|| (act->last_command >= enter_combat && act->last_command <= leave_combat)))
+	{
+		unfreeze_horse(act, horse);
+	}
+	if (horse && act->in_aim_mode == 3) // when no_action==1
+	{
+		act->in_aim_mode=0;
+		unfreeze_horse(act, horse);
+		//printf("%i,Unfreeze after no_action==1\n",thecount);
+	}
 }
 
-
+void move_to_next_frame()
+{
+	locked_list_ptr actors_list = get_locked_actors_list();
+	for_each_actor_and_attached(actors_list, move_actor_to_next_frame, NULL);
+	release_locked_actors_list(actors_list);
+}
 
 struct cal_anim *get_pose(actor *a, int pose_id, int pose_type, int held) {
 	hash_entry *he,*eh;
@@ -1092,559 +1068,548 @@ static inline void rotate_actor_and_horse_range(actor *act, actor *horse, int mu
 }
 
 //in case the actor is not busy, and has commands in it's que, execute them
-void next_command(actor **actors_list, size_t max_actors)
+static void next_actor_command(actor* act, actor *attached, void* UNUSED(data),
+	locked_list_ptr list)
 {
-	int i, index;
-	int max_queue=0;
+	actor *horse;
 
-#ifdef MORE_ATTACHED_ACTORS_DEBUG
-	thecount++;
-#endif
-
-	for(i=0;i<max_actors;i++)
+	if (act->que[0] >= emote_cmd && act->que[0] < wait_cmd)
 	{
-		actor *horse, *attached;
-		actor *act = actors_list[i];
-		if (!act) // Actor exists?
-			continue;
-
-		if (act->que[0] >= emote_cmd && act->que[0] < wait_cmd)
-		{
-			int k;
-			add_emote_to_actor(act->actor_id, act->que[0]);
-			//act->stop_animation=1;
-			//move que down with one command
-			for(k=0;k<MAX_CMD_QUEUE-1;k++) {
-				if(k>max_queue && act->que[k]!=nothing)max_queue=k;
-				act->que[k]=act->que[k+1];
-			}
-			act->que[max_queue]=nothing;
+		int k, max_queue = 0;
+		add_emote_to_actor(act->actor_id, act->que[0]);
+		//act->stop_animation=1;
+		//move que down with one command
+		for(k=0;k<MAX_CMD_QUEUE-1;k++) {
+			if(k>max_queue && act->que[k]!=nothing)max_queue=k;
+			act->que[k]=act->que[k+1];
 		}
+		act->que[max_queue]=nothing;
+	}
 
-		if (act->busy) // Are we busy?
-			continue;
+	if (act->busy) // Are we busy?
+		return;
 
-		attached = get_attached(act, actors_list, max_actors);
-		horse = (attached && is_horse(attached)) ? attached : NULL;
+	horse = (attached && is_horse(attached)) ? attached : NULL;
 
-		// Are we playing an emote?
-		if (act->cur_emote.active
-			&& !(act->que[0] >= move_n && act->que[0] <= move_nw
-				&& act->last_command >= move_n && act->last_command <= move_nw)
-			&& !horse)
-		{
-			continue;
-		}
-			
-		// If the que is empty, check for an emote to display
-		while (act->emote_que[0].origin != NO_EMOTE)
-		{
-			if (!handle_emote_command(act, horse, &act->emote_que[0]))
-				break;
-		}
+	// Are we playing an emote?
+	if (act->cur_emote.active
+		&& !(act->que[0] >= move_n && act->que[0] <= move_nw
+			&& act->last_command >= move_n && act->last_command <= move_nw)
+		&& !horse)
+	{
+		return;
+	}
 
-		if (act->que[0]==nothing) // Is the queue empty?
-		{
-			// If que is empty, set on idle
-			set_on_idle(act, attached);
-			act->last_command=nothing; // Prevents us from not updating the walk/run animation
-		}
-		else
-		{
-			int actor_type;
-			int last_command=act->last_command;
-			float z_rot=act->z_rot;
-			float targeted_z_rot;
-			int no_action = 0;
+	// If the que is empty, check for an emote to display
+	while (act->emote_que[0].origin != NO_EMOTE)
+	{
+		if (!handle_emote_command(act, horse, &act->emote_que[0]))
+			break;
+	}
 
-			act->sit_idle=0;
-			act->stand_idle=0;
+	if (act->que[0]==nothing) // Is the queue empty?
+	{
+		// If que is empty, set on idle
+		set_on_idle(act, attached);
+		act->last_command=nothing; // Prevents us from not updating the walk/run animation
+	}
+	else
+	{
+		int actor_type;
+		int last_command=act->last_command;
+		float z_rot=act->z_rot;
+		float targeted_z_rot;
+		int no_action = 0;
+
+		act->sit_idle=0;
+		act->stand_idle=0;
 
 #ifndef DISABLE_RANGE_MODE_EXIT_BUGFIX
-			if (act->is_enhanced_model && act->in_aim_mode == 1
-				&& (act->que[0] < enter_aim_mode || act->que[0] > missile_critical)
-				&& (act->que[0] < turn_n || act->que[0] > turn_nw))
-			{
-				LOG_ERROR("%s: %d: command incompatible with range mode detected: %d", __FUNCTION__, __LINE__, act->que[0]);
-				missiles_log_message("%s (%d): forcing aim mode exit", act->actor_name,
-					act->actor_id);
-				act->cal_h_rot_start = 0.0;
-				act->cal_v_rot_start = 0.0;
-				act->cal_h_rot_end = 0.0;
-				act->cal_v_rot_end = 0.0;
-				act->cal_rotation_blend = 1.0;
-				act->cal_rotation_speed = 0.0;
-				act->cal_last_rotation_time = cur_time;
-				act->are_bones_rotating = 1;
-				act->in_aim_mode = 0;
-				flush_delayed_item_changes(act);
-			}
+		if (act->is_enhanced_model && act->in_aim_mode == 1
+			&& (act->que[0] < enter_aim_mode || act->que[0] > missile_critical)
+			&& (act->que[0] < turn_n || act->que[0] > turn_nw))
+		{
+			LOG_ERROR("%s: %d: command incompatible with range mode detected: %d", __FUNCTION__, __LINE__, act->que[0]);
+			missiles_log_message("%s (%d): forcing aim mode exit", act->actor_name,
+				act->actor_id);
+			act->cal_h_rot_start = 0.0;
+			act->cal_v_rot_start = 0.0;
+			act->cal_h_rot_end = 0.0;
+			act->cal_v_rot_end = 0.0;
+			act->cal_rotation_blend = 1.0;
+			act->cal_rotation_speed = 0.0;
+			act->cal_last_rotation_time = cur_time;
+			act->are_bones_rotating = 1;
+			act->in_aim_mode = 0;
+			flush_delayed_item_changes(act);
+		}
 #endif // DISABLE_RANGE_MODE_EXIT_BUGFIX
 
-			actor_type=act->actor_type;
+		actor_type=act->actor_type;
 #ifdef MORE_ATTACHED_ACTORS_DEBUG
-			//just for debugging
-			attached_info(act, attached, thecount);
+		//just for debugging
+		attached_info(act, attached, thecount);
 #endif
-			switch (act->que[0])
+		switch (act->que[0])
+		{
+			case kill_me:
+				// Obsolete
+				break;
+			case die1:
+				cal_actor_set_anim(act, attached,
+					actors_defs[actor_type].cal_frames[cal_actor_die1_frame]);
+				act->stop_animation=1;
+				act->dead=1;
+				break;
+			case die2:
+				cal_actor_set_anim(act, attached,
+					actors_defs[actor_type].cal_frames[cal_actor_die2_frame]);
+				act->stop_animation=1;
+				act->dead=1;
+				break;
+			case pain1:
+			case pain2:
 			{
-				case kill_me:
-					// Obsolete
-					break;
-				case die1:
-					cal_actor_set_anim(act, attached,
-						actors_defs[actor_type].cal_frames[cal_actor_die1_frame]);
-					act->stop_animation=1;
-					act->dead=1;
-					break;
-				case die2:
-					cal_actor_set_anim(act, attached,
-						actors_defs[actor_type].cal_frames[cal_actor_die2_frame]);
-					act->stop_animation=1;
-					act->dead=1;
-					break;
-				case pain1:
-				case pain2:
+				int painframe = (act->que[0]==pain1) ? cal_actor_pain1_frame : cal_actor_pain2_frame;
+				attachment_props *att_props = get_attachment_props_if_held(act, attached);
+				if (att_props)
 				{
-					int painframe = (act->que[0]==pain1) ? cal_actor_pain1_frame : cal_actor_pain2_frame;
+					if (horse && !actor_weapon(act)->unarmed)
+					{
+						cal_actor_set_anim(act, attached,
+							att_props->cal_frames[cal_attached_pain_armed_frame]);
+					}
+					else
+					{
+						cal_actor_set_anim(act, attached,
+							att_props->cal_frames[cal_attached_pain_frame]);
+					}
+				}
+				else
+				{
+					cal_actor_set_anim(act, attached,
+						actors_defs[actor_type].cal_frames[painframe]);
+				}
+				act->stop_animation=1;
+				break;
+			}
+			case pick:
+				cal_actor_set_anim(act, attached,
+					actors_defs[actor_type].cal_frames[cal_actor_pick_frame]);
+				act->stop_animation=1;
+				break;
+			case drop:
+				cal_actor_set_anim(act, attached,
+					actors_defs[actor_type].cal_frames[cal_actor_drop_frame]);
+				act->stop_animation=1;
+				break;
+			case harvest:
+				cal_actor_set_anim(act, attached,
+					actors_defs[actor_type].cal_frames[cal_actor_harvest_frame]);
+				act->stop_animation=1;
+				LOG_TO_CONSOLE(c_green2,"Harvesting!");
+				break;
+			case cast:
+				cal_actor_set_anim(act, attached,
+					actors_defs[actor_type].cal_frames[cal_actor_attack_cast_frame]);
+				act->stop_animation=1;
+				break;
+			case ranged:
+				cal_actor_set_anim(act, attached,
+					actors_defs[actor_type].cal_frames[cal_actor_attack_ranged_frame]);
+				act->stop_animation=1;
+				break;
+			case sit_down:
+				cal_actor_set_anim(act, attached,
+					actors_defs[actor_type].cal_frames[cal_actor_sit_down_frame]);
+				act->stop_animation=1;
+				act->sitting=1;
+				if(act->actor_id==yourself)
+					you_sit=1;
+				break;
+			case stand_up:
+				//LOG_TO_CONSOLE(c_green2,"stand_up");
+				cal_actor_set_anim(act, attached,
+					actors_defs[actor_type].cal_frames[cal_actor_stand_up_frame]);
+				act->stop_animation=1;
+				act->sitting=0;
+				if(act->actor_id==yourself)
+					you_sit=0;
+				break;
+			case enter_combat:
+			case leave_combat:
+			{
+				int fight_k = (act->que[0] == enter_combat) ? 1 : 0;
+				int combat_frame = fight_k ? cal_actor_in_combat_frame : cal_actor_out_combat_frame;
+				int combat_held_frame = fight_k ? cal_actor_in_combat_held_frame : cal_actor_out_combat_held_frame;
+				int combat_held_unarmed_frame = fight_k ?  cal_actor_in_combat_held_unarmed_frame : cal_actor_out_combat_held_unarmed_frame;
+				int mul_angle = fight_k ? -1 : 1;
+
+				if (horse)
+				{
+					// Rotate horse and actor if needed
+					if (actor_weapon(act)->turn_horse)
+					{
+						if (fight_k || act->horse_rotated)
+							rotate_actor_and_horse_locked(act, horse, mul_angle);
+						cal_actor_set_anim(act, attached,
+							actors_defs[actor_type].cal_frames[combat_held_frame]);
+					}
+					else
+					{
+						cal_actor_set_anim(act, attached,
+							actors_defs[actor_type].cal_frames[combat_held_unarmed_frame]);
+					}
+
+					// horse enter combat
+					horse->fighting=fight_k;
+					horse->stop_animation=1;
+					cal_actor_set_anim(horse, attached,
+						actors_defs[horse->actor_type].cal_frames[combat_frame]);
+				}
+				else
+				{
+					cal_actor_set_anim(act, attached,
+						actors_defs[actor_type].cal_frames[combat_frame]);
+				}
+
+				act->stop_animation=1;
+				act->fighting=fight_k;
+				break;
+			}
+			case attack_up_1:
+			case attack_up_2:
+			case attack_up_3:
+			case attack_up_4:
+			case attack_up_5:
+			case attack_up_6:
+			case attack_up_7:
+			case attack_up_8:
+			case attack_up_9:
+			case attack_up_10:
+			case attack_down_1:
+			case attack_down_2:
+			case attack_down_3:
+			case attack_down_4:
+			case attack_down_5:
+			case attack_down_6:
+			case attack_down_7:
+			case attack_down_8:
+			case attack_down_9:
+			case attack_down_10:
+			{
+				int index = -1;
+				switch (act->que[0])
+				{
+					case attack_down_10:
+						index++;
+					// fall-through - suppress the compile warning with this comment
+					case attack_down_9:
+						index++;
+					// fall-through
+					case attack_down_8:
+						index++;
+					// fall-through
+					case attack_down_7:
+						index++;
+					// fall-through
+					case attack_down_6:
+						index++;
+					// fall-through
+					case attack_down_5:
+						index++;
+					// fall-through
+					case attack_down_4:
+						index++;
+					// fall-through
+					case attack_down_3:
+						index++;
+					// fall-through
+					case attack_down_2:
+						index++;
+					// fall-through
+					case attack_down_1:
+						index++;
+					// fall-through
+					case attack_up_10:
+						index++;
+					// fall-through
+					case attack_up_9:
+						index++;
+					// fall-through
+					case attack_up_8:
+						index++;
+					// fall-through
+					case attack_up_7:
+						index++;
+					// fall-through
+					case attack_up_6:
+						index++;
+					// fall-through
+					case attack_up_5:
+						index++;
+					// fall-through
+					case attack_up_4:
+						index++;
+					// fall-through
+					case attack_up_3:
+						index++;
+					// fall-through
+					case attack_up_2:
+						index++;
+					// fall-through
+					case attack_up_1:
+						index++;
+						break;
+					default:
+						break;
+				}
+				if (act->is_enhanced_model)
+				{
+					if (horse)
+					{
+						// Actor does combat anim
+						index+=cal_weapon_attack_up_1_held_frame; //30; //select held weapon animations
+						cal_actor_set_anim(act, attached,
+							actors_defs[actor_type].weapon[act->cur_weapon].cal_frames[index]);
+					}
+					else
+					{
+						// Normal weapon animation
+						cal_actor_set_anim(act, attached,
+							actors_defs[actor_type].weapon[act->cur_weapon].cal_frames[index]);
+					}
+				}
+				else
+				{
+					// Non enhanced models
+					if (horse)
+					{
+						// Non enhanced model with a horse
+						index+=cal_actor_attack_up_1_held_frame;
+						cal_actor_set_anim(act, attached,
+							actors_defs[actor_type].cal_frames[index]);
+					}
+					else
+					{
+						// Select normal actor att frames
+						index +=cal_actor_attack_up_1_frame;
+						cal_actor_set_anim(act, attached,
+							actors_defs[actor_type].cal_frames[index]);
+					}
+				}
+				act->stop_animation=1;
+				act->fighting=1;
+
+#ifdef NEW_SOUND
+				// Maybe play a battlecry sound
+				add_battlecry_sound(act);
+#endif // NEW_SOUND
+				// Check if a horse rotation is needed
+				if (horse && !act->horse_rotated && actor_weapon(act)->turn_horse)
+				{
+					// Horse, not rotated, to be rotated -> do rotation
+					rotate_actor_and_horse_locked(act, horse, -1);
+				}
+				else if (horse && act->horse_rotated && !actor_weapon(act)->turn_horse)
+				{
+					// Horse, rotated, not to be rotated -> undo rotation
+					act->horse_rotated=0;
+					rotate_actor_and_horse_locked(act, horse, 1);
+				}
+				break;
+			}
+			case turn_left:
+			case turn_right:
+			{
+				int mul= (act->que[0] == turn_left) ? 1 : -1;
+				int turnframe = (act->que[0] == turn_left) ? cal_actor_turn_left_frame : cal_actor_turn_right_frame;
+
+				//LOG_TO_CONSOLE(c_green2,"turn left");
+				act->rotate_z_speed=mul*45.0/540.0;
+				act->rotate_time_left=540;
+				act->rotating=1;
+				//generate a fake movement, so we will know when to make the actor
+				//not busy
+				act->move_x_speed=0;
+				act->move_y_speed=0;
+				act->move_z_speed=0;
+				act->movement_time_left=540;
+				act->moving=1;
+				//test
+				if (!act->fighting)
+				{
 					attachment_props *att_props = get_attachment_props_if_held(act, attached);
 					if (att_props)
 					{
-						if (horse && !actor_weapon(act)->unarmed)
-						{
-							cal_actor_set_anim(act, attached,
-								att_props->cal_frames[cal_attached_pain_armed_frame]);
-						}
-						else
-						{
-							cal_actor_set_anim(act, attached,
-								att_props->cal_frames[cal_attached_pain_frame]);
-						}
+						cal_actor_set_anim(act, attached,
+							*get_pose_frame(act->actor_type, act, attached, EMOTE_MOTION(act), 1));
 					}
 					else
 					{
 						cal_actor_set_anim(act, attached,
-							actors_defs[actor_type].cal_frames[painframe]);
+							actors_defs[actor_type].cal_frames[turnframe]);
 					}
-					act->stop_animation=1;
-					break;
 				}
-				case pick:
-					cal_actor_set_anim(act, attached,
-						actors_defs[actor_type].cal_frames[cal_actor_pick_frame]);
-					act->stop_animation=1;
-					break;
-				case drop:
-					cal_actor_set_anim(act, attached,
-						actors_defs[actor_type].cal_frames[cal_actor_drop_frame]);
-					act->stop_animation=1;
-					break;
-				case harvest:
-					cal_actor_set_anim(act, attached,
-						actors_defs[actor_type].cal_frames[cal_actor_harvest_frame]);
-					act->stop_animation=1;
-					LOG_TO_CONSOLE(c_green2,"Harvesting!");
-					break;
-				case cast:
-					cal_actor_set_anim(act, attached,
-						actors_defs[actor_type].cal_frames[cal_actor_attack_cast_frame]);
-					act->stop_animation=1;
-					break;
-				case ranged:
-					cal_actor_set_anim(act, attached,
-						actors_defs[actor_type].cal_frames[cal_actor_attack_ranged_frame]);
-					act->stop_animation=1;
-					break;
-				case sit_down:
-					cal_actor_set_anim(act, attached,
-						actors_defs[actor_type].cal_frames[cal_actor_sit_down_frame]);
-					act->stop_animation=1;
-					act->sitting=1;
-					if(act->actor_id==yourself)
-						you_sit=1;
-					break;
-				case stand_up:
-					//LOG_TO_CONSOLE(c_green2,"stand_up");
-					cal_actor_set_anim(act, attached,
-						actors_defs[actor_type].cal_frames[cal_actor_stand_up_frame]);
-					act->stop_animation=1;
-					act->sitting=0;
-					if(act->actor_id==yourself)
-						you_sit=0;
-					break;
-				case enter_combat:
-				case leave_combat:
+				act->stop_animation=0;
+				break;
+			}
+			case enter_aim_mode:
+				missiles_log_message("%s (%d): cleaning the queue from enter_aim_mode command",
+					act->actor_name, act->actor_id);
+				missiles_clean_range_actions_queue(act);
+
+				if (act->in_aim_mode == 0)
 				{
-					int fight_k = (act->que[0] == enter_combat) ? 1 : 0;
-					int combat_frame = fight_k ? cal_actor_in_combat_frame : cal_actor_out_combat_frame;
-					int combat_held_frame = fight_k ? cal_actor_in_combat_held_frame : cal_actor_out_combat_held_frame;
-					int combat_held_unarmed_frame = fight_k ?  cal_actor_in_combat_held_unarmed_frame : cal_actor_out_combat_held_unarmed_frame;
-					int mul_angle = fight_k ? -1 : 1;
-
-					if (horse)
-					{
-						// Rotate horse and actor if needed
-						if (actor_weapon(act)->turn_horse)
-						{
-							if (fight_k || act->horse_rotated)
-								rotate_actor_and_horse_locked(act, horse, mul_angle);
-							cal_actor_set_anim(act, attached,
-								actors_defs[actor_type].cal_frames[combat_held_frame]);
-						}
-						else
-						{
-							cal_actor_set_anim(act, attached,
-								actors_defs[actor_type].cal_frames[combat_held_unarmed_frame]);
-						}
-
-						// horse enter combat
-						horse->fighting=fight_k;
-						horse->stop_animation=1;
-						cal_actor_set_anim(horse, attached,
-							actors_defs[horse->actor_type].cal_frames[combat_frame]);
-					}
-					else
-					{
-						cal_actor_set_anim(act, attached,
-							actors_defs[actor_type].cal_frames[combat_frame]);
-					}
-
-					act->stop_animation=1;
-					act->fighting=fight_k;
-					break;
-				}
-				case attack_up_1:
-				case attack_up_2:
-				case attack_up_3:
-				case attack_up_4:
-				case attack_up_5:
-				case attack_up_6:
-				case attack_up_7:
-				case attack_up_8:
-				case attack_up_9:
-				case attack_up_10:
-				case attack_down_1:
-				case attack_down_2:
-				case attack_down_3:
-				case attack_down_4:
-				case attack_down_5:
-				case attack_down_6:
-				case attack_down_7:
-				case attack_down_8:
-				case attack_down_9:
-				case attack_down_10:
-					index = -1;
-					switch (act->que[0])
-					{
-						case attack_down_10:
-							index++;
-						// fall-through - suppress the compile warning with this comment
-						case attack_down_9:
-							index++;
-						// fall-through
-						case attack_down_8:
-							index++;
-						// fall-through
-						case attack_down_7:
-							index++;
-						// fall-through
-						case attack_down_6:
-							index++;
-						// fall-through
-						case attack_down_5:
-							index++;
-						// fall-through
-						case attack_down_4:
-							index++;
-						// fall-through
-						case attack_down_3:
-							index++;
-						// fall-through
-						case attack_down_2:
-							index++;
-						// fall-through
-						case attack_down_1:
-							index++;
-						// fall-through
-						case attack_up_10:
-							index++;
-						// fall-through
-						case attack_up_9:
-							index++;
-						// fall-through
-						case attack_up_8:
-							index++;
-						// fall-through
-						case attack_up_7:
-							index++;
-						// fall-through
-						case attack_up_6:
-							index++;
-						// fall-through
-						case attack_up_5:
-							index++;
-						// fall-through
-						case attack_up_4:
-							index++;
-						// fall-through
-						case attack_up_3:
-							index++;
-						// fall-through
-						case attack_up_2:
-							index++;
-						// fall-through
-						case attack_up_1:
-							index++;
-							break;
-						default:
-							break;
-					}
-					if (act->is_enhanced_model)
-					{
-						if (horse)
-						{
-							// Actor does combat anim
-							index+=cal_weapon_attack_up_1_held_frame; //30; //select held weapon animations
-							cal_actor_set_anim(act, attached,
-								actors_defs[actor_type].weapon[act->cur_weapon].cal_frames[index]);
-						}
-						else
-						{
-							// Normal weapon animation
-							cal_actor_set_anim(act, attached,
-								actors_defs[actor_type].weapon[act->cur_weapon].cal_frames[index]);
-						}
-					}
-					else
-					{
-						// Non enhanced models
-						if (horse)
-						{
-							// Non enhanced model with a horse
-							index+=cal_actor_attack_up_1_held_frame;
-							cal_actor_set_anim(act, attached,
-								actors_defs[actor_type].cal_frames[index]);
-						}
-						else
-						{
-							// Select normal actor att frames
-							index +=cal_actor_attack_up_1_frame;
-							cal_actor_set_anim(act, attached,
-								actors_defs[actor_type].cal_frames[index]);
-						}
-					}
-					act->stop_animation=1;
-					act->fighting=1;
-
-#ifdef NEW_SOUND
-					// Maybe play a battlecry sound
-					add_battlecry_sound(act);
-#endif // NEW_SOUND
-					// Check if a horse rotation is needed
-					if (horse && !act->horse_rotated && actor_weapon(act)->turn_horse)
-					{
-						// Horse, not rotated, to be rotated -> do rotation
-						rotate_actor_and_horse_locked(act, horse, -1);
-					}
-					else if (horse && act->horse_rotated && !actor_weapon(act)->turn_horse)
-					{
-						// Horse, rotated, not to be rotated -> undo rotation
-						act->horse_rotated=0;
-						rotate_actor_and_horse_locked(act, horse, 1);
-					}
-					break;
-				case turn_left:
-				case turn_right:
-				{
-					int mul= (act->que[0] == turn_left) ? 1 : -1;
-					int turnframe = (act->que[0] == turn_left) ? cal_actor_turn_left_frame : cal_actor_turn_right_frame;
-
-					//LOG_TO_CONSOLE(c_green2,"turn left");
-					act->rotate_z_speed=mul*45.0/540.0;
-					act->rotate_time_left=540;
-					act->rotating=1;
-					//generate a fake movement, so we will know when to make the actor
-					//not busy
-					act->move_x_speed=0;
-					act->move_y_speed=0;
-					act->move_z_speed=0;
-					act->movement_time_left=540;
-					act->moving=1;
-					//test
-					if (!act->fighting)
-					{
-						attachment_props *att_props = get_attachment_props_if_held(act, attached);
-						if (att_props)
-						{
-							cal_actor_set_anim(act, attached,
-								*get_pose_frame(act->actor_type, act, attached, EMOTE_MOTION(act), 1));
-						}
-						else
-						{
-							cal_actor_set_anim(act, attached,
-								actors_defs[actor_type].cal_frames[turnframe]);
-						}
-					}
-					act->stop_animation=0;
-					break;
-				}
-				case enter_aim_mode:
-					missiles_log_message("%s (%d): cleaning the queue from enter_aim_mode command",
-						act->actor_name, act->actor_id);
-					missiles_clean_range_actions_queue(act);
-
-					if (act->in_aim_mode == 0)
-					{
-						missiles_log_message("%s (%d): enter in aim mode", act->actor_name,
-							act->actor_id);
-						//if(act->actor_id==yourself) printf("%i, enter aim 0\n",thecount);
-						if (horse)
-						{
-							// Set the horse aim mode
-							if (!act->horse_rotated)
-							{
-								rotate_actor_and_horse_range(act, horse, -1);
-								act->horse_rotated=1;
-							}
-							horse->in_aim_mode=1;
-							// We could start a horse_ranged_in
-							set_on_idle(horse, act);
-							cal_actor_set_anim(act, attached,
-								actors_defs[actor_type].weapon[act->cur_weapon].cal_frames[cal_weapon_range_in_held_frame]);
-						}
-						else
-						{
-							cal_actor_set_anim(act, attached,
-								actors_defs[actor_type].weapon[act->cur_weapon].cal_frames[cal_weapon_range_in_frame]);
-						}
-
-						act->cal_h_rot_start = 0.0;
-						act->cal_v_rot_start = 0.0;
-						if (act->range_actions_count != 1)
-						{
-							LOG_ERROR("%s (%d): entering in range mode with an non empty range action queue!",
-								act->actor_name, act->actor_id);
-						}
-					}
-					else
-					{
-						float range_rotation;
-						range_action *action = &act->range_actions[0];
-						//if(act->actor_id==yourself) printf("%i, enter aim %i\n",thecount,act->in_aim_mode);
-						missiles_log_message("%s (%d): aiming again (time=%d)", act->actor_name,
-							act->actor_id, cur_time);
-						if (horse)
-						{
-							cal_actor_set_anim(act, attached,
-								actors_defs[actor_type].weapon[act->cur_weapon].cal_frames[cal_weapon_range_idle_held_frame]);
-							//if (!act->horse_rotated) {rotate_actor_and_horse(act, horse, -1); act->horse_rotated=1;}
-						}
-						else
-						{
-							cal_actor_set_anim(act, attached,
-								actors_defs[actor_type].weapon[act->cur_weapon].cal_frames[cal_weapon_range_idle_frame]);
-						}
-						act->cal_h_rot_start = act->cal_h_rot_start * (1.0 - act->cal_rotation_blend)
-							+ act->cal_h_rot_end * act->cal_rotation_blend;
-						act->cal_v_rot_start = act->cal_v_rot_start * (1.0 - act->cal_rotation_blend)
-							+ act->cal_v_rot_end * act->cal_rotation_blend;
-
-						/* we look if the actor is still around and if yes,
-						 * we recompute it's position */
-						if (action->aim_actor >= 0)
-						{
-							actor *aim_actor = find_actor_ptr(actors_list, max_actors,
-								action->aim_actor);
-							if (aim_actor) {
-								cal_get_actor_bone_absolute_position(aim_actor, get_actor_bone_id(aim_actor, body_top_bone), NULL, action->aim_position);
-							}
-						}
-
-						if (horse)
-							act->z_rot+=HORSE_RANGE_ROTATION;
-						range_rotation = missiles_compute_actor_rotation(&act->cal_h_rot_end,
-							&act->cal_v_rot_end, act, action->aim_position);
-						if (horse)
-							act->z_rot-=HORSE_RANGE_ROTATION;
-						act->cal_rotation_blend = 0.0;
-						act->cal_rotation_speed = 1.0/360.0;
-						act->cal_last_rotation_time = cur_time;
-						act->are_bones_rotating = 1;
-						act->stop_animation = 1;
-						if (action->state == 0) action->state = 1;
-
-						if (range_rotation != 0.0)
-						{
-							missiles_log_message("%s (%d): not facing its target => client side rotation needed",
-								act->actor_name, act->actor_id);
-							if (act->rotating)
-							{
-								range_rotation += act->rotate_z_speed * act->rotate_time_left;
-							}
-							act->rotate_z_speed = range_rotation/360.0;
-							act->rotate_time_left=360;
-							act->rotating=1;
-							if (horse)
-							{
-								//printf("rotating the horse client side!\n");
-								horse->rotate_z_speed=range_rotation/360.0;
-								horse->rotate_time_left=360;
-								horse->rotating=1;
-							}
-						}
-					}
-					break;
-				case leave_aim_mode:
-					if (act->in_aim_mode != 1)
-					{
-						if (act->cal_rotation_blend < 0.0 ||
-							(act->cal_h_rot_end == 0.0 && act->cal_v_rot_end == 0.0))
-						{
-							LOG_ERROR("next_command: trying to leave range mode while we are not in it => aborting safely...");
-							no_action = 1;
-							if (act->horse_rotated)
-							{
-								rotate_actor_and_horse_range(act, horse, 1);
-								act->horse_rotated=0;
-							}
-							break;
-						}
-						else
-						{
-							LOG_ERROR("next_command: trying to leave range mode while we are not in it => continuing because of a wrong actor bones rotation!");
-						}
-					}
-
-					missiles_log_message("%s (%d): leaving aim mode", act->actor_name,
+					missiles_log_message("%s (%d): enter in aim mode", act->actor_name,
 						act->actor_id);
+					//if(act->actor_id==yourself) printf("%i, enter aim 0\n",thecount);
 					if (horse)
 					{
-						cal_actor_set_anim(act, attached,
-							actors_defs[actor_type].weapon[act->cur_weapon].cal_frames[cal_weapon_range_out_held_frame]);
-						if (act->horse_rotated)
+						// Set the horse aim mode
+						if (!act->horse_rotated)
 						{
-							rotate_actor_and_horse_range(act, horse, 1);
-							act->horse_rotated=0;
+							rotate_actor_and_horse_range(act, horse, -1);
+							act->horse_rotated=1;
 						}
+						horse->in_aim_mode=1;
+						// We could start a horse_ranged_in
+						set_on_idle(horse, act);
+						cal_actor_set_anim(act, attached,
+							actors_defs[actor_type].weapon[act->cur_weapon].cal_frames[cal_weapon_range_in_held_frame]);
 					}
 					else
 					{
 						cal_actor_set_anim(act, attached,
-							actors_defs[actor_type].weapon[act->cur_weapon].cal_frames[cal_weapon_range_out_frame]);
+							actors_defs[actor_type].weapon[act->cur_weapon].cal_frames[cal_weapon_range_in_frame]);
+					}
+
+					act->cal_h_rot_start = 0.0;
+					act->cal_v_rot_start = 0.0;
+					if (act->range_actions_count != 1)
+					{
+						LOG_ERROR("%s (%d): entering in range mode with an non empty range action queue!",
+							act->actor_name, act->actor_id);
+					}
+				}
+				else
+				{
+					float range_rotation;
+					range_action *action = &act->range_actions[0];
+					//if(act->actor_id==yourself) printf("%i, enter aim %i\n",thecount,act->in_aim_mode);
+					missiles_log_message("%s (%d): aiming again (time=%d)", act->actor_name,
+						act->actor_id, cur_time);
+					if (horse)
+					{
+						cal_actor_set_anim(act, attached,
+							actors_defs[actor_type].weapon[act->cur_weapon].cal_frames[cal_weapon_range_idle_held_frame]);
+						//if (!act->horse_rotated) {rotate_actor_and_horse(act, horse, -1); act->horse_rotated=1;}
+					}
+					else
+					{
+						cal_actor_set_anim(act, attached,
+							actors_defs[actor_type].weapon[act->cur_weapon].cal_frames[cal_weapon_range_idle_frame]);
 					}
 					act->cal_h_rot_start = act->cal_h_rot_start * (1.0 - act->cal_rotation_blend)
 						+ act->cal_h_rot_end * act->cal_rotation_blend;
 					act->cal_v_rot_start = act->cal_v_rot_start * (1.0 - act->cal_rotation_blend)
 						+ act->cal_v_rot_end * act->cal_rotation_blend;
-					act->cal_h_rot_end = 0.0;
-					act->cal_v_rot_end = 0.0;
+
+					/* we look if the actor is still around and if yes,
+						* we recompute it's position */
+					if (action->aim_actor >= 0)
+					{
+						actor *aim_actor = get_actor_from_id(list, action->aim_actor);
+						if (aim_actor) {
+							cal_get_actor_bone_absolute_position(aim_actor, get_actor_bone_id(aim_actor, body_top_bone), NULL, action->aim_position);
+						}
+					}
+
+					if (horse)
+						act->z_rot+=HORSE_RANGE_ROTATION;
+					range_rotation = missiles_compute_actor_rotation(&act->cal_h_rot_end,
+						&act->cal_v_rot_end, act, action->aim_position);
+					if (horse)
+						act->z_rot-=HORSE_RANGE_ROTATION;
 					act->cal_rotation_blend = 0.0;
 					act->cal_rotation_speed = 1.0/360.0;
 					act->cal_last_rotation_time = cur_time;
 					act->are_bones_rotating = 1;
-					act->in_aim_mode = 2;
 					act->stop_animation = 1;
-					break;
+					if (action->state == 0) action->state = 1;
+
+					if (range_rotation != 0.0)
+					{
+						missiles_log_message("%s (%d): not facing its target => client side rotation needed",
+							act->actor_name, act->actor_id);
+						if (act->rotating)
+						{
+							range_rotation += act->rotate_z_speed * act->rotate_time_left;
+						}
+						act->rotate_z_speed = range_rotation/360.0;
+						act->rotate_time_left=360;
+						act->rotating=1;
+						if (horse)
+						{
+							//printf("rotating the horse client side!\n");
+							horse->rotate_z_speed=range_rotation/360.0;
+							horse->rotate_time_left=360;
+							horse->rotating=1;
+						}
+					}
+				}
+				break;
+			case leave_aim_mode:
+				if (act->in_aim_mode != 1)
+				{
+					if (act->cal_rotation_blend < 0.0 ||
+						(act->cal_h_rot_end == 0.0 && act->cal_v_rot_end == 0.0))
+					{
+						LOG_ERROR("next_command: trying to leave range mode while we are not in it => aborting safely...");
+						no_action = 1;
+						if (act->horse_rotated)
+						{
+							rotate_actor_and_horse_range(act, horse, 1);
+							act->horse_rotated=0;
+						}
+						break;
+					}
+					else
+					{
+						LOG_ERROR("next_command: trying to leave range mode while we are not in it => continuing because of a wrong actor bones rotation!");
+					}
+				}
+
+				missiles_log_message("%s (%d): leaving aim mode", act->actor_name,
+					act->actor_id);
+				if (horse)
+				{
+					cal_actor_set_anim(act, attached,
+						actors_defs[actor_type].weapon[act->cur_weapon].cal_frames[cal_weapon_range_out_held_frame]);
+					if (act->horse_rotated)
+					{
+						rotate_actor_and_horse_range(act, horse, 1);
+						act->horse_rotated=0;
+					}
+				}
+				else
+				{
+					cal_actor_set_anim(act, attached,
+						actors_defs[actor_type].weapon[act->cur_weapon].cal_frames[cal_weapon_range_out_frame]);
+				}
+				act->cal_h_rot_start = act->cal_h_rot_start * (1.0 - act->cal_rotation_blend)
+					+ act->cal_h_rot_end * act->cal_rotation_blend;
+				act->cal_v_rot_start = act->cal_v_rot_start * (1.0 - act->cal_rotation_blend)
+					+ act->cal_v_rot_end * act->cal_rotation_blend;
+				act->cal_h_rot_end = 0.0;
+				act->cal_v_rot_end = 0.0;
+				act->cal_rotation_blend = 0.0;
+				act->cal_rotation_speed = 1.0/360.0;
+				act->cal_last_rotation_time = cur_time;
+				act->are_bones_rotating = 1;
+				act->in_aim_mode = 2;
+				act->stop_animation = 1;
+				break;
 
 // 				case aim_mode_reload
 // 					missiles_log_message("%s (%d): reload after next fire", act->actor_name,
@@ -1653,131 +1618,130 @@ void next_command(actor **actors_list, size_t max_actors)
 // 					no_action = 1;
 // 					break;
 
-				case aim_mode_fire:
+			case aim_mode_fire:
+			{
+				range_action *action = &act->range_actions[0];
+				action->state = 3;
+
+				if (act->in_aim_mode != 1)
 				{
-					range_action *action = &act->range_actions[0];
-					action->state = 3;
+					LOG_ERROR("next_command: trying to fire an arrow out of range mode => aborting!");
+					no_action = 1;
+					missiles_log_message("%s (%d): cleaning the queue from aim_mode_fire command (error)",
+						act->actor_name, act->actor_id);
+					missiles_clean_range_actions_queue(act);
+					break;
+				}
 
-					if (act->in_aim_mode != 1)
+				if (action->reload)
+				{
+					missiles_log_message("%s (%d): fire and reload", act->actor_name,
+						act->actor_id);
+					// launch fire and reload animation
+
+					//if(act->actor_id==yourself) printf("%i, enter reload\n",thecount);
+					if (horse)
 					{
-						LOG_ERROR("next_command: trying to fire an arrow out of range mode => aborting!");
-						no_action = 1;
-						missiles_log_message("%s (%d): cleaning the queue from aim_mode_fire command (error)",
-							act->actor_name, act->actor_id);
-						missiles_clean_range_actions_queue(act);
-						break;
-					}
-
-					if (action->reload)
-					{
-						missiles_log_message("%s (%d): fire and reload", act->actor_name,
-							act->actor_id);
-						// launch fire and reload animation
-
-						//if(act->actor_id==yourself) printf("%i, enter reload\n",thecount);
-						if (horse)
-						{
-							cal_actor_set_anim(act, attached,
-								actors_defs[actor_type].weapon[act->cur_weapon].cal_frames[cal_weapon_range_fire_held_frame]);
-						}
-						else
-						{
-							cal_actor_set_anim(act, attached,
-								actors_defs[actor_type].weapon[act->cur_weapon].cal_frames[cal_weapon_range_fire_frame]);
-						}
-						act->in_aim_mode = 1;
+						cal_actor_set_anim(act, attached,
+							actors_defs[actor_type].weapon[act->cur_weapon].cal_frames[cal_weapon_range_fire_held_frame]);
 					}
 					else
 					{
-						missiles_log_message("%s (%d): fire and leave aim mode", act->actor_name,
-							act->actor_id);
-						// launch fire and leave aim mode animation
-
-						//if (act->actor_id==yourself) printf("%i, enter fire & leave\n",thecount);
-						if (horse)
-						{
-							cal_actor_set_anim(act, attached,
-								actors_defs[actor_type].weapon[act->cur_weapon].cal_frames[cal_weapon_range_fire_out_held_frame]);
-						}
-						else
-						{
-							cal_actor_set_anim(act, attached,
-								actors_defs[actor_type].weapon[act->cur_weapon].cal_frames[cal_weapon_range_fire_out_frame]);
-						}
-						act->in_aim_mode = 2;
+						cal_actor_set_anim(act, attached,
+							actors_defs[actor_type].weapon[act->cur_weapon].cal_frames[cal_weapon_range_fire_frame]);
 					}
+					act->in_aim_mode = 1;
+				}
+				else
+				{
+					missiles_log_message("%s (%d): fire and leave aim mode", act->actor_name,
+						act->actor_id);
+					// launch fire and leave aim mode animation
 
-					act->cal_h_rot_start = act->cal_h_rot_start * (1.0 - act->cal_rotation_blend)
-						+ act->cal_h_rot_end * act->cal_rotation_blend;
-					act->cal_v_rot_start = act->cal_v_rot_start * (1.0 - act->cal_rotation_blend)
-						+ act->cal_v_rot_end * act->cal_rotation_blend;
-					act->cal_h_rot_end = 0.0;
-					act->cal_v_rot_end = 0.0;
-					act->cal_rotation_blend = 0.0;
-					act->cal_rotation_speed = 1.0/360.0;
-					act->cal_last_rotation_time = cur_time;
-					act->are_bones_rotating = 1;
-					act->stop_animation = 1;
-
-					/* In case of a missed shot due to a collision with an actor,
-						* the server send the position of the actor with 0.0 for the Z coordinate.
-						* So we have to compute the coordinate of the ground at this position.
-						*/
-					if (action->shot_type == MISSED_SHOT &&
-						action->fire_position[2] == 0.0)
+					//if (act->actor_id==yourself) printf("%i, enter fire & leave\n",thecount);
+					if (horse)
 					{
-						int tile_x = (int)(action->fire_position[0]*2.0);
-						int tile_y = (int)(action->fire_position[1]*2.0);
-						action->fire_position[2] = get_tile_height(tile_x, tile_y);
-						missiles_log_message("missed shot detected: new height computed: %f", action->fire_position[2]);
+						cal_actor_set_anim(act, attached,
+							actors_defs[actor_type].weapon[act->cur_weapon].cal_frames[cal_weapon_range_fire_out_held_frame]);
 					}
-					else if (action->fire_actor >= 0)
+					else
 					{
-						actor *fire_actor = find_actor_ptr(actors_list, max_actors,
-							action->fire_actor);
-						if (fire_actor)
-						{
-							cal_get_actor_bone_absolute_position(fire_actor, get_actor_bone_id(fire_actor, body_top_bone), NULL, action->fire_position);
-						}
+						cal_actor_set_anim(act, attached,
+							actors_defs[actor_type].weapon[act->cur_weapon].cal_frames[cal_weapon_range_fire_out_frame]);
 					}
+					act->in_aim_mode = 2;
+				}
+
+				act->cal_h_rot_start = act->cal_h_rot_start * (1.0 - act->cal_rotation_blend)
+					+ act->cal_h_rot_end * act->cal_rotation_blend;
+				act->cal_v_rot_start = act->cal_v_rot_start * (1.0 - act->cal_rotation_blend)
+					+ act->cal_v_rot_end * act->cal_rotation_blend;
+				act->cal_h_rot_end = 0.0;
+				act->cal_v_rot_end = 0.0;
+				act->cal_rotation_blend = 0.0;
+				act->cal_rotation_speed = 1.0/360.0;
+				act->cal_last_rotation_time = cur_time;
+				act->are_bones_rotating = 1;
+				act->stop_animation = 1;
+
+				/* In case of a missed shot due to a collision with an actor,
+					* the server send the position of the actor with 0.0 for the Z coordinate.
+					* So we have to compute the coordinate of the ground at this position.
+					*/
+				if (action->shot_type == MISSED_SHOT &&
+					action->fire_position[2] == 0.0)
+				{
+					int tile_x = (int)(action->fire_position[0]*2.0);
+					int tile_y = (int)(action->fire_position[1]*2.0);
+					action->fire_position[2] = get_tile_height(tile_x, tile_y);
+					missiles_log_message("missed shot detected: new height computed: %f", action->fire_position[2]);
+				}
+				else if (action->fire_actor >= 0)
+				{
+					actor *fire_actor = get_actor_from_id(list, action->fire_actor);
+					if (fire_actor)
+					{
+						cal_get_actor_bone_absolute_position(fire_actor, get_actor_bone_id(fire_actor, body_top_bone), NULL, action->fire_position);
+					}
+				}
 
 #if 0 //def DEBUG
-					{
-						float aim_angle = atan2f(action->aim_position[1] - act->y_pos,
-													action->aim_position[0] - act->x_pos);
-						float fire_angle = atan2f(action->fire_position[1] - act->y_pos,
-													action->fire_position[0] - act->x_pos);
-						if (aim_angle < 0.0) aim_angle += 2*M_PI;
-						if (fire_angle < 0.0) fire_angle += 2*M_PI;
-						if (fabs(fire_angle - aim_angle) > M_PI/8.0) {
-							char msg[512];
-							sprintf(msg,
-									"%s (%d): WARNING! Target position is too different from aim position: pos=(%f,%f,%f) aim=(%f,%f,%f) target=(%f,%f,%f) aim_angle=%f target_angle=%f",
-									act->actor_name,
-									act->actor_id,
-									act->x_pos,
-									act->y_pos,
-									act->z_pos,
-									action->aim_position[0],
-									action->aim_position[1],
-									action->aim_position[2],
-									action->fire_position[0],
-									action->fire_position[1],
-									action->fire_position[2],
-									aim_angle, fire_angle);
-							LOG_TO_CONSOLE(c_red2, msg);
-							missiles_log_message(msg);
-						}
+				{
+					float aim_angle = atan2f(action->aim_position[1] - act->y_pos,
+												action->aim_position[0] - act->x_pos);
+					float fire_angle = atan2f(action->fire_position[1] - act->y_pos,
+												action->fire_position[0] - act->x_pos);
+					if (aim_angle < 0.0) aim_angle += 2*M_PI;
+					if (fire_angle < 0.0) fire_angle += 2*M_PI;
+					if (fabs(fire_angle - aim_angle) > M_PI/8.0) {
+						char msg[512];
+						sprintf(msg,
+								"%s (%d): WARNING! Target position is too different from aim position: pos=(%f,%f,%f) aim=(%f,%f,%f) target=(%f,%f,%f) aim_angle=%f target_angle=%f",
+								act->actor_name,
+								act->actor_id,
+								act->x_pos,
+								act->y_pos,
+								act->z_pos,
+								action->aim_position[0],
+								action->aim_position[1],
+								action->aim_position[2],
+								action->fire_position[0],
+								action->fire_position[1],
+								action->fire_position[2],
+								aim_angle, fire_angle);
+						LOG_TO_CONSOLE(c_red2, msg);
+						missiles_log_message(msg);
 					}
+				}
 #endif // DEBUG
 
-					missiles_fire_arrow(act, action->fire_position, action->shot_type);
-					missiles_log_message("%s (%d): cleaning the queue from aim_mode_fire command (end)",
-						act->actor_name, act->actor_id);
-					missiles_clean_range_actions_queue(act);
+				missiles_fire_arrow(act, action->fire_position, action->shot_type);
+				missiles_log_message("%s (%d): cleaning the queue from aim_mode_fire command (end)",
+					act->actor_name, act->actor_id);
+				missiles_clean_range_actions_queue(act);
 
-					break;
-				}
+				break;
+			}
 // 				case missile_miss:
 // 					missiles_log_message("%s (%d): will miss his target", act->actor_name,
 // 						act->actor_id);
@@ -1800,154 +1764,162 @@ void next_command(actor **actors_list, size_t max_actors)
 // 					unwear_item_from_actor_locked(act->actor_id, KIND_OF_SHIELD);
 // 					no_action = 1;
 // 					break;
-				case wait_cmd:
-					//horse only
-					act->stand_idle=1;
-					continue;
-				// Ok, now the movement, this is the tricky part
-				default:
-					if (act->que[0] >= move_n && act->que[0] <= move_nw)
+			case wait_cmd:
+				//horse only
+				act->stand_idle=1;
+				return;
+			// Ok, now the movement, this is the tricky part
+			default:
+				if (act->que[0] >= move_n && act->que[0] <= move_nw)
+				{
+					float rotation_angle;
+					int dx, dy;
+					int step_duration = act->step_duration;
+					struct cal_anim *walk_anim;
+
+					attachment_props *att_props = get_attachment_props_if_held(act, attached);
+					if (att_props)
 					{
-						float rotation_angle;
-						int dx, dy;
-						int step_duration = act->step_duration;
-						struct cal_anim *walk_anim;
-
-						attachment_props *att_props = get_attachment_props_if_held(act, attached);
-						if (att_props)
-						{
-							walk_anim = get_pose_frame(act->actor_type, act, attached,
-								EMOTE_MOTION(act), 1);
-						}
-						else
-						{
-							walk_anim = get_pose_frame(act->actor_type, act, attached,
-								EMOTE_MOTION(act), 0);
-						}
-
-						act->moving=1;
-						act->fighting=0;
-						if (last_command < move_n || last_command > move_nw)
-						{
-							// Update the frame name too
-							cal_actor_set_anim(act, attached, *walk_anim);
-							act->stop_animation=0;
-						}
-
-						if (last_command != act->que[0])
-						{
-							// Calculate the rotation
-							targeted_z_rot=(act->que[0]-move_n)*45.0f;
-							rotation_angle=get_rotation_vector(z_rot,targeted_z_rot);
-							act->rotate_z_speed=rotation_angle/360.0;
-
-							act->rotate_time_left=360;
-							act->rotating=1;
-						}
-						get_motion_vector(act->que[0], &dx, &dy);
-
-						/* if other move commands are waiting in the queue,
-							* we walk at a speed that is close to the server speed
-							* else we walk at a slightly slower speed to wait next
-							* incoming walking commands */
-						if (act->que[1] >= move_n && act->que[1] <= move_nw)
-						{
-							if (act->que[2] >= move_n && act->que[2] <= move_nw)
-							{
-								if (act->que[3] >= move_n && act->que[3] <= move_nw)
-									act->movement_time_left = (int)(step_duration*0.9); // 3 moves
-								else
-									act->movement_time_left = step_duration; // 2 moves
-							}
-							else
-							{
-								act->movement_time_left = (int)(step_duration*1.1); // 1 move
-							}
-						}
-						else
-						{
-							act->movement_time_left = (int)(step_duration*1.2); // 0 move
-						}
-						// if we have a diagonal motion, we slow down the animation a bit
-						if (dx != 0 && dy != 0)
-							act->movement_time_left = (int)(act->movement_time_left*1.2+0.5);
-
-						// we compute the moving speeds in x, y and z directions
-						act->move_x_speed = 0.5*(dx+act->x_tile_pos)-act->x_pos;
-						act->move_y_speed = 0.5*(dy+act->y_tile_pos)-act->y_pos;
-						act->move_z_speed = get_tile_height(act->x_tile_pos+dx, act->y_tile_pos+dy)
-							- act->z_pos;
-						act->move_x_speed /= (float)act->movement_time_left;
-						act->move_y_speed /= (float)act->movement_time_left;
-						act->move_z_speed /= (float)act->movement_time_left;
-
-						/* we change the speed of the walking animation according to the walking speed and to the size of the actor
-							* we suppose here that the normal speed of the walking animation is 2 meters per second (1 tile in 250ms) */
-						act->cur_anim.duration_scale = walk_anim->duration_scale;
-						act->cur_anim.duration_scale *= (float)DEFAULT_STEP_DURATION/(act->movement_time_left*act->scale);
-						if (actors_defs[actor_type].actor_scale != 1.0)
-							act->cur_anim.duration_scale /= actors_defs[actor_type].actor_scale;
-						else
-							act->cur_anim.duration_scale /= actors_defs[actor_type].scale;
-						if (dx != 0 && dy != 0)
-							act->cur_anim.duration_scale *= 1.4142315;
+						walk_anim = get_pose_frame(act->actor_type, act, attached,
+							EMOTE_MOTION(act), 1);
 					}
-					else if (act->que[0] >= turn_n && act->que[0] <= turn_nw)
+					else
 					{
-						float rotation_angle;
+						walk_anim = get_pose_frame(act->actor_type, act, attached,
+							EMOTE_MOTION(act), 0);
+					}
 
-						int horse_angle=0;
-						if (is_horse(act))
-							horse_angle=(act->fighting && actor_weapon(attached)->turn_horse) ? HORSE_FIGHT_ROTATION : 0;
-						else if (horse)
-							horse_angle=(act->fighting && actor_weapon(act)->turn_horse) ? HORSE_FIGHT_ROTATION : 0;
+					act->moving=1;
+					act->fighting=0;
+					if (last_command < move_n || last_command > move_nw)
+					{
+						// Update the frame name too
+						cal_actor_set_anim(act, attached, *walk_anim);
+						act->stop_animation=0;
+					}
 
-						if ((horse || is_horse(act)) && (act->in_aim_mode || attached->in_aim_mode)) {
-							horse_angle=HORSE_RANGE_ROTATION;
-							act->stand_idle=1;
-							//if(act->actor_id==yourself) printf("%i, %s rotates\n",thecount, act->actor_name);
-							//if(attached->actor_id==yourself) printf("%i, Horse %s rotates\n",thecount, attached->actor_name);
-						}
-						targeted_z_rot=(act->que[0] - turn_n) * 45.0f - horse_angle;
-						rotation_angle=get_rotation_vector(act->z_rot,targeted_z_rot);
-						act->rotate_z_speed=rotation_angle/360.0f;
+					if (last_command != act->que[0])
+					{
+						// Calculate the rotation
+						targeted_z_rot=(act->que[0]-move_n)*45.0f;
+						rotation_angle=get_rotation_vector(z_rot,targeted_z_rot);
+						act->rotate_z_speed=rotation_angle/360.0;
+
 						act->rotate_time_left=360;
 						act->rotating=1;
-						act->stop_animation=1;
-
-						if (act->fighting && horse_angle != 0)
-							act->horse_rotated=1;
-						missiles_log_message("%s (%d): rotation %d requested", act->actor_name,
-							act->actor_id, act->que[0] - turn_n);
 					}
-			} // switch (act->que[0])
+					get_motion_vector(act->que[0], &dx, &dy);
 
-			// Mark the actor as being busy
-			if (!no_action)
-				act->busy=1;
-			else if (horse)
-				act->in_aim_mode=3; //needed to unfreeze the horse in move_to_next_frame
-			//if (act->actor_id==yourself) LOG_TO_CONSOLE(c_green2,"Busy");
-			// Save the last command. It is especially good for run and walk
-			act->last_command=act->que[0];
+					/* if other move commands are waiting in the queue,
+						* we walk at a speed that is close to the server speed
+						* else we walk at a slightly slower speed to wait next
+						* incoming walking commands */
+					if (act->que[1] >= move_n && act->que[1] <= move_nw)
+					{
+						if (act->que[2] >= move_n && act->que[2] <= move_nw)
+						{
+							if (act->que[3] >= move_n && act->que[3] <= move_nw)
+								act->movement_time_left = (int)(step_duration*0.9); // 3 moves
+							else
+								act->movement_time_left = step_duration; // 2 moves
+						}
+						else
+						{
+							act->movement_time_left = (int)(step_duration*1.1); // 1 move
+						}
+					}
+					else
+					{
+						act->movement_time_left = (int)(step_duration*1.2); // 0 move
+					}
+					// if we have a diagonal motion, we slow down the animation a bit
+					if (dx != 0 && dy != 0)
+						act->movement_time_left = (int)(act->movement_time_left*1.2+0.5);
 
-			/* We do the enter in aim mode in two steps in order the actor have
-				* the time to do the load animation before rotating bones. This is
-				* necessary in the case of cross bows where the actor need to use
-				* his foot to reload. So here, we don't remove the enter aim mode
-				* from the queue in order to treat it again but this time in aim mode.
-				*/
-			if (act->que[0] == enter_aim_mode && act->in_aim_mode == 0)
-			{
-				act->in_aim_mode = 1;
-				act->last_command=missile_miss; //dirty hack to avoid processing enter_aim_mode twice :/
-			}
-			else
-			{
-				unqueue_cmd(act);
-			}
+					// we compute the moving speeds in x, y and z directions
+					act->move_x_speed = 0.5*(dx+act->x_tile_pos)-act->x_pos;
+					act->move_y_speed = 0.5*(dy+act->y_tile_pos)-act->y_pos;
+					act->move_z_speed = get_tile_height(act->x_tile_pos+dx, act->y_tile_pos+dy)
+						- act->z_pos;
+					act->move_x_speed /= (float)act->movement_time_left;
+					act->move_y_speed /= (float)act->movement_time_left;
+					act->move_z_speed /= (float)act->movement_time_left;
+
+					/* we change the speed of the walking animation according to the walking speed and to the size of the actor
+						* we suppose here that the normal speed of the walking animation is 2 meters per second (1 tile in 250ms) */
+					act->cur_anim.duration_scale = walk_anim->duration_scale;
+					act->cur_anim.duration_scale *= (float)DEFAULT_STEP_DURATION/(act->movement_time_left*act->scale);
+					if (actors_defs[actor_type].actor_scale != 1.0)
+						act->cur_anim.duration_scale /= actors_defs[actor_type].actor_scale;
+					else
+						act->cur_anim.duration_scale /= actors_defs[actor_type].scale;
+					if (dx != 0 && dy != 0)
+						act->cur_anim.duration_scale *= 1.4142315;
+				}
+				else if (act->que[0] >= turn_n && act->que[0] <= turn_nw)
+				{
+					float rotation_angle;
+
+					int horse_angle=0;
+					if (is_horse(act))
+						horse_angle=(act->fighting && actor_weapon(attached)->turn_horse) ? HORSE_FIGHT_ROTATION : 0;
+					else if (horse)
+						horse_angle=(act->fighting && actor_weapon(act)->turn_horse) ? HORSE_FIGHT_ROTATION : 0;
+
+					if ((horse || is_horse(act)) && (act->in_aim_mode || attached->in_aim_mode)) {
+						horse_angle=HORSE_RANGE_ROTATION;
+						act->stand_idle=1;
+						//if(act->actor_id==yourself) printf("%i, %s rotates\n",thecount, act->actor_name);
+						//if(attached->actor_id==yourself) printf("%i, Horse %s rotates\n",thecount, attached->actor_name);
+					}
+					targeted_z_rot=(act->que[0] - turn_n) * 45.0f - horse_angle;
+					rotation_angle=get_rotation_vector(act->z_rot,targeted_z_rot);
+					act->rotate_z_speed=rotation_angle/360.0f;
+					act->rotate_time_left=360;
+					act->rotating=1;
+					act->stop_animation=1;
+
+					if (act->fighting && horse_angle != 0)
+						act->horse_rotated=1;
+					missiles_log_message("%s (%d): rotation %d requested", act->actor_name,
+						act->actor_id, act->que[0] - turn_n);
+				}
+		} // switch (act->que[0])
+
+		// Mark the actor as being busy
+		if (!no_action)
+			act->busy=1;
+		else if (horse)
+			act->in_aim_mode=3; //needed to unfreeze the horse in move_to_next_frame
+		//if (act->actor_id==yourself) LOG_TO_CONSOLE(c_green2,"Busy");
+		// Save the last command. It is especially good for run and walk
+		act->last_command=act->que[0];
+
+		/* We do the enter in aim mode in two steps in order the actor have
+			* the time to do the load animation before rotating bones. This is
+			* necessary in the case of cross bows where the actor need to use
+			* his foot to reload. So here, we don't remove the enter aim mode
+			* from the queue in order to treat it again but this time in aim mode.
+			*/
+		if (act->que[0] == enter_aim_mode && act->in_aim_mode == 0)
+		{
+			act->in_aim_mode = 1;
+			act->last_command=missile_miss; //dirty hack to avoid processing enter_aim_mode twice :/
+		}
+		else
+		{
+			unqueue_cmd(act);
 		}
 	}
+}
+
+void next_command(locked_list_ptr list)
+{
+#ifdef MORE_ATTACHED_ACTORS_DEBUG
+	thecount++;
+#endif
+
+	for_each_actor_and_attached(list, next_actor_command, NULL);
 }
 
 void free_actor_data(actor* act)
@@ -2458,39 +2430,30 @@ void add_emote_to_actor(int actor_id, int emote_id){
 
 void get_actor_damage(int actor_id, int damage)
 {
-	//int i=0;
-	size_t max_actors;
-	actor **actors_list, *self, *act;
+	actor *self, *act;
 	float blood_level;
 	float bone_list[1024][3];
 	int total_bones;
 	int bone;
 	float bone_x, bone_y, bone_z;
+	locked_list_ptr actors_list = get_locked_actors_list();
 
 #ifdef EXTRA_DEBUG
 	ERR();
 #endif
 
-	actors_list = lock_and_get_list_and_self(&max_actors, &self);
+	self = get_self(actors_list);
 	if (!self)
 	{
-		release_actors_list();
+		release_locked_actors_list(actors_list);
 		return;
 	}
 
-	act = NULL;
-	for (size_t i = 0; i < max_actors; ++i)
-	{
-		if (actors_list[i]->actor_id == actor_id)
-		{
-			act = actors_list[i];
-			break;
-		}
-	}
-	if(!act)
+	act = get_actor_from_id(actors_list, actor_id);
+	if (!act)
 	{
 		//if we got here, it means we don't have this actor, so get it from the server...
-		release_actors_list();
+		release_locked_actors_list(actors_list);
 		return;
 	}
 
@@ -2512,7 +2475,7 @@ void get_actor_damage(int actor_id, int damage)
 #ifdef NEW_SOUND
 		add_death_sound(act);
 #endif // NEW_SOUND
-		increment_death_counter(self, act, actors_list, max_actors);
+		increment_death_counter(act, actors_list);
 	}
 	act->last_range_attacker_id = -1;
 

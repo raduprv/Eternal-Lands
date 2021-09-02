@@ -2,7 +2,7 @@
 #ifndef __COUNTERS_H__
 #define __COUNTERS_H__
 
-#include "actors.h"
+#include "actors_list.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -34,7 +34,7 @@ void fill_counters_win(int window_id);
 void reset_session_counters(void);
 void print_session_counters(const char *category);
 
-void increment_death_counter(const actor *me, const actor *act, actor **actors_list, size_t max_actors);
+void increment_death_counter(const actor *act, locked_list_ptr actors_list);
 void increment_critfail_counter(const char *name);
 void increment_used_item_counter(const char *name, int quantity);
 void increment_harvest_counter(int quantity);

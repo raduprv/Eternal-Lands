@@ -1837,30 +1837,37 @@ static int ecdw_mine_magic_immunity_removal_detonate_handler(void)
 	return 1;
 }
 
+struct remote_smite_summons_info
+{
+	int target_count;
+	ec_reference ref;
+};
+
+static void remote_smite_summons_target(actor *act, void* data, locked_list_ptr actors_list)
+{
+	struct remote_smite_summons_info *info = data;
+	if (act != get_self(actors_list))
+	{
+		ec_add_target(info->ref, act->x_pos, act->y_pos, 1.5);
+		++info->target_count;
+	}
+}
+
 // TODO!
 static int ecdw_remote_smite_summons_handler(void)
 {
-	int targetcount = 0;
-	int i;
-	ec_reference ref = ec_create_generic();
-	size_t max_actors;
-	actor *me;
-	actor **actors_list = lock_and_get_list_and_self(&max_actors, &me);
+	struct remote_smite_summons_info info = { .target_count = 0, .ref = ec_create_generic() };
+	locked_list_ptr actors_list = get_locked_actors_list();
 
-	for (i = 0; i < max_actors; i++)
+	for_each_actor(actors_list, remote_smite_summons_target, &info);
+	if (info.target_count > 0)
 	{
-		if (actors_list[i] && actors_list[i] != me)
-		{
-			ec_add_target(ref, actors_list[i]->x_pos, actors_list[i]->y_pos, 1.5);
-			targetcount++;
-		}
-	}
-	if (targetcount > 0)
-	{
-		ec_launch_targetmagic_smite_summoned(ref, me->x_pos, me->y_pos, 1.5, (poor_man ? 6 : 10));
+		actor *me = get_self(actors_list);
+		ec_launch_targetmagic_smite_summoned(info.ref, me->x_pos, me->y_pos, 1.5,
+			(poor_man ? 6 : 10));
 	}
 
-	release_actors_list();
+	release_locked_actors_list(actors_list);
 	return 1;
 }
 

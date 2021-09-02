@@ -1030,139 +1030,140 @@ static int comp_actors(const void *in_a, const void *in_b)
 	}
 }
 
-void get_actors_in_range()
+struct distance_info
+{
+	int nr_enhanced_actors;
+	float distance_sq_sum;
+};
+
+static void check_actor_in_range(actor *act, actor *attached, void* data,
+	locked_list_ptr actors_list)
 {
 	VECTOR3 pos;
-	unsigned int i;
-#ifdef NEW_SOUND
-	unsigned int tmp_nr_enh_act;		// Use temp variables to stop crowd sound interference during count
-	float tmp_dist_to_nr_enh_act;
-#endif // NEW_SOUND
 	AABBOX bbox;
-	actor **actors_list, *me;
-	size_t max_actors;
-
-	actors_list = lock_and_get_list_and_self(&max_actors, &me);
-	if (!me)
-	{
-		release_actors_list();
-		return;
-	}
-
-	no_near_actors = 0;
 #ifdef NEW_SOUND
-	tmp_nr_enh_act = 0;
-	tmp_dist_to_nr_enh_act = 0;
+	struct distance_info *info = data;
 #endif // NEW_SOUND
+#if defined(NEW_SOUND) || defined(CLUSTER_INSIDES)
+	actor *me = get_self(actors_list);
+#endif // NEW_SOUND || CLUSTER_INSIDES
 
-	set_current_frustum(get_cur_intersect_type(main_bbox_tree));
-
-	for (i = 0; i < max_actors; i++)
-	{
-		if(actors_list[i]
 #ifdef CLUSTER_INSIDES
-		   && (actors_list[i]->cluster == me->cluster || actors_list[i]->cluster == 0)
+	if (act->cluster != me->cluster && act->cluster != 0)
+		return;
 #endif
-		)
+
+	// if we have an attached actor, we maybe have to modify the position of the current actor
+	if (attached)
+	{
+		attachment_props *att_props;
+		float loc_pos[3];
+		float att_pos[3];
+		float loc_scale = get_actor_scale(act);
+		float att_scale = get_actor_scale(attached);
+		if (is_horse(act)) // we are on a attached actor
 		{
-			// if we have an attached actor, we maybe have to modify the position of the current actor
-			if (has_attachment(actors_list[i]))
+			att_props = &attached_actors_defs[act->actor_type].actor_type[attached->actor_type];
+			if (!att_props->is_holder) // the attachment is not a holder so we have to move it
 			{
-				actor *att = find_actor_ptr(actors_list, max_actors,
-					actors_list[i]->attached_actor_id);
-				attachment_props *att_props;
-				float loc_pos[3];
-				float att_pos[3];
-				float loc_scale = get_actor_scale(actors_list[i]);
-				float att_scale = get_actor_scale(att);
-				if (actors_list[i]->actor_id < 0) // we are on a attached actor
-				{
-					att_props = &attached_actors_defs[actors_list[i]->actor_type].actor_type[att->actor_type];
-					if (!att_props->is_holder) // the attachment is not a holder so we have to move it
-					{
-						cal_get_actor_bone_local_position(att, att_props->parent_bone_id, NULL, att_pos);
-						cal_get_actor_bone_local_position(actors_list[i], att_props->local_bone_id, NULL, loc_pos);
-						actors_list[i]->attachment_shift[0] = att_pos[0] * att_scale - (loc_pos[0] - att_props->shift[0]) * loc_scale;
-						actors_list[i]->attachment_shift[1] = att_pos[1] * att_scale - (loc_pos[1] - att_props->shift[1]) * loc_scale;
-						actors_list[i]->attachment_shift[2] = att_pos[2] * att_scale - (loc_pos[2] - att_props->shift[2]) * loc_scale;
-					}
-				}
-				else if (actors_list[i]->actor_id >= 0) // we are on a standard actor
-				{
-					att_props = &attached_actors_defs[att->actor_type].actor_type[actors_list[i]->actor_type];
-					if (att_props->is_holder) // the attachment is an holder, we have to move the current actor
-					{
-						cal_get_actor_bone_local_position(att, att_props->local_bone_id, NULL, att_pos);
-						cal_get_actor_bone_local_position(actors_list[i], att_props->parent_bone_id, NULL, loc_pos);
-						actors_list[i]->attachment_shift[0] = att_pos[0] * att_scale - (loc_pos[0] - att_props->shift[0]) * loc_scale;
-						actors_list[i]->attachment_shift[1] = att_pos[1] * att_scale - (loc_pos[1] - att_props->shift[1]) * loc_scale;
-						actors_list[i]->attachment_shift[2] = att_pos[2] * att_scale - (loc_pos[2] - att_props->shift[2]) * loc_scale;
-					}
-				}
+				cal_get_actor_bone_local_position(attached, att_props->parent_bone_id, NULL, att_pos);
+				cal_get_actor_bone_local_position(act, att_props->local_bone_id, NULL, loc_pos);
+				act->attachment_shift[0] = att_pos[0] * att_scale - (loc_pos[0] - att_props->shift[0]) * loc_scale;
+				act->attachment_shift[1] = att_pos[1] * att_scale - (loc_pos[1] - att_props->shift[1]) * loc_scale;
+				act->attachment_shift[2] = att_pos[2] * att_scale - (loc_pos[2] - att_props->shift[2]) * loc_scale;
 			}
-			pos[X] = actors_list[i]->x_pos + actors_list[i]->attachment_shift[X];
-			pos[Y] = actors_list[i]->y_pos + actors_list[i]->attachment_shift[Y];
-			pos[Z] = actors_list[i]->z_pos + actors_list[i]->attachment_shift[Z];
-
-			if (pos[Z] == 0.0f)
+		}
+		else // we are on a standard actor
+		{
+			att_props = &attached_actors_defs[attached->actor_type].actor_type[act->actor_type];
+			if (att_props->is_holder) // the attachment is an holder, we have to move the current actor
 			{
-				//actor is walking, as opposed to flying, get the height underneath
-				pos[Z] = get_tile_height(actors_list[i]->x_tile_pos, actors_list[i]->y_tile_pos);
-			}
-
-			if (actors_list[i]->calmodel == NULL) continue;
-
-			memcpy(&bbox, &actors_list[i]->bbox, sizeof(AABBOX));
-			rotate_aabb(&bbox, actors_list[i]->x_rot, actors_list[i]->y_rot, 180.0f-actors_list[i]->z_rot);
-
-			VAddEq(bbox.bbmin, pos);
-			VAddEq(bbox.bbmax, pos);
-
-			if (aabb_in_frustum(bbox))
-			{
-				near_actors[no_near_actors].actor_id = actors_list[i]->actor_id;
-				near_actors[no_near_actors].ghost = actors_list[i]->ghost;
-				near_actors[no_near_actors].buffs = actors_list[i]->buffs;
-				near_actors[no_near_actors].select = 0;
-				near_actors[no_near_actors].type = actors_list[i]->actor_type;
-				if (actors_list[i]->ghost)
-				{
-					near_actors[no_near_actors].alpha = 0;
-				}
-				else
-				{
-					near_actors[no_near_actors].alpha = actors_list[i]->has_alpha;
-				}
-
-				actors_list[i]->max_z = actors_list[i]->bbox.bbmax[Z];
-
-				if (read_mouse_now && (get_cur_intersect_type(main_bbox_tree) == INTERSECTION_TYPE_DEFAULT))
-				{
-					near_actors[no_near_actors].select = 1;
-				}
-				no_near_actors++;
-#ifdef NEW_SOUND
-				if (actors_list[i]->is_enhanced_model && actors_list[i]->actor_id != me->actor_id)
-				{
-					tmp_nr_enh_act++;
-					tmp_dist_to_nr_enh_act += ((me->x_pos - actors_list[i]->x_pos) *
-														(me->x_pos - actors_list[i]->x_pos)) +
-														((me->y_pos - actors_list[i]->y_pos) *
-														(me->y_pos - actors_list[i]->y_pos));
-				}
-#endif // NEW_SOUND
+				cal_get_actor_bone_local_position(attached, att_props->local_bone_id, NULL, att_pos);
+				cal_get_actor_bone_local_position(act, att_props->parent_bone_id, NULL, loc_pos);
+				act->attachment_shift[0] = att_pos[0] * att_scale - (loc_pos[0] - att_props->shift[0]) * loc_scale;
+				act->attachment_shift[1] = att_pos[1] * att_scale - (loc_pos[1] - att_props->shift[1]) * loc_scale;
+				act->attachment_shift[2] = att_pos[2] * att_scale - (loc_pos[2] - att_props->shift[2]) * loc_scale;
 			}
 		}
 	}
+	pos[X] = act->x_pos + act->attachment_shift[X];
+	pos[Y] = act->y_pos + act->attachment_shift[Y];
+	pos[Z] = act->z_pos + act->attachment_shift[Z];
 
-	release_actors_list();
+	if (pos[Z] == 0.0f)
+	{
+		//actor is walking, as opposed to flying, get the height underneath
+		pos[Z] = get_actor_z(act);
+	}
+
+	if (act->calmodel == NULL)
+		return;
+
+	memcpy(&bbox, &act->bbox, sizeof(AABBOX));
+	rotate_aabb(&bbox, act->x_rot, act->y_rot, 180.0f-act->z_rot);
+
+	VAddEq(bbox.bbmin, pos);
+	VAddEq(bbox.bbmax, pos);
+
+	if (aabb_in_frustum(bbox))
+	{
+		near_actors[no_near_actors].actor_id = act->actor_id;
+		near_actors[no_near_actors].ghost = act->ghost;
+		near_actors[no_near_actors].buffs = act->buffs;
+		near_actors[no_near_actors].select = 0;
+		near_actors[no_near_actors].type = act->actor_type;
+		if (act->ghost)
+		{
+			near_actors[no_near_actors].alpha = 0;
+		}
+		else
+		{
+			near_actors[no_near_actors].alpha = act->has_alpha;
+		}
+
+		act->max_z = act->bbox.bbmax[Z];
+
+		if (read_mouse_now && (get_cur_intersect_type(main_bbox_tree) == INTERSECTION_TYPE_DEFAULT))
+		{
+			near_actors[no_near_actors].select = 1;
+		}
+		no_near_actors++;
+#ifdef NEW_SOUND
+		if (act->is_enhanced_model && act->actor_id != me->actor_id)
+		{
+			++info->nr_enhanced_actors;
+			info->distance_sq_sum += ((me->x_pos - act->x_pos) * (me->x_pos - act->x_pos))
+				+ ((me->y_pos - act->y_pos) * (me->y_pos - act->y_pos));
+		}
+#endif // NEW_SOUND
+	}
+}
+
+void get_actors_in_range()
+{
+	struct distance_info info = { .nr_enhanced_actors = 0, .distance_sq_sum = 0.0f };
+	locked_list_ptr actors_list;
+
+	no_near_actors = 0;
+
+	actors_list = get_locked_actors_list();
+	if (!get_self(actors_list))
+	{
+		release_locked_actors_list(actors_list);
+		return;
+	}
+
+	set_current_frustum(get_cur_intersect_type(main_bbox_tree));
+
+	for_each_actor_and_attached(actors_list, check_actor_in_range, &info);
+	release_locked_actors_list(actors_list);
 
 #ifdef NEW_SOUND
-	if (tmp_nr_enh_act > 0)
-		tmp_dist_to_nr_enh_act = tmp_dist_to_nr_enh_act / tmp_nr_enh_act;
-	no_near_enhanced_actors = tmp_nr_enh_act;
-	distanceSq_to_near_enhanced_actors = tmp_dist_to_nr_enh_act;
+	no_near_enhanced_actors = info.nr_enhanced_actors;
+	distanceSq_to_near_enhanced_actors = info.nr_enhanced_actors > 0
+		? info.distance_sq_sum / info.nr_enhanced_actors : 0.0;
 #endif // NEW_SOUND
+
 	qsort(near_actors, no_near_actors, sizeof(near_actor), comp_actors);
 }
 

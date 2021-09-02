@@ -1049,13 +1049,44 @@ static void increment_range_kill_counter(const actor *me, const actor *them)
 		increment_counter(KILLS, strip_actor_name(them->actor_name), 1,	0);
 }
 
+static void count_actor_death(actor* them, void* data, locked_list_ptr actors_list)
+{
+	static const int face_offsets[8][2] = {{0,1},{1,1},{1,0},{1,-1},{0,-1},{-1,-1},{-1,0},{-1,1}};
+
+	int x1, y1, x2, y2;
+	int *found_death_reason = data;
+	const actor *me = get_self(actors_list);
+
+	if (!them->async_fighting ||
+		// PK deaths are handled with text messages from the server now
+		(them->is_enhanced_model && (them->kind_of_actor == HUMAN ||
+										them->kind_of_actor == PKABLE_HUMAN))) {
+		return;
+	}
+
+	/* get the coords of the tile they're facing */
+	x1 = them->async_x_tile_pos + face_offsets[((int)them->async_z_rot)/45][0];
+	y1 = them->async_y_tile_pos + face_offsets[((int)them->async_z_rot)/45][1];
+
+	/* get the coords of the next tile they're facing (necessary for Chimerans) */
+	x2 = x1 + face_offsets[((int)them->async_z_rot)/45][0];
+	y2 = y1 + face_offsets[((int)them->async_z_rot)/45][1];
+
+	if ((me->async_x_tile_pos == x1 && me->async_y_tile_pos == y1)
+		|| (me->async_x_tile_pos == x2 && me->async_y_tile_pos == y2))
+	{
+		increment_counter(DEATHS, strip_actor_name(them->actor_name), 1, 0);
+		*found_death_reason = 1;
+	}
+}
+
 /*
  * Called whenever an actor dies.
  */
-void increment_death_counter(const actor *me, const actor *act,
-	actor **actors_list, size_t max_actors)
+void increment_death_counter(const actor *act, locked_list_ptr actors_list)
 {
 	int found_death_reason = 0;
+	const actor *me = get_self(actors_list);
 
 	if (act == me)
 	{
@@ -1079,38 +1110,8 @@ void increment_death_counter(const actor *me, const actor *act,
 			clear_now_harvesting();
 		}
 
-		if (!found_death_reason && me->async_fighting) {
-			static const int face_offsets[8][2] = {{0,1},{1,1},{1,0},{1,-1},{0,-1},{-1,-1},{-1,0},{-1,1}};
-
-			for (size_t i = 0; i < max_actors; i++)
-			{
-				int x1, y1, x2, y2;
-				actor *them = actors_list[i];
-
-				if (!them->async_fighting ||
-					// PK deaths are handled with text messages from the server now
-					(them->is_enhanced_model && (them->kind_of_actor == HUMAN ||
-												 them->kind_of_actor == PKABLE_HUMAN))) {
-					continue;
-				}
-
-				/* get the coords of the tile they're facing */
-				x1 = them->async_x_tile_pos + face_offsets[((int)them->async_z_rot)/45][0];
-				y1 = them->async_y_tile_pos + face_offsets[((int)them->async_z_rot)/45][1];
-
-				/* get the coords of the next tile they're facing (necessary for Chimerans) */
-				x2 = x1 + face_offsets[((int)them->async_z_rot)/45][0];
-				y2 = y1 + face_offsets[((int)them->async_z_rot)/45][1];
-
-				/* continue if our actor is not on one of these tiles */
-				if ((me->async_x_tile_pos != x1 || me->async_y_tile_pos != y1) && (me->async_x_tile_pos != x2 || me->async_y_tile_pos != y2)) {
-					continue;
-				}
-
-				increment_counter(DEATHS, strip_actor_name(them->actor_name), 1, 0);
-				found_death_reason = 1;
-			}
-		}
+		if (!found_death_reason && me->async_fighting)
+			for_each_actor(actors_list, count_actor_death, &found_death_reason);
 
 		if (!found_death_reason) {
 			/* count deaths while we were poisoned - possibily in adition to another possible reason */
