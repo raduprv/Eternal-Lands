@@ -5,7 +5,7 @@
 #include <atomic>
 #include <cstdint>
 #include <mutex>
-#include <vector>
+#include <unordered_map>
 #endif // __cplusplus
 
 #include "actors.h"
@@ -59,7 +59,7 @@ public:
 	typedef std::recursive_mutex Mutex;
  #endif // ACTORS_LIST_NO_RECURSIVE_MUTEX
 #endif // ACTORS_LIST_MUTEX_DEBUG
-	typedef std::vector<actor*> Storage;
+	typedef std::unordered_map<int, actor*> Storage;
 
 	/*!
 	 * \brief Lock guard proxy
@@ -128,14 +128,15 @@ public:
 		template <typename T>
 		void for_each_actor(T fun, void* data)
 		{
-			for (actor* act: (*this)->_list)
-				fun(act, data, this);
+			for (auto& id_act: (*this)->_list)
+				fun(id_act.second, data, this);
 		}
 		template <typename T>
 		void for_each_actor_and_attached(T fun, void* data)
 		{
-			for (actor* act: (*this)->_list)
+			for (auto& id_act: (*this)->_list)
 			{
+				actor* act = id_act.second;
 				actor *attached = has_attachment(act)
 					? get_actor_from_id(act->attached_actor_id)
 					: nullptr;
@@ -148,7 +149,10 @@ public:
 		{
 			return (*this)->add_attachment_locked(actor_id, attached);
 		}
-		void remove_and_destroy(int actor_id) { (*this)->remove_and_destroy_locked(actor_id); }
+		void remove_and_destroy(int actor_id)
+		{
+			(*this)->remove_and_destroy_actor_and_attached_locked(actor_id);
+		}
 		void clear() { (*this)->clear_locked(); }
 
 		actor* get_self() { return (*this)->_self; }
@@ -312,7 +316,7 @@ public:
 	 * \note The actors list mutex should not be locked when calling this method.
 	 * \param actor_id The ID of the actor to remove, as set by the server
 	 */
-	void remove_and_destroy(int actor_id);
+	void remove_and_destroy_actor_and_attached(int actor_id);
 	/*!
 	 * \brief Remove an attachment
 	 *
@@ -388,7 +392,11 @@ private:
 	 * \param actor_id The ID of the actor to look for
 	 * \return Pointer to the actor
 	 */
-	actor *get_actor_from_id_locked(int actor_id);
+	actor *get_actor_from_id_locked(int actor_id)
+	{
+		Storage::iterator iter = _list.find(actor_id);
+		return (iter != _list.end()) ? iter->second : nullptr;
+	}
 	/*!
 	 * \brief Find self and another actor
 	 *
@@ -435,8 +443,6 @@ private:
 	 */
 	actor* get_actor_from_name_locked(const char* name);
 
-	size_t find_index_for_id(int actor_id);
-
 	/*!
 	 * \brief Add an actor
 	 *
@@ -457,9 +463,9 @@ private:
 	 * 	parent actor could not be found).
 	 */
 	bool add_attachment_locked(int actor_id, actor *attached);
-	actor* remove_at_index_locked(size_t idx);
-	void remove_and_destroy_locked(int actor_id);
-	void remove_and_destroy_at_index_locked(size_t idx);
+	void remove_and_destroy_actor_locked(Storage::const_iterator iter);
+	void remove_and_destroy_actor_and_attached_locked(Storage::const_iterator iter);
+	void remove_and_destroy_actor_and_attached_locked(int actor_id);
 	/*!
 	 * \brief Remove an attachment
 	 *
@@ -521,16 +527,6 @@ float self_scale(void);
 void clear_actor_under_mouse(void);
 int actor_under_mouse_alive(void);
 int actor_occupies_tile(int x, int y);
-
-static inline actor* find_actor_ptr(actor **actors_list, size_t max_actors, int actor_id)
-{
-	for (size_t i = 0; i < max_actors; ++i)
-	{
-		if (actors_list[i]->actor_id == actor_id)
-			return actors_list[i];
-	}
-	return NULL;
-}
 
 #ifdef __cplusplus
 } // extern "C"

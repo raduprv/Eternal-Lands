@@ -98,18 +98,6 @@ int parse_actor_frames(actor_types *act, const xmlNode *cfg, const xmlNode *defa
 static int thecount=0;
 #endif
 
-static inline actor* get_attached(const actor* act, actor **actors_list, size_t max_actors)
-{
-	int id = act->attached_actor_id;
-	return id >= 0 ? find_actor_ptr(actors_list, max_actors, id) : NULL;
-}
-
-static inline actor* get_horse(const actor* act, actor **actors_list, size_t max_actors)
-{
-	actor *horse = get_attached(act, actors_list, max_actors);
-	return horse->actor_id >= HORSE_ID_OFFSET ? horse : NULL;
-}
-
 static inline int is_actor_held(const actor *act, const actor *attached)
 {
 	if (!attached)
