@@ -127,14 +127,18 @@ static inline void update_selection(Uint8 *color)
 				LOG_ERROR("Invalid selection type!");
 				break;
 			case UNDER_MOUSE_3D_OBJ:
-				eternal_lands::ActorsList::get_instance().clear_actor_under_mouse();
+			{
+				auto list = eternal_lands::ActorsList::get_locked_instance();
+				list.clear_actor_under_mouse();
 				object_under_mouse = selections[index].id;
 				break;
+			}
 			case UNDER_MOUSE_PLAYER:
 			case UNDER_MOUSE_NPC:
 			case UNDER_MOUSE_ANIMAL:
 			{
-				eternal_lands::ActorsList::get_instance().set_actor_under_mouse(selections[index].id);
+				auto list = eternal_lands::ActorsList::get_locked_instance();
+				list.set_actor_under_mouse(selections[index].id);
 				object_under_mouse = selections[index].id;
 				break;
 			}
@@ -183,14 +187,15 @@ static inline int old_anything_under_the_mouse(int object_id, int object_type)
 			return 0;
 		}
 
+		auto list = eternal_lands::ActorsList::get_locked_instance();
 		if ((object_type == UNDER_MOUSE_PLAYER) || (object_type==UNDER_MOUSE_NPC) ||
 			(object_type==UNDER_MOUSE_ANIMAL))
 		{
-			eternal_lands::ActorsList::get_instance().set_actor_under_mouse(object_id);
+			list.set_actor_under_mouse(object_id);
 		}
 		else
 		{
-			eternal_lands::ActorsList::get_instance().clear_actor_under_mouse();
+			list.clear_actor_under_mouse();
 		}
 		object_under_mouse = object_id;
 
@@ -222,7 +227,10 @@ extern "C" void reset_under_the_mouse()
 		{
 			object_under_mouse = -1;
 			thing_under_the_mouse = UNDER_MOUSE_NOTHING;
-			eternal_lands::ActorsList::get_instance().clear_actor_under_mouse();
+			{
+				auto list = eternal_lands::ActorsList::get_locked_instance();
+				list.clear_actor_under_mouse();
+			}
 
 			glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 			draw_tile_map();
@@ -325,7 +333,7 @@ extern "C" void reset_under_the_mouse()
 							glColor4ubv(color);
 						}
 
-						auto actors_list = eternal_lands::ActorsList::get_instance().get();
+						auto actors_list = eternal_lands::ActorsList::get_locked_instance();
 						actor* actor = actors_list.get_actor_from_id(selections[i].id);
 						if (actor)
 						{

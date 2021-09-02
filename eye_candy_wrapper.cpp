@@ -176,7 +176,7 @@ void ec_heartbeat()
 			fire_obstructions_list.push_back(obstruction->obstruction);
 	}
 #ifndef MAP_EDITOR
-	auto list = eternal_lands::ActorsList::get_instance().get();
+	auto list = eternal_lands::ActorsList::get_locked_instance();
 	for (auto obstruction: actor_obstructions)
 	{
 		actor *act = list.get_actor_from_id(obstruction->obstructing_actor_id);
@@ -424,7 +424,7 @@ extern "C" void ec_idle()
 			}
 #endif
 #ifndef MAP_EDITOR
-			auto list = eternal_lands::ActorsList::get_instance().get();
+			auto list = eternal_lands::ActorsList::get_locked_instance();
 			if ((*iter)->caster_id >= 0)
 			{
 				actor *caster = list.get_actor_from_id((*iter)->caster_id);
