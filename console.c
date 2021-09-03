@@ -522,7 +522,7 @@ static int send_cmd(char *text, int len){
 	int j,x;
 	char *id;
 	locked_list_ptr actors_list;
-	actor *act=NULL;
+	actor *act, *attached;
 
 	for(j=1;j<len;j++) if(text[j]==' ') {text[j]=0; break;}
 	id=&text[j+1];
@@ -539,9 +539,10 @@ static int send_cmd(char *text, int len){
 
 	LOG_TO_CONSOLE(c_orange1, "actor found, adding command");
 	printf("actor found\n");
+	attached = has_attachment(act) ? get_actor_from_id(actors_list, act->attached_actor_id) : NULL;
 	while(*id)
 	{
-		add_command_to_actor(act->actor_id,atoi(id));
+		add_command_to_actor_locked(act, attached, atoi(id));
 		id++;
 		while(*id!=' '&&*id!=0) id++;
 	}

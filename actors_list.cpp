@@ -232,6 +232,14 @@ extern "C" actor* get_actor_from_id(locked_list_ptr list, int actor_id)
 	return list->get_actor_from_id(actor_id);
 }
 
+extern "C" actor* get_actor_and_attached_from_id(locked_list_ptr list, int actor_id,
+	actor **attached)
+{
+	actor *act;
+	std::tie(act, *attached) = list->get_actor_and_attached_from_id(actor_id);
+	return act;
+}
+
 #ifdef ECDEBUGWIN
 extern "C" actor* get_target(locked_list_ptr list)
 {

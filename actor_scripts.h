@@ -125,6 +125,20 @@ void update_all_actors(int log_the_update);
  * \callgraph
  */
 void add_command_to_actor(int actor_id, unsigned char command);
+/*!
+ * \ingroup	network_actors
+ * \brief	Add a command to the actor.
+ *
+ * 		Add the command \a command to the command queue of actor \a act. If the actor has a
+ * 		horse, it should be given \a horse, otherwise this parameter is \c NULL.
+ *
+ * \param	act     Pointer to the actor receiving a command
+ * \param	horse   If not \c NULL, the horse attached to \a act
+ * \param	command The command that should be added to the actor
+ *
+ * \callgraph
+ */
+void add_command_to_actor_locked(actor *act, actor *horse, unsigned char command);
 
 void add_emote_command_to_actor(actor * act, emote_data *emote);
 void add_emote_to_actor(int actor_id, int emote_id);

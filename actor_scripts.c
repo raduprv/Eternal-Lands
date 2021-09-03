@@ -2006,7 +2006,7 @@ static void sanitize_cmd_queue(actor *act){
 	for(k=MAX_CMD_QUEUE-1;k>0&&j>0;k--,j--) act->que[k]=nothing;
 }
 
-static void add_command_to_actor_locked(actor *act, actor *horse, unsigned char command)
+void add_command_to_actor_locked(actor *act, actor *horse, unsigned char command)
 {
 	//int i=0;
 	int k=0;

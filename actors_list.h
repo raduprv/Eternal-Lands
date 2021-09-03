@@ -557,6 +557,7 @@ typedef struct locked_list *locked_list_ptr;
 locked_list_ptr get_locked_actors_list(void);
 actor* get_self(locked_list_ptr list);
 actor* get_actor_from_id(locked_list_ptr list, int actor_id);
+actor* get_actor_and_attached_from_id(locked_list_ptr list, int actor_id, actor **attached);
 #ifdef ECDEBUGWIN
 actor* get_target(locked_list_ptr list);
 #endif // ECDEBUGWIN

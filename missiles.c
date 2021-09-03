@@ -651,9 +651,9 @@ void missiles_clean_range_actions_queue(actor *act)
 void missiles_aim_at_b(int actor1_id, int actor2_id)
 {
 	locked_list_ptr actors_list;
-	actor *act1, *act2;
+	actor *act1, *horse1, *act2;
 
-	actors_list = lock_and_get_actor_from_id(actor1_id, &act1);
+	actors_list = lock_and_get_actor_and_attached_from_id(actor1_id, &act1, &horse1);
 	if (!actors_list)
 	{
 		LOG_ERROR("the actor %d does not exists!", actor1_id);
@@ -686,22 +686,21 @@ void missiles_aim_at_b(int actor1_id, int actor2_id)
 		action->state = 0;
 		++act1->range_actions_count;
 
-		release_locked_actors_list(actors_list);
-
-		add_command_to_actor(actor1_id, enter_aim_mode);
+		add_command_to_actor_locked(act1, horse1, enter_aim_mode);
 	}
 	else
 	{
 		LOG_ERROR("%s (%d): unable to add a new aim action, the queue is full!",
 				  act1->actor_name, actor1_id);
-		release_locked_actors_list(actors_list);
 	}
+
+	release_locked_actors_list(actors_list);
 }
 
 void missiles_aim_at_xyz(int actor_id, float *target)
 {
-	actor *act;
-	locked_list_ptr actors_list = lock_and_get_actor_from_id(actor_id, &act);
+	actor *act, *attached;
+	locked_list_ptr actors_list = lock_and_get_actor_and_attached_from_id(actor_id, &act, &attached);
 	if (!actors_list) {
 		LOG_ERROR("the actor %d does not exists!", actor_id);
 		return;
@@ -726,30 +725,29 @@ void missiles_aim_at_xyz(int actor_id, float *target)
 		action->state = 0;
 		++act->range_actions_count;
 
-		release_locked_actors_list(actors_list);
-
-		add_command_to_actor(actor_id, enter_aim_mode);
+		add_command_to_actor_locked(act, attached, enter_aim_mode);
 	}
 	else
 	{
 		LOG_ERROR("%s (%d): unable to add a new aim action, the queue is full!",
 				  act->actor_name, actor_id);
-		release_locked_actors_list(actors_list);
 	}
+
+	release_locked_actors_list(actors_list);
 }
 
 void missiles_fire_a_to_b(int actor1_id, int actor2_id)
 {
 	locked_list_ptr actors_list;
-	actor *act1, *act2;
+	actor *act1, *horse1, *act2, *horse2;
 
-	actors_list = lock_and_get_actor_from_id(actor1_id, &act1);
+	actors_list = lock_and_get_actor_and_attached_from_id(actor1_id, &act1, &horse1);
 	if (!actors_list)
 	{
 		LOG_ERROR("missiles_fire_a_to_b: the actor %d does not exists!", actor1_id);
 		return;
 	}
-	act2 = get_actor_from_id(actors_list, actor2_id);
+	act2 = get_actor_and_attached_from_id(actors_list, actor2_id, &horse2);
 	if (!act2)
 	{
 		LOG_ERROR("missiles_fire_a_to_b: the actor %d does not exists!", actor2_id);
@@ -773,26 +771,25 @@ void missiles_fire_a_to_b(int actor1_id, int actor2_id)
 
 		act2->last_range_attacker_id = actor1_id;
 
-		release_locked_actors_list(actors_list);
-
-		add_command_to_actor(actor1_id, aim_mode_fire);
+		add_command_to_actor_locked(act1, horse1, aim_mode_fire);
 		if (act2_is_target)
 		{
-			add_command_to_actor(actor2_id, pain1);
+			add_command_to_actor_locked(act2, horse2, pain1);
 		}
 	}
 	else
 	{
 		LOG_ERROR("%s (%d): unable to add a fire action, the queue is empty!",
 				  act1->actor_name, actor1_id);
-		release_locked_actors_list(actors_list);
 	}
+
+	release_locked_actors_list(actors_list);
 }
 
 void missiles_fire_a_to_xyz(int actor_id, float *target)
 {
-	actor *act;
-	locked_list_ptr actors_list = lock_and_get_actor_from_id(actor_id, &act);
+	actor *act, *attached;
+	locked_list_ptr actors_list = lock_and_get_actor_and_attached_from_id(actor_id, &act, &attached);
 	if (!actors_list) {
 		LOG_ERROR("missiles_fire_a_to_xyz: the actor %d does not exists!", actor_id);
 		return;
@@ -809,16 +806,15 @@ void missiles_fire_a_to_xyz(int actor_id, float *target)
 		action->fire_actor = -1;
 		action->state = 2;
 
-		release_locked_actors_list(actors_list);
-
-		add_command_to_actor(actor_id, aim_mode_fire);
+		add_command_to_actor_locked(act, attached, aim_mode_fire);
 	}
 	else
 	{
 		LOG_ERROR("%s (%d): unable to add a fire action, the queue is empty!",
 				  act->actor_name, actor_id);
-		release_locked_actors_list(actors_list);
 	}
+
+	release_locked_actors_list(actors_list);
 }
 
 void missiles_fire_xyz_to_b(float *origin, int actor_id)
