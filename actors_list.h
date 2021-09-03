@@ -113,12 +113,9 @@ private:
  *
  * Class ActorsList holds (pointers to) all actors in the client. It provides interfaces to
  * safely manipulate the list and the actors it holds, in a multi-threaded environment. Retrieving
- * an actor from the list by a thread is only possible when the thread holds the the associated
- * mutex. To gain this lock, there are two ways:
- * - The lock_and_get_*() family of function lock the actors list, and return the requested
- *   object. The caller is responsible for unlocking the list by calling release().
- * - The get() and get_self() methods return a guard proxy object that automatically unlocks the
- *   mutex when it goes out of scope.
+ * an actor from the list by a thread is only possible by creating a mutex guard proxy object
+ * using lock() or lock_ptr(), that automatically locks the mutex, and releases it when the
+ * guard falls out of scope.
  */
 class ActorsList
 {
@@ -169,7 +166,7 @@ public:
 		 * \brief Execute a function for each actor in the actors list
 		 *
 		 * Execute function \a fun for each actor in the actors list, with a pointer to addtional
-		 * data \a data. The funtion must be callable as
+		 * data \a data. The function must be callable as
 		 * \code{.cpp}
 		 * fun(actor *act, void* data, locked_list_ptr list);
 		 * \endcode
@@ -188,7 +185,7 @@ public:
 		 * \brief Execute a function for each actor and attached actor in the actors list
 		 *
 		 * Execute function \a fun for each actor in the actors list, with a pointer to addtional
-		 * data \a data. The funtion must be callable as
+		 * data \a data. The function must be callable as
 		 * \code{.cpp}
 		 * fun(actor *act, actor *attached, void* data, locked_list_ptr list);
 		 * \endcode
@@ -322,8 +319,8 @@ public:
 		/*!
 		 * \brief Find an actor by ID
 		 *
-		 * Lock the actors list, and return the actor identified by the server with ID
-		 * \a actor_id. If no actor with ID \a actor_id can be found, \c nullptr is returned.
+		 * Return the actor identified by the server with ID \a actor_id. If no actor with ID
+		 * \a actor_id can be found, \c nullptr is returned.
 		 * \param actor_id The ID of the actor to look for
 		 * \return Pointer to the actor
 		 */
@@ -554,17 +551,89 @@ extern "C"
 typedef struct locked_list *locked_list_ptr;
 #endif // __cplusplus
 
+/*!
+ * \brief Return a pointer to the locked actors list
+ *
+ * Lock the actors list, and return a pointer to a proxy guard object. The pointer should be
+ * treated as an opaque pointer in C code. After using the pointer, the lock on the list should
+ * be released by freeing the guard object using release_locked_actors_list()
+ * \return Pointer to the locked actors list
+ */
 locked_list_ptr get_locked_actors_list(void);
+/*!
+ * \brief Find yourself
+ *
+ * Return the player's own actor, if it exists. If the player's actor cannot be found,
+ * found, \c nullptr is returned.
+ * \param list Pointer to the locked actors list
+ * \return Pointer to the player's own actor
+ */
 actor* get_self(locked_list_ptr list);
+/*!
+ * \brief Find an actor by ID
+ *
+ * Return the actor identified by the server with ID \a actor_id from the actors list \a list. If
+ * no actor with ID \a actor_id can be found, \c nullptr is returned.
+ * \param list     Pointer to the locked actors list
+ * \param actor_id The ID of the actor to look for
+ * \return Pointer to the actor
+ */
 actor* get_actor_from_id(locked_list_ptr list, int actor_id);
+/*!
+ * \brief Find an actor and its attached actor
+ *
+ * Find the actor with ID \a actor_id and its attached actor in the actors list \a list. If the
+ * actor has no attachment, the \a attached will be set to a \c nullptr. If no actor with
+ * ID \a actor_id can be found, returned pointer will be \a nullptr.
+ * \param list     Pointer to the locked actors list
+ * \param actor_id The ID of the actor to look for
+ * \param attached Place to stor a pointer to the attached actor
+ * \return Pointer to the actor with ID \a actor_id
+ */
 actor* get_actor_and_attached_from_id(locked_list_ptr list, int actor_id, actor **attached);
 #ifdef ECDEBUGWIN
+/*!
+ * \brief Get a target for an eye candy effect
+ *
+ * Find an actor that is not the player's own, and return it as a target for an eye candy
+ * effect. Used in the eye candy debug window.
+ * \param list Pointer to the locked actors list
+ */
 actor* get_target(locked_list_ptr list);
 #endif // ECDEBUGWIN
+/*!
+ * \brief Execute a function for each actor in the actors list
+ *
+ * Execute function \a fun for each actor in the actors list, with a pointer to addtional
+ * data \a data. The function is called with the pointer to the actor as first argument,
+ * \a data as the second argument, and \a list as the third.
+ * \param list Pointer to the locked actors list
+ * \param fun  The function to execute
+ * \param data Additional data to pass to \a fun
+ */
 void for_each_actor(locked_list_ptr list, void (*fun)(actor*, void*, locked_list_ptr), void* data);
+/*!
+ * \brief Execute a function for each actor and attached actor in the actors list
+ *
+ * Execute function \a fun for each actor in the actors list, with a pointer to addtional
+ * data \a data. The function is called with a pointer to the actor as the first argument,
+ * a pointer to it attachment as the second, \a data as the third, and \a list as the final
+ * argument.
+ * \param list Pointer to the locked actors list
+ * \param fun  The function to execute
+ * \param data Additional data to pass to \a fun
+ */
 void for_each_actor_and_attached(locked_list_ptr list,
 	void (*fun)(actor*, actor*, void*, locked_list_ptr), void* data);
+/*!
+ * \brief Release the actors list mutex
+ *
+ * Free the list guard object \a list, releasing the actors list mutex. After calling this function,
+ * \a list should no longer be used.
+ * \param list Pointer to an actors list guard object
+ */
 void release_locked_actors_list(locked_list_ptr list);
+
 
 /*!
  * \brief Find yourself
@@ -654,15 +723,87 @@ locked_list_ptr lock_and_get_nearest_actor(int tile_x, int tile_y, float max_dis
 locked_list_ptr lock_and_get_target(actor **target);
 #endif
 
+
+/*!
+ * \brief Add a new actor to the actors list
+ *
+ * Add actor \a act to the actors list. If \a attached is not \c NULL, it is also added as an
+ * attached actor to \a act.
+ * \note If an actor with the same actor ID as \a act, or a player actor with the same name as
+ *       \a act, already exists, the old actor is removed first.
+ * \param act      Pointer to the actor to add to the list
+ * \param attached If not nill, the attachment (horse) of \a act
+ */
 void add_actor_to_list(actor *act, actor *attached);
+/*!
+ * \brief Remove an actor from the actors list
+ *
+ * Remove the actor with ID \a actor_id from the actors list, and free up its resources. If the
+ * actor has an attachment, it is also removed an destroyed.
+ * \param actor_id The server ID of the actor to remove.
+ */
 void remove_and_destroy_actor_from_list(int actor_id);
+/*!
+ * \brief Add an attached actor to the list
+ *
+ * Add \a attached as an attachment to the actor with ID \a actor_id. If the actor already has an
+ * attachment, the addition fails.
+ * \param actor_id The ID of the actor to receive the attachment
+ * \param attached Pointer to the attached actor
+ * \return 1 if the addition succeeded, 0 if it failed
+ */
 int add_attachment_to_list(int actor_id, actor *attached);
+/*!
+ * \brief Remove an attached actor from the actors list
+ *
+ * Remove the attachment from the actor with ID \a actor_id (if any) from the actors list, and free
+ * its resources.
+ * \note \a actor_id is the (server) ID of the owner of the attachment (i.e. the player), not the
+ *       fake ID generated by the client for the attached actor itself.
+ * \param actor_id The ID of the actor for which to remove the attachment.
+ */
 void remove_and_destroy_attachment_from_list(int actor_id);
+//! Remove all actors from the actors list and free up the resources they use
 void remove_and_destroy_all_actors(void);
+/*!
+ * \brief Check if the player's own actor is set
+ *
+ * Check if the player's own actor exists in the actors list.
+ * \note Use with caution: because the actors list mutex is dropped when leaving the function,
+ *       the actor may be removed by another thread at any time, invalidating the result. Use
+ *       this function only for a quick return. When you need to be sure that the pointer to the
+ *       player's actor remains available, use e.g. lock_and_get_self().
+ */
 int have_self(void);
+/*!
+ * \brief Set the pointer to the player's own actor
+ *
+ * Set the pointer to the player's own actor, based on the global variable \a yourself,
+ * which holds the server ID of this character.
+ */
 void set_self(void);
-float self_scale(void);
+/*!
+ * \brief Check if the actor under the mouse is alive
+ *
+ * Check if there is currently an actor under the mouse cursor, and if so, whether it is still
+ * alive. This is used to determine which cursor to use when hovering over the actor.
+ * \note Use with caution: this function drops the lock on the actors list upon exit, after which
+ *       it is possible that an actor dies -- resurrection is rarely seen in EL -- before the
+ *       result is used. Use only when the result does not strictly need to be correct.
+ */
 int actor_under_mouse_alive(void);
+/*!
+ * \brief Check if a tile is occupied
+ *
+ * Check if the tile at position (\a x, \a y) is occupied by an actor at the time of calling.
+ * \note Use with caution: this function drops the lock on the actors list upon exit, after which
+ *       it is possible that an actor moves onto or out of the square just checked. Use only when
+ *       the result does not strictly need to be correct (e.g. in the pathfinder, where the
+ *       requested path is checked by the server).
+ * \param x The x coordinate of the tile to check
+ * \param y The y coordinate of the tile to check
+ * \return Whether the tile was occupied by an actor
+ */
 int actor_occupies_tile(int x, int y);
 
 #ifdef __cplusplus
