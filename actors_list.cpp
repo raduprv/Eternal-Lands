@@ -15,46 +15,8 @@
 #include "textures.h"
 #include "translate.h"
 
-#ifdef ACTORS_LIST_MUTEX_DEBUG
-namespace
-{
-
-void did_we_deadlock(eternal_lands::ActorsList::Mutex& mutex)
-{
-	fprintf(stderr, "Failed to acquire lock, did we deadlock?\n");
-	mutex.lock();
-}
-
-} // namespace
-
-#define LOCK(m) \
-do {\
-	if (!m.try_lock_for(std::chrono::milliseconds(1000))) \
-	{ \
-		/* If we fail to take a lock for a full second, it's most likely dead-locked */ \
-		did_we_deadlock(m); \
-	} \
-} while(false)
-#else // ACTORS_LIST_MUTEX_DEBUG
-#define LOCK(m) m.lock()
-#endif // ACTORS_LIST_MUTEX_DEBUG
-
 namespace eternal_lands
 {
-
-ActorsList::LockedList ActorsList::lock()
-{
-	LOCK(_mutex);
-	return LockedList(*this, _mutex);
-}
-
-ActorsList::LockedList* ActorsList::lock_ptr()
-{
-	LOCK(_mutex);
-	return new LockedList(*this, _mutex);
-}
-
-
 
 std::pair<actor*, actor*> ActorsList::get_actor_and_attached_from_id_locked(int actor_id)
 {

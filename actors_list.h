@@ -13,14 +13,40 @@
 
 #ifdef __cplusplus
 
+#ifdef ACTORS_LIST_MUTEX_DEBUG
+namespace
+{
+
+template <typename Mutex>
+void did_we_deadlock(Mutex& mutex)
+{
+	fprintf(stderr, "Failed to acquire lock, did we deadlock?\n");
+	mutex.lock();
+}
+
+} // namespace
+
+#define LOCK(m) \
+do {\
+	if (!m.try_lock_for(std::chrono::milliseconds(1000))) \
+	{ \
+		/* If we fail to take a lock for a full second, it's most likely dead-locked */ \
+		did_we_deadlock(m); \
+	} \
+} while(false)
+#else // ACTORS_LIST_MUTEX_DEBUG
+#define LOCK(m) m.lock()
+#endif // ACTORS_LIST_MUTEX_DEBUG
+
 namespace eternal_lands
 {
+
 /*!
  * \brief Lock guard proxy
  *
  * This class provides a guard proxy for an object protected by a mutex. Objects of type
- * Locked<T> can be dereferenced to a T object. When a Locked<T> object falls out of scope,
- * the mutex protecting its contents is unlocked.
+ * Locked<T, Mutex> can be dereferenced to a T object. When a Locked<T, Mutex> object falls out
+ * of scope, the mutex protecting its contents is unlocked.
  */
 template <typename T, typename Mutex>
 class Locked
@@ -29,17 +55,23 @@ public:
 	/*!
 	 * \brief Constructor
 	 *
-	 * Create a new lock guard proxy for object \a obj, protected by mutex \a mutex. The
-	 * mutex must be locked when the constructor is called.
+	 * Create a new lock guard proxy for object \a obj, protected by mutex \a mutex. Calling this
+	 * constructor locks the mutex, so it should be unlocked in the calling thread upon entry.
 	 * \param obj   Reference to the object to protect
 	 * \param mutex The mutex locking the object
 	 */
-	Locked(T& obj, Mutex& mutex): _mutex(mutex), _obj(obj) {}
+	Locked(T& obj, Mutex& mutex): _mutex(mutex), _obj(obj) { LOCK(_mutex); }
+	/*!
+	 * \brief Constructor
+	 *
+	 * Create a new lock guard proxy for object \a obj, protected by mutex \a mutex. The mutex
+	 * should already be locked by the calling thread when this constructor is called.
+	 * \param obj   Reference to the object to protect
+	 * \param mutex The mutex locking the object
+	 */
+	Locked(T& obj, Mutex& mutex, std::adopt_lock_t t): _mutex(mutex), _obj(obj) {}
 	//! Destructor, unlocks the mutex
-	~Locked()
-	{
-		_mutex.unlock();
-	}
+	~Locked() { _mutex.unlock(); }
 
 	/*!
 	 * \brief Access the guarded object
@@ -374,9 +406,9 @@ public:
 	}
 
 	//! Get a guarded proxy to this actors list
-	LockedList lock();
+	LockedList lock() { return LockedList(*this, _mutex); }
 	//! Get a guarded proxy to this actors list
-	LockedList* lock_ptr();
+	LockedList* lock_ptr() { return new LockedList(*this, _mutex); }
 
 private:
 	//! The list of all actors
