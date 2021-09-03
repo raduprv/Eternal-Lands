@@ -3509,10 +3509,10 @@ extern "C" void check_harvesting_effect()
 	/* but if we are harvesting but there is no effect, start it if wanted */
 	else if (now_harvesting() && use_eye_candy && use_harvesting_eye_candy && (harvesting_effect_reference == NULL))
 	{
-		actor *act = lock_and_get_self();
+		auto list = eternal_lands::ActorsList::get_locked_instance();
+		actor *act = list.self();
 		if (act != NULL)
 			harvesting_effect_reference = ec_create_ongoing_harvesting2(act, 1.0, 1.0, (poor_man ? 6 : 10), 1.0);
-		release_actors_list();
 	}
 }
 #endif //!MAP_EDITOR

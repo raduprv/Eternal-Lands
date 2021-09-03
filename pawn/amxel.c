@@ -196,9 +196,10 @@ static cell AMX_NATIVE_CALL n_clear_timers (AMX *amx, const cell *params)
 static cell AMX_NATIVE_CALL n_get_position (AMX *amx, const cell *params)
 {
 	cell *x_addr, *y_addr;
-	actor *me = lock_and_get_self();
+	actor *me;
+	locked_list_ptr actors_list = lock_and_get_self(&me);
 	
-	if (!me)
+	if (!actors_list)
 		// Uh oh, we don't exist!
 		return 1;
 	
@@ -208,7 +209,7 @@ static cell AMX_NATIVE_CALL n_get_position (AMX *amx, const cell *params)
 	*x_addr = (cell) me->x_tile_pos;
 	*y_addr = (cell) me->y_tile_pos;
 
-	release_actors_list();
+	release_locked_actors_list(actors_list);
 	
 	return 0;
 }
@@ -218,6 +219,7 @@ static cell AMX_NATIVE_CALL n_get_actor_from_name (AMX *amx, const cell* params)
 	char name[256];
 	cell *pstr;
 	int actor_id, max_size, size;
+	locked_list_ptr actors_list;
 	actor *act;
 
 	amx_GetAddr (amx, params[1], &pstr);
@@ -228,12 +230,12 @@ static cell AMX_NATIVE_CALL n_get_actor_from_name (AMX *amx, const cell* params)
 	if (size > max_size)
 		size = max_size;
 
-	act = lock_and_get_actor_from_name(name);
-	if (!act)
+	actors_list = lock_and_get_actor_from_name(name, &act);
+	if (!list)
 		return -1;
 
 	actor_id = act->actor_id;
-	release_actors_list();
+	release_locked_actors_list(actors_list);
 
 	return (cell) actor_id;
 }

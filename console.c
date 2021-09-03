@@ -489,15 +489,16 @@ static int print_emotes(char *text, int len){
 int add_emote(char *text, int len){
 	int j;
 	char *id;
-	actor *act=NULL;
+	locked_list_ptr actors_list;
+	actor *act;
 
 	for(j=1;j<len;j++) if(text[j]==' ') {text[j]=0; break;}
 	id=&text[j+1];
 	text++;
 	printf("Actor [%s] [%s]\n",text,id);
 
-	act = lock_and_get_actor_from_name(text);
-	if (!act)
+	actors_list = lock_and_get_actor_from_name(text, &act);
+	if (!actors_list)
 	{
 		LOG_TO_CONSOLE(c_orange1, "actor not found");
 		return 1;
@@ -508,7 +509,7 @@ int add_emote(char *text, int len){
 	add_emote_to_actor(act->actor_id,atoi(id));
 	printf("message added %s\n",id);
 
-	release_actors_list();
+	release_locked_actors_list(actors_list);
 
 	*(id-1)=' ';
 	return 1;
@@ -520,6 +521,7 @@ static int send_cmd(char *text, int len){
 
 	int j,x;
 	char *id;
+	locked_list_ptr actors_list;
 	actor *act=NULL;
 
 	for(j=1;j<len;j++) if(text[j]==' ') {text[j]=0; break;}
@@ -528,8 +530,8 @@ static int send_cmd(char *text, int len){
 	text++;
 	printf("Actor [%s] [%s]\n",text,id);
 
-	act = lock_and_get_actor_from_name(text);
-	if (!act)
+	actors_list = lock_and_get_actor_from_name(text, &act);
+	if (!actors_list)
 	{
 		LOG_TO_CONSOLE(c_orange1, "actor not found");
 		return 1;
@@ -545,7 +547,7 @@ static int send_cmd(char *text, int len){
 	}
 	printf("command added %s\n",id);
 
-	release_actors_list();
+	release_locked_actors_list(actors_list);
 
 	text[x-1]=' ';
 	return 1;
@@ -556,6 +558,7 @@ static int set_idle(char *text, int len){
 
 	int j,x;
 	char *id;
+	locked_list_ptr actors_list;
 	actor *act;
 	struct CalMixer *mixer;
 
@@ -565,8 +568,8 @@ static int set_idle(char *text, int len){
 	text++;
 	printf("Actor [%s] [%s]\n",text,id);
 
-	act = lock_and_get_actor_from_name(text);
-	if (!act)
+	actors_list = lock_and_get_actor_from_name(text, &act);
+	if (!actors_list)
 	{
 		LOG_TO_CONSOLE(c_orange1, "actor not found");
 		return 1;
@@ -593,7 +596,7 @@ static int set_idle(char *text, int len){
 	}
 	printf("command added %s\n",id);
 
-	release_actors_list();
+	release_locked_actors_list(actors_list);
 
 	text[x-1]=' ';
 	return 1;
@@ -604,6 +607,7 @@ static int set_action(char *text, int len){
 
 	int j,x;
 	char *id;
+	locked_list_ptr actors_list;
 	actor *act;
 	struct CalMixer *mixer;
 
@@ -613,8 +617,8 @@ static int set_action(char *text, int len){
 	text++;
 	printf("Actor [%s] [%s]\n",text,id);
 
-	act = lock_and_get_actor_from_name(text);
-	if (!act)
+	actors_list = lock_and_get_actor_from_name(text, &act);
+	if (!actors_list)
 	{
 		LOG_TO_CONSOLE(c_orange1, "actor not found");
 		return 1;
@@ -640,7 +644,7 @@ static int set_action(char *text, int len){
 	}
 	printf("command added %s\n",id);
 
-	release_actors_list();
+	release_locked_actors_list(actors_list);
 
 	text[x-1]=' ';
 	return 1;
@@ -653,7 +657,8 @@ static int horse_cmd(char* text, int len){
 
 	int j,x;
 	char *id;
-	actor *act=NULL;
+	locked_list_ptr actors_list;
+	actor *act;
 	int actor_id, has_horse;
 
 	for(j=1;j<len;j++) if(text[j]==' ') {text[j]=0; break;}
@@ -662,9 +667,9 @@ static int horse_cmd(char* text, int len){
 	text++;
 	printf("Actor [%s] [%s] [%i]\n",text,id,atoi(id));
 
-	act = lock_and_get_actor_from_name(text);
+	actors_list = lock_and_get_actor_from_name(text, &act);
 	text[x-1]=' ';
-	if (!act)
+	if (!actors_list)
 	{
 		LOG_TO_CONSOLE(c_orange1,"Actor doesn't exist");
 		return 1;		// Eek! We don't have an actor match... o.O
@@ -676,7 +681,7 @@ static int horse_cmd(char* text, int len){
 	actor_id = act->actor_id;
 	has_horse = has_attachment(act);
 
-	release_actors_list();
+	release_locked_actors_list(actors_list);
 
 	if (has_horse){
 		//remove horse
@@ -702,15 +707,16 @@ static int set_neck(char *text, int len){
 
 	int j;
 	char *id;
-	actor *act=NULL;
+	locked_list_ptr actors_list;
+	actor *act;
 
 	for(j=1;j<len;j++) if(text[j]==' ') {text[j]=0; break;}
 	id=&text[j+1];
 	text++;
 	printf("Actor [%s] [%s]\n",text,id);
 
-	act = lock_and_get_actor_from_name(text);
-	if (!act)
+	actors_list = lock_and_get_actor_from_name(text, &act);
+	if (!actors_list)
 	{
 		LOG_TO_CONSOLE(c_orange1, "actor not found");
 		return 1;
@@ -728,7 +734,7 @@ static int set_neck(char *text, int len){
 
 	}
 
-	release_actors_list();
+	release_locked_actors_list(actors_list);
 
 	*(id-1)=' ';
 	return 1;
@@ -1675,8 +1681,9 @@ void save_local_data(void)
 void auto_save_local_and_server(void)
 {
 	time_t time_delta = 60 * 90;
-	actor *me = lock_and_get_self();
-	if (!me)
+	actor *me;
+	locked_list_ptr actors_list = lock_and_get_self(&me);
+	if (!actors_list)
 		return;
 
 	if(!is_disconnected() && !me->fighting && ((last_save_time + time_delta) <= time(NULL)))
@@ -1687,7 +1694,7 @@ void auto_save_local_and_server(void)
 		send_input_text_line("#save", 5);
 	}
 
-	release_actors_list();
+	release_locked_actors_list(actors_list);
 }
 
 

@@ -560,10 +560,14 @@ void setup_shadow_mapping()
 	if (first_person)
 	{
 		float head_pos[3];
-		actor *me = lock_and_get_self();
-        cal_get_actor_bone_local_position(me, get_actor_bone_id(me, head_bone), NULL, head_pos);
-		release_actors_list();
-		glTranslatef(head_pos[0], head_pos[1], 0.0);
+		actor *me;
+		locked_list_ptr actors_list = lock_and_get_self(&me);
+		if (actors_list)
+		{
+			cal_get_actor_bone_local_position(me, get_actor_bone_id(me, head_bone), NULL, head_pos);
+			release_locked_actors_list(actors_list);
+			glTranslatef(head_pos[0], head_pos[1], 0.0);
+		}
 	}
 	glRotatef(rz, 0.0f, 0.0f, 1.0f);
 	glTranslatef(camera_x-(int)camera_x,camera_y-(int)camera_y,camera_z-(int)camera_z);

@@ -677,6 +677,7 @@ static __inline__ int filter_out(const char *mark_text)
 
 static void display_map_marks(void)
 {
+	locked_list_ptr actors_list;
 	actor *me;
 	float x,y,z;
 	int i,ax,ay;
@@ -685,11 +686,12 @@ static void display_map_marks(void)
 	float fr = mark_z_rot/360;
 	float j,ff=0;
 
-	me = lock_and_get_self();
-	if(!me) return;
+	actors_list = lock_and_get_self(&me);
+	if (!actors_list)
+		return;
 	ax = me->x_pos;
 	ay = me->y_pos;
-	release_actors_list();
+	release_locked_actors_list(actors_list);
 
 	glDisable(GL_TEXTURE_2D);
 	glDisable(GL_LIGHTING);
@@ -738,13 +740,15 @@ static void display_map_markers(void)
 	float font_size_x=font_scale*SMALL_INGAME_FONT_X_LEN;
 	float font_size_y=font_scale*SMALL_INGAME_FONT_X_LEN;
 	char tmpb[4];
+	locked_list_ptr actors_list;
 	actor *me;
 
-	me = lock_and_get_self();
-	if(!me) return;
+	actors_list = lock_and_get_self(&me);
+	if (!actors_list)
+		return;
 	ax = me->x_pos;
 	ay = me->y_pos;
-	release_actors_list();
+	release_locked_actors_list(actors_list);
 
 	glGetDoublev(GL_MODELVIEW_MATRIX, model);
 	glGetDoublev(GL_PROJECTION_MATRIX, proj);

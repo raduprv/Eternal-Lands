@@ -212,7 +212,6 @@ int start_rendering()
 				next_command(list);
 				release_locked_actors_list(list);
 
-				release_actors_list();
 				move_to_next_frame();
 				last_frame_and_command_update = cur_time;
 			}

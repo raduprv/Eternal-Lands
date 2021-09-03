@@ -156,10 +156,11 @@ static Uint32 pf_movement_timer_callback_locked(const actor* me, Uint32 interval
 
 static Uint32 pf_movement_timer_callback(Uint32 interval, void* UNUSED(param))
 {
-	const actor *me = lock_and_get_self();
+	actor *me;
+	locked_list_ptr actors_list = lock_and_get_self(&me);
 	Uint32 res = pf_movement_timer_callback_locked(me, interval);
-	if(me)
-		release_actors_list();
+	if(actors_list)
+		release_locked_actors_list(actors_list);
 
 	return res;
 }
@@ -286,19 +287,20 @@ static inline int pf_is_tile_occupied(int x, int y)
 void pf_move()
 {
 	int x, y;
+	locked_list_ptr actors_list;
 	actor *me;
 
 	if (!pf_follow_path)
 		return;
 
-	me = lock_and_get_self();
-	if (!me)
+	actors_list = lock_and_get_self(&me);
+	if (!actors_list)
 		return;
 
 	x = me->x_tile_pos;
 	y = me->y_tile_pos;
 
-	release_actors_list();
+	release_locked_actors_list(actors_list);
 
 	if (PF_DIFF(x, pf_dst_tile->x) < 2 && PF_DIFF(y, pf_dst_tile->y) < 2) {
 		pf_destroy_path();
@@ -378,13 +380,14 @@ void pf_move_to_mouse_position()
 {
 	int x, y, clicked_x, clicked_y;
 	int tries;
-	const actor *me;
+	locked_list_ptr actors_list;
+	actor *me;
 
 	if (!pf_get_mouse_position(mouse_x, mouse_y, &clicked_x, &clicked_y)) return;
 	x = clicked_x; y = clicked_y;
 
-	me = lock_and_get_self();
-	if (!me)
+	actors_list = lock_and_get_self(&me);
+	if (!actors_list)
 		return;
 
 	if (!pf_find_path(me, x, y))
@@ -408,5 +411,5 @@ void pf_move_to_mouse_position()
 	}
 
 path_found:
-	release_actors_list();
+	release_locked_actors_list(actors_list);
 }

@@ -838,10 +838,11 @@ static void add_text_to_buffer(int color, const char * text, int time_to_display
 
 static void create_character(void)
 {
-	actor *act = lock_and_get_self();
+	actor *act;
+	locked_list_ptr actors_list = lock_and_get_self(&act);
 	int bad_password = strncasecmp(inputs[1].str, act->actor_name, strlen(act->actor_name)) == 0;
 
-	release_actors_list();
+	release_locked_actors_list(actors_list);
 
 	if(inputs[0].pos<3){
 		add_text_to_buffer(c_red2, error_username_length, DEF_MESSAGE_TIMEOUT);
@@ -1016,6 +1017,7 @@ static int keypress_namepass_handler (window_info *win, int mx, int my, SDL_Keyc
 	Uint8 ch = key_to_char (key_unicode);
 	int ret=0;
 	struct input_text * t=&inputs[active];
+	locked_list_ptr actors_list;
 	actor *act;
 
 	if (clear_player_name)
@@ -1071,7 +1073,7 @@ static int keypress_namepass_handler (window_info *win, int mx, int my, SDL_Keyc
 		}
 	}
 
-	act = lock_and_get_self();
+	actors_list = lock_and_get_self(&act);
 	if(active>0){
 		//Password/confirm
 		if((inputs[1].pos > 0) && (inputs[2].pos > 0) && ret){
@@ -1086,7 +1088,7 @@ static int keypress_namepass_handler (window_info *win, int mx, int my, SDL_Keyc
 	} else {
 		safe_strncpy(act->actor_name, inputs[0].str, sizeof(act->actor_name));
 	}
-	release_actors_list();
+	release_locked_actors_list(actors_list);
 
 	return ret;
 }

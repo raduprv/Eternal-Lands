@@ -152,11 +152,12 @@ short get_actor_cluster ()
 	// FIXME? Locking the actors list every time just to get the cluster seems excessive. Maybe
 	// store an atomic in the actors list?
 	short cluster = 0;
-	actor *me = lock_and_get_self();
-	if (me)
+	actor *me;
+	locked_list_ptr actors_list = lock_and_get_self(&me);
+	if (actors_list)
 	{
 		cluster = me->cluster;
-		release_actors_list();
+		release_locked_actors_list(actors_list);
 	}
 	return cluster;
 }

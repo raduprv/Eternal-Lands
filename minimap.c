@@ -446,6 +446,7 @@ static int display_minimap_handler(window_info *win)
 	float size_x = float_minimap_size / (tile_map_size_x * 6);
 	float size_y = float_minimap_size / (tile_map_size_y * 6);
 	float px = 0.0f, py = 0.0f;
+	locked_list_ptr actors_list;
 	actor *me;
 	float x,y;
 	int i;
@@ -491,14 +492,14 @@ static int display_minimap_handler(window_info *win)
 	//draw minimap
 
 	//get player position in window coordinates
-	if( (me = lock_and_get_self()) == NULL)
+	if( (actors_list = lock_and_get_self(&me)) == NULL)
 	{
 		//Don't know who we are? can't draw then
 		return 0;
 	}
 	px = me->x_tile_pos * size_x;
 	py = float_minimap_size - (me->y_tile_pos * size_y);
-	release_actors_list();
+	release_locked_actors_list(actors_list);
 
 	glTranslatef(0.0f, win->title_height, 0.0f);
 
@@ -532,9 +533,10 @@ static int minimap_walkto(int mx, int my)
 {
 	float fmx = mx, fmy = my;
 	int res;
-	const actor *me;
+	locked_list_ptr actors_list;
+	actor *me;
 
-	if ( (me = lock_and_get_self()) == NULL)
+	if ( (actors_list = lock_and_get_self(&me)) == NULL)
 		return 0;
 
 	rotate_click_coords(&fmx,&fmy);
@@ -547,7 +549,7 @@ static int minimap_walkto(int mx, int my)
 	/* Do path finding */
 	res = pf_find_path(me, fmx, fmy);
 
-	release_actors_list();
+	release_locked_actors_list(actors_list);
 
 	return res;
 }

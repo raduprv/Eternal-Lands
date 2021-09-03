@@ -1410,6 +1410,7 @@ static int update_streams(void * dummy)
 {
     int sleep, day_time, i, tx, ty;
 	ALfloat gain = 0.0;
+	locked_list_ptr actors_list;
 	actor *me;
 
    	sleep = SLEEP_TIME;
@@ -1426,12 +1427,12 @@ static int update_streams(void * dummy)
 		day_time = (game_minute >= 30 && game_minute < 60 * 3 + 30);
 
 		// Get our position
-		me = lock_and_get_self();
-		if (me)
+		actors_list = lock_and_get_self(&me);
+		if (actors_list)
 		{
 			tx = me->x_pos * 2;
 			ty = me->y_pos * 2;
-			release_actors_list();
+			release_locked_actors_list(actors_list);
 		}
 		else
 		{
@@ -2384,6 +2385,7 @@ unsigned int add_sound_object(int type, int x, int y, int is_me)
 unsigned int add_sound_object_gain(int type, int x, int y, int is_me, float initial_gain)
 {
 	int my_x = 0, my_y = 0;
+	locked_list_ptr actors_list;
 	actor *me;
 	int distanceSq, sound_num, cookie;
 	sound_type *pNewType;
@@ -2402,12 +2404,12 @@ unsigned int add_sound_object_gain(int type, int x, int y, int is_me, float init
 	// NOTE: unfortunately, this requires a recursive mutex, as the actors list may already be
 	// locked by the same thread. The alternative, passing me down the call chain, is
 	// impractical because of the many code paths that can reach this point.
-	me = lock_and_get_self();
-	if (me)
+	actors_list = lock_and_get_self(&me);
+	if (actors_list)
 	{
 		my_x = me->x_pos * 2;
 		my_y = me->y_pos * 2;
-		release_actors_list();
+		release_locked_actors_list(actors_list);
 	}
 
 #ifdef _EXTRA_SOUND_DEBUG
@@ -3041,7 +3043,7 @@ void update_sound(int ms)
 	if (!used_sources)
 	{
 		UNLOCK_SOUND_LIST();
-		release_actors_list();
+		release_locked_actors_list(actors_list);
 		return;
 	}
 

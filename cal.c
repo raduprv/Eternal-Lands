@@ -222,10 +222,7 @@ static void cal_actor_set_anim_delay(actor* pActor, actor *attached, struct cal_
 	int i;
 
 	if (pActor->calmodel==NULL || pActor->cur_anim.anim_index==anim.anim_index)
-	{
-		release_actors_list();
 		return;
-	}
 
 	//this shouldnt happend but its happends if actor doesnt have
 	//animation so we add this workaround to prevent "freezing"

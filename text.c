@@ -378,6 +378,7 @@ int parse_text_for_emote_commands(const char *text, int len)
 	int i=0, j = 0, wf=0,ef=0, itsme=0;
 	char name[20];	// Yeah, this should be done correctly
 	emote_dict emote_text;
+	locked_list_ptr actors_list;
 	actor *act;
 
 
@@ -397,9 +398,8 @@ int parse_text_for_emote_commands(const char *text, int len)
 	if(j>=20||name[j]) return 0; 		//out of bound or not terminated
 
 	//check if we are saying text
-	act = lock_and_get_actor_from_id(yourself);
-
-	if (!act)
+	actors_list = lock_and_get_self(&act);
+	if (!actors_list)
 	{
 		LOG_ERROR("Unable to find actor who just said local text?? name: %s", name);
 		return 1;		// Eek! We don't have an actor match... o.O
@@ -430,7 +430,7 @@ int parse_text_for_emote_commands(const char *text, int len)
 	} while(text[i++]);
 	//printf("ef=%i, wf=%i, filter=>%i\n",ef,wf,emote_filter);
 
-	release_actors_list();
+	release_locked_actors_list(actors_list);
 
 	return  ((ef==wf) ? (emote_filter):(0));
 
@@ -661,15 +661,16 @@ int filter_or_ignore_text (char *text_to_add, int len, int size, Uint8 channel)
 			}
 			if (match_index < nr_msgs)
 			{
+				locked_list_ptr actors_list;
 				actor *me;
 				Uint32 new_time = SDL_GetTicks();
 				clear_now_harvesting();
 
-				me = lock_and_get_self();
-				if (me)
+				actors_list = lock_and_get_self(&me);
+				if (actors_list)
 				{
 					add_highlight(me->x_tile_pos, me->y_tile_pos, HIGHLIGHT_SOFT_FAIL);
-					release_actors_list();
+					release_locked_actors_list(actors_list);
 				}
 				/* suppress further messages within for 5 seconds of last */
 				if (done_one[match_index] && ((new_time - last_time[match_index]) < 5000))

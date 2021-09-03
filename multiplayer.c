@@ -286,13 +286,14 @@ void move_to (short int x, short int y, int try_pathfinder)
 
 	if (try_pathfinder && always_pathfinding)
 	{
-		const actor *me = lock_and_get_self();
-		if (me)
+		actor *me;
+		locked_list_ptr actors_list = lock_and_get_self(&me);
+		if (actors_list)
 		{
 			/* if path finder fails, try standard move */
 			int path_found = abs(me->x_tile_pos-x) + abs(me->y_tile_pos-y) > 2
 				&& pf_find_path(me, x, y);
-			release_actors_list();
+			release_locked_actors_list(actors_list);
 			if (path_found)
 				return;
 		}
@@ -359,6 +360,7 @@ int my_tcp_send(const Uint8 *str, int len)
 {
 	Uint8 *new_str = NULL;
 	int ret_status = 0, moving = 0;
+	locked_list_ptr actors_list;
 	actor *me;
 
 	CHECK_AND_LOCK_MUTEX(tcp_out_data_mutex);
@@ -382,9 +384,9 @@ int my_tcp_send(const Uint8 *str, int len)
 	// Grum: Adapted. Converting every movement to a path caused too much
 	// trouble. Instead we now check the current actor animation for
 	// movement.
-	me = lock_and_get_self();
-	moving = me && on_the_move(me);
-	release_actors_list();
+	actors_list = lock_and_get_self(&me);
+	moving = actors_list && on_the_move(me);
+	release_locked_actors_list(actors_list);
 
 	if ((str[0] == TURN_LEFT || str[0] == TURN_RIGHT) && moving)
 		return 0;
@@ -2099,10 +2101,11 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 #ifdef BUFF_DEBUG
 			{
 				int actor_id = SDL_SwapLE16(*((short *)(in_data+3)));
-				actor *act = lock_and_get_actor_from_id(actor_id);
-				if(act){
+				actor *act;
+				locked_list_ptr actors_list = lock_and_get_actor_from_id(actor_id, &act);
+				if(actors_list){
 					printf("SEND_BUFFS received for actor %s\n", act->actor_name);
-					release_actors_list();
+					release_locked_actors_list(actors_list);
 				}
 				else {
 					printf("SEND_BUFFS received for actor ID %i\n", actor_id);

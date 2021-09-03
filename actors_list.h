@@ -15,6 +15,66 @@
 
 namespace eternal_lands
 {
+/*!
+ * \brief Lock guard proxy
+ *
+ * This class provides a guard proxy for an object protected by a mutex. Objects of type
+ * Locked<T> can be dereferenced to a T object. When a Locked<T> object falls out of scope,
+ * the mutex protecting its contents is unlocked.
+ */
+template <typename T, typename Mutex>
+class Locked
+{
+public:
+	/*!
+	 * \brief Constructor
+	 *
+	 * Create a new lock guard proxy for object \a obj, protected by mutex \a mutex. The
+	 * mutex must be locked when the constructor is called.
+	 * \param obj   Reference to the object to protect
+	 * \param mutex The mutex locking the object
+	 */
+	Locked(T& obj, Mutex& mutex): _mutex(mutex), _obj(obj) {}
+	//! Destructor, unlocks the mutex
+	~Locked()
+	{
+		_mutex.unlock();
+	}
+
+	/*!
+	 * \brief Access the guarded object
+	 *
+	 * Dereference the guard object, and return a constant reference to the protected object.
+	 */
+	const T& operator*() const { return _obj; }
+	/*!
+	 * \brief Access the guarded object
+	 *
+	 * Dereference the guard object, and return a mutable reference to the protected object.
+	 */
+	T& operator*() { return _obj; }
+	/*!
+	 * \brief Access member of the guarded object
+	 *
+	 * Dereference the guard object, and return a constant pointer to the protected object.
+	 * This is used to access a member function or data field of the object.
+	 */
+	const T* operator->() const { return &_obj; }
+	/*!
+	 * \brief Access member of the guarded object
+	 *
+	 * Dereference the guard object, and return a mutable pointer to the protected object.
+	 * This is used to access a member function or data field of the object.
+	 */
+	T* operator->() { return &_obj; }
+
+private:
+	//! Reference to the mutex locking the object
+	Mutex& _mutex;
+	//! Reference to the protected object
+	T& _obj;
+};
+
 
 /*!
  * \brief A class for holding all actors
@@ -62,76 +122,50 @@ public:
 #endif // ACTORS_LIST_MUTEX_DEBUG
 	typedef std::unordered_map<int, actor*> Storage;
 
-	/*!
-	 * \brief Lock guard proxy
-	 *
-	 * This class provides a guard proxy for an object protected by a mutex. Objects of type
-	 * Locked<T> can be dereferenced to a T object. When a Locked<T> object falls out of scope,
-	 * the mutex protecting its contents is unlocked.
-	 */
-	template <typename T>
-	class Locked
+	struct LockedList: public Locked<ActorsList, Mutex>
 	{
-	public:
 		/*!
-		 * \brief Constructor
+		 * Constructor
 		 *
-		 * Create a new lock guard proxy for object \a obj, protected by mutex \a mutex. The
-		 * mutex must be locked when the constructor is called.
-		 * \param obj   Reference to the object to protect
-		 * \param mutex The mutex locking the object
+		 * Create a new lock guard for actors list \a list, protected by mutex \a mutex.
+		 * \param list  The actors list to guard
+		 * \param mutex The mutex serializing access to the actors list
 		 */
-		Locked(T& obj, Mutex& mutex): _mutex(mutex), _obj(obj) {}
-		//! Destructor, unlocks the mutex
-		~Locked()
-		{
-			_mutex.unlock();
-		}
+		LockedList(ActorsList& list, Mutex& mutex): Locked<ActorsList, Mutex>(list, mutex) {}
 
 		/*!
-		 * \brief Access the guarded object
+		 * \brief Execute a function for each actor in the actors list
 		 *
-		 * Dereference the guard object, and return a constant reference to the protected object.
+		 * Execute function \a fun for each actor in the actors list, with a pointer to addtional
+		 * data \a data. The funtion must be callable as
+		 * \code{.cpp}
+		 * fun(actor *act, void* data, locked_list_ptr list);
+		 * \endcode
+		 * where the first argument is a pointer to the actor, the second the \a data pointer
+		 * passed to this function, and the final argument is a pointer to this proxy object.
+		 * \param fun  The function to execute
+		 * \param data Additional data to pass to \a fun
 		 */
-		const T& operator*() const { return _obj; }
-		/*!
-		 * \brief Access the guarded object
-		 *
-		 * Dereference the guard object, and return a mutable reference to the protected object.
-		 */
-		T& operator*() { return _obj; }
-		/*!
-		 * \brief Access member of the guarded object
-		 *
-		 * Dereference the guard object, and return a constant pointer to the protected object.
-		 * This is used to access a member function or data field of the object.
-		 */
-		const T* operator->() const { return &_obj; }
-		/*!
-		 * \brief Access member of the guarded object
-		 *
-		 * Dereference the guard object, and return a mutable pointer to the protected object.
-		 * This is used to access a member function or data field of the object.
-		 */
-		T* operator->() { return &_obj; }
-
-	private:
-		//! Reference to the mutex locking the object
-		Mutex& _mutex;
-		//! Reference to the protected object
-		T& _obj;
-	};
-
-	struct LockedList: public Locked<ActorsList>
-	{
-		LockedList(ActorsList& list, Mutex& mutex): Locked<ActorsList>(list, mutex) {}
-
 		template <typename T>
 		void for_each_actor(T fun, void* data)
 		{
 			for (auto& id_act: (*this)->_list)
 				fun(id_act.second, data, this);
 		}
+		/*!
+		 * \brief Execute a function for each actor and attached actor in the actors list
+		 *
+		 * Execute function \a fun for each actor in the actors list, with a pointer to addtional
+		 * data \a data. The funtion must be callable as
+		 * \code{.cpp}
+		 * fun(actor *act, actor *attached, void* data, locked_list_ptr list);
+		 * \endcode
+		 * where the first argument is a pointer to the actor, the secon a pointer to its attached
+		 * actor (or \a nullptr if there is no attachment), the third the \a data pointer
+		 * passed to this function, and the final argument is a pointer to this proxy object.
+		 * \param fun  The function to execute
+		 * \param data Additional data to pass to \a fun
+		 */
 		template <typename T>
 		void for_each_actor_and_attached(T fun, void* data)
 		{
@@ -253,26 +287,70 @@ public:
 			) != (*this)->_list.end();
 		}
 
+		/*!
+		 * \brief Find an actor by ID
+		 *
+		 * Lock the actors list, and return the actor identified by the server with ID
+		 * \a actor_id. If no actor with ID \a actor_id can be found, \c nullptr is returned.
+		 * \param actor_id The ID of the actor to look for
+		 * \return Pointer to the actor
+		 */
 		actor* get_actor_from_id(int actor_id)
 		{
 			return (*this)->get_actor_from_id_locked(actor_id);
 		}
-		std::pair<actor*, actor*> get_self_and_actor_from_id(int actor_id)
-		{
-			return (*this)->get_self_and_actor_from_id_locked(actor_id);
-		}
+		/*!
+		 * \brief Find an actor and its attached actor
+		 *
+		 * Find the actor with ID \a actor_id and its attached actor in the actors list. If the
+		 * actor has no attachment, the second pointer returned will be a \c nullptr. If no actor
+		 * with ID \a actor_id can be found, the first returned pointer will be \a nullptr.
+		 * \param actor_id The ID of the actor to look for
+		 * \return Pointers to the actors
+		 */
 		std::pair<actor*, actor*> get_actor_and_attached_from_id(int actor_id)
 		{
 			return (*this)->get_actor_and_attached_from_id_locked(actor_id);
 		}
-		std::pair<actor*, actor*> get_actor_pair_from_id(int actor_id1, int actor_id2)
-		{
-			return (*this)->get_actor_pair_from_id_locked(actor_id1, actor_id2);
-		}
+		/*!
+		 * \brief Find an actor by name
+		 *
+		 * Find the actor with name \a name (disregarding letter case). If no actor with name
+		 * \a name can be found, \c nullptr is returned.
+		 * \param name The name of the actor to look for
+		 * \return Pointer to the requested actor
+		 */
 		actor* get_actor_from_name(const char* name)
 		{
 			return (*this)->get_actor_from_name_locked(name);
 		}
+		/*!
+		 * \brief Find actor nearest to a position
+		 *
+		 * Find the actor nearest to tile position (\a tile_x, \a tile_y) that can be attacked,
+		 * if it is within a distance \a max_distance, and return it. If no attackable actor can
+		 * be found within the distance, a \c nullptr is returned.
+		 * \param x_tile       x-coordinate of the tile to search around
+		 * \param y_tile       y-coordinate of the tile to search around
+		 * \param max_distance Maximum search distance
+		 * \return Pointer to the nearest attackable actor
+		 */
+		actor* get_nearest_actor(int tile_x, int tile_y, float max_distance)
+		{
+			return (*this)->get_nearest_actor_locked(tile_x, tile_y, max_distance);
+		}
+#ifdef ECDEBUGWIN
+		/*!
+		 * \brief Get a target for an eye candy effect
+		 *
+		 * Find an actor that is not the player's own, and return it as a target for an eye candy
+		 * effect. Used in the eye candy debug window.
+		 */
+		actor* get_target()
+		{
+			return (*this)->get_target_locked();
+		}
+#endif
 	};
 
 	//! Return the singleton instance of the actors list
@@ -299,101 +377,6 @@ public:
 	LockedList lock();
 	//! Get a guarded proxy to this actors list
 	LockedList* lock_ptr();
-
-	/*!
-	 * \brief Find yourself
-	 *
-	 * Lock the actors list, and return the player's own actor. If the player's actor cannot be
-	 * found, \c nullptr is returned and the list is unlocked.
-	 * \note On succesful return, the caller is responsible for unlocking the actors list by calling
-	 *       release().
-	 * \note On an error return (result is \c nullptr), the actors list is already unlocked
-	 * \return Pointer to the actor
-	 */
-	actor* lock_and_get_self();
-	/*!
-	 * \brief Find an actor by ID
-	 *
-	 * Lock the actors list, and return the actor identified by the server with ID \a actor_id. If
-	 * no actor with ID \a actor_id can be found, \c nullptr is returned and the list is unlocked.
-	 * \note On succesful return, the caller is responsible for unlocking the actors list by calling
-	 *       release().
-	 * \note On an error return (result is \c nullptr), the actors list is already unlocked
-	 * \param actor_id The ID of the actor to look for
-	 * \return Pointer to the actor
-	 */
-	actor* lock_and_get_actor_from_id(int actor_id);
-	/*!
-	 * \brief Find self and another actor
-	 *
-	 * Lock the actors list, and find the actor with ID \a actor_id in the actors list. Return
-	 * a pair of pointers (self, act), where the first is a pointer to the player's own actor,
-	 * and the second is the requested actor. If either actor cannot be found, a pair of
-	 * \c nullptr's is returned and the list is unlocked.
-	 * \note On succesful return, the caller is responsible for unlocking the actors list by calling
-	 *       release().
-	 * \note On an error return (both pointers are \c nullptr), the actors list is already unlocked
-	 * \param actor_id The ID of the actor to look for
-	 * \return Pointers to the actors
-	 */
-	std::pair<actor*, actor*> lock_and_get_self_and_actor_from_id(int actor_id);
-	/*!
-	 * \brief Find an actor and its attached actor
-	 *
-	 * Lock the actors list, and find the actor with ID \a actor_id and its attached actor in the
-	 * actors list. If the actor has no attachment, the second pointer returned will be a \c nullptr.
-	 * If no actor with ID \a actor_id can be found, the first returned pointer will be \a nullptr,
-	 * and the list is unlocked.
-	 * \note On succesful return, the caller is responsible for unlocking the actors list by calling
-	 *       release().
-	 * \note On an error return (first pointer is \c nullptr), the actors list is already unlocked
-	 * \param actor_id The ID of the actor to look for
-	 * \return Pointers to the actors
-	 */
-	std::pair<actor*, actor*> lock_and_get_actor_and_attached_from_id(int actor_id);
-	/*!
-	 * \brief Find a pair of actors
-	 *
-	 * Lock the actors list, and find the pair of actors identified by their IDs \a actor_id1 and
-	 * \a actor_id2. If the first actor cannot be found, a pair of \c nullptr's is returned, and
-	 * the list is unlocked. If only the second actor cannot be found, the second pointer returned
-	 * is \c nullptr, but the list remains locked.
-	 * \note On succesful return, the caller is responsible for unlocking the actors list by calling
-	 *       release().
-	 * \note On an error return (first pointer is \c nullptr), the actors list is already unlocked
-	 * \param actor_id1 The ID of the first actor to look for
-	 * \param actor_id2 The ID of the second actor to look for
-	 * \return Pointers to the actors
-	 */
-	std::pair<actor*, actor*> lock_and_get_actor_pair_from_id(int actor_id1, int actor_id2);
-	/*!
-	 * \brief Find an actor by name
-	 *
-	 * Lock the actors list, and return the actor with name \a name (disregarding letter case). If
-	 * no actor with name \a name can be found, \c nullptr is returned and the list is unlocked.
-	 * \note On succesful return, the caller is responsible for unlocking the actors list by calling
-	 *       release().
-	 * \note On an error return (result is \c nullptr), the actors list is already unlocked
-	 * \param name The name of the actor to look for
-	 * \return Pointer to the actor
-	 */
-	actor* lock_and_get_actor_from_name(const char* name);
-	actor* lock_and_get_nearest_actor(int tile_x, int tile_y, float max_distance);
-#ifdef ECDEBUGWIN
-	actor* lock_and_get_target();
-	std::pair<actor*, actor*> lock_and_get_self_and_target();
-#endif
-
-	/*!
-	 * \brief Release the mutex
-	 *
-	 * Release the mutex on the actors list. To be called after locking the mutex using one of
-	 * the lock_and_get_*() methods.
-	 */
-	void release()
-	{
-		_mutex.unlock();
-	}
 
 private:
 	//! The list of all actors
@@ -426,17 +409,6 @@ private:
 		return (iter != _list.end()) ? iter->second : nullptr;
 	}
 	/*!
-	 * \brief Find self and another actor
-	 *
-	 * Lock the actors list, and find the actor with ID \a actor_id in the actors list. Return
-	 * a pair of pointers (self, act), where the first is a pointer to the player's own actor,
-	 * and the second is the requested actor. If either actor cannot be found, a pair of
-	 * \c nullptr's is returned.
-	 * \param actor_id The ID of the actor to look for
-	 * \return Pointers to the actors
-	 */
-	std::pair<actor*, actor*> get_self_and_actor_from_id_locked(int actor_id);
-	/*!
 	 * \brief Find an actor and its attached actor
 	 *
 	 * Lock the actors list, and find the actor with ID \a actor_id and its attached actor in the
@@ -447,21 +419,6 @@ private:
 	 */
 	std::pair<actor*, actor*> get_actor_and_attached_from_id_locked(int actor_id);
 	/*!
-	 * \brief Find a pair of actors
-	 *
-	 * Lock the actors list, and find the pair of actors identified by their IDs \a actor_id1 and
-	 * \a actor_id2. If the first actor cannot be found, a pair of \c nullptr's is returned, and
-	 * the list is unlocked. If only the second actor cannot be found, the second pointer returned
-	 * is \c nullptr, but the list remains locked.
-	 * \note On succesful return, the caller is responsible for unlocking the actors list by calling
-	 *       release().
-	 * \note On an error return (first pointer is \c nullptr), the actors list is already unlocked
-	 * \param actor_id1 The ID of the first actor to look for
-	 * \param actor_id2 The ID of the second actor to look for
-	 * \return Pointers to the actors
-	 */
-	std::pair<actor*, actor*> get_actor_pair_from_id_locked(int actor_id1, int actor_id2);
-	/*!
 	 * \brief Find an actor by name
 	 *
 	 * Lock the actors list, and return the actor with name \a name (disregarding letter case). If
@@ -470,6 +427,27 @@ private:
 	 * \return Pointer to the actor
 	 */
 	actor* get_actor_from_name_locked(const char* name);
+	/*!
+	 * \brief Find actor nearest to a position
+	 *
+	 * Find the actor nearest to tile position (\a tile_x, \a tile_y) that can be attacked,
+	 * if it is within a distance \a max_distance, and return it. If no attackable actor can
+	 * be found within the distance, a \c nullptr is returned.
+	 * \param x_tile       x-coordinate of the tile to search around
+	 * \param y_tile       y-coordinate of the tile to search around
+	 * \param max_distance Maximum search distance
+	 * \return Pointer to the nearest attackable actor
+	 */
+	actor* get_nearest_actor_locked(int tile_x, int tile_y, float max_distance);
+#ifdef ECDEBUGWIN
+	/*!
+	 * \brief Get a target for an eye candy effect
+	 *
+	 * Find an actor that is not the player's own, and return it as a target for an eye candy
+	 * effect. Used in the eye candy debug window.
+	 */
+	actor* get_target_locked();
+#endif
 
 	/*!
 	 * \brief Add an actor
@@ -547,23 +525,101 @@ typedef struct locked_list *locked_list_ptr;
 locked_list_ptr get_locked_actors_list(void);
 actor* get_self(locked_list_ptr list);
 actor* get_actor_from_id(locked_list_ptr list, int actor_id);
+#ifdef ECDEBUGWIN
+actor* get_target(locked_list_ptr list);
+#endif // ECDEBUGWIN
 void for_each_actor(locked_list_ptr list, void (*fun)(actor*, void*, locked_list_ptr), void* data);
 void for_each_actor_and_attached(locked_list_ptr list,
 	void (*fun)(actor*, actor*, void*, locked_list_ptr), void* data);
 void release_locked_actors_list(locked_list_ptr list);
 
-actor* lock_and_get_self();
-actor* lock_and_get_actor_from_id(int id);
-actor* lock_and_get_self_and_actor_from_id(int actor_id, actor **act);
-actor* lock_and_get_actor_and_attached_from_id(int actor_id, actor **horse);
-actor* lock_and_get_actor_pair_from_id(int actor_id1, int actor_id2, actor **act2);
-actor* lock_and_get_actor_from_name(const char* name);
-actor* lock_and_get_nearest_actor(int tile_x, int tile_y, float max_distance);
+/*!
+ * \brief Find yourself
+ *
+ * Lock the actors list, and return the player's own actor. If the player's actor cannot be
+ * found, \c nullptr is returned and the actors list is unlocked.
+ * \note On succesful return, the caller is responsible for unlocking the actors list by calling
+ *       release_locked_actors_list().
+ * \note On an error return (result is \c nullptr), the actors list is already unlocked
+ * \param self Place t store the player's own actor
+ * \return Pointer to the actors list
+ */
+locked_list_ptr lock_and_get_self(actor **self);
+/*!
+ * \brief Find an actor by ID
+ *
+ * Lock the actors list, and return the actor identified by the server with ID \a actor_id. If
+ * no actor with ID \a actor_id can be found, \c nullptr is returned and the list is unlocked.
+ * \note On succesful return, the caller is responsible for unlocking the actors list by calling
+ *       release_locked_actors_list().
+ * \note On an error return (result is \c nullptr), the actors list is already unlocked
+ * \param actor_id The ID of the actor to look for
+ * \param act      Place to store the pointer to the actor
+ * \return Pointer to the actors list
+ */
+locked_list_ptr lock_and_get_actor_from_id(int actor_id, actor **act);
+/*!
+ * \brief Find an actor and its attached actor
+ *
+ * Lock the actors list, and find the actor with ID \a actor_id and its attached actor in the
+ * actors list. If the actor has no attachment, the \a attached will be set to \c nullptr.
+ * If no actor with ID \a actor_id can be found, the function will return \a nullptr,
+ * and the actors list is unlocked.
+ * \note On succesful return, the caller is responsible for unlocking the actors list by calling
+ *       release_locked_actors_list().
+ * \note On an error return (result is \c nullptr), the actors list is already unlocked
+ * \param actor_id The ID of the actor to look for
+ * \param act      Place to store pointer to the actor itself
+ * \param attached Place to store pointer to the actor attached to \a act
+ * \return Pointers to the actors list
+*/
+locked_list_ptr lock_and_get_actor_and_attached_from_id(int actor_id, actor **act,
+	actor **attached);
+/*!
+ * \brief Find an actor by name
+ *
+ * Lock the actors list, and find the actor with name \a name (disregarding letter case). If
+ * successful, this function returnsa pointer to the actors list, and set \a act to the requested
+ * actor. Ifno actor with name \a name can be found, \c nullptr is returned and the actors list is
+ * unlocked.
+ * \note On succesful return, the caller is responsible for unlocking the actors list by calling
+ *       release_locked_actors_list().
+ * \note On an error return (result is \c nullptr), the actors list is already unlocked
+ * \param name The name of the actor to look for
+ * \param act  Place to store the pointer to the actor
+ * \return Pointer to the actors list
+ */
+locked_list_ptr lock_and_get_actor_from_name(const char* name, actor **act);
+/*!
+ * \brief Find actor nearest to a position
+ *
+ * Lock the actors list, and find the actor nearest to tile position (\a tile_x, \a tile_y)
+ * that can be attacked and is within a distance \a max_distance. If successful, \a act is
+ * set to the requested actor. If no attackable actor can be found within the distance, a
+ * \c nullptr is returned, and the actors list is unlocked.
+ * \note On succesful return, the caller is responsible for unlocking the actors list by calling
+ *       release_locked_actors_list().
+ * \note On an error return (result is \c nullptr), the actors list is already unlocked
+ * \param x_tile       x-coordinate of the tile to search around
+ * \param y_tile       y-coordinate of the tile to search around
+ * \param max_distance Maximum search distance
+ * \param act          Place to store the pointer to the actor
+ * \return Pointer to the actors list
+ */
+locked_list_ptr lock_and_get_nearest_actor(int tile_x, int tile_y, float max_distance,
+	actor **act);
 #ifdef ECDEBUGWIN
-actor* lock_and_get_target(void);
-actor* lock_and_get_self_and_target(actor **target);
+/*!
+ * \brief Get a target for an eye candy effect
+ *
+ * Lock the actors list, and find an actor that is not the player's own as a target for an
+ * eye candy effect. On success the actor is stored in \a target. If no actor can be found
+ * (except possibly the player itself), \c nullptr is returned, and the actors list is unlocked.
+ * \param target Place to store the pointer to the target actor
+ * \return Pointer to the actors list
+ */
+locked_list_ptr lock_and_get_target(actor **target);
 #endif
-void release_actors_list(void);
 
 void add_actor_to_list(actor *act, actor *attached);
 void remove_and_destroy_actor_from_list(int actor_id);

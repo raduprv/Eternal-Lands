@@ -1379,11 +1379,13 @@ static int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 	// Get All button
 	else if(over_button(win, mx, my)==BUT_GET){
 		int x,y;
-		actor *me = lock_and_get_self();
-		if(!me)return(1);
+		actor *me;
+		locked_list_ptr actors_list = lock_and_get_self(&me);
+		if (!actors_list)
+			return(1);
 		x=me->x_tile_pos;
 		y=me->y_tile_pos;
-		release_actors_list();
+		release_locked_actors_list(actors_list);
 		items_get_bag(x,y);
 	}
 

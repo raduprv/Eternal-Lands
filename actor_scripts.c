@@ -2342,9 +2342,10 @@ static void add_command_to_actor_locked(actor *act, actor *horse, unsigned char 
 
 void add_command_to_actor(int actor_id, unsigned char command)
 {
+	locked_list_ptr actors_list;
 	actor *act, *horse;
-	act = lock_and_get_actor_and_attached_from_id(actor_id, &horse);
-	if (!act)
+	actors_list = lock_and_get_actor_and_attached_from_id(actor_id, &act, &horse);
+	if (!actors_list)
 	{
 		// Resync
 		// If we got here, it means we don't have this actor, so get it from the server...
@@ -2353,7 +2354,7 @@ void add_command_to_actor(int actor_id, unsigned char command)
 	else
 	{
 		add_command_to_actor_locked(act, horse, command);
-		release_actors_list();
+		release_locked_actors_list(actors_list);
 	}
 }
 
@@ -2380,8 +2381,9 @@ static void queue_emote(actor *act, emote_data *emote){
 
 }
 
-void add_emote_to_actor(int actor_id, int emote_id){
-
+void add_emote_to_actor(int actor_id, int emote_id)
+{
+	locked_list_ptr actors_list;
 	actor *act;
 	emote_data *emote;
 	hash_entry *he;
@@ -2402,8 +2404,8 @@ void add_emote_to_actor(int actor_id, int emote_id){
 		emote=NULL;
 	}
 
-	act = lock_and_get_actor_from_id(actor_id);
-	if (!act)
+	actors_list = lock_and_get_actor_from_id(actor_id, &act);
+	if (!actors_list)
 	{
 		LOG_ERROR("%s (Emote) %d - NULL actor passed", cant_add_command, emote);
 	}
@@ -2411,7 +2413,7 @@ void add_emote_to_actor(int actor_id, int emote_id){
 	{
 		//printf("emote message to be added %p\n",emote);
 		queue_emote(act,emote);
-		release_actors_list();
+		release_locked_actors_list(actors_list);
 	}
 }
 
@@ -2482,17 +2484,18 @@ void get_actor_damage(int actor_id, int damage)
 		}
 	}
 
-	release_actors_list();
+	release_locked_actors_list(actors_list);
 }
 
 void get_actor_heal(int actor_id, int quantity)
 {
+	locked_list_ptr actors_list;
 	actor *act;
 #ifdef EXTRA_DEBUG
 	ERR();
 #endif
-	act = lock_and_get_actor_from_id(actor_id);
-	if(!act)
+	actors_list = lock_and_get_actor_from_id(actor_id, &act);
+	if(!actors_list)
 		//if we got here, it means we don't have this actor, so get it from the server...
 		return;
 
@@ -2507,18 +2510,19 @@ void get_actor_heal(int actor_id, int quantity)
 
 	act->cur_health+=quantity;
 
-	release_actors_list();
+	release_locked_actors_list(actors_list);
 }
 
 void get_actor_health(int actor_id, int quantity)
 {
 	//int i=0;
+	locked_list_ptr actors_list;
 	actor *act;
 #ifdef EXTRA_DEBUG
 	ERR();
 #endif
-	act = lock_and_get_actor_from_id(actor_id);
-	if (!act)
+	actors_list = lock_and_get_actor_from_id(actor_id, &act);
+	if (!actors_list)
 		//if we got here, it means we don't have this actor, so get it from the server...
 		return;
 
@@ -2530,20 +2534,23 @@ void get_actor_health(int actor_id, int quantity)
 
 	act->max_health=quantity;
 
-	release_actors_list();
+	release_locked_actors_list(actors_list);
 }
 
 void move_self_forward()
 {
 	int x,y,rot,tx,ty;
-
-	actor *me = lock_and_get_self();
-	if (!me)
+	actor *me;
+	locked_list_ptr actors_list = lock_and_get_self(&me);
+	if (!actors_list)
 		return;
 
 	x=me->x_tile_pos;
 	y=me->y_tile_pos;
 	rot=(int)rint(me->z_rot/45.0f);
+
+	release_locked_actors_list(actors_list);
+
 	if (rot < 0) rot += 8;
 	switch(rot) {
 		case 8: //360
@@ -2593,8 +2600,6 @@ void move_self_forward()
 
 		move_to (tx, ty, 0);
 	}
-
-	release_actors_list();
 }
 
 

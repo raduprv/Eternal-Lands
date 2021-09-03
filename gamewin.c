@@ -396,11 +396,12 @@ static void toggle_first_person(void)
 {
 	if (first_person == 0){
 		//rotate camera where actor is looking at
-		actor *me = lock_and_get_self();
-		if (me)
+		actor *me;
+		locked_list_ptr actors_list = lock_and_get_self(&me);
+		if (actors_list)
 		{
 			rz=me->z_rot;
-			release_actors_list();
+			release_locked_actors_list(actors_list);
 		}
 		rx=-90;
 		first_person = 1;
@@ -434,12 +435,13 @@ static int mouseover_game_handler (window_info *win, int mx, int my)
 	else if (thing_under_the_mouse==UNDER_MOUSE_3D_OBJ && objects_list[object_under_mouse])
 	{
 		int range_weapon_equipped;
-		actor *me = lock_and_get_self();
-		if (me)
+		actor *me;
+		locked_list_ptr actors_list = lock_and_get_self(&me);
+		if (actors_list)
 		{
 			range_weapon_equipped = me->cur_weapon >= BOW_LONG &&
 									me->cur_weapon <= BOW_CROSS;
-			release_actors_list();
+			release_locked_actors_list(actors_list);
 		}
 		else
 		{
@@ -589,6 +591,7 @@ static int click_game_handler(window_info *win, int mx, int my, Uint32 flags)
 	int force_walk = (flag_ctrl && flag_right && !flag_alt);
 	int shift_on = flags & KMOD_SHIFT;
 	int range_weapon_equipped;
+	locked_list_ptr actors_list;
 	actor *me;
 
 	if ((flags & ELW_MOUSE_BUTTON_WHEEL) == ELW_MID_MOUSE)
@@ -620,12 +623,12 @@ static int click_game_handler(window_info *win, int mx, int my, Uint32 flags)
 	if (hud_click(win, mx, my, flags))
 		return 1;
 
-	me = lock_and_get_self();
-	if (me)
+	actors_list = lock_and_get_self(&me);
+	if (actors_list)
 	{
 		range_weapon_equipped = me->cur_weapon >= BOW_LONG &&
 								me->cur_weapon <= BOW_CROSS;
-		release_actors_list();
+		release_locked_actors_list(actors_list);
 	}
 	else
 	{
@@ -852,11 +855,13 @@ static int click_game_handler(window_info *win, int mx, int my, Uint32 flags)
 					(thing_under_the_mouse == UNDER_MOUSE_ANIMAL ||
 					 thing_under_the_mouse == UNDER_MOUSE_PLAYER))
 				{
-					actor *this_actor = lock_and_get_actor_from_id(object_under_mouse);
-					if(this_actor != NULL)
+					actor *this_actor;
+					locked_list_ptr actors_list = lock_and_get_actor_from_id(object_under_mouse,
+						&this_actor);
+					if (actors_list)
 					{
 						add_highlight(this_actor->x_tile_pos,this_actor->y_tile_pos, HIGHLIGHT_TYPE_SPELL_TARGET);
-						release_actors_list();
+						release_locked_actors_list(actors_list);
 						touch_player(object_under_mouse);
 					}
 				}
@@ -887,11 +892,12 @@ static int click_game_handler(window_info *win, int mx, int my, Uint32 flags)
 				return 1;
 			if (you_sit && sit_lock && !flag_ctrl)
 			{
-				actor *me = lock_and_get_self();
-				if (me)
+				actor *me;
+				locked_list_ptr actors_list = lock_and_get_self(&me);
+				if (actors_list)
 				{
 					add_highlight(me->x_tile_pos, me->y_tile_pos, HIGHLIGHT_TYPE_LOCK);
-					release_actors_list();
+					release_locked_actors_list(actors_list);
 				}
 				return 1;
 			}
@@ -899,12 +905,14 @@ static int click_game_handler(window_info *win, int mx, int my, Uint32 flags)
 			{
 				if (object_under_mouse>=0)
 				{
-					actor *this_actor = lock_and_get_actor_from_id(object_under_mouse);
-					if(this_actor != NULL)
+					actor *this_actor;
+					locked_list_ptr actors_list = lock_and_get_actor_from_id(object_under_mouse,
+						&this_actor);
+					if (actors_list)
 					{
 						add_highlight(this_actor->x_tile_pos,this_actor->y_tile_pos,
 							HIGHLIGHT_TYPE_ATTACK_TARGET);
-						release_actors_list();
+						release_locked_actors_list(actors_list);
 					}
 				}
 				attack_someone((int)object_under_mouse);
@@ -1023,14 +1031,16 @@ static int click_game_handler(window_info *win, int mx, int my, Uint32 flags)
 
 			if (target_close_clicked_creature)
 			{
-				actor *this_actor = lock_and_get_nearest_actor(x, y, 0.8f);
-				if (this_actor)
+				actor *this_actor;
+				locked_list_ptr actors_list = lock_and_get_nearest_actor(x, y, 0.8f,
+					&this_actor);
+				if (actors_list)
 				{
 					int x = this_actor->x_tile_pos;
 					int y = this_actor->y_tile_pos;
 					int actor_id = this_actor->actor_id;
 
-					release_actors_list();
+					release_locked_actors_list(actors_list);
 					if (spell_result == 3)
 					{
 						add_highlight(x, y, HIGHLIGHT_TYPE_SPELL_TARGET);
@@ -1048,11 +1058,12 @@ static int click_game_handler(window_info *win, int mx, int my, Uint32 flags)
 
 			if (is_ranging_locked || is_sit_locked)
 			{
-				actor *me = lock_and_get_self();
-				if (me)
+				actor *me;
+				locked_list_ptr actors_list = lock_and_get_self(&me);
+				if (actors_list)
 				{
 					add_highlight(me->x_tile_pos, me->y_tile_pos, HIGHLIGHT_TYPE_LOCK);
-					release_actors_list();
+					release_locked_actors_list(actors_list);
 				}
 				return 1;
 			}
@@ -1077,11 +1088,12 @@ static int click_game_handler(window_info *win, int mx, int my, Uint32 flags)
 				}
 				else {
 					char in_aim_mode = 0;
-					actor *me = lock_and_get_self();
-					if (me)
+					actor *me;
+					locked_list_ptr actors_list = lock_and_get_self(&me);
+					if (actors_list)
 					{
 						in_aim_mode = me->in_aim_mode;
-						release_actors_list();
+						release_locked_actors_list(actors_list);
 					}
 					if (in_aim_mode == 1)
 						add_command_to_actor(yourself, leave_aim_mode);
@@ -1417,10 +1429,11 @@ static int display_game_handler (window_info *win)
 		int fps_y;
 #ifdef	DEBUG
 		int y_cnt = 10;
-		actor *me = lock_and_get_self();
+		actor *me;
+		locked_list_ptr actors_list = lock_and_get_self(&me);
 
 		glColor3f (1.0f, 1.0f, 1.0f);
-		if(me){
+		if (actors_list){
  			safe_snprintf((char*)str,sizeof(str),"Busy: %i",me->busy);
 	 		draw_string_zoomed (0, win->len_y - hud_y - (y_cnt--) * win->default_font_len_y, str, 1, win->current_scale);
 			safe_snprintf((char*)str,sizeof(str),"Command: %i",me->last_command);
@@ -1431,7 +1444,7 @@ static int display_game_handler (window_info *win)
  			draw_string_zoomed (0, win->len_y - hud_y - (y_cnt--) * win->default_font_len_y, str, 1, win->current_scale);
 		}
 
-		release_actors_list();
+		release_locked_actors_list(actors_list);
 
 		safe_snprintf((char*)str, sizeof(str), "lights: ambient=(%.2f,%.2f,%.2f,%.2f) diffuse=(%.2f,%.2f,%.2f,%.2f)",
 					  ambient_light[0], ambient_light[1], ambient_light[2], ambient_light[3],
@@ -1761,131 +1774,145 @@ int keypress_root_common (SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_m
 	}
 	else if((key_code == SDLK_z) && shift_on && ctrl_on && !alt_on)
 	{
-		actor *me = lock_and_get_self();
-		if (me)
+		actor *me;
+		locked_list_ptr actors_list = lock_and_get_self(&me);
+		if (actors_list)
 		{
 			ec_create_mine_detonate(me->x_pos + 0.25f, me->y_pos + 0.25f, 0, MINE_TYPE_SMALL_MINE,
 				(poor_man ? 6 : 10));
-			release_actors_list();
+			release_locked_actors_list(actors_list);
 		}
 	}
 	else if((key_code == SDLK_x) && shift_on && ctrl_on && !alt_on)
 	{
-		actor *me = lock_and_get_self();
-		if (me)
+		actor *me;
+		locked_list_ptr actors_list = lock_and_get_self();
+		if (actors_list)
 		{
 			ec_create_mine_detonate(me->x_pos + 0.25f, me->y_pos + 0.25f, 0, MINE_TYPE_MEDIUM_MINE,
 				(poor_man ? 6 : 10));
-			release_actors_list();
+			release_locked_actors_list(actors_list);
 		}
 	}
 	else if((key_code == SDLK_c) && shift_on && ctrl_on && !alt_on)
 	{
-		actor *me = lock_and_get_self();
-		if (me)
+		actor *me;
+		locked_list_ptr actors_list = lock_and_get_self(&me);
+		if (actors_list)
 		{
 			ec_create_mine_detonate(me->x_pos + 0.25f, me->y_pos + 0.25f, 0,
 				MINE_TYPE_HIGH_EXPLOSIVE_MINE, (poor_man ? 6 : 10));
-			release_actors_list();
+			release_locked_actors_list(actors_list);
 		}
 	}
 	else if((key_code == SDLK_v) && shift_on && ctrl_on && !alt_on)
 	{
-		actor *me = lock_and_get_self();
-		if (me)
+		actor *me;
+		locked_list_ptr actors_list = lock_and_get_self(&me);
+		if (actors_list)
 		{
 			ec_create_mine_detonate(me->x_pos + 0.25f, me->y_pos + 0.25f, 0, MINE_TYPE_TRAP,
 				(poor_man ? 6 : 10));
-			release_actors_list();
+			release_locked_actors_list(actors_list);
 		}
 	}
 	else if((key_code == SDLK_b) && shift_on && ctrl_on && !alt_on)
 	{
-		actor *me = lock_and_get_self();
-		if (me)
+		actor *me;
+		locked_list_ptr actors_List = lock_and_get_self(&me);
+		if (actors_list)
 		{
 			ec_create_mine_detonate(me->x_pos + 0.25f, me->y_pos + 0.25f, 0, MINE_TYPE_CALTROP,
 				(poor_man ? 6 : 10));
-			release_actors_list();
+			release_locked_actors_list(actors_list);
 		}
 	}
 	else if((key_code == SDLK_n) && shift_on && ctrl_on && !alt_on)
 	{
-		actor *me = lock_and_get_self();
-		if (me)
+		actor *me;
+		locked_list_ptr actors_list = lock_and_get_self(&me);
+		if (actors_list)
 		{
 			ec_create_mine_detonate(me->x_pos + 0.25f, me->y_pos + 0.25f, 0,
 				MINE_TYPE_POISONED_CALTROP, (poor_man ? 6 : 10));
-			release_actors_list();
+			release_locked_actors_list(actors_list);
 		}
 	}
 	else if((key_code == SDLK_m) && shift_on && ctrl_on && !alt_on)
 	{
-		actor *me = lock_and_get_self();
-		if (me)
+		actor *me;
+		locked_list_ptr actors_list = lock_and_get_self(&me);
+		if (actors_list)
 		{
 			ec_create_mine_detonate(me->x_pos + 0.25f, me->y_pos + 0.25f, 0, MINE_TYPE_MANA_BURNER,
 				(poor_man ? 6 : 10));
-			release_actors_list();
+			release_locked_actors_list(actors_list);
 		}
 	}
 	else if((key_code == SDLK_j) && shift_on && ctrl_on && !alt_on)
 	{
-		actor *me = lock_and_get_self();
-		if (me)
+		actor *me;
+		locked_list_ptr actors_list = lock_and_get_self(&me);
+		if (actors_list)
 		{
 			ec_create_mine_detonate(me->x_pos + 0.25f, me->y_pos + 0.25f, 0, MINE_TYPE_MANA_DRAINER,
 				(poor_man ? 6 : 10));
-			release_actors_list();
+			release_locked_actors_list(actors_list);
 		}
 	}
 	else if((key_code == SDLK_k) && shift_on && ctrl_on && !alt_on)
 	{
-		actor *me = lock_and_get_self();
-		if (me)
+		actor *me;
+		locked_list_ptr actors_list = lock_and_get_self(&me);
+		if (actors_list)
 		{
 			ec_create_mine_detonate(me->x_pos + 0.25f, me->y_pos + 0.25f, 0,
 				MINE_TYPE_UNINVIZIBILIZER, (poor_man ? 6 : 10));
-			release_actors_list();
+			release_locked_actors_list(actors_list);
 		}
 	}
 	else if((key_code == SDLK_l) && shift_on && ctrl_on && !alt_on)
 	{
-		actor *me = lock_and_get_self();
-		if (me)
+		actor *me;
+		locked_list_ptr actors_list = lock_and_get_self(&me);
+		if (actors_list)
 		{
 			ec_create_mine_detonate(me->x_pos + 0.25f, me->y_pos + 0.25f, 0,
 				MINE_TYPE_MAGIC_IMMUNITY_REMOVAL, (poor_man ? 6 : 10));
+			release_locked_actors_list(actors_list);
 		}
 	}
     // scale the current actor
 	else if((key_code == SDLK_p) && shift_on && ctrl_on && !alt_on)
 	{
-		actor *me = lock_and_get_self();
-		if (me)
+		actor *me;
+		locked_list_ptr actors_list = lock_and_get_self(&me);
+		if (actors_list)
 		{
 			me->scale *= 1.05;
-			release_actors_list();
+			release_locked_actors_list(actors_list);
 		}
 	}
 	else if((key_code == SDLK_o) && shift_on && ctrl_on && !alt_on)
 	{
-		actor *me = lock_and_get_self();
-		if (me)
+		actor *me;
+		locked_list_ptr actors_list = lock_and_get_self(&me);
+		if (actors_list)
 		{
 			me->scale /= 1.05;
-			release_actors_list();
+			release_locked_actors_list(actors_list);
 		}
 	}
 	else if((key_code == SDLK_h) && shift_on && ctrl_on && !alt_on)
 	{
-		actor *me = lock_and_get_self();
-		if (me)
+		actor *me;
+		locked_list_ptr actors_list = lock_and_get_self(&me);
+		if (actors_list)
 		{
 			int actor_id = me->actor_id;
 			int has_no_attachment = !has_attachment(me);
 
-			release_actors_list();
+			release_locked_actors_list(actors_list);
 
 			if (has_no_attachment)
 				add_actor_attachment(actor_id, 200);
@@ -2281,8 +2308,9 @@ static int keypress_game_handler (window_info *win, int mx, int my, SDL_Keycode 
 
 	else if (key_code == SDLK_F9)
 	{
-		actor *me = lock_and_get_self();
-		if (me)
+		actor *me;
+		locked_list_ptr actors_list = lock_and_get_self(&me);
+		if (actors_list)
 		{
 			if (key_mod & KMOD_SHIFT)
 			{
@@ -2293,7 +2321,7 @@ static int keypress_game_handler (window_info *win, int mx, int my, SDL_Keycode 
 				add_fire_at_tile(1, me->x_pos * 2, me->y_pos * 2,
 					get_tile_height(me->x_tile_pos, me->y_tile_pos));
 			}
-			release_actors_list();
+			release_locked_actors_list(actors_list);
 		}
 	}
 #ifdef DEBUG

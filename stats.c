@@ -177,6 +177,9 @@ void get_the_stats(Sint16 *stats, size_t len_in_bytes)
 
 void get_partial_stat(Uint8 name,Sint32 value)
 {
+	locked_list_ptr actors_list;
+	actor *me;
+
         switch(name)
                 {
                 case PHY_CUR:
@@ -233,13 +236,13 @@ void get_partial_stat(Uint8 name,Sint32 value)
                         floatingmessages_add_level(yourself, value, attributes.manufacturing_skill.name);
 						if (use_eye_candy == 1)
 						{
-							actor *me = lock_and_get_self();
-							if (me)
+							actors_list = lock_and_get_self(&me);
+							if (actors_list)
 							{
 								ec_create_glow_level_up_default(me, (poor_man ? 6 : 10));
 								ec_create_glow_level_up_man_left(me, (poor_man ? 6 : 10));
 								ec_create_glow_level_up_man_right(me, (poor_man ? 6 : 10));
-								release_actors_list();
+								release_locked_actors_list(actors_list);
 							}
 						}
                         your_info.manufacturing_skill.base=value;break;
@@ -249,12 +252,12 @@ void get_partial_stat(Uint8 name,Sint32 value)
                         floatingmessages_add_level(yourself, value, attributes.harvesting_skill.name);
 						if (use_eye_candy == 1)
 						{
-							actor *me = lock_and_get_self();
-							if (me)
+							actors_list = lock_and_get_self(&me);
+							if (actors_list)
 							{
 								ec_create_glow_level_up_default(me, (poor_man ? 6 : 10));
 								ec_create_glow_level_up_har(me, (poor_man ? 6 : 10));
-								release_actors_list();
+								release_locked_actors_list(actors_list);
 							}
 						}
                         your_info.harvesting_skill.base=value;break;
@@ -264,13 +267,13 @@ void get_partial_stat(Uint8 name,Sint32 value)
                         floatingmessages_add_level(yourself, value, attributes.alchemy_skill.name);
 						if (use_eye_candy == 1)
 						{
-							actor *me = lock_and_get_self();
-							if (me)
+							actors_list = lock_and_get_self(&me);
+							if (actors_list)
 							{
 								ec_create_glow_level_up_default(me, (poor_man ? 6 : 10));
 								ec_create_glow_level_up_alc_left(me, (poor_man ? 6 : 10));
 								ec_create_glow_level_up_alc_right(me, (poor_man ? 6 : 10));
-								release_actors_list();
+								release_locked_actors_list(actors_list);
 							}
 						}
                         your_info.alchemy_skill.base=value;break;
@@ -280,12 +283,12 @@ void get_partial_stat(Uint8 name,Sint32 value)
                         floatingmessages_add_level(yourself, value, attributes.overall_skill.name);
 						if (use_eye_candy == 1)
 						{
-							actor *me = lock_and_get_self();
-							if (me)
+							actors_list = lock_and_get_self(&me);
+							if (actors_list)
 							{
 								ec_create_glow_level_up_default(me, (poor_man ? 6 : 10));
 								ec_create_glow_level_up_oa(me, (poor_man ? 6 : 10));
-								release_actors_list();
+								release_locked_actors_list(actors_list);
 							}
 						}
                         your_info.overall_skill.base=value;break;
@@ -295,12 +298,12 @@ void get_partial_stat(Uint8 name,Sint32 value)
                         floatingmessages_add_level(yourself, value, attributes.attack_skill.name);
 						if (use_eye_candy == 1)
 						{
-							actor *me = lock_and_get_self();
-							if (me)
+							actors_list = lock_and_get_self(&me);
+							if (actors_list)
 							{
 								ec_create_glow_level_up_default(me, (poor_man ? 6 : 10));
 								ec_create_glow_level_up_att(me, (poor_man ? 6 : 10));
-								release_actors_list();
+								release_locked_actors_list(actors_list);
 							}
 						}
                         your_info.attack_skill.base=value;break;
@@ -310,12 +313,12 @@ void get_partial_stat(Uint8 name,Sint32 value)
                         floatingmessages_add_level(yourself, value, attributes.defense_skill.name);
 						if (use_eye_candy == 1)
 						{
-							actor *me = lock_and_get_self();
-							if (me)
+							actors_list = lock_and_get_self(&me);
+							if (actors_list)
 							{
 								ec_create_glow_level_up_default(me, (poor_man ? 6 : 10));
 								ec_create_glow_level_up_def(me, (poor_man ? 6 : 10));
-								release_actors_list();
+								release_locked_actors_list(actors_list);
 							}
 						}
                         your_info.defense_skill.base=value;break;
@@ -325,12 +328,12 @@ void get_partial_stat(Uint8 name,Sint32 value)
                         floatingmessages_add_level(yourself, value, attributes.magic_skill.name);
 						if (use_eye_candy == 1)
 						{
-							actor *me = lock_and_get_self();
-							if (me)
+							actors_list = lock_and_get_self(&me);
+							if (actors_list)
 							{
 								ec_create_glow_level_up_default(me, (poor_man ? 6 : 10));
 								ec_create_glow_level_up_mag(me, (poor_man ? 6 : 10));
-								release_actors_list();
+								release_locked_actors_list(actors_list);
 							}
 						}
                         your_info.magic_skill.base=value;break;
@@ -340,13 +343,13 @@ void get_partial_stat(Uint8 name,Sint32 value)
                         floatingmessages_add_level(yourself, value, attributes.potion_skill.name);
 						if (use_eye_candy == 1)
 						{
-							actor *me = lock_and_get_self();
-							if (me)
+							actors_list = lock_and_get_self(&me);
+							if (actors_list)
 							{
 								ec_create_glow_level_up_default(me, (poor_man ? 6 : 10));
 								ec_create_glow_level_up_pot_left(me, (poor_man ? 6 : 10));
 								ec_create_glow_level_up_pot_right(me, (poor_man ? 6 : 10));
-								release_actors_list();
+								release_locked_actors_list(actors_list);
 							}
 						}
                         your_info.potion_skill.base=value;break;
@@ -452,12 +455,12 @@ void get_partial_stat(Uint8 name,Sint32 value)
                         floatingmessages_add_level(yourself, value, attributes.summoning_skill.name);
 						if (use_eye_candy == 1)
 						{
-							actor *me = lock_and_get_self();
-							if (me)
+							actors_list = lock_and_get_self(&me);
+							if (actors_list)
 							{
 								ec_create_glow_level_up_default(me, (poor_man ? 6 : 10));
 								ec_create_glow_level_up_sum(me, (poor_man ? 6 : 10));
-								release_actors_list();
+								release_locked_actors_list(actors_list);
 							}
 						}
                         your_info.summoning_skill.base=value;break;
@@ -474,13 +477,13 @@ void get_partial_stat(Uint8 name,Sint32 value)
                 case CRA_S_BASE:
 						if (use_eye_candy == 1)
 						{
-							actor *me = lock_and_get_self();
-							if (me)
+							actors_list = lock_and_get_self(&me);
+							if (actors_list)
 							{
 								ec_create_glow_level_up_default(me, (poor_man ? 6 : 10));
 								ec_create_glow_level_up_cra_left(me, (poor_man ? 6 : 10));
 								ec_create_glow_level_up_cra_right(me, (poor_man ? 6 : 10));
-								release_actors_list();
+								release_locked_actors_list(actors_list);
 							}
 						}
                         your_info.crafting_skill.base=value;break;
@@ -498,13 +501,13 @@ void get_partial_stat(Uint8 name,Sint32 value)
                         floatingmessages_add_level(yourself, value, attributes.engineering_skill.name);
 						if (use_eye_candy == 1)
 						{
-							actor *me = lock_and_get_self();
-							if (me)
+							actors_list = lock_and_get_self(&me);
+							if (actors_list)
 							{
 								ec_create_glow_level_up_default(me, (poor_man ? 6 : 10));
 								ec_create_glow_level_up_eng_left(me, (poor_man ? 6 : 10));
 								ec_create_glow_level_up_eng_right(me, (poor_man ? 6 : 10));
-								release_actors_list();
+								release_locked_actors_list(actors_list);
 							}
 						}
                         your_info.engineering_skill.base=value;break;
@@ -522,13 +525,13 @@ void get_partial_stat(Uint8 name,Sint32 value)
                         floatingmessages_add_level(yourself, value, attributes.tailoring_skill.name);
 						if (use_eye_candy == 1)
 						{
-							actor *me = lock_and_get_self();
-							if (me)
+							actors_list = lock_and_get_self(&me);
+							if (actors_list)
 							{
 								ec_create_glow_level_up_default(me, (poor_man ? 6 : 10));
 								ec_create_glow_level_up_tai_left(me, (poor_man ? 6 : 10));
 								ec_create_glow_level_up_tai_right(me, (poor_man ? 6 : 10));
-								release_actors_list();
+								release_locked_actors_list(actors_list);
 							}
 						}
                         your_info.tailoring_skill.base=value;break;
@@ -546,12 +549,12 @@ void get_partial_stat(Uint8 name,Sint32 value)
                         floatingmessages_add_level(yourself, value, attributes.ranging_skill.name);
 						if (use_eye_candy == 1)
 						{
-							actor *me = lock_and_get_self();
-							if (me)
+							actors_list = lock_and_get_self(&me);
+							if (actors_list)
 							{
 								ec_create_glow_level_up_default(me, (poor_man ? 6 : 10));
 								ec_create_glow_level_up_ran(me, (poor_man ? 6 : 10));
-								release_actors_list();
+								release_locked_actors_list(actors_list);
 							}
 						}
                         your_info.ranging_skill.base=value;break;

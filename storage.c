@@ -838,13 +838,14 @@ static int keypress_storage_handler(window_info *win, int mx, int my, SDL_Keycod
 void print_items(void)
 {
 	int i;
+	locked_list_ptr actors_list;
 	actor *me;
 
-	me = lock_and_get_self();
-	if (me)
+	actors_list = lock_and_get_self(&me);
+	if (actors_list)
 	{
 		int fighting = me->fighting;
-		release_actors_list();
+		release_locked_actors_list(actors_list);
 		if (fighting)
 		{
 			LOG_TO_CONSOLE(c_red1, "You can't do this during combat!");

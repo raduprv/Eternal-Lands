@@ -153,10 +153,11 @@ static float get_bag_tilt(float pos_x, float pos_y, int bag_id, int map_x, int m
 
 void put_bag_on_ground(int bag_x,int bag_y,int bag_id)
 {
-	actor *me;
 	float x,y,z;
 	int obj_3d_id;
 #ifdef NEW_SOUND
+	locked_list_ptr actors_list;
+	actor *me;
 	int snd;
 #endif // NEW_SOUND
 
@@ -193,8 +194,8 @@ void put_bag_on_ground(int bag_x,int bag_y,int bag_id)
 		add_particle_sys_at_tile("./particles/bag_in.part", bag_x, bag_y, 1);
 
 #ifdef NEW_SOUND
-	me = lock_and_get_self();
-	if (me)
+	actors_list = lock_and_get_self(&me);
+	if (actors_list)
 	{
 		if (bag_x == me->x_pos * 2 && bag_y == me->y_pos * 2)
 		{
@@ -204,7 +205,7 @@ void put_bag_on_ground(int bag_x,int bag_y,int bag_id)
 				add_sound_object (snd, bag_x, bag_y, 0);
 			}
 		}
-		release_actors_list();
+		release_locked_actors_list(actors_list);
 	}
 #endif // NEW_SOUND
 
@@ -296,8 +297,9 @@ void remove_item_from_ground(Uint8 pos)
 
 void remove_bag(int bag_id)
 {
-	actor *me;
 #ifdef NEW_SOUND
+	locked_list_ptr actors_list;
+	actor *me;
 	int snd;
 #endif // NEW_SOUND
 
@@ -322,8 +324,8 @@ void remove_bag(int bag_id)
 		add_particle_sys_at_tile ("./particles/bag_out.part", bag_list[bag_id].x, bag_list[bag_id].y, 1);
 
 #ifdef NEW_SOUND
-	me = lock_and_get_self();
-	if (me)
+	actors_list = lock_and_get_self(&me);
+	if (actors_list)
 	{
 		if (bag_list[bag_id].x == me->x_pos * 2 && bag_list[bag_id].y == me->y_pos * 2)
 		{
@@ -333,7 +335,7 @@ void remove_bag(int bag_id)
 				add_sound_object (snd, bag_list[bag_id].x, bag_list[bag_id].y, 0);
 			}
 		}
-		release_actors_list();
+		release_locked_actors_list(actors_list);
 	}
 #endif // NEW_SOUND
 

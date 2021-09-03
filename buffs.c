@@ -27,19 +27,20 @@ static void update_buff_eye_candy(actor *act);
 
 void update_actor_buffs(int actor_id, Uint32 in_buffs)
 {
+	locked_list_ptr actors_list;
 	actor *act, *attached;
 #ifdef EXTRA_DEBUG
 	ERR();
 #endif
 
-	act = lock_and_get_actor_and_attached_from_id(actor_id, &attached);
-	if(!act)
+	actors_list = lock_and_get_actor_and_attached_from_id(actor_id, &act, &attached);
+	if (!actors_list)
 		//if we got here, it means we don't have this actor, so get it from the server...
 		return;
 
 	update_actor_buffs_locked(act, attached, in_buffs);
 
-	release_actors_list();
+	release_locked_actors_list(actors_list);
 }
 
 void update_actor_buffs_locked(actor *act, actor *attached, Uint32 in_buffs)

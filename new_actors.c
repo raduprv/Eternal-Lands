@@ -198,11 +198,12 @@ Uint32 delay_texture_item_change(actor* a, const int which_part, const int which
 
 void unwear_item_from_actor(int actor_id, Uint8 which_part)
 {
-	actor *act = lock_and_get_actor_from_id(actor_id);
-	if (act)
+	actor *act;
+	locked_list_ptr actors_list = lock_and_get_actor_from_id(actor_id, &act);
+	if (actors_list)
 	{
 		unwear_item_from_actor_locked(act, which_part);
-		release_actors_list();
+		release_locked_actors_list(actors_list);
 	}
 }
 
@@ -336,8 +337,9 @@ void actor_wear_item(int actor_id,Uint8 which_part, Uint8 which_id)
 #ifdef CUSTOM_LOOK
 	char playerpath[256], guildpath[256], onlyname[32]={0};
 #endif
-	actor *act = lock_and_get_actor_from_id(actor_id);
-	if (!act)
+	actor *act;
+	locked_list_ptr actors_list = lock_and_get_actor_from_id(actor_id, &act);
+	if (!actors_list)
 		return;
 
 #ifdef CUSTOM_LOOK
@@ -564,7 +566,7 @@ void actor_wear_item(int actor_id,Uint8 which_part, Uint8 which_id)
 		}
 	}
 
-	release_actors_list();
+	release_locked_actors_list(actors_list);
 }
 
 void add_enhanced_actor_from_server (const char *in_data, int len)

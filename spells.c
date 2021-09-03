@@ -826,12 +826,13 @@ static void time_out(const float x_start, const float y_start, const float grids
 
 void display_spells_we_have(void)
 {
+	locked_list_ptr actors_list;
 	actor *me;
 	Uint32 i;
 	float scale, duration;
 
-	me = lock_and_get_self();
-	if (me)
+	actors_list = lock_and_get_self(&me);
+	if (actors_list)
 	{
 		static int last_actor_type = -1;
 		if (last_actor_type < 0)
@@ -844,7 +845,7 @@ void display_spells_we_have(void)
 			rerequest_durations();
 		}
 
-		release_actors_list();
+		release_locked_actors_list(actors_list);
 	}
 
 #ifdef OPENGL_TRACE

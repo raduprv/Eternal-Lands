@@ -86,6 +86,7 @@ static special_effect *get_free_special_effect() {
 static void add_sfx(special_effect_enum effect, Uint16 playerid, int caster)
 {
 	Uint8 str[70];
+	locked_list_ptr actors_list;
 	actor *act;
 	special_effect *m = get_free_special_effect();
 	if (m == NULL) 
@@ -95,8 +96,8 @@ static void add_sfx(special_effect_enum effect, Uint16 playerid, int caster)
 		return;
 	}
 
-	act = lock_and_get_actor_from_id(playerid);
-	if (!act)
+	actors_list = lock_and_get_actor_from_id(playerid, &act);
+	if (!actors_list)
 		return;
 		
 	// this switch is for differentiating static vs mobile effects
@@ -117,7 +118,7 @@ static void add_sfx(special_effect_enum effect, Uint16 playerid, int caster)
 			break;
 	}
 
-	release_actors_list();
+	release_locked_actors_list(actors_list);
 
 	m->type = effect;
 	m->last_time = cur_time;					//global cur_time
@@ -400,12 +401,13 @@ static void display_special_effect(special_effect *marker) {
 			break;						
 		default:										// all others are movable effects
 		{
-			const actor *act = lock_and_get_actor_from_id(marker->owner_id);
-			if (!act)
+			actor *act;
+			locked_list_ptr actors_list = lock_and_get_actor_from_id(marker->owner_id, &act);
+			if (!actors_list)
 				return;
 			x = act->x_pos + (TILESIZE_X / 2);	// movable effects need current position
 			y = act->y_pos + (TILESIZE_X / 2);
-			release_actors_list();
+			release_locked_actors_list(actors_list);
 			break;
 		}
 	}
@@ -517,6 +519,7 @@ void parse_special_effect(special_effect_enum sfx, const Uint16 *data)
 	int sfx_sound = -1;
 #endif // NEW_SOUND
 	Uint16 var_a = 0, var_b = 0;
+	locked_list_ptr actors_list;
 	actor* caster = NULL;
 	actor* target = NULL;
 	float x = 0.0f, y = 0.0f;
@@ -651,10 +654,7 @@ void parse_special_effect(special_effect_enum sfx, const Uint16 *data)
 			break;
 	}
 
-	if (need_target)
-		caster = lock_and_get_actor_pair_from_id(var_a, var_b, &target);
-	else
-		caster = lock_and_get_actor_from_id(var_a);
+	actors_list = lock_and_get_actor_from_id(var_a, &caster);
 	if (caster == NULL)
 		return;
 
@@ -675,10 +675,14 @@ void parse_special_effect(special_effect_enum sfx, const Uint16 *data)
 // 	x = caster->x_pos;
 // 	y = caster->y_pos;
 
-	if (need_target && !target)
+	if (need_target)
 	{
-		release_actors_list();
-		return;
+		target = get_actor_from_id(actors_list, var_b);
+		if (!target)
+		{
+			release_locked_actors_list(actors_list);
+			return;
+		}
 	}
 
 	if (use_eye_candy) {
@@ -939,7 +943,7 @@ void parse_special_effect(special_effect_enum sfx, const Uint16 *data)
 //			ec_create_targetmagic_life_drain(caster, target, (poor_man ? 6 : 10));
 	} /* if (use_eye_candy) */
 
-	release_actors_list();
+	release_locked_actors_list(actors_list);
 
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();

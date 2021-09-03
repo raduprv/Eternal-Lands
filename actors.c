@@ -271,16 +271,17 @@ actor* create_actor_attachment(actor* parent, int attachment_type)
 
 void add_actor_attachment(int actor_id, int attachment_type)
 {
+	locked_list_ptr actors_list;
 	actor *parent, *attached;
 
-	parent = lock_and_get_actor_from_id(actor_id);
-	if (!parent)
+	actors_list = lock_and_get_actor_from_id(actor_id, &parent);
+	if (!actors_list)
 	{
 		LOG_ERROR("unable to add an attached actor: actor with id %d doesn't exist!", actor_id);
 	}
 
 	attached = create_actor_attachment(parent, attachment_type);
-	release_actors_list();
+	release_locked_actors_list(actors_list);
 
 	if (attached)
 	{
@@ -1222,15 +1223,16 @@ void display_actors(int banner, int render_pass)
 		}
 		else
 		{
-			actor *cur_actor = lock_and_get_actor_from_id(actor_id);
-			if (cur_actor)
+			actor *cur_actor;
+			locked_list_ptr actors_list = lock_and_get_actor_from_id(actor_id, &cur_actor);
+			if (actors_list)
 			{
 				int kind_of_actor = cur_actor->kind_of_actor;
 				int is_enhanced_model = cur_actor->is_enhanced_model;
 
 				draw_actor_without_banner(cur_actor, use_lightning, use_textures, 1);
 
-				release_actors_list();
+				release_locked_actors_list(actors_list);
 				if (near_actors[i].select)
 				{
 					if (kind_of_actor == NPC)
@@ -1267,15 +1269,16 @@ void display_actors(int banner, int render_pass)
 
 			if (near_actors[i].alpha && !(near_actors[i].ghost || (near_actors[i].buffs & BUFF_INVISIBILITY)))
 			{
-				actor *cur_actor = lock_and_get_actor_from_id(actor_id);
-				if (cur_actor)
+				actor *cur_actor;
+				locked_list_ptr actors_list = lock_and_get_actor_from_id(actor_id, &cur_actor);
+				if (actors_list)
 				{
 					int kind_of_actor = cur_actor->kind_of_actor;
 					int is_enhanced_model = cur_actor->is_enhanced_model;
 
 					draw_actor_without_banner(cur_actor, use_lightning, 1, 1);
 
-					release_actors_list();
+					release_locked_actors_list(actors_list);
 					if (near_actors[i].select)
 					{
 						if (kind_of_actor == NPC)
@@ -1318,8 +1321,9 @@ void display_actors(int banner, int render_pass)
 
 			if (near_actors[i].ghost || (near_actors[i].buffs & BUFF_INVISIBILITY))
 			{
-				actor *cur_actor = lock_and_get_actor_from_id(actor_id);
-				if (cur_actor)
+				actor *cur_actor;
+				locked_list_ptr actors_list = lock_and_get_actor_from_id(actor_id, &cur_actor);
+				if (actors_list)
 				{
 					int kind_of_actor = cur_actor->kind_of_actor;
 					int is_enhanced_model = cur_actor->is_enhanced_model;
@@ -1341,7 +1345,7 @@ void display_actors(int banner, int render_pass)
 
 					draw_actor_without_banner(cur_actor, use_lightning, use_textures, 1);
 
-					release_actors_list();
+					release_locked_actors_list(actors_list);
 					if (near_actors[i].select)
 					{
 						if (kind_of_actor == NPC)
@@ -1402,13 +1406,14 @@ void display_actors(int banner, int render_pass)
 
 		for (i = 0; i < no_near_actors; i++)
 		{
-			actor *act;
-			actor *me = lock_and_get_self_and_actor_from_id(near_actors[i].actor_id, &act);
-			if (act)
+			actor *me;
+			locked_list_ptr actors_list = lock_and_get_self(&me);
+			if (actors_list)
 			{
-				if (!is_horse(act))
+				actor *act = get_actor_from_id(actors_list, near_actors[i].actor_id);
+				if (act && !is_horse(act))
 					draw_actor_banner_new(act, me);
-				release_actors_list();
+				release_locked_actors_list(actors_list);
 			}
 		}
 
@@ -1672,21 +1677,23 @@ static void add_displayed_text_to_actor(actor *actor_ptr, const char* text)
 
 void add_displayed_text_to_actor_id(int actor_id, const char* text)
 {
-	actor *act = lock_and_get_actor_from_id(actor_id);
-	if (act)
+	actor *act;
+	locked_list_ptr actors_list = lock_and_get_actor_from_id(actor_id, &act);
+	if (actors_list)
 	{
 		add_displayed_text_to_actor(act, text);
-		release_actors_list();
+		release_locked_actors_list(actors_list);
 	}
 }
 
 void add_displayed_text_to_actor_name(const char* name, const char* text)
 {
-	actor *act = lock_and_get_actor_from_name(name);
-	if (act)
+	actor *act;
+	locked_list_ptr list = lock_and_get_actor_from_name(name, &act);
+	if (list)
 	{
 		add_displayed_text_to_actor(act, text);
-		release_actors_list();
+		release_locked_actors_list(list);
 	}
 }
 
@@ -1795,8 +1802,9 @@ void check_if_new_actor_last_summoned(const actor *new_actor)
 {
 	if (SDL_GetTicks() < last_summoned_var.summoned_time + 250)
 	{
-		actor *me = lock_and_get_self();
-		if (me)
+		actor *me;
+		locked_list_ptr actors_list = lock_and_get_self(&me);
+		if (actors_list)
 		{
 			char me_name_part[MAX_ACTOR_NAME] = "", me_guild_part[MAX_ACTOR_NAME] = "";
 			char summoned_name_part[ACTOR_DEF_NAME_SIZE] = "", summoned_guild_part[ACTOR_DEF_NAME_SIZE] = "";
@@ -1804,7 +1812,7 @@ void check_if_new_actor_last_summoned(const actor *new_actor)
 			split_name_and_guild(me->actor_name, me_name_part, me_guild_part, MAX_ACTOR_NAME);
 			split_name_and_guild(new_actor->actor_name, summoned_name_part, summoned_guild_part, ACTOR_DEF_NAME_SIZE);
 
-			release_actors_list();
+			release_locked_actors_list(actors_list);
 
 			if ((strcmp(last_summoned_var.summoned_name, summoned_name_part) == 0) &&
 					(strcmp(summoned_guild_part, me_guild_part) == 0))
@@ -1820,14 +1828,18 @@ void check_if_new_actor_last_summoned(const actor *new_actor)
 // Return the id of the last sucessful summoned creature, if its still present
 int get_id_last_summoned(void)
 {
+	locked_list_ptr actors_list;
+	actor *act;
+
 	if (last_summoned_var.actor_id < 0)
 		return -1;
 
 	// check if the actor is still present
-	if (lock_and_get_actor_from_id(last_summoned_var.actor_id))
+	actors_list = lock_and_get_actor_from_id(last_summoned_var.actor_id, &act);
+	if (actors_list)
 	{
 		// Yup, still exists
-		release_actors_list();
+		release_locked_actors_list(actors_list);
 	}
 	else
 	{
