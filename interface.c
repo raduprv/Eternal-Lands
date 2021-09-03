@@ -719,11 +719,11 @@ static void draw_marks(marking *the_marks, int the_max_mark, int the_tile_map_si
 			else glColor3f(0.33f,0.6f,1.0f);
 			glDisable(GL_TEXTURE_2D);
 			glBegin(GL_LINES);
-				glVertex2i(screen_x-9*mapmark_zoom,screen_y-9*mapmark_zoom);
-				glVertex2i(screen_x+6*mapmark_zoom,screen_y+6*mapmark_zoom);
+				glVertex2i(screen_x-7*mapmark_zoom,screen_y-7*mapmark_zoom);
+				glVertex2i(screen_x+7*mapmark_zoom,screen_y+7*mapmark_zoom);
 
-				glVertex2i(screen_x+6*mapmark_zoom,screen_y-9*mapmark_zoom);
-				glVertex2i(screen_x-9*mapmark_zoom,screen_y+6*mapmark_zoom);
+				glVertex2i(screen_x+7*mapmark_zoom,screen_y-7*mapmark_zoom);
+				glVertex2i(screen_x-7*mapmark_zoom,screen_y+7*mapmark_zoom);
 			glEnd();
 				glEnable(GL_TEXTURE_2D);
 				if(!the_marks[i].server_side) glColor3f((float)the_marks[i].r/255,(float)the_marks[i].g/255,(float)the_marks[i].b/255);//glColor3f(0.2f,1.0f,0.0f);
@@ -896,11 +896,11 @@ void draw_game_map (int map, int mouse_mini)
 			glColor3f(1.0f,1.0f,0.0f);
 			glDisable(GL_TEXTURE_2D);
 			glBegin(GL_LINES);
-				glVertex2i(screen_x-9*mapmark_zoom,screen_y-9*mapmark_zoom);
-				glVertex2i(screen_x+6*mapmark_zoom,screen_y+6*mapmark_zoom);
+				glVertex2i(screen_x-7*mapmark_zoom,screen_y-7*mapmark_zoom);
+				glVertex2i(screen_x+7*mapmark_zoom,screen_y+7*mapmark_zoom);
 
-				glVertex2i(screen_x+6*mapmark_zoom,screen_y-9*mapmark_zoom);
-				glVertex2i(screen_x-9*mapmark_zoom,screen_y+6*mapmark_zoom);
+				glVertex2i(screen_x+7*mapmark_zoom,screen_y-7*mapmark_zoom);
+				glVertex2i(screen_x-7*mapmark_zoom,screen_y+7*mapmark_zoom);
 			glEnd();
 		        glEnable(GL_TEXTURE_2D);
 		        glColor3f(1.0f,1.0f,0.0f);
@@ -948,11 +948,11 @@ void draw_game_map (int map, int mouse_mini)
 		glDisable(GL_TEXTURE_2D);
 		glBegin(GL_LINES);
 
-		glVertex2i(screen_x-9*mapmark_zoom,screen_y-9*mapmark_zoom);
-		glVertex2i(screen_x+6*mapmark_zoom,screen_y+6*mapmark_zoom);
+		glVertex2i(screen_x-7*mapmark_zoom,screen_y-7*mapmark_zoom);
+		glVertex2i(screen_x+7*mapmark_zoom,screen_y+7*mapmark_zoom);
 
-		glVertex2i(screen_x+6*mapmark_zoom,screen_y-9*mapmark_zoom);
-		glVertex2i(screen_x-9*mapmark_zoom,screen_y+6*mapmark_zoom);
+		glVertex2i(screen_x+7*mapmark_zoom,screen_y-7*mapmark_zoom);
+		glVertex2i(screen_x-7*mapmark_zoom,screen_y+7*mapmark_zoom);
 
 		glEnd();
 	}
@@ -997,11 +997,11 @@ void draw_game_map (int map, int mouse_mini)
 		glEnable(GL_LINE_SMOOTH);
 		glBegin (GL_LINES);
 
-		glVertex2i(screen_x-9*mapmark_zoom,screen_y-9*mapmark_zoom);
-		glVertex2i(screen_x+6*mapmark_zoom,screen_y+6*mapmark_zoom);
+		glVertex2i(screen_x-7*mapmark_zoom,screen_y-7*mapmark_zoom);
+		glVertex2i(screen_x+7*mapmark_zoom,screen_y+7*mapmark_zoom);
 
-		glVertex2i(screen_x+6*mapmark_zoom,screen_y-9*mapmark_zoom);
-		glVertex2i(screen_x-9*mapmark_zoom,screen_y+6*mapmark_zoom);
+		glVertex2i(screen_x+7*mapmark_zoom,screen_y-7*mapmark_zoom);
+		glVertex2i(screen_x-7*mapmark_zoom,screen_y+7*mapmark_zoom);
 
 		glEnd();
 		glPopAttrib();
@@ -1166,7 +1166,7 @@ void delete_mark_on_map_on_mouse_position(void)
 	}
 
 	mx = ((mouse_x - main_map_screen_x_left) * tile_map_size_x * 6) / screen_map_width;
-	my = (tile_map_size_y * 6) - ((mouse_y - main_map_screen_y_top) * tile_map_size_y * 6) / screen_map_height;
+	my = (tile_map_size_y * 6 - 1) - ((mouse_y - main_map_screen_y_top) * tile_map_size_y * 6) / screen_map_height;
 
 	// delete mark closest to cursor
 	min_distance = screen_map_width/10 * screen_map_height/10; // only check close marks
