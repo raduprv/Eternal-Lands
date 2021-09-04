@@ -102,10 +102,10 @@ reload_icons ##  ## Reload the icon window configuration.
 relogin ##  ## If your network connection drops, this command can be used to enable reconnecting.
 reset_res ##  ## Reset the video mode to the values used when the client was started.
 save ##  ## Save your state on both the server and for the client.
-save_res ## <width> <height> ## Set the client window size to the specified width and height.
+save_res ##  ## Set the video mode saved to the ini file from the current window size, switching to user defined mode if not currently set.
 session_counters ##  ## List all counters for the current session.
 set_default_fonts ##  ## Resets all the client fonts and sizes to their defaults.
-set_res ##  ## Set the video mode saved to the ini file from the current window size, switching to use defined mode if needed.
+set_res ## <width> <height> ## Set the client window size to the specified width and height.
 show_res ##  ## Display the current client window width and height.
 show_spell ##  ## Useful for user menus, display the spell name and spell codes of the last cast spell. See #cast_spell.
 stats ##  ## Display some basic information and stats for the game server.
