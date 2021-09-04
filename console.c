@@ -2222,6 +2222,7 @@ void init_commands(const char *filename)
 	add_command("?", &command_commands_search);
 	add_command("set_default_fonts", &command_set_default_fonts);
 	add_command(cmd_summon_attack, &command_summon_attack);
+	add_command(cmd_summon_attack_short, &command_summon_attack);
 
 	// Sort the command list alphabetically so that the #command lists
 	// them sorted and the ctrl+SPACE cycles them sorted.  Assumes no

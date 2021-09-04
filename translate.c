@@ -542,6 +542,7 @@ char	name_too_long[75],
 	cmd_relogin[20],
 	cmd_disconnect[20],
 	cmd_disco[20],
+	cmd_summon_attack_short[10],
 	cmd_summon_attack[20];
 /*! \} */
 #endif
@@ -1228,6 +1229,7 @@ void init_console()
 	add_xml_identifier(cmd_grp,"relogin",cmd_relogin,"relogin",sizeof(cmd_relogin));
 	add_xml_identifier(cmd_grp,"disconnect",cmd_disconnect,"disconnect",sizeof(cmd_disconnect));
 	add_xml_identifier(cmd_grp,"disco",cmd_disco,"disco",sizeof(cmd_disco));
+	add_xml_identifier(cmd_grp,"summon_attack_short",cmd_summon_attack_short,"sa",sizeof(cmd_summon_attack_short));
 	add_xml_identifier(cmd_grp,"summon_attack",cmd_summon_attack,"summon_attack",sizeof(cmd_summon_attack));
 }
 #endif

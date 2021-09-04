@@ -302,6 +302,7 @@ extern char
 		cmd_relogin[20],
 		cmd_disconnect[20],
 		cmd_disco[20],
+		cmd_summon_attack_short[10],
 		cmd_summon_attack[20],
 		help_cmd_markpos_str[50],
 		location_info_str[40],

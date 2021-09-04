@@ -101,6 +101,7 @@ quit ##  ## Save your server and client state, then exit the game immediately.
 reload_icons ##  ## Reload the icon window configuration.
 relogin ##  ## If your network connection drops, this command can be used to enable reconnecting.
 reset_res ##  ## Reset the video mode to the values used when the client was started.
+sa ## [<option letter>] | [help] ## Set the attack mode for summoned creatures. If no paramater specified, the the mode will toggle between "Attack and Will" and "No Attack".  Otherwise, shows help.
 save ##  ## Save your state on both the server and for the client.
 save_res ##  ## Set the video mode saved to the ini file from the current window size, switching to user defined mode if not currently set.
 session_counters ##  ## List all counters for the current session.
