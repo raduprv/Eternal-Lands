@@ -3,7 +3,11 @@
 
 #include "platform.h"
 #include "load_gl_extensions.h"
+#ifdef __cplusplus
+#include "actors_list.h"
+#else // __cplusplus
 #include "actors.h"
+#endif // __cplusplus
 #include <SDL.h>
 
 #ifdef __cplusplus

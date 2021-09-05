@@ -1,6 +1,6 @@
 #include "platform.h"
 #include "load_gl_extensions.h"
-#include "actors.h"
+#include "actors_list.h"
 #include "gl_init.h"
 #include "misc.h"
 #include "cursors.h"

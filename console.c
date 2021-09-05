@@ -660,7 +660,6 @@ static int horse_cmd(char* text, int len){
 	char *id;
 	locked_list_ptr actors_list;
 	actor *act;
-	int actor_id, has_horse;
 
 	for(j=1;j<len;j++) if(text[j]==' ') {text[j]=0; break;}
 	id=&text[j+1];
@@ -679,23 +678,21 @@ static int horse_cmd(char* text, int len){
 	LOG_TO_CONSOLE(c_orange1, "actor found, adding horse");
 
 	act->sit_idle=act->stand_idle=0;
-	actor_id = act->actor_id;
-	has_horse = has_attachment(act);
 
-	release_locked_actors_list(actors_list);
-
-	if (has_horse){
+	if (has_attachment(act)){
 		//remove horse
-		remove_and_destroy_attachment_from_list(actor_id);
+		remove_and_destroy_attachment(actors_list, act->actor_id);
 		LOG_TO_CONSOLE(c_orange1,"De-horsified");
 
 	} else {
 		//add horse
 		int hh=atoi(id);
 		if (hh<=0) hh=200;
-		add_actor_attachment(actor_id, hh);
+		add_actor_attachment(actors_list, act, hh);
 		LOG_TO_CONSOLE(c_orange1,"Horsified");
 	}
+
+	release_locked_actors_list(actors_list);
 
 	return 1;
 
@@ -1814,7 +1811,7 @@ static void commands_summary(void)
 	LOG_TO_CONSOLE(c_green1, commands_help_description_help_str);
 	LOG_TO_CONSOLE(c_green1, commands_help_search_help_str);
 	str[0] = '\0';
-	for(i = 0; i < command_count; i++) 
+	for(i = 0; i < command_count; i++)
 	{
 		if (str[0] != '\0')
 			safe_strcat(str, delim, str_len);
@@ -1850,11 +1847,11 @@ static void cleanup_commands_help(void)
 	for (i = 0; i < commands_help_size; i++)
 	{
 		if (commands_help[i].c_str != NULL)
-			free(commands_help[i].c_str); 
+			free(commands_help[i].c_str);
 		if (commands_help[i].p_str != NULL)
-			free(commands_help[i].p_str); 
+			free(commands_help[i].p_str);
 		if (commands_help[i].d_str != NULL)
-			free(commands_help[i].d_str); 
+			free(commands_help[i].d_str);
 	}
 	free(commands_help);
 	commands_help_size = 0;

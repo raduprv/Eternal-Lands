@@ -1,7 +1,7 @@
 #include <algorithm>
 #include <cstring>
-#include "actor_init.h"
 #include "actors_list.h"
+#include "actor_init.h"
 #include "actor_scripts.h"
 #include "asc.h"
 #include "buffs.h"
@@ -217,22 +217,22 @@ void ActorsList::clear_locked()
 
 using namespace eternal_lands;
 
-extern "C" locked_list_ptr get_locked_actors_list()
+extern "C" LockedList* get_locked_actors_list()
 {
 	return ActorsList::get_locked_instance_ptr();
 }
 
-extern "C" actor* get_self(locked_list_ptr list)
+extern "C" actor* get_self(LockedList* list)
 {
 	return list->self();
 }
 
-extern "C" actor* get_actor_from_id(locked_list_ptr list, int actor_id)
+extern "C" actor* get_actor_from_id(LockedList* list, int actor_id)
 {
 	return list->get_actor_from_id(actor_id);
 }
 
-extern "C" actor* get_actor_and_attached_from_id(locked_list_ptr list, int actor_id,
+extern "C" actor* get_actor_and_attached_from_id(LockedList* list, int actor_id,
 	actor **attached)
 {
 	actor *act;
@@ -241,30 +241,40 @@ extern "C" actor* get_actor_and_attached_from_id(locked_list_ptr list, int actor
 }
 
 #ifdef ECDEBUGWIN
-extern "C" actor* get_target(locked_list_ptr list)
+extern "C" actor* get_target(LockedList* list)
 {
 	return list->get_target();
 }
 #endif // ECDEBUGWIN
 
-extern "C" void for_each_actor(locked_list_ptr list, void (*fun)(actor*, void*, locked_list_ptr),
-	void* data)
+extern "C" int add_attachment(LockedList* list, int actor_id, actor *attached)
+{
+	return list->add_attachment(actor_id, attached);
+}
+
+extern "C" void remove_and_destroy_attachment(LockedList* list, int actor_id)
+{
+	list->remove_and_destroy_attachment(actor_id);
+}
+
+extern "C" void for_each_actor(LockedList* list,
+	void (*fun)(actor*, void*, LockedList*), void* data)
 {
 	list->for_each_actor(fun, data);
 }
 
-extern "C" void for_each_actor_and_attached(locked_list_ptr list,
-	void (*fun)(actor*, actor*, void*, locked_list_ptr), void* data)
+extern "C" void for_each_actor_and_attached(LockedList* list,
+	void (*fun)(actor*, actor*, void*, LockedList*), void* data)
 {
 	list->for_each_actor_and_attached(fun, data);
 }
 
-extern "C" void release_locked_actors_list(locked_list_ptr list)
+extern "C" void release_locked_actors_list(LockedList* list)
 {
 	delete list;
 }
 
-extern "C" ActorsList::LockedList* lock_and_get_self(actor **self)
+extern "C" LockedList* lock_and_get_self(actor **self)
 {
 	auto list = ActorsList::get_locked_instance_ptr();
 	*self = list->self();
@@ -276,7 +286,7 @@ extern "C" ActorsList::LockedList* lock_and_get_self(actor **self)
 	return list;
 }
 
-extern "C" ActorsList::LockedList* lock_and_get_actor_from_id(int actor_id, actor **act)
+extern "C" LockedList* lock_and_get_actor_from_id(int actor_id, actor **act)
 {
 	auto list = ActorsList::get_locked_instance_ptr();
 	*act = list->get_actor_from_id(actor_id);
@@ -288,7 +298,7 @@ extern "C" ActorsList::LockedList* lock_and_get_actor_from_id(int actor_id, acto
 	return list;
 }
 
-extern "C" ActorsList::LockedList* lock_and_get_actor_and_attached_from_id(int actor_id,
+extern "C" LockedList* lock_and_get_actor_and_attached_from_id(int actor_id,
 	actor **act, actor **attached)
 {
 	auto list = ActorsList::get_locked_instance_ptr();
@@ -301,7 +311,7 @@ extern "C" ActorsList::LockedList* lock_and_get_actor_and_attached_from_id(int a
 	return list;
 }
 
-extern "C" ActorsList::LockedList* lock_and_get_actor_from_name(const char* name, actor **act)
+extern "C" LockedList* lock_and_get_actor_from_name(const char* name, actor **act)
 {
 	auto list = ActorsList::get_locked_instance_ptr();
 	*act = list->get_actor_from_name(name);
@@ -313,7 +323,7 @@ extern "C" ActorsList::LockedList* lock_and_get_actor_from_name(const char* name
 	return list;
 }
 
-extern "C" ActorsList::LockedList* lock_and_get_nearest_actor(int tile_x, int tile_y,
+extern "C" LockedList* lock_and_get_nearest_actor(int tile_x, int tile_y,
 	float max_distance, actor **act)
 {
 	auto list = ActorsList::get_locked_instance_ptr();
@@ -327,7 +337,7 @@ extern "C" ActorsList::LockedList* lock_and_get_nearest_actor(int tile_x, int ti
 }
 
 #ifdef ECDEBUGWIN
-extern "C" ActorsList::LockedList* lock_and_get_target(actor **target)
+extern "C" LockedList* lock_and_get_target(actor **target)
 {
 	auto list = ActorsList::get_locked_instance_ptr();
 	*target = list->get_target();
@@ -346,22 +356,10 @@ extern "C" void add_actor_to_list(actor* act, actor *attached)
 	list.add(act, attached);
 }
 
-extern "C" int add_attachment_to_list(int actor_id, actor *attached)
-{
-	auto list = ActorsList::get_locked_instance();
-	return list.add_attachment(actor_id, attached);
-}
-
 extern "C" void remove_and_destroy_actor_from_list(int actor_id)
 {
 	auto list = ActorsList::get_locked_instance();
 	list.remove_and_destroy(actor_id);
-}
-
-extern "C" void remove_and_destroy_attachment_from_list(int actor_id)
-{
-	auto list = ActorsList::get_locked_instance();
-	list.remove_and_destroy_attachment(actor_id);
 }
 
 extern "C" void remove_and_destroy_all_actors()

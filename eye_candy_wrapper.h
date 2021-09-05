@@ -15,7 +15,11 @@
 #include "eye_candy_types.h"
 
 #ifndef MAP_EDITOR
+#ifdef __cplusplus
+#include "actors_list.h"
+#else // __cplusplus
 #include "actors.h"
+#endif // __cplusplus
 #endif
 #include "e3d.h"
 #include "platform.h"

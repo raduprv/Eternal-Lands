@@ -7,7 +7,11 @@
 #define __STATS_H__
 
 #include <SDL_types.h>
+#ifdef __cplusplus
+#include "actors_list.h"
+#else
 #include "actors.h"
+#endif
 
 #ifdef __cplusplus
 extern "C" {

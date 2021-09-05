@@ -638,6 +638,10 @@ typedef struct
 	ec_reference ec_buff_reference[NUM_BUFFS];
 }actor;
 
+#ifndef __cplusplus
+typedef struct LockedList *locked_list_ptr;
+#endif
+
 #define	DEFAULT_RENDER_PASS	0
 #define	REFLECTION_RENDER_PASS	1
 #define	DEPTH_RENDER_PASS	2
@@ -677,7 +681,7 @@ static inline weapon_part *actor_weapon(const actor *act)
 void display_actors(int banner, int render_pass);
 
 actor* create_actor_attachment(actor* parent, int attachment_type);
-void add_actor_attachment (int actor_id, int attachment_type);
+void add_actor_attachment(locked_list_ptr actors_list, actor *act, int attachment_type);
 
 /*!
  * \ingroup	network_actors

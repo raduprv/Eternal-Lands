@@ -1786,7 +1786,7 @@ int keypress_root_common (SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_m
 	else if((key_code == SDLK_x) && shift_on && ctrl_on && !alt_on)
 	{
 		actor *me;
-		locked_list_ptr actors_list = lock_and_get_self();
+		locked_list_ptr actors_list = lock_and_get_self(&me);
 		if (actors_list)
 		{
 			ec_create_mine_detonate(me->x_pos + 0.25f, me->y_pos + 0.25f, 0, MINE_TYPE_MEDIUM_MINE,
@@ -1819,7 +1819,7 @@ int keypress_root_common (SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_m
 	else if((key_code == SDLK_b) && shift_on && ctrl_on && !alt_on)
 	{
 		actor *me;
-		locked_list_ptr actors_List = lock_and_get_self(&me);
+		locked_list_ptr actors_list = lock_and_get_self(&me);
 		if (actors_list)
 		{
 			ec_create_mine_detonate(me->x_pos + 0.25f, me->y_pos + 0.25f, 0, MINE_TYPE_CALTROP,
@@ -1909,15 +1909,11 @@ int keypress_root_common (SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_m
 		locked_list_ptr actors_list = lock_and_get_self(&me);
 		if (actors_list)
 		{
-			int actor_id = me->actor_id;
-			int has_no_attachment = !has_attachment(me);
-
-			release_locked_actors_list(actors_list);
-
-			if (has_no_attachment)
-				add_actor_attachment(actor_id, 200);
+			if (!has_attachment(me))
+				add_actor_attachment(actors_list, me, 200);
 			else
-				remove_and_destroy_attachment_from_list(actor_id);
+				remove_and_destroy_attachment(actors_list, me->actor_id);
+			release_locked_actors_list(actors_list);
 		}
 	}
 #endif // DEBUG

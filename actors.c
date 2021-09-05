@@ -269,23 +269,12 @@ actor* create_actor_attachment(actor* parent, int attachment_type)
 	return attached;
 }
 
-void add_actor_attachment(int actor_id, int attachment_type)
+void add_actor_attachment(locked_list_ptr actors_list, actor *act, int attachment_type)
 {
-	locked_list_ptr actors_list;
-	actor *parent, *attached;
-
-	actors_list = lock_and_get_actor_from_id(actor_id, &parent);
-	if (!actors_list)
-	{
-		LOG_ERROR("unable to add an attached actor: actor with id %d doesn't exist!", actor_id);
-	}
-
-	attached = create_actor_attachment(parent, attachment_type);
-	release_locked_actors_list(actors_list);
-
+	actor *attached = create_actor_attachment(act, attachment_type);
 	if (attached)
 	{
-		if (!add_attachment_to_list(actor_id, attached))
+		if (!add_attachment(actors_list, act->actor_id, attached))
 		{
 			free_actor_data(attached);
 			free(attached);
