@@ -575,10 +575,6 @@ extern "C"
 {
 #endif // __cplusplus
 
-#ifndef __cplusplus
-typedef struct LockedList *locked_list_ptr;
-#endif // !__cplusplus
-
 /*!
  * \brief Return a pointer to the locked actors list
  *
