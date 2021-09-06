@@ -436,7 +436,7 @@ void save_markings(void)
 		LOG_ERROR("%s: %s \"%s\": %s\n", reg_error_str, cant_open_file, marks_file, strerror(errno));
 	} else {
 		for ( i = 0 ; i < max_mark ; i ++){
-			if ( marks[i].x > 0 && !marks[i].server_side){
+			if ( marks[i].x >= 0 && !marks[i].server_side){
 				fprintf(fp,"%d %d|%d,%d,%d| %s\n",marks[i].x,marks[i].y,marks[i].r,marks[i].g,marks[i].b,marks[i].text);
 			}
 		}

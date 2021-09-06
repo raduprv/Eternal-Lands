@@ -79,6 +79,7 @@ float json_cstate_get_float(const char *section_name, const char *var_name, floa
 void json_cstate_set_float(const char *section_name, const char *var_name, float value);
 int json_cstate_get_bool(const char *section_name, const char *var_name, int default_value);
 void json_cstate_set_bool(const char *section_name, const char *var_name, int value);
+void json_cstate_delete_var(const char *section_name, const char *var_name);
 /*! @} */
 
 #ifdef __cplusplus

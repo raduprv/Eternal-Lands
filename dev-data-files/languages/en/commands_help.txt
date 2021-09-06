@@ -65,7 +65,6 @@ calc ## <text> ## Display the result of the calculation specified by <text>.
 cast_spell ## <spell codes> ## Useful for user menus, cast a spell specified by the spell codes.  See #show_spell.
 change_pass ## <old password> <new password> ## Changes your password to <new password>.
 channel_colors ##  ## List the currently defined channel colours.
-chat_to_counters ##  ## Warning: Clear and re-populate break and misc counters from current chat log file.
 ckdata ## <checksum> <map path> ## Debug: Check the specified map (elm) file has the specified checksum.
 cls ##  ## Clears all the text from your console.
 commands ##  ## List all the #commands.
@@ -102,16 +101,18 @@ quit ##  ## Save your server and client state, then exit the game immediately.
 reload_icons ##  ## Reload the icon window configuration.
 relogin ##  ## If your network connection drops, this command can be used to enable reconnecting.
 reset_res ##  ## Reset the video mode to the values used when the client was started.
+sa ## [<option letter>] | [help] ## Set the attack mode for summoned creatures. If no paramater specified, the the mode will toggle between "Attack and Will" and "No Attack".  Otherwise, shows help.
 save ##  ## Save your state on both the server and for the client.
-save_res ## <width> <height> ## Set the client window size to the specified width and height.
+save_res ##  ## Set the video mode saved to the ini file from the current window size, switching to user defined mode if not currently set.
 session_counters ##  ## List all counters for the current session.
 set_default_fonts ##  ## Resets all the client fonts and sizes to their defaults.
-set_res ##  ## Set the video mode saved to the ini file from the current window size, switching to use defined mode if needed.
+set_res ## <width> <height> ## Set the client window size to the specified width and height.
 show_res ##  ## Display the current client window width and height.
 show_spell ##  ## Useful for user menus, display the spell name and spell codes of the last cast spell. See #cast_spell.
 stats ##  ## Display some basic information and stats for the game server.
 sto ##  ## Opens the storage window and display your storage slot usage.
 storage ##  ## Opens the storage window and display your storage slot usage.
+summon_attack ## [<option letter>] | [help] ## Set the attack mode for summoned creatures. If no paramater specified, the the mode will toggle between "Attack and Will" and "No Attack".  Otherwise, shows help.
 time ##  ## Display the current in-game time.
 unalias ## <number> ## Unset the specified command #number alias.
 unfilter ## <text> ## Remove <text> from your local filters.

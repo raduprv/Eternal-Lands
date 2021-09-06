@@ -350,6 +350,11 @@ static void next_calctoken(const char *str, int *spos, CalcStack *cs, CalcTok *c
 				pos++;
 				ct->value*=1000;
 			}
+			else if (str[pos]=='M'||str[pos]=='m')
+			{
+				pos++;
+				ct->value*=1000000;
+			}
 			break;
 		case 'M':
 		case 'm':

@@ -963,6 +963,21 @@ int get_window_content_width(int window_id);
 */
 int cm_title_handler(window_info *win, int widget_id, int mx, int my, int option);
 
+/*!
+ * \ingroup elwindows
+ * \brief   Create the title bar context menu
+ *
+ *		Create the title bar context menu setting the options as needed.  Call
+ * this when creating a window and replacing the default menu with your own and
+ * you want to includes the default options.
+ * 
+ * \param win			Pointer to the windows structure
+ * \param menu_list		\n separated list of menu entries.  Use "--" to specify a separator line.
+ * \param handler		optional function to call on menu line selection
+ * \retval size_t		returns the unique context menu id
+*/
+size_t cm_title_create_menu(window_info *win, const char *menu_list, int (*handler)(window_info *, int, int, int, int));
+
 // low level functions
 //window_info	*get_window_info(int win_id);
 //window_info	*get_window_by_name(const Uint8 *name);

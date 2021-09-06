@@ -1792,6 +1792,102 @@ static int command_show_res(char *text, int len)
 }
 
 
+// Summoning attack state for the hud indicator, -1, 0 not "attack at will", 1 is "attack at will".
+static int summon_attack_mode_state = -1;
+int summon_attack_is_active(void) { return (summon_attack_mode_state == 1); }
+int summon_attack_is_unknown(void) { return (summon_attack_mode_state < 0); }
+
+typedef struct { const char opt; const char code; const char *desc; } summon_attack_modes;
+static const summon_attack_modes modes[] =
+{
+	{ .opt = 'a', .code = '\1', .desc = no_attack_str },
+	{ .opt = 'b', .code = '\0', .desc = attack_my_opponent_str },
+	{ .opt = 'c', .code = '\2', .desc = do_not_attack_my_opponent_str },
+	{ .opt = 'd', .code = '\3', .desc = attack_only_summoned_str },
+	{ .opt = 'e', .code = '\4', .desc = do_not_attack_summoned_str },
+	{ .opt = 'f', .code = '\5', .desc = attack_at_will_str }
+};
+static const size_t attack_at_will_index  = 5;
+
+// Check the message just sent to the server from the popup menu
+// Set the summon attack mode if it was a summoning attack mode message
+void check_summon_attack_mode(unsigned char *buffer, size_t len)
+{
+	if ((len == 5) && (buffer[0] == POPUP_REPLY) && (buffer[1] == 0) && (buffer[2] == 0) && (buffer[3] == 1))
+	{
+		size_t i;
+		for (i = 0; i < sizeof(modes)/sizeof(summon_attack_modes); i++)
+			if (buffer[4] == modes[i].code)
+			{
+				if (i == attack_at_will_index)
+					summon_attack_mode_state = 1;
+				else
+					summon_attack_mode_state = 0;
+				break;
+			}
+	}
+}
+
+// Send summoning attack mode to server.
+// Provides a direct version of summoning popup menu.
+//
+static int command_summon_attack(char *text, int len)
+{
+	size_t option_index = sizeof(modes)/sizeof(summon_attack_modes);
+	int show_help = 1;
+	char str[128];
+	size_t i;
+
+	text = getparams(text);
+
+	// if no parameter specified, toggle between attack at will, and no attack
+	if (!*text)
+	{
+		if (summon_attack_mode_state == 1)
+			option_index = 0;
+		else
+			option_index = attack_at_will_index;
+		show_help = 0;
+	}
+
+	// else if its a one character parameter, check if its an option
+	else if (strlen(text) == 1)
+	{
+		for (i = 0; i < sizeof(modes)/sizeof(summon_attack_modes); i++)
+			if (tolower(text[0]) == modes[i].opt)
+			{
+				option_index = i;
+				show_help = 0;
+				break;
+			}
+	}
+
+	// if we have a valid option, send the message to the server and set the state
+	if (option_index < sizeof(modes)/sizeof(summon_attack_modes))
+	{
+		unsigned char buffer[] = { POPUP_REPLY, 0, 0, 1, modes[option_index].code};
+		my_tcp_send(buffer, sizeof(buffer));
+		safe_snprintf(str, sizeof(str), "%s %s", summon_attack_set_mode_str, modes[option_index].desc);
+		LOG_TO_CONSOLE(c_green1, str);
+		show_help = 0;
+		summon_attack_mode_state = (option_index == attack_at_will_index) ?1: 0;
+	}
+
+	// if option specified but not valid, show help
+	if (show_help)
+	{
+		LOG_TO_CONSOLE(c_green1, summon_attack_help_str);
+		for (i = 0; i < sizeof(modes)/sizeof(summon_attack_modes); i++)
+		{
+			safe_snprintf(str, sizeof(str), "  %c - %s", modes[i].opt, modes[i].desc);
+			LOG_TO_CONSOLE(c_green1, str);
+		}
+	}
+
+	return 1;
+}
+
+
 #ifdef CONTEXT_MENUS_TEST
 int cm_test_window(char *text, int len);
 #endif
@@ -2087,7 +2183,6 @@ void init_commands(const char *filename)
 	add_command("find", &history_grep);
 	add_command("save", &command_save);
 	add_command("url", &url_command);
-	add_command("chat_to_counters", &chat_to_counters_command);
 	add_command(cmd_session_counters, &session_counters);
 	add_command("exp", &show_exp);
 #ifdef CONTEXT_MENUS_TEST
@@ -2120,6 +2215,8 @@ void init_commands(const char *filename)
 	add_command("#", &command_commands);
 	add_command("?", &command_commands_search);
 	add_command("set_default_fonts", &command_set_default_fonts);
+	add_command(cmd_summon_attack, &command_summon_attack);
+	add_command(cmd_summon_attack_short, &command_summon_attack);
 
 	// Sort the command list alphabetically so that the #command lists
 	// them sorted and the ctrl+SPACE cycles them sorted.  Assumes no

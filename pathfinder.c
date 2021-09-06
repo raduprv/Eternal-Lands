@@ -364,15 +364,15 @@ int pf_get_mouse_position_extended(int mouse_x, int mouse_y, int * px, int * py,
 	int screen_map_height = main_map_screen_y_bottom - main_map_screen_y_top;
 
 	if (mouse_x < main_map_screen_x_left
-		|| mouse_x > main_map_screen_x_right
+		|| mouse_x >= main_map_screen_x_right
 		|| mouse_y < main_map_screen_y_top
-		|| mouse_y > main_map_screen_y_bottom)
+		|| mouse_y >= main_map_screen_y_bottom)
 	{
 		return 0;
 	}
 
 	*px = ((mouse_x - main_map_screen_x_left) * tile_x * 6) / screen_map_width;
-	*py = (tile_y * 6) - ((mouse_y - main_map_screen_y_top) * tile_y * 6) / screen_map_height;
+	*py = (tile_y * 6 - 1) - ((mouse_y - main_map_screen_y_top) * tile_y * 6) / screen_map_height;
 	return 1;
 }
 

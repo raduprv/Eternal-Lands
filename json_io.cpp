@@ -726,6 +726,7 @@ namespace JSON_IO_Client_State
 			int save(const char *file_name);
 			template <class TheType> TheType get(const char *section_name, const char *var_name, TheType default_var_value) const;
 			template <class TheType> void set(const char *section_name, const char *var_name, TheType value);
+			void delete_var(const char *section_name, const char *var_name);
 		private:
 			bool parse_error;		// there was an error populating the json object
 			const char * class_name_str = "Client State";
@@ -798,6 +799,12 @@ namespace JSON_IO_Client_State
 	template <class TheType> void Client_State::set(const char *section_name, const char *var_name, TheType value)
 	{
 		state_write[section_name][var_name] = value;
+	}
+
+	void Client_State::delete_var(const char *section_name, const char *var_name)
+	{
+		if (state_write.contains(section_name) && state_write[section_name].contains(var_name))
+			state_write[section_name].erase(var_name);
 	}
 
 }
@@ -900,4 +907,6 @@ extern "C"
 		{ return ((cstate.get(section_name, var_name, static_cast<bool>(default_value))) ?1 :0); }
 	void json_cstate_set_bool(const char *section_name, const char *var_name, int value)
 		{ cstate.set(section_name, var_name, static_cast<bool>(value)); }
+	void json_cstate_delete_var(const char *section_name, const char *var_name)
+		{ cstate.delete_var(section_name, var_name); }
 }
