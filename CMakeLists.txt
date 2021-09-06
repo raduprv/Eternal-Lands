@@ -242,7 +242,7 @@ endif()
 
 if (PACKET_COMPRESSION)
 	add_definitions(-DPACKET_COMPRESSION)
-	set(SOURCES ${SOURCES} ${SD}proxy_ext.c)
+	set(SOURCES ${SOURCES} ${SD}ext_protocol_shared.c)
 endif()
 
 # set the compiler flags for DEBUG and RELEASE builds

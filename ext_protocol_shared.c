@@ -1,17 +1,15 @@
 #ifdef PACKET_COMPRESSION
 #include <zlib.h>
 #endif
-#include "proxy_ext.h"
+#include "ext_protocol_shared.h"
 #include "elloggingwrapper.h"
 #include "multiplayer.h"
 #include "text.h"
 
-typedef enum
-{
-	PROXY_COMPRESSED = 0
-} proxy_cmd;
+// Extended protocol messages, driven by Other Life development
+// Messages handled in this file are shared between Eternal Lands and Other Life.
 
-void handle_proxy_command(const uint8_t* data, size_t data_len)
+void handle_extended_command(const uint8_t* data, size_t data_len)
 {
 	if (data_len < 1)
 	{
@@ -30,7 +28,7 @@ void handle_proxy_command(const uint8_t* data, size_t data_len)
 
 			if (data_len < 4)
 			{
-				LOG_WARNING("CAUTION: Possibly forged/invalid PROXY_COMPRESSED packet received.\n");
+				LOG_WARNING("CAUTION: Possibly forged/invalid OL_COMPRESSED_PACKET packet received.\n");
 				break;
 			}
 
