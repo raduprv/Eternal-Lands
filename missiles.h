@@ -63,7 +63,7 @@ extern int enable_client_aiming;
  * \param format the format of the message to log (same options than printf)
  * \param ... data corresponding to the format
  */
-void missiles_log_message_func(const char *format, ...);
+void missiles_log_message_func(const char *format, ...) FORMAT_PRINTF(1, 2);
 
 #define missiles_log_message(format, ...) (missiles_log_message_func("%s: %d: " format, __FUNCTION__, __LINE__, __VA_ARGS__))
 #else // MISSILES_DEBUG

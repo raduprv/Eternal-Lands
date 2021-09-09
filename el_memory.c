@@ -20,7 +20,7 @@ void* malloc_aligned(const Uint64 size, const Uint64 alignment)
 #else	/* USE_SIMD */
 	result = malloc(size);
 #endif	/* USE_SIMD */
-	LOG_DEBUG_VERBOSE("size: %d, alignment: %d, memory: %p", size, alignment, result);
+	LOG_DEBUG_VERBOSE("size: %lu, alignment: %lu, memory: %p", size, alignment, result);
 
 	return result;
 }

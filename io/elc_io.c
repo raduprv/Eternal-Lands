@@ -23,7 +23,7 @@ int read_and_check_elc_header(el_file_ptr file, const magic_number magic, versio
 	size = el_read(file, sizeof(elc_file_header), &header);
 	if (size != sizeof(elc_file_header)) 
 	{
-		LOG_ERROR("File '%s' too small! %d, %d", filename, size, sizeof(elc_file_header));
+		LOG_ERROR("File '%s' too small! %d, %zu", filename, size, sizeof(elc_file_header));
 		return -1;
 	}
 

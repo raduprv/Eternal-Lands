@@ -2301,7 +2301,7 @@ void add_emote_to_actor(int actor_id, int emote_id){
 	
 	//printf("emote message to be added %p\n",emote);
 	if (!act) {
-		LOG_ERROR("%s (Emote) %d - NULL actor passed", cant_add_command, emote);
+		LOG_ERROR("%s (Emote) %d - NULL actor passed", cant_add_command, emote_id);
 	} else {
 		queue_emote(act,emote);
 	}
