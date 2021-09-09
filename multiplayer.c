@@ -2002,7 +2002,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 			  LOG_WARNING("CAUTION: Possibly forged GET_ACTIVE_CHANNELS packet received.\n");
 			  break;
 			}
-			set_active_channels (in_data[3], (Uint32*)(in_data+4), (data_length-2)/4);
+			set_active_channels (in_data[3], (Uint32*)(in_data+4), (data_length-4)/4);
 			break;
 
 		case GET_3D_OBJ_LIST:
@@ -2036,10 +2036,10 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 			}
 			switch(in_data[3]){
 				case	0:	//2D
-					set_2d_object(in_data[4], in_data+5, data_length-3);
+					set_2d_object(in_data[4], in_data+5, data_length-5);
 					break;
 				case	1:	//3D
-					set_3d_object(in_data[4], in_data+5, data_length-3);
+					set_3d_object(in_data[4], in_data+5, data_length-5);
 					break;
 			}
 			break;
@@ -2053,10 +2053,10 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 			}
 			switch(in_data[3]){
 				case	0:	//2D
-					state_2d_object(in_data[4], in_data+5, data_length-3);
+					state_2d_object(in_data[4], in_data+5, data_length-5);
 					break;
 				case	1:	//3D
-					state_3d_object(in_data[4], in_data+5, data_length-3);
+					state_3d_object(in_data[4], in_data+5, data_length-5);
 					break;
 			}
 			break;
