@@ -2407,7 +2407,7 @@ void add_emote_to_actor(int actor_id, int emote_id)
 	actors_list = lock_and_get_actor_from_id(actor_id, &act);
 	if (!actors_list)
 	{
-		LOG_ERROR("%s (Emote) %d - NULL actor passed", cant_add_command, emote);
+		LOG_ERROR("%s (Emote) %d - NULL actor passed", cant_add_command, emote_id);
 	}
 	else
 	{

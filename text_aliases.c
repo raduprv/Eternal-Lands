@@ -313,7 +313,7 @@ static dbuffer_t *expand_alias_parameters( char *parameters, const char *aliaste
 
 	return_text = dbuffer_append_data(return_text, &nullchar, 1);
 
-	LOG_DEBUG("Finished, text is '%s', len %d\n", return_text->data, return_text->current_size);
+	LOG_DEBUG("Finished, text is '%s', len %zu\n", return_text->data, return_text->current_size);
 
 	LEAVE_DEBUG_MARK("expand text aliases");
 

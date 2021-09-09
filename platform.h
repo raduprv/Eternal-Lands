@@ -122,6 +122,12 @@
 #define UNUSED(x) x
 #endif // __GNUC__
 
+#if defined( __GNUC__) || defined(__clang__)
+#define FORMAT_PRINTF(fmt_idx, first_arg_idx) __attribute__ ((format (printf, fmt_idx, first_arg_idx)));
+#else // __GNU_C__ || __clang__
+#define FORMAT_PRINTF(fmt_idx, first_arg_idx)
+#endif // __GNUC__ || __clang__
+
 #ifdef EL_BIG_ENDIAN
  #define SwapLEFloat(X) SwapFloat(X)
 #else

@@ -453,7 +453,7 @@ CHECK_GL_ERRORS();
 			/* if the mouse is over the stat bar, draw the XP remaining */
 			if (stat_mouse_is_over == thestat)
 			{
-				safe_snprintf(str,sizeof(str),"%li",(*statsinfo[thestat].next_lev - *statsinfo[thestat].exp));
+				safe_snprintf(str, sizeof(str), "%i", (*statsinfo[thestat].next_lev - *statsinfo[thestat].exp));
 				draw_text(-hover_offset-tooltip_sep, y + side_stats_bar_height / 2,
 					(const unsigned char*)str, strlen(str), win->font_category, TDO_SHADOW, 1,
 					TDO_FOREGROUND, 1.0, 1.0, 1.0, TDO_BACKGROUND, 0.0, 0.0, 0.0,
