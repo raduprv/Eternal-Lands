@@ -61,6 +61,7 @@
 #include "new_actors.h"
 #include "openingwin.h"
 #include "particles.h"
+#include "platform.h"
 #include "questlog.h"
 #include "reflection.h"
 #include "rules.h"
@@ -230,7 +231,7 @@ static void load_cstate(void)
 		for(i = 0; i < ITEM_EDIT_QUANT; i++)
 		{
 			int curr_value;
-			safe_snprintf(str, sizeof(str), "%zu", i);
+			safe_snprintf(str, sizeof(str), "%" PRI_SIZET, i);
 			curr_value = json_cstate_get_int("quantities", str, -1);
 			if (curr_value != -1)
 			{
@@ -248,7 +249,7 @@ static void load_cstate(void)
 		int watch_this_stats[MAX_WATCH_STATS];
 		for(i = 0; i < MAX_WATCH_STATS; i++)
 		{
-			safe_snprintf(str, sizeof(str), "%zu", i);
+			safe_snprintf(str, sizeof(str), "%" PRI_SIZET, i);
 			watch_this_stats[i] = json_cstate_get_int("watched_stats", str, 0);
 		}
 		set_statsbar_watched_stats(watch_this_stats);
@@ -535,7 +536,7 @@ static void save_cstate(void)
 		char str[20];
 		for(i = 0; i < ITEM_EDIT_QUANT; i++)
 		{
-			safe_snprintf(str, sizeof(str), "%zu", i);
+			safe_snprintf(str, sizeof(str), "%" PRI_SIZET, i);
 			json_cstate_set_int("quantities", str, quantities.quantity[i].val);
 		}
 		json_cstate_set_int("quantities", "selected", (quantities.selected<ITEM_EDIT_QUANT) ?quantities.selected :0);
@@ -548,7 +549,7 @@ static void save_cstate(void)
 		get_statsbar_watched_stats(watch_this_stats);
 		for(i = 0; i < MAX_WATCH_STATS; i++)
 		{
-			safe_snprintf(str, sizeof(str), "%zu", i);
+			safe_snprintf(str, sizeof(str), "%" PRI_SIZET, i);
 			json_cstate_set_int("watched_stats", str, watch_this_stats[i]);
 		}
 		json_cstate_set_bool("watched_stats", "lock_selection", lock_skills_selection);

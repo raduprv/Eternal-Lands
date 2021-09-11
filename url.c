@@ -366,7 +366,7 @@ static int only_call_from_open_web_link__go_to_url(void * url)
 	init_thread_log("web_link");
 
 	// build the command line and execute it
-	safe_snprintf (browser_command, sizeof (browser_command), "%s \"%s\"", browser_name, url),
+	safe_snprintf (browser_command, sizeof (browser_command), "%s \"%s\"", browser_name, (char *)url),
 	system(browser_command);	// Do not use this command on UNIX.
 
 	// free the memory allocated in open_web_link()

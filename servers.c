@@ -9,6 +9,7 @@
 #include "gl_init.h"
 #include "misc.h"
 #include "multiplayer.h"
+#include "platform.h"
 #include "io/elpathwrapper.h"
 
 #define DEFAULT_SERVERS_SIZE 4
@@ -185,11 +186,11 @@ void load_server_list(const char *filename)
 	fclose(f);
 
 #ifdef USE_SSL
-	safe_snprintf(format, sizeof(format), "%%%zus %%%zus %%%zus %%u %%n%%%zus %%n",
+	safe_snprintf(format, sizeof(format), "%%%" PRI_SIZET "s %%%" PRI_SIZET "s %%%" PRI_SIZET "s %%u %%n%%%" PRI_SIZET "s %%n",
 		sizeof_field(server_def, id) - 1, sizeof_field(server_def, dir) - 1,
 		sizeof_field(server_def, address) - 1, sizeof(crypt) - 1);
 #else // USE_SSL
-	safe_snprintf(format, sizeof(format), "%%%zus %%%zus %%%zus %%u %%%zu[^\r\n]",
+	safe_snprintf(format, sizeof(format), "%%%" PRI_SIZET "s %%%" PRI_SIZET "s %%%" PRI_SIZET "s %%u %%%" PRI_SIZET "[^\r\n]",
 		sizeof_field(server_def, id) - 1, sizeof_field(server_def, dir) - 1,
 		sizeof_field(server_def, address) - 1, sizeof_field(server_def, desc) - 1);
 #endif // USE_SSL

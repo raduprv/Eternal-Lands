@@ -28,6 +28,7 @@
 #include "io/elpathwrapper.h"
 #include "init.h"
 #include "gl_init.h"
+#include "platform.h"
 #include "textures.h"
 
 namespace
@@ -133,7 +134,7 @@ FontOption::FontOption(size_t font_nr): _font_nr(font_nr), _file_name(), _file_b
 	if (font_nr > file_names.size())
 	{
 		_failed = true;
-		LOG_ERROR("Invalid font number %zu", font_nr);
+		LOG_ERROR("Invalid font number %" PRI_SIZET, font_nr);
 	}
 	else if (font_nr == 0)
 	{

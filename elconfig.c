@@ -61,6 +61,7 @@
  #include "openingwin.h"
  #include "particles.h"
  #include "password_manager.h"
+ #include "platform.h"
  #include "pm_log.h"
  #include "questlog.h"
  #include "reflection.h"
@@ -1815,7 +1816,7 @@ static int set_var_OPT_MULTI(const char *str, size_t new_value)
 		size_t max_sel = option->args.multi.count;
 		if (new_value >= max_sel)
 		{
-			LOG_ERROR("Invalid value '%lu' for var '%s', type 'OPT_MULTI*' max '%lu'", new_value, str, max_sel);
+			LOG_ERROR("Invalid value '%'" PRI_SIZET " for var '%s', type 'OPT_MULTI*' max '%" PRI_SIZET "'", new_value, str, max_sel);
 			return 0;
 		}
 		option->func(option->var, new_value);
