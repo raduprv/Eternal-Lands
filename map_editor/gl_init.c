@@ -107,9 +107,7 @@ void init_gl()
     if( SDL_Init(SDL_INIT_VIDEO) == -1 )
 #endif
         {
-            char str[120];
-            sprintf(str, "Couldn't initialize SDL: %s\n", SDL_GetError());
-            log_error(__FILE__, __LINE__, str);
+            log_error(__FILE__, __LINE__, "Couldn't initialize SDL: %s\n", SDL_GetError());
             SDL_Quit();
             exit(1);
         }
@@ -149,9 +147,7 @@ void init_gl()
 	
     if ( SDL_SetVideoMode( window_width, window_height, bpp, SDL_OPENGL|SDL_RESIZABLE) == NULL )
 	    {
-			char str[120];
-			sprintf(str, "Couldn't set GL mode: %s\n", SDL_GetError());
-			log_error(__FILE__, __LINE__, str);
+			log_error(__FILE__, __LINE__, "Couldn't set GL mode: %s\n", SDL_GetError());
 			SDL_Quit();
 			exit(1);
         }
