@@ -356,7 +356,7 @@ extern "C" void ec_idle()
 
 	const std::vector<std::string> ec_errors = ec::logger.fetch();
 	for (const auto& error: ec_errors)
-		LOG_ERROR(error.c_str());
+		LOG_ERROR("%s", error.c_str());
 
 	if (ec::get_error_status())
 	{

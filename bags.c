@@ -263,10 +263,8 @@ void add_bags_from_list (const Uint8 *data)
 
 		// Now, find a place into the bags list, so we can destroy the bag properly
 		if (bag_list[bag_id].obj_3d_id != -1) {
-			char buf[256];
 			// oops, slot already taken!
-			safe_snprintf(buf, sizeof(buf), "Oops, trying to add an existing bag! id=%d\n", bag_id);
-			LOG_ERROR(buf);
+			LOG_ERROR("Oops, trying to add an existing bag! id=%d\n", bag_id);
 			return;
 		}
 
