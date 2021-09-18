@@ -150,6 +150,8 @@ Valid client sound names (not case sensitive):
 	<variant>
 		<main_sound>sound/inventory02.ogg</main_sound>
 	</variant>
+	<positional>0</positional>
+	<loops>1</loops>
 	<distance>35</distance>
 	<priority>3</priority>
 	<type>warnings</type>
@@ -158,6 +160,8 @@ Valid client sound names (not case sensitive):
 	<variant>
 		<main_sound>sound/inventory07.ogg</main_sound>
 	</variant>
+	<positional>0</positional>
+	<loops>1</loops>
 	<distance>35</distance>
 	<priority>3</priority>
 	<type>warnings</type>
@@ -166,14 +170,38 @@ Valid client sound names (not case sensitive):
 	<variant>
 		<main_sound>sound/inventory03.ogg</main_sound>
 	</variant>
+	<positional>0</positional>
+	<loops>1</loops>
 	<distance>35</distance>
 	<priority>3</priority>
 	<type>warnings</type>
 </sound>
 <sound name = "alert4">
 	<variant>
-		<main_sound>sound/sheep.ogg</main_sound>
+		<main_sound>sound/inventory08.ogg</main_sound>
 	</variant>
+	<positional>0</positional>
+	<loops>1</loops>
+	<distance>35</distance>
+	<priority>3</priority>
+	<type>warnings</type>
+</sound>
+<sound name = "Death Male">
+	<variant>
+		<main_sound>sound/death01.ogg</main_sound>
+	</variant>
+	<positional>0</positional>
+	<loops>1</loops>
+	<distance>35</distance>
+	<priority>3</priority>
+	<type>warnings</type>
+</sound>
+<sound name = "Death Female">
+	<variant>
+		<main_sound>sound/death02.ogg</main_sound>
+	</variant>
+	<positional>0</positional>
+	<loops>1</loops>
 	<distance>35</distance>
 	<priority>3</priority>
 	<type>warnings</type>

@@ -17,6 +17,7 @@
 #include "main.h"
 #include "multiplayer.h"
 #include "pathfinder.h"
+#include "platform.h"
 #include "questlog.h"
 #include "sound.h"
 #include "text.h"
@@ -550,7 +551,7 @@ void Connection::process_incoming_data(queue_t *queue)
 		std::size_t size = _in_buffer[offset+1] + (_in_buffer[offset+2] << 8) + 2;
 		if (size > max_in_buffer_size)
 		{
-			LOG_ERROR("Packet overrun, protocol = %d, size = %u\n", _in_buffer[offset], size);
+			LOG_ERROR("Packet overrun, protocol = %d, size = %" PRI_SIZET "\n", _in_buffer[offset], size);
 			_in_buffer_used = 0;
 			disconnect_from_server(packet_overrun);
 			break;

@@ -23,7 +23,7 @@
 <colour name="popup.optiontext" r="0.6" g="0.3" b="1.0" a="1.0"/>
 <colour name="popup.optiontextmouseover" r="1.0" g="1.0" b="1.0" a="1.0"/>
 
-<colour name="banner.mana.full" r="0.3" g="0.3" b="1.0" a="1.0"/>
+<colour name="banner.mana.full" r="0.4" g="0.4" b="1.0" a="1.0"/>
 <colour name="banner.mana.zero" r="0.7" g="0.7" b="1.0" a="1.0"/>
 
 <!-- Alpha can be specified too

@@ -308,6 +308,8 @@ extern char
 		cmd_relogin[20],
 		cmd_disconnect[20],
 		cmd_disco[20],
+		cmd_summon_attack_short[10],
+		cmd_summon_attack[20],
 		help_cmd_markpos_str[50],
 		location_info_str[40],
 		knowledge_cmd_str[40],
@@ -360,6 +362,7 @@ extern char
 		messages_indicator_str[60],
 		ranginglock_indicator_str[70],
 		glowperk_indicator_str[100],
+		summon_attack_indicator_str[100],
 		/*ignore.c*/
 		no_ignores_str[50],
 		ignores_str[50],
@@ -593,7 +596,16 @@ extern char
 		item_list_find_help_str[40],
 		item_list_find_help_disabled_str[40],
 		/* new_character.c */
-		use_appropriate_name[500];
+		use_appropriate_name[500],
+		/* summoning attack command */
+		no_attack_str[50],
+		attack_my_opponent_str[50],
+		do_not_attack_my_opponent_str[50],
+		attack_only_summoned_str[50],
+		do_not_attack_summoned_str[50],
+		attack_at_will_str[50],
+		summon_attack_set_mode_str[50],
+		summon_attack_help_str[50];
 #endif  //DOXYGEN_SKIP_THIS
 #endif  //ELC
 

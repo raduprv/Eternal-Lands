@@ -437,9 +437,9 @@ void load_zip_archive(const char* file_name)
 	char* name;
 	Uint32 i, count, size, index;
 
-	if (file_name == 0)
+	if (!file_name || !*file_name)
 	{
-		LOG_ERROR("Empty zip file name", file_name);
+		LOG_ERROR("Empty zip file name");
 
 		return;
 	}

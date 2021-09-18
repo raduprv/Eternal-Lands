@@ -55,6 +55,10 @@ int command_ping(char *text, int len);
 
 void new_minute_console(void);
 
+int summon_attack_is_active(void);
+int summon_attack_is_unknown(void);
+void check_summon_attack_mode(unsigned char *buffer, size_t len);
+
 #ifdef __cplusplus
 } // extern "C"
 #endif

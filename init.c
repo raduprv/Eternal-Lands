@@ -64,6 +64,7 @@
 #include "new_actors.h"
 #include "openingwin.h"
 #include "particles.h"
+#include "platform.h"
 #include "questlog.h"
 #include "reflection.h"
 #include "rules.h"
@@ -181,9 +182,9 @@ static void read_config(void)
 		char err_stg[80];
 		safe_snprintf(err_stg, sizeof(err_stg), "Failure reading %s", ini_filename);
 		fprintf(stderr, "%s", err_stg);
-		LOG_ERROR(err_stg);
+		LOG_ERROR("%s", err_stg);
 		SDL_Quit ();
-		FATAL_ERROR_WINDOW(err_stg);
+		FATAL_ERROR_WINDOW("%s", err_stg);
 		exit (1);
 	}
 }
@@ -233,7 +234,7 @@ static void load_cstate(void)
 		for(i = 0; i < ITEM_EDIT_QUANT; i++)
 		{
 			int curr_value;
-			safe_snprintf(str, sizeof(str), "%d", i);
+			safe_snprintf(str, sizeof(str), "%" PRI_SIZET, i);
 			curr_value = json_cstate_get_int("quantities", str, -1);
 			if (curr_value != -1)
 			{
@@ -251,7 +252,7 @@ static void load_cstate(void)
 		int watch_this_stats[MAX_WATCH_STATS];
 		for(i = 0; i < MAX_WATCH_STATS; i++)
 		{
-			safe_snprintf(str, sizeof(str), "%d", i);
+			safe_snprintf(str, sizeof(str), "%" PRI_SIZET, i);
 			watch_this_stats[i] = json_cstate_get_int("watched_stats", str, 0);
 		}
 		set_statsbar_watched_stats(watch_this_stats);
@@ -545,7 +546,7 @@ static void save_cstate(void)
 		char str[20];
 		for(i = 0; i < ITEM_EDIT_QUANT; i++)
 		{
-			safe_snprintf(str, sizeof(str), "%d", i);
+			safe_snprintf(str, sizeof(str), "%" PRI_SIZET, i);
 			json_cstate_set_int("quantities", str, quantities.quantity[i].val);
 		}
 		json_cstate_set_int("quantities", "selected", (quantities.selected<ITEM_EDIT_QUANT) ?quantities.selected :0);
@@ -558,7 +559,7 @@ static void save_cstate(void)
 		get_statsbar_watched_stats(watch_this_stats);
 		for(i = 0; i < MAX_WATCH_STATS; i++)
 		{
-			safe_snprintf(str, sizeof(str), "%d", i);
+			safe_snprintf(str, sizeof(str), "%" PRI_SIZET, i);
 			json_cstate_set_int("watched_stats", str, watch_this_stats[i]);
 		}
 		json_cstate_set_bool("watched_stats", "lock_selection", lock_skills_selection);
@@ -865,7 +866,7 @@ void init_stuff(void)
 		LOG_ERROR("%s\n", fatal_data_error);
 		fprintf(stderr, "%s:%d: %s\n", __FILE__, __LINE__, fatal_data_error);
 		SDL_Quit();
-		FATAL_ERROR_WINDOW(fatal_data_error);
+		FATAL_ERROR_WINDOW("%s", fatal_data_error);
 		exit(1);
 	}
 	// Update values for multi-selects that weren't fully initialized yet
@@ -1029,7 +1030,7 @@ void init_stuff(void)
 		fprintf(stderr, "%s: %s\n", failed_sdl_net_init, SDLNet_GetError());
 		SDLNet_Quit();
 		SDL_Quit();
-		FATAL_ERROR_WINDOW(failed_sdl_net_init);
+		FATAL_ERROR_WINDOW("%s", failed_sdl_net_init);
 		exit(2);
 	}
 	update_loading_win(init_timers_str, 5);
@@ -1038,7 +1039,7 @@ void init_stuff(void)
 		LOG_ERROR("%s: %s\n", failed_sdl_timer_init, SDL_GetError());
 		fprintf(stderr, "%s: %s\n", failed_sdl_timer_init, SDL_GetError());
 		SDL_Quit();
-		FATAL_ERROR_WINDOW(failed_sdl_timer_init);
+		FATAL_ERROR_WINDOW("%s", failed_sdl_timer_init);
 	 	exit(1);
 	}
 	update_loading_win(load_encyc_str, 5);
@@ -1066,10 +1067,10 @@ void init_stuff(void)
 
 	have_rules=read_rules();
 	if(!have_rules){
-		LOG_ERROR(rules_not_found);
+		LOG_ERROR("%s", rules_not_found);
 		fprintf(stderr, "%s\n", rules_not_found);
 		SDL_Quit();
-		FATAL_ERROR_WINDOW(rules_not_found);
+		FATAL_ERROR_WINDOW("%s", rules_not_found);
 		exit(3);
 	}
 

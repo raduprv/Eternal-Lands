@@ -9,6 +9,7 @@
 #endif // OSX
 #include "elc_io.h"
 #include "../errors.h"
+#include "../platform.h"
 
 #define	BLOCK_SIZE	1024*1024
 
@@ -23,7 +24,7 @@ int read_and_check_elc_header(el_file_ptr file, const magic_number magic, versio
 	size = el_read(file, sizeof(elc_file_header), &header);
 	if (size != sizeof(elc_file_header)) 
 	{
-		LOG_ERROR("File '%s' too small! %d, %d", filename, size, sizeof(elc_file_header));
+		LOG_ERROR("File '%s' too small! %d, %" PRI_SIZET, filename, size, sizeof(elc_file_header));
 		return -1;
 	}
 
