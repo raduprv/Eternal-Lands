@@ -774,6 +774,7 @@ char	reg_error_str[15],
 	snd_media_ogg_info[50],
 	snd_media_ogg_info_noartist[50],
 	/*stats.c*/
+	totalxp_str[20],
 	stat_no_invalid[50],
 	/*timers.c*/
 	timer_lagging_behind[100],
@@ -1884,6 +1885,7 @@ void init_stats()
 	add_xml_identifier(stats_extra,"nexus",(char*)attributes.nexus,"Nexus",sizeof(attributes.nexus));
 	add_xml_identifier(stats_extra,"skills",(char*)attributes.skills,"Skills",sizeof(attributes.skills));
 	add_xml_identifier(stats_extra,"pickpoints",(char*)attributes.pickpoints,"Pickpoints",sizeof(attributes.pickpoints));
+	add_xml_identifier(stats_extra, "totalxp", totalxp_str, "Total", sizeof(totalxp_str));
 
 	add_xml_statid(base,"phy",&(attributes.phy),"Physique","phy");
 	add_xml_statid(base,"coo",&(attributes.coo),"Coordination","coo");
