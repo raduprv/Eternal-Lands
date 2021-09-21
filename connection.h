@@ -38,7 +38,7 @@ public:
 	}
 
 	//! Return whether the connection to the game server is currently broken
-	bool is_disconnected() const { return !_socket.is_connected(); }
+	bool is_disconnected() const { return !_socket.is_connected() && !_socket.in_tls_handshake(); }
 
 	/*!
 	 * \brief Set server to connect to
@@ -67,8 +67,24 @@ public:
 	 * Break the connection with the game server. and write a message to the text console.
 	 *
 	 * \param message The reason for the disconnect
+	 * \sa disconnect_from_server_locked
 	 */
-	void disconnect_from_server(const std::string& message);
+	void disconnect_from_server(const std::string& message)
+	{
+		std::lock_guard<std::mutex> guard(_out_mutex);
+		disconnect_from_server_locked(message);
+	}
+
+	/*!
+	 * \brief Start encrypting the connection
+	 *
+	 * If \a encrypt is \c true, Set up an encrypted connection with the server. This is done
+	 * after a LETS_ENCRYPT message has been sent to the server, and it responds with an affirmative
+	 * LETS_ENCRYPT reply. If the server does not support encryption, \a encrypt is \c false, and
+	 * the connection will be broken.
+	 * \param encrypt Whether the server supports encryption.
+	 */
+	void start_tls_handshake(bool encrypt);
 
 	void start_connection_test();
 	void check_connection_test();
@@ -88,6 +104,12 @@ public:
 	 * \return The number of bytes actually sent or buffered.
 	 */
 	std::size_t send(std::uint8_t cmd, const std::uint8_t* data, std::size_t len);
+	/*!
+	 * \brief Flush the output buffer
+	 *
+	 * Send all data in the output buffer to the server.
+	 * \sa flush_locked
+	 */
 	std::size_t flush()
 	{
 		std::lock_guard<std::mutex> guard(_out_mutex);
@@ -114,6 +136,8 @@ public:
 	void send_new_char(const std::string& username, const std::string& password,
 		std::uint8_t skin, std::uint8_t hair, std::uint8_t eyes, std::uint8_t shirt,
 		std::uint8_t pants, std::uint8_t boots, std::uint8_t head, std::uint8_t type);
+	//! Send a ping request to the server
+	void send_ping_request();
 
 	void clean_up()
 	{
@@ -127,6 +151,8 @@ private:
 	static const size_t max_out_buffer_size = 8192;
 	static const size_t max_in_buffer_size = 8192;
 	static const size_t max_cache_size = 256;
+	//! How long too wait for a response to an invitation to encrypt, in milliseconds
+	std::uint32_t lets_encrypt_timeout = 5000;
 
 	std::string _server_name;
 	unsigned short _server_port;
@@ -142,6 +168,10 @@ private:
 	std::array<std::uint8_t, max_in_buffer_size> _in_buffer;
 	size_t _in_buffer_used;
 
+	//! \c true when we are currently waiting for a response from the server to an encryption request
+	bool _awaiting_encrypt_response;
+	//! Time tick of when invitation to encrypt was sent
+	std::uint32_t _lets_encrypt_tick;
 	time_t _last_heart_beat;
 	std::uint32_t _last_sit_tick;
 	std::uint32_t _last_turn_tick;
@@ -150,13 +180,48 @@ private:
 	bool _invalid_version;
 	bool _previously_logged_in;
 
+	/*!
+	 * \brief Constructor
+	 *
+	 * Set up a new Connection object, that is not yet connected to a game server,
+	 * \sa set_server, connect_to_server
+	 */
 	Connection(): _server_name(), _server_port(2000), _encrypted(false), _socket(), _error_popup(),
 		_out_mutex(), _out_buffer(), _cache(), _in_buffer(), _in_buffer_used(0),
-		_last_heart_beat(0), _last_sit_tick(0), _last_turn_tick(0), _connection_test_tick(0),
+		_awaiting_encrypt_response(false),  _lets_encrypt_tick(0), _last_heart_beat(0),
+		_last_sit_tick(0), _last_turn_tick(0), _connection_test_tick(0),
 		_invalid_version(false), _previously_logged_in(false) {}
+	//! Destructor
 	~Connection() { clean_up(); }
 
-	std::size_t do_send_data(const std::uint8_t* data, size_t data_len);
+	/*!
+	 * \brief Disconnect from the server
+	 *
+	 * Break the connection with the game server. and write a message to the text console. The
+	 * output mutex must be locked by the caller.
+	 *
+	 * \param message The reason for the disconnect
+	 * \sa disconnect_from_server
+	 */
+	void disconnect_from_server_locked(const std::string& message);
+
+	/*!
+	 * \brief Actually send the data
+	 *
+	 * Send \a data_len bytes of data in \a data to the server. The output mutex must be locked
+	 * by the caller.
+	 * \param data     The data bytes to send
+	 * \param data_len The number of bytes in \a data to send
+	 * \return The number of bytes actuallt sent
+	 */
+	std::size_t send_data_locked(const std::uint8_t* data, size_t data_len);
+	/*!
+	 * \brief Flush the output buffer
+	 *
+	 * Send all data in the output buffer to the server. The output mutex must be locked by the
+	 * caller.
+	 * \sa flush
+	 */
 	std::size_t flush_locked();
 	void process_incoming_data(queue_t *queue);
 
@@ -165,6 +230,13 @@ private:
 
 	void close_after_invalid_certificate();
 	void finish_connect_to_server();
+	/*!
+	 * \brief Finish connecting to the server
+	 *
+	 * Finish connecting to the server after encryption was succesfully set up. Logs a message to
+	 * the console, then calls finish_connect_to_server().
+	 */
+	void finish_connect_to_server_encrypted();
 };
 
 } // namespace eternal_lands
@@ -177,6 +249,7 @@ extern "C"
 #endif
 
 int is_disconnected(void);
+void start_tls_handshake(int encrypt);
 void connection_set_server(const char* name, uint16_t port, int encrypted);
 void connect_to_server(void);
 void force_server_disconnect(const char *message);
@@ -189,6 +262,7 @@ void set_logged_in(int success);
 void send_new_char(const char* user_str, const char* pass_str, char skin, char hair, char eyes,
 	char shirt, char pants, char boots,char head, char type);
 void move_to (short int x, short int y, int try_pathfinder);
+void send_ping_request(void);
 void handle_encryption_invitation(void);
 int my_tcp_send(const Uint8* str, int len);
 int my_tcp_flush(void);

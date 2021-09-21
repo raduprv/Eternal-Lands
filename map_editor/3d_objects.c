@@ -226,9 +226,7 @@ int add_e3d_at_id (int id, char * file_name, float x_pos, float y_pos, float z_p
 	returned_e3d=load_e3d_cache(fname);
 	if(returned_e3d==NULL)
 	{
-		char str[200];
-		sprintf (str, "Error: Something nasty happened while trying to process: %s\n", fname);
-		LOG_ERROR(str);
+		LOG_ERROR("Error: Something nasty happened while trying to process: %s\n", fname);
 
     		//replace it with the null object, to avoid object IDs corruption
     		returned_e3d = load_e3d_cache ("./3dobjects/badobject.e3d");

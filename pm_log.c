@@ -207,7 +207,8 @@ void add_message_to_pm_log (char *message, int len, Uint8 channel)
 	
 	pm_log.afk_msgs[z].messages = realloc (pm_log.afk_msgs[z].messages, (pm_log.afk_msgs[z].msgs+1) * sizeof (char *));
 	// time name message
-	safe_snprintf (buf, sizeof(buf), "<%1d:%02d> %s: %.*s", real_game_minute/60, real_game_minute%60, last_msg_from, strlen(mymsg), mymsg);
+	safe_snprintf(buf, sizeof(buf), "<%1d:%02d> %s: %s", real_game_minute/60, real_game_minute%60,
+		last_msg_from, mymsg);
 	pm_log.afk_msgs[z].messages[pm_log.afk_msgs[z].msgs] = calloc (strlen (buf) + 1, sizeof (char));
 	safe_strncpy (pm_log.afk_msgs[z].messages[pm_log.afk_msgs[z].msgs], buf, (strlen(buf) + 1) * sizeof(char));
 	pm_log.afk_msgs[z].msgs++;

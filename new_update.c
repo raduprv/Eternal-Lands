@@ -1,4 +1,9 @@
 #include <zlib.h>
+#include <errno.h>
+#include <sys/file.h>
+#ifdef WINDOWS
+#include <sys/locking.h>
+#endif // WINDOWS
 #include <time.h>
 #include <SDL_net.h>
 #include <SDL_thread.h>
@@ -345,8 +350,7 @@ static int download_files_thread(void* _data)
 
 			len = strlen(info->file_name);
 
-			safe_snprintf(file_name, sizeof(file_name), "%s",
-				info->file_name);
+			safe_strncpy(file_name, info->file_name, sizeof(file_name));
 
 			if (has_suffix(file_name, len, ".xz", 3))
 			{
@@ -451,22 +455,8 @@ static Uint32 download_files(update_info_t* infos, const Uint32 count,
 {
 	char file_name[256];
 	download_files_thread_data_t thread_data;
-	FILE *file;
 	Uint64 len;
 	Uint32 i, j, download, error, index;
-
-#ifdef WINDOWS
-	file = my_tmpfile();
-#elif ANDROID
-	file = android_tmpfile();
-#else
-	file = tmpfile();
-#endif
-
-	if (file == 0)
-	{
-		return 1;
-	}
 
 	error = 0;
 
@@ -493,8 +483,7 @@ static Uint32 download_files(update_info_t* infos, const Uint32 count,
 
 		len = strlen(infos[i].file_name);
 
-		safe_snprintf(file_name, sizeof(file_name), "%s",
-			infos[i].file_name);
+		safe_strncpy(file_name, infos[i].file_name, sizeof(file_name));
 
 		if (has_suffix(file_name, len, ".xz", 3))
 		{
@@ -527,8 +516,6 @@ static Uint32 download_files(update_info_t* infos, const Uint32 count,
 	}
 
 	wait_for_threads(&thread_data, &error);
-
-	fclose(file);
 
 	return error;
 }
@@ -818,7 +805,7 @@ static Uint32 build_update_list(const char* server, const char* file,
 			" file '%s' from server '%s' using path '%s', error %d.",
 			file, server, path, result);
 
-		LOG_ERROR(error_str);
+		LOG_ERROR("%s", error_str);
 
 		update_progress_function(error_str, 0, 0, user_data);
 
@@ -848,7 +835,7 @@ static Uint32 build_update_list(const char* server, const char* file,
 			" file '%s' from server '%s' using path '%s' has wrong"
 			" magic number in first line.", file, server, path);
 
-		LOG_ERROR(error_str);
+		LOG_ERROR("%s", error_str);
 
 		update_progress_function(error_str, 0, 0, user_data);
 
@@ -863,9 +850,62 @@ static Uint32 build_update_list(const char* server, const char* file,
 	return 0;
 }
 
+typedef enum
+{
+	LOCK_OK,
+	LOCK_OPEN_FAILED,
+	LOCK_ALREADY_LOCKED,
+	LOCK_LOCK_FAILED
+} lock_file_result_t;
+
+lock_file_result_t lock_file(const char* file_name, int *fd)
+{
+	int res;
+
+	*fd = open(file_name, O_CREAT|O_RDWR, 0666);
+	if (*fd == -1)
+		return LOCK_OPEN_FAILED;
+
+	errno = 0;
+#ifdef WINDOWS
+	// Windows seems to be able to do lockf with a weird name
+	res = _locking(*fd, _LK_NBLCK, 1);
+#else // WINDOWS
+	res = flock(*fd, LOCK_EX|LOCK_NB);
+#endif // WINDOWS
+	if (res == -1)
+	{
+#ifdef WINDOWS
+		if (errno == EACCES)
+#else // WINDOWS
+		if (errno == EWOULDBLOCK)
+#endif // WINDOWS
+			return LOCK_ALREADY_LOCKED;
+		else
+			return LOCK_LOCK_FAILED;
+	}
+
+	return LOCK_OK;
+}
+
+void unlock_file(int fd)
+{
+	if (fd >= 0)
+	{
+#ifdef WINDOWS
+		_locking(fd, _LK_UNLCK, 1);
+#else // WINDOWS
+		flock(fd, LOCK_UN);
+#endif // WINDOWS
+	}
+}
+
 Uint32 update(const char* server, const char* file, const char* dir,
 	const char* zip, progress_fnc update_progress_function, void* user_data)
 {
+	char lock_file_name[1024];
+	int lock_fd;
+	lock_file_result_t lock_res;
 	char *tmp[MAX_OLD_UPDATE_FILES];
 	const size_t tmp_size = 1024;
 	char *path = NULL;
@@ -878,7 +918,16 @@ Uint32 update(const char* server, const char* file, const char* dir,
 	unzFile source_zips[MAX_OLD_UPDATE_FILES];
 	zipFile dest_zip;
 	update_info_t* infos;
-	Uint32 count, result, i;
+	Uint32 count, result, i, retval;
+
+	safe_snprintf(lock_file_name, sizeof(lock_file_name), "%s.lock", zip);
+	lock_res = lock_file(lock_file_name, &lock_fd);
+	if (lock_res != LOCK_OK)
+	{
+		// We can't obtain the lock file, either because an update is already running, or due
+		// to some error. Either way, bail out.
+		return 0;
+	}
 
 	path = (char*)calloc(sizeof(char), path_size);
 	safe_snprintf(path, path_size, "http://%s/%s/", server, dir);
@@ -891,7 +940,7 @@ Uint32 update(const char* server, const char* file, const char* dir,
 	{
 		tmp[i] = (char *)calloc(sizeof(char), tmp_size);
 
-		safe_snprintf(tmp[i], tmp_size, "%s%s%i", zip, ".t", i);
+		safe_snprintf(tmp[i], tmp_size, "%s.t%i", zip, i);
 	}
 
 	safe_snprintf(str, str_size, "Opening %s", zip);
@@ -915,17 +964,16 @@ Uint32 update(const char* server, const char* file, const char* dir,
 
 	if (result != 0)
 	{
-		free(path);
-		free(str);
-		free(etag);
-		for (i = 0; i < MAX_OLD_UPDATE_FILES; i++)
-			free(tmp[i]);
-
 		if (result == 1)
-			return 0;
-
-		free(infos);
-		return 3;
+		{
+			retval = 0;
+			goto clean_up_and_return;
+		}
+		else
+		{
+			retval = 3;
+			goto free_infos;
+		}
 	}
 
 	source_zips[0] = unzOpen64(zip);
@@ -963,16 +1011,10 @@ Uint32 update(const char* server, const char* file, const char* dir,
 			user_data);
 	}
 
-	free(infos);
-
 	if (result != 0)
 	{
-		free(path);
-		free(str);
-		free(etag);
-		for (i = 0; i < MAX_OLD_UPDATE_FILES; i++)
-			free(tmp[i]);
-		return result;
+		retval = result;
+		goto free_infos;
 	}
 
 	unload_zip_archive(zip);
@@ -987,12 +1029,18 @@ Uint32 update(const char* server, const char* file, const char* dir,
 
 	update_progress_function("Update complete", 0, 0, user_data);
 
+	retval = 0;
+
+free_infos:
+	free(infos);
+clean_up_and_return:
+	unlock_file(lock_fd);
 	free(path);
 	free(str);
 	free(etag);
 	for (i = 0; i < MAX_OLD_UPDATE_FILES; i++)
 		free(tmp[i]);
 
-	return 0;
+	return retval;
 }
 

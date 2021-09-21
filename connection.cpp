@@ -17,6 +17,7 @@
 #include "main.h"
 #include "multiplayer.h"
 #include "pathfinder.h"
+#include "platform.h"
 #include "questlog.h"
 #include "sound.h"
 #include "text.h"
@@ -46,9 +47,11 @@ void Connection::connect_to_server()
 	draw_scene();	// update the screen
 
 	_socket.close();
+	_out_buffer.clear();
+	_awaiting_encrypt_response = false;
 	try
 	{
-		_socket.connect(_server_name, _server_port, _encrypted);
+		_socket.connect(_server_name, _server_port);
 	}
 	catch (const ResolutionFailure&)
 	{
@@ -63,6 +66,67 @@ void Connection::connect_to_server()
 		LOG_TO_CONSOLE(c_red1, alt_x_quit);
 		do_disconnect_sound();
 		return;
+	}
+
+	if (_encrypted)
+	{
+		send(LETS_ENCRYPT);
+		std::lock_guard<std::mutex> guard(_out_mutex);
+		flush_locked();
+		_awaiting_encrypt_response = true;
+		_lets_encrypt_tick = SDL_GetTicks();
+	}
+	else
+	{
+		finish_connect_to_server();
+	}
+}
+
+void Connection::start_tls_handshake(bool encrypt)
+{
+	if (!_awaiting_encrypt_response)
+		// Huh? We're not waiting for an encryption response.
+		return;
+
+	if (!encrypt)
+	{
+		// Server apparently doesn't support encryption
+		disconnect_from_server(no_encryption_support_str);
+		_awaiting_encrypt_response = false;
+		_lets_encrypt_tick = 0;
+		return;
+	}
+
+	bool do_finish = false;
+	try
+	{
+		_socket.encrypt(_server_name);
+		do_finish = true;
+	}
+	catch (const HostnameMismatch& err)
+	{
+		std::uint8_t warning_text[1024];
+		safe_snprintf(reinterpret_cast<char*>(warning_text), sizeof(warning_text),
+			reinterpret_cast<const char*>(hostname_mismatch_str),
+			err.server_name.c_str(), err.certificate_name.c_str(), close_connection_str, continue_str);
+		ustring popup_text = to_color_char(c_red1)
+			+ ustring(reinterpret_cast<const std::uint8_t*>(warning_str))
+			+ reinterpret_cast<const std::uint8_t*>("\n\n")
+			+ to_color_char(c_grey1)
+			+ warning_text;
+
+		_error_popup.reset(new TextPopup("Hostname mismatch", popup_text));
+		_error_popup->set_max_width(80 * FontManager::get_instance().average_width_spacing(CHAT_FONT, 1.0))
+			.add_button(close_connection_str, [this] {
+				_error_popup->hide();
+				close_after_invalid_certificate(); return 1;
+			})
+			.add_button(continue_str, [this] {
+				_error_popup->hide();
+				_socket.accept_certificate();
+				finish_connect_to_server_encrypted();
+				return 1;
+			});
 	}
 	catch (const InvalidCertificate&)
 	{
@@ -85,20 +149,27 @@ void Connection::connect_to_server()
 			.add_button(continue_str, [this] {
 				_error_popup->hide();
 				_socket.accept_certificate();
-				finish_connect_to_server();
+				finish_connect_to_server_encrypted();
 				return 1;
 			});
-		return;
 	}
 	catch (const EncryptError& err)
 	{
-		LOG_ERROR("Failed to set up an encrypted connection: %s", err.what());
-		LOG_TO_CONSOLE(c_red1, "Failed to set up an encrypted connection");
+		LOG_ERROR("%s: %s", encryption_failed_str, err.what());
+		LOG_TO_CONSOLE(c_red1, encryption_failed_str);
 		_socket.close();
 		do_disconnect_sound();
-		return;
 	}
 
+	_awaiting_encrypt_response = false;
+	_lets_encrypt_tick = 0;
+	if (do_finish)
+		finish_connect_to_server_encrypted();
+}
+
+void Connection::finish_connect_to_server_encrypted()
+{
+	LOG_TO_CONSOLE(c_green1, now_encrypted_str);
 	finish_connect_to_server();
 }
 
@@ -107,6 +178,13 @@ void Connection::finish_connect_to_server()
 	have_storage_list = 0; // With a reconnect, our cached copy of what's in storage may no longer be accurate
 
 	send_version();
+
+#ifdef PACKET_COMPRESSION
+	// Send an empty OL_COMPRESSED_PACKET mesage to the server. When connected to a proxy (or
+	// the Other Life server) this will enable compression when a lot of data is sent at once.
+	std::uint8_t data = 0;
+	send(OL_COMPRESSED_PACKET, &data, 1);
+#endif
 
 	//ask for the opening screen
 	if (!_previously_logged_in)
@@ -134,14 +212,13 @@ void Connection::finish_connect_to_server()
 
 void Connection::close_after_invalid_certificate()
 {
-	_socket.close();
-	LOG_TO_CONSOLE(c_red1, "The server certificate could not be verified.");
+	LOG_TO_CONSOLE(c_red1, cert_verification_err_str);
 	LOG_TO_CONSOLE(c_red1, alt_x_quit);
 	_socket.close();
 	do_disconnect_sound();
 }
 
-void Connection::disconnect_from_server(const std::string& message)
+void Connection::disconnect_from_server_locked(const std::string& message)
 {
 	if (is_disconnected())
 		return;
@@ -161,7 +238,6 @@ void Connection::disconnect_from_server(const std::string& message)
 	if (login_root_win >= 0)
 		set_login_error(disconnected_from_server, strlen(disconnected_from_server), 1);
 
-	std::lock_guard<std::mutex> guard(_out_mutex);
 	_socket.close();
 }
 
@@ -277,7 +353,7 @@ std::size_t Connection::send(std::uint8_t cmd, const std::uint8_t *data, std::si
 	msg.push_back(std::uint8_t(tot_len & 0xff));
 	msg.push_back(std::uint8_t(tot_len >> 8));
 	msg.insert(msg.end(), data, data + data_len);
-	return do_send_data(msg.data(), msg.size());
+	return send_data_locked(msg.data(), msg.size());
 }
 
 std::size_t Connection::flush_locked()
@@ -291,8 +367,18 @@ std::size_t Connection::flush_locked()
 // 		send_heart_beat();
 
 	// send all the data in the buffer
-	size_t nr_bytes_sent = do_send_data(_out_buffer.data(), _out_buffer.size());
-	_out_buffer.clear();
+	size_t nr_bytes_sent = send_data_locked(_out_buffer.data(), _out_buffer.size());
+	if (nr_bytes_sent == _out_buffer.size())
+	{
+		_out_buffer.clear();
+	}
+	else if (nr_bytes_sent > 0)
+	{
+		std::size_t n = _out_buffer.size() - nr_bytes_sent;
+		std::copy(_out_buffer.begin() + nr_bytes_sent, _out_buffer.end(), _out_buffer.begin());
+		_out_buffer.resize(n);
+	}
+
 	_cache.clear();
 
 	return nr_bytes_sent;
@@ -376,6 +462,11 @@ void Connection::send_new_char(const std::string& username, const std::string& p
 	flush();    // make sure tcp output buffer is empty
 }
 
+void Connection::send_ping_request()
+{
+	send(PING_REQUEST);
+}
+
 void Connection::send_version()
 {
 	const IPAddress& server_address = _socket.peer_address();
@@ -405,8 +496,21 @@ void Connection::send_version()
 	send(SEND_VERSION, data, len);
 }
 
-std::size_t Connection::do_send_data(const std::uint8_t* data, size_t data_len)
+std::size_t Connection::send_data_locked(const std::uint8_t* data, size_t data_len)
 {
+	if (_awaiting_encrypt_response)
+	{
+		if (SDL_GetTicks() - _lets_encrypt_tick > lets_encrypt_timeout)
+		{
+			// We really want to send some data now, but we've requested encryption from the
+			// server without a response. Looks like encryption is not going to happen, but since
+			// it's part of the server profile, give up without giving the user the option to
+			// continue unencrypted.
+			disconnect_from_server_locked(no_encryption_response_str);
+		}
+		return 0;
+	}
+
 #ifdef	OLC
 	// FIXME: olc_tcp_send expects an SDL socket, which we got rid of.
 	ssize_t nr_bytes_sent = olc_tcp_send(my_socket, tcp_out_data, tcp_out_loc);
@@ -420,6 +524,11 @@ std::size_t Connection::do_send_data(const std::uint8_t* data, size_t data_len)
 	{
 		return _socket.send(data, data_len);
 	}
+	catch (const InTlsHandshake&)
+	{
+		// Currently performing TLS handshake, wait for it to finish before we can send data
+		return 0;
+	}
 	catch (const NotConnected&)
 	{
 		// shouldn't happen
@@ -428,7 +537,7 @@ std::size_t Connection::do_send_data(const std::uint8_t* data, size_t data_len)
 	catch (const SendError& err)
 	{
 		LOG_ERROR("Send failure: %s", err.what());
-		disconnect_from_server("Failed to send data to the server");
+		disconnect_from_server(send_failed_str);
 		return 0;
 	}
 #endif	//OLC
@@ -442,7 +551,7 @@ void Connection::process_incoming_data(queue_t *queue)
 		std::size_t size = _in_buffer[offset+1] + (_in_buffer[offset+2] << 8) + 2;
 		if (size > max_in_buffer_size)
 		{
-			LOG_ERROR("Packet overrun, protocol = %d, size = %u\n", _in_buffer[offset], size);
+			LOG_ERROR("Packet overrun, protocol = %d, size = %" PRI_SIZET "\n", _in_buffer[offset], size);
 			_in_buffer_used = 0;
 			disconnect_from_server(packet_overrun);
 			break;
@@ -493,6 +602,11 @@ void Connection::receive(queue_t *queue, int *done)
 				process_incoming_data(queue);
 			}
 		}
+		catch (const InTlsHandshake&)
+		{
+			// Currently in the middle of a TLS handshake, wait for it to finish before reding data
+			continue;
+		}
 		catch (const NotConnected&)
 		{
 			// Shouldn't happen
@@ -526,6 +640,11 @@ using namespace eternal_lands;
 extern "C" int is_disconnected()
 {
 	return Connection::get_instance().is_disconnected();
+}
+
+extern "C" void start_tls_handshake(int encrypt)
+{
+	Connection::get_instance().start_tls_handshake(encrypt);
 }
 
 extern "C" void connection_set_server(const char* name, std::uint16_t port, int encrypted)
@@ -581,6 +700,11 @@ extern "C" void send_new_char(const char* user_str, const char* pass_str, char s
 {
 	Connection::get_instance().send_new_char(user_str, pass_str, skin, hair, eyes, shirt, pants,
 		boots, head, type);
+}
+
+extern "C" void send_ping_request()
+{
+	Connection::get_instance().send_ping_request();
 }
 
 extern "C" void move_to(short int x, short int y, int try_pathfinder)

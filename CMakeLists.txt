@@ -37,6 +37,7 @@ OPTION(MARCHNATIVE "Enable -march=native compiler flag, for when not building a 
 OPTION(ADDRSANITISER "Enable the gcc address sanitisation options to do run-time checking." Off)
 OPTION(TTF "Add the ability to use True Type system fonts." On)
 OPTION(USE_SSL "Encrypt the traffic with the server." On)
+OPTION(PACKET_COMPRESSION "Add support for compressed data packets from the proxy server" On)
 
 # standard options
 add_definitions(
@@ -236,7 +237,12 @@ endif()
 
 if (USE_SSL)
 	add_definitions(-DUSE_SSL)
-	set(SOURCES ${SOURCES} ${SD}connection.cpp cppwindows.cpp ipaddress.cpp socket.cpp textpopup.cpp)
+	set(SOURCES ${SOURCES} ${SD}connection.cpp ${SD}cppwindows.cpp ${SD}ipaddress.cpp ${SD}socket.cpp ${SD}textpopup.cpp)
+endif()
+
+if (PACKET_COMPRESSION)
+	add_definitions(-DPACKET_COMPRESSION)
+	set(SOURCES ${SOURCES} ${SD}ext_protocol_shared.c)
 endif()
 
 # set the compiler flags for DEBUG and RELEASE builds

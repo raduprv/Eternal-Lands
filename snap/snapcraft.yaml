@@ -29,7 +29,7 @@ parts:
     source-type: git
     # Include for stable release, comment out for dev build, comment out for latest commit dev release
     #source-tag: 1.9.5.9-1
-    build-packages: [build-essential, libcal3d12-dev, libsdl2-image-dev, libsdl2-net-dev, libsdl2-ttf-dev, libxml2-dev, libopenal-dev, libvorbis-dev, libpng-dev]
+    build-packages: [build-essential, libcal3d12-dev, libsdl2-image-dev, libsdl2-net-dev, libsdl2-ttf-dev, libxml2-dev, libopenal-dev, libvorbis-dev, libpng-dev, libssl-dev]
     plugin: cmake
     # Add -DVERSION_PREFIX=x.y.z for dev build, remove for release
     cmake-parameters:  ["-DCMAKE_BUILD_TYPE=release", "-DEXEC=el.linux.bin", "-DVERSION_PREFIX=1.9.5", "-DLOCAL_NLOHMANN_JSON=On", "-DCMAKE_INSTALL_PREFIX=/" ]
@@ -47,6 +47,7 @@ parts:
       - libxrandr2
       - zlib1g
       - libpng16-16
+      - libssl1.1
       - libegl1-mesa
       - libglu1-mesa
       - libgl1-mesa-dri

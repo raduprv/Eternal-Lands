@@ -60,7 +60,7 @@ void set_log_level(const LogLevelType log_level);
  * @param line Line of the error.
  * @param message Error message.
  */
-void log_error(const char* file, const Uint32 line, const char* message, ...);
+void log_error(const char* file, const Uint32 line, const char* message, ...) FORMAT_PRINTF(3, 4);
 
 /**
  * @ingroup logging
@@ -70,7 +70,7 @@ void log_error(const char* file, const Uint32 line, const char* message, ...);
  * @param line Line of the error.
  * @param message Error message.
  */
-void fatal_error_window(const char* file, const Uint32 line, const char* message, ...);
+void fatal_error_window(const char* file, const Uint32 line, const char* message, ...) FORMAT_PRINTF(3, 4);
 
 /**
  * @ingroup logging
@@ -80,7 +80,7 @@ void fatal_error_window(const char* file, const Uint32 line, const char* message
  * @param line Line of the warning.
  * @param message Warning message.
  */
-void log_warning(const char* file, const Uint32 line, const char* message, ...);
+void log_warning(const char* file, const Uint32 line, const char* message, ...) FORMAT_PRINTF(3, 4);
 
 /**
  * @ingroup logging
@@ -90,7 +90,7 @@ void log_warning(const char* file, const Uint32 line, const char* message, ...);
  * @param line Line of the info.
  * @param message Info message.
  */
-void log_info(const char* file, const Uint32 line, const char* message, ...);
+void log_info(const char* file, const Uint32 line, const char* message, ...) FORMAT_PRINTF(3, 4);
 
 /**
  * @ingroup logging
@@ -100,7 +100,7 @@ void log_info(const char* file, const Uint32 line, const char* message, ...);
  * @param line Line of the debug message.
  * @param message Debug message.
  */
-void log_debug(const char* file, const Uint32 line, const char* message, ...);
+void log_debug(const char* file, const Uint32 line, const char* message, ...) FORMAT_PRINTF(3, 4);
 
 /**
  * @ingroup logging
@@ -111,7 +111,7 @@ void log_debug(const char* file, const Uint32 line, const char* message, ...);
  * @param message Debug verbose message.
  */
 void log_debug_verbose(const char* file, const Uint32 line,
-	const char* message, ...);
+	const char* message, ...) FORMAT_PRINTF(3, 4);
 
 /**
  * @ingroup logging

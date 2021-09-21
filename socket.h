@@ -50,6 +50,11 @@ struct NotConnected: public TCPSocketError
 {
 	NotConnected(): TCPSocketError("Not connected") {}
 };
+//! Error thrown when trying to send or receive in the middle of a TLS handshake
+struct InTlsHandshake: public TCPSocketError
+{
+	InTlsHandshake(): TCPSocketError("In TLS handshake process") {}
+};
 //! Error thrown when sending data over the network fails
 struct SendError: public TCPSocketError
 {
@@ -78,7 +83,17 @@ struct EncryptError: public TCPSocketError
 //! Error thrown when the certificate presented by the server cannot be validated.
 struct InvalidCertificate: public EncryptError
 {
-	InvalidCertificate(): EncryptError("Invalid server certificate") {}
+	InvalidCertificate(const std::string& err_msg): EncryptError(err_msg) {}
+};
+//! Error thrown when the host name of the game server does not match the server certificate
+struct HostnameMismatch: public InvalidCertificate
+{
+	HostnameMismatch(const std::string& serv_name, const std::string& cert_name):
+		InvalidCertificate("The host name of the game server does not match the certificate"),
+		server_name(serv_name), certificate_name(cert_name) {}
+
+	std::string server_name;
+	std::string certificate_name;
 };
 
 /*!
@@ -112,19 +127,19 @@ public:
 	bool is_connected() const { return _state == State::CONNECTED_UNENCRYPTED || _state == State::CONNECTED_ENCRYPTED; }
 	//! Return whether the connection to the server is encrypted
 	bool is_encrypted() const { return _state == State::CONNECTED_ENCRYPTED; }
+	//! Return whether the connection is in the process of performing the TLS handshake
+	bool in_tls_handshake() const { return _state == State::CONNECTED_INITIALIZING_ENCRYPTION; }
 	//! Return the IP address of the server this socket is connected to
 	const IPAddress& peer_address() const { return _peer; }
 
 	/*!
 	 * \brief Connect to the server
 	 *
-	 * Connect to the server with host name \a address on port \a port. If \a do_encrypt is \c true,
-	 * the connection will be encrypted using TLS.
-	 * \param address    The host name or IP address of the server
+	 * Connect to the server with host name \a hostname on port \a port.
+	 * \param hostanem   The host name or IP address of the server
 	 * \param port       The port number to connect to
-	 * \param do_encrypt Whether to encrypt the connection
 	 */
-	void connect(const std::string& address, std::uint16_t port, bool do_encrypt);
+	void connect(const std::string& hostname, std::uint16_t port);
 	/*!
 	 * \brief Close the connection
 	 *
@@ -136,6 +151,17 @@ public:
 		std::lock_guard<std::mutex> guard(_ssl_mutex);
 		close_locked();
 	}
+
+	/*!
+	 * \brief Encrypt the connection
+	 *
+	 * Set up encryption on the connection to the server. The host name \a hostname of the
+	 * selected game server must match the common name in the security certificate sent by the
+	 * server connected to.
+	 *
+	 * \param hostname The host name of the selected game server
+	 */
+	void encrypt(const std::string& hostname);
 
 	/*!
 	 * \brief Send data to the server
@@ -224,6 +250,8 @@ private:
 	{
 		//! Not connected to the server
 		NOT_CONNECTED,
+		//! Connected to the server, in the process of setting up encryption
+		CONNECTED_INITIALIZING_ENCRYPTION,
 		//! Connected to the server on an unencrypted connection
 		CONNECTED_UNENCRYPTED,
 		//! Connected to the server, and encrypted, but the certifcate could not be verified
@@ -274,12 +302,6 @@ private:
 	 * The SSL mutex must be locked when calling this function.
 	 */
 	void close_locked();
-	/*!
-	 * \brief Encrypt the connection
-	 *
-	 * Set up encryption on the connection to the server.
-	 */
-	void encrypt();
 
 	/*!
 	 * \brief Check an SSL error

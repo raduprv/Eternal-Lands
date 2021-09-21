@@ -1,6 +1,9 @@
 #ifdef USE_SSL
 
 #include <cstring>
+#ifdef ANDROID
+#include <fstream>
+#endif
 #ifdef WINDOWS
 #define SHUT_RDWR SD_BOTH
 #else // WINDOWS
@@ -8,12 +11,17 @@
 #include <netinet/tcp.h>
 #endif // WINDOWS
 #include <openssl/err.h>
+#include <openssl/x509v3.h>
 #include <unistd.h>
+#include "client_serv.h"
 #include "socket.h"
 #include "elloggingwrapper.h"
 #include "init.h"
 #include "io/elpathwrapper.h"
 #include "ipaddress.h"
+#ifdef ANDROID
+#include "io/elfilewrapper.h"
+#endif
 
 namespace eternal_lands
 {
@@ -56,7 +64,7 @@ void TCPSocket::clean_up()
 	}
 }
 
-void TCPSocket::connect(const std::string& address, std::uint16_t port, bool do_encrypt)
+void TCPSocket::connect(const std::string& hostname, std::uint16_t port)
 {
 	if (_fd != INVALID_SOCKET)
 		close();
@@ -67,9 +75,9 @@ void TCPSocket::connect(const std::string& address, std::uint16_t port, bool do_
 	hints.ai_family = AF_UNSPEC;
 	hints.ai_socktype = SOCK_STREAM;
 	struct addrinfo *all_info;
-	int res = getaddrinfo(address.c_str(), service.c_str(), &hints, &all_info);
+	int res = getaddrinfo(hostname.c_str(), service.c_str(), &hints, &all_info);
 	if (res)
-		throw ResolutionFailure(address);
+		throw ResolutionFailure(hostname);
 
 	for (struct addrinfo *info = all_info; info; info = info->ai_next)
 	{
@@ -99,17 +107,14 @@ void TCPSocket::connect(const std::string& address, std::uint16_t port, bool do_
 	freeaddrinfo(all_info);
 
 	if (_fd == INVALID_SOCKET)
-		throw ConnectionFailure(address);
+		throw ConnectionFailure(hostname);
 
 	// Disable Nagle's algorithm
 	set_no_delay();
 	// Make client sockets blocking by default.
 	set_blocking(true);
 
-	if (do_encrypt)
-		encrypt();
-	else
-		_state = State::CONNECTED_UNENCRYPTED;
+	_state = State::CONNECTED_UNENCRYPTED;
 }
 
 void TCPSocket::close_locked()
@@ -133,8 +138,10 @@ void TCPSocket::close_locked()
 		shutdown(_fd, SHUT_RDWR);
 		::close(_fd);
 		_fd = INVALID_SOCKET;
-		_state = State::NOT_CONNECTED;
+		_peer = IPAddress();
 	}
+
+	_state = State::NOT_CONNECTED;
 }
 
 const char* TCPSocket::check_ssl_error_locked(int ret, int errno_val)
@@ -165,19 +172,35 @@ const char* TCPSocket::check_ssl_error_locked(int ret, int errno_val)
 size_t TCPSocket::send(const std::uint8_t* data, size_t data_len)
 {
 	if (!is_connected())
-		throw NotConnected();
+	{
+		if (in_tls_handshake())
+			throw InTlsHandshake();
+		else
+			throw NotConnected();
+	}
 
 	size_t nr_bytes_sent = 0;
 	if (is_encrypted())
 	{
 		std::lock_guard<std::mutex> guard(_ssl_mutex);
 		ERR_clear_error();
+// OpenSSL prior to 1.1.1 does not have SSL_write_ex()
+#if OPENSSL_VERSION_NUMBER >= 0x1010100f
 		int ret = SSL_write_ex(_ssl, data, data_len, &nr_bytes_sent);
 		if (!ret)
 		{
 			const char* err_msg = check_ssl_error_locked(ret, errno);
 			throw SendError(err_msg);
 		}
+#else // OpenSSL >= 1.1.1
+		int ret = SSL_write(_ssl, data, data_len);
+		if (ret <= 0)
+		{
+			const char* err_msg = check_ssl_error_locked(ret, errno);
+			throw SendError(err_msg);
+		}
+		nr_bytes_sent = ret;
+#endif // OpenSSL >= 1.1.1
 	}
 	else
 	{
@@ -208,7 +231,7 @@ size_t TCPSocket::send(const std::uint8_t* data, size_t data_len)
 
 bool TCPSocket::wait_incoming(int timeout_ms)
 {
-	if (!is_connected())
+	if (!is_connected() && !in_tls_handshake())
 		throw NotConnected();
 
 	struct timeval select_timeout;
@@ -235,13 +258,20 @@ bool TCPSocket::wait_incoming(int timeout_ms)
 size_t TCPSocket::receive_or_peek(std::uint8_t* buffer, size_t max_len, bool peek)
 {
 	if (!is_connected())
-		throw NotConnected();
+	{
+		if (in_tls_handshake())
+			throw InTlsHandshake();
+		else
+			throw NotConnected();
+	}
 
 	if (is_encrypted())
 	{
 		std::lock_guard<std::mutex> guard(_ssl_mutex);
-		size_t nr_bytes;
 		ERR_clear_error();
+// OpenSSL prior to 1.1.1 does not have SSL_read_ex()
+#if OPENSSL_VERSION_NUMBER >= 0x1010100f
+		size_t nr_bytes;
 		int ret = SSL_read_ex(_ssl, buffer, max_len, &nr_bytes);
 		if (!ret)
 		{
@@ -249,6 +279,15 @@ size_t TCPSocket::receive_or_peek(std::uint8_t* buffer, size_t max_len, bool pee
 			throw ReceiveError(err_msg);
 		}
 		return nr_bytes;
+#else // OpenSSL >= 1.1.1
+		int ret = SSL_read(_ssl, buffer, max_len);
+		if (ret <= 0)
+		{
+			const char* err_msg = check_ssl_error_locked(ret, errno);
+			throw ReceiveError(err_msg);
+		}
+		return ret;
+#endif // OpenSSL >= 1.1.1
 	}
 	else
 	{
@@ -316,7 +355,7 @@ void TCPSocket::set_no_delay()
 	}
 }
 
-void TCPSocket::encrypt()
+void TCPSocket::encrypt(const std::string& hostname)
 {
 	if (is_encrypted())
 		return;
@@ -331,6 +370,22 @@ void TCPSocket::encrypt()
 			unsigned long err = ERR_get_error();
 			throw EncryptError(ERR_reason_error_string(err));
 		}
+
+#ifdef ANDROID
+		{
+			// Make sure to unpack the certificates from the assest file by calling do_file_exists()
+			char tmp_str[256];
+			std::string list_filename("certs.txt");
+			std::string full_path = std::string(datadir) + list_filename;
+			if (do_file_exists(list_filename.c_str(), datadir, sizeof(tmp_str), tmp_str))
+			{
+				std::string line;
+				std::ifstream file(full_path.c_str());
+				while (std::getline(file, line))
+					do_file_exists(line.c_str(), datadir, sizeof(tmp_str), tmp_str);
+			}
+		}
+#endif
 
 		// Load certificates from the game data directory, as well as the user's configuration directory
 		std::string dir_names[] = {
@@ -369,7 +424,18 @@ void TCPSocket::encrypt()
 			unsigned long err = ERR_get_error();
 			throw EncryptError(ERR_reason_error_string(err));
 		}
+
+		SSL_set_hostflags(_ssl, X509_CHECK_FLAG_NO_PARTIAL_WILDCARDS);
 	}
+
+	if (!SSL_set1_host(_ssl, hostname.c_str()))
+	{
+		unsigned long err = ERR_get_error();
+		throw EncryptError(std::string("Failed to set host name for verification: ") + ERR_reason_error_string(err));
+	}
+
+	// Until the TLS handshake finishes, stop users from sending or receiving on this socket
+	_state = State::CONNECTED_INITIALIZING_ENCRYPTION;
 
 	ERR_clear_error();
 	if (!SSL_set_fd(_ssl, _fd))
@@ -387,12 +453,43 @@ void TCPSocket::encrypt()
 		throw EncryptError(msg);
 	}
 
-	if (SSL_get_verify_result(_ssl) != X509_V_OK // Invalid certificate
-		|| !SSL_get_peer_certificate(_ssl))      // No server certificate at all
+	X509* cert = SSL_get_peer_certificate(_ssl);
+	if (!cert)
+	{
+		LOG_ERROR("The server did not present an encryption certificate");
+		_state = State::CONNECTED_CERTIFICATE_FAIL;
+		throw InvalidCertificate("No certificate sent by server");
+	}
+
+	long res = SSL_get_verify_result(_ssl);
+	if (res != X509_V_OK)
 	{
 		_state = State::CONNECTED_CERTIFICATE_FAIL;
-		throw InvalidCertificate();
+		switch (res)
+		{
+			case X509_V_ERR_HOSTNAME_MISMATCH:
+			{
+				// Mingw-w64 manages to confuse itself on the X509_NAME typedef somehow
+				//X509_NAME* name = X509_get_subject_name(cert);
+				struct X509_name_st* name = X509_get_subject_name(cert);
+				int loc = X509_NAME_get_index_by_NID(name, NID_commonName, -1);
+				if (loc < 0)
+					throw HostnameMismatch(hostname, "<unknown>");
+				X509_NAME_ENTRY *entry = X509_NAME_get_entry(name, loc);
+				if (!entry)
+					throw HostnameMismatch(hostname, "<unknown>");
+				ASN1_STRING *cn = X509_NAME_ENTRY_get_data(entry);
+				throw HostnameMismatch(hostname, reinterpret_cast<const char*>(ASN1_STRING_get0_data(cn)));
+			}
+			default:
+				throw InvalidCertificate("The server certificate could not be verified");
+		}
 	}
+
+	const char* version = SSL_get_version(_ssl);
+	const char* cipher = SSL_get_cipher(_ssl);
+	LOG_INFO("Set up an encrypted connection to server %s using %s with %s cipher\n",
+		hostname.c_str(), version, cipher);
 
 	_state = State::CONNECTED_ENCRYPTED;
 }

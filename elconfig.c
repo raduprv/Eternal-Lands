@@ -62,6 +62,7 @@
  #include "openingwin.h"
  #include "particles.h"
  #include "password_manager.h"
+ #include "platform.h"
  #include "pm_log.h"
  #include "questlog.h"
  #include "reflection.h"
@@ -1876,7 +1877,7 @@ static int set_var_OPT_MULTI(const char *str, size_t new_value)
 		size_t max_sel = option->args.multi.count;
 		if (new_value >= max_sel)
 		{
-			LOG_ERROR("Invalid value '%lu' for var '%s', type 'OPT_MULTI*' max '%lu'", new_value, str, max_sel);
+			LOG_ERROR("Invalid value '%'" PRI_SIZET " for var '%s', type 'OPT_MULTI*' max '%" PRI_SIZET "'", new_value, str, max_sel);
 			return 0;
 		}
 		option->func(option->var, new_value);
@@ -2803,7 +2804,8 @@ static void init_ELC_vars(void)
 
 	// CONTROLS TAB
 #ifdef ANDROID
-	add_var(OPT_FLOAT,"long_touch_delay_s", "ltds", &long_touch_delay_s, change_float, 0.35, "Long Touch Delay (seconds)", "The time to wait before interpreting a long touch as a right-click equivalent", CONTROLS, 0.15, 2.0, 0.05);
+	add_var(OPT_FLOAT,"long_touch_delay_s", "ltds", &long_touch_delay_s, change_float, 0.35f, "Long Touch Delay (seconds)", "The time to wait before interpreting a long touch as a right-click equivalent.", CONTROLS, 0.15f, 2.0f, 0.05f);
+	add_var(OPT_FLOAT,"motion_touch_delay_s", "mtds", &motion_touch_delay_s, change_float, 0.15f, "Detect Finger Motion Delay (seconds)", "The time to wait before triggering finger motion rather than using as a click.", CONTROLS, 0.01f, 1.0f, 0.05f);
 	add_var(OPT_BOOL,"window_camera_control","window_cc",&window_camera_controls,change_var,1,"Use Full Window Camera Controls","Use Full Window Camera Controls",CONTROLS);
 #endif
 	add_var(OPT_BOOL,"sit_lock","sl",&sit_lock,change_var,0,"Sit Lock","Enable this to prevent your character from moving by accident when you are sitting.",CONTROLS);

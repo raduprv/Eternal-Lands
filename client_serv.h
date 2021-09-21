@@ -727,6 +727,7 @@ typedef enum
 #define GET_TIME 231
 #define SERVER_STATS 232
 #define ORIGINAL_IP 233
+#define LETS_ENCRYPT 234
 /*! @} */
 
 /*!
@@ -855,6 +856,7 @@ typedef enum
  */
 /*! @{ */
 #define RAW_TEXT 0
+#define OL_COMPRESSED_PACKET 228
 #define PROXY 254	// reserved for advanced PROXY support
 #define BYE 255
 /*! @} */

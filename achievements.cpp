@@ -324,12 +324,12 @@ Achievements_System::Achievements_System(void)
 			xmlFree(title);
 
 			if ((achievement_id < 0) || (achievement_id >= MAX_ACHIEVEMENTS))
-				LOG_ERROR("%sInvalid achievement id=%lu\n", error_prefix, achievement_id );
+				LOG_ERROR("%sInvalid achievement id=%d\n", error_prefix, achievement_id );
 			else
 			{
 				achievements.resize(achievement_id+1, 0);
 				if (achievements[achievement_id])
-					LOG_ERROR("%sDuplicate achievement id=%lu\n", error_prefix, achievement_id );
+					LOG_ERROR("%sDuplicate achievement id=%d\n", error_prefix, achievement_id );
 				else
 				{
 					achievements[achievement_id] = new Achievement(achievement_id, image_id, proc_title, proc_text);

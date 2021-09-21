@@ -17,6 +17,7 @@
 #include "elloggingwrapper.h"
 #include "counters.h"
 #include "manufacture.h"
+#include "platform.h"
 #include "text.h"
 
 //	Helper functions
@@ -26,9 +27,9 @@ namespace JSON_IO
 	static size_t get_json_indent(void)
 		{ return 0; } // 0 is compact, non-zero give pretty output, 4 for example
 	static int exit_error(const char *function, size_t line, const std::string& message, int error_code)
-		{ LOG_ERROR("%s:%ld %s", function, line, message.c_str()); return error_code; }
+		{ LOG_ERROR("%s:%" PRI_SIZET " %s", function, line, message.c_str()); return error_code; }
 	static void info_message(const char *function, size_t line, std::string message)
-		{ LOG_INFO("%s:%ld %s", function, line, message.c_str()); }
+		{ LOG_INFO("%s:%" PRI_SIZET " %s", function, line, message.c_str()); }
 	static void console_message(const std::string& file_type, const std::string& message)
 		{ std::string full_message = "Problem with " + file_type + ": " + message; LOG_TO_CONSOLE(c_red3, full_message.c_str()); }
 	static void file_format_error(const std::string& file_type)
@@ -726,6 +727,7 @@ namespace JSON_IO_Client_State
 			int save(const char *file_name);
 			template <class TheType> TheType get(const char *section_name, const char *var_name, TheType default_var_value) const;
 			template <class TheType> void set(const char *section_name, const char *var_name, TheType value);
+			void delete_var(const char *section_name, const char *var_name);
 		private:
 			bool parse_error;		// there was an error populating the json object
 			const char * class_name_str = "Client State";
@@ -798,6 +800,12 @@ namespace JSON_IO_Client_State
 	template <class TheType> void Client_State::set(const char *section_name, const char *var_name, TheType value)
 	{
 		state_write[section_name][var_name] = value;
+	}
+
+	void Client_State::delete_var(const char *section_name, const char *var_name)
+	{
+		if (state_write.contains(section_name) && state_write[section_name].contains(var_name))
+			state_write[section_name].erase(var_name);
 	}
 
 }
@@ -900,4 +908,6 @@ extern "C"
 		{ return ((cstate.get(section_name, var_name, static_cast<bool>(default_value))) ?1 :0); }
 	void json_cstate_set_bool(const char *section_name, const char *var_name, int value)
 		{ cstate.set(section_name, var_name, static_cast<bool>(value)); }
+	void json_cstate_delete_var(const char *section_name, const char *var_name)
+		{ cstate.delete_var(section_name, var_name); }
 }

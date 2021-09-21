@@ -1384,7 +1384,7 @@ void init_channel_names(void)
 	if (doc == NULL ) {
 		doc = xmlParseFile("languages/en/strings/channels.xml");
 		if (doc == NULL) { //darn, don't have that either?
-			LOG_ERROR (using_builtin_chanlist);
+			LOG_ERROR ("%s", using_builtin_chanlist);
 			generic_chans();
 			return;
 		}
@@ -1396,7 +1396,7 @@ void init_channel_names(void)
 	cur = xmlDocGetRootElement (doc);
 	if (cur == NULL) {
 		// Use generics. Defaulting to english, then using the fallbacks makes obfuscated, messy code.
-		LOG_ERROR (using_builtin_chanlist);
+		LOG_ERROR ("%s", using_builtin_chanlist);
 		generic_chans();
 		xmlFreeDoc(doc);
 		return;
@@ -1421,12 +1421,12 @@ void init_channel_names(void)
 			// Get the name.
 			attrib = xmlGetProp (cur, (xmlChar*)"name");
 			if (attrib == NULL) {
-				LOG_ERROR (xml_bad_node);
+				LOG_ERROR ("%s", xml_bad_node);
 				xmlFree (attrib);
 				continue;
 			}
 			if (xmlStrlen(attrib) < 1) {
-				LOG_ERROR (xml_bad_node);
+				LOG_ERROR ("%s", xml_bad_node);
 				xmlFree (attrib);
 				continue;
 			}
@@ -1436,12 +1436,12 @@ void init_channel_names(void)
 			// Get the index number
 			attrib = xmlGetProp (cur, (xmlChar*)"index");
 			if (attrib == NULL) {
-				LOG_ERROR (xml_bad_node);
+				LOG_ERROR ("%s", xml_bad_node);
 				xmlFree (attrib);
 				continue;
 			}
 			if (xmlStrlen(attrib) < 1) {
-				LOG_ERROR (xml_bad_node);
+				LOG_ERROR ("%s", xml_bad_node);
 				xmlFree (attrib);
 				continue;
 			}
@@ -1451,7 +1451,7 @@ void init_channel_names(void)
 			// Get the description.
 			if ((cur->children == NULL) || (strlen ((char*)cur->children->content) < 1)) {
 				free (channelname);
-				LOG_ERROR (xml_bad_node);
+				LOG_ERROR ("%s", xml_bad_node);
 				continue;
 			}
 			attrib = cur->children->content;
@@ -1465,12 +1465,12 @@ void init_channel_names(void)
 			// Get the channel.
 			attrib = xmlGetProp (cur, (xmlChar*)"number");
 			if (attrib == NULL){
-				LOG_ERROR (xml_bad_node);
+				LOG_ERROR ("%s", xml_bad_node);
 				xmlFree (attrib);
 				continue;
 			}
 			if (xmlStrlen(attrib) < 1){
-				LOG_ERROR (xml_bad_node);
+				LOG_ERROR ("%s", xml_bad_node);
 				xmlFree (attrib);
 				continue;
 			}
@@ -1480,12 +1480,12 @@ void init_channel_names(void)
 			// Get the name.
 			attrib = xmlGetProp (cur, (xmlChar*)"name");
 			if (attrib == NULL){
-				LOG_ERROR (xml_bad_node);
+				LOG_ERROR ("%s", xml_bad_node);
 				xmlFree (attrib);
 				continue;
 			}
 			if (xmlStrlen(attrib) < 1){
-				LOG_ERROR (xml_bad_node);
+				LOG_ERROR ("%s", xml_bad_node);
 				xmlFree (attrib);
 				continue;
 			}
@@ -1495,11 +1495,11 @@ void init_channel_names(void)
 			// Get the description.
 			if (cur->children == NULL) {
 				free (channelname);
-				LOG_ERROR (xml_bad_node);
+				LOG_ERROR ("%s", xml_bad_node);
 				continue;
 			} else if (strlen ((char*)cur->children->content) < 1) {
 				free (channelname);
-				LOG_ERROR (xml_bad_node);
+				LOG_ERROR ("%s", xml_bad_node);
 				continue;
 			}
 			attrib = cur->children->content;
@@ -1516,7 +1516,7 @@ void init_channel_names(void)
 	}
 	if(queue_isempty(chan_name_queue)) {
 		//how did we not get any channels from it?
-		LOG_ERROR(using_builtin_chanlist);
+		LOG_ERROR("%s", using_builtin_chanlist);
 		generic_chans();
 	}
 	xmlFreeDoc(doc);

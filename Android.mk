@@ -278,7 +278,9 @@ LOCAL_SHARED_LIBRARIES := \
 	iconv \
 	libGLU \
 	libmyglob \
-	libxml2
+	libxml2 \
+	libssl \
+	libcrypto
 
 LOCAL_STATIC_LIBRARIES := \
 	GL \

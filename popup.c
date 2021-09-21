@@ -1198,6 +1198,7 @@ static void popup_send_to_server( popup_t *popup )
 		}
 	}
 	my_tcp_send(buffer, bptr-buffer);
+	check_summon_attack_mode(buffer, bptr-buffer);
 
 #if 0
 	fprintf(stderr,"Sending packet: \n");

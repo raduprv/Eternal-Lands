@@ -215,11 +215,11 @@ char *get_research_eta_str(char *str, size_t size)
 	float eta = 0.0f;
 	if (your_info.research_total && (your_info.research_completed == your_info.research_total))
 	{
-		safe_snprintf(str, size, completed_research);
+		safe_snprintf(str, size, "%s", completed_research);
 		return str;
 	}
 	if ((eta = get_research_eta()) < 1)
-		safe_snprintf(str, size, lessthanaminute_str);
+		safe_snprintf(str, size, "%s", lessthanaminute_str);
 	else
 	{
 		int ieta = (int)(eta + 0.5);

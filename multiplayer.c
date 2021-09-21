@@ -39,6 +39,9 @@
 #include "password_manager.h"
 #include "particles.h"
 #include "pathfinder.h"
+#ifdef PACKET_COMPRESSION
+#include "ext_protocol_shared.h"
+#endif // PACKET_COMPRESSION
 #include "questlog.h"
 #include "queue.h"
 #include "rules.h"
@@ -74,10 +77,12 @@
 static SDL_mutex* tcp_out_data_mutex = 0;
 #endif // !USE_SSL
 
+#if !defined(GIT_VERSION) || !defined(USE_SSL)
 static int client_version_major=VER_MAJOR;
 static int client_version_minor=VER_MINOR;
 static int client_version_release=VER_RELEASE;
 static int client_version_patch=VER_BUILD;
+#endif
 #ifndef USE_SSL
 static int version_first_digit=10;	//protocol/game version sent to server
 static int version_second_digit=28;
@@ -2001,7 +2006,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 			  LOG_WARNING("CAUTION: Possibly forged GET_ACTIVE_CHANNELS packet received.\n");
 			  break;
 			}
-			set_active_channels (in_data[3], (Uint32*)(in_data+4), (data_length-2)/4);
+			set_active_channels (in_data[3], (Uint32*)(in_data+4), (data_length-4)/4);
 			break;
 
 		case GET_3D_OBJ_LIST:
@@ -2035,10 +2040,10 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 			}
 			switch(in_data[3]){
 				case	0:	//2D
-					set_2d_object(in_data[4], in_data+5, data_length-3);
+					set_2d_object(in_data[4], in_data+5, data_length-5);
 					break;
 				case	1:	//3D
-					set_3d_object(in_data[4], in_data+5, data_length-3);
+					set_3d_object(in_data[4], in_data+5, data_length-5);
 					break;
 			}
 			break;
@@ -2052,10 +2057,10 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 			}
 			switch(in_data[3]){
 				case	0:	//2D
-					state_2d_object(in_data[4], in_data+5, data_length-3);
+					state_2d_object(in_data[4], in_data+5, data_length-5);
 					break;
 				case	1:	//3D
-					state_3d_object(in_data[4], in_data+5, data_length-3);
+					state_3d_object(in_data[4], in_data+5, data_length-5);
 					break;
 			}
 			break;
@@ -2325,6 +2330,19 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 					here_is_a_buff_duration((Uint8)in_data[3]);
 				break;
 			}
+#ifdef PACKET_COMPRESSION
+		case OL_COMPRESSED_PACKET:
+			handle_extended_command(in_data, data_length);
+			break;
+#endif // PACKET_COMPRESSION
+#ifdef USE_SSL
+		case LETS_ENCRYPT:
+			if (data_length < 4)
+				LOG_WARNING("CAUTION: Possibly forged/invalid LETS_ENCRYPT packet received.\n");
+			else
+				start_tls_handshake(in_data[3] != 0);
+			break;
+#endif
 		default:
 			{
 				// Unknown packet type??

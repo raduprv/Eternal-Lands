@@ -18,6 +18,7 @@
 #include "gamewin.h"
 #include "gl_init.h"
 #include "interface.h"
+#include "new_character.h"
 #include "particles.h"
 #include "pathfinder.h"
 #include "paste.h"
@@ -32,9 +33,7 @@
 #ifdef ANDROID
 int back_on;
 float long_touch_delay_s = 0.5f;
-#endif
-
-#ifdef ANDROID
+float motion_touch_delay_s = 0.15f;
 int enable_keyboard_debug = 0;
 #endif
 
@@ -53,7 +52,8 @@ static void enter_minimised_state(void)
 static void leave_minimised_state(void)
 {
 	max_fps = limit_fps;
-	update_all_actors(0);
+	if (!get_show_window(newchar_root_win))
+		update_all_actors(0);
 	//printf("left minimised\n");
 }
 
@@ -435,7 +435,8 @@ int HandleEvent (SDL_Event *event)
 			break;
 
 		case SDL_FINGERMOTION:
-			if (((SDL_GetTicks() - last_gesture_time) > 100) && ((SDL_GetTicks() - last_finger_down_start) > 100))
+			if (((SDL_GetTicks() - last_gesture_time) > 100) &&
+				((SDL_GetTicks() - last_finger_down_start) > (motion_touch_delay_s * 1000)))
 			{
 				int drag_x = (int)(event->tfinger.x * window_width + 0.5);
 				int drag_y = (int)(event->tfinger.y * window_height + 0.5);

@@ -207,6 +207,15 @@ void create_game_root_window (int width, int height);
  */
 int get_fps_default_width(void);
 
+#ifdef ANDROID
+/*!
+ * \brief Toggle the onscreen keyboard.
+ *
+ * \callgraph
+ */
+void toggle_active_input(void);
+#endif
+
 /*!
  * \name game root window action mode access functions
  */

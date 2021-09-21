@@ -696,6 +696,17 @@ static void touch_player(int player_to_touch)
 	my_tcp_send(str, 5);
 }
 
+#ifdef ANDROID
+void toggle_active_input(void)
+{
+	if (SDL_IsTextInputActive())
+		SDL_StopTextInput();
+	else
+		SDL_StartTextInput();
+	input_widget_move_to_win(-1);
+}
+#endif
+
 // this is the main part of the old check_mouse_click ()
 static int click_game_handler(window_info *win, int mx, int my, Uint32 flags)
 {
@@ -711,13 +722,14 @@ static int click_game_handler(window_info *win, int mx, int my, Uint32 flags)
 	int time_now = SDL_GetTicks();
 	int closest_actor;
 	int size_20 = (int)(0.5 + win->current_scale * 20);
+	int kb_active_width = window_width - hud_x;
 
 	if (back_on)
 		return 0;
 
-	if (my < (get_tab_bar_y() + get_input_at_top_height()))
+	if ((my < (get_tab_bar_y() + get_input_at_top_height())) && (mx < kb_active_width))
 	{
-		SDL_StartTextInput();
+		toggle_active_input();
 		return 0;
 	}
 
@@ -729,10 +741,7 @@ static int click_game_handler(window_info *win, int mx, int my, Uint32 flags)
 		(my > vert_touch_y_start) && (my < vert_touch_y_start + vert_touch_y_size))))
 	{
 		if(time_now-last_click_timestamp<300)
-		{
-			SDL_StartTextInput();
-			input_widget_move_to_win(-1);
-		}
+			toggle_active_input();
 		last_click_timestamp=time_now;
 		return 0;
 	}
@@ -831,14 +840,9 @@ static int click_game_handler(window_info *win, int mx, int my, Uint32 flags)
 #ifdef ANDROID
 			// activate/close the on-screen keyboard of we're near the top
 			// ANDROID_TODO instead, perhaps activate when the widget is clicked?
-			if ((window_camera_controls) && (my < (get_tab_bar_y() + (3 * get_input_default_height()))))
-			{
-				if (SDL_IsTextInputActive())
-					SDL_StopTextInput();
-				else
-					SDL_StartTextInput();
-				input_widget_move_to_win(-1);
-			}
+			if ((window_camera_controls) &&
+				(my < (get_tab_bar_y() + (3 * get_input_default_height()))) && (mx < kb_active_width))
+				toggle_active_input();
 			// for touch, we don't use the action switching and dragging is done differently - so return now
 			return 1;
 #endif

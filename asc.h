@@ -9,6 +9,7 @@
 #include <SDL_types.h>
 #include <libxml/tree.h>
 #include "client_serv.h"
+#include "platform.h"
 #ifndef MAP_EDITOR
 #include "font.h"
 #endif
@@ -123,7 +124,7 @@ char* safe_strcat (char *dest, const char *src, size_t len);
  * \param	format A printf-style format string
  * \param	... arguments to be passed to snprintf
  */
-int safe_snprintf(char *dest, const size_t len, const char* format, ...);
+int safe_snprintf(char *dest, const size_t len, const char* format, ...) FORMAT_PRINTF(3, 4);
 
 /*!
  * \ingroup	xml_utils
