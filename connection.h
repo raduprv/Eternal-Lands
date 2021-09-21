@@ -237,7 +237,6 @@ private:
 	 * the console, then calls finish_connect_to_server().
 	 */
 	void finish_connect_to_server_encrypted();
-
 };
 
 } // namespace eternal_lands
