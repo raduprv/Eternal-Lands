@@ -1,3 +1,4 @@
+#include <errno.h>
 #include <string.h>
 #include "servers.h"
 #include "asc.h"
@@ -31,6 +32,7 @@ static server_def* servers = NULL;		// The details of all the servers we know ab
 static int servers_size = 0;
 static int num_servers = 0;
 static int cur_server = -1;
+static const char * def_server_filename = "default_server_id.txt";
 
 const char* check_server_id_on_command_line();	// From main.c
 
@@ -42,7 +44,7 @@ const char * get_server_name(void)
 		return "<unset>";
 }
 
-int find_server_from_id (const char* id)
+static int find_server_from_id (const char* id)
 {
 	int i;
 
@@ -58,14 +60,72 @@ int find_server_from_id (const char* id)
 	return -1;
 }
 
-void set_server_details()
+// Set the default server to the specifed ID if its valid
+// Normally called from the #command
+void set_def_server_id(const char *server_id)
+{
+	char str[2048];
+	if (find_server_from_id(server_id) >= 0)
+	{
+		char full_filename[1024];
+		FILE * f = NULL;
+		safe_snprintf(full_filename, sizeof(full_filename), "%s%s", get_path_config_base(), def_server_filename);
+		if ((f = fopen(full_filename, "w")) != NULL)
+		{
+			fputs(server_id, f);
+			fclose(f);
+			safe_snprintf(str, sizeof(str), def_server_id_set_str, server_id);
+			LOG_TO_CONSOLE(c_green1, str);
+			return;
+		}
+		safe_snprintf(str, sizeof(str), "%s [%s] : %s", file_write_error_str, full_filename, strerror(errno));
+		LOG_TO_CONSOLE(c_red1, str);
+		LOG_ERROR("%s", str);
+	}
+	else
+	{
+		safe_snprintf(str, sizeof(str), def_server_id_not_found_str, server_id);
+		LOG_TO_CONSOLE(c_red1, str);
+	}
+}
+
+// List the server IDs and descriptions
+// Normally called from the #command
+void show_servers(void)
+{
+	size_t i;
+	char str[256];
+	LOG_TO_CONSOLE(c_green1, show_servers_str);
+	for (i = 0; i < num_servers; i++)
+	{
+		safe_snprintf(str, sizeof(str), "%s - %s", servers[i].id, servers[i].desc);
+		LOG_TO_CONSOLE(c_grey1, str);
+	}
+}
+
+void set_server_details(void)
 {
 	char id[20];
 	int num;
 	safe_strncpy(id, check_server_id_on_command_line(), sizeof(id));
 	if (!strcmp(id, ""))
 	{
+		FILE * f = NULL;
 		safe_strncpy(id, "main", sizeof(id));
+		f = open_file_config(def_server_filename, "r");
+		if (f != NULL)
+		{
+			char def_server[128] = "";
+			if (fgets(def_server, sizeof(def_server), f) != NULL)
+			{
+				char * end_of_string = def_server + strlen(def_server);
+				while ((--end_of_string >= def_server) && isspace(*end_of_string))
+					*end_of_string = '\0';
+				if (strlen(def_server))
+					safe_strncpy(id, def_server, sizeof(id));
+			}
+			fclose(f);
+		}
 	}
 	num = find_server_from_id(id);
 	if (num == -1)
@@ -111,7 +171,7 @@ void set_server_details()
 	}
 }
 
-const char * get_server_dir()
+const char * get_server_dir(void)
 {
 	if (cur_server >= 0)
 		return servers[cur_server].dir;

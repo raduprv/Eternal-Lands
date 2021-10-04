@@ -453,7 +453,11 @@ char
 	do_not_attack_summoned_str[50],
 	attack_at_will_str[50],
 	summon_attack_set_mode_str[50],
-	summon_attack_help_str[50];
+	summon_attack_help_str[50],
+	/* servers.c */
+	def_server_id_not_found_str[50],
+	def_server_id_set_str[50],
+	show_servers_str[50];
 #endif
 /*! \} */
 
@@ -555,7 +559,8 @@ char	name_too_long[75],
 	cmd_disconnect[20],
 	cmd_disco[20],
 	cmd_summon_attack_short[10],
-	cmd_summon_attack[20];
+	cmd_summon_attack[20],
+	cmd_set_server_id[20];
 /*! \} */
 #endif
 
@@ -786,6 +791,7 @@ char	reg_error_str[15],
 	snd_media_ogg_info[50],
 	snd_media_ogg_info_noartist[50],
 	/*stats.c*/
+	totalxp_str[20],
 	stat_no_invalid[50],
 	/*timers.c*/
 	timer_lagging_behind[100],
@@ -1243,6 +1249,7 @@ void init_console()
 	add_xml_identifier(cmd_grp,"disco",cmd_disco,"disco",sizeof(cmd_disco));
 	add_xml_identifier(cmd_grp,"summon_attack_short",cmd_summon_attack_short,"sa",sizeof(cmd_summon_attack_short));
 	add_xml_identifier(cmd_grp,"summon_attack",cmd_summon_attack,"summon_attack",sizeof(cmd_summon_attack));
+	add_xml_identifier(cmd_grp,"set_server_id",cmd_set_server_id,"set_server_id",sizeof(cmd_set_server_id));
 }
 #endif
 
@@ -1666,6 +1673,9 @@ void init_help()
 	add_xml_identifier(misc,"ranging_exp_per_arrow", ranging_exp_per_arrow_str, "Exp/arrows", sizeof(ranging_exp_per_arrow_str));
 	add_xml_identifier(misc,"storage_filter_prompt", storage_filter_prompt_str, "Filter: ", sizeof(storage_filter_prompt_str));
 	add_xml_identifier(misc,"storage_filter_help", storage_filter_help_str, "Type text - filter items.", sizeof(storage_filter_help_str));
+	add_xml_identifier(misc,"def_server_id_not_found", def_server_id_not_found_str, "Server ID [%s] was not found", sizeof(def_server_id_not_found_str));
+	add_xml_identifier(misc,"def_server_id_set", def_server_id_set_str, "Default server set to ID [%s]", sizeof(def_server_id_set_str));
+	add_xml_identifier(misc,"show_servers", show_servers_str, "Server ID - Description", sizeof(show_servers_str));
 
 	//New characters
 	add_xml_identifier(new,"skin",skin_str,"Skin",sizeof(skin_str));
@@ -1908,6 +1918,7 @@ void init_stats()
 	add_xml_identifier(stats_extra,"nexus",(char*)attributes.nexus,"Nexus",sizeof(attributes.nexus));
 	add_xml_identifier(stats_extra,"skills",(char*)attributes.skills,"Skills",sizeof(attributes.skills));
 	add_xml_identifier(stats_extra,"pickpoints",(char*)attributes.pickpoints,"Pickpoints",sizeof(attributes.pickpoints));
+	add_xml_identifier(stats_extra, "totalxp", totalxp_str, "Total", sizeof(totalxp_str));
 
 	add_xml_statid(base,"phy",&(attributes.phy),"Physique","phy");
 	add_xml_statid(base,"coo",&(attributes.coo),"Coordination","coo");
