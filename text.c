@@ -645,13 +645,6 @@ int filter_or_ignore_text (char *text_to_add, int len, int size, Uint8 channel)
 		else if (!strncasecmp(text_to_add+1, "Your buddy list is now empty.", 29)) {
 			clear_buddy();
 		}
-
-		else if (!strncasecmp(text_to_add+1, "You cooked the meat!", 20)) {
-			increment_used_item_counter("Raw meat (cooked)", 1);
-		}
-		else if (!strncasecmp(text_to_add+1, "You cooked 10 raw meat using the frying pan!", 44)) {
-			increment_used_item_counter("Raw meat (cooked)", 10);
-		}
 		else {
 			static const char* rate_limit_msgs[] = {
 				"You are too far away! Get closer!",
