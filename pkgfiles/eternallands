@@ -212,6 +212,7 @@ fi
 if [ "$*" = "" ]
 then
 	showsel=$HOME/.elc/showconfigsel
+	defserver=$HOME/.elc/default_server_id.txt
 
 	# optionally get the server/config option
 	[ ! -r $showsel ] && touch $showsel
@@ -224,9 +225,11 @@ then
 			config="$(getconfig)"
 			[ $? -ne 0 ] && exit 1
 		done
+	elif [ -r $defserver ]
+	then
+		config="$(cat $defserver)"
 	else
-		config="$(cat $showsel)"
-		[ "$config" = "no" ] && config="main"
+		config="main"
 	fi
 	config="$(echo $config | awk -F\| '{print $1}')"
 
@@ -237,7 +240,8 @@ then
 		then
 			echo "yes" > $showsel
 		else
-			echo "$config" > $showsel
+			echo "no" > $showsel
+			echo "$config" > $defserver
 		fi
 		show_info "To change this option, edit or remove the file:\n $showsel"
 	fi
@@ -248,8 +252,9 @@ fi
 
 # make sure we have the config directory
 config="$(basename $config)"
-mkdir -p ~/.elc/${config}/
-inifile=~/.elc/${config}/el.ini
+configdir="$(grep ^${config} $serverfile | awk {'print $2'})"
+mkdir -p ~/.elc/${configdir}/
+inifile=~/.elc/${configdir}/el.ini
 
 # copy an el.ini file if we don't have one
 if [ ! -r $inifile -o ! -s $inifile ]
