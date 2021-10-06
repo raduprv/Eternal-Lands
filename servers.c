@@ -1,3 +1,4 @@
+#include <errno.h>
 #include <string.h>
 #include "servers.h"
 #include "asc.h"
@@ -31,6 +32,8 @@ static server_def* servers = NULL;		// The details of all the servers we know ab
 static int servers_size = 0;
 static int num_servers = 0;
 static int cur_server = -1;
+static const char * def_server_filename = "default_server_id.txt";
+static int default_server_index = -1;
 
 const char* check_server_id_on_command_line();	// From main.c
 
@@ -42,11 +45,12 @@ const char * get_server_name(void)
 		return "<unset>";
 }
 
-int find_server_from_id (const char* id)
+static int find_server_from_id (const char* id)
 {
 	int i;
 
-	if (num_servers <= 0) return -1;
+	if ((num_servers <= 0) || (id == NULL) || (strlen(id) == 0))
+		return -1;
 
 	for (i = 0; i < num_servers; i++)
 	{
@@ -55,32 +59,91 @@ int find_server_from_id (const char* id)
 			return i;
 		}
 	}
+	LOG_ERROR("Server profile ID [%s] not found in servers.lst", id);
 	return -1;
 }
 
-void set_server_details()
+// Add the list of servers to the specified options window variable
+void populate_def_server_options(const char *multi_name)
 {
-	char id[20];
-	int num;
-	safe_strncpy(id, check_server_id_on_command_line(), sizeof(id));
-	if (!strcmp(id, ""))
+	size_t i;
+	for (i = 0; i < num_servers; i++)
+		add_multi_option(multi_name, servers[i].id);
+}
+
+// Get the current default server index for the options window variable
+// returns the actual default if set, otherwise the index of "main", else 0
+size_t get_def_server_index(void)
+{
+	if (default_server_index < 0)
 	{
-		safe_strncpy(id, "main", sizeof(id));
+		int main_index = find_server_from_id("main");
+		return (main_index < 0) ?0 :(size_t)main_index;
 	}
-	num = find_server_from_id(id);
+	return (size_t)default_server_index;
+}
+
+// Write the default server ID for the specified index to file
+void write_def_server_ID(size_t server_id_index)
+{
+	if (server_id_index < num_servers)
+	{
+		char full_filename[1024];
+		FILE * f = NULL;
+		safe_snprintf(full_filename, sizeof(full_filename), "%s%s", get_path_config_base(), def_server_filename);
+		if ((f = fopen(full_filename, "w")) != NULL)
+		{
+			fputs(servers[server_id_index].id, f);
+			fclose(f);
+			return;
+		}
+		LOG_ERROR("%s [%s] : %s", file_write_error_str, full_filename, strerror(errno));
+	}
+}
+
+// if the default server file exists in the base config, read the server ID value
+// return the index in the servers list or -1 if not found
+static int read_default_server_index(void)
+{
+	FILE * f = NULL;
+	f = open_file_config(def_server_filename, "r");
+	if (f != NULL)
+	{
+		char def_server[128] = "";
+		if (fgets(def_server, sizeof(def_server), f) != NULL)
+		{
+			char * end_of_string = def_server + strlen(def_server);
+			while ((--end_of_string >= def_server) && isspace(*end_of_string))
+				*end_of_string = '\0';
+			if (strlen(def_server))
+				return find_server_from_id(def_server);
+		}
+		fclose(f);
+	}
+	return -1;
+}
+
+void set_server_details(void)
+{
+	int num;
+	default_server_index = read_default_server_index();
+	num = find_server_from_id(check_server_id_on_command_line());
+	// if no command line or command line value is not valid, try the default
 	if (num == -1)
 	{
-		// Oops... what did they specify on the command line?
-		LOG_ERROR("Server profile not found in servers.lst for server: %s. Failover to server: main.", id);
-		// Failover to the main server
-		num = find_server_from_id("main");
+		num = default_server_index;
+		// if no default or default value not valid, try main
 		if (num == -1)
 		{
-			// Error, this is a problem!
-			static char *error_str = "Fatal error: Server profile not found in servers.lst for server: main";
-			LOG_ERROR("%s", error_str);
-			FATAL_ERROR_WINDOW("%s", error_str);
-			exit(1);
+			num = find_server_from_id("main");
+			// cannot find even main, this is a fatal error
+			if (num == -1)
+			{
+				static char *error_str = "Fatal error: Fallback server profile ID [main] not found in servers.lst.";
+				LOG_ERROR("%s", error_str);
+				FATAL_ERROR_WINDOW("%s", error_str);
+				exit(1);
+			}
 		}
 	}
 	// We found a valid profile so set some vars
@@ -111,7 +174,7 @@ void set_server_details()
 	}
 }
 
-const char * get_server_dir()
+const char * get_server_dir(void)
 {
 	if (cur_server >= 0)
 		return servers[cur_server].dir;

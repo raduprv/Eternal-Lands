@@ -83,6 +83,7 @@
  #include "io/elpathwrapper.h"
  #include "notepad.h"
  #include "sky.h"
+ #include "servers.h"
  #ifdef OSX
   #include "events.h"
  #endif // OSX
@@ -600,6 +601,13 @@ static void change_use_animation_program(int * var)
 			LOG_TO_CONSOLE(c_red1, "Not using vertex program for actor animation.");
 		}
 	}
+}
+
+static void change_def_server(size_t *var, size_t value)
+{
+	*var = value;
+	// save the server to the base config file
+	write_def_server_ID(value);
 }
 #endif //MAP_EDITOR
 
@@ -3237,6 +3245,23 @@ int read_el_ini (void)
 #endif
 
 	fclose (fin);
+
+#ifdef	ELC
+	// add the default server selection option now we know the servers list has been loaded
+	// the ini file value is never used, we just want to use the options UI to set the base config file value
+	{
+		static size_t def_server_index = 0;
+		def_server_index = get_def_server_index();
+		add_var(OPT_MULTI, "autoset_def_server_index", "adefsrvi", &def_server_index, change_def_server,
+			(def_server_index > 0) ?def_server_index :0, "Default Server ID",
+			"Set the default server ID when starting the client; "
+			"stored in a file of the users top level config folder and shared across all configurations.  "
+			"If not set the main server ID is used.  Command line options will overide these values.",
+			SERVER, NULL);
+		populate_def_server_options("autoset_def_server_index");
+	}
+#endif
+
 	return 1;
 }
 
