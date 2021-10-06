@@ -304,7 +304,6 @@ extern char
 		cmd_disco[20],
 		cmd_summon_attack_short[10],
 		cmd_summon_attack[20],
-		cmd_set_server_id[20],
 		help_cmd_markpos_str[50],
 		location_info_str[40],
 		knowledge_cmd_str[40],
@@ -594,11 +593,7 @@ extern char
 		do_not_attack_summoned_str[50],
 		attack_at_will_str[50],
 		summon_attack_set_mode_str[50],
-		summon_attack_help_str[50],
-		/* servers.c */
-		def_server_id_not_found_str[50],
-		def_server_id_set_str[50],
-		show_servers_str[50];
+		summon_attack_help_str[50];
 #endif  //DOXYGEN_SKIP_THIS
 #endif  //ELC
 

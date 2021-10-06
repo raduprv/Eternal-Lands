@@ -48,7 +48,6 @@ set_guild_color ## <guild tag> <colour> ## Set the banner colour of the specifie
 set_join_info ##  ## Set the join information for your guild to the specified text.
 set_name ## <full guild name> ## Set your guild full name to the specified text.
 set_privacy ## <on> | <off> ## Set whether you accept buddy requests, and if your character stats are public.
-set_server_id ## [<server id>] ## Sets the default server to the specified value.  Lists servers if no ID specified.
 set_short_name ## <short guild name> ## Set your guild short name to the specified text.
 set_url ## <guild url> ## Set your guild URL to the specified value.
 suicide ##  ## Warning: Sends you immediately to the underworld.  There is the normal chance of loosing carried items.
