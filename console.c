@@ -35,7 +35,6 @@
 #include "pm_log.h"
 #include "platform.h"
 #include "questlog.h"
-#include "servers.h"
 #include "sound.h"
 #include "spells.h"
 #include "stats.h"
@@ -1906,15 +1905,6 @@ static int command_summon_attack(char *text, int len)
 	return 1;
 }
 
-static int command_set_def_server_id(char *text, int len)
-{
-	text = getparams(text);
-	if (*text)
-		set_def_server_id(text);
-	else
-		show_servers();
-	return 1;
-}
 
 #ifdef CONTEXT_MENUS_TEST
 int cm_test_window(char *text, int len);
@@ -2245,7 +2235,6 @@ void init_commands(const char *filename)
 	add_command("set_default_fonts", &command_set_default_fonts);
 	add_command(cmd_summon_attack, &command_summon_attack);
 	add_command(cmd_summon_attack_short, &command_summon_attack);
-	add_command(cmd_set_server_id, &command_set_def_server_id);
 
 #ifdef ANDROID
 	add_command("kbd", &toggle_keyboard_debug);

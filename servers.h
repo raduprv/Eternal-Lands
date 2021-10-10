@@ -38,15 +38,23 @@ const char * get_server_name(void);
 void free_servers(void);
 
 /**
- * \brief Set the default server ID
+ * \brief Write the default server ID
  *
- * The specified server ID is saved to file in the config base directory and used at client start.
+ * The specified server ID is saved to file in the config base directory and when starting client start.
  */
-void set_def_server_id(const char *server_id);
+void write_def_server_ID(size_t server_id_index);
 
 /**
- * \brief Display server list information to console
+ * \brief Get the index of the default server.
+ *
+ * Refurns the default index, the index of ID "main" if not set, or 0.
  */
-void show_servers(void);
+size_t get_def_server_index(void);
+
+/**
+ * \brief Populate the specified option window var with the list of server IDs.
+ *
+ */
+void populate_def_server_options(const char *multi_name);
 
 #endif

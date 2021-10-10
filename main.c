@@ -452,6 +452,17 @@ const char * check_server_id_on_command_line()
 
 	// FIXME!! This should parse for -options rather than blindly returning the last option!
 
+#ifdef WINDOWS
+	{
+		// Windows unhelpfully splits the executable path+name into separate parameters if it contains
+		// space characters.  We can see this as the first and last contain opening/closing quotes.  If the last
+		// parameter ends in a quote, its not a server id so return an empty string.
+		size_t len = strlen(gargv[gargc - 1]);
+		if (gargv[gargc - 1][len-1] == '"')
+			return "";
+	}
+#endif
+
 	return gargv[gargc - 1];
 }
 
