@@ -176,7 +176,7 @@ void ec_heartbeat()
 			fire_obstructions_list.push_back(obstruction->obstruction);
 	}
 #ifndef MAP_EDITOR
-	auto list = eternal_lands::ActorsList::get_locked_instance();
+	eternal_lands::LockedActorsList list;
 	for (auto obstruction: actor_obstructions)
 	{
 		actor *act = list.get_actor_from_id(obstruction->obstructing_actor_id);
@@ -424,7 +424,7 @@ extern "C" void ec_idle()
 			}
 #endif
 #ifndef MAP_EDITOR
-			auto list = eternal_lands::ActorsList::get_locked_instance();
+			eternal_lands::LockedActorsList list;
 			if ((*iter)->caster_id >= 0)
 			{
 				actor *caster = list.get_actor_from_id((*iter)->caster_id);
@@ -3509,7 +3509,7 @@ extern "C" void check_harvesting_effect()
 	/* but if we are harvesting but there is no effect, start it if wanted */
 	else if (now_harvesting() && use_eye_candy && use_harvesting_eye_candy && (harvesting_effect_reference == NULL))
 	{
-		auto list = eternal_lands::ActorsList::get_locked_instance();
+		eternal_lands::LockedActorsList list;
 		actor *act = list.self();
 		if (act != NULL)
 			harvesting_effect_reference = ec_create_ongoing_harvesting2(act, 1.0, 1.0, (poor_man ? 6 : 10), 1.0);

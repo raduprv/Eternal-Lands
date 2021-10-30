@@ -18,20 +18,25 @@
 namespace eternal_lands
 {
 
-std::pair<actor*, actor*> ActorsList::get_actor_and_attached_from_id_locked(int actor_id)
+LockedActorsList::Storage LockedActorsList::_list;
+LockedActorsList::Mutex LockedActorsList::_mutex;
+actor* LockedActorsList::_self = nullptr;
+actor* LockedActorsList::_actor_under_mouse = nullptr;
+
+std::pair<actor*, actor*> LockedActorsList::get_actor_and_attached_from_id(int actor_id)
 {
-	actor *act = get_actor_from_id_locked(actor_id);
+	actor *act = get_actor_from_id(actor_id);
 	if (!act)
 		return { nullptr, nullptr };
 
 	actor *attached = has_attachment(act)
-		? get_actor_from_id_locked(act->attached_actor_id)
+		? get_actor_from_id(act->attached_actor_id)
 		: nullptr;
 
 	return { act, attached };
 }
 
-actor* ActorsList::get_actor_from_name_locked(const char* name)
+actor* LockedActorsList::get_actor_from_name(const char* name)
 {
 	size_t name_len = std::strlen(name);
 	if (name_len >= sizeof_field(actor, actor_name))
@@ -47,7 +52,7 @@ actor* ActorsList::get_actor_from_name_locked(const char* name)
 	return (iter != _list.end()) ? iter->second : nullptr;
 }
 
-actor* ActorsList::get_nearest_actor_locked(int tile_x, int tile_y, float max_distance)
+actor* LockedActorsList::get_nearest_actor(int tile_x, int tile_y, float max_distance)
 {
 	const float self_max_dist = 6.0;
 	const float self_max_dist_sq = self_max_dist * self_max_dist;
@@ -89,7 +94,7 @@ actor* ActorsList::get_nearest_actor_locked(int tile_x, int tile_y, float max_di
 }
 
 #ifdef ECDEBUGWIN
-actor* ActorsList::get_target_locked()
+actor* LockedActorsList::get_target()
 {
 	Storage::iterator iter = std::find_if(_list.begin(), _list.end(),
 		[this](const std::pair<int, actor*>& other) { return other.second != _self; });
@@ -99,7 +104,7 @@ actor* ActorsList::get_target_locked()
 
 
 
-void ActorsList::add_locked(actor* act, actor *attached)
+void LockedActorsList::add(actor* act, actor *attached)
 {
 	// Find out if there is another actor with this ID.
 	// Ideally this shouldn't happen, but just in case
@@ -108,7 +113,7 @@ void ActorsList::add_locked(actor* act, actor *attached)
 	{
 		LOG_ERROR(duplicate_actors_str, act->actor_id, iter->second->actor_name,
 			act->actor_name);
-		remove_and_destroy_locked(iter);
+		remove_and_destroy(iter);
 	}
 
 	if (act->is_enhanced_model && act->kind_of_actor == COMPUTER_CONTROLLED_HUMAN)
@@ -124,7 +129,7 @@ void ActorsList::add_locked(actor* act, actor *attached)
 		{
 			LOG_ERROR("%s(%d) = %s => %s\n", duplicate_npc_actor, act->actor_id,
 				iter->second->actor_name, act->actor_name);
-			remove_and_destroy_locked(iter);
+			remove_and_destroy(iter);
 		}
 	}
 
@@ -141,9 +146,9 @@ void ActorsList::add_locked(actor* act, actor *attached)
 	}
 }
 
-bool ActorsList::add_attachment_locked(int actor_id, actor *attached)
+bool LockedActorsList::add_attachment(int actor_id, actor *attached)
 {
-	actor *parent = get_actor_from_id_locked(actor_id);
+	actor *parent = get_actor_from_id(actor_id);
 	if (!parent)
 	{
 		LOG_ERROR("unable to add an attached actor: actor with id %d doesn't exist!", actor_id);
@@ -162,47 +167,47 @@ bool ActorsList::add_attachment_locked(int actor_id, actor *attached)
 	return true;
 }
 
-void ActorsList::remove_and_destroy_single_locked(Storage::const_iterator iter)
+void LockedActorsList::remove_and_destroy_single(Storage::const_iterator iter)
 {
 	actor *act = iter->second;
 	_list.erase(iter);
 	::destroy_actor(act);
 }
 
-void ActorsList::remove_and_destroy_locked(Storage::const_iterator iter)
+void LockedActorsList::remove_and_destroy(Storage::const_iterator iter)
 {
 	actor *act = iter->second;
 	if (has_attachment(act))
 	{
 		Storage::iterator att_iter = _list.find(act->attached_actor_id);
 		if (att_iter != _list.end())
-			remove_and_destroy_single_locked(iter);
+			remove_and_destroy_single(iter);
 	}
-	remove_and_destroy_single_locked(iter);
+	remove_and_destroy_single(iter);
 }
 
-void ActorsList::remove_and_destroy_locked(int actor_id)
+void LockedActorsList::remove_and_destroy(int actor_id)
 {
 	Storage::const_iterator iter = _list.find(actor_id);
 	if (iter != _list.end())
-		remove_and_destroy_locked(iter);
+		remove_and_destroy(iter);
 }
 
-void ActorsList::remove_and_destroy_attachment_locked(int actor_id)
+void LockedActorsList::remove_and_destroy_attachment(int actor_id)
 {
-	actor *parent = get_actor_from_id_locked(actor_id);
+	actor *parent = get_actor_from_id(actor_id);
 	if (parent && has_attachment(parent))
 	{
 		Storage::const_iterator iter = _list.find(parent->attached_actor_id);
 		if (iter != _list.end())
-			remove_and_destroy_single_locked(iter);
+			remove_and_destroy_single(iter);
 		parent->attached_actor_id = -1;
 		parent->attachment_shift[0] = parent->attachment_shift[1]
-				= parent->attachment_shift[2] = 0.0f;
+			= parent->attachment_shift[2] = 0.0f;
 	}
 }
 
-void ActorsList::clear_locked()
+void LockedActorsList::clear()
 {
 	_self = nullptr;
 	_actor_under_mouse = nullptr;
@@ -217,22 +222,22 @@ void ActorsList::clear_locked()
 
 using namespace eternal_lands;
 
-extern "C" LockedList* get_locked_actors_list()
+extern "C" LockedActorsList* get_locked_actors_list()
 {
-	return ActorsList::get_locked_instance_ptr();
+	return new LockedActorsList();
 }
 
-extern "C" actor* get_self(LockedList* list)
+extern "C" actor* get_self(LockedActorsList* list)
 {
 	return list->self();
 }
 
-extern "C" actor* get_actor_from_id(LockedList* list, int actor_id)
+extern "C" actor* get_actor_from_id(LockedActorsList* list, int actor_id)
 {
 	return list->get_actor_from_id(actor_id);
 }
 
-extern "C" actor* get_actor_and_attached_from_id(LockedList* list, int actor_id,
+extern "C" actor* get_actor_and_attached_from_id(LockedActorsList* list, int actor_id,
 	actor **attached)
 {
 	actor *act;
@@ -241,42 +246,42 @@ extern "C" actor* get_actor_and_attached_from_id(LockedList* list, int actor_id,
 }
 
 #ifdef ECDEBUGWIN
-extern "C" actor* get_target(LockedList* list)
+extern "C" actor* get_target(LockedActorsList* list)
 {
 	return list->get_target();
 }
 #endif // ECDEBUGWIN
 
-extern "C" int add_attachment(LockedList* list, int actor_id, actor *attached)
+extern "C" int add_attachment(LockedActorsList* list, int actor_id, actor *attached)
 {
 	return list->add_attachment(actor_id, attached);
 }
 
-extern "C" void remove_and_destroy_attachment(LockedList* list, int actor_id)
+extern "C" void remove_and_destroy_attachment(LockedActorsList* list, int actor_id)
 {
 	list->remove_and_destroy_attachment(actor_id);
 }
 
-extern "C" void for_each_actor(LockedList* list,
-	void (*fun)(actor*, void*, LockedList*), void* data)
+extern "C" void for_each_actor(LockedActorsList* list,
+	void (*fun)(actor*, void*, LockedActorsList*), void* data)
 {
 	list->for_each_actor(fun, data);
 }
 
-extern "C" void for_each_actor_and_attached(LockedList* list,
-	void (*fun)(actor*, actor*, void*, LockedList*), void* data)
+extern "C" void for_each_actor_and_attached(LockedActorsList* list,
+	void (*fun)(actor*, actor*, void*, LockedActorsList*), void* data)
 {
 	list->for_each_actor_and_attached(fun, data);
 }
 
-extern "C" void release_locked_actors_list(LockedList* list)
+extern "C" void release_locked_actors_list(LockedActorsList* list)
 {
 	delete list;
 }
 
-extern "C" LockedList* lock_and_get_self(actor **self)
+extern "C" LockedActorsList* lock_and_get_self(actor **self)
 {
-	auto list = ActorsList::get_locked_instance_ptr();
+	auto list = new LockedActorsList();
 	*self = list->self();
 	if (!*self)
 	{
@@ -286,9 +291,9 @@ extern "C" LockedList* lock_and_get_self(actor **self)
 	return list;
 }
 
-extern "C" LockedList* lock_and_get_actor_from_id(int actor_id, actor **act)
+extern "C" LockedActorsList* lock_and_get_actor_from_id(int actor_id, actor **act)
 {
-	auto list = ActorsList::get_locked_instance_ptr();
+	auto list = new LockedActorsList();
 	*act = list->get_actor_from_id(actor_id);
 	if (!*act)
 	{
@@ -298,10 +303,10 @@ extern "C" LockedList* lock_and_get_actor_from_id(int actor_id, actor **act)
 	return list;
 }
 
-extern "C" LockedList* lock_and_get_actor_and_attached_from_id(int actor_id,
+extern "C" LockedActorsList* lock_and_get_actor_and_attached_from_id(int actor_id,
 	actor **act, actor **attached)
 {
-	auto list = ActorsList::get_locked_instance_ptr();
+	auto list = new LockedActorsList();
 	std::tie(*act, *attached) = list->get_actor_and_attached_from_id(actor_id);
 	if (!*act)
 	{
@@ -311,9 +316,9 @@ extern "C" LockedList* lock_and_get_actor_and_attached_from_id(int actor_id,
 	return list;
 }
 
-extern "C" LockedList* lock_and_get_actor_from_name(const char* name, actor **act)
+extern "C" LockedActorsList* lock_and_get_actor_from_name(const char* name, actor **act)
 {
-	auto list = ActorsList::get_locked_instance_ptr();
+	auto list = new LockedActorsList();
 	*act = list->get_actor_from_name(name);
 	if (!*act)
 	{
@@ -323,10 +328,10 @@ extern "C" LockedList* lock_and_get_actor_from_name(const char* name, actor **ac
 	return list;
 }
 
-extern "C" LockedList* lock_and_get_nearest_actor(int tile_x, int tile_y,
+extern "C" LockedActorsList* lock_and_get_nearest_actor(int tile_x, int tile_y,
 	float max_distance, actor **act)
 {
-	auto list = ActorsList::get_locked_instance_ptr();
+	auto list = new LockedActorsList();
 	*act = list->get_nearest_actor(tile_x, tile_y, max_distance);
 	if (!*act)
 	{
@@ -337,9 +342,9 @@ extern "C" LockedList* lock_and_get_nearest_actor(int tile_x, int tile_y,
 }
 
 #ifdef ECDEBUGWIN
-extern "C" LockedList* lock_and_get_target(actor **target)
+extern "C" LockedActorsList* lock_and_get_target(actor **target)
 {
-	auto list = ActorsList::get_locked_instance_ptr();
+	auto list = new LockedActorsList();
 	*target = list->get_target();
 	if (!*target)
 	{
@@ -352,42 +357,42 @@ extern "C" LockedList* lock_and_get_target(actor **target)
 
 extern "C" void add_actor_to_list(actor* act, actor *attached)
 {
-	auto list = ActorsList::get_locked_instance();
+	LockedActorsList list;
 	list.add(act, attached);
 }
 
 extern "C" void remove_and_destroy_actor_from_list(int actor_id)
 {
-	auto list = ActorsList::get_locked_instance();
+	LockedActorsList list;
 	list.remove_and_destroy(actor_id);
 }
 
 extern "C" void remove_and_destroy_all_actors()
 {
-	auto list = ActorsList::get_locked_instance();
+	LockedActorsList list;
 	list.clear();
 }
 
 extern "C" int have_self()
 {
-	auto list = ActorsList::get_locked_instance();
+	LockedActorsList list;
 	return list.self() != nullptr;
 }
 
 extern "C" void set_self()
 {
-	auto list = ActorsList::get_locked_instance();
+	LockedActorsList list;
 	list.set_self();
 }
 
 extern "C" int actor_under_mouse_alive()
 {
-	auto list = ActorsList::get_locked_instance();
+	LockedActorsList list;
 	return list.actor_under_mouse_alive();
 }
 
 extern "C" int actor_occupies_tile(int x, int y)
 {
-	auto list = ActorsList::get_locked_instance();
+	LockedActorsList list;
 	return list.actor_occupies_tile(x, y);
 }

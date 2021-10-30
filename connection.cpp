@@ -263,7 +263,7 @@ void Connection::check_connection_test()
 std::size_t Connection::send(std::uint8_t cmd, const std::uint8_t *data, std::size_t data_len)
 {
 	{
-		auto list =  ActorsList::get_locked_instance();
+		LockedActorsList list;
 		actor *me = list.self();
 		if ((cmd == TURN_LEFT || cmd == TURN_RIGHT) && on_the_move(me))
 			// Ignore turn commands while walking
@@ -431,7 +431,7 @@ void Connection::send_move_to(std::int16_t x, std::int16_t y, bool try_pathfinde
 {
 	if (try_pathfinder && always_pathfinding)
 	{
-		auto list = ActorsList::get_locked_instance();
+		LockedActorsList list;
 		actor *me = list.self();
 		// Check distance
 		if (me && (abs(me->x_tile_pos - x) + abs(me->y_tile_pos - y)) > 2)
