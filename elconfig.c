@@ -2630,6 +2630,7 @@ int command_set_default_fonts(char *text, int len)
 		"book_font", "rules_font", "encyclopedia_font" };
 	char const * size_vars[] = { "ui_text_size", "name_text_size", "chat_text_size",
 		"note_text_size", "book_text_size", "rules_text_size", "encyclopedia_text_size" };
+	const float def_font_size[] = { 1.0f, get_global_scale(), get_global_scale(), 1.0f, 1.0f, 1.0f, 1.0f };
 	char const * font_names[] = { def_ui_font_str, def_name_font_str, def_chat_font_str,
 		def_note_font_str, def_book_font_str, def_rules_font_str, def_encyclopedia_font_str };
 	int elconfig_win = get_id_MW(MW_CONFIG);
@@ -2658,7 +2659,7 @@ int command_set_default_fonts(char *text, int len)
 		var_idx = find_var(size_vars[i], INI_FILE_VAR);
 		if (var_idx >= 0)
 		{
-			float new_val = 1.0f;
+			float new_val = def_font_size[i];
 			var_struct *var = our_vars.var[var_idx];
 			var->func(var->var, &new_val);
 			var->saved = 0;
