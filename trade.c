@@ -442,7 +442,7 @@ void get_trade_partner_name (const Uint8 *player_name, int len)
 
 	storage_available = player_name[0];
 
-	for (i = 0; i+1 < len; i++)
+	for (i = 0; (i < (len - 1)) && (i < (sizeof(other_player_trade_name) - 1)); i++)
 		other_player_trade_name[i] = player_name[i+1];
 	other_player_trade_name[i] = '\0';
 }
