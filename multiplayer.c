@@ -85,7 +85,7 @@ static int client_version_patch=VER_BUILD;
 #endif
 #ifndef USE_SSL
 static int version_first_digit=10;	//protocol/game version sent to server
-static int version_second_digit=28;
+static int version_second_digit=29;
 #endif // !USE_SSL
 
 const char * web_update_address= "http://www.eternal-lands.com/index.php?content=update";
