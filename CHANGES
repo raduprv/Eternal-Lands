@@ -1,3 +1,144 @@
+2021-Apr-11: Release 1.9.5 (build 9-1)
+	Major features included in this stable release:
+		True Type font support, with a default set of fonts included in the data pack.
+		Many sizing and layout improvements to the user interface.
+		Removed the random chance of closing the item list window.
+		Help text shows if a book in the inventory or storage has been read.
+		Option to sort items in storage categories alphabetically.
+		Option to save general options per character, for example the maximum food level.
+		Option to enable show/hide of chat using ALT+C or an optional icon, and to set the number scroll lines.
+		New options for the player banner including disabling colour changes.
+		Option for independent action cursors for quickbar and inventory windows.
+		Option to use alternative mouse cursors.
+		Option to enable the password manager from the or new character or login screens.
+		New #command "##" to show list of commands, "## command" gives help for that command.
+		New #commands for window size, "#reset_res" "#set_res ", "#save_res" and #show_res.
+		New #command "#quantity" or "#q" to set the inventory quantity based on the specified calculation.
+		New #command "#set_default_fonts" to reset the client fonts to the default TTFs.
+		Use new text based personal files (JSON) by default.
+		Included two standard user menus in the data pack. Right-click and deselect "Standard Menus" to disable.
+		Many other smaller changes, bug fixes and improvements including a fix for region sounds on maps.
+	Builds:
+		MacOS build is now a universal binary with native support for both Intel (x86-64) and Apple Silicon (ARM64) Macs.
+		Linux build available from the Snap and Flatpak/Flathub, AppImage stores, as .deb packages, and as a cross platform installer.
+
+2020-Apr-29: Release 1.9.5 (build 8)
+	New / changed features
+		Unequip button on inventory window now protected by double-click (HUD option).
+		To align with high-dpi changes, the notepad font is now not scaled by the "User interface Scaling Factor" option. Use the notepad font size directly.
+		Support for MacOS style high-dpi display with auto scaling of UI and fonts.
+	Bug fixes:
+		The console scroll indicator (^^ ^^), is now scaled using the chat font size.
+		Make recent keys definitions usable in key.ini and for #keypress command.
+		Fixed a crash for the Linux snap build on Ubuntu 18.04 caused by not catching copy/paste system errors.
+	Additional changed for MacOS over initial 1.9.5p7 build release:
+		Additional high-dpi scaling for MacOS of minimap and console scroll indicator (^^ ^^).
+		Fix for MacOS issue with alt+key actions also outputting characters.
+
+2020-Mar-30: Release 1.9.5 (build 7)
+    New Features
+        Added specific scaling factor for most windows. Can be changed using in the font config window or ctrl+mouse wheel or ctrl+cursor keys. Also, reset to default or initial value using crtl+home and ctrl+end. Keys can be redefined in key.ini.
+        Modified config window set-up to allow rescaling without restart, now you just need to close and reopen the window.
+        New trouble shooting option to clear modifier keys when the window get focus.
+        Added a button to items window to show/hide the text message panel - allowing a smaller window.
+        If possible, when we swap an equipped item, move the removed item to the slot left by the replacement.
+        Enhanced equipment swap function to swap equivalent items if the new item is clicked twice. Requires the item_extra_info.txt file included in the new data archive.
+        Added id and image id to storage category print.
+        Added #disconnect (or #disco) # commands to disconnect from the server.
+        Try to keep movable windows, proportionally where they are when resizing the main window. The centre of the window is used as the anchor point.
+        Added CTRL+U key bindng to open the summoning menu in addition to using the touch cursor on the summoned creature.
+        The buttons and / or the equip grid of the inventory window can now be moved to the left of the window. Using options in the title bar right-click menu.
+        Added a "Unequip all items" buttton "<", to the inventory window.
+        Added a small dot to the show/hide message panel button "V", to show the colour of the last message when the panel is closed.
+        Added popup window colours to those that can be redefined in named_colours.xml. The undated data file includes the additional colours.
+        Enable auto equip when using the item keys.
+    Bug Fixes
+        Fixed scaling of spin widget arrows.
+        Fixed use item keys so not limited by number or quickbar slots shown
+        SDL2 Port: Prevent TAB key dangling from window system switching.
+        SDL2 Port: Prevent MOD (Ctrl/Alt/Shift) keys from causing AFK to end.
+        SDL2 Port: Fixed key definition of ITEM11 and SPELL11 to use SDLK_MINUS not SDLK_UNDERSCORE.
+        SDL2 Port: Fixed not being able to define keypad keys using key.ini. Using the Key Name from SDL_GetKeyName() and keypad keys contain a space. To use these, replace the space with and underscore, for example keypad_1.
+        Resolved issues with "Resync with server..." messages while minimised.
+        Resolved issue restoring after minimised that caused fast animations for a while until the client caught up.
+        Fix crash for special effects due to use after free when removing actors.
+        Changed mix window tooltip for +10 to suggest ALT not CTRL as CTRL clashes with window scaling.
+        Fixed issue where using the Touch cursor on a non-NPC could clear any open NCP dialogue.
+        Remove white space from end of new map marks and saved map marks. This prevents confusion when trying to unmark.
+
+2020-Jan-05: Release 1.9.5 (build 6)
+	Changes:
+		Now uses version 2 of the Simple Direct Media layer - SDL2
+			Main window resizeable and full-screen available without restarting.
+			Bottom HUD status bar auto hide/show depending on space available.
+			New lower load idle state when main window minimised.
+			Added use of SDL pop-up message box to report fatal errors.
+	Fixes not related to SDL2 port:
+		Fixed some resizing issues and scaling issues for window title bar and close button.
+		Fixed out of bound memory error during chat filtering.
+		Fixed compiling without sound.
+		Fixed memory leak for AFK message handling.
+		Fixed uninitialised variable when loading enhanced actors.
+		Fix possible crash creating new character due to buffer overflow.
+
+2019-Oct-30: Release 1.9.5 (build 4)
+	New features:
+		Include latest encyclopaedia updates in data package.
+		Issue #68: Add option to log NPC dialogue text. Enabled on dialogue context menu for NPC name.
+		Issue #67: Added used item counter. Enabled using Options->Controls setting.
+		Added standard locations for the user menu window.
+		Added CMAKE file to improve Linux an Windows build.
+		Added lowering far_plane to poor_man setting.
+		Restore initial values if turning poor_man off.
+		Issue #48: Stop deleted objects impacting the clustering algorithm in map editor. Needs maps to be resaved.
+		Issue #63: Lock hud button for skill bars. Added Click Lock option to bar context menu.
+		Refactored code that sets continent tab-maps to allow specification from a data file, continfo.lst.
+		Issue #60: alt-j toggles ether bars, alt-k toggles ether number over character.
+		More for issue #59: Added option (on list context menu) to use a separate item list for current character.
+		More for issue #59: Added option (right-click save button) to use a separate notepad for current character.
+		Forum #61212: Fix hud indicators so they only show when enabled.
+		Issue #59: Added password manager.
+	Fixes:
+		Fixed lots of compiler warnings from new compilers, some for uninitialised variable usage.
+		Fixed possible crash loading options window due to NULL/0 mismatch.
+		Fixed possible crash with eye candy due to invalid free.
+		Fixes for counter loading that could cause issues when new counters added.
+		Fixes for poorman not setting values on restart and properly handle shader limit.
+		Fix use after free spotted by gcc -fsanitize=address flag that could have caused a crash.
+		Use consistent path to load and save map marks. Was spotted in OL.
+		Issue #66: Fix minimap title bar ending offscreen after resize or scale change.
+		Trap using invalid map for #ckdata command.
+		Remove changing directory to datadir during start up on non-windows.
+		Issue #57: Fix negative session hours
+		If disconnected when about to try login, connect to the server first.
+		Forum 61178: Catch invalid paste items and other paste errors on windows.
+		Fix button labels for chat colour window; thanks to dawigit spotted while working on the OL client.
+
+2018-Nov-10: Release 1.9.5 (build 3)
+	Minor new features:
+		Forum #61102: added option to disable the items list, find list feature so key presses always go to the chat/command window.
+		Forum #61101: Added hud indicator for I Glow In The Dark perk status.
+		Add background on/off option to user menus main window. Reduce vertical padding of user menus main window.
+		Forum #61082: Add the mini-map destination cross to the configurable colours.
+		Forum #61139: Add ALT+t to toggle option for targeting close-clicked creatures.
+	Fixes:
+		Forum #61059: Inventory window shifted at log in.
+		Issue #54: Mixed item filter prevents printing of item info to chat window. Modified to only block You successfully created messages.
+		Restore particle regressions from way back since eye candy added.
+		Issue #56: ctrl-right click on tab map to delete mark, deletes server marks too. #unmark deletes server marks too.
+		Fix display of knowledge list for odd numbers of books.
+		Forum #61108: Fix the length of knowledge bar missed during the ui scaling changes. Thanks to Nogrod for reporting the bug.
+		Improve scrollbar alignment, with consistency at different scale value.
+		Fixes for issues exposed for client and map editor by new gcc compiler.
+
+2018-Jun-29: Release 1.9.5 (build 2)
+    fix for crash-on-exit bug
+    include emotes window correctly in windows-on-top list
+
+2018-May-29: Release 1.9.5 (build 1)
+	fix for issues on very old guild maps
+	updated map_info.txt in data file
+
 2018-May-27: Release 1.9.5
 Client Improvements and New Features:
 * Added delete recipe option.
