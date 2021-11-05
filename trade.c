@@ -553,7 +553,7 @@ void get_trade_partner_name (const Uint8 *player_name, int len)
 
 	storage_available = player_name[0];
 
-	for (i = 0; i+1 < len; i++)
+	for (i = 0; (i < (len - 1)) && (i < (sizeof(other_player_trade_name) - 1)); i++)
 		other_player_trade_name[i] = player_name[i+1];
 	other_player_trade_name[i] = '\0';
 }
@@ -661,6 +661,17 @@ static int close_trade_handler(window_info *win)
 	// User click the close button, abort the trade
 	unsigned char msg = EXIT_TRADE;
 	my_tcp_send(&msg, 1);
+
+	return 1;
+}
+
+static int hide_trade_handler(window_info *win)
+{
+	// Reset trade partner information when the window is hidden (either because one partner
+	// aborted the trade, or because the trade was finished
+	storage_available = 0;
+	other_player_trade_name[0] = '\0';
+
 	return 1;
 }
 
@@ -680,6 +691,7 @@ void display_trade_menu()
 		set_window_handler(trade_win, ELW_HANDLER_MOUSEOVER, &mouseover_trade_handler );
 #endif
 		set_window_handler(trade_win, ELW_HANDLER_CLOSE, &close_trade_handler );
+		set_window_handler(trade_win, ELW_HANDLER_HIDE, &hide_trade_handler );
 		set_window_handler(trade_win, ELW_HANDLER_UI_SCALE, &ui_scale_trade_handler );
 
 		if (trade_win >= 0 && trade_win < windows_list.num_windows)

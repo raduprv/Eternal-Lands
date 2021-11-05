@@ -1578,6 +1578,9 @@ static int tab_collection_draw (widget_list *w)
 	// draw the tags
 	for (itab = col->tab_offset; itab < col->nr_tabs; itab++)
 	{
+		if(w->r!=-1.0)
+			glColor3f(w->r, w->g, w->b);
+
 		xend = xstart + col->tabs[itab].tag_width;
 		xmax = w->pos_x + w->len_x - right_margin;
 		if (itab < col->nr_tabs - 1)
@@ -1601,9 +1604,6 @@ static int tab_collection_draw (widget_list *w)
 			cur_start = xstart;
 			cur_end = xend;
 		}
-
-		if(w->r!=-1.0)
-			glColor3f(w->r, w->g, w->b);
 
 		if(col->cur_tab == itab){
 			// current
