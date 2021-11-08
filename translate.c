@@ -140,6 +140,9 @@ char
 	touch_help_str[20],
 	long_touch_cm_title_str[40],
 	long_touch_cm_options_str[40],
+	android_input_general_help_str[256],
+	android_input_top_help_str[128],
+	android_input_logo_help_str[128],
 #endif
 	/*buddy.c*/
 	buddy_name_str[20],
@@ -1501,6 +1504,9 @@ void init_help()
 	add_xml_identifier(misc, "touch_help_str", touch_help_str, "Touch", sizeof(touch_help_str));
 	add_xml_identifier(misc, "long_touch_cm_title_str", long_touch_cm_title_str, "Long-touch for window menu", sizeof(long_touch_cm_title_str));
 	add_xml_identifier(misc, "long_touch_cm_options_str", long_touch_cm_options_str, "Long-touch for options", sizeof(long_touch_cm_options_str));
+	add_xml_identifier(misc, "android_input_general_help_str", android_input_general_help_str, "To open the on-screen keyboard touch in input fields. The back action closes the keyboard.  In the console swipe left/right.", sizeof(android_input_general_help_str));
+	add_xml_identifier(misc, "android_input_top_help_str", android_input_top_help_str, "You can long press near the top of the game window to toggle the on-screen keyboard.", sizeof(android_input_top_help_str));
+	add_xml_identifier(misc, "android_input_logo_help_str", android_input_logo_help_str, "You can touch the logo to toggle the on-screen keyboard.", sizeof(android_input_logo_help_str));
 #endif
 	//Miscellaneous
 	add_xml_identifier(misc,"values",values_str,"values",sizeof(values_str));

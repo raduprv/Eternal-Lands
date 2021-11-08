@@ -727,12 +727,6 @@ static int click_game_handler(window_info *win, int mx, int my, Uint32 flags)
 	if (back_on)
 		return 0;
 
-	if ((my < (get_tab_bar_y() + get_input_at_top_height())) && (mx < kb_active_width))
-	{
-		toggle_active_input();
-		return 0;
-	}
-
 	// ignore clicks in touch window for now
 	if (!window_camera_controls &&
 		(((mx > horiz_touch_x_start) && (mx < horiz_touch_x_start + horiz_touch_x_size) &&
@@ -839,9 +833,8 @@ static int click_game_handler(window_info *win, int mx, int my, Uint32 flags)
 			}
 #ifdef ANDROID
 			// activate/close the on-screen keyboard of we're near the top
-			// ANDROID_TODO instead, perhaps activate when the widget is clicked?
-			if ((window_camera_controls) &&
-				(my < (get_tab_bar_y() + (3 * get_input_default_height()))) && (mx < kb_active_width))
+			if (window_camera_controls && logo_click_to_url &&
+				(my < (3 * get_tab_bar_y())) && (mx < kb_active_width))
 				toggle_active_input();
 			// for touch, we don't use the action switching and dragging is done differently - so return now
 			return 1;
