@@ -367,6 +367,7 @@ void TCPSocket::encrypt(const std::string& hostname)
 
 		// Load certificates from the game data directory, as well as the user's configuration directory
 		std::string dir_names[] = {
+			get_path_updates() + ('/' + certificates_directory_name),
 			datadir + ('/' + certificates_directory_name),
 			get_path_config_base() + ('/' + certificates_directory_name)
 		};
@@ -382,8 +383,8 @@ void TCPSocket::encrypt(const std::string& hostname)
 				if (!X509_LOOKUP_add_dir(lookup, dir_name.c_str(), X509_FILETYPE_PEM))
 				{
 					unsigned long err = ERR_get_error();
-					LOG_ERROR("Failed to load certificates from directory \"%s\": %s", dir_name.c_str(),
-						ERR_reason_error_string(err));
+					LOG_WARNING("Failed to load certificates from directory \"%s\": %s",
+						dir_name.c_str(), ERR_reason_error_string(err));
 				}
 			}
 		}
