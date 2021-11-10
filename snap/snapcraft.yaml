@@ -62,8 +62,8 @@ parts:
       - desktop-glib-only
 
   data:
-    source: https://github.com/raduprv/Eternal-Lands/releases/download/1.9.6.0-rc1/eternallands-data_1.9.6.0.zip
-    source-checksum: sha256/c34930714d73bb876620134a1bbf4c06e193e3924789f3be01e3b67038a75784
+    source: https://github.com/raduprv/Eternal-Lands/releases/download/1.9.5.9-1/eternallands-data_1.9.5.9-1.zip
+    source-checksum: sha256/00f105ce44998b939bb92361c113961f2220afa0a3b21e53beed35968ae23ae4
     plugin: dump
     organize:
       el_data/ : data/
