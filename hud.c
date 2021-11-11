@@ -173,7 +173,11 @@ static int test_over_logo(window_info *win, int mx, int my)
 {
 	int dead_space = (int)(0.5 + win->current_scale * 10);
 	int hud_logo_size = get_hud_logo_size();
+#ifdef ANDROID
+	return (hud_x || !logo_click_to_url) && (mx > (win->len_x - (hud_logo_size - dead_space))) && (my < (hud_logo_size - dead_space));
+#else
 	return hud_x && (mx > (win->len_x - (hud_logo_size - dead_space))) && (my < (hud_logo_size - dead_space));
+#endif
 }
 
 int hud_mouse_over(window_info *win, int mx, int my)
