@@ -671,6 +671,7 @@ namespace cm
 		selection = -1;
 		for (size_t i=0; i<menu_lines.size(); ++i)
 		{
+#ifndef ANDROID
 			// if the mouse is over a valid line, draw the highlight and select line
 			if (!menu_lines[i].is_grey && !menu_lines[i].is_separator &&
 			  (mouse_y > win->cur_y + currenty - line_sep) &&
@@ -691,6 +692,7 @@ namespace cm
 				glEnable(GL_TEXTURE_2D);
 				selection = i;
 			}
+#endif
 
 			// draw a separator ...
 			if (menu_lines[i].is_separator)
@@ -750,7 +752,7 @@ namespace cm
 	{
 #ifdef ANDROID
 		// ANDROID_TODO common function with display()
-		if (selection < 0)
+		// We always want to use the entry that is clicked, the highlight is not used
 		{
 			float scale = scaled_value(1.0);
 			int line_height = get_line_height(win->font_category, scale);
@@ -759,7 +761,7 @@ namespace cm
 			float line_step = line_sep + max2i(box_size, line_height);
 			for (size_t i=0; i<menu_lines.size(); ++i)
 			{
-				// if the mouse is over a valid line, draw the highlight and select line
+				// if the mouse is over a valid line, select it
 				if (!menu_lines[i].is_grey && !menu_lines[i].is_separator &&
 				  (my > currenty - line_sep) &&
 				  (my < currenty + line_step - line_sep) &&
