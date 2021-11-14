@@ -3094,8 +3094,7 @@ void create_console_input(int window_id, int widget_id, int pos_x, int pos_y, in
 	input_widget = widget_find(window_id, id);
 	input_widget->OnResize = input_field_resize;
 
-	if ((window_id >= 0) && (window_id < windows_list.num_windows))
-		common_non_windowed_move_input_widget(&windows_list.window[input_widget->window_id]);
+	input_widget_move_to_win(window_id);
 }
 
 void set_console_input_onkey(void)
