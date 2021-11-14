@@ -166,7 +166,11 @@ void init_login_screen (void)
 	passmngr_set_login();
 
 	if (strlen(get_username()) && !strlen(get_password()))
+#ifdef ANDROID
+		toggle_selected_box(password_field_id);
+#else
 		select_password_box();
+#endif
 
 	get_version_string (version_str, sizeof (version_str));
 }
