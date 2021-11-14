@@ -3108,8 +3108,7 @@ void create_console_input(int window_id, int widget_id, int pos_x, int pos_y, in
 	widget_set_OnClick(window_id, id, chat_input_click);
 #endif
 
-	if ((window_id >= 0) && (window_id < windows_list.num_windows))
-		common_non_windowed_move_input_widget(&windows_list.window[input_widget->window_id]);
+	input_widget_move_to_win(window_id);
 }
 
 void set_console_input_onkey(void)
