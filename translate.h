@@ -226,9 +226,7 @@ extern char
 		touch_help_str[20],
 		long_touch_cm_title_str[40],
 		long_touch_cm_options_str[40],
-		android_input_general_help_str[256],
-		android_input_top_help_str[128],
-		android_input_logo_help_str[128],
+		keyboard_button_str[30],
 #endif
 		/*buddy.c*/
 		buddy_name_str[20],

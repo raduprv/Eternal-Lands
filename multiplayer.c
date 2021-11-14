@@ -915,11 +915,6 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 				command_date("", 0);
 				// print the game time in order to get the seconds for the SKY_FPV feature
 				command_time("", 0);
-#ifdef ANDROID
-				// print Android help
-				LOG_TO_CONSOLE(c_green1, android_input_general_help_str);
-				LOG_TO_CONSOLE(c_green1, ((logo_click_to_url) ?android_input_top_help_str :android_input_logo_help_str));
-#endif
 				// print the invading monster count
 				safe_snprintf(str, sizeof(str), "%c#il", RAW_TEXT);
 				my_tcp_send((Uint8*)str, strlen(str+1)+1);

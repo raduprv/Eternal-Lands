@@ -832,10 +832,6 @@ static int click_game_handler(window_info *win, int mx, int my, Uint32 flags)
 				}
 			}
 #ifdef ANDROID
-			// activate/close the on-screen keyboard of we're near the top
-			if (window_camera_controls && logo_click_to_url &&
-				(my < (3 * get_tab_bar_y())) && (mx < kb_active_width))
-				toggle_active_input();
 			// for touch, we don't use the action switching and dragging is done differently - so return now
 			return 1;
 #endif
