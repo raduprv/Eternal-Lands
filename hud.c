@@ -94,6 +94,7 @@ void init_hud_interface (hud_interface type)
 			hud_x = (int)(0.5 + windows_list.window[newchar_root_win].current_scale * NEW_CHARACTER_BASE_HUD_X);
 			resize_root_window();
 			init_icon_window (NEW_CHARACTER_ICONS);
+			resize_newchar_hud_window();
 		}
 	}
 	else
