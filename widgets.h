@@ -1377,6 +1377,7 @@ int multiselect_get_scrollbar_pos(int window_id, Uint32 widget_id);
 int multiselect_set_scrollbar_pos(int window_id, Uint32 widget_id, int pos);
 int multiselect_get_height(int window_id, Uint32 widget_id);
 int multiselect_clear(int window_id, Uint32 widget_id);
+int multiselect_set_scrollbar_inc(int window_id, Uint32 multiselect_id, int inc);
 
 #define SPIN_FLOAT 0
 #define SPIN_INT 1

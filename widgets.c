@@ -4406,6 +4406,20 @@ int multiselect_button_add(int window_id, Uint32 multiselect_id, Uint16 x, Uint1
 	return multiselect_button_add_extended(window_id, multiselect_id, x, y, 0, text, DEFAULT_SMALL_RATIO, selected);
 }
 
+int multiselect_set_scrollbar_inc(int window_id, Uint32 multiselect_id, int inc)
+{
+	widget_list *widget = widget_find(window_id, multiselect_id);
+	multiselect *M = NULL;
+	if (widget == NULL)
+		return 0;
+	if ((M = widget->widget_info) == NULL)
+		return 0;
+	if (M->scrollbar == -1)
+		return 0;
+	vscrollbar_set_bar_len(window_id, M->scrollbar, inc);
+	return 1;
+}
+
 int multiselect_button_add_extended(int window_id, Uint32 multiselect_id, Uint16 x, Uint16 y, int width, const char *text, float size, const char selected)
 {
 	widget_list *widget = widget_find(window_id, multiselect_id);
@@ -4460,8 +4474,10 @@ int multiselect_button_add_extended(int window_id, Uint32 multiselect_id, Uint16
 		}
 	}
 
+	// we don't know how many buttons are intended to be displayed so set a sensible scrollbar inc
+	// the caller can use multiselect_set_scrollbar_inc() after adding all the buttons to set a better value
 	if (M->scrollbar != -1)
-		vscrollbar_set_bar_len(window_id, M->scrollbar, M->nr_buttons-widget->len_y/button_height);
+		vscrollbar_set_bar_len(window_id, M->scrollbar, M->nr_buttons - 1);
 
 	return current_button;
 }
