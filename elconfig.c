@@ -152,7 +152,7 @@ static int recheck_window_scale = 0;
 #define ELCONFIG_SCALED_VALUE(BASE) ((int)(0.5 + ((BASE) * elconf_scale)))
 #endif
 
-#define MULTI_LINE_HEIGHT (ELCONFIG_SCALED_VALUE(22) + SPACING)
+#define MULTI_LINE_HEIGHT (ELCONFIG_SCALED_VALUE(2.0 * BUTTONRADIUS * DEFAULT_SMALL_RATIO) + SPACING)
 
 typedef char input_line[256];
 
@@ -3820,7 +3820,8 @@ static void elconfig_populate_tabs(void)
 	int spin_button_width = max2i(ELCONFIG_SCALED_VALUE(100),
 		4 * get_max_digit_width_zoom(CONFIG_FONT, elconf_scale) + 4 * (int)(0.5 + 5 * elconf_scale));
 	int right_margin = TAB_MARGIN;
-	int multi_height = 3 * MULTI_LINE_HEIGHT;
+	const int num_visible_options = 3;
+	const int multi_height = num_visible_options * MULTI_LINE_HEIGHT;
 
 	for(i= 0; i < MAX_TABS; i++) {
 		//Set default values
@@ -3911,7 +3912,7 @@ static void elconfig_populate_tabs(void)
 				widget_width = ELCONFIG_SCALED_VALUE(250);
 				widget_id = multiselect_add_extended(window_id, elconfig_free_widget_id++, NULL,
 					window_width - right_margin - widget_width, current_y, widget_width,
-					multi_height, elconf_scale, gui_color[0], gui_color[1], gui_color[2],
+					multi_height - SPACING + 2, elconf_scale, gui_color[0], gui_color[1], gui_color[2],
 					gui_invert_color[0], gui_invert_color[1], gui_invert_color[2], 0);
 				for (iopt = 0; iopt < var->args.multi.count; ++iopt)
 				{
@@ -3922,6 +3923,7 @@ static void elconfig_populate_tabs(void)
 						0, iopt * MULTI_LINE_HEIGHT, 0, label,
 						DEFAULT_SMALL_RATIO*elconf_scale, iopt == *(int *)var->var);
 				}
+				multiselect_set_scrollbar_inc(window_id, widget_id, var->args.multi.count - num_visible_options);
 				multiselect_set_selected(window_id, widget_id, *((const int*)var->var));
 				widget_set_OnClick(window_id, widget_id, multiselect_click_handler);
 				widget_set_OnKey(window_id, widget_id, (int (*)())multiselect_keypress_handler);
