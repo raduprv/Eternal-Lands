@@ -401,6 +401,10 @@ void Connection::send_login_info()
 	if (!valid_username_password())
 		return;
 
+#ifdef ANDROID
+	SDL_StopTextInput();
+#endif
+
 	if (is_disconnected())
 		connect_to_server();
 
