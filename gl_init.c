@@ -899,7 +899,9 @@ void set_client_window_size(int width, int height)
 	log_next_window_resize = 1;
 	SDL_RestoreWindow(el_gl_window);
 	SDL_SetWindowFullscreen(el_gl_window, 0);
+#ifndef ANDROID
 	SDL_SetWindowSize(el_gl_window, width, height);
+#endif
 }
 
 //	Get a single value for highhdpi scaling.

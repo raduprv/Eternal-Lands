@@ -3091,7 +3091,7 @@ static void init_ELC_vars(void)
 
 	// VIDEO TAB
 #ifdef ANDROID
-	full_screen = 0;
+	add_var(OPT_BOOL,"full_screen","fs",&full_screen,toggle_full_screen_mode,0,"Full Screen","Changes between full screen and windowed mode",VIDEO);
 	video_mode = 4;
 	add_var(OPT_INT,"limit_fps","lfps",&limit_fps,change_fps,0,"Limit FPS","Limit the frame rate to reduce load on the system",VIDEO,0,INT_MAX);
 #else
