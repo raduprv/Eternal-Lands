@@ -210,6 +210,7 @@ static void load_cstate(void)
 		enum managed_window_enum i;
 		for (i = 0; i < MW_MAX; i++)
 			get_json_window_state_MW(i);
+		get_json_windows_state();
 	}
 
 	zoom_level = json_cstate_get_float("camera", "zoom", 0.0f);
@@ -523,6 +524,7 @@ static void save_cstate(void)
 		enum managed_window_enum i;
 		for (i = 0; i < MW_MAX; i++)
 			set_json_window_state_MW(i);
+		set_json_windows_state();
 	}
 
 	json_cstate_set_float("camera", "zoom", zoom_level);

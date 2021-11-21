@@ -356,6 +356,8 @@ void toggle_window_MW(enum managed_window_enum managed_win);
 int get_window_showable_MW(enum managed_window_enum managed_win);
 enum managed_window_enum get_by_name_MW(const char *name);
 const char *get_dict_name_WM(enum managed_window_enum managed_win, char *buf, size_t buf_len);
+void get_json_windows_state(void);
+void set_json_windows_state(void);
 void get_json_window_state_MW(enum managed_window_enum managed_win);
 void set_json_window_state_MW(enum managed_window_enum managed_win);
 /*! @} */
@@ -380,14 +382,6 @@ void check_proportional_move(enum managed_window_enum managed_win);
  * \callgraph
  */
 void move_windows_proportionally(float pos_ratio_x, float pos_ratio_y);
-
-/*!
- * \ingroup windows
- * \brief Adjusts window positions proportionally using window sizes from config
- *
- * \callgraph
- */
-void restore_window_proportionally(void);
 
 /*!
  * \ingroup elwindows
