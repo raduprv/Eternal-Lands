@@ -216,15 +216,19 @@ void update_windows_scale(float scale_factor)
 	}
 }
 
-static void move_window_proportionally(int win_id, float pos_ratio_x, float pos_ratio_y)
+static void move_window_proportionally(int win_id, int pos_x, int pos_y, float pos_ratio_x, float pos_ratio_y)
 {
 	window_info *win = NULL;
 	int new_x, new_y;
 	if (win_id < 0 || win_id >= windows_list.num_windows)
 		return;
 	win = &windows_list.window[win_id];
-	new_x = (int)(0.5 + pos_ratio_x * ((float)win->cur_x + (float)win->len_x / 2.0f) - (float)win->len_x / 2.0f);
-	new_y = (int)(0.5 + pos_ratio_y * ((float)win->cur_y + (float)win->len_y / 2.0f) - (float)win->len_y / 2.0f);
+	if (pos_x < 0)
+		pos_x = win->cur_x;
+	if (pos_y < 0)
+		pos_y = win->cur_y;
+	new_x = (int)(0.5 + pos_ratio_x * ((float)pos_x + (float)win->len_x / 2.0f) - (float)win->len_x / 2.0f);
+	new_y = (int)(0.5 + pos_ratio_y * ((float)pos_y + (float)win->len_y / 2.0f) - (float)win->len_y / 2.0f);
 	move_window(win->window_id, win->pos_id, win->pos_loc, new_x, new_y);
 }
 
@@ -247,7 +251,7 @@ void move_windows_proportionally(float pos_ratio_x, float pos_ratio_y)
 		}
 		else
 		{
-			move_window_proportionally(managed_windows.list[i].id, pos_ratio_x, pos_ratio_y);
+			move_window_proportionally(managed_windows.list[i].id, -1, -1, pos_ratio_x, pos_ratio_y);
 			managed_windows.list[i].pos_ratio_x = managed_windows.list[i].pos_ratio_y = 1.0f;
 		}
 	}
@@ -313,6 +317,23 @@ static void set_window_use_def_pos(int window_id, int state)
 }
 
 #ifdef JSON_FILES
+void get_json_windows_state(void)
+{
+	const char * dict_name = "MW_windows_state";
+	int last_width = json_cstate_get_int(dict_name, "last_width", window_width);
+	int last_height = json_cstate_get_int(dict_name, "last_height", window_height);
+	move_windows_proportionally((float)window_width / (float)last_width, (float)window_height / (float)last_height);
+}
+
+void set_json_windows_state(void)
+{
+	const char * dict_name = "MW_windows_state";
+	json_cstate_set_int(dict_name, "last_width", window_width);
+	json_cstate_set_int(dict_name, "last_height", window_height);
+	json_cstate_delete_var(dict_name, "pos_ratio_x");
+	json_cstate_delete_var(dict_name, "pos_ratio_y");
+}
+
 void get_json_window_state_MW(enum managed_window_enum managed_win)
 {
 	if (managed_win < MW_MAX)
@@ -325,7 +346,11 @@ void get_json_window_state_MW(enum managed_window_enum managed_win)
 		pos_y = json_cstate_get_int(window_dict_name, "pos_y",
 			(managed_windows.list[managed_win].use_def_pos) ? -1 : managed_windows.list[managed_win].pos_y);
 		if ((pos_x >= 0) || (pos_y >= 0))
+		{
 			set_pos_MW(managed_win, pos_x, pos_y);
+			managed_windows.list[managed_win].pos_ratio_x = json_cstate_get_float(window_dict_name, "pos_ratio_x", 1.0f);
+			managed_windows.list[managed_win].pos_ratio_y = json_cstate_get_float(window_dict_name, "pos_ratio_y", 1.0f);
+		}
 	}
 }
 
@@ -339,6 +364,8 @@ void set_json_window_state_MW(enum managed_window_enum managed_win)
 		{
 			json_cstate_delete_var(window_dict_name, "pos_x");
 			json_cstate_delete_var(window_dict_name, "pos_y");
+			json_cstate_delete_var(window_dict_name, "pos_ratio_x");
+			json_cstate_delete_var(window_dict_name, "pos_ratio_y");
 		}
 		else
 		{
@@ -346,38 +373,12 @@ void set_json_window_state_MW(enum managed_window_enum managed_win)
 			set_save_pos_MW(managed_win, &pos_x, &pos_y);
 			json_cstate_set_int(window_dict_name, "pos_x", pos_x);
 			json_cstate_set_int(window_dict_name, "pos_y", pos_y);
+			json_cstate_set_float(window_dict_name, "pos_ratio_x", managed_windows.list[managed_win].pos_ratio_x);
+			json_cstate_set_float(window_dict_name, "pos_ratio_y", managed_windows.list[managed_win].pos_ratio_y);
 		}
 	}
 }
 #endif
-
-// Called just before saving data on exit.
-// Window positions are proportionally adjusted ready for the next client run.
-// Any window instantiated at exit will be positioned correctly.
-// Any window that was not instantiated, will be positioned correctly only if
-// the next start has the same sizes as was used starting this time.
-// The case where the client will start with a different sizes than this time
-// will cause the position of uninstantiated windows to be wrong.  This will be
-// fixed when we save the managed window information as JSON.
-void restore_window_proportionally(void)
-{
-	if (!full_screen)
-	{
-		int index = video_mode - 1;
-		int new_width, new_height;
-		if (index < 0 || index >= video_modes_count)
-			index = 0;
-		if (index == 0)
-		{
-			new_width = video_user_width;
-			new_height = video_user_height;
-		} else {
-			new_width = video_modes[index].width;
-			new_height = video_modes[index].height;
-		}
-		move_windows_proportionally((float)new_width / (float)window_width, (float)new_height / (float)window_height);
-	}
-}
 
 void check_proportional_move(enum managed_window_enum managed_win)
 {
@@ -394,7 +395,9 @@ void check_proportional_move(enum managed_window_enum managed_win)
 		move_to_default_pos(managed_win);
 	else if (managed_windows.list[managed_win].prop_pos && ((managed_windows.list[managed_win].pos_ratio_x != 1.0f) || (managed_windows.list[managed_win].pos_ratio_y != 1.0f)))
 	{
-		move_window_proportionally(managed_windows.list[managed_win].id, managed_windows.list[managed_win].pos_ratio_x, managed_windows.list[managed_win].pos_ratio_y);
+		move_window_proportionally(managed_windows.list[managed_win].id,
+			managed_windows.list[managed_win].pos_x, managed_windows.list[managed_win].pos_y,
+			managed_windows.list[managed_win].pos_ratio_x, managed_windows.list[managed_win].pos_ratio_y);
 		managed_windows.list[managed_win].pos_ratio_x = managed_windows.list[managed_win].pos_ratio_y = 1.0f;
 	}
 }
