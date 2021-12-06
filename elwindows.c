@@ -22,6 +22,7 @@
 #include "keys.h"
 #include "misc.h"
 #include "multiplayer.h"
+#include "new_character.h"
 #include "textures.h"
 #include "widgets.h"
 #include "sound.h"
@@ -278,28 +279,32 @@ static void move_to_default_pos(enum managed_window_enum managed_win)
 		(managed_windows.list[managed_win].default_pos != ELW_P_NONE))
 	{
 		window_info *win = &windows_list.window[managed_windows.list[managed_win].id];
+		int have_hud = get_show_window(game_root_win) || get_show_window(newchar_root_win) ||
+			get_show_window(get_id_MW(MW_CONSOLE)) || get_show_window(get_id_MW(MW_TABMAP));
+		int margin_x_to_use = (have_hud && ((window_width - hud_x) > win->len_x)) ?hud_x :0;
+		int margin_y_to_use = (have_hud && ((window_height - hud_y) > win->len_y)) ?hud_y :0;
 		int new_x, new_y;
 		switch (managed_windows.list[managed_win].default_pos)
 		{
 			case ELW_P_TL: case ELW_P_CL: case ELW_P_BL:
-				new_x = (window_width - HUD_MARGIN_X) / 5 -  win->len_x / 2;
+				new_x = (window_width - margin_x_to_use) / 5 -  win->len_x / 2;
 				break;
 			case ELW_P_TR: case ELW_P_CR: case ELW_P_BR:
-				new_x = 4 * (window_width - HUD_MARGIN_X) / 5 -  win->len_x / 2;
+				new_x = 4 * (window_width - margin_x_to_use) / 5 -  win->len_x / 2;
 				break;
 			default: // this will be case ELW_P_TC: case ELW_P_CC: case ELW_P_BC:
-				new_x = (window_width - win->len_x - HUD_MARGIN_X) / 2;
+				new_x = (window_width - win->len_x - margin_x_to_use) / 2;
 		}
 		switch (managed_windows.list[managed_win].default_pos)
 		{
 			case ELW_P_TL: case ELW_P_TC: case ELW_P_TR:
-				new_y = (window_height - HUD_MARGIN_Y) / 5 - win->len_y / 2;
+				new_y = (window_height - margin_y_to_use) / 5 - win->len_y / 2;
 				break;
 			case ELW_P_BL: case ELW_P_BC: case ELW_P_BR:
-				new_y = 4 * (window_height - HUD_MARGIN_Y) / 5 - win->len_y / 2;
+				new_y = 4 * (window_height - margin_y_to_use) / 5 - win->len_y / 2;
 				break;
 			default: // this will be case ELW_P_CL: case ELW_P_CC: case ELW_P_CR:
-				new_y = (window_height - win->len_y - HUD_MARGIN_Y) / 2;
+				new_y = (window_height - win->len_y - margin_y_to_use) / 2;
 		}
 		move_window(win->window_id, win->pos_id, win->pos_loc, new_x, new_y);
 	}
@@ -348,6 +353,7 @@ void get_json_window_state_MW(enum managed_window_enum managed_win)
 		if ((pos_x >= 0) || (pos_y >= 0))
 		{
 			set_pos_MW(managed_win, pos_x, pos_y);
+			managed_windows.list[managed_win].use_def_pos = 0;
 			managed_windows.list[managed_win].pos_ratio_x = json_cstate_get_float(window_dict_name, "pos_ratio_x", 1.0f);
 			managed_windows.list[managed_win].pos_ratio_y = json_cstate_get_float(window_dict_name, "pos_ratio_y", 1.0f);
 		}
@@ -442,7 +448,6 @@ void set_pos_MW(enum managed_window_enum managed_win, int pos_x, int pos_y)
 	{
 		managed_windows.list[managed_win].pos_x = pos_x;
 		managed_windows.list[managed_win].pos_y = pos_y;
-		managed_windows.list[managed_win].use_def_pos = 0;
 	}
 }
 
@@ -1948,6 +1953,7 @@ static void resize_scrollbar(window_info *win)
 
 void resize_window (int win_id, int new_width, int new_height)
 {
+	enum managed_window_enum managed_win = get_MW_index(win_id);
 	window_info *win;
 
 	if (win_id < 0 || win_id >= windows_list.num_windows)	return;
@@ -1971,6 +1977,10 @@ void resize_window (int win_id, int new_width, int new_height)
 		(*win->resize_handler) (win, new_width, new_height);
 		glPopMatrix  ();
 	}
+
+	if ((managed_win < MW_MAX) && (managed_windows.list[managed_win].use_def_pos))
+		move_to_default_pos(managed_win);
+
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
