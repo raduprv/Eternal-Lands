@@ -20,6 +20,7 @@
 #include "font.h"
 #include "gl_init.h"
 #include "loginwin.h"
+#include "misc.h"
 #include "multiplayer.h"
 #include "named_colours.h"
 #include "io/elpathwrapper.h"
