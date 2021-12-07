@@ -251,6 +251,7 @@ namespace Password_Manaager
 		private:
 			void destroy(void);
 			int border_x, border_y, username_sep_y;
+			int max_name_width;
 			int window_id;
 			Uint32 scroll_id, checkbox_id, checkbox_label_id;
 			int show_passwords;
@@ -266,10 +267,24 @@ namespace Password_Manaager
 		size_t max_available = static_cast<size_t>(0.8 * window_height - 2 * border_y + username_sep_y) / (username_sep_y + win->default_font_len_y);
 		max_displayed = std::min(max_available, logins->size());
 		int height = 2 * border_y + max_displayed * win->default_font_len_y + (max_displayed - 1) * username_sep_y;
-		int width = 2 * border_x + win->default_font_max_len_x * (MAX_USERNAME_LENGTH - 1) + win->box_size;
-		if (show_passwords)
-			width += border_x + win->default_font_max_len_x * (MAX_USERNAME_LENGTH - 1);
 		height = std::max(height, 4 * win->box_size);
+
+		// calculate the maximum name width, and use set the window width
+		max_name_width = 0;
+		for (std::vector<Login>::const_iterator i = logins->begin(); i < logins->end(); ++i)
+			max_name_width = max2i(max_name_width, get_string_width_zoom(
+					(const unsigned char*)i->get_name().c_str(), win->font_category, win->current_scale));
+		int width = 2 * border_x + max_name_width + win->box_size;
+
+		// if shown, calculate the maximum password width, and use to increase the window width
+		if (show_passwords)
+		{
+			int max_password_width = 0;
+			for (std::vector<Login>::const_iterator i = logins->begin(); i < logins->end(); ++i)
+				max_password_width = max2i(max_password_width, get_string_width_zoom(
+						(const unsigned char*)i->get_password().c_str(), win->font_category, win->current_scale));
+			width += border_x + max_password_width;
+		}
 
 		int y_box, y_label;
 		if (checkbox_id > 0)
@@ -299,7 +314,10 @@ namespace Password_Manaager
 		vscrollbar_set_bar_len(win->window_id, scroll_id, ((logins->size() < max_displayed) ?0: logins->size() - max_displayed));
 
 		resize_window(window_id, width, height);
-		move_window(window_id, win->pos_id, win->pos_loc, window_width / 2 + ((window_width / 2 - width) / 2), (window_height - height) / 2);
+		int start_x =  window_width / 2 + ((window_width / 2 - width) / 2);
+		if ((start_x + width + border_x) > window_width)
+			start_x = window_width - width - border_x;
+		move_window(window_id, win->pos_id, win->pos_loc, start_x, (window_height - height) / 2);
 		return 1;
 	}
 
@@ -394,7 +412,7 @@ namespace Password_Manaager
 				glColor3f(1.0f, 1.0f, 1.0f);
 			draw_string_zoomed (border_x, border_y + y, (const unsigned char*)curr->get_name().c_str(), 1, win->current_scale);
 			if (show_passwords)
-				draw_string_zoomed (2 * border_x + win->default_font_max_len_x * (MAX_USERNAME_LENGTH - 1), border_y + y, (const unsigned char*)curr->get_password().c_str(), 1, win->current_scale);
+				draw_string_zoomed (2 * border_x + max_name_width, border_y + y, (const unsigned char*)curr->get_password().c_str(), 1, win->current_scale);
 			y += win->default_font_len_y + username_sep_y;
 		}
 		mouse_over_line = -1;
