@@ -692,19 +692,6 @@ static __inline__ int is_actor_barehanded(actor *act, int hand){
 
 /*!
  * \ingroup	display_actors
- * \brief	Draws the actors banner (healthbar, name, etc)
- *
- * 		This function is used for drawing the healthbar, the name, the damage, the healthpoints (cur/max) and the text bubbles
- *
- * \param	actor_id Is a pointer to the actor we wish to draw
- * \param	offset_z Is the z offset, found by the current MD2 frames max_z.
- *
- * \callgraph
- */
-void draw_actor_banner(actor * actor_id, float offset_z);
-
-/*!
- * \ingroup	display_actors
  * \brief	The main actor loop - draws all actors within range
  *
  * 		The function draws the actor if it's within a range of 12*12
