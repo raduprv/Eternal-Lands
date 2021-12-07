@@ -356,6 +356,14 @@ void set_json_window_state_MW(enum managed_window_enum managed_win);
 
 /*!
  * \ingroup windows
+ * \brief set alternate window defaults required if we're using the old cnf file
+ *
+ * \callgraph
+ */
+void set_cfg_fallback_state(void);
+
+/*!
+ * \ingroup windows
  * \brief Check if the specified window has pending adjustments and position proportionably
  *
  * \param managed_win		the index of the window in the managed window array
