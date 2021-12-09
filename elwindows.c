@@ -649,6 +649,13 @@ int get_window_showable_MW(enum managed_window_enum managed_win)
 		return get_window_showable(get_id_MW(managed_win));
 }
 
+void set_cfg_fallback_state(void)
+{
+	enum managed_window_enum i;
+	for (i = 0; i < MW_MAX; i++)
+		managed_windows.list[i].use_def_pos = 0;
+}
+
 static void change_window_font(window_info *win, font_cat cat)
 {
 	widget_list *W;

@@ -435,7 +435,7 @@ static void set_mana_color(float percent, float multiplier, float a)
 }
 
 
-void draw_actor_banner(actor * actor_id, float offset_z)
+static void draw_actor_banner(actor * actor_id, float offset_z)
 {
 	unsigned char str[60];
 	GLdouble model[16],proj[16];
@@ -1062,7 +1062,7 @@ CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
 }
 
-static __inline__ void draw_actor_banner_new(actor * actor_id)
+static void draw_actor_banner_new(actor * actor_id)
 {
 	float x_pos, y_pos, z_pos;
 	float healthbar_z;

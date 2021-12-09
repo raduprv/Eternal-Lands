@@ -388,6 +388,9 @@ static void read_bin_cfg(void)
 	//verify the version number
 	if(cfg_mem.cfg_version_num != CFG_VERSION) return; //oops! ignore the file
 
+	// as we're using the old .cfg file, we have to allow for missing options
+	set_cfg_fallback_state();
+
 	//good, retrive the data
 	// TODO: move window save/restore into the window handler
 	set_pos_MW(MW_ITEMS, cfg_mem.items_menu_x, cfg_mem.items_menu_y);
