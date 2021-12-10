@@ -300,6 +300,8 @@ static void move_to_default_pos(enum managed_window_enum managed_win)
 			default: // this will be case ELW_P_TC: case ELW_P_CC: case ELW_P_BC:
 				new_x = (window_width - win->len_x - margin_x_to_use) / 2;
 		}
+		new_x = max2i(0, new_x);
+		new_x = min2i(new_x, window_width - win->len_x);
 		switch (managed_windows.list[managed_win].default_pos)
 		{
 			case ELW_P_TL: case ELW_P_TC: case ELW_P_TR:
@@ -311,6 +313,8 @@ static void move_to_default_pos(enum managed_window_enum managed_win)
 			default: // this will be case ELW_P_CL: case ELW_P_CC: case ELW_P_CR:
 				new_y = (window_height - win->len_y - margin_y_to_use) / 2;
 		}
+		new_y = min2i(new_y, window_height - win->len_y);
+		new_y = max2i((win->flags & ELW_TITLE_BAR) ? win->title_height :0, new_y);
 		move_window(win->window_id, win->pos_id, win->pos_loc, new_x, new_y);
 	}
 }
