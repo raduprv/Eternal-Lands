@@ -266,7 +266,8 @@ typedef	struct	{
 extern	windows_info	windows_list; /*!< global variable defining the list of windows */
 extern int windows_on_top; /*!< global variable for whether windows appear on top of the console */
 extern int top_SWITCHABLE_OPAQUE_window_drawn; /*!< the id of the top opaque switchable window */
-extern int opaque_window_backgrounds;
+extern int opaque_window_backgrounds; /*!< the config option to enable opaque backgrouds for all windows */
+extern int enable_windows_autoscale; /*!< the config option to enable autoscaling of windows */
 
 /*!
  * \name managed window definitions, used to specify which window to access
@@ -795,6 +796,36 @@ void	toggle_window(int win_id);
  * \pre If \a new_height is less than the minimum height (\ref window_info::min_len_y) it will be adjusted acoordingly before applying.
  */
 void resize_window (int win_id, int new_width, int new_height);
+
+/*!
+ * \ingroup elwindows
+ * \brief   set scaling factor for window to fit main window.
+ *
+ *      If the window uses custom scaling, shrink if too big for the window or reset to default scale
+ * if the window scale is smaller than the default but the default scale would fit.
+ *
+ * \param win    Pointer to the window structure, does nothting if NULL.
+ * \param scale    Pointer to the window custom scale, does nothting if NULL.
+ * \retval int 0 if scale not changed, 1 if changed
+ * \callgraph
+ */
+int calc_windows_autoscale(window_info *win, float *scale);
+
+/*!
+ * \ingroup elwindows
+ * \brief   Called from the 1/2 second time to check if we need to autoscale a window.
+ *
+  * \callgraph
+*/
+void check_for_windows_autoscale(void);
+
+/*!
+ * \ingroup elwindows
+ * \brief   Called after a main window resize enabled windows as needing autoscale.
+ *
+ * \callgraph
+ */
+void set_windows_autoscale_needed(void);
 
 /*!
  * \ingroup elwindows

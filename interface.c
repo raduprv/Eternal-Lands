@@ -1302,4 +1302,5 @@ void resize_all_root_windows (Uint32 ow, Uint32 w, Uint32 oh, Uint32 h)
 	if (langsel_rootwin >= 0) resize_window (langsel_rootwin, w, h);
 	input_widget_move_to_win(-1);
 	resize_newchar_hud_window();
+	set_windows_autoscale_needed();
 }
