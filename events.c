@@ -264,6 +264,12 @@ int HandleEvent (SDL_Event *event)
 			}
 			break;
 
+		case SDL_RENDER_DEVICE_RESET:
+			SDL_Log("SDL_RENDER_DEVICE_RESET saving and exiting");
+			save_local_data();
+			exit(1);
+			break;
+
 		case SDL_APP_TERMINATING:
 			SDL_Log("OS is terminating us...");
 			// ANDROID_TODO radu removed the save in the latest version - "might cause problems"
