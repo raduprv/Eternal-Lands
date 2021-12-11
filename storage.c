@@ -849,12 +849,18 @@ int click_storage_handler(window_info * win, int mx, int my, Uint32 flags)
 
 		if (get_show_window(get_id_MW(MW_TRADE)))
 		{
-			//if(!item_list[pos].quantity)return 1;//no item here...
+			int trade_quantity_storage_offset = 3; /* Offset of trade quantity in packet. Can be 3 or 4 */
 			str[0]=PUT_OBJECT_ON_TRADE;
 			str[1]=ITEM_BANK;
-			str[2]=storage_items[cur_item_over].pos;
-			*((Uint32 *)(str+3))= SDL_SwapLE32(item_quantity);
-			my_tcp_send(str,7);
+			if (storage_items[cur_item_over].pos > 255)
+			{
+				*((Uint16 *)(str + 2)) = SDL_SwapLE16(storage_items[cur_item_over].pos);
+				trade_quantity_storage_offset++; /* Offset is 1 byte ahead now */
+			}
+			else
+				str[2] = storage_items[cur_item_over].pos;
+			*((Uint32 *)(str + trade_quantity_storage_offset)) = SDL_SwapLE32(item_quantity);
+			my_tcp_send(str, 4 + trade_quantity_storage_offset);
 			do_drop_item_sound();
 
 			return 1;
