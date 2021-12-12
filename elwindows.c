@@ -774,6 +774,21 @@ void set_windows_autoscale_needed(void)
 			managed_windows.list[i].autoscale = ELW_AS_NEEDED;
 }
 
+#ifdef ANDROID
+void set_default_mangaged_windows(void)
+{
+	enum managed_window_enum i;
+	for (i = 0; i < MW_MAX; i++)
+	{
+		if (managed_windows.list[i].default_pos != ELW_P_NONE)
+			managed_windows.list[i].use_def_pos = 1;
+		if (managed_windows.list[i].autoscale != ELW_AS_NONE)
+			managed_windows.list[i].scale = 1.0f;
+	}
+	set_windows_autoscale_needed();
+}
+#endif
+
 // general windows manager functions
 void	display_windows(int level)
 {

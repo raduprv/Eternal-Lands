@@ -1444,34 +1444,39 @@ static void change_use_ttf(int *var)
 #ifdef ANDROID
 void set_scale_from_window_size(void)
 {
+	const int done_value = 2; // increment this value to force an update for a new release
+	const int max_dimension = max2i(window_width, window_height);
 	float new_value;
-	if (done_initial_config)
+	if (done_initial_config == done_value)
 		return;
-	done_initial_config = 1;
+	done_initial_config = done_value;
+	set_var_unsaved("done_initial_config", INI_FILE_VAR);
+	first_time_setup = 1;
 
 	new_value = local_ui_scale;
-	if (window_width<640)
+	if (max_dimension<640)
 		new_value = MIN_UI_SCALE;
-	else if (window_width <= 1024)
+	else if (max_dimension <= 1024)
 		new_value = 1.1;
-	else if (window_width <= 1280)
+	else if (max_dimension <= 1280)
 		new_value = 1.6;
-	else if (window_width <= 1600)
+	else if (max_dimension <= 1600)
 		new_value = 1.7;
-	else if (window_width <= 2160)
+	else if (max_dimension <= 2160)
 		new_value = 2.5;
-	else if (window_width <= 2560)
+	else if (max_dimension <= 2560)
 		new_value = 2.9;
 	else
 		new_value = MAX_UI_SCALE;
 	change_ui_scale(&local_ui_scale, &new_value);
 	set_var_unsaved("ui_scale", INI_FILE_VAR);
+	SDL_Log("Setting default scale and fonts - scale=%.2f\n", ui_scale);
 
-	new_value = local_ui_scale * 0.8f;
-	change_chat_zoom(&chat_font_local_scale, &new_value);
-	set_var_unsaved("chat_text_size", INI_FILE_VAR);
-	change_name_zoom(&name_font_local_scale, &new_value);
-	set_var_unsaved("name_text_size", INI_FILE_VAR);
+	enable_windows_autoscale = 1;
+	set_var_unsaved("enable_windows_autoscale", INI_FILE_VAR);
+
+	command_set_default_fonts("", 0);
+
 	new_value = 0.7f * local_ui_scale * 0.8f;
 	change_minimap_scale(&local_minimap_size_coefficient, &new_value);
 	set_var_unsaved("minimap_scale", INI_FILE_VAR);
@@ -2969,7 +2974,7 @@ static void init_ELC_vars(void)
 
 	// FONT TAB
 #ifdef ANDROID
-	add_var(OPT_BOOL_INI, "done_initial_config", "dic", &done_initial_config, change_var, 0, "Done initial config", "Set on first run allowing one-time configuration.", FONT);
+	add_var(OPT_INT_INI, "done_initial_config", "dic", &done_initial_config, change_int, 0, "Done initial config", "Set on first run allowing one-time configuration.", FONT);
 #endif
 	add_var(OPT_BOOL,"disable_auto_highdpi_scale", "disautohighdpi", &disable_auto_highdpi_scale, change_disable_auto_highdpi_scale, 0, "Disable High-DPI auto scaling", "For systems with high-dpi support (e.g. OS X): When enabled, name, chat and notepad font values, and the user interface scaling factor are all automatically scaled using the system's scale factor.", FONT);
 #ifdef TTF

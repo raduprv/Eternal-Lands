@@ -906,6 +906,7 @@ int		click_in_window(int win_id, int x, int y, Uint32 flags);	// click in  a coo
 void multi_gesture_in_windows(Uint32 timestamp, float center_x, float center_y, float distance, float rotation);
 void finger_motion_in_windows(Uint32 timestamp, float center_x, float center_y, float dx, float dy);
 void close_last_window(void);
+void set_default_mangaged_windows(void);
 #endif
 
 /*!

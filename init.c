@@ -116,6 +116,10 @@ static const char *client_state_filename = "client_state.json";
 #endif
 static int no_lang_in_config = 0;
 
+#ifdef ANDROID
+int first_time_setup = 0;
+#endif
+
 #ifndef FASTER_MAP_LOAD
 static void load_harvestable_list(void)
 {
@@ -322,6 +326,11 @@ static void load_cstate(void)
 	read_options_user_menus("user_menus_window");
 
 	resize_root_window();
+
+#ifdef ANDROID
+	if (first_time_setup)
+		set_default_mangaged_windows();
+#endif
 }
 #endif
 
