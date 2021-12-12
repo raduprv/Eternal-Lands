@@ -60,7 +60,7 @@ static _Atomic int tmp_file_num = -1;
 static FILE *android_tmpfile(void)
 {
 	char str[LOCAL_MAX_PATH];
-	safe_snprintf(str, LOCAL_MAX_PATH, "%s/el_tmp_file_%d", get_path_config(), ++tmp_file_num);
+	safe_snprintf(str, LOCAL_MAX_PATH, "%s/tmp/el_tmp_file_%d", get_path_config(), ++tmp_file_num);
 	return fopen(str, "wb+");
 }
 
@@ -68,9 +68,10 @@ void remove_android_tmpfiles(void)
 {
 	char str[LOCAL_MAX_PATH];
 	int i;
-	for (i = 0; i <= tmp_file_num; i++)
+	int max_tag = max2i(tmp_file_num, UPDATE_DOWNLOAD_THREAD_COUNT * 2);
+	for (i = 0; i <= max_tag; i++)
 	{
-		safe_snprintf(str, LOCAL_MAX_PATH, "%s/el_tmp_file_%d", get_path_config(), i);
+		safe_snprintf(str, LOCAL_MAX_PATH, "%s/tmp/el_tmp_file_%d", get_path_config(), i);
 		remove(str);
 	}
 }
