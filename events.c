@@ -361,7 +361,7 @@ int HandleEvent (SDL_Event *event)
 			if (enable_keyboard_debug)
 			{
 				char str[200];
-				safe_snprintf(str, sizeof(str), "SDL_TEXTINPUT text=[%s] len=%lu,%lu timestamp=%u", (unsigned char *)event->text.text, sizeof(event->text.text), strlen(event->text.text), event->key.timestamp);
+				safe_snprintf(str, sizeof(str), "SDL_TEXTINPUT text=[%s] len=%" PRI_SIZET ",%" PRI_SIZET " timestamp=%u", (unsigned char *)event->text.text, sizeof(event->text.text), strlen(event->text.text), event->key.timestamp);
 				LOG_TO_CONSOLE(c_green1, str);
 				safe_snprintf(str, sizeof(str), "SDL_TEXTINPUT UTF-8 udf8=(%x,%x) unicode=%x", event->text.text[0], event->text.text[1], unicode);
 				LOG_TO_CONSOLE(c_green1, str);
