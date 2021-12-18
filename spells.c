@@ -1221,6 +1221,7 @@ static int switch_handler(int new_win){
 	show_window(this_win);
 	select_window(this_win);
 	set_id_MW(MW_SPELLS, this_win);
+	check_proportional_move(MW_SPELLS);
 	start_mini_spells=(this_win == spell_mini_win)? 1:0;
 #ifdef ANDROID
 	set_spell_help_text(we_have_spell);
