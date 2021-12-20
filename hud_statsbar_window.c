@@ -359,17 +359,17 @@ static void draw_exp_display(window_info *win)
 		if (watch_this_stats[i] > 0)
 		{
 			int icon_x = get_icons_win_active_len();
-			int cur_exp = *statsinfo[watch_this_stats[i]-1].exp;
-			int nl_exp = *statsinfo[watch_this_stats[i]-1].next_lev;
-			int baselev = statsinfo[watch_this_stats[i]-1].skillattr->base;
+			Uint32 cur_exp = *statsinfo[watch_this_stats[i]-1].exp;
+			Uint32 nl_exp = *statsinfo[watch_this_stats[i]-1].next_lev;
+			Sint16 baselev = statsinfo[watch_this_stats[i]-1].skillattr->base;
 			const unsigned char* name = statsinfo[watch_this_stats[i]-1].skillnames->name;
 			int name_y = (int)(0.5 + (win->len_y + player_statsbar_bar_height) / 2.0) + scaled_line;
 			int exp_adjusted_x_len;
-			int delta_exp;
-			float prev_exp;
+			Uint32 delta_exp;
+			Uint32 prev_exp;
 			int name_width;
 
-			if(!baselev)
+			if ((baselev <= 0) || (baselev >= MAX_EXP_LEVEL))
 				prev_exp= 0;
 			else
 				prev_exp= exp_lev[baselev];
