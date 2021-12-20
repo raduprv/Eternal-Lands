@@ -181,7 +181,8 @@ void set_create_char_error (const char *msg, int len)
 
 	LOG_TO_CONSOLE(c_red1, buf);
 
-	add_text_to_buffer(c_red1, msg, DEF_MESSAGE_TIMEOUT);
+	safe_snprintf(buf, sizeof (buf), "%.*s", len, msg);
+	add_text_to_buffer(c_red1, buf, DEF_MESSAGE_TIMEOUT);
 
 	creating_char=1;
 }
