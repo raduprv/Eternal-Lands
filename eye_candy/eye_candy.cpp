@@ -2017,8 +2017,12 @@ namespace ec
 				const GLfloat light_pos[4] =
 					{	p->pos.x, p->pos.y, p->pos.z, 1.0};
 				const light_t brightness = light_estimate * lighting_scalar * light_level;
-				const GLfloat light_color[4] =
-					{	p->color[0] * brightness, p->color[1] * brightness, p->color[2] * brightness, 0.0};
+				const GLfloat light_color[4] = {
+					std::min(p->color[0] * brightness, 1.0f),
+					std::min(p->color[1] * brightness, 1.0f),
+					std::min(p->color[2] * brightness, 1.0f),
+					0.0
+				};
 				glEnable(light_id);
 				glLightfv(light_id, GL_POSITION, light_pos);
 				glLightfv(light_id, GL_DIFFUSE, light_color);

@@ -15,6 +15,8 @@
 # include "misc.h"
 
 #endif //MAP_EDITOR
+
+#ifndef FASTER_MAP_LOAD
 // find the first occurance of needle in haystack, and return the distance to
 // that string. If beggining is 1, it returns the offset to the beginning of
 // the string otherwise it returns the offset to the end of the string. Needle
@@ -55,7 +57,6 @@ Sint32 get_string_occurance (const char* needle, const char* haystack, const Uin
 	return -1;
 }
 
-#ifndef FASTER_MAP_LOAD
 // This function returns an integer, after the needle in the haystack
 // string. If the string is not found, after max_len, the function returns -1.
 // The function is NOT case sensitive
@@ -281,20 +282,33 @@ char* safe_strcasestr (const char* haystack, size_t haystack_len, const char* ne
 	return NULL;
 }
 
-// is this string more then one character and all alpha in it are CAPS?
-Sint32 my_isupper(const char *src, int len)
+int my_isupper(const char *src, int len)
 {
-	int alpha=0;
-	if (len < 0)	len=strlen(src);
-	if(!src || !src[0] || !src[1] || !src[2] || len == 0) return 0;
-	while(*src && len > 0)
-		{
-            if(isalpha((unsigned char)*src)) alpha++;
-            if((isdigit((unsigned char)*src)&&alpha<len/2) || *src != toupper(*src)) return 0;    //at least one lower
-            src++;
-			len--;
-		}
-	return 1;	// is all upper or all num
+	int nr_alpha = 0;
+	int has_digit = 0;
+
+	if (!src)
+		return 0;
+
+	if (len < 0)
+		len = strlen(src);
+	if (len < 3 || !src[0] || !src[1] || !src[2])
+		// string is too short
+		return 0;
+
+	for (int i = 0; i < len; ++i)
+	{
+		char c = src[i];
+		if (islower(c))
+			return 0;
+
+		if (isalpha(c))
+			++nr_alpha;
+		else if (isdigit(c))
+			has_digit = 1;
+	}
+
+	return !has_digit || nr_alpha >= len/2;
 }
 
 char *my_tolower (char *src)

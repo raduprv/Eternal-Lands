@@ -267,8 +267,8 @@ static void parse_2d0(const char* desc, Uint32 len, const char* cur_dir,
 
 	def->u_start = (float)u_start/file_x_len;
 	def->u_end = (float)u_end/file_x_len;
-	def->v_start = 1.0f + (float)v_start/file_y_len;
-	def->v_end = 1.0f + (float)v_end/file_y_len;
+	def->v_start = (float)v_start/file_y_len;
+	def->v_end = (float)v_end/file_y_len;
 	if (def->alpha_test < 0)
 		def->alpha_test = 0;
 }

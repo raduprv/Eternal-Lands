@@ -333,7 +333,7 @@ void pf_move()
 				str[0] = MOVE_TO;
 				*((short *)(str+1)) = SDL_SwapLE16((short)pf_cur_tile->x);
 				*((short *)(str+3)) = SDL_SwapLE16((short)pf_cur_tile->y);
-				my_tcp_send(my_socket, str, 5);
+				my_tcp_send(str, 5);
 
 				return;
 			}
@@ -347,7 +347,7 @@ void pf_move()
 				str[0] = MOVE_TO;
 				*((short *)(str+1)) = SDL_SwapLE16((short)pf_cur_tile->x);
 				*((short *)(str+3)) = SDL_SwapLE16((short)pf_cur_tile->y);
-				my_tcp_send(my_socket, str, 5);
+				my_tcp_send(str, 5);
 				break;
 			}
 		}
@@ -365,15 +365,15 @@ int pf_get_mouse_position_extended(int mouse_x, int mouse_y, int * px, int * py,
 	int screen_map_height = main_map_screen_y_bottom - main_map_screen_y_top;
 
 	if (mouse_x < main_map_screen_x_left
-		|| mouse_x > main_map_screen_x_right
+		|| mouse_x >= main_map_screen_x_right
 		|| mouse_y < main_map_screen_y_top
-		|| mouse_y > main_map_screen_y_bottom)
+		|| mouse_y >= main_map_screen_y_bottom)
 	{
 		return 0;
 	}
 
 	*px = ((mouse_x - main_map_screen_x_left) * tile_x * 6) / screen_map_width;
-	*py = (tile_y * 6) - ((mouse_y - main_map_screen_y_top) * tile_y * 6) / screen_map_height;
+	*py = (tile_y * 6 - 1) - ((mouse_y - main_map_screen_y_top) * tile_y * 6) / screen_map_height;
 	return 1;
 }
 

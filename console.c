@@ -939,41 +939,34 @@ static int command_mark_color(char *text, int len)
 
 static int command_stats(char *text, int len)
 {
-	unsigned char protocol_name;
-
-	protocol_name = SERVER_STATS;
-	my_tcp_send(my_socket, &protocol_name, 1);
+	unsigned char protocol_name = SERVER_STATS;
+	my_tcp_send(&protocol_name, 1);
 	return 1;
 }
 
 
 int command_time(char *text, int len)
 {
-	unsigned char protocol_name;
-
-	protocol_name = GET_TIME;
-	my_tcp_send(my_socket,&protocol_name,1);
+	unsigned char protocol_name = GET_TIME;
+	my_tcp_send(&protocol_name, 1);
 	return 1;
 }
 
 
 int command_ping(char *text, int len)
 {
-	Uint8 str[8];
+	Uint8 str[5] = { PING };
 
-	str[0] = PING;
 	*((Uint32 *)(str+1)) = SDL_SwapLE32(SDL_GetTicks());
-	my_tcp_send(my_socket, str, 5);
+	my_tcp_send(str, 5);
 	return 1;
 }
 
 
 int command_date(char *text, int len)
 {
-	unsigned char protocol_name;
-
-	protocol_name = GET_DATE;
-	my_tcp_send(my_socket, &protocol_name, 1);
+	unsigned char protocol_name = GET_DATE;
+	my_tcp_send(&protocol_name, 1);
 	return 1;
 }
 
@@ -1317,10 +1310,10 @@ static int knowledge_command(char *text, int len)
 
 	for (i=0; i<KNOWLEDGE_LIST_SIZE; i++)
 	{
+		size_t len = strlen(knowledge_list[i].name);
 		// only display books that contain the specified parameter string
 		// shows all books if no string specified
-		if ((strlen(knowledge_list[i].name) > 0) &&
-			(get_string_occurance(text, knowledge_list[i].name, strlen(knowledge_list[i].name), 1) != -1))
+		if (len > 0 && safe_strcasestr(knowledge_list[i].name, len, text, strlen(text)))
 		{
 			// remove any trailing carrage return
 			safe_strncpy(this_string, knowledge_list[i].name, sizeof(this_string));
@@ -1699,7 +1692,7 @@ void auto_save_local_and_server(void)
 	actor *me;
 
 	me = get_our_actor();
-	if(!disconnected && me && !me->fighting && ((last_save_time + time_delta) <= time(NULL)))
+	if(!is_disconnected() && me && !me->fighting && ((last_save_time + time_delta) <= time(NULL)))
 	{
 		last_save_time = time(NULL);
 		save_local_data();
@@ -1805,6 +1798,102 @@ static int command_show_res(char *text, int len)
 }
 
 
+// Summoning attack state for the hud indicator, -1, 0 not "attack at will", 1 is "attack at will".
+static int summon_attack_mode_state = -1;
+int summon_attack_is_active(void) { return (summon_attack_mode_state == 1); }
+int summon_attack_is_unknown(void) { return (summon_attack_mode_state < 0); }
+
+typedef struct { const char opt; const char code; const char *desc; } summon_attack_modes;
+static const summon_attack_modes modes[] =
+{
+	{ .opt = 'a', .code = '\1', .desc = no_attack_str },
+	{ .opt = 'b', .code = '\0', .desc = attack_my_opponent_str },
+	{ .opt = 'c', .code = '\2', .desc = do_not_attack_my_opponent_str },
+	{ .opt = 'd', .code = '\3', .desc = attack_only_summoned_str },
+	{ .opt = 'e', .code = '\4', .desc = do_not_attack_summoned_str },
+	{ .opt = 'f', .code = '\5', .desc = attack_at_will_str }
+};
+static const size_t attack_at_will_index  = 5;
+
+// Check the message just sent to the server from the popup menu
+// Set the summon attack mode if it was a summoning attack mode message
+void check_summon_attack_mode(unsigned char *buffer, size_t len)
+{
+	if ((len == 5) && (buffer[0] == POPUP_REPLY) && (buffer[1] == 0) && (buffer[2] == 0) && (buffer[3] == 1))
+	{
+		size_t i;
+		for (i = 0; i < sizeof(modes)/sizeof(summon_attack_modes); i++)
+			if (buffer[4] == modes[i].code)
+			{
+				if (i == attack_at_will_index)
+					summon_attack_mode_state = 1;
+				else
+					summon_attack_mode_state = 0;
+				break;
+			}
+	}
+}
+
+// Send summoning attack mode to server.
+// Provides a direct version of summoning popup menu.
+//
+static int command_summon_attack(char *text, int len)
+{
+	size_t option_index = sizeof(modes)/sizeof(summon_attack_modes);
+	int show_help = 1;
+	char str[128];
+	size_t i;
+
+	text = getparams(text);
+
+	// if no parameter specified, toggle between attack at will, and no attack
+	if (!*text)
+	{
+		if (summon_attack_mode_state == 1)
+			option_index = 0;
+		else
+			option_index = attack_at_will_index;
+		show_help = 0;
+	}
+
+	// else if its a one character parameter, check if its an option
+	else if (strlen(text) == 1)
+	{
+		for (i = 0; i < sizeof(modes)/sizeof(summon_attack_modes); i++)
+			if (tolower(text[0]) == modes[i].opt)
+			{
+				option_index = i;
+				show_help = 0;
+				break;
+			}
+	}
+
+	// if we have a valid option, send the message to the server and set the state
+	if (option_index < sizeof(modes)/sizeof(summon_attack_modes))
+	{
+		unsigned char buffer[] = { POPUP_REPLY, 0, 0, 1, modes[option_index].code};
+		my_tcp_send(buffer, sizeof(buffer));
+		safe_snprintf(str, sizeof(str), "%s %s", summon_attack_set_mode_str, modes[option_index].desc);
+		LOG_TO_CONSOLE(c_green1, str);
+		show_help = 0;
+		summon_attack_mode_state = (option_index == attack_at_will_index) ?1: 0;
+	}
+
+	// if option specified but not valid, show help
+	if (show_help)
+	{
+		LOG_TO_CONSOLE(c_green1, summon_attack_help_str);
+		for (i = 0; i < sizeof(modes)/sizeof(summon_attack_modes); i++)
+		{
+			safe_snprintf(str, sizeof(str), "  %c - %s", modes[i].opt, modes[i].desc);
+			LOG_TO_CONSOLE(c_green1, str);
+		}
+	}
+
+	return 1;
+}
+
+
 #ifdef CONTEXT_MENUS_TEST
 int cm_test_window(char *text, int len);
 #endif
@@ -1822,6 +1911,7 @@ static void commands_summary(void)
 		return;
 
 	LOG_TO_CONSOLE(c_green1, commands_help_description_help_str);
+	LOG_TO_CONSOLE(c_green1, commands_help_search_help_str);
 	str[0] = '\0';
 	for(i = 0; i < command_count; i++) 
 	{
@@ -1933,6 +2023,34 @@ static int load_commands_help(void)
 	}
 	free(line);
 	fclose(fp);
+	return 1;
+}
+
+// list #commands where the specified text can be found in there
+// command name, parameters or description.
+static int command_commands_search(char *text, int len)
+{
+	text = getparams(text);
+	if (*text)
+	{
+		char str[256];
+		size_t i;
+		if (!commands_help_loaded)
+			commands_help_loaded = load_commands_help();
+		safe_snprintf(str, sizeof(str), "%s <%s> :-", commands_search_prefix_str, text);
+		LOG_TO_CONSOLE(c_green1, str);
+		for (i = 0; i < commands_help_size; i++)
+		{
+			if ((safe_strcasestr(commands_help[i].d_str, strlen(commands_help[i].d_str), text, strlen(text)) != NULL) ||
+				(safe_strcasestr(commands_help[i].c_str, strlen(commands_help[i].c_str), text, strlen(text)) != NULL) ||
+				(safe_strcasestr(commands_help[i].p_str, strlen(commands_help[i].p_str), text, strlen(text)) != NULL))
+			{
+				safe_snprintf(str, sizeof(str), "%s %s - %s",
+					commands_help[i].c_str, commands_help[i].p_str, commands_help[i].d_str);
+				LOG_TO_CONSOLE(c_grey1, str);
+			}
+		}
+	}
 	return 1;
 }
 
@@ -2101,7 +2219,10 @@ void init_commands(const char *filename)
 	add_command("save_res", &command_save_res);
 	add_command("show_res", &command_show_res);
 	add_command("#", &command_commands);
+	add_command("?", &command_commands_search);
 	add_command("set_default_fonts", &command_set_default_fonts);
+	add_command(cmd_summon_attack, &command_summon_attack);
+	add_command(cmd_summon_attack_short, &command_summon_attack);
 
 	// Sort the command list alphabetically so that the #command lists
 	// them sorted and the ctrl+SPACE cycles them sorted.  Assumes no

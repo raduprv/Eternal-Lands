@@ -8,6 +8,14 @@
 #include <glob.h>
 #endif
 #include <SDL_ttf.h>
+#ifdef LINUX
+//For stat() etc.. below
+#include <sys/types.h>
+#include <sys/stat.h>
+#ifndef _MSC_VER
+#include <unistd.h>
+#endif //_MSC_VER
+#endif // LINUX
 #endif // TTF
 
 #include "font.h"
@@ -20,6 +28,7 @@
 #include "io/elpathwrapper.h"
 #include "init.h"
 #include "gl_init.h"
+#include "platform.h"
 #include "textures.h"
 
 namespace
@@ -125,7 +134,7 @@ FontOption::FontOption(size_t font_nr): _font_nr(font_nr), _file_name(), _file_b
 	if (font_nr > file_names.size())
 	{
 		_failed = true;
-		LOG_ERROR("Invalid font number %zu", font_nr);
+		LOG_ERROR("Invalid font number %" PRI_SIZET, font_nr);
 	}
 	else if (font_nr == 0)
 	{
@@ -156,7 +165,7 @@ FontOption::FontOption(size_t font_nr): _font_nr(font_nr), _file_name(), _file_b
 FontOption::FontOption(const std::string& file_name): _font_nr(std::numeric_limits<size_t>::max()),
 	_file_name(file_name), _file_base_name(), _font_name(), _is_ttf(true), _fixed_width(), _failed(false)
 {
-	TTF_Font *font = open_font(file_name.c_str(), 40);
+	TTF_Font *font = open_font(file_name, 40);
 	if (!font)
 	{
 		LOG_ERROR("Failed to open TTF font file '%s'", file_name.c_str());
@@ -1518,7 +1527,7 @@ int Font::find_point_size(int height)
 	{
 		// Height is too small. Check if the font will open at the minimum point size. If not
 		// return 0 to use the default point size and hope for the best.
-		TTF_Font *font = open_font(_file_name.c_str(), min);
+		TTF_Font *font = open_font(_file_name, min);
 		if (!font)
 			return 0;
 		TTF_CloseFont(font);
@@ -1528,7 +1537,7 @@ int Font::find_point_size(int height)
 	while (max > min + 1)
 	{
 		int mid = (min + max) / 2;
-		TTF_Font *font = open_font(_file_name.c_str(), mid);
+		TTF_Font *font = open_font(_file_name, mid);
 		if (!font)
 			return 0;
 
@@ -1557,7 +1566,7 @@ bool Font::build_texture_atlas()
 	}
 
 	int point_size = _point_size ? _point_size : ttf_point_size;
-	TTF_Font *font = open_font(_file_name.c_str(), point_size);
+	TTF_Font *font = open_font(_file_name, point_size);
 	if (!font)
 	{
 		LOG_ERROR("Failed to open TrueType font %s: %s", _file_name.c_str(), TTF_GetError());
@@ -1712,6 +1721,41 @@ void FontManager::initialize_ttf()
 		return;
 	}
 
+#ifdef LINUX
+	// on linux there is no standard location for TTF so try others if the current is not valid
+	struct stat stat_str;
+	int file_stat = stat(ttf_directory, &stat_str);
+	if ((file_stat != 0) || !S_ISDIR(stat_str.st_mode))
+	{
+		std::vector<std::string> alt_ttf_dir;
+		alt_ttf_dir.push_back("/usr/share/fonts/TTF");
+		alt_ttf_dir.push_back("/usr/share/fonts/truetype");
+		alt_ttf_dir.push_back("/usr/share/fonts"); // make sure comes after others with the same path
+		for (const auto &i: alt_ttf_dir)
+		{
+			// only look to change if we are using one of the alternative locations
+			// as, the user may have deliberately set out to disabled loading system ttf
+			if (i == std::string(ttf_directory))
+			{
+				for (const auto &j: alt_ttf_dir)
+				{
+					if (j != std::string(ttf_directory))
+					{
+						file_stat = stat(j.c_str(), &stat_str);
+						if ((file_stat == 0) && S_ISDIR(stat_str.st_mode))
+						{
+							safe_strncpy2(ttf_directory, j.c_str(), TTF_DIR_SIZE, j.size());
+							set_var_unsaved("ttf_directory", INI_FILE_VAR);
+							break;
+						}
+					}
+				}
+				break;
+			}
+		}
+	}
+#endif
+
 	size_t nr_existing_fonts = _options.size();
 	// First load from the game fonts directory
 	std::string fonts_dir = std::string(datadir) + "/fonts";
@@ -1802,12 +1846,14 @@ void FontManager::add_select_options(bool add_button)
 	}
 }
 
+#ifdef TTF
 static uint32_t get_key(size_t idx, int height, bool outline)
 {
 	// It is unlikely that there will be more than 64k fonts, or that the line height wil be more
 	// than 32k pixels, so combine the three values into a single key 32-bit key.
 	return (outline << 31) | ((height & 0x7fff) << 16) | (idx & 0xffff);
 }
+#endif
 
 Font& FontManager::get(Category cat, float text_zoom)
 {

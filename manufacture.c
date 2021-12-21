@@ -440,13 +440,8 @@ void load_recipes (){
 #ifdef JSON_FILES
 	if (have_json_file)
 	{
-		cur_recipe = json_load_recipes(recipes_store, num_recipe_entries);
-		if ((cur_recipe >= 0) && (cur_recipe < num_recipe_entries))
-		{
-			memcpy(manu_recipe.items, recipes_store[cur_recipe].items, sizeof(recipe_item) * NUM_MIX_SLOTS);
-			fix_recipe_uids(manu_recipe.items);
-		}
-		else
+		cur_recipe = json_load_recipes(recipes_store, num_recipe_entries, manu_recipe.items);
+		if ((cur_recipe < 0) || (cur_recipe >= num_recipe_entries))
 			cur_recipe = 0;
 		return;
 	}
@@ -523,7 +518,7 @@ void save_recipes(){
 		USE_JSON_DEBUG("Saving json file");
 		/* save in json format always */
 		safe_snprintf(fname, sizeof(fname), "%srecipes_%s.json",get_path_config(), get_lowercase_username());
-		if (json_save_recipes(fname, recipes_store, num_recipe_entries, cur_recipe) < 0)
+		if (json_save_recipes(fname, recipes_store, num_recipe_entries, cur_recipe, manu_recipe.items) < 0)
 			LOG_ERROR("%s: %s \"%s\"\n", reg_error_str, cant_open_file, fname);
 		return;
 	}
@@ -1065,7 +1060,6 @@ static int recipe_controls_click_handler(window_info *win, int mx, int my, Uint3
 static int click_manufacture_handler(window_info *win, int mx, int my, Uint32 flags)
 {
 	int pos;
-	Uint8 str[100];
 
 	int quantitytomove=1;
 
@@ -1085,9 +1079,8 @@ static int click_manufacture_handler(window_info *win, int mx, int my, Uint32 fl
 	if (pos >= 0 && manufacture_list[pos].quantity > 0)
 	{
 		if ((flags & ELW_RIGHT_MOUSE) || is_gamewin_look_action()) {
-			str[0]=LOOK_AT_INVENTORY_ITEM;
-			str[1]=manufacture_list[pos].pos;
-			my_tcp_send(my_socket,str,2);
+			Uint8 str[2] = { LOOK_AT_INVENTORY_ITEM, manufacture_list[pos].pos };
+			my_tcp_send(str, 2);
 			return 1;
 		} else	{
 			int j;
@@ -1141,9 +1134,8 @@ static int click_manufacture_handler(window_info *win, int mx, int my, Uint32 fl
 	if (pos >= 0 && manufacture_list[MIX_SLOT_OFFSET+pos].quantity > 0)
 	{
 		if((flags & ELW_RIGHT_MOUSE) || is_gamewin_look_action()){
-			str[0]=LOOK_AT_INVENTORY_ITEM;
-			str[1]=manufacture_list[MIX_SLOT_OFFSET+pos].pos;
-			my_tcp_send(my_socket,str,2);
+			Uint8 str[2] = { LOOK_AT_INVENTORY_ITEM, manufacture_list[MIX_SLOT_OFFSET+pos].pos };
+			my_tcp_send(str, 2);
 			return 1;
 		} else {
 			int j;
@@ -1259,7 +1251,7 @@ int mix_handler(Uint8 quantity, const char* empty_error_str)
 		//don't send an empty string
 		save_last_mix();
 		str[items_no*3+2]= quantity;
-		my_tcp_send(my_socket,str,items_no*3+3);
+		my_tcp_send(str,items_no*3+3);
 	}
 
 	return 1;

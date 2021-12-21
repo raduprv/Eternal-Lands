@@ -30,6 +30,8 @@ FEATURES += NEW_CURSOR			# New coloured cursors made by Emajekral (Experimental)
 # Development options targetting at most 1.9.6
 FEATURES += JSON_FILES			# switch existing binary user config files to JSON format
 FEATURES += TTF                 # Add ability to use True Type system fonts
+FEATURES += USE_SSL             # Encrypt the traffic with the server.
+FEATURES += PACKET_COMPRESSION  # Add support for compressed data packets from the proxy server
 
 ### Testing options (these options are possible for the next release and should be tested) ###
 #FEATURES += ANTI_ALIAS			# allows to enable/disable anti-aliasing in el.ini
@@ -66,10 +68,7 @@ FEATURES += TTF                 # Add ability to use True Type system fonts
 #FEATURES += PAWN			# Experimental, not for release, will need server support to function properly. This *will* eat your cat. You've been warned. Enables the Pawn abstract machine.
 #FEATURES += UID			# use unique ID sent from server for custom looks. (INCOMPLETE)
 #FEATURES += USE_ACTORS_OPTIMIZER	# Enables actor optimizations
-#FEATURES += USE_BOOST
-#FEATURES += USE_TR1			# Needs tr1 version of c++ stl, used for NEW_FILE_IO
 #FEATURES += WRITE_XML			# dangerous to use, will wipe out some XML files that are part of the main game download
-#FEATURES += ZLIBW			# Enables being able to write gzip compressed files, requires -lzlib/-lz needed for map_editor
 
 
 

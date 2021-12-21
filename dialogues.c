@@ -610,7 +610,7 @@ static void send_response(window_info *win, const response *the_response)
 	str[0]=RESPOND_TO_NPC;
 	*((Uint16 *)(str+1))=SDL_SwapLE16((short)the_response->to_actor);
 	*((Uint16 *)(str+3))=SDL_SwapLE16((short)the_response->response_id);
-	my_tcp_send(my_socket,str,5);
+	my_tcp_send(str,5);
 	if (autoclose_storage_dialogue && strcmp((const char*)the_response->text, open_storage_str) == 0)
  		hide_window(win->window_id);
 	save_response(the_response);

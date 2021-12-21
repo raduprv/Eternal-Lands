@@ -15,13 +15,8 @@ struct vert_data
 	std::set<Uint32> remaining_tris;
 };
 
-#ifdef	USE_BOOST
-float calculate_average_cache_miss_ratio(const boost::shared_array<Uint32> &indices,
-	const Uint32 offset, const Uint32 count, const Uint32 cache_size)
-#else	/* USE_BOOST */
 float calculate_average_cache_miss_ratio(const Uint32* indices, const Uint32 offset,
 	const Uint32 count, const Uint32 cache_size)
-#endif	/* USE_BOOST */
 {
 	std::vector<Uint32> cache(cache_size, 0xFFFFFFFF);
 	Uint32 i, j, cache_ptr, cache_misses;
@@ -73,13 +68,8 @@ static inline float calc_new_score(const Uint32 count)
 	return 12.0f;//score_table[std::min(count, 32u)];
 }
 
-#ifdef	USE_BOOST
-bool optimize_vertex_cache_order(boost::shared_array<Uint32> &tri_indices, const Uint32 offset,
-	const Uint32 count, const Uint32 cache_size)
-#else	/* USE_BOOST */
 bool optimize_vertex_cache_order(Uint32* tri_indices, const Uint32 offset,
 	const Uint32 count, const Uint32 cache_size)
-#endif	/* USE_BOOST */
 {
 	std::vector<float> cache_score(cache_size + 3, 0.75);
 	std::vector<Uint32> cache_idx(cache_size + 3, 0xFFFFFFFF);

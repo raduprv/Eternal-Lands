@@ -41,6 +41,7 @@
 #endif
 #include "sound.h"
 
+
 char browser_name[120];
 static Uint32 url_win_sep = 0;
 static float url_win_text_zoom = 1.0;
@@ -216,42 +217,65 @@ int url_command(const char *text, int len)
 	return 1;
 }
 
+/* determine if character can delimit the end of a url */
+int is_url_end_delim(unsigned char chr)
+{
+	// from rfc1738
+	unsigned char non_url_printable_chars[] = {' ','<','>','"','{','}','|','\\','^','~','[',']','`',};
+	int i;
+	
+	// character is not ascii graphic
+	if (!(isascii(chr) && isprint(chr)))
+		return 1;
+		
+	for (i=0; i < sizeof(non_url_printable_chars); i++)
+		if(non_url_printable_chars[i] == chr)
+			return 1;
+			
+	return 0;
+	
+}
 
 /* find and store all urls in the provided string */
 void find_all_url(const char *source_string, const int len)
 {
-	char search_for[][10] = {"http://", "https://", "ftp://", "www."};
+	static const char* search_for[] = {"http://", "https://", "ftp://", "sftp://", "www."};
+	static const int nr_search_for = sizeof(search_for) / sizeof(*search_for);
 	int next_start = 0;
 
 	while (next_start < len)
 	{
-		int first_found = len-next_start; /* set to max */
+		int url_start = len; /* set to max */
 		int i;
 
 		/* find the first of the url start strings */
-		for(i = 0; i < sizeof(search_for)/10; i++)
+		for (i = 0; i < nr_search_for; i++)
 		{
-			int found_at = get_string_occurance(search_for[i], source_string+next_start, len-next_start, 1);
-			if ((found_at >= 0) && (found_at < first_found))
-				first_found = found_at;
+			const char* ptr = safe_strcasestr(source_string+next_start, len-next_start, search_for[i], strlen(search_for[i]));
+			if (ptr)
+			{
+				int start_idx = ptr - source_string;
+				int ptr_len = len - start_idx;
+				//The start of url is before the one found so far.
+				//For safety, if at some point we add a protocol to search for that's less than 4 characters, don't check for www. when we don't have at least 4 characters left in the source string because we can't assume the source string is null terminated.
+				if (start_idx < url_start && (!(ptr_len >= 4 && strncmp(ptr, "www.", 4) == 0) || ptr == source_string || !isalpha(*(ptr-1))))
+					url_start = start_idx;
+			}
 		}
 
 		/* if url found, store (if new) it then continue the search straight after the end */
-		if (first_found < len-next_start)
+		if (url_start < len)
 		{
 			char *new_url = NULL;
 			char *add_start = "";
 			size_t url_len;
-			int url_start = next_start + first_found;
 			int have_already = 0;
 
 			/* find the url end */
 			for (next_start = url_start; next_start < len; next_start++)
 			{
 				char cur_char = source_string[next_start];
-				if(!cur_char || cur_char == ' ' || cur_char == '\n' || cur_char == '<'
-					|| cur_char == '>' || cur_char == '|' || cur_char == '"' || cur_char == '\'' || cur_char == '`'
-					|| cur_char == ']' || cur_char == ';' || cur_char == '\\' || (cur_char&0x80) != 0)
+				if(!cur_char || is_url_end_delim(cur_char))
 					break;
 			}
 
@@ -342,7 +366,7 @@ static int only_call_from_open_web_link__go_to_url(void * url)
 	init_thread_log("web_link");
 
 	// build the command line and execute it
-	safe_snprintf (browser_command, sizeof (browser_command), "%s \"%s\"", browser_name, url),
+	safe_snprintf (browser_command, sizeof (browser_command), "%s \"%s\"", browser_name, (char *)url),
 	system(browser_command);	// Do not use this command on UNIX.
 
 	// free the memory allocated in open_web_link()

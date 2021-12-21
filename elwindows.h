@@ -258,7 +258,8 @@ typedef	struct	{
 extern	windows_info	windows_list; /*!< global variable defining the list of windows */
 extern int windows_on_top; /*!< global variable for whether windows appear on top of the console */
 extern int top_SWITCHABLE_OPAQUE_window_drawn; /*!< the id of the top opaque switchable window */
-extern int opaque_window_backgrounds;
+extern int opaque_window_backgrounds; /*!< the config option to enable opaque backgrouds for all windows */
+extern int enable_windows_autoscale; /*!< the config option to enable autoscaling of windows */
 
 /*!
  * \name managed window definitions, used to specify which window to access
@@ -348,9 +349,19 @@ void toggle_window_MW(enum managed_window_enum managed_win);
 int get_window_showable_MW(enum managed_window_enum managed_win);
 enum managed_window_enum get_by_name_MW(const char *name);
 const char *get_dict_name_WM(enum managed_window_enum managed_win, char *buf, size_t buf_len);
+void get_json_windows_state(void);
+void set_json_windows_state(void);
 void get_json_window_state_MW(enum managed_window_enum managed_win);
 void set_json_window_state_MW(enum managed_window_enum managed_win);
 /*! @} */
+
+/*!
+ * \ingroup windows
+ * \brief set alternate window defaults required if we're using the old cnf file
+ *
+ * \callgraph
+ */
+void set_cfg_fallback_state(void);
 
 /*!
  * \ingroup windows
@@ -372,14 +383,6 @@ void check_proportional_move(enum managed_window_enum managed_win);
  * \callgraph
  */
 void move_windows_proportionally(float pos_ratio_x, float pos_ratio_y);
-
-/*!
- * \ingroup windows
- * \brief Adjusts window positions proportionally using window sizes from config
- *
- * \callgraph
- */
-void restore_window_proportionally(void);
 
 /*!
  * \ingroup elwindows
@@ -788,6 +791,36 @@ void resize_window (int win_id, int new_width, int new_height);
 
 /*!
  * \ingroup elwindows
+ * \brief   set scaling factor for window to fit main window.
+ *
+ *      If the window uses custom scaling, shrink if too big for the window or reset to default scale
+ * if the window scale is smaller than the default but the default scale would fit.
+ *
+ * \param win    Pointer to the window structure, does nothting if NULL.
+ * \param scale    Pointer to the window custom scale, does nothting if NULL.
+ * \retval int 0 if scale not changed, 1 if changed
+ * \callgraph
+ */
+int calc_windows_autoscale(window_info *win, float *scale);
+
+/*!
+ * \ingroup elwindows
+ * \brief   Called from the 1/2 second time to check if we need to autoscale a window.
+ *
+  * \callgraph
+*/
+void check_for_windows_autoscale(void);
+
+/*!
+ * \ingroup elwindows
+ * \brief   Called after a main window resize enabled windows as needing autoscale.
+ *
+ * \callgraph
+ */
+void set_windows_autoscale_needed(void);
+
+/*!
+ * \ingroup elwindows
  * \brief   Checks whether a window is currently displayed and returns a proper boolean value.
  *
  *      Returns the visibility status of the window given by \a win_id in a boolean value.
@@ -962,6 +995,21 @@ int get_window_content_width(int window_id);
  * \retval int      1 if action was taken otherwise 0
 */
 int cm_title_handler(window_info *win, int widget_id, int mx, int my, int option);
+
+/*!
+ * \ingroup elwindows
+ * \brief   Create the title bar context menu
+ *
+ *		Create the title bar context menu setting the options as needed.  Call
+ * this when creating a window and replacing the default menu with your own and
+ * you want to includes the default options.
+ * 
+ * \param win			Pointer to the windows structure
+ * \param menu_list		\n separated list of menu entries.  Use "--" to specify a separator line.
+ * \param handler		optional function to call on menu line selection
+ * \retval size_t		returns the unique context menu id
+*/
+size_t cm_title_create_menu(window_info *win, const char *menu_list, int (*handler)(window_info *, int, int, int, int));
 
 // low level functions
 //window_info	*get_window_info(int win_id);

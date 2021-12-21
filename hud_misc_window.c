@@ -72,7 +72,7 @@ enum {	CMH_STATS=0, CMH_STATBARS, CMH_KNOWBAR, CMH_TIMER, CMH_DIGCLOCK, CMH_ANAC
 		CMH_SEP2, CMH_SOUND, CMH_MUSIC, CMH_SEP3, CMH_LOCATION };
 
 
-static void draw_side_stats_bar(window_info *win, const int x, const int y, const int baselev, const int cur_exp, const int nl_exp, size_t colour)
+static void draw_side_stats_bar(window_info *win, const int x, const int y, const Sint16 baselev, const Uint32 cur_exp, const Uint32 nl_exp, size_t colour)
 {
 	const int max_len = win->len_x - x - 1;
 	const int bar_height = side_stats_bar_text_height + 2;
@@ -131,7 +131,7 @@ static int context_hud_handler(window_info *win, int widget_id, int mx, int my, 
 		case CMH_LOCATION:
 			copy_next_LOCATE_ME = 1;
 			protocol_name= LOCATE_ME;
-			my_tcp_send(my_socket,&protocol_name,1);
+			my_tcp_send(&protocol_name,1);
 			break;
 		default:
 			init_misc_display();
@@ -448,7 +448,7 @@ CHECK_GL_ERRORS();
 			/* if the mouse is over the stat bar, draw the XP remaining */
 			if (stat_mouse_is_over == thestat)
 			{
-				safe_snprintf(str,sizeof(str),"%li",(*statsinfo[thestat].next_lev - *statsinfo[thestat].exp));
+				safe_snprintf(str, sizeof(str), "%i", (*statsinfo[thestat].next_lev - *statsinfo[thestat].exp));
 				draw_text(-hover_offset-tooltip_sep, y + side_stats_bar_height / 2,
 					(const unsigned char*)str, strlen(str), win->font_category, TDO_SHADOW, 1,
 					TDO_FOREGROUND, 1.0, 1.0, 1.0, TDO_BACKGROUND, 0.0, 0.0, 0.0,
@@ -546,7 +546,7 @@ static int click_misc_handler(window_info *win, int mx, int my, Uint32 flags)
 		unsigned char protocol_name;
 		do_click_sound();
 		protocol_name= GET_TIME;
-		my_tcp_send(my_socket,&protocol_name,1);
+		my_tcp_send(&protocol_name,1);
 		return 1;
 	}
 
@@ -568,7 +568,7 @@ static int click_misc_handler(window_info *win, int mx, int my, Uint32 flags)
 		{
 			copy_next_LOCATE_ME = 2;
 		}
-		my_tcp_send(my_socket,&protocol_name,1);
+		my_tcp_send(&protocol_name,1);
 		return 1;
 	}
 	//check to see if we clicked on the stats

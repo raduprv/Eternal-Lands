@@ -250,7 +250,7 @@ void move_to_category(int cat)
 	str[0]=GET_STORAGE_CATEGORY;
 	*((Uint8 *)(str+1))=storage_categories[cat].id;
 
-	my_tcp_send(my_socket, str, 2);
+	my_tcp_send(str, 2);
 }
 
 static int item_cmp(const void *a, const void *b)
@@ -738,7 +738,7 @@ int click_storage_handler(window_info * win, int mx, int my, Uint32 flags)
 					str[1]=item_list[item_dragged].pos;
 					*((Uint32*)(str+2))=SDL_SwapLE32(item_quantity);
 
-					my_tcp_send(my_socket, str, 6);
+					my_tcp_send(str, 6);
 					do_drop_item_sound();
 
 					if(item_list[item_dragged].quantity<=item_quantity) item_dragged=-1;//Stop dragging this item...
@@ -752,7 +752,7 @@ int click_storage_handler(window_info * win, int mx, int my, Uint32 flags)
 						str[0]=LOOK_AT_STORAGE_ITEM;
 						*((Uint16*)(str+1))=SDL_SwapLE16(storage_items[cur_item_over].pos);
 
-						my_tcp_send(my_socket, str, 3);
+						my_tcp_send(str, 3);
 
 						active_storage_item=storage_items[cur_item_over].pos;
 						do_click_sound();
@@ -861,7 +861,7 @@ void print_items(void)
 			number_to_print++;
 			str[0]=LOOK_AT_STORAGE_ITEM;
 			*((Uint16*)(str+1))=SDL_SwapLE16(storage_items[i].pos);
-			my_tcp_send(my_socket, str, 3);
+			my_tcp_send(str, 3);
 		}
 	}
 }

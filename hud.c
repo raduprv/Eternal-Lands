@@ -87,6 +87,7 @@ void init_hud_interface (hud_interface type)
 			hud_x = (int)(0.5 + windows_list.window[newchar_root_win].current_scale * NEW_CHARACTER_BASE_HUD_X);
 			resize_root_window();
 			init_icon_window (NEW_CHARACTER_ICONS);
+			resize_newchar_hud_window();
 		}
 	}
 	else
@@ -153,17 +154,17 @@ void hide_moved_hud_windows(void)
 	}
 }
 
-static int test_over_active_logo(window_info *win, int mx, int my)
+static int test_over_logo(window_info *win, int mx, int my)
 {
 	int dead_space = (int)(0.5 + win->current_scale * 10);
 	int hud_logo_size = get_hud_logo_size();
-	return logo_click_to_url && hud_x && (mx > (win->len_x - (hud_logo_size - dead_space))) && (my < (hud_logo_size - dead_space));
+	return hud_x && (mx > (win->len_x - (hud_logo_size - dead_space))) && (my < (hud_logo_size - dead_space));
 }
 
 int hud_mouse_over(window_info *win, int mx, int my)
 {
-	// exclude some 	dead space to try to prevent accidental misclicks
-	if (test_over_active_logo(win, mx, my))
+	// exclude some dead space to try to prevent accidental misclicks
+	if (logo_click_to_url && test_over_logo(win, mx, my))
 	{
 		elwin_mouse = CURSOR_USE;
 		return 1;
@@ -178,7 +179,7 @@ int hud_mouse_over(window_info *win, int mx, int my)
 
 int hud_click(window_info *win, int mx, int my, Uint32 flags)
 {
-	if (test_over_active_logo(win, mx, my))
+	if (test_over_logo(win, mx, my))
 	{
 		if (logo_click_to_url)
 			open_web_link(LOGO_URL_LINK);

@@ -17,6 +17,7 @@
 #include "elloggingwrapper.h"
 #include "counters.h"
 #include "manufacture.h"
+#include "platform.h"
 #include "text.h"
 
 //	Helper functions
@@ -26,9 +27,9 @@ namespace JSON_IO
 	static size_t get_json_indent(void)
 		{ return 0; } // 0 is compact, non-zero give pretty output, 4 for example
 	static int exit_error(const char *function, size_t line, const std::string& message, int error_code)
-		{ LOG_ERROR("%s:%ld %s", function, line, message.c_str()); return error_code; }
+		{ LOG_ERROR("%s:%" PRI_SIZET " %s", function, line, message.c_str()); return error_code; }
 	static void info_message(const char *function, size_t line, std::string message)
-		{ LOG_INFO("%s:%ld %s", function, line, message.c_str()); }
+		{ LOG_INFO("%s:%" PRI_SIZET " %s", function, line, message.c_str()); }
 	static void console_message(const std::string& file_type, const std::string& message)
 		{ std::string full_message = "Problem with " + file_type + ": " + message; LOG_TO_CONSOLE(c_red3, full_message.c_str()); }
 	static void file_format_error(const std::string& file_type)
@@ -48,8 +49,8 @@ namespace JSON_IO_Recipes
 		public:
 			Recipes(void) : opened(false), parse_error(false) {}
 			int open(const char *file_name);
-			int load(recipe_entry *recipes_store, size_t max_recipes);
-			int save(const char *file_name, recipe_entry *recipes_store, size_t num_recipes, int current_recipe);
+			int load(recipe_entry *recipes_store, size_t max_recipes, recipe_item *current_items);
+			int save(const char *file_name, recipe_entry *recipes_store, size_t num_recipes, int current_recipe, recipe_item *current_items);
 		private:
 			bool opened;			// we have opened the file and populated the read_json object
 			bool parse_error;		// there was an error populating the json object
@@ -91,9 +92,10 @@ namespace JSON_IO_Recipes
 	//	The recipe array must have been initialised to all zero - calloc().
 	//	String memory is allocated here but must be freed by the caller.
 	//	Missing fields should soft fail.
+	//	The current manu window items are also restored from the json object.
 	//	Returns the active recipe, or -1 for an error.
 	//
-	int Recipes::load(recipe_entry *recipes_store, size_t max_recipes)
+	int Recipes::load(recipe_entry *recipes_store, size_t max_recipes, recipe_item *current_items)
 	{
 		JSON_IO::info_message(__PRETTY_FUNCTION__, __LINE__, "");
 
@@ -106,6 +108,7 @@ namespace JSON_IO_Recipes
 		size_t number_of_recipes = (read_json["recipes"].is_array()) ?read_json["recipes"].size() :0;
 		int cur_recipe = 0;
 
+		// load the recipes
 		for (size_t i = 0; i < number_of_recipes && i < max_recipes; i++)
 		{
 			json recipe = read_json["recipes"][i];
@@ -131,9 +134,24 @@ namespace JSON_IO_Recipes
 				recipes_store[i].name = static_cast<char *>(malloc(name.size() + 1));
 				strcpy(recipes_store[i].name, name.c_str());
 			}
-			if (recipe["current"].is_boolean())
+			if (recipe["current"].is_boolean() && recipe["current"] == true)
 				cur_recipe = i;
 		}
+
+		// clear the current manu items, then attempt to load the saved list of items.
+		for (size_t j = 0; j < NUM_MIX_SLOTS; j++)
+			current_items[j].quantity = 0;
+		json items = read_json["current_items"];
+		if (items.is_array())
+			for (size_t j = 0; j < NUM_MIX_SLOTS && j < items.size(); j++)
+			{
+				json the_item = items[j];
+				if (the_item.is_null())
+					continue;
+				current_items[j].id = (the_item["id"].is_number_unsigned()) ?the_item["id"].get<Uint16>() :unset_item_uid;
+				current_items[j].image_id = (the_item["image_id"].is_number_integer()) ?the_item["image_id"].get<int>() :0;
+				current_items[j].quantity = (the_item["quantity"].is_number_integer()) ?the_item["quantity"].get<int>() :0;
+			}
 
 		// we are done with the json object so free the memory
 		read_json.clear();
@@ -147,9 +165,10 @@ namespace JSON_IO_Recipes
 	//	Empty slots in a recipe are not saved.
 	//	Ids that are unset, are not saved.
 	//	Null names are saved as empty strings.
+	//	The current manu window items are also saved.
 	//	Return 0 if successful otherwise -1.
 	//
-	int Recipes::save(const char *file_name, recipe_entry *recipes_store, size_t num_recipes, int current_recipe)
+	int Recipes::save(const char *file_name, recipe_entry *recipes_store, size_t num_recipes, int current_recipe, recipe_item *current_items)
 	{
 		JSON_IO::info_message(__PRETTY_FUNCTION__, __LINE__, " [" + std::string(file_name) + "]");
 
@@ -161,6 +180,7 @@ namespace JSON_IO_Recipes
 
 		json write_json;
 
+		// save the recipes
 		json recipe_list = json::array();
 		for (size_t i=0; i<num_recipes; i++)
 		{
@@ -184,6 +204,21 @@ namespace JSON_IO_Recipes
 			recipe_list.push_back(recipe);
 		}
 		write_json["recipes"] = recipe_list;
+
+		// save the current manu window items
+		json current_item_list = json::array();
+		for (size_t j=0; j<NUM_MIX_SLOTS; j++)
+		{
+			if (current_items[j].quantity <= 0)
+				continue;
+			json one_item;
+			if (current_items[j].id != unset_item_uid)
+				one_item["id"] = current_items[j].id;
+			one_item["image_id"] = current_items[j].image_id;
+			one_item["quantity"] = current_items[j].quantity;
+			current_item_list.push_back(one_item);
+		}
+		write_json["current_items"] = current_item_list;
 
 		std::ofstream out_file(file_name);
 		if (out_file)
@@ -692,6 +727,7 @@ namespace JSON_IO_Client_State
 			int save(const char *file_name);
 			template <class TheType> TheType get(const char *section_name, const char *var_name, TheType default_var_value) const;
 			template <class TheType> void set(const char *section_name, const char *var_name, TheType value);
+			void delete_var(const char *section_name, const char *var_name);
 		private:
 			bool parse_error;		// there was an error populating the json object
 			const char * class_name_str = "Client State";
@@ -766,6 +802,12 @@ namespace JSON_IO_Client_State
 		state_write[section_name][var_name] = value;
 	}
 
+	void Client_State::delete_var(const char *section_name, const char *var_name)
+	{
+		if (state_write.contains(section_name) && state_write[section_name].contains(var_name))
+			state_write[section_name].erase(var_name);
+	}
+
 }
 
 
@@ -794,10 +836,10 @@ extern "C"
 	// manufacture recipe functions
 	int json_open_recipes(const char *file_name)
 		{ return recipes.open(file_name); }
-	int json_load_recipes(recipe_entry *recipes_store, size_t max_recipes)
-		{ return recipes.load(recipes_store, max_recipes); }
-	int json_save_recipes(const char *file_name, recipe_entry *recipes_store, size_t num_recipes, int current_recipe)
-		{ return recipes.save(file_name, recipes_store, num_recipes, current_recipe); }
+	int json_load_recipes(recipe_entry *recipes_store, size_t max_recipes, recipe_item *current_items)
+		{ return recipes.load(recipes_store, max_recipes, current_items); }
+	int json_save_recipes(const char *file_name, recipe_entry *recipes_store, size_t num_recipes, int current_recipe, recipe_item *current_items)
+		{ return recipes.save(file_name, recipes_store, num_recipes, current_recipe, current_items); }
 
 	// quickspells funcitons
 	int json_load_quickspells(const char *file_name, int *spell_ids, size_t max_num_spell_id)
@@ -866,4 +908,6 @@ extern "C"
 		{ return ((cstate.get(section_name, var_name, static_cast<bool>(default_value))) ?1 :0); }
 	void json_cstate_set_bool(const char *section_name, const char *var_name, int value)
 		{ cstate.set(section_name, var_name, static_cast<bool>(value)); }
+	void json_cstate_delete_var(const char *section_name, const char *var_name)
+		{ cstate.delete_var(section_name, var_name); }
 }

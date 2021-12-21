@@ -286,12 +286,11 @@ static int do_load_map(const char *file_name, update_func *update_function)
 		cur_3d_obj_io.g = SwapLEFloat (cur_3d_obj_io.g);
 		cur_3d_obj_io.b = SwapLEFloat (cur_3d_obj_io.b);
 
-		LOG_DEBUG("Adding 3d object (%d) '%s' at <%d, %f, %f> with "
+		LOG_DEBUG("Adding 3d object (%d) '%s' at <%f, %f, %f> with "
 			"rotation <%f, %f, %f>, left lit %d, blended %d and "
 			"color <%f, %f, %f>.", i, cur_3d_obj_io.file_name,
-			cur_3d_obj_io.x_pos, cur_3d_obj_io.y_pos,
-			cur_3d_obj_io.z_pos, cur_3d_obj_io.x_rot,
-			cur_3d_obj_io.y_rot, cur_3d_obj_io.z_rot,
+			cur_3d_obj_io.x_pos, cur_3d_obj_io.y_pos, cur_3d_obj_io.z_pos,
+			cur_3d_obj_io.x_rot, cur_3d_obj_io.y_rot, cur_3d_obj_io.z_rot,
 			cur_3d_obj_io.self_lit, cur_3d_obj_io.blended,
 			cur_3d_obj_io.r, cur_3d_obj_io.g, cur_3d_obj_io.b);
 
@@ -367,11 +366,10 @@ static int do_load_map(const char *file_name, update_func *update_function)
 		cur_2d_obj_io.y_rot = SwapLEFloat(cur_2d_obj_io.y_rot);
 		cur_2d_obj_io.z_rot = SwapLEFloat(cur_2d_obj_io.z_rot);
 
-		LOG_DEBUG("Adding 2d object (%d) '%s' at <%d, %f, %f> with "
+		LOG_DEBUG("Adding 2d object (%d) '%s' at <%f, %f, %f> with "
 			"rotation <%f, %f, %f>.", i, cur_2d_obj_io.file_name,
-			cur_2d_obj_io.x_pos, cur_2d_obj_io.y_pos,
-			cur_2d_obj_io.z_pos, cur_2d_obj_io.x_rot,
-			cur_2d_obj_io.y_rot, cur_2d_obj_io.z_rot);
+			cur_2d_obj_io.x_pos, cur_2d_obj_io.y_pos, cur_2d_obj_io.z_pos,
+			cur_2d_obj_io.x_rot, cur_2d_obj_io.y_rot, cur_2d_obj_io.z_rot);
 
 #ifndef SHOW_FLICKERING
 		// Add in low-order bits to prevent flicker.
@@ -521,7 +519,7 @@ static int do_load_map(const char *file_name, update_func *update_function)
 		cur_light_io.g = SwapLEFloat (cur_light_io.g);
 		cur_light_io.b = SwapLEFloat (cur_light_io.b);
 
-		LOG_DEBUG("Adding light(%d) at <%d, %f, %f> with color "
+		LOG_DEBUG("Adding light(%d) at <%f, %f, %f> with color "
 			"<%f, %f, %f>.", i, cur_light_io.pos_x,
 			cur_light_io.pos_y, cur_light_io.pos_z, cur_light_io.r,
 			cur_light_io.g, cur_light_io.b);
@@ -585,7 +583,7 @@ static int do_load_map(const char *file_name, update_func *update_function)
 		cur_particles_io.y_pos = SwapLEFloat (cur_particles_io.y_pos);
 		cur_particles_io.z_pos = SwapLEFloat (cur_particles_io.z_pos);
 
-		LOG_DEBUG("Adding particle(%d) '%s' at <%d, %f, %f>.", i,
+		LOG_DEBUG("Adding particle(%d) '%s' at <%f, %f, %f>.", i,
 			cur_particles_io.file_name, cur_particles_io.x_pos,
 			cur_particles_io.y_pos, cur_particles_io.z_pos);
 

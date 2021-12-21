@@ -1,6 +1,6 @@
 name: eternallands
 # Set to x.y.zpn / x.y.zpn-dev for stable / dev build
-version: '1.9.5p9'
+version: '1.9.6.0-1'
 summary: Eternal Lands is a free to play, graphical MMORPG
 description: |
   Eternal Lands is a free to play, graphical MMORPG (massively-multi-player
@@ -28,8 +28,8 @@ parts:
     source: https://github.com/raduprv/Eternal-Lands
     source-type: git
     # Include for stable release, comment out for dev build, comment out for latest commit dev release
-    source-tag: 1.9.5.9-1
-    build-packages: [build-essential, libcal3d12-dev, libsdl2-image-dev, libsdl2-net-dev, libsdl2-ttf-dev, libxml2-dev, libopenal-dev, libvorbis-dev, libpng-dev]
+    source-tag: 1.9.6.0-1
+    build-packages: [build-essential, libcal3d12-dev, libsdl2-image-dev, libsdl2-net-dev, libsdl2-ttf-dev, libxml2-dev, libopenal-dev, libvorbis-dev, libpng-dev, libssl-dev]
     plugin: cmake
     # Add -DVERSION_PREFIX=x.y.z for dev build, remove for release
     cmake-parameters:  ["-DCMAKE_BUILD_TYPE=release", "-DEXEC=el.linux.bin", "-DLOCAL_NLOHMANN_JSON=On", "-DCMAKE_INSTALL_PREFIX=/" ]
@@ -47,6 +47,7 @@ parts:
       - libxrandr2
       - zlib1g
       - libpng16-16
+      - libssl1.1
       - libegl1-mesa
       - libglu1-mesa
       - libgl1-mesa-dri
@@ -61,8 +62,8 @@ parts:
       - desktop-glib-only
 
   data:
-    source: https://github.com/raduprv/Eternal-Lands/releases/download/1.9.5.9-1/eternallands-data_1.9.5.9-1.zip
-    source-checksum: sha256/00f105ce44998b939bb92361c113961f2220afa0a3b21e53beed35968ae23ae4
+    source: https://github.com/raduprv/Eternal-Lands/releases/download/1.9.6.0/eternallands-data_1.9.6.0.zip
+    source-checksum: sha256/9669651e78c548a6b1fd16b515dd21cb7a8c5f8edbf955af4df6f5066f3d1b1b
     plugin: dump
     organize:
       el_data/ : data/

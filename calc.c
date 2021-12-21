@@ -131,7 +131,10 @@ static int reduce_stack(CalcStack* cs)
 		{
 			nt.type = CALCTOK_NUM;
 			lvl = (int)trunc(cs1->value);
-			nt.value = XPL(lvl) + (cs1->value-lvl) * XPLDIFF(lvl, lvl+1);
+			if (lvl == XPT_MAX)
+				nt.value = XPL(lvl);
+			else
+				nt.value = XPL(lvl) + (cs1->value-lvl) * XPLDIFF(lvl, lvl+1);
 			calcpush(cs, &nt);
 		}
 		else
@@ -349,6 +352,11 @@ static void next_calctoken(const char *str, int *spos, CalcStack *cs, CalcTok *c
 			if (str[pos]=='K'||str[pos]=='k'){
 				pos++;
 				ct->value*=1000;
+			}
+			else if (str[pos]=='M'||str[pos]=='m')
+			{
+				pos++;
+				ct->value*=1000000;
 			}
 			break;
 		case 'M':

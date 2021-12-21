@@ -211,6 +211,7 @@ char
 	messages_indicator_str[60],
 	ranginglock_indicator_str[70],
 	glowperk_indicator_str[100],
+	summon_attack_indicator_str[100],
 	/*loginwin.c*/
 	login_username_str[20],
 	login_password_str[20],
@@ -431,7 +432,16 @@ char
 	item_list_create_help_str[40],
 	item_list_find_str[20],
 	item_list_find_help_str[40],
-	item_list_find_help_disabled_str[40];
+	item_list_find_help_disabled_str[40],
+	/* summoning attack command */
+	no_attack_str[50],
+	attack_my_opponent_str[50],
+	do_not_attack_my_opponent_str[50],
+	attack_only_summoned_str[50],
+	do_not_attack_summoned_str[50],
+	attack_at_will_str[50],
+	summon_attack_set_mode_str[50],
+	summon_attack_help_str[50];
 #endif
 /*! \} */
 
@@ -499,9 +509,11 @@ char	name_too_long[75],
 	item_use_get_failed_str[80],
 	item_info_load_failed_str[80],
 	commands_help_prefix_str[20],
+	commands_search_prefix_str[40],
 	commands_help_not_loaded_str[60],
 	commands_help_not_recognsed_str[40],
 	commands_help_description_help_str[100],
+	commands_help_search_help_str[100],
 	cmd_ignores[20],
 	cmd_ignore[20],
 	cmd_unignore[20],
@@ -529,7 +541,9 @@ char	name_too_long[75],
 	cmd_session_counters[20],
 	cmd_relogin[20],
 	cmd_disconnect[20],
-	cmd_disco[20];
+	cmd_disco[20],
+	cmd_summon_attack_short[10],
+	cmd_summon_attack[20];
 /*! \} */
 #endif
 
@@ -562,6 +576,18 @@ char	reg_error_str[15],
 	cache_size_str[20],
 	/* cal.c */
 	no_animation_err_str[30],
+	/* connection.cpp */
+	warning_str[30],
+	hostname_mismatch_str[500],
+	unverified_certificate_str[400],
+	close_connection_str[30],
+	continue_str[30],
+	no_encryption_support_str[100],
+	no_encryption_response_str[100],
+	now_encrypted_str[100],
+	encryption_failed_str[100],
+	cert_verification_err_str[100],
+	send_failed_str[100],
 	/* console.c */
 	invalid_location_str[30],
 	/*cursors.c*/
@@ -748,6 +774,7 @@ char	reg_error_str[15],
 	snd_media_ogg_info[50],
 	snd_media_ogg_info_noartist[50],
 	/*stats.c*/
+	totalxp_str[20],
 	stat_no_invalid[50],
 	/*timers.c*/
 	timer_lagging_behind[100],
@@ -1125,9 +1152,11 @@ void init_console()
 	add_xml_identifier(misc,"item_use_get_failed",item_use_get_failed_str,"Cannot record item use in counters as problem with item: ",sizeof(item_use_get_failed_str));
 	add_xml_identifier(misc,"item_info_load_failed",item_info_load_failed_str,"Could not load the item information file",sizeof(item_info_load_failed_str));
 	add_xml_identifier(misc, "commands_help_prefix", commands_help_prefix_str, "Command", sizeof(commands_help_prefix_str));
+	add_xml_identifier(misc, "commands_search_prefix", commands_search_prefix_str, "Commands matching", sizeof(commands_search_prefix_str));
 	add_xml_identifier(misc, "commands_help_not_loaded", commands_help_not_loaded_str, "Commands help file not loaded", sizeof(commands_help_not_loaded_str));
 	add_xml_identifier(misc, "commands_help_not_recognsed", commands_help_not_recognsed_str, "Unrecognised command", sizeof(commands_help_not_recognsed_str));
-	add_xml_identifier(misc, "commands_help_description_help", commands_help_description_help_str, "For help on a particular command, use ## <command>", sizeof(commands_help_description_help_str));
+	add_xml_identifier(misc, "commands_help_description_help", commands_help_description_help_str, "For help on a particular command, use ## <command>.", sizeof(commands_help_description_help_str));
+	add_xml_identifier(misc, "commands_help_search_help", commands_help_search_help_str, "To search command name and description, use #? <search text>.", sizeof(commands_help_search_help_str));
 
 	add_xml_identifier(loading_msg,"init_opengl",init_opengl_str,"Initializing OpenGL extensions",sizeof(init_opengl_str));
 	add_xml_identifier(loading_msg,"init_random",init_random_str,"Generating random seed",sizeof(init_random_str));
@@ -1201,6 +1230,8 @@ void init_console()
 	add_xml_identifier(cmd_grp,"relogin",cmd_relogin,"relogin",sizeof(cmd_relogin));
 	add_xml_identifier(cmd_grp,"disconnect",cmd_disconnect,"disconnect",sizeof(cmd_disconnect));
 	add_xml_identifier(cmd_grp,"disco",cmd_disco,"disco",sizeof(cmd_disco));
+	add_xml_identifier(cmd_grp,"summon_attack_short",cmd_summon_attack_short,"sa",sizeof(cmd_summon_attack_short));
+	add_xml_identifier(cmd_grp,"summon_attack",cmd_summon_attack,"summon_attack",sizeof(cmd_summon_attack));
 }
 #endif
 
@@ -1293,6 +1324,38 @@ void init_errors()
 	add_xml_identifier (misc, "mapmarks", err_mapmarks_str, "Maximum number of mapmarks reached.", sizeof(err_mapmarks_str));
 	add_xml_identifier (misc, "book_open", book_open_err_str, "Couldn't open the book: %s!", sizeof(book_open_err_str));
 	add_xml_identifier (misc, "noanimation", no_animation_err_str, "No animation: %s!\n", sizeof(no_animation_err_str));
+#ifdef USE_SSL
+	add_xml_identifier(misc, "warning", warning_str, "Warning!", sizeof(warning_str));
+	add_xml_identifier(misc, "hostname_mismatch", hostname_mismatch_str,
+		"The host name of the selected game server (%s) does not match that of the security "
+		"certificate sent by the server you connected to (%s). This could be a configuration "
+		"error in the server, or an attacker may be redirecting you to a fake game server "
+		"(for example, to steal your password).\n\n"
+		"Click \"%s\" to break the connection and restart the game with "
+		"a different server, or \"%s\" if you understand and accept the risks and "
+		"wish to continue anyway.", sizeof(hostname_mismatch_str));
+	add_xml_identifier(misc, "unverified_certificate", unverified_certificate_str,
+		"The encryption certificate sent by the server could not be verified. "
+		"This could mean that someone is intercepting your connection with the game server "
+	    "(for example, to steal your password).\n\n"
+		"Click \"%s\" to break the connection and restart the game with "
+		"a different server, or \"%s\" if you understand and accept the risks and "
+		"wish to continue anyway.", sizeof(unverified_certificate_str));
+	add_xml_identifier(misc, "close_connection", close_connection_str, "Close connection", sizeof(close_connection_str));
+	add_xml_identifier(misc, "continue", continue_str, "Continue", sizeof(continue_str));
+	add_xml_identifier(misc, "no_encryption_support", no_encryption_support_str,
+		"The server does not support encrypting the connection.", sizeof(no_encryption_support_str));
+	add_xml_identifier(misc, "no_encryption_response", no_encryption_response_str,
+		"The server did not respond to a request to encrypt the connection.",
+		sizeof(no_encryption_response_str));
+	add_xml_identifier(misc, "now_encrypted", now_encrypted_str,
+		"The connection is now encrypted.", sizeof(now_encrypted_str));
+	add_xml_identifier(misc, "encryption_failed", encryption_failed_str,
+		"Failed to set up an encrypted connection.", sizeof(encryption_failed_str));
+	add_xml_identifier(misc, "cert_verification_err", cert_verification_err_str,
+		"The server certificate could not be verified.", sizeof(cert_verification_err_str));
+	add_xml_identifier(misc, "send_failed", send_failed_str, "Failed to send data to the server.", sizeof(send_failed_str));
+#endif // USE_SSL
 	add_xml_identifier (misc, "invalid_location", invalid_location_str, "Invalid location %d,%d", sizeof(invalid_location_str));
 	add_xml_identifier (misc, "warn_currently_ignoring", warn_currently_ignoring, "Warning: %s is on your #ignore list", sizeof(warn_currently_ignoring));
 	add_xml_identifier (misc, "invalidnpcmark", invalidnpcmark_str, "Invalid string for NPC map mark.", sizeof(invalidnpcmark_str));
@@ -1558,6 +1621,7 @@ void init_help()
 	add_xml_identifier(misc,"messages_indicator",messages_indicator_str,"M||Recent Messages||No Messages||Message Count",sizeof(messages_indicator_str));
 	add_xml_identifier(misc,"ranginglock_indicator",ranginglock_indicator_str,"R||Ranging Lock On||Ranging Lock Off||Ranging Lock Status",sizeof(ranginglock_indicator_str));
 	add_xml_identifier(misc,"glowperk_indicator",glowperk_indicator_str,"G||Glow Perk On||Glow Perk Off||Glow Perk Status||You do not have the Glow In The Dark perk",sizeof(glowperk_indicator_str));
+	add_xml_identifier(misc,"summon_attack_indicator",summon_attack_indicator_str,"A||Attack at Will||Not attack at Will||Summoning Attack||Unknown summon attack mode",sizeof(summon_attack_indicator_str));
 	add_xml_identifier(misc,"dc_note_rm",dc_note_remove,"Double-click to remove this category",sizeof(dc_note_remove));
 	add_xml_identifier(misc,"character_notes_saved",character_notes_saved_str,"Your notes for this character have been saved",sizeof(character_notes_saved_str));
 	add_xml_identifier(misc,"notes_save_tooltip",notes_save_tooltip_str,"Right-click for save option",sizeof(notes_save_tooltip_str));
@@ -1696,7 +1760,7 @@ void init_help()
 	add_xml_identifier(misc, "cm_quickbar_menu", cm_quickbar_menu_str, "Enable Quickbar Menu\n--\nRelocatable Window\nMoveable Window\nRotate Window\n--\nReset Position", sizeof(cm_quickbar_menu_str));
 	add_xml_identifier(misc, "cm_hud_menu", cm_hud_menu_str, "Show Stats\nShow Stats Bars\nShow Knowledge Bar\nShow Timer\nShow Digital Clock\nShow Analogue Clock\nShow Seconds\nShow FPS\nShow Indicators\nEnable Quickbar Menu\n--\nShow Minimap\nShow Ranging Stats\n--\nEnable Sound Effects\nEnable Music\n--\nCopy Location", sizeof(cm_hud_menu_str));
 	add_xml_identifier(misc, "cm_banner_menu", cm_banner_menu_str, "Show Names\nShow Health Bars\nShow Health Numbers\nShow Ether Bar\nShow Ether Numbers\nEnable Instance Mode\nShow Speech Bubbles\nEnable Banner Background\nSit Lock\nRanging Lock\n--\nDisable This Menu\n", sizeof(cm_banner_menu_str));
-	add_xml_identifier(misc, "cm_title_menu", cm_title_menu_str, "Hide Windows\nOpaque Background\nWindows On Top\nDisable Scaling Controls\n--\nCentred Window\n", sizeof(cm_title_menu_str));
+	add_xml_identifier(misc, "cm_title_menu", cm_title_menu_str, "Hide Windows\nOpaque Background\nWindows On Top\nDisable Scaling Controls\n--\nDefault Window Position\n", sizeof(cm_title_menu_str));
 	add_xml_identifier(misc, "cm_title_help", cm_title_help_str, "Right-click for window menu", sizeof(cm_title_help_str));
 	add_xml_identifier(misc, "cm_items_menu", cm_items_menu_str, "--\nUse Small Window\nManual Window Size\nItem Window On Drop\nAllow Equipment Swap\nAlt/Ctrl-click With Any Cursor\nButtons On Left\nEquipment Grid On Left\n--\nOpen Storage (View Only)", sizeof(cm_items_menu_str));
 	add_xml_identifier(misc, "cm_storage_menu", cm_storage_menu_str, "--\nPrint Items To Console\nSort Categories Alphabetically\nSort Items Alphabetically\nDisable item filter", sizeof(cm_storage_menu_str));
@@ -1760,6 +1824,16 @@ void init_help()
 	add_xml_identifier(misc, "item_list_find", item_list_find_str, "Find: ", sizeof(item_list_find_str));
 	add_xml_identifier(misc, "item_list_find_help", item_list_find_help_str, "Find list - type text", sizeof(item_list_find_help_str));
 	add_xml_identifier(misc, "item_list_find_help_disabled", item_list_find_help_disabled_str, "Find list - (disabled)", sizeof(item_list_find_help_disabled_str));
+
+	/* summoning attach #command strings */
+	add_xml_identifier(misc, "no_attack", no_attack_str, "No Attack", sizeof(no_attack_str));
+	add_xml_identifier(misc, "attack_my_opponent", attack_my_opponent_str, "Attack my opponent", sizeof(attack_my_opponent_str));
+	add_xml_identifier(misc, "do_not_attack_my_opponent", do_not_attack_my_opponent_str, "Do not attack my opponent", sizeof(do_not_attack_my_opponent_str));
+	add_xml_identifier(misc, "attack_only_summoned", attack_only_summoned_str, "Attack only summoned", sizeof(attack_only_summoned_str));
+	add_xml_identifier(misc, "do_not_attack_summoned", do_not_attack_summoned_str, "Do not attack summoned", sizeof(do_not_attack_summoned_str));
+	add_xml_identifier(misc, "attack_at_will", attack_at_will_str, "Attack at will", sizeof(attack_at_will_str));
+	add_xml_identifier(misc, "summon_attack_set_mode", summon_attack_set_mode_str, "Setting summoning attack mode to:", sizeof(summon_attack_set_mode_str));
+	add_xml_identifier(misc, "summon_attack_help", summon_attack_help_str, "Specify summoning attack mode option:", sizeof(summon_attack_help_str));
 }
 #endif
 
@@ -1811,6 +1885,7 @@ void init_stats()
 	add_xml_identifier(stats_extra,"nexus",(char*)attributes.nexus,"Nexus",sizeof(attributes.nexus));
 	add_xml_identifier(stats_extra,"skills",(char*)attributes.skills,"Skills",sizeof(attributes.skills));
 	add_xml_identifier(stats_extra,"pickpoints",(char*)attributes.pickpoints,"Pickpoints",sizeof(attributes.pickpoints));
+	add_xml_identifier(stats_extra, "totalxp", totalxp_str, "Total", sizeof(totalxp_str));
 
 	add_xml_statid(base,"phy",&(attributes.phy),"Physique","phy");
 	add_xml_statid(base,"coo",&(attributes.coo),"Coordination","coo");

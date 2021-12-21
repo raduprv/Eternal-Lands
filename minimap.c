@@ -783,11 +783,7 @@ void display_minimap(void)
 		change_minimap();
 		
 		if (!cm_valid(win->cm_id))
-		{
-			win->cm_id = cm_create(cm_title_menu_str, cm_minimap_title_handler);
-			cm_grey_line(win->cm_id, 1, 1);
-			cm_bool_line(win->cm_id, 2, &windows_on_top, "windows_on_top");
-		}
+			win->cm_id = cm_title_create_menu(win, cm_title_menu_str, cm_minimap_title_handler);
 
 		ui_scale_minimap_handler(win);
 		check_proportional_move(MW_MINIMAP);

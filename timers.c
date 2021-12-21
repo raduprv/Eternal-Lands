@@ -3,6 +3,9 @@
 #include "timers.h"
 #include "actors.h"
 #include "actor_scripts.h"
+#ifdef USE_SSL
+#include "connection.h"
+#endif
 #include "draw_scene.h"
 #include "events.h"
 #include "init.h"
@@ -141,10 +144,14 @@ Uint32 check_misc(Uint32 interval, void * data)
 #endif
 
 	//should we send the heart beat?
-	if(!disconnected && last_heart_beat+25 <= time(NULL))
+#ifdef USE_SSL
+	check_heart_beat();
+#else // USE_SSL
+	if(!is_disconnected() && last_heart_beat+25 <= time(NULL))
 	{
 		send_heart_beat();
 	}
+#endif // USE_SSL
 
 	if(countdown>0)
 	{

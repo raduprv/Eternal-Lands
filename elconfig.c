@@ -61,6 +61,7 @@
  #include "openingwin.h"
  #include "particles.h"
  #include "password_manager.h"
+ #include "platform.h"
  #include "pm_log.h"
  #include "questlog.h"
  #include "reflection.h"
@@ -82,6 +83,7 @@
  #include "io/elpathwrapper.h"
  #include "notepad.h"
  #include "sky.h"
+ #include "servers.h"
  #ifdef OSX
   #include "events.h"
  #endif // OSX
@@ -147,10 +149,11 @@ static float elconf_custom_scale = 1.0f;
 static float elconf_desc_size = 0.0f;
 static float elconf_desc_max_height = 0.0f;
 static int recheck_window_scale = 0;
+static int reopen_after_autoscale = 0;
 #define ELCONFIG_SCALED_VALUE(BASE) ((int)(0.5 + ((BASE) * elconf_scale)))
 #endif
 
-#define MULTI_LINE_HEIGHT (ELCONFIG_SCALED_VALUE(22) + SPACING)
+#define MULTI_LINE_HEIGHT (ELCONFIG_SCALED_VALUE(2.0 * BUTTONRADIUS * DEFAULT_SMALL_RATIO) + SPACING)
 
 typedef char input_line[256];
 
@@ -180,6 +183,7 @@ typedef struct
 	char 	*shortname; /*!< shortname of the variable */
 	int 	snlen; /*!< length of the \a shortname */
 	void 	(*func)(); /*!< routine to execute when this variable is selected. */
+	void 	(*validator_func)(); /*!< optional routine to execute to valid current value. */
 	void 	*var; /*!< data for this variable */
 	float	default_val; /*!< the default value before the config file is read */
 	float	config_file_val; /*!< the value after the config file is read */
@@ -599,6 +603,20 @@ static void change_use_animation_program(int * var)
 		}
 	}
 }
+
+static void change_def_server(size_t *var, size_t value)
+{
+	*var = value;
+	// save the server to the base config file
+	write_def_server_ID(value);
+}
+
+static void change_windows_autoscale(int * var)
+{
+	*var= !*var;
+	if (*var)
+		set_windows_autoscale_needed();
+}
 #endif //MAP_EDITOR
 
 #ifndef MAP_EDITOR
@@ -678,8 +696,8 @@ static void change_win_scale_factor(float *var, float *value)
 	update_windows_custom_scale(var);
 }
 
-static const float win_scale_min = 0.25f;
-static const float win_scale_max = 3.0f;
+const float win_scale_min = 0.25f;
+const float win_scale_max = 3.0f;
 static const float win_scale_step = 0.01f;
 
 static var_struct * find_win_scale_factor(float *changed_window_custom_scale)
@@ -692,6 +710,13 @@ static var_struct * find_win_scale_factor(float *changed_window_custom_scale)
 				return our_vars.var[i];
 	}
 	return NULL;
+}
+
+void set_custom_scale_unsaved(float *changed_window_custom_scale)
+{
+	var_struct * var = find_win_scale_factor(changed_window_custom_scale);
+	if (var != NULL)
+		var->saved = 0;
 }
 
 void step_win_scale_factor(int increase, float *changed_window_custom_scale)
@@ -1814,7 +1839,7 @@ static int set_var_OPT_MULTI(const char *str, size_t new_value)
 		size_t max_sel = option->args.multi.count;
 		if (new_value >= max_sel)
 		{
-			LOG_ERROR("Invalid value '%lu' for var '%s', type 'OPT_MULTI*' max '%lu'", new_value, str, max_sel);
+			LOG_ERROR("Invalid value '%'" PRI_SIZET " for var '%s', type 'OPT_MULTI*' max '%" PRI_SIZET "'", new_value, str, max_sel);
 			return 0;
 		}
 		option->func(option->var, new_value);
@@ -2524,6 +2549,7 @@ static void add_var(option_type type, char * name, char * shortname, void * var,
 	our_vars.var[no]->var=var;
 	our_vars.var[no]->config_file_val = our_vars.var[no]->default_val = def;
 	our_vars.var[no]->func=func;
+	our_vars.var[no]->validator_func = NULL;
 	our_vars.var[no]->name=name;
 	our_vars.var[no]->shortname=shortname;
 	our_vars.var[no]->nlen=strlen(our_vars.var[no]->name);
@@ -2540,6 +2566,14 @@ static void add_var(option_type type, char * name, char * shortname, void * var,
 }
 
 #ifndef MAP_EDITOR
+// very few vars have validator functions, so rather than make a big change, add separately
+static void add_validator(const char * var_name, void (*validator_func)())
+{
+	int var_index = find_var(var_name, INI_FILE_VAR);
+	if (var_index != -1)
+		our_vars.var[var_index]->validator_func = validator_func;
+}
+
 // set default fonts names and sizes
 int command_set_default_fonts(char *text, int len)
 {
@@ -2547,6 +2581,7 @@ int command_set_default_fonts(char *text, int len)
 		"book_font", "rules_font", "encyclopedia_font" };
 	char const * size_vars[] = { "ui_text_size", "name_text_size", "chat_text_size",
 		"note_text_size", "book_text_size", "rules_text_size", "encyclopedia_text_size" };
+	const float def_font_size[] = { 1.0f, get_global_scale(), get_global_scale(), 1.0f, 1.0f, 1.0f, 1.0f };
 	char const * font_names[] = { def_ui_font_str, def_name_font_str, def_chat_font_str,
 		def_note_font_str, def_book_font_str, def_rules_font_str, def_encyclopedia_font_str };
 	int elconfig_win = get_id_MW(MW_CONFIG);
@@ -2575,7 +2610,7 @@ int command_set_default_fonts(char *text, int len)
 		var_idx = find_var(size_vars[i], INI_FILE_VAR);
 		if (var_idx >= 0)
 		{
-			float new_val = 1.0f;
+			float new_val = def_font_size[i];
 			var_struct *var = our_vars.var[var_idx];
 			var->func(var->var, &new_val);
 			var->saved = 0;
@@ -2667,6 +2702,58 @@ void set_multiselect_var(const char* name, int idx, int change_button)
 
 //ELC specific variables
 #ifdef ELC
+
+#ifdef TTF
+// if we change the ttf_directory string, this function is called to validate it exists
+static void ttf_dir_validator(void)
+{
+	int var_index = find_var("ttf_directory", INI_FILE_VAR);
+	if (var_index != -1)
+	{
+		int window_id = elconfig_tabs[our_vars.var[var_index]->widgets.tab_id].tab;
+		int widget_id = our_vars.var[var_index]->widgets.widget_id;
+		if ((window_id >= 0) && (widget_id >=0))
+		{
+			struct stat stat_str;
+			int file_stat = stat(our_vars.var[var_index]->var, &stat_str);
+			if ((file_stat == 0) && S_ISDIR (stat_str.st_mode))
+				widget_set_color(window_id, widget_id, gui_color[0], gui_color[1], gui_color[2]);
+			else
+				widget_set_color(window_id, widget_id, 1.0f, 0.0f, 0.0f);
+		}
+	}
+}
+#endif
+
+// check if the current language directory exists and the string does not include a trailing slash
+static void language_validator(void)
+{
+	int var_index = find_var("language", INI_FILE_VAR);
+	if (var_index != -1)
+	{
+		int window_id = elconfig_tabs[our_vars.var[var_index]->widgets.tab_id].tab;
+		int widget_id = our_vars.var[var_index]->widgets.widget_id;
+		if ((window_id >= 0) && (widget_id >=0))
+		{
+			const char *curr_lang = (char *)our_vars.var[var_index]->var;
+			int string_valid = ((strlen(curr_lang) == 2) && isalpha(curr_lang[0]) && isalpha(curr_lang[1])) ?1 :0;
+			if (string_valid)
+			{
+				struct stat stat_str;
+				char path[512];
+				int file_stat = -1;
+				safe_snprintf(path, sizeof(path), "%s/languages/%s", datadir, curr_lang);
+				file_stat = stat(path, &stat_str);
+				string_valid = ((file_stat == 0) && S_ISDIR (stat_str.st_mode)) ?1 :0;
+			}
+			if (string_valid)
+				widget_set_color(window_id, widget_id, gui_color[0], gui_color[1], gui_color[2]);
+			else
+				widget_set_color(window_id, widget_id, 1.0f, 0.0f, 0.0f);
+		}
+	}
+}
+
 static void init_ELC_vars(void)
 {
 	int i;
@@ -2732,7 +2819,8 @@ static void init_ELC_vars(void)
 		sizeof(npc_mark_str), "NPC map mark template",
 		"The template used when setting a map mark from the NPC dialogue (right click name). The %s is substituted for the NPC name.",
 		HUD);
-	add_var(OPT_BOOL,"3d_map_markers","3dmarks",&marks_3d,change_3d_marks,1,"Enable 3D Map Markers","Shows user map markers in the game window",HUD);
+	add_var(OPT_BOOL,"3d_map_markers","3dmarks",&marks_3d,change_var,1,"Enable 3D Map Markers","Shows user map markers in the game window",HUD);
+	add_var(OPT_BOOL,"filter_3d_map_markers","filter3dmarks",&filter_marks_3d,change_var,0,"Filter 3D Map Markers","Apply the current mark filter to 3d map marks.",HUD);
 	add_var(OPT_BOOL,"item_window_on_drop","itemdrop",&item_window_on_drop,change_var,1,"Item Window On Drop","Toggle whether the item window shows when you drop items",HUD);
 	add_var(OPT_FLOAT,"minimap_scale", "minimapscale", &local_minimap_size_coefficient, change_minimap_scale, 0.7, "Minimap Scale", "Adjust the overall size of the minimap", HUD, 0.5, 1.5, 0.1);
 	add_var(OPT_BOOL,"rotate_minimap","rotateminimap",&rotate_minimap,change_var,1,"Rotate Minimap","Toggle whether the minimap should rotate.",HUD);
@@ -2781,7 +2869,7 @@ static void init_ELC_vars(void)
 	//add_var(OPT_BOOL,"highlight_tab_on_nick", "highlight", &highlight_tab_on_nick, change_var, 1, "Highlight Tabs On Name", "Should tabs be highlighted when someone mentions your name?", CHAT);
 	add_var(OPT_BOOL,"emote_filter", "emote_filter", &emote_filter, change_var, 1, "Emotes filter", "Do not display lines of text in local chat containing emotes only", CHAT);
 	add_var(OPT_BOOL,"summoning_filter", "summ_filter", &summoning_filter, change_var, 0, "Summoning filter", "Do not display lines of text in local chat containing summoning messages", CHAT);
-	add_var(OPT_BOOL,"mixed_message_filter", "mixedmessagefilter", &mixed_message_filter, change_var, 0, "Mixed item filter", "Do not display console messages for mixed items when other windows are closed", CHAT);
+	add_var(OPT_BOOL,"mixed_message_filter", "mixedmessagefilter", &mixed_message_filter, change_var, 0, "Mixed item filter", "Do not display console messages for mixed items when other windows are not visible", CHAT);
 	add_var(OPT_INT,"time_warning_hour","warn_h",&time_warn_h,change_int,-1,"Time warning for new hour","If set to -1, there will be no warning given. Otherwise, you will get a notification in console this many minutes before the new hour",CHAT, -1, 30);
 	add_var(OPT_INT,"time_warning_sun","warn_s",&time_warn_s,change_int,-1,"Time warning for dawn/dusk","If set to -1, there will be no warning given. Otherwise, you will get a notification in console this many minutes before sunrise/sunset",CHAT, -1, 30);
 	add_var(OPT_INT,"time_warning_day","warn_d",&time_warn_d,change_int,-1,"Time warning for new #day","If set to -1, there will be no warning given. Otherwise, you will get a notification in console this many minutes before the new day",CHAT, -1, 30);
@@ -2808,6 +2896,7 @@ static void init_ELC_vars(void)
 			"Toggle the use of True Type fonts for text rendering", FONT);
 	add_var(OPT_STRING, "ttf_directory", "ttfdir", ttf_directory, change_string, sizeof(ttf_directory),
 		"TTF directory", "Scan this directory and its direct subdirectories for True Type fonts. This is only used when 'Use TTF' is enabled. Changes to this option only take effect after a restart of the client.", FONT);
+	add_validator("ttf_directory", ttf_dir_validator);
 #endif
 	add_var(OPT_FLOAT,"ui_text_size","uisize",&font_scales[UI_FONT],change_text_zoom,1,"UI Text Size","Set the size of the text in the user interface",FONT,0.8,1.2,0.01);
 	add_var(OPT_MULTI,"ui_font","uifont",&font_idxs[UI_FONT],change_font,0,"UI Font","Change the type of font used in the user interface",FONT, NULL);
@@ -2833,6 +2922,7 @@ static void init_ELC_vars(void)
 	add_var(OPT_FLOAT,"ui_scale","ui_scale",&local_ui_scale,change_ui_scale,1,"User interface scaling factor","Scale user interface by this factor, useful for high DPI displays.  Note: the options window will be rescaled after reopening.",FONT,0.75,3.0,0.01);
 	add_var(OPT_INT,"cursor_scale_factor","cursor_scale_factor",&cursor_scale_factor ,change_cursor_scale_factor,cursor_scale_factor,"Mouse pointer scaling factor","The size of the mouse pointer is scaled by this factor",FONT, 1, max_cursor_scale_factor);
 	add_var(OPT_BOOL,"disable_window_scaling_controls","disablewindowscalingcontrols", get_scale_flag_MW(), change_var, 0, "Disable Window Scaling Controls", "If you do not want to use keys or mouse+scrollwheel to scale individual windows, set this option.", FONT);
+	add_var(OPT_BOOL,"enable_windows_autoscale","enable_windows_autoscale", &enable_windows_autoscale, change_windows_autoscale, 0, "Autoscale windows to fit", "If enabled, the scaling factor for a window will be automatically calculated to fit within the main window. The scaling factor will not be set greater than the default.", FONT);
 	add_var(OPT_FLOAT,"trade_win_scale","tradewinscale",get_scale_WM(MW_TRADE),change_win_scale_factor,1.0f,"Trade window scaling factor",win_scale_description,FONT,win_scale_min,win_scale_max,win_scale_step);
 	add_var(OPT_FLOAT,"item_win_scale","itemwinscale",get_scale_WM(MW_ITEMS),change_win_scale_factor,1.0f,"Inventory window scaling factor",win_scale_description,FONT,win_scale_min,win_scale_max,win_scale_step);
 	add_var(OPT_FLOAT,"bags_win_scale","bagswinscale",get_scale_WM(MW_BAGS),change_win_scale_factor,1.0f,"Ground bag window scaling factor",win_scale_description,FONT,win_scale_min,win_scale_max,win_scale_step);
@@ -2878,6 +2968,7 @@ static void init_ELC_vars(void)
 	add_var(OPT_BOOL,"rotate_chat_log","rclog",&rotate_chat_log_config_var,change_rotate_chat_log,0,"Rotate Chat Log File","Tag the chat/server message log files with year and month. You will still need to manage deletion of the old files. Requires a client restart.",SERVER);
 	add_var(OPT_BOOL,"buddy_log_notice", "buddy_log_notice", &buddy_log_notice, change_var, 1, "Log Buddy Sign On/Off", "Toggle whether to display notices when people on your buddy list log on or off", SERVER);
 	add_var(OPT_STRING,"language", "lang", lang, change_string, sizeof(lang), "Language", "Wah?", SERVER);
+	add_validator("language", language_validator);
 	add_var(OPT_STRING, "browser", "b", browser_name, change_string, sizeof(browser_name), "Browser",
 		"Location of your web browser (Windows users leave blank to use default browser)",
 		SERVER);
@@ -3171,6 +3262,23 @@ int read_el_ini (void)
 #endif
 
 	fclose (fin);
+
+#ifdef	ELC
+	// add the default server selection option now we know the servers list has been loaded
+	// the ini file value is never used, we just want to use the options UI to set the base config file value
+	{
+		static size_t def_server_index = 0;
+		def_server_index = get_def_server_index();
+		add_var(OPT_MULTI, "autoset_def_server_index", "adefsrvi", &def_server_index, change_def_server,
+			(def_server_index > 0) ?def_server_index :0, "Default Server ID",
+			"Set the default server ID when starting the client; "
+			"stored in a file of the users top level config folder and shared across all configurations.  "
+			"If not set the main server ID is used.  Command line options will overide these values.",
+			SERVER, NULL);
+		populate_def_server_options("autoset_def_server_index");
+	}
+#endif
+
 	return 1;
 }
 
@@ -3636,6 +3744,8 @@ static int string_onkey_handler(widget_list *widget)
 		{
 			if(our_vars.var[i]->widgets.widget_id == widget->id)
 			{
+				if (our_vars.var[i]->validator_func != NULL)
+					our_vars.var[i]->validator_func();
 				our_vars.var[i]->saved= 0;
 				return 0;
 			}
@@ -3726,7 +3836,8 @@ static void elconfig_populate_tabs(void)
 	int spin_button_width = max2i(ELCONFIG_SCALED_VALUE(100),
 		4 * get_max_digit_width_zoom(CONFIG_FONT, elconf_scale) + 4 * (int)(0.5 + 5 * elconf_scale));
 	int right_margin = TAB_MARGIN;
-	int multi_height = 3 * MULTI_LINE_HEIGHT;
+	const int num_visible_options = 3;
+	const int multi_height = num_visible_options * MULTI_LINE_HEIGHT;
 
 	for(i= 0; i < MAX_TABS; i++) {
 		//Set default values
@@ -3817,7 +3928,7 @@ static void elconfig_populate_tabs(void)
 				widget_width = ELCONFIG_SCALED_VALUE(250);
 				widget_id = multiselect_add_extended(window_id, elconfig_free_widget_id++, NULL,
 					window_width - right_margin - widget_width, current_y, widget_width,
-					multi_height, elconf_scale, gui_color[0], gui_color[1], gui_color[2],
+					multi_height - SPACING + 2, elconf_scale, gui_color[0], gui_color[1], gui_color[2],
 					gui_invert_color[0], gui_invert_color[1], gui_invert_color[2], 0);
 				for (iopt = 0; iopt < var->args.multi.count; ++iopt)
 				{
@@ -3828,6 +3939,7 @@ static void elconfig_populate_tabs(void)
 						0, iopt * MULTI_LINE_HEIGHT, 0, label,
 						DEFAULT_SMALL_RATIO*elconf_scale, iopt == *(int *)var->var);
 				}
+				multiselect_set_scrollbar_inc(window_id, widget_id, var->args.multi.count - num_visible_options);
 				multiselect_set_selected(window_id, widget_id, *((const int*)var->var));
 				widget_set_OnClick(window_id, widget_id, multiselect_click_handler);
 				widget_set_OnKey(window_id, widget_id, (int (*)())multiselect_keypress_handler);
@@ -3917,6 +4029,7 @@ static void elconfig_populate_tabs(void)
 // TODO: replace this hack by something clean.
 static int show_elconfig_handler(window_info * win) {
 	int pwinx, pwiny; window_info *pwin;
+	size_t i;
 
 	if (win->pos_id != -1) {
 		pwin= &windows_list.window[win->pos_id];
@@ -3936,6 +4049,11 @@ static int show_elconfig_handler(window_info * win) {
 #else
 	init_window(win->window_id, game_root_win, 0, win->pos_x - pwinx, win->pos_y - pwiny, win->len_x, win->len_y);
 #endif
+
+	// call any validation functions to update the var status
+	for(i = 0; i < our_vars.no; i++)
+		if (our_vars.var[i]->validator_func != NULL)
+			our_vars.var[i]->validator_func();
 
 	return 1;
 }
@@ -3962,6 +4080,22 @@ static int change_elconfig_font_handler(window_info *win, font_cat cat)
 	return 1;
 }
 
+// Called when the config window is first opened after client start or a main window resize
+// The window scale factor will be set so that the window fits within the main window.
+void calc_config_windows_autoscale(void)
+{
+	int elconfig_win = get_id_MW(MW_CONFIG);
+	if ((elconfig_win >=0) && (elconfig_win < windows_list.num_windows))
+	{
+		window_info *win = &windows_list.window[elconfig_win];
+		if (calc_windows_autoscale(win, &elconf_custom_scale))
+		{
+			reopen_after_autoscale = recheck_window_scale = 1;
+			hide_window(elconfig_win);
+		}
+	}
+}
+
 //  Called from the low freqency timer as we can't initiate distorying a window in from one of its call backs.
 //  If the scale has changed and the window is hidden, destroy it, it will be re-create with the new scale
 void check_for_config_window_scale(void)
@@ -3977,6 +4111,11 @@ void check_for_config_window_scale(void)
 		set_id_MW(MW_CONFIG, -1);
 		recheck_window_scale = 0;
 		elconf_description_buffer[0] = '\0';
+		if (reopen_after_autoscale)
+		{
+			reopen_after_autoscale = 0;
+			display_elconfig_win();
+		}
 	}
 }
 

@@ -181,7 +181,8 @@ void set_create_char_error (const char *msg, int len)
 
 	LOG_TO_CONSOLE(c_red1, buf);
 
-	add_text_to_buffer(c_red1, msg, DEF_MESSAGE_TIMEOUT);
+	safe_snprintf(buf, sizeof (buf), "%.*s", len, msg);
+	add_text_to_buffer(c_red1, buf, DEF_MESSAGE_TIMEOUT);
 
 	creating_char=1;
 }
@@ -369,7 +370,7 @@ static int display_newchar_handler (window_info *win)
 		display_time = 0;
 	}
 
-	if(disconnected)
+	if(is_disconnected())
 	{
 		static int nested_flag = 0;
 		/* connect_to_server() calls draw_scene() so we need to prevent recursion */
@@ -547,7 +548,7 @@ static int keypress_newchar_handler (window_info *win, int mx, int my, SDL_Keyco
 
 	if ( check_quit_or_fullscreen (key_code, key_mod) ) {
 		return 1;
-	} else if(disconnected && !(key_mod & KMOD_ALT) && !(key_mod & KMOD_CTRL)){
+	} else if(is_disconnected() && !(key_mod & KMOD_ALT) && !(key_mod & KMOD_CTRL)){
 		connect_to_server();
 	} else if (KEY_DEF_CMP(K_CAMERAUP, key_code, key_mod)) {
 		camera_tilt_speed = -normal_camera_rotation_speed * 0.0005;
@@ -1603,6 +1604,8 @@ CHECK_GL_ERRORS();
 
 static const struct WIDGET_TYPE box_type = {NULL, &box_draw, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL}; //a custom box widget
 
+static float controls_custom_scale = 1.0f;
+
 static int init_color_race_handler(window_info * win)
 {
 	float r = gui_color[0], g = gui_color[1], b = gui_color[2]; //widget color
@@ -1615,6 +1618,35 @@ static int init_color_race_handler(window_info * win)
 	int sep = (int)(0.5 + win->current_scale * 5);
 	int y = sep;
 	int label_width;
+
+	// calculate the used height and adjust the scaling if the controls would extend past the base
+	// for consistancy the same spacing is used for the name password controls, which as always shorted
+	{
+		int changer_height = get_line_height(win->font_category, bit_small);
+		int button_height = 2 * very_small * BUTTONRADIUS;
+		int box_label_height = get_line_height(win->font_category, very_small);
+		int app_element_height = box_label_height + 4 * changer_height + 3 * sep;
+		int race_element_height = 2 * box_label_height + 3 * button_height + 2 * sep;
+		int gender_element_height = box_label_height + button_height;
+		int tmp_very_small_widget_id = button_add_extended(win->window_id, free_widget_id++, 0, 0, 0, 0, 0, 0, very_small, char_back);
+		int tmp_bit_small_widget_id = button_add_extended(win->window_id, free_widget_id++, 0, 0, 0, 0, 0, 0, bit_small, win_design);
+		int y_button_start = win->len_y - widget_get_height(win->window_id, tmp_very_small_widget_id) - 2 * sep;
+		int overall_hight = 4 * sep + widget_get_height(win->window_id, tmp_bit_small_widget_id) + gender_element_height + app_element_height + race_element_height + 2 * box_label_height;
+
+		if (overall_hight > y_button_start)
+		{
+			int actual_len = overall_hight + widget_get_height(win->window_id, tmp_very_small_widget_id) + 2 * sep;
+			controls_custom_scale *= (float)win->len_y / (float)actual_len;
+			update_window_scale(win, get_global_scale());
+			very_small = win->current_scale_small; //font sizes
+			bit_small = 0.9f * win->current_scale;
+			normal = 1.0f * win->current_scale;
+			sep = (int)(0.5 + win->current_scale * 5);
+		}
+
+		widget_destroy(win->window_id, tmp_bit_small_widget_id);
+		widget_destroy(win->window_id, tmp_very_small_widget_id);
+	}
 
 	//Design your character
 	label_width = get_string_width_zoom((const unsigned char*)win_design,
@@ -1752,6 +1784,16 @@ static int display_tooltip_handler(window_info * win)
 	return 1;
 }
 
+static void set_newchar_custom_scale(int window_id)
+{
+	if ((window_id >= 0) && (window_id < windows_list.num_windows))
+	{
+		window_info *win = &windows_list.window[window_id];
+		win->custom_scale = &controls_custom_scale;
+		update_window_scale(win, get_global_scale());
+	}
+}
+
 static int display_newchar_hud_handler(window_info * win)
 {
 	glColor3f(0.0f, 0.0f, 0.0f); //Draw a black background
@@ -1779,11 +1821,13 @@ static void create_newchar_hud_window(void)
 	set_window_handler(tooltip_win, ELW_HANDLER_DISPLAY, &display_tooltip_handler);
 
 	color_race_win = create_window(win_design, newchar_hud_win, 0, 0, 0, hud_x, window_height - hud_y, ELW_USE_UISCALE|ELW_SHOW|ELW_SHOW_LAST); //Design your character
+	set_newchar_custom_scale(color_race_win);
 	set_window_handler(color_race_win, ELW_HANDLER_INIT, &init_color_race_handler);
 	set_window_handler(color_race_win, ELW_HANDLER_MOUSEOVER, &mouseover_color_race_handler);
 	init_window(color_race_win, newchar_hud_win, 0, 0, 0, hud_x, window_height - hud_y);
 
 	namepass_win = create_window(win_name_pass, newchar_hud_win, 0, 0, 0, hud_x, window_height - hud_y, ELW_USE_UISCALE|ELW_SHOW_LAST); //Choose name and password
+	set_newchar_custom_scale(namepass_win);
 	set_window_handler(namepass_win, ELW_HANDLER_INIT, &init_namepass_handler);
 	set_window_handler(namepass_win, ELW_HANDLER_KEYPRESS, (int (*)())&keypress_namepass_handler);
 	init_window(namepass_win, newchar_hud_win, 0, 0, 0, hud_x, window_height - hud_y);
@@ -1791,6 +1835,7 @@ static void create_newchar_hud_window(void)
 
 void resize_newchar_hud_window(void)
 {
+	controls_custom_scale = 1.0;
 	if(newchar_hud_win >= 0) //Simply destroy and recreate everything
 	{
 		destroy_window(color_race_win);

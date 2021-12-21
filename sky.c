@@ -411,54 +411,6 @@ void skybox_coords_from_ground_coords(float sky_coords[3], float gx, float gy)
 	sky_coords[2] = sd / t + dome_sky.height - dome_sky.real_radius;
 }
 
-void skybox_compute_element_projection(float proj[3], float pos[3])
-{
-	float coef, a, b, c, delta;
-	float r2 = dome_sky.real_radius*dome_sky.real_radius;
-	float z = dome_sky.height - dome_sky.real_radius;
-
-	c = z*z - r2;
-
-	if (pos[0] != 0.0)
-	{
-		coef = pos[2]/pos[0];
-		a = 1.0 + coef*coef;
-		b = -2.0*coef*z;
-		delta = b*b - 4*a*c;
-		if (delta <= 0.0) fprintf(stderr, "delta=%f\n", delta);
-
-		if (pos[0] < 0.0)
-			proj[0] = (-b - sqrtf(delta)) / (2.0*a);
-		else
-			proj[0] = (-b + sqrtf(delta)) / (2.0*a);
-	}
-	else proj[0] = 0.0;
-
-	if (pos[1] != 0.0)
-	{
-		coef = pos[2]/pos[1];
-		a = 1.0 + coef*coef;
-		b = -2.0*coef*z;
-		delta = b*b - 4*a*c;
-		if (delta <= 0.0) fprintf(stderr, "delta=%f\n", delta);
-		
-		if (pos[1] < 0.0)
-			proj[1] = (-b - sqrtf(delta)) / (2.0*a);
-		else
-			proj[1] = (-b + sqrtf(delta)) / (2.0*a);
-	}
-	else proj[1] = 0.0;
-
-	proj[2] = sqrtf(r2 - proj[0]*proj[0] - proj[1]*proj[1]) + z;
-}
-
-float skybox_get_height(float x, float y)
-{
-	float d2 = dome_sky.real_radius*dome_sky.real_radius - x*x - y*y;
-	float d = d2 <= 0.0 ? 0.0 : sqrtf(d2);
-	return (d +	dome_sky.height - dome_sky.real_radius);
-}
-
 void skybox_set_type(skybox_type sky)
 {
     current_sky = sky;

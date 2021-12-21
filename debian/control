@@ -2,13 +2,13 @@ Source: eternallands
 Section: games
 Priority: optional
 Maintainer: Paul Broadhead <pjbroad@twinmoons.org.uk>
-Build-Depends: debhelper (>= 9), libsdl2-dev, libsdl2-net-dev, libsdl2-image-dev, libsdl2-ttf-dev, libxml2-dev, libogg-dev, libvorbis-dev, libopenal-dev, libcal3d12-dev, libxrandr-dev, zlib1g-dev, libpng12-dev|libpng-dev, cmake
+Build-Depends: debhelper (>= 9), libsdl2-dev, libsdl2-net-dev, libsdl2-image-dev, libsdl2-ttf-dev, libxml2-dev, libogg-dev, libvorbis-dev, libopenal-dev, libcal3d12-dev, libxrandr-dev, zlib1g-dev, libpng12-dev|libpng-dev, libssl-dev, cmake
 Standards-Version: 3.9.7
 Homepage: http://www.eternal-lands.com
 
 Package: eternallands
 Architecture: any
-Depends: ${misc:Depends}, ${shlibs:Depends}, eternallands-data (>=1.9.5), zenity
+Depends: ${misc:Depends}, ${shlibs:Depends}, eternallands-data (>=1.9.6), zenity
 Recommends: eternallands-sound (>=1.9.5)
 Suggests: eternallands-music (>=1.9.5)
 Description: client package for Eternal Lands, a free MMORPG 

@@ -43,6 +43,9 @@ extern int auto_update; /*!<this flags signals whether or not autoupdates are pe
 extern int buddy_log_notice; /*!< whether to log buddy logged on/off notices to screen */
 extern int clear_mod_keys_on_focus; /*!< trouble shooting option to force mod keys up when gaining focus */
 
+extern const float win_scale_min; /*!< minimum value for window scaling factors */
+extern const float win_scale_max; /*!< maximum value for window scaling factors */
+
 #if !defined(WINDOWS) && !defined(OSX)
 extern int use_clipboard; /*!< whether to use CLIPBOARD or PRIMARY for pasting */
 #endif
@@ -132,6 +135,24 @@ void limit_win_scale_to_default(float *changed_window_custom_scale);
  * \callgraph
 */
 void reset_win_scale_factor(int set_default, float *changed_window_custom_scale);
+
+/*!
+ * \ingroup config
+ * \brief   calaulate the config windows custom scale factor so it fits the main window
+ *
+ * \callgraph
+*/
+void calc_config_windows_autoscale(void);
+
+/*!
+ * \ingroup config
+ * \brief   set that unsaved flag for a custom scale factor
+ *
+ * \param scale                             pointer to the scaling factor value
+ * 
+ * \callgraph
+*/
+void set_custom_scale_unsaved(float *changed_window_custom_scale);
 
 void update_highdpi_auto_scaling(void);
 

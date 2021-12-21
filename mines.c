@@ -63,11 +63,8 @@ void put_mine_on_ground(int mine_x, int mine_y, int mine_type, int mine_id)
 	// Now, find a place into the mines list, so we can destroy the mine properly
 	if (mine_list[mine_id].obj_3d_id != -1)
 	{
-		char buf[256];
-
 		// Oops, slot already taken!
-		safe_snprintf(buf, sizeof(buf), "Oops, trying to add an existing mine! id=%d\n", mine_id);
-		LOG_ERROR(buf);
+		LOG_ERROR("Oops, trying to add an existing mine! id=%d\n", mine_id);
 		return;
 	}
 	
@@ -123,11 +120,8 @@ void add_mines_from_list (const Uint8 *data)
 		// Now, find the place into the mines list, so we can destroy the mine properly
 		if (mine_list[mine_id].obj_3d_id != -1)
 		{
-			char buf[256];
-
 			// Oops, slot already taken!
-			safe_snprintf(buf, sizeof(buf), "Oops, trying to add an existing mine! id=%d\n", mine_id);
-			LOG_ERROR(buf);
+			LOG_ERROR("Oops, trying to add an existing mine! id=%d\n", mine_id);
 			return;
 		}
 
@@ -210,7 +204,7 @@ void load_mines_config()
 	{
 		char str[200];
 		safe_snprintf(str, sizeof(str), "%s: %s: %s", mines_config_open_err_str, file, strerror(errno));
-		LOG_ERROR(str);
+		LOG_ERROR("%s", str);
 		LOG_TO_CONSOLE(c_red1,str);
 	}
 	// Can we find a root element

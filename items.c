@@ -982,12 +982,8 @@ int move_item(int item_pos_to_mov, int destination_pos, int avoid_pos)
 	}
 	/* move item */
 	if(drop_on_stack || !item_list[destination_pos].quantity){
-		Uint8 str[20];
-		//send the drop info to the server
-		str[0]=MOVE_INVENTORY_ITEM;
-		str[1]=item_list[item_pos_to_mov].pos;
-		str[2]=destination_pos;
-		my_tcp_send(my_socket,str,3);
+		Uint8 str[3] = { MOVE_INVENTORY_ITEM, item_list[item_pos_to_mov].pos, destination_pos };
+		my_tcp_send(str,3);
 		swap_complete.last_dest = destination_pos;
 		return 1;
 	}
@@ -997,12 +993,8 @@ int move_item(int item_pos_to_mov, int destination_pos, int avoid_pos)
 
 static void equip_item(int item_pos_to_equip, int destination_pos)
 {
-	Uint8 str[20];
-	//send the drop info to the server
-	str[0]=MOVE_INVENTORY_ITEM;
-	str[1]=item_list[item_pos_to_equip].pos;
-	str[2]=destination_pos;
-	my_tcp_send(my_socket,str,3);
+	Uint8 str[3] = { MOVE_INVENTORY_ITEM, item_list[item_pos_to_equip].pos, destination_pos };
+	my_tcp_send(str,3);
 }
 
 static void prep_move_to_vacated_slot(int destination)
@@ -1315,7 +1307,7 @@ static int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 			str[0]=WITHDRAW_ITEM;
 			*((Uint16*)(str+1))=SDL_SwapLE16(storage_items[storage_item_dragged].pos);
 			*((Uint32*)(str+3))=SDL_SwapLE32(item_quantity);
-			my_tcp_send(my_socket, str, 6);
+			my_tcp_send(str, 7);
 			do_drop_item_sound();
 			if(storage_items[storage_item_dragged].quantity<=item_quantity) storage_item_dragged=-1;
 		}
@@ -1327,14 +1319,14 @@ static int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 					*((Uint32 *)(str+2))=SDL_SwapLE32(item_list[pos].quantity);
 				else
 					*((Uint32 *)(str+2))=SDL_SwapLE32(36);//Drop all
-				my_tcp_send(my_socket, str, 6);
+				my_tcp_send(str, 6);
 				do_drop_item_sound();
 			} else if (alt_on && (items_mod_click_any_cursor || (item_action_mode==ACTION_WALK))) {
 				if ((get_id_MW(MW_STORAGE) >= 0) && (get_show_window_MW(MW_STORAGE)) && (view_only_storage == 0)) {
 					str[0]=DEPOSITE_ITEM;
 					str[1]=item_list[pos].pos;
 					*((Uint32*)(str+2))=SDL_SwapLE32(INT_MAX);
-					my_tcp_send(my_socket, str, 6);
+					my_tcp_send(str, 6);
 					do_drop_item_sound();
 				} else {
 					drop_fail_time = SDL_GetTicks();
@@ -1344,12 +1336,12 @@ static int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 				click_time=cur_time;
 				str[0]=LOOK_AT_INVENTORY_ITEM;
 				str[1]=item_list[pos].pos;
-				my_tcp_send(my_socket,str,2);
+				my_tcp_send(str,2);
 			} else if(item_action_mode==ACTION_USE) {
 				if(item_list[pos].use_with_inventory){
 					str[0]=USE_INVENTORY_ITEM;
 					str[1]=item_list[pos].pos;
-					my_tcp_send(my_socket,str,2);
+					my_tcp_send(str,2);
 					used_item_counter_action_use(pos);
 #ifdef NEW_SOUND
 					item_list[pos].action = USE_INVENTORY_ITEM;
@@ -1363,7 +1355,7 @@ static int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 					str[0]=ITEM_ON_ITEM;
 					str[1]=item_list[use_item].pos;
 					str[2]=item_list[pos].pos;
-					my_tcp_send(my_socket,str,3);
+					my_tcp_send(str,3);
 					used_item_counter_action_use(use_item);
 #ifdef NEW_SOUND
 					item_list[use_item].action = ITEM_ON_ITEM;
@@ -1402,14 +1394,14 @@ static int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 		*/
 		str[0]=DEPOSITE_ITEM;
 		str[1]=STORE_ALL;
-		my_tcp_send(my_socket, str, 2);
+		my_tcp_send(str, 2);
 #else
 		for(pos=((items_stoall_nofirstrow)?6:0);pos<((items_stoall_nolastrow)?30:36);pos++){
 			if(item_list[pos].quantity>0){
 				str[0]=DEPOSITE_ITEM;
 				str[1]=item_list[pos].pos;
 				*((Uint32*)(str+2))=SDL_SwapLE32(item_list[pos].quantity);
-				my_tcp_send(my_socket, str, 6);
+				my_tcp_send(str, 6);
 			}
 		}
 #endif
@@ -1442,7 +1434,7 @@ static int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 			if(item_action_mode == ACTION_LOOK) {
 				str[0]=LOOK_AT_INVENTORY_ITEM;
 				str[1]=item_list[pos].pos;
-				my_tcp_send(my_socket, str, 2);
+				my_tcp_send(str, 2);
 			} else if(item_dragged==-1 && left_click) {
 				item_dragged=pos;
 				do_drag_item_sound();
@@ -1629,7 +1621,7 @@ static void drop_all_handler (void)
 				str[0] = DROP_ITEM;
 				str[1] = item_list[i].pos;
 				*((Uint32 *)(str+2)) = SDL_SwapLE32(item_list[i].quantity);
-				my_tcp_send (my_socket, str, 6);
+				my_tcp_send(str, 6);
 				dropped_something = 1;
 			}
 		}

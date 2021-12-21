@@ -64,13 +64,10 @@ static unsigned char emote_str2[100];
 void send_emote(int emote_id)
 {
 	static int last_emote_time=0;
-	Uint8 str[4];
 
 	if(cur_time-last_emote_time>EMOTE_SPAM_TIME) {
-		//Send message to server...
-		str[0]=DO_EMOTE;
-		str[1]=emote_id;
-		my_tcp_send(my_socket,str,2);
+		Uint8 str[2] = { DO_EMOTE, emote_id };
+		my_tcp_send(str, 2);
 		last_emote_time=cur_time;
 		//printf("Emote %i sent at time %i\n",emote_id,last_emote_time);
 	}

@@ -17,8 +17,8 @@ extern "C" {
  */
 /*! @{ */
 int json_open_recipes(const char *file_name);
-int json_load_recipes(recipe_entry *recipes_store, size_t max_recipes);
-int json_save_recipes(const char *file_name, recipe_entry *recipes_store, size_t num_recipes, int current_recipe);
+int json_load_recipes(recipe_entry *recipes_store, size_t max_recipes, recipe_item *current_items);
+int json_save_recipes(const char *file_name, recipe_entry *recipes_store, size_t num_recipes, int current_recipe, recipe_item *current_items);
 /*! @} */
 
 
@@ -79,6 +79,7 @@ float json_cstate_get_float(const char *section_name, const char *var_name, floa
 void json_cstate_set_float(const char *section_name, const char *var_name, float value);
 int json_cstate_get_bool(const char *section_name, const char *var_name, int default_value);
 void json_cstate_set_bool(const char *section_name, const char *var_name, int value);
+void json_cstate_delete_var(const char *section_name, const char *var_name);
 /*! @} */
 
 #ifdef __cplusplus

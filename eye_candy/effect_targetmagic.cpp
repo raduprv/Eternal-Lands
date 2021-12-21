@@ -260,7 +260,17 @@ namespace ec
 					break;
 				}
 			}
-			pos += ((TargetMagicEffect2*)effect)->shift;
+
+			// Grum, 2021-10-30: Yeah, the dynamic_cast + test is ugly. And it's done for every
+			// particle separately, so it could be costly as well. The effect was previously cast
+			// unconditionally, but this particle could also belong to a TargetMagicEffect (i.e.,
+			// _not_ TargetMagicEffect2), and then the cast is invalid. As a result, a shift with
+			// values from la-la-land was added, which combined with lighted particles, resulted in
+			// the scene going entirely black on some systems. This fix is a band-aid, the
+			// whole code could probably use some refactoring.
+			TargetMagicEffect2 *cast_effect = dynamic_cast<TargetMagicEffect2*>(effect);
+			if (cast_effect)
+				pos += cast_effect->shift;
 		}
 
 		//  std::cout << "B) " << this << ": " << velocity << ", " << pos << std::endl;

@@ -28,6 +28,7 @@ ig_unblock ##  <guild tag> ## If you are in a guild, unblock messages from the s
 ignore_bots ##  ## Toggles if you see bots messages in channel chat.
 ii ##  ## Display the time since you last participated in an instance.
 il ##  ## Display how many invading monsters are currently in the game.
+item_uid ##  ## Toggle use of unique item ids.  When set to 1 (recommended), unique item ids prevent confusion between items that use the same image.
 jc guild ##  ## If you belong to a guild, join your guild channel.
 join_guild ## <full guild name> ## Join the specified guild.
 leave_guild ##  ## Leave your current guild.
@@ -36,7 +37,7 @@ list_guild ##  ## List all the members of your guild.
 list_perks ##  ## List what perks you have taken.
 make_guild ##  ## Create a new guild.
 pki ##  ## Display your current Player Kill (PK) score.
-rank ##  ## Display your rank in your guild.
+rank ## <player name> ## Display your rank in your guild, or the rank of <player name> if specified.
 remove ## <player name> ## Remove the specified player from your guild.
 research ##  ## Display what you are currently reading and how much time remains before you finish reading it.
 reset ##  ## Warning: Resets your pick-points, perks and nexus, and resets your overall level to 0.
@@ -64,7 +65,6 @@ calc ## <text> ## Display the result of the calculation specified by <text>.
 cast_spell ## <spell codes> ## Useful for user menus, cast a spell specified by the spell codes.  See #show_spell.
 change_pass ## <old password> <new password> ## Changes your password to <new password>.
 channel_colors ##  ## List the currently defined channel colours.
-chat_to_counters ##  ## Warning: Clear and re-populate break and misc counters from current chat log file.
 ckdata ## <checksum> <map path> ## Debug: Check the specified map (elm) file has the specified checksum.
 cls ##  ## Clears all the text from your console.
 commands ##  ## List all the #commands.
@@ -101,16 +101,18 @@ quit ##  ## Save your server and client state, then exit the game immediately.
 reload_icons ##  ## Reload the icon window configuration.
 relogin ##  ## If your network connection drops, this command can be used to enable reconnecting.
 reset_res ##  ## Reset the video mode to the values used when the client was started.
-save ##  ## Save you state on both the server and for the client.
-save_res ## <width> <height> ## set the client window size to the specified width and height.
+sa ## [<option letter>] | [help] ## Set the attack mode for summoned creatures. If no paramater specified, the the mode will toggle between "Attack and Will" and "No Attack".  Otherwise, shows help.
+save ##  ## Save your state on both the server and for the client.
+save_res ##  ## Set the video mode saved to the ini file from the current window size, switching to user defined mode if not currently set.
 session_counters ##  ## List all counters for the current session.
 set_default_fonts ##  ## Resets all the client fonts and sizes to their defaults.
-set_res ##  ## Set the video mode saved to the ini file from the current window size, switching to use defined mode if needed.
+set_res ## <width> <height> ## Set the client window size to the specified width and height.
 show_res ##  ## Display the current client window width and height.
 show_spell ##  ## Useful for user menus, display the spell name and spell codes of the last cast spell. See #cast_spell.
 stats ##  ## Display some basic information and stats for the game server.
 sto ##  ## Opens the storage window and display your storage slot usage.
 storage ##  ## Opens the storage window and display your storage slot usage.
+summon_attack ## [<option letter>] | [help] ## Set the attack mode for summoned creatures. If no paramater specified, the the mode will toggle between "Attack and Will" and "No Attack".  Otherwise, shows help.
 time ##  ## Display the current in-game time.
 unalias ## <number> ## Unset the specified command #number alias.
 unfilter ## <text> ## Remove <text> from your local filters.
