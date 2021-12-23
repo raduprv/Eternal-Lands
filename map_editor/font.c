@@ -463,18 +463,6 @@ int load_font(int num, char *file)
 }
 
 
-int	set_font(int num)
-{
-	if(num >= 0 && num < max_fonts && fonts[num] && fonts[num]->texture_id >= 0)
-		{
-			cur_font_num=num;
-			font_text=fonts[cur_font_num]->texture_id;
-		}
-
-	return cur_font_num;
-}
-
-
 void remove_font(int num)
 {
 	if(num < max_fonts && fonts[num])

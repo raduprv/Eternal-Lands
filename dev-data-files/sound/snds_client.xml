@@ -1,0 +1,208 @@
+<!-- Client sounds (These are linked directly by their names - Do not change their names!)
+
+Valid client sound names (not case sensitive):
+	"Login Error"
+	"Connected"
+	"Disconnected"
+	"Get Item"
+	"Drag Item"
+	"Drop Item"
+	"Icon Click"
+	"Window Close"
+	"Button Click"
+	"BagCreate"
+	"BagRemove"
+-->
+<sound name = "Login Error">
+	<variant>
+		<main_sound>sound/teleport_out.ogg</main_sound>
+		<gain>0.8</gain>
+	</variant>
+	<positional>0</positional>
+	<loops>1</loops>
+	<distance>35</distance>
+	<priority>3</priority>
+	<type>client</type>
+	
+</sound>
+<sound name = "Connected">
+	<variant>
+		<main_sound>sound/teleport_in.ogg</main_sound>
+		<gain>0.8</gain>
+	</variant>
+	<positional>0</positional>
+	<loops>1</loops>
+	<distance>35</distance>
+	<priority>3</priority>
+	<type>client</type>
+	
+</sound>
+<sound name = "Disconnected">
+	<variant>
+		<main_sound>sound/teleport_out.ogg</main_sound>
+		<gain>0.8</gain>
+	</variant>
+	<positional>0</positional>
+	<loops>1</loops>
+	<distance>35</distance>
+	<priority>3</priority>
+	<type>client</type>
+	
+</sound>
+<sound name = "Get Item">
+	<variant>
+		<main_sound>sound/inventory07.ogg</main_sound>
+	</variant>
+	<distance>35</distance>
+	<priority>3</priority>
+	<type>client</type>
+</sound>
+<sound name = "Drag Item">
+	<variant>
+		<main_sound>sound/inventory05.ogg</main_sound>
+	</variant>
+	<distance>35</distance>
+	<priority>3</priority>
+	<type>client</type>
+</sound>
+<sound name = "Drop Item">
+	<variant>
+		<main_sound>sound/inventory04.ogg</main_sound>
+	</variant>
+	<distance>35</distance>
+	<priority>3</priority>
+	<type>client</type>
+</sound>
+<sound name = "Icon Click">
+	<variant>
+		<main_sound>sound/inventory01.ogg</main_sound>
+	</variant>
+	<distance>35</distance>
+	<priority>3</priority>
+	<type>client</type>
+</sound>
+<sound name = "Window Close">
+	<variant>
+		<main_sound>sound/inventory06.ogg</main_sound>
+	</variant>
+	<distance>35</distance>
+	<priority>3</priority>
+	<type>client</type>
+</sound>
+<sound name = "Button Click">
+	<variant>
+		<main_sound>sound/inventory03.ogg</main_sound>
+	</variant>
+	<distance>35</distance>
+	<priority>3</priority>
+	<type>client</type>
+</sound>
+<sound name = "BagCreate">
+	<variant>
+		<main_sound>sound/bag-drop01.ogg</main_sound>
+	</variant>
+	<distance>35</distance>
+	<priority>3</priority>
+	<type>client</type>
+</sound>	
+<sound name = "BagRemove">
+	<variant>
+		<main_sound>sound/bag-take01.ogg</main_sound>
+	</variant>
+	<distance>35</distance>
+	<priority>3</priority>
+	<type>client</type>
+</sound>	
+<!-- Item sounds -->
+<sound name = "Eat Crunchy">
+	<variant>
+		<main_sound>sound/item_eatbones.ogg</main_sound>
+	</variant>
+	<distance>35</distance>
+	<priority>3</priority>
+	<type>client</type>
+</sound>
+<sound name = "Eat Soft">
+	<variant>
+		<main_sound>sound/item_eatmeat.ogg</main_sound>
+	</variant>
+	<distance>35</distance>
+	<priority>3</priority>
+	<type>client</type>
+</sound>
+<sound name = "Read">
+	<variant>
+		<main_sound>sound/item_pageturn.ogg</main_sound>
+	</variant>
+	<distance>35</distance>
+	<priority>3</priority>
+	<type>client</type>
+</sound>
+<sound name = "Drink">
+	<variant>
+		<main_sound>sound/item_drink.ogg</main_sound>
+	</variant>
+	<distance>35</distance>
+	<priority>3</priority>
+	<type>client</type>
+</sound>
+<sound name = "alert1">
+	<variant>
+		<main_sound>sound/inventory02.ogg</main_sound>
+	</variant>
+	<positional>0</positional>
+	<loops>1</loops>
+	<distance>35</distance>
+	<priority>3</priority>
+	<type>warnings</type>
+</sound>
+<sound name = "alert2">
+	<variant>
+		<main_sound>sound/inventory07.ogg</main_sound>
+	</variant>
+	<positional>0</positional>
+	<loops>1</loops>
+	<distance>35</distance>
+	<priority>3</priority>
+	<type>warnings</type>
+</sound>
+<sound name = "alert3">
+	<variant>
+		<main_sound>sound/inventory03.ogg</main_sound>
+	</variant>
+	<positional>0</positional>
+	<loops>1</loops>
+	<distance>35</distance>
+	<priority>3</priority>
+	<type>warnings</type>
+</sound>
+<sound name = "alert4">
+	<variant>
+		<main_sound>sound/inventory08.ogg</main_sound>
+	</variant>
+	<positional>0</positional>
+	<loops>1</loops>
+	<distance>35</distance>
+	<priority>3</priority>
+	<type>warnings</type>
+</sound>
+<sound name = "Death Male">
+	<variant>
+		<main_sound>sound/death01.ogg</main_sound>
+	</variant>
+	<positional>0</positional>
+	<loops>1</loops>
+	<distance>35</distance>
+	<priority>3</priority>
+	<type>warnings</type>
+</sound>
+<sound name = "Death Female">
+	<variant>
+		<main_sound>sound/death02.ogg</main_sound>
+	</variant>
+	<positional>0</positional>
+	<loops>1</loops>
+	<distance>35</distance>
+	<priority>3</priority>
+	<type>warnings</type>
+</sound>

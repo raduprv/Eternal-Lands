@@ -1837,15 +1837,14 @@ void destroy_all_actors()
 
 void update_all_actors(int log_the_update)
 {
- 	Uint8 str[40];
+	Uint8 cmd = SEND_ME_MY_ACTORS;
 
 	//we got a nasty error, log it
 	if (log_the_update)
 		LOG_TO_CONSOLE(c_red2,resync_server);
 
 	destroy_all_actors();
-	str[0]=SEND_ME_MY_ACTORS;
-	my_tcp_send(my_socket,str,1);
+	my_tcp_send(&cmd, 1);
 }
 
 int push_command_in_actor_queue(unsigned int command, actor *act)
@@ -2098,7 +2097,8 @@ void add_command_to_actor(int actor_id, unsigned char command)
 		switch(command) {
 		case enter_combat:
 			act->async_fighting= 1;
-			check_to_auto_disable_ranging_lock();
+			if (isme)
+				check_to_auto_disable_ranging_lock();
 			break;
 		case leave_combat:
 			act->async_fighting= 0;
@@ -2301,7 +2301,7 @@ void add_emote_to_actor(int actor_id, int emote_id){
 	
 	//printf("emote message to be added %p\n",emote);
 	if (!act) {
-		LOG_ERROR("%s (Emote) %d - NULL actor passed", cant_add_command, emote);
+		LOG_ERROR("%s (Emote) %d - NULL actor passed", cant_add_command, emote_id);
 	} else {
 		queue_emote(act,emote);
 	}
@@ -2806,14 +2806,12 @@ int parse_emotes_defs(const xmlNode *node)
 	return ok;
 }
 
-int read_emotes_defs(const char *dir, const char *index)
+int read_emotes_defs(void)
 {
 	const xmlNode *root;
 	xmlDoc *doc;
-	char fname[120];
+	const char *fname = "emotes.xml";
 	int ok = 1;
-
-	safe_snprintf(fname, sizeof(fname), "%s/%s", dir, index);
 
 	doc = xmlReadFile(fname, NULL, 0);
 	if (doc == NULL) {
@@ -4475,28 +4473,16 @@ int parse_actor_script(const xmlNode *cfg)
 	}
 */
 	if (act_idx < 0 || act_idx >= MAX_ACTOR_DEFS){
-		char	str[256];
-		char    name[256];
-
-		safe_strncpy(name, get_string_property(cfg, "type"), sizeof(name));
-		safe_snprintf(str, sizeof(str), "Data Error in %s(%d): Actor ID out of range %d",
-			name, act_idx, act_idx
-		);
-		LOG_ERROR(str);
+		LOG_ERROR("Data Error in %s(%d): Actor ID out of range %d",
+			get_string_property(cfg, "type"), act_idx, act_idx);
 		return 0;
 	}
 
 	act= &(actors_defs[act_idx]);
 	// watch for loading an actor more then once
 	if(act->actor_type > 0 || *act->actor_name){
-		char	str[256];
-		char    name[256];
-
-		safe_strncpy(name, get_string_property(cfg, "type"), sizeof(name));
-		safe_snprintf(str, sizeof(str), "Data Error in %s(%d): Already loaded %s(%d)",
-			name, act_idx, act->actor_name, act->actor_type
-		);
-		LOG_ERROR(str);
+		LOG_ERROR("Data Error in %s(%d): Already loaded %s(%d)",
+			get_string_property(cfg, "type"), act_idx, act->actor_name, act->actor_type);
 	}
 	act->actor_type= act_idx;	// memorize the ID & name to help in debugging
 	safe_strncpy(act->actor_name, get_string_property(cfg, "type"), sizeof(act->actor_name));

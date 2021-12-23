@@ -157,22 +157,105 @@ void draw_2d_object(obj_2d * object_id)
 	glPopMatrix();//restore the scene
 }
 
+static void parse_2d0(const char* desc, Uint32 len, const char* cur_dir, obj_2d_def *def)
+{
+	char name[256], value[256];
+	const char *cp, *cp_end;
+	Uint32 i;
+
+	int file_x_len = -1, file_y_len = -1;
+	int u_start = -1, u_end = -1, v_start = -1, v_end = -1;
+
+	def->x_size = def->y_size = def->alpha_test = -1;
+
+	cp = desc;
+	cp_end = cp + len;
+	while (1)
+	{
+		// skip whitespace
+		while (cp < cp_end && isspace(*cp))
+			cp++;
+		if (cp >= cp_end) break;
+
+		// copy the key
+		i = 0;
+		while (cp < cp_end && i < sizeof(name)-1 && !isspace(*cp) && *cp != ':' && *cp != '=')
+			name[i++] = *cp++;
+		name[i] = '\0';
+		if (cp >= cp_end) break;
+
+		// skip separators
+		while (cp < cp_end && (isspace(*cp) || *cp == ':' || *cp == '='))
+		{
+			if (*cp == '\n')
+				break;
+			cp++;
+		}
+		if (cp >= cp_end) break;
+		if (*cp == '\n') continue; // no value
+
+		// copy value
+		i = 0;
+		while (cp < cp_end && i < sizeof(value)-1 && !isspace(*cp))
+			value[i++] = *cp++;
+		value[i] = '\0';
+
+		if (!strcasecmp(name, "file_x_len"))
+			file_x_len = atoi(value);
+		else if (!strcasecmp(name, "file_y_len"))
+			file_y_len = atoi(value);
+		else if (!strcasecmp(name, "u_start"))
+			u_start = atoi(value);
+		else if (!strcasecmp(name, "u_end"))
+			u_end = atoi(value);
+		else if (!strcasecmp(name, "v_start"))
+			v_start = atoi(value);
+		else if (!strcasecmp(name, "v_end"))
+			v_end = atoi(value);
+		else if (!strcasecmp(name, "x_size"))
+			def->x_size = atof(value);
+		else if (!strcasecmp(name, "y_size"))
+			def->y_size = atof(value);
+		else if (!strcasecmp(name, "alpha_test"))
+			def->alpha_test = atof(value);
+		else if (!strcasecmp(name, "texture"))
+		{
+			char texture_file_name[256];
+			safe_snprintf(texture_file_name, sizeof(texture_file_name),
+				"%s/%s", cur_dir, value);
+			def->texture_id = load_texture_cached(texture_file_name, tt_mesh);
+		}
+		else if (!strcmp(name, "type"))
+		{
+			switch (*value)
+			{
+				case 'g':
+				case 'G': def->object_type = GROUND; break;
+				case 'p':
+				case 'P': def->object_type = PLANT; break;
+				case 'f':
+				case 'F': def->object_type = FENCE; break;
+				default:  def->object_type = INVALID;
+			}
+		}
+	}
+
+	def->u_start = (float)u_start/file_x_len;
+	def->u_end = (float)u_end/file_x_len;
+	def->v_start = (float)v_start/file_y_len;
+	def->v_end = (float)v_end/file_y_len;
+	if (def->alpha_test < 0)
+		def->alpha_test = 0;
+}
 
 obj_2d_def * load_obj_2d_def(char *file_name)
 {
   int f_size;
-  int i,k,l;
+  int i,l;
   el_file_ptr file = NULL;
   char cur_dir[200]={0};
   obj_2d_def *cur_object;
   char *obj_file_mem;
-  char *texture_file_name;
-  float x_size,y_size;
-  float alpha_test;
-  int file_x_len;
-  int file_y_len;
-  int u_start,u_end,v_start,v_end;
-
 
   cur_object=(obj_2d_def*) calloc(1, sizeof(obj_2d_def));
   //get the current directory
@@ -200,105 +283,15 @@ obj_2d_def * load_obj_2d_def(char *file_name)
   file = el_open(file_name);
   if(file == NULL)
   {
-    char str[120];
-    sprintf(str,"Error: Can't open file: %s\n",file_name);
-    log_error(__FILE__, __LINE__, str);
-	free(cur_object);
+    log_error(__FILE__, __LINE__, "Error: Can't open file: %s\n", file_name);
+    free(cur_object);
     return NULL;
   }
   
   obj_file_mem = el_get_pointer(file);
   f_size = el_get_size(file);
+	parse_2d0(obj_file_mem, f_size, cur_dir, cur_object);
 
-  //ok, the file is loaded, so parse it
-  file_x_len=get_integer_after_string("file_x_len:",obj_file_mem,f_size);
-  file_y_len=get_integer_after_string("file_y_len:",obj_file_mem,f_size);
-  u_start=get_integer_after_string("u_start:",obj_file_mem,f_size);
-  u_end=get_integer_after_string("u_end:",obj_file_mem,f_size);
-  v_start=get_integer_after_string("v_start:",obj_file_mem,f_size);
-  v_end=get_integer_after_string("v_end:",obj_file_mem,f_size);
-  x_size=get_float_after_string("x_size:",obj_file_mem,f_size);
-  y_size=get_float_after_string("y_size:",obj_file_mem,f_size);
-  alpha_test=get_float_after_string("alpha_test:",obj_file_mem,f_size);
-  if(alpha_test<0)alpha_test=0;
-
-  //get the proper u/v coordinates
-  cur_object->u_start=(float)u_start/file_x_len;
-  cur_object->u_end=(float)u_end/file_x_len;
-  cur_object->v_start = (float)v_start/file_y_len;
-  cur_object->v_end = (float)v_end/file_y_len;
-  cur_object->x_size=x_size;
-  cur_object->y_size=y_size;
-  cur_object->alpha_test=alpha_test;
-
-  //now  find the texture name
-  texture_file_name=(char*) calloc(128, sizeof(char));
-  i=get_string_occurance("texture:",obj_file_mem,40,0);
-  obj_file_mem+=i;
-  k=0;
-  //find the file name
-  while(k<128)
-  {
-		if(obj_file_mem[k]!=' ' && obj_file_mem[k]!=0x0a)
-			break;
-		k++;
-  }
-  //we found the beginning of the file name
-  //now, copy the current directory string to the file_name string
-  i=strlen(cur_dir);
-  l=0;
-  while(l<i)
-  {
-		texture_file_name[l]=cur_dir[l];
-		l++;
-  }
-  while(l<128)
-	{
-		if(obj_file_mem[k]!=' ' && obj_file_mem[k]!=0x0a && obj_file_mem[k]!=0x0d)
-		{
-			texture_file_name[l]=obj_file_mem[k];
-			k++;
-			l++;
-		}
-		else
-		{
-			texture_file_name[l]=0;
-			break;
-		}
-	}
-
-	cur_object->texture_id = load_texture_cached(texture_file_name, tt_mesh);
-	//now get the object type
-	i=get_string_occurance("type:",obj_file_mem,f_size,0);
-	obj_file_mem+=i;
-	k=0;
-	for(k=0;k<10;k++)
-	{
-		if(obj_file_mem[k]==0x0a)
-		{
-			cur_object->object_type = INVALID;
-			break;
-		}
-		if(obj_file_mem[k]==' ')continue;
-
-		if(obj_file_mem[k]=='g' || obj_file_mem[k]=='G')
-		{
-			cur_object->object_type = GROUND;
-			break;
-		}
-
-		if(obj_file_mem[k]=='p' || obj_file_mem[k]=='P')
-		{
-			cur_object->object_type = PLANT;
-			break;
-		}
-
-		if(obj_file_mem[k]=='f' || obj_file_mem[k]=='F')
-		{
-			cur_object->object_type = FENCE;
-			break;
-		}
-	}
 	el_close(file);
 
 	return cur_object;
@@ -439,12 +432,10 @@ int add_2d_obj(char * file_name, float x_pos, float y_pos, float z_pos, float x_
 
 	returned_obj_2d_def=load_obj_2d_def_cache(fname);
 	if(!returned_obj_2d_def)
-	   {
-            char str[200];
-            sprintf(str,"Error: Can't load 2d object: %s\n",fname);
-            log_error(__FILE__, __LINE__, str);
-	        return 0;
-	   }
+	{
+		log_error(__FILE__, __LINE__, "Error: Can't load 2d object: %s\n", fname);
+		return 0;
+	}
 
 	sprintf(our_object->file_name,"%s",fname);
 	our_object->x_pos=x_pos;

@@ -43,7 +43,9 @@ static char * last_search = NULL;
 static int repeat_search = 0;
 static int show_cm_help = 0;
 static _Text *mouseover_text = NULL;
-static _Image *mouseover_image = NULL;
+static int local_mouse_x = -1;
+static int local_mouse_y = -1;
+static int local_click = 0;
 /* move to translate */
 static const char* cm_encycl_help_str = "Right-click for search and bookmark options";
 
@@ -60,7 +62,6 @@ int common_encyclopedia_display_handler(window_info *win, size_t the_page, int t
 	float y_fac = (float)win->default_font_len_y / DEFAULT_FIXED_FONT_HEIGHT;
 
 	mouseover_text = NULL;
-	mouseover_image = NULL;
 
 	while(t)
 	{
@@ -92,7 +93,8 @@ CHECK_GL_ERRORS();
 			}
 			if(t->size)
 			{
-				if(t->ref && mouse_x>(scaled_x+win->cur_x) && mouse_x<(scaled_x+xlen+win->cur_x) && mouse_y>(scaled_y+win->cur_y-scaled_j) && mouse_y<(scaled_y+ylen+win->cur_y-scaled_j))
+				if(t->ref && (local_mouse_x > scaled_x) && (local_mouse_x < (scaled_x + xlen)) &&
+					(local_mouse_y > (scaled_y - scaled_j)) && (local_mouse_y < (scaled_y + ylen - scaled_j)))
 				{
 					mouseover_text = t;
 					glColor3f(0.3,0.6,1.0);
@@ -104,7 +106,8 @@ CHECK_GL_ERRORS();
 			}
 			else
 			{
-				if(t->ref && mouse_x>(scaled_x+win->cur_x) && mouse_x<(scaled_x+xlen+win->cur_x) && mouse_y>(scaled_y+win->cur_y-scaled_j) && mouse_y<(scaled_y+ylen+win->cur_y-scaled_j))
+				if(t->ref && (local_mouse_x > scaled_x) && (local_mouse_x < (scaled_x + xlen)) &&
+					(local_mouse_y > (scaled_y - scaled_j)) && (local_mouse_y < (scaled_y + ylen - scaled_j)))
 				{
 					mouseover_text = t;
 					glColor3f(0.3,0.6,1.0);
@@ -138,7 +141,8 @@ CHECK_GL_ERRORS();
 				i=i->Next;
 				continue;
 			}
-			if(mouse_x>(scaled_x+win->cur_x) && mouse_x<(win->cur_x+scaled_xend) && mouse_y>(scaled_y+win->cur_y-scaled_j) && mouse_y<(win->cur_y+scaled_yend-scaled_j))
+			if ((local_mouse_x > scaled_x) && (local_mouse_x < scaled_xend) &&
+				(local_mouse_y > (scaled_y-scaled_j)) && (local_mouse_y < (scaled_yend - scaled_j)))
 			{
 				if(i->Next!=NULL)
 				{
@@ -155,6 +159,13 @@ CHECK_GL_ERRORS();
 		}
 		i=i->Next;
 	}
+
+	// if the local_mouse coords were the result of a click and we are over a link, call handler to do the click
+	if (local_click && (mouseover_text != NULL) && (win->click_handler != NULL))
+		win->click_handler(win, -1, -1, 0);
+	local_click = 0;
+	mouseover_text = NULL;
+	local_mouse_x = local_mouse_y = -1;
 
 	return 1;
 }
@@ -177,6 +188,12 @@ int display_encyclopedia_handler(window_info *win)
 	return 1;
 }
 
+int common_encyclopedia_mouseover_handler(window_info *win, int mx, int my)
+{
+	local_mouse_x = mx;
+	local_mouse_y = my;
+	return 1;
+}
 
 int common_encyclopedia_click_handler(window_info *win, int mx, int my, Uint32 flags, size_t *the_page, int the_scroll_id)
 {
@@ -184,9 +201,17 @@ int common_encyclopedia_click_handler(window_info *win, int mx, int my, Uint32 f
 		vscrollbar_scroll_up(win->window_id, the_scroll_id);
 	} else if(flags&ELW_WHEEL_DOWN) {
 		vscrollbar_scroll_down(win->window_id, the_scroll_id);
+	} else if(flags&ELW_LEFT_MOUSE) {
+		// Store the click location and that its a click.  If the coords are over a
+		// link, this function will get called (with 0 flags) from the display handler.
+		local_click = 1;
+		local_mouse_x = mx;
+		local_mouse_y = my;
 	} else {
 		if (mouseover_text != NULL)
 		{
+			// we only get here when called from the display handler
+			// if the local_mouse coords are over a link 
 			_Text *t = mouseover_text;
 			if(t->ref)
 			{
@@ -210,11 +235,6 @@ int common_encyclopedia_click_handler(window_info *win, int mx, int my, Uint32 f
 	}
 
 	return 1;
-}
-
-int click_encyclopedia_handler(window_info *win, int mx, int my, Uint32 flags)
-{
-	return common_encyclopedia_click_handler(win, mx, my, flags, &currentpage, encyclopedia_scroll_id);
 }
 
 void GetColorFromName (const xmlChar *t)
@@ -1239,13 +1259,17 @@ static void rebuild_cm_encycl(void)
 		cm_add(cm_encycl, page_links[book_marks[i]].title, NULL);
 }
 
-/*	Set the flag for the window display handler to show the conetxt menu help string
-*/
+static int click_encyclopedia_handler(window_info *win, int mx, int my, Uint32 flags)
+{
+	return common_encyclopedia_click_handler(win, mx, my, flags, &currentpage, encyclopedia_scroll_id);
+}
+
 static int mouseover_encyclopedia_handler(window_info *win, int mx, int my)
 {
 	if (my > 0)
+		/*	Set the flag for the window display handler to show the conetxt menu help string */
 		show_cm_help = 1;
-	return 1;
+	return common_encyclopedia_mouseover_handler(win, mx, my);
 }
 
 /*	Add shortcut keypresses for search

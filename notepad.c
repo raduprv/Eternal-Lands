@@ -560,13 +560,13 @@ static int notepad_load_file()
 	else
 	{
 		using_named_notes = 0;
-		safe_snprintf(notes_file_name, sizeof(notes_file_name), default_file_name);
+		safe_snprintf(notes_file_name, sizeof(notes_file_name), "%s", default_file_name);
 	}
 
 	doc = xmlParseFile (notes_file_name);
 	if (doc == NULL)
 	{
-		LOG_ERROR (cant_parse_notes);
+		LOG_ERROR ("%s", cant_parse_notes);
 		return 0;
 	}
 
@@ -581,7 +581,7 @@ static int notepad_load_file()
 
 	if (xmlStrcasecmp (cur->name, (const xmlChar *) "PAD"))
 	{
-		LOG_ERROR (notes_wrong);
+		LOG_ERROR ("%s", notes_wrong);
 		xmlFreeDoc(doc);
 		return 0;
 	}

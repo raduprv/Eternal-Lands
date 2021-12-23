@@ -312,7 +312,7 @@ namespace ec
 					if (!base->push_back_particle(p))
 						break;
 
-					dynamic_cast<OrbitalMover*>(mover)->setParticleData(p, OrbitalParticleData(i, 10,
+					(dynamic_cast<OrbitalMover*>(mover))->setParticleData(p, OrbitalParticleData(i, 10,
 						0.45, 10) );
 				}
 

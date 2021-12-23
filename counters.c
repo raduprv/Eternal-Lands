@@ -1232,13 +1232,9 @@ void counters_set_spell_name(int spell_id, char *name, int len)
 void increment_spell_counter(int spell_id)
 {
 	if (!spell_names[spell_id+1]) {
-		Uint8 str[2];
-
-		str[0] = SPELL_NAME;
-		str[1] = (Sint8)spell_id;
-		my_tcp_send(my_socket, str, 2);
+		Uint8 str[2] = { SPELL_NAME, (Sint8)spell_id };
+		my_tcp_send(str, 2);
 		requested_spell_id = spell_id;
-
 	}
 	// delay the increment until we have the name
 	else
@@ -1325,7 +1321,7 @@ void catch_counters_text(const char* text)
 	else if (!strncasecmp(text, search_str[0], search_len[0]))
 	{
 		size_t start_from = search_len[0];
-		size_t could_not_carry_index = get_string_occurance(". What a pity ", text, text_len, 1);
+		const char* could_not_carry_ptr = safe_strcasestr(text, text_len, ". What a pity ", 14);
 		while ((text_len > start_from) && (text[start_from] != ' '))
 			start_from++; /* move past the a/an/a[n] */
 		start_from++; /* move past the space */
@@ -1344,9 +1340,9 @@ void catch_counters_text(const char* text)
 		}
 
 		/* check if we were not able to carry the found thing */
-		else if (could_not_carry_index != -1)
+		else if (could_not_carry_ptr)
 		{
-			size_t thing_len = could_not_carry_index - start_from;
+			size_t thing_len = (could_not_carry_ptr - text) - start_from;
 			safe_strncpy2(to_count_name, &text[start_from], sizeof(to_count_name), thing_len);
 			safe_strcat (to_count_name, " (lost)", sizeof(to_count_name));
 			increment_counter(MISC_EVENTS, to_count_name, 1, 0);
@@ -1400,93 +1396,6 @@ void catch_counters_text(const char* text)
 				misc_event_time = SDL_GetTicks();
 			}
 	}
-}
-
-
-/*
-** Temporary command to scan chat_log.txt for break/misc event messages to
-** populate the counters.  Should probably be removed the release after the
-** these additional counters are included - assuming they will be:)
-*/
-int chat_to_counters_command(const char *text, int len)
-{
-	char line[1024];
-	FILE *fp;
-	struct Counter *old_counters[] = {NULL, NULL};
-	int old_entries[] = {0, 0};
-	size_t types[] = {BREAKS-1, MISC_EVENTS-1 };
-	size_t type;
-
-	/* get any parameter text */
-	while(*text && !isspace(*text))
-		text++;
-	while(*text && isspace(*text))
-		text++;
-
-	/* if YES not specified, warn of consequences */
-	if (strncmp(text, "YES", 3) != 0)
-	{
-		LOG_TO_CONSOLE(c_red2, "Scan chat_log.txt for break and miscellaneous event messages.");
-		LOG_TO_CONSOLE(c_red2, "This may take some time and may cause lag.");
-		LOG_TO_CONSOLE(c_red2, "Current break/event values will be reset.");
-		LOG_TO_CONSOLE(c_red2, "Retype command and append YES to continue.");
-		return 1;
-	}
-
-	/* save then reset any existing values */
-	for (type=0; type<2; type++)
-		if (counters[types[type]])
-		{
-			old_counters[type] = counters[types[type]];
-			old_entries[type] = entries[types[type]];
-			counters[types[type]] = NULL;
-			entries[types[type]] = 0;
-		}
-
-	fp = open_file_config ("chat_log.txt", "r");
-
-	/* consume the chat_log file, adding counter entries as they're found */
-	while (!feof(fp))
-	{
-		if ((fgets(line, 1024, fp)) && (strlen(line) > 10))
-		{
-			if (line[strlen(line)-1] == '\n')
-				line[strlen(line)-1] = '\0';
-			if ((line[0] == '[') && (line[3] == ':') &&
-					 (line[6] == ':') && (line[9] == ']'))
-				catch_counters_text(line+11);
-			else
-				catch_counters_text(line);
-		}
-	}
-	fclose(fp);
-
-	/* restore the session totals and free the old memory */
-	for (type=0; type<2; type++)
-	{
-		int i,j;
-
-		/* set the session totals to zero, then check if previously existed and restore if so */
-		for (i = 0; i<entries[types[type]]; i++)
-		{
-			counters[types[type]][i].n_session = 0;
-			if(old_counters[type])
-				for (j = 0; j<old_entries[type]; j++)
-					if ((old_counters[type][j].n_session > 0) &&
-						(strcmp(old_counters[type][j].name, counters[types[type]][i].name) == 0))
-						counters[types[type]][i].n_session = old_counters[type][j].n_session;
-		}
-
-		/* free any old memory */
-		if(old_counters[type])
-		{
-			for (i = 0; i<old_entries[type]; i++)
-				free(old_counters[type][i].name);
-			free(old_counters[type]);
-		}
-	}
-
-	return 1;
 }
 
 int is_death_message (const char * RawText)

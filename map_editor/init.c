@@ -175,9 +175,7 @@ void init_stuff()
 
     if(SDL_InitSubSystem(SDL_INIT_TIMER)<0)
     {
-        char str[120];
-        snprintf(str, sizeof(str), "Couldn't initialize the timer: %s\n", SDL_GetError());
-        log_error(__FILE__, __LINE__, str);
+        log_error(__FILE__, __LINE__, "Couldn't initialize the timer: %s\n", SDL_GetError());
         SDL_Quit();
 	    exit(1);
     }

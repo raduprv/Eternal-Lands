@@ -130,6 +130,15 @@ void set_client_window_size(int width, int height); /*!< set the window size as 
 int print_gl_errors(const char *file, int line);
 
 /*!
+ * \ingroup video
+ * \brief   cleanup gl_window
+ *
+ *      Clean up gl_window related stuff
+ *
+ */
+void gl_window_cleanup(void);
+
+/*!
  * \name CHECK_GL_ERRORS macro - only done if DEBUG or OPENGL_TRACE defined
  */
 /*! @{ */

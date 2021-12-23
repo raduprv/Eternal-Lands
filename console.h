@@ -12,11 +12,6 @@
 extern "C" {
 #endif
 
-typedef struct {
-	char command[64];
-	int (*callback)();
-} command_t;
-
 extern char	auto_open_encyclopedia; /*!< flag, that indicates whether the encyclopedia window should be opened automatically upon startup of the client */
 
 extern int time_warn_h;	/*!< How many minutes before the new hour to give a warning */
@@ -37,7 +32,6 @@ int test_for_console_command (char *text, int len);
 
 void command_cleanup(void);
 
-void add_command(const char *command, int (*callback)());
 void add_name_to_tablist(const char *name);
 
 void init_commands(const char *filename);
@@ -60,6 +54,10 @@ int command_unmark_special(char *text, int len, int do_log);
 int command_ping(char *text, int len);
 
 void new_minute_console(void);
+
+int summon_attack_is_active(void);
+int summon_attack_is_unknown(void);
+void check_summon_attack_mode(unsigned char *buffer, size_t len);
 
 #ifdef __cplusplus
 } // extern "C"

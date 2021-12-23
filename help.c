@@ -19,6 +19,11 @@ static int click_help_handler(window_info *win, int mx, int my, Uint32 flags)
 	return common_encyclopedia_click_handler(win, mx, my, flags, &helppage, help_menu_scroll_id);
 }
 
+static int mouseover_help_handler(window_info *win, int mx, int my)
+{
+	return common_encyclopedia_mouseover_handler(win, mx, my);
+}
+
 static int resize_help_handler(window_info *win, int new_width, int new_height)
 {
 	widget_resize(win->window_id, help_menu_scroll_id, win->box_size, win->len_y);
@@ -63,6 +68,7 @@ void fill_help_win (int window_id)
 	set_window_handler (window_id, ELW_HANDLER_RESIZE, &resize_help_handler);
 	set_window_handler(window_id, ELW_HANDLER_UI_SCALE, &ui_scale_help_handler);
 	set_window_handler(window_id, ELW_HANDLER_FONT_CHANGE, &change_help_font_handler);
+	set_window_handler(window_id, ELW_HANDLER_MOUSEOVER, &mouseover_help_handler);
 
 	if (window_id >= 0 && window_id < windows_list.num_windows)
 	{

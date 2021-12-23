@@ -12,6 +12,7 @@
 #include "misc.h"
 #include "el_memory.h"
 #include "io/elfilewrapper.h"
+#include "platform.h"
 #include <assert.h>
 
 static Uint32 decompression_needed(const DdsHeader *header,
@@ -204,7 +205,7 @@ static Uint32 validate_header(DdsHeader *header, const char* file_name)
 	if (header->m_size != DDS_HEADER_SIZE)
 	{
 		LOG_ERROR("File '%s' is invalid. Size of header is"
-			" %d bytes, but must be %d bytes for valid DDS files.",
+			" %u bytes, but must be %" PRI_SIZET " bytes for valid DDS files.",
 			file_name, header->m_size, DDS_HEADER_SIZE);
 		return 0;
 	}
@@ -212,7 +213,7 @@ static Uint32 validate_header(DdsHeader *header, const char* file_name)
 	if (header->m_pixel_format.m_size != DDS_PIXEL_FORMAT_SIZE)
 	{
 		LOG_ERROR("File '%s' is invalid. Size of pixe format header is"
-			" %d bytes, but must be %3% bytes for valid DDS files.",
+			" %u bytes, but must be %" PRI_SIZET " bytes for valid DDS files.",
 			file_name, header->m_pixel_format.m_size,
 			DDS_PIXEL_FORMAT_SIZE);
 		return 0;
@@ -229,7 +230,7 @@ static Uint32 validate_header(DdsHeader *header, const char* file_name)
 
 	if ((header->m_caps.m_caps1 & DDSCAPS_TEXTURE) != DDSCAPS_TEXTURE)
 	{
-		LOG_ERROR("File '%' is invalid. At least DDSCAPS_TEXTURE cap "
+		LOG_ERROR("File '%s' is invalid. At least DDSCAPS_TEXTURE cap "
 			"must be set for a valid DDS file.", file_name);
 		return 0;
 	}

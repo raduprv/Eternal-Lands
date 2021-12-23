@@ -391,7 +391,7 @@ void toggle_have_mouse(void)
 	}
 }
 
-static void toggle_first_person()
+static void toggle_first_person(void)
 {
 	if (first_person == 0){
 		//rotate camera where actor is looking at
@@ -558,7 +558,7 @@ static void attack_someone(int who_to_attack)
 	Uint8 str[10];
 	str[0] = ATTACK_SOMEONE;
 	*((int *)(str+1)) = SDL_SwapLE32(who_to_attack);
-	my_tcp_send (my_socket, str, 5);
+	my_tcp_send(str, 5);
 }
 
 static void touch_player(int player_to_touch)
@@ -566,7 +566,7 @@ static void touch_player(int player_to_touch)
 	Uint8 str[10];
 	str[0] = TOUCH_PLAYER;
 	*((int *)(str+1)) = SDL_SwapLE32(player_to_touch);
-	my_tcp_send (my_socket, str, 5);
+	my_tcp_send(str, 5);
 }
 
 // this is the main part of the old check_mouse_click ()
@@ -739,7 +739,7 @@ static int click_game_handler(window_info *win, int mx, int my, Uint32 flags)
 		str[0] = DROP_ITEM;
 		str[1] = item_list[item_dragged].pos;
 		*((Uint32 *) (str + 2)) = SDL_SwapLE32(item_quantity);
-		my_tcp_send(my_socket, str, 6);
+		my_tcp_send(str, 6);
 		return 1;
 	}
 
@@ -790,7 +790,7 @@ static int click_game_handler(window_info *win, int mx, int my, Uint32 flags)
 					achievements_requested(mouse_x, mouse_y, flag_ctrl);
 				str[0] = GET_PLAYER_INFO;
 				*((int *)(str+1)) = SDL_SwapLE32((int)object_under_mouse);
-				my_tcp_send (my_socket, str, 5);
+				my_tcp_send(str, 5);
 				return 1;
 			}
 			else if (thing_under_the_mouse == UNDER_MOUSE_3D_OBJ)
@@ -803,7 +803,7 @@ static int click_game_handler(window_info *win, int mx, int my, Uint32 flags)
 #endif
 				str[0] = LOOK_AT_MAP_OBJECT;
 				*((int *)(str+1)) = SDL_SwapLE32((int)object_under_mouse);
-				my_tcp_send (my_socket, str, 5);
+				my_tcp_send(str, 5);
 				return 1;
 			}
 
@@ -856,7 +856,7 @@ static int click_game_handler(window_info *win, int mx, int my, Uint32 flags)
 				return 1;
 			str[0] = TRADE_WITH;
 			*((int *)(str+1)) = SDL_SwapLE32((int)object_under_mouse);
-			my_tcp_send (my_socket, str, 5);
+			my_tcp_send(str, 5);
 			return 1;
 
 			break;
@@ -886,7 +886,7 @@ static int click_game_handler(window_info *win, int mx, int my, Uint32 flags)
 				Uint8 str[10];
 				str[0] = FIRE_MISSILE_AT_OBJECT;
 				*((int *)(str+1)) = SDL_SwapLE32((int)object_under_mouse);
-				my_tcp_send(my_socket, str, 5);
+				my_tcp_send(str, 5);
 			}
 			break;
 		}
@@ -928,7 +928,7 @@ static int click_game_handler(window_info *win, int mx, int my, Uint32 flags)
 				*((int *)(str+5)) = SDL_SwapLE32((int)-1);
 			}
 
-			my_tcp_send (my_socket, str, 9);
+			my_tcp_send(str, 9);
 			return 1;
 
 			break;
@@ -958,7 +958,7 @@ static int click_game_handler(window_info *win, int mx, int my, Uint32 flags)
 				return 1;
 			str[0] = HARVEST;
 			*((Uint16 *)(str+1)) = SDL_SwapLE16((Uint16)object_under_mouse);
-			my_tcp_send (my_socket, str, 3);
+			my_tcp_send(str, 3);
 			return 1;
 			break;
 		}
@@ -1085,8 +1085,7 @@ void display_handling_common(window_info *win)
 
 	draw_delay = 20;
 
-	if ((input_widget!= NULL) && (input_widget->window_id != win->window_id))
-		input_widget_move_to_win(win->window_id);
+	check_and_get_console_input(win->window_id);
 }
 
 
@@ -1329,9 +1328,8 @@ static int display_game_handler (window_info *win)
 
 	CHECK_GL_ERRORS ();
 
-	animate_map_markers();
-	display_map_markers();
-	display_map_marks();
+	if (marks_3d)
+		draw_3d_marks();
 
 	Enter2DMode ();
 	//get the FPS, etc
@@ -1384,7 +1382,7 @@ static int display_game_handler (window_info *win)
 			}
 		}
 	}
-	if (show_fps)
+	if (show_fps && !console_input_active_at_top())
 	{
 		int fps_y;
 #ifdef	DEBUG
@@ -1444,9 +1442,15 @@ static int display_game_handler (window_info *win)
 		else
 			safe_snprintf ((char*)str, sizeof(str), "FPS: %i", fps[0]);
 		draw_string_zoomed_centered_around(fps_center_x, fps_y, str, 4, win->current_scale);
-		safe_snprintf((char*)str, sizeof(str), "UVP: %d", use_animation_program);
-		draw_string_zoomed_centered_around(fps_center_x, fps_y + win->default_font_len_y,
-			str, 4, win->current_scale);
+
+		// Don't display UVP info if its off.  Either your system does not support it or you turned
+		// it off so why keep reminding you? Show only if enabled to help with fault diagnostics.
+		if (use_animation_program)
+		{
+			safe_snprintf((char*)str, sizeof(str), "UVP: %d", use_animation_program);
+			draw_string_zoomed_centered_around(fps_center_x, fps_y + win->default_font_len_y,
+				str, 4, win->current_scale);
+		}
 	}
 	else
 		fps_default_width = 0;
@@ -1460,7 +1464,7 @@ static int display_game_handler (window_info *win)
 		filter = use_windowed_chat == 1 ? current_filter : FILTER_ALL;
 		if (find_last_lines_time(&msg, &offset, filter, get_console_text_width()))
 		{
-			draw_messages(get_tab_bar_x(), get_tab_bar_y(), display_text_buffer,
+			draw_messages(get_tab_bar_x(), get_tab_bar_y() + get_input_at_top_height(), display_text_buffer,
 				DISPLAY_TEXT_BUFFER_SIZE, filter, msg, offset, -1,
 				get_console_text_width(), 1 + get_text_height(get_lines_to_show(), CHAT_FONT, 1.0),
 				CHAT_FONT, 1.0, NULL);
@@ -1490,8 +1494,8 @@ static int display_game_handler (window_info *win)
 CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
 
-	if ((input_widget!= NULL) && (input_widget->window_id != win->window_id) && !get_show_window(get_id_MW(MW_CHAT)))
-		input_widget_move_to_win(win->window_id);
+	if (!get_show_window(get_id_MW(MW_CHAT)))
+		check_and_get_console_input(win->window_id);
 
 	return 1;
 }
@@ -1545,7 +1549,7 @@ int string_input(char *text, size_t maxlen, SDL_Keycode key_code, Uint32 key_uni
 	return 0;
 }
 
-void hide_all_windows()
+void hide_all_windows(void)
 {
 	/* Note: We don't watch for if a window is otherwise closed; alt+d to reopen only cares about the last
 	 * time it hid windows itself. If you alt+d to reopen windows, manually close them all, and alt+d
@@ -1602,11 +1606,8 @@ void hide_all_windows()
 
 static void toggle_sit_stand()
 {
-	Uint8 str[4];
-	//Send message to server...
-	str[0]=SIT_DOWN;
-	str[1]=!you_sit;
-	my_tcp_send(my_socket,str,2);
+	Uint8 str[2] = { SIT_DOWN, !you_sit };
+	my_tcp_send(str,2);
 }
 
 void switch_action_mode(int mode)
@@ -1650,7 +1651,7 @@ int keypress_root_common (SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_m
 			put_string_in_input_field((unsigned char*)line);
 		}
 	}
-	else if(disconnected && !alt_on && !ctrl_on && !locked_to_console)
+	else if(is_disconnected() && !alt_on && !ctrl_on && !locked_to_console)
 	{
 		connect_to_server();
 	}
@@ -1779,13 +1780,13 @@ int keypress_root_common (SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_m
 	}
 	else if((key_code == SDLK_h) && shift_on && ctrl_on && !alt_on)
 	{
-        if (get_our_actor())
-        {
-            if (get_our_actor()->attached_actor < 0)
-                add_actor_attachment(get_our_actor()->actor_id, 200);
-            else
-                remove_actor_attachment(get_our_actor()->actor_id);
-        }
+		if (get_our_actor())
+		{
+			if (get_our_actor()->attached_actor < 0)
+				add_actor_attachment(get_our_actor()->actor_id, 200);
+			else
+				remove_actor_attachment(get_our_actor()->actor_id);
+		}
 	}
 #endif // DEBUG
 	// use quickbar items & spells
@@ -1977,18 +1978,11 @@ int text_input_handler (SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_mod
 		return 1;
 	}
 	// The following should only be reached when we hit an invalid key
-	// combo or for any reason we don't have a valid input_widget.
+	// combo or for any reason we don't have a valid input widget.
 	else if (is_printable (ch) && input_text_line.len < MAX_TEXT_MESSAGE_LENGTH)
 	{
-		if(put_char_in_buffer (&input_text_line, ch, input_text_line.len)) {
-			if(input_widget) {
-				text_field *tf = input_widget->widget_info;
-				tf->cursor = tf->buffer->len;
-				if(input_widget->window_id == game_root_win) {
-					widget_unset_flags (input_widget->window_id, input_widget->id, WIDGET_DISABLED);
-				}
-			}
-		}
+		if (put_char_in_buffer(&input_text_line, ch, input_text_line.len))
+			check_owned_and_show_console_input(game_root_win);
 	}
 #ifndef OSX
 	else if (key_code == SDLK_BACKSPACE && input_text_line.len > 0)
@@ -2027,15 +2021,13 @@ static int keypress_game_handler (window_info *win, int mx, int my, SDL_Keycode 
 	else if (KEY_DEF_CMP(K_TURNLEFT, key_code, key_mod))
 	{
 		//Moved delay to my_tcp_send
-		Uint8 str[2];
-		str[0] = TURN_LEFT;
-		my_tcp_send (my_socket, str, 1);
+		Uint8 cmd = TURN_LEFT;
+		my_tcp_send(&cmd, 1);
 	}
 	else if (KEY_DEF_CMP(K_TURNRIGHT, key_code, key_mod))
 	{
-		Uint8 str[2];
-		str[0] = TURN_RIGHT;
-		my_tcp_send (my_socket, str, 1);
+		Uint8 cmd = TURN_RIGHT;
+		my_tcp_send(&cmd, 1);
 	}
 	else if (KEY_DEF_CMP(K_ADVANCE, key_code, key_mod))
 	{
@@ -2140,6 +2132,7 @@ static int keypress_game_handler (window_info *win, int mx, int my, SDL_Keycode 
 			hud_y=0;
 		}
 		resize_root_window ();
+		resize_all_root_windows(window_width, window_width, window_height, window_height);
 	}
 	else if (KEY_DEF_CMP(K_FIRST_PERSON, key_code, key_mod))
 	{
@@ -2259,7 +2252,8 @@ void do_keypress(el_key_def key)
 	}
 }
 
-static int show_game_handler (window_info *win) {
+static int show_game_handler (window_info *win)
+{
 	init_hud_interface (HUD_INTERFACE_GAME);
 	show_hud_windows();
 	if (use_windowed_chat == 1)
@@ -2317,28 +2311,18 @@ void create_game_root_window (int width, int height)
 		set_window_handler (game_root_win, ELW_HANDLER_UI_SCALE, &ui_scale_game_root_handler);
 		set_window_handler (game_root_win, ELW_HANDLER_FONT_CHANGE, &change_game_root_font_handler);
 
-		if (input_widget == NULL)
+		if (!have_console_input())
 		{
-			int input_height = get_input_height();
-			Uint32 id;
-
 			if (dark_channeltext == 1)
 				set_text_message_color (&input_text_line, 0.6f, 0.6f, 0.6f);
 			else if (dark_channeltext == 2)
 				set_text_message_color (&input_text_line, 0.16f, 0.16f, 0.16f);
 			else
 				set_text_message_color (&input_text_line, 1.0f, 1.0f, 1.0f);
-			id = text_field_add_extended(game_root_win, 42, NULL,
-				0, height-input_height-hud_y, width-hud_x, input_height,
-				INPUT_DEFAULT_FLAGS, CHAT_FONT, 1.0,
-				&input_text_line, 1, FILTER_ALL, INPUT_MARGIN, INPUT_MARGIN);
-			input_widget = widget_find(game_root_win, id);
-			input_widget->OnResize = input_field_resize;
+			create_console_input(game_root_win, 42, 0, height - get_input_default_height() - hud_y,
+				width - hud_x, get_input_default_height(), INPUT_DEFAULT_FLAGS);
 		}
-		widget_set_OnKey(input_widget->window_id, input_widget->id, (int (*)())chat_input_key);
-		if(input_text_line.len > 0) {
-			widget_unset_flags (input_widget->window_id, input_widget->id, WIDGET_DISABLED);
-		}
+		set_console_input_onkey();
 		resize_root_window();
 
 #ifdef NEW_CURSOR

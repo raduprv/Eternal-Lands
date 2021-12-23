@@ -1,13 +1,20 @@
+#include <errno.h>
 #include <string.h>
 #include "servers.h"
 #include "asc.h"
+#ifdef USE_SSL
+#include "connection.h"
+#endif
 #include "elconfig.h"
 #include "errors.h"
 #include "gl_init.h"
 #include "misc.h"
 #include "multiplayer.h"
+#include "platform.h"
 #include "io/elpathwrapper.h"
-#define MAX_SERVERS 10
+
+#define DEFAULT_SERVERS_SIZE 4
+#define sizeof_field(TYPE, NAME) sizeof(((TYPE*)0)->NAME)
 
 typedef struct
 {
@@ -16,13 +23,19 @@ typedef struct
 	unsigned char address[60];
 	int port;
 	char desc[100];						// Description of the server - to be shown on in the Server Selection screen
+#ifdef USE_SSL
+	int encrypt;
+#endif // USE_SSL
 } server_def;
 
-server_def servers[MAX_SERVERS];		// The details of all the servers we know about
-int num_servers = 0;
-int cur_server = -1;
+static server_def* servers = NULL;		// The details of all the servers we know about
+static int servers_size = 0;
+static int num_servers = 0;
+static int cur_server = -1;
+static const char * def_server_filename = "default_server_id.txt";
+static int default_server_index = -1;
 
-char * check_server_id_on_command_line();	// From main.c
+const char* check_server_id_on_command_line();	// From main.c
 
 const char * get_server_name(void)
 {
@@ -32,11 +45,12 @@ const char * get_server_name(void)
 		return "<unset>";
 }
 
-int find_server_from_id (const char* id)
+static int find_server_from_id (const char* id)
 {
 	int i;
 
-	if (num_servers <= 0) return -1;
+	if ((num_servers <= 0) || (id == NULL) || (strlen(id) == 0))
+		return -1;
 
 	for (i = 0; i < num_servers; i++)
 	{
@@ -45,39 +59,102 @@ int find_server_from_id (const char* id)
 			return i;
 		}
 	}
+	LOG_ERROR("Server profile ID [%s] not found in servers.lst", id);
 	return -1;
 }
 
-void set_server_details()
+// Add the list of servers to the specified options window variable
+void populate_def_server_options(const char *multi_name)
 {
-	char id[20];
-	int num;
-	safe_strncpy(id, check_server_id_on_command_line(), sizeof(id));
-	if (!strcmp(id, ""))
+	size_t i;
+	for (i = 0; i < num_servers; i++)
+		add_multi_option(multi_name, servers[i].id);
+}
+
+// Get the current default server index for the options window variable
+// returns the actual default if set, otherwise the index of "main", else 0
+size_t get_def_server_index(void)
+{
+	if (default_server_index < 0)
 	{
-		safe_strncpy(id, "main", sizeof(id));
+		int main_index = find_server_from_id("main");
+		return (main_index < 0) ?0 :(size_t)main_index;
 	}
-	num = find_server_from_id(id);
+	return (size_t)default_server_index;
+}
+
+// Write the default server ID for the specified index to file
+void write_def_server_ID(size_t server_id_index)
+{
+	if (server_id_index < num_servers)
+	{
+		char full_filename[1024];
+		FILE * f = NULL;
+		safe_snprintf(full_filename, sizeof(full_filename), "%s%s", get_path_config_base(), def_server_filename);
+		if ((f = fopen(full_filename, "w")) != NULL)
+		{
+			fputs(servers[server_id_index].id, f);
+			fclose(f);
+			return;
+		}
+		LOG_ERROR("%s [%s] : %s", file_write_error_str, full_filename, strerror(errno));
+	}
+}
+
+// if the default server file exists in the base config, read the server ID value
+// return the index in the servers list or -1 if not found
+static int read_default_server_index(void)
+{
+	FILE * f = NULL;
+	f = open_file_config(def_server_filename, "r");
+	if (f != NULL)
+	{
+		char def_server[128] = "";
+		if (fgets(def_server, sizeof(def_server), f) != NULL)
+		{
+			char * end_of_string = def_server + strlen(def_server);
+			while ((--end_of_string >= def_server) && isspace(*end_of_string))
+				*end_of_string = '\0';
+			if (strlen(def_server))
+				return find_server_from_id(def_server);
+		}
+		fclose(f);
+	}
+	return -1;
+}
+
+void set_server_details(void)
+{
+	int num;
+	default_server_index = read_default_server_index();
+	num = find_server_from_id(check_server_id_on_command_line());
+	// if no command line or command line value is not valid, try the default
 	if (num == -1)
 	{
-		// Oops... what did they specify on the command line?
-		LOG_ERROR("Server profile not found in servers.lst for server: %s. Failover to server: main.", id);
-		// Failover to the main server
-		num = find_server_from_id("main");
+		num = default_server_index;
+		// if no default or default value not valid, try main
 		if (num == -1)
 		{
-			// Error, this is a problem!
-			static char *error_str = "Fatal error: Server profile not found in servers.lst for server: main";
-			LOG_ERROR(error_str);
-			FATAL_ERROR_WINDOW(error_str);
-			exit(1);
+			num = find_server_from_id("main");
+			// cannot find even main, this is a fatal error
+			if (num == -1)
+			{
+				static char *error_str = "Fatal error: Fallback server profile ID [main] not found in servers.lst.";
+				LOG_ERROR("%s", error_str);
+				FATAL_ERROR_WINDOW("%s", error_str);
+				exit(1);
+			}
 		}
 	}
 	// We found a valid profile so set some vars
 	LOG_DEBUG("Using the server profile: %s", servers[num].id);
 	cur_server = num;
+#ifdef USE_SSL
+	connection_set_server((char *)servers[num].address, servers[num].port, servers[num].encrypt);
+#else
 	safe_strncpy((char *)server_address, (char *)servers[num].address, sizeof(server_address));
 	port = servers[num].port;
+#endif
 	// Check if the config directory for the profile exists and if not then create and
 	// copy main's ini file into it
 	if (!check_configdir())
@@ -97,7 +174,7 @@ void set_server_details()
 	}
 }
 
-const char * get_server_dir()
+const char * get_server_dir(void)
 {
 	if (cur_server >= 0)
 		return servers[cur_server].dir;
@@ -105,14 +182,33 @@ const char * get_server_dir()
 		return "";
 }
 
+static server_def* reallocate_servers_list(int min_size)
+{
+	if (servers_size < min_size)
+	{
+		server_def* new_servers;
+		int new_size = servers_size > 0 ? 2*servers_size : DEFAULT_SERVERS_SIZE;
+		while (new_size < min_size)
+			new_size *= 2;
+		new_servers = realloc(servers, new_size * sizeof(server_def));
+		if (!new_servers)
+			return NULL;
+
+		servers = new_servers;
+		servers_size = new_size;
+	}
+	return servers;
+}
+
 void load_server_list(const char *filename)
 {
 	int f_size;
 	FILE * f = NULL;
-	char * server_list_mem;
-	int istart, iend, i, section;
-	char string[128];
-	int len;
+	char *server_list_mem, *line;
+	char format[128];
+#ifdef USE_SSL
+	char crypt[128];
+#endif
 	
 	f = open_file_config(filename, "rb");
 	if (f == NULL)
@@ -138,7 +234,7 @@ void load_server_list(const char *filename)
 		exit(1);
 	}
 	
-	server_list_mem = (char *) calloc (f_size, 1);
+	server_list_mem = calloc(f_size+1, 1);
 	fseek(f, 0, SEEK_SET);
 	if (fread(server_list_mem, 1, f_size, f) != f_size)
 	{
@@ -152,95 +248,98 @@ void load_server_list(const char *filename)
 	}
 	fclose(f);
 
-	istart = 0;
+#ifdef USE_SSL
+	safe_snprintf(format, sizeof(format), "%%%" PRI_SIZET "s %%%" PRI_SIZET "s %%%" PRI_SIZET "s %%u %%n%%%" PRI_SIZET "s %%n",
+		sizeof_field(server_def, id) - 1, sizeof_field(server_def, dir) - 1,
+		sizeof_field(server_def, address) - 1, sizeof(crypt) - 1);
+#else // USE_SSL
+	safe_snprintf(format, sizeof(format), "%%%" PRI_SIZET "s %%%" PRI_SIZET "s %%%" PRI_SIZET "s %%u %%%" PRI_SIZET "[^\r\n]",
+		sizeof_field(server_def, id) - 1, sizeof_field(server_def, dir) - 1,
+		sizeof_field(server_def, address) - 1, sizeof_field(server_def, desc) - 1);
+#endif // USE_SSL
+
 	num_servers = 0;
-	while (istart < f_size)
+	line = server_list_mem;
+	while (*line)
 	{
-		// Find end of the line
-		for (iend = istart; iend < f_size; iend++)
+		int nr_fields;
+#ifdef USE_SSL
+		int crypt_pos, desc_pos;
+#endif
+		size_t iend;
+		char* comment;
+
+		iend = strcspn(line, "\r\n");
+		line[iend] = '\0';
+		comment = strchr(line, '#');
+		if (comment)
+			*comment = '\0';
+
+		if (num_servers >= servers_size && !reallocate_servers_list(num_servers + 1))
 		{
-			if (server_list_mem[iend] == '\n' || server_list_mem[iend] == '\r')
-				break;
+			const char *errstg = "Fatal error: Too many servers specified in";
+			LOG_ERROR("%s %s", errstg, filename);
+			fprintf(stderr, "%s %s\n", errstg, filename);
+			FATAL_ERROR_WINDOW("%s", errstg);
+			exit(1);
 		}
 
-		// Parse this line
-		if (iend > istart)
+#ifdef USE_SSL
+		nr_fields = sscanf(line, format, servers[num_servers].id, servers[num_servers].dir,
+			servers[num_servers].address, &servers[num_servers].port, &crypt_pos, crypt, &desc_pos);
+#else
+		nr_fields = sscanf(line, format, servers[num_servers].id, servers[num_servers].dir,
+			servers[num_servers].address, &servers[num_servers].port, &servers[num_servers].desc);
+#endif
+		if (nr_fields == 4)
 		{
-			section = 0;
-			len = 0;
-			for (i = istart; i < iend; i++)
+			// No encryption or description field
+			servers[num_servers].desc[0] = 0;
+#ifdef USE_SSL
+			servers[num_servers].encrypt = 0;
+#endif // USE_SSL
+			++num_servers;
+		}
+		else if (nr_fields == 5)
+		{
+#ifdef USE_SSL
+			if (!strcasecmp(crypt, "crypt") || !strcasecmp(crypt, "encrypt")
+				|| !strcasecmp(crypt, "encrypted"))
 			{
-				if (server_list_mem[i] == '#')
-					break;	// This is a comment so ignore the rest of the line
-				else if (section < 4 && (server_list_mem[i] == ' ' || server_list_mem[i] == '\t' || i == iend))
-				{
-					if (num_servers >= MAX_SERVERS)
-					{
-						const char *errstg = "Fatal error: Too many servers specified in";
-						LOG_ERROR("%s %s", errstg, filename);
-						fprintf(stderr, "%s %s\n", errstg, filename);
-						FATAL_ERROR_WINDOW(errstg);
-						exit(1);
-					}
+				// There is an encryption field, and we should encrypt
+				servers[num_servers].encrypt = 1;
+			}
+			else if (!strcasecmp(crypt, "plain") || !strcasecmp(crypt, "clear"))
+			{
+				// There is an encryption field, and we should not encrypt
+				servers[num_servers].encrypt = 0;
+			}
+			else
+			{
+				// There is no encryption field, and the string is part of the description
+				servers[num_servers].encrypt = 0;
+				desc_pos = crypt_pos;
+			}
 
-					// This is the end of a section so store it (except the description)
-					// as we include whitespace in the description
-					string[len] = '\0';
-					switch(section)
-					{
-						case 0:		// Server ID
-							safe_strncpy(servers[num_servers].id, string, sizeof(servers[num_servers].id));
-							break;
-						case 1:		// Config dir
-							safe_strncpy(servers[num_servers].dir, string, sizeof(servers[num_servers].dir));
-							break;
-						case 2:		// Server address
-							safe_strncpy((char *)servers[num_servers].address, string, sizeof(servers[num_servers].address));
-							break;
-						case 3:		// Server port
-							servers[num_servers].port = atoi(string);
-							break;
-					}
-					section++;
-					// Reset the length to start the string again
-					len = 0;
-					// Skip any more spaces
-					while (i < iend)
-					{
-						if (server_list_mem[i+1] != ' ' && server_list_mem[i+1] != '\t')
-							break;
-						i++;
-					}
-				}
-				else //if (server_list_mem[i] == ) // Valid char!!)
-				{
-					string[len] = server_list_mem[i];
-					len++;
-				}
-			}
-			if (i > istart) {
-				// Anything left should be the description so store it now
-				string[len] = '\0';
-				safe_strncpy(servers[num_servers].desc, string, sizeof(servers[num_servers].desc));
-				// Check the line was valid
-				if (!strcmp(servers[num_servers].id, "") || !strcmp(servers[num_servers].dir, "")
-					|| !strcmp((char *)servers[num_servers].address, "") || servers[num_servers].port == 0
-					|| !strcmp(servers[num_servers].desc, ""))
-				{
-					LOG_ERROR("%s: Invalid server details specified in %s - (%d) %s", "Servers list error", filename, num_servers, servers[num_servers].id);
-					break;		// Bail, but do the free first
-				}
-				
-				// we added a valid line
-				num_servers++;
-			}
+			safe_strncpy(servers[num_servers].desc, line+desc_pos, sizeof(servers[num_servers].desc));
+#endif // USE_SSL
+			++num_servers;
 		}
 
-		// Move to next line
-		istart = iend + 1;
+		line += iend + 1;
+		while (*line == '\r' || *line == '\n')
+			++line;
 	}
 
 	free(server_list_mem);
+}
+
+void free_servers(void)
+{
+	free(servers);
+	servers = NULL;
+	servers_size = num_servers = 0;
+	cur_server = -1;
 }
 
 

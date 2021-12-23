@@ -20,6 +20,7 @@
 #include "font.h"
 #include "gl_init.h"
 #include "loginwin.h"
+#include "misc.h"
 #include "multiplayer.h"
 #include "named_colours.h"
 #include "io/elpathwrapper.h"
@@ -77,15 +78,17 @@ namespace Password_Manaager
 			void load(void);
 			void set_details(void) const;
 			void add(const std::string& user_name, const std::string& password);
-			void pending_change(const char * old_and_new_password);
-			void confirm_change(void);
+			static bool is_valid_password(const std::string &password);
+			static bool get_validated_new_pasword(const char * old_and_new_password, std::string &new_password);
+			void pending_change(const std::string& password) { pending_new_password = password; }
+			bool confirm_change(void);
 			size_t size(void) const { return logins.size(); }
 			std::vector<Login>::const_iterator begin() const { return logins.begin(); }
 			std::vector<Login>::const_iterator end() const { return logins.end(); }
 		private:
 			bool common_add(const std::string& user_name, const std::string& password);
 			void save(void);
-			std::string pending_old_and_new_password;
+			std::string pending_new_password;
 			std::vector<Login> logins;
 			std::string file_name;
 			XOR_Cipher::Cipher cipher;
@@ -130,24 +133,46 @@ namespace Password_Manaager
 		}
 	}
 
-	//	Save details when a password change is requested with a #change_pass command.  It will not be saved until confirmed.
+	//	Validates the string is a password, of the correct size and containing valid characters.
 	//
-	void Logins::pending_change(const char * old_and_new_password)
+	bool Logins::is_valid_password(const std::string &password)
 	{
-		pending_old_and_new_password = std::string(old_and_new_password);
+		if ((password.size() < MIN_PASSWORD_LEN) || (password.size() >= MAX_PASSWORD_LEN))
+			return false;
+		for (auto c: password)
+			if (!VALID_PASSWORD_CHAR(c))
+				return false;
+		return true;
+	}
+
+	//	Common function to validate the string contains two words, and that the second at least is a valid password
+	//	Returns true if the second word is a valid password and returned in the provided string
+	//
+	bool Logins::get_validated_new_pasword(const char * old_and_new_password, std::string &new_password)
+	{
+		std::istringstream iss(old_and_new_password);
+		std::vector<std::string> words((std::istream_iterator<std::string>(iss)), std::istream_iterator<std::string>());
+		if ((words.size() == 2) && is_valid_password(words[1]))
+		{
+			new_password = words[1];
+			return true;
+		}
+		else
+			return false;
 	}
 
 	//	Called when the server sends the change password confirmation.  Save the new password.
-	void Logins::confirm_change(void)
+	//
+	bool Logins::confirm_change(void)
 	{
-		std::istringstream iss(pending_old_and_new_password);
-		std::vector<std::string> words((std::istream_iterator<std::string>(iss)), std::istream_iterator<std::string>());
-		if ((words.size() == 2) && (words[1].size() < MAX_USERNAME_LENGTH))
+		bool ret_value;
+		if ((ret_value = is_valid_password(pending_new_password)))
 		{
-			add(get_username(), words[1]);
-			set_password(words[1].c_str());
+			add(get_username(), pending_new_password);
+			set_password(pending_new_password.c_str());
 		}
-		pending_old_and_new_password = std::string();
+		pending_new_password.clear();
+		return ret_value;
 	}
 
 	//	Set the current password assiociated with the current username.
@@ -227,6 +252,7 @@ namespace Password_Manaager
 		private:
 			void destroy(void);
 			int border_x, border_y, username_sep_y;
+			int max_name_width;
 			int window_id;
 			Uint32 scroll_id, checkbox_id, checkbox_label_id;
 			int show_passwords;
@@ -242,10 +268,24 @@ namespace Password_Manaager
 		size_t max_available = static_cast<size_t>(0.8 * window_height - 2 * border_y + username_sep_y) / (username_sep_y + win->default_font_len_y);
 		max_displayed = std::min(max_available, logins->size());
 		int height = 2 * border_y + max_displayed * win->default_font_len_y + (max_displayed - 1) * username_sep_y;
-		int width = 2 * border_x + win->default_font_max_len_x * (MAX_USERNAME_LENGTH - 1) + win->box_size;
-		if (show_passwords)
-			width += border_x + win->default_font_max_len_x * (MAX_USERNAME_LENGTH - 1);
 		height = std::max(height, 4 * win->box_size);
+
+		// calculate the maximum name width, and use set the window width
+		max_name_width = 0;
+		for (std::vector<Login>::const_iterator i = logins->begin(); i < logins->end(); ++i)
+			max_name_width = max2i(max_name_width, get_string_width_zoom(
+					(const unsigned char*)i->get_name().c_str(), win->font_category, win->current_scale));
+		int width = 2 * border_x + max_name_width + win->box_size;
+
+		// if shown, calculate the maximum password width, and use to increase the window width
+		if (show_passwords)
+		{
+			int max_password_width = 0;
+			for (std::vector<Login>::const_iterator i = logins->begin(); i < logins->end(); ++i)
+				max_password_width = max2i(max_password_width, get_string_width_zoom(
+						(const unsigned char*)i->get_password().c_str(), win->font_category, win->current_scale));
+			width += border_x + max_password_width;
+		}
 
 		int y_box, y_label;
 		if (checkbox_id > 0)
@@ -275,7 +315,10 @@ namespace Password_Manaager
 		vscrollbar_set_bar_len(win->window_id, scroll_id, ((logins->size() < max_displayed) ?0: logins->size() - max_displayed));
 
 		resize_window(window_id, width, height);
-		move_window(window_id, win->pos_id, win->pos_loc, window_width / 2 + ((window_width / 2 - width) / 2), (window_height - height) / 2);
+		int start_x =  window_width / 2 + ((window_width / 2 - width) / 2);
+		if ((start_x + width + border_x) > window_width)
+			start_x = window_width - width - border_x;
+		move_window(window_id, win->pos_id, win->pos_loc, start_x, (window_height - height) / 2);
 		return 1;
 	}
 
@@ -370,7 +413,7 @@ namespace Password_Manaager
 				glColor3f(1.0f, 1.0f, 1.0f);
 			draw_string_zoomed (border_x, border_y + y, (const unsigned char*)curr->get_name().c_str(), 1, win->current_scale);
 			if (show_passwords)
-				draw_string_zoomed (2 * border_x + win->default_font_max_len_x * (MAX_USERNAME_LENGTH - 1), border_y + y, (const unsigned char*)curr->get_password().c_str(), 1, win->current_scale);
+				draw_string_zoomed (2 * border_x + max_name_width, border_y + y, (const unsigned char*)curr->get_password().c_str(), 1, win->current_scale);
 			y += win->default_font_len_y + username_sep_y;
 		}
 		mouse_over_line = -1;
@@ -470,20 +513,24 @@ extern "C"
 		}
 	}
 
-	void passmngr_pending_pw_change(const char * old_and_new_password)
+	int passmngr_pending_pw_change(const char * old_and_new_password)
 	{
+		std::string new_password;
+		if (!Password_Manaager::Logins::get_validated_new_pasword(old_and_new_password, new_password))
+			return 0;
 		if (!passmngr_enabled)
-			return;
+			return 1;
 		passmngr_init();
-		logins->pending_change(old_and_new_password);
+		logins->pending_change(new_password);
+		return 1;
 	}
 
-	void passmngr_confirm_pw_change(void)
+	int passmngr_confirm_pw_change(void)
 	{
 		if (!passmngr_enabled)
-			return;
+			return 1;
 		passmngr_init();
-		logins->confirm_change();
+		return (logins->confirm_change()) ?1: 0;
 	}
 
 	void passmngr_init(void)

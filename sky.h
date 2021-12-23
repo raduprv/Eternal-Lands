@@ -9,7 +9,6 @@ extern int skybox_show_clouds;
 extern int skybox_show_sun;
 extern int skybox_show_moons;
 extern int skybox_show_stars;
-extern int skybox_show_horizon_fog;
 
 // position of the sun (different from the light position!)
 extern float skybox_sun_position[4];
@@ -61,9 +60,6 @@ float skybox_get_z_position();
 
 void skybox_direction_to_ground_coords(float dir[3], float *gx, float *gy);
 void skybox_coords_from_ground_coords(float sky_coords[3], float gx, float gy);
-
-void skybox_compute_element_projection(float proj[3], float pos[3]);
-float skybox_get_height(float x, float y);
 
 void skybox_set_type(skybox_type sky);
 void skybox_display();

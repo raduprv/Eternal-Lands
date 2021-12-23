@@ -263,10 +263,8 @@ void add_bags_from_list (const Uint8 *data)
 
 		// Now, find a place into the bags list, so we can destroy the bag properly
 		if (bag_list[bag_id].obj_3d_id != -1) {
-			char buf[256];
 			// oops, slot already taken!
-			safe_snprintf(buf, sizeof(buf), "Oops, trying to add an existing bag! id=%d\n", bag_id);
-			LOG_ERROR(buf);
+			LOG_ERROR("Oops, trying to add an existing bag! id=%d\n", bag_id);
 			return;
 		}
 
@@ -368,10 +366,8 @@ int find_and_open_closest_bag(int tile_x, int tile_y, float max_distance)
 
 	if (found_bag != -1)
 	{
-		Uint8 str[4];
-		str[0]= INSPECT_BAG;
-		str[1]= found_bag;
-		my_tcp_send(my_socket,str, 2);
+		Uint8 str[2] = { INSPECT_BAG, found_bag };
+		my_tcp_send(str, 2);
 		return 1;
 	}
 
@@ -381,12 +377,11 @@ int find_and_open_closest_bag(int tile_x, int tile_y, float max_distance)
 void open_bag(int object_id)
 {
 	int i;
-	Uint8 str[4];
 	for(i=0;i<NUM_BAGS;i++){
-		if(bag_list[i].obj_3d_id==object_id){
-			str[0]= INSPECT_BAG;
-			str[1]= i;
-			my_tcp_send(my_socket,str,2);
+		if(bag_list[i].obj_3d_id==object_id)
+		{
+			Uint8 str[2] = { INSPECT_BAG, i };
+			my_tcp_send(str, 2);
 			return;
 		}
 	}
@@ -409,14 +404,13 @@ void get_bag_item (const Uint8 *data)
 
 static void pick_up_all_items(void)
 {
-	Uint8 str[20];
 	int itempos;
 	for(itempos = 0; itempos < ITEMS_PER_BAG; itempos++){
-		if(ground_item_list[itempos].quantity){
-			str[0]=PICK_UP_ITEM;
-			str[1]=itempos;
+		if(ground_item_list[itempos].quantity)
+		{
+			Uint8 str[6] = { PICK_UP_ITEM, itempos };
 			*((Uint32 *)(str+2))=SDL_SwapLE32(ground_item_list[itempos].quantity);
-			my_tcp_send(my_socket,str,6);
+			my_tcp_send(str, 6);
 		}
 	}
 }
@@ -604,7 +598,7 @@ CHECK_GL_ERRORS();
 static int click_ground_items_handler(window_info *win, int mx, int my, Uint32 flags)
 {
 	int pos;
-	Uint8 str[10];
+	Uint8 str[6];
 	int right_click = flags & ELW_RIGHT_MOUSE;
 	int ctrl_on = flags & KMOD_CTRL;
 	int yoffset = get_window_scroll_pos(win->window_id);
@@ -641,13 +635,13 @@ static int click_ground_items_handler(window_info *win, int mx, int my, Uint32 f
 			str[0] = DROP_ITEM;
 			str[1] = item_dragged;
 			*((Uint32 *) (str + 2)) = SDL_SwapLE32(item_quantity);
-			my_tcp_send(my_socket, str, 6);
+			my_tcp_send(str, 6);
 			do_drop_item_sound();
 		}
 	} else if(right_click || is_gamewin_look_action()) {
 		str[0]= LOOK_AT_GROUND_ITEM;
 		str[1]= ground_item_list[pos].pos;
-		my_tcp_send(my_socket,str,2);
+		my_tcp_send(str, 2);
 	} else {
 		int quantity;
 		quantity= ground_item_list[pos].quantity;
@@ -656,7 +650,7 @@ static int click_ground_items_handler(window_info *win, int mx, int my, Uint32 f
 		str[0]= PICK_UP_ITEM;
 		str[1]= ground_item_list[pos].pos;
 		*((Uint32 *)(str+2))= SDL_SwapLE32(quantity);
-		my_tcp_send(my_socket,str,6);
+		my_tcp_send(str, 6);
 		do_get_item_sound();
 	}
 
@@ -742,7 +736,7 @@ void server_close_bag(void)
 void client_close_bag(void)
 {
 	const unsigned char protocol_close_bag = S_CLOSE_BAG;
-	my_tcp_send(my_socket, &protocol_close_bag, 1);
+	my_tcp_send(&protocol_close_bag, 1);
 	server_close_bag();
 }
 

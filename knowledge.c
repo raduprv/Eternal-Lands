@@ -215,11 +215,11 @@ char *get_research_eta_str(char *str, size_t size)
 	float eta = 0.0f;
 	if (your_info.research_total && (your_info.research_completed == your_info.research_total))
 	{
-		safe_snprintf(str, size, completed_research);
+		safe_snprintf(str, size, "%s", completed_research);
 		return str;
 	}
 	if ((eta = get_research_eta()) < 1)
-		safe_snprintf(str, size, lessthanaminute_str);
+		safe_snprintf(str, size, "%s", lessthanaminute_str);
 	else
 	{
 		int ieta = (int)(eta + 0.5);
@@ -330,12 +330,11 @@ int display_knowledge_handler(window_info *win)
 	// Draw knowledges
 	for(i = 2*scroll; y < (booklist_y_len - booklist_y_step); i++)
 	{
-		int highlight = 0;
 		float colour_brightness = (knowledge_list[i].present) ?1.0 : 0.6;
-
-		if (*highlight_string && (strlen(knowledge_list[i].name) > 0) &&
-			(get_string_occurance(highlight_string, knowledge_list[i].name, strlen(knowledge_list[i].name), 1) != -1))
-			highlight = 1;
+		size_t name_len = strlen(knowledge_list[i].name);
+		int highlight = *highlight_string
+			&& name_len > 0
+			&& safe_strcasestr(knowledge_list[i].name, name_len, highlight_string, strlen(highlight_string));
 
 		if (!highlight && (i == selected_book))
 		{
@@ -443,7 +442,7 @@ int click_knowledge_handler(window_info *win, int mx, int my, Uint32 flags)
 			{
 				str[0] = GET_KNOWLEDGE_INFO;
 				*(Uint16 *)(str+1) = SDL_SwapLE16((short)idx);
-				my_tcp_send(my_socket,str,3);
+				my_tcp_send(str,3);
 				raw_knowledge_string[0] = '\0';
 				// Check if we display the book image and label
 				knowledge_book_id = idx;

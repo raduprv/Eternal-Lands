@@ -43,7 +43,6 @@ Uint32 exp_lev[MAX_EXP_LEVEL];
 int logo_click_to_url = 1;
 char LOGO_URL_LINK[128] = "http://www.eternal-lands.com";
 
-static int mouse_over_logo = 0;
 static hud_interface last_interface = HUD_INTERFACE_NEW_CHAR; //Current interface (game or new character)
 
 /* called on client exit to free resources */
@@ -88,6 +87,7 @@ void init_hud_interface (hud_interface type)
 			hud_x = (int)(0.5 + windows_list.window[newchar_root_win].current_scale * NEW_CHARACTER_BASE_HUD_X);
 			resize_root_window();
 			init_icon_window (NEW_CHARACTER_ICONS);
+			resize_newchar_hud_window();
 		}
 	}
 	else
@@ -154,16 +154,19 @@ void hide_moved_hud_windows(void)
 	}
 }
 
-int hud_mouse_over(window_info *win, int mx, int my)
+static int test_over_logo(window_info *win, int mx, int my)
 {
 	int dead_space = (int)(0.5 + win->current_scale * 10);
 	int hud_logo_size = get_hud_logo_size();
-	mouse_over_logo = 0;
-	// exclude some 	dead space to try to prevent accidental misclicks
-	if (logo_click_to_url && hud_x && (mx > win->len_x - (hud_logo_size - dead_space)) && (my < hud_logo_size - dead_space))
+	return hud_x && (mx > (win->len_x - (hud_logo_size - dead_space))) && (my < (hud_logo_size - dead_space));
+}
+
+int hud_mouse_over(window_info *win, int mx, int my)
+{
+	// exclude some dead space to try to prevent accidental misclicks
+	if (logo_click_to_url && test_over_logo(win, mx, my))
 	{
 		elwin_mouse = CURSOR_USE;
-		mouse_over_logo = 1;
 		return 1;
 	}
 	if (hud_x && hud_y && ((mx > win->len_x - hud_x) || (my > win->len_y - hud_y)))
@@ -176,7 +179,7 @@ int hud_mouse_over(window_info *win, int mx, int my)
 
 int hud_click(window_info *win, int mx, int my, Uint32 flags)
 {
-	if (mouse_over_logo)
+	if (test_over_logo(win, mx, my))
 	{
 		if (logo_click_to_url)
 			open_web_link(LOGO_URL_LINK);

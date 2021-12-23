@@ -257,6 +257,10 @@ int display_edit_window_handler(window_info *win)
 	}
 	// The X
 	draw_string(0+win->len_x-16,0+2,(unsigned char *)"X",1);
+
+	// Reset the color
+	glColor3f(1.0f, 1.0f, 1.0f);
+
 	return 1;
 }
 

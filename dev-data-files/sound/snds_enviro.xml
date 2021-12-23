@@ -1,0 +1,507 @@
+<sound name = "Atmosphere Underworld">
+	<variant>
+		<main_sound>./sound/atmosphere-underworld01.ogg</main_sound>
+	</variant>
+	<distance>35</distance>
+	<stereo>1</stereo>
+	<positional>0</positional>
+	<loops>0</loops>
+	<fadeout_time>0</fadeout_time>
+	<echo_delay>0</echo_delay>
+	<echo_volume>0</echo_volume>
+	<time_of_day_flags>0xffff</time_of_day_flags>
+	<priority>8</priority>
+	<type>environmental</type>
+</sound>
+<sound name = "Atmosphere Spooky01">
+	<variant>
+		<main_sound>./sound/atmosphere-spooky01.ogg</main_sound>
+	</variant>
+	<distance>35</distance>
+	<stereo>1</stereo>
+	<positional>0</positional>
+	<loops>0</loops>
+	<fadeout_time>0</fadeout_time>
+	<echo_delay>0</echo_delay>
+	<echo_volume>0</echo_volume>
+	<time_of_day_flags>0xffff</time_of_day_flags>
+	<priority>8</priority>
+	<type>environmental</type>
+</sound>
+<sound name = "Atmosphere Spooky02">
+	<variant>
+		<main_sound>./sound/atmosphere-spooky02.ogg</main_sound>
+	</variant>
+	<distance>35</distance>
+	<stereo>1</stereo>
+	<positional>0</positional>
+	<loops>0</loops>
+	<fadeout_time>0</fadeout_time>
+	<echo_delay>0</echo_delay>
+	<echo_volume>0</echo_volume>
+	<time_of_day_flags>0xffff</time_of_day_flags>
+	<priority>8</priority>
+	<type>environmental</type>
+</sound>
+<sound name = "Forest Night01">
+	<variant>
+		<main_sound>./sound/enviro-forest-night01.ogg</main_sound>
+	</variant>
+	<distance>35</distance>
+	<stereo>1</stereo>
+	<positional>0</positional>
+	<loops>0</loops>
+	<fadeout_time>0</fadeout_time>
+	<echo_delay>0</echo_delay>
+	<echo_volume>0</echo_volume>
+	<time_of_day_flags>0x0f81</time_of_day_flags>
+	<priority>8</priority>
+	<type>environmental</type>
+</sound>
+<sound name = "Forest Night02">
+	<variant>
+		<main_sound>./sound/enviro-forest-night02.ogg</main_sound>
+	</variant>
+	<distance>35</distance>
+	<stereo>1</stereo>
+	<positional>0</positional>
+	<loops>0</loops>
+	<fadeout_time>0</fadeout_time>
+	<echo_delay>0</echo_delay>
+	<echo_volume>0</echo_volume>
+	<time_of_day_flags>0x0f81</time_of_day_flags>
+	<priority>8</priority>
+	<type>environmental</type>
+</sound>
+<sound name = "Forest01">
+	<variant>
+		<main_sound>./sound/enviro-forest01.ogg</main_sound>
+	</variant>
+	<distance>35</distance>
+	<stereo>1</stereo>
+	<positional>0</positional>
+	<loops>0</loops>
+	<fadeout_time>0</fadeout_time>
+	<echo_delay>0</echo_delay>
+	<echo_volume>0</echo_volume>
+	<time_of_day_flags>0x007e</time_of_day_flags>
+	<priority>8</priority>
+	<type>environmental</type>
+</sound>	
+<sound name = "Forest02">
+	<variant>
+		<main_sound>./sound/enviro-forest02.ogg</main_sound>
+	</variant>
+	<distance>35</distance>
+	<stereo>1</stereo>
+	<positional>0</positional>
+	<loops>0</loops>
+	<fadeout_time>0</fadeout_time>
+	<echo_delay>0</echo_delay>
+	<echo_volume>0</echo_volume>
+	<time_of_day_flags>0x007e</time_of_day_flags>
+	<priority>8</priority>
+	<type>environmental</type>
+</sound>
+<sound name = "Forest03">
+	<variant>
+		<main_sound>./sound/enviro-forest02.ogg</main_sound>
+	</variant>
+	<distance>35</distance>
+	<stereo>1</stereo>
+	<positional>0</positional>
+	<loops>0</loops>
+	<fadeout_time>0</fadeout_time>
+	<echo_delay>0</echo_delay>
+	<echo_volume>0</echo_volume>
+	<time_of_day_flags>0x007e</time_of_day_flags>
+	<priority>8</priority>
+	<type>environmental</type>
+</sound>
+<sound name = "Forest04">
+	<variant>
+		<main_sound>./sound/enviro-forest04.ogg</main_sound>
+	</variant>
+	<distance>35</distance>
+	<stereo>1</stereo>
+	<positional>0</positional>
+	<loops>0</loops>
+	<fadeout_time>0</fadeout_time>
+	<echo_delay>0</echo_delay>
+	<echo_volume>0</echo_volume>
+	<time_of_day_flags>0x007e</time_of_day_flags>
+	<priority>8</priority>
+	<type>environmental</type>
+</sound>
+<sound name = "Meadow01">
+	<variant>
+		<main_sound>./sound/enviro-meadow01.ogg</main_sound>
+	</variant>
+	<distance>35</distance>
+	<stereo>1</stereo>
+	<positional>0</positional>
+	<loops>0</loops>
+	<fadeout_time>0</fadeout_time>
+	<echo_delay>0</echo_delay>
+	<echo_volume>0</echo_volume>
+	<time_of_day_flags>0x007e</time_of_day_flags>
+	<priority>8</priority>
+	<type>environmental</type>
+</sound>
+<sound name = "Desert01">
+	<variant>
+		<main_sound>./sound/enviro-desert01.ogg</main_sound>
+	</variant>
+	<distance>35</distance>
+	<stereo>1</stereo>
+	<positional>0</positional>
+	<loops>0</loops>
+	<fadeout_time>0</fadeout_time>
+	<echo_delay>0</echo_delay>
+	<echo_volume>0</echo_volume>
+	<time_of_day_flags>0xffff</time_of_day_flags>
+	<priority>8</priority>
+	<type>environmental</type>
+</sound>
+<sound name = "Swamp Day">
+	<variant>
+		<main_sound>./sound/enviro-swamp01.ogg</main_sound>
+	</variant>
+	<distance>35</distance>
+	<stereo>1</stereo>
+	<positional>0</positional>
+	<loops>0</loops>
+	<fadeout_time>0</fadeout_time>
+	<echo_delay>0</echo_delay>
+	<echo_volume>0</echo_volume>
+	<time_of_day_flags>0x007e</time_of_day_flags>
+	<priority>8</priority>
+	<type>environmental</type>
+</sound>
+<sound name = "Swamp Night">
+	<variant>
+		<main_sound>./sound/enviro-swamp02.ogg</main_sound>
+	</variant>
+	<distance>35</distance>
+	<stereo>1</stereo>
+	<positional>0</positional>
+	<loops>0</loops>
+	<fadeout_time>0</fadeout_time>
+	<echo_delay>0</echo_delay>
+	<echo_volume>0</echo_volume>
+	<time_of_day_flags>0x0f81</time_of_day_flags>
+	<priority>8</priority>
+	<type>environmental</type>
+</sound>
+<sound name = "Lake01">
+	<variant>
+		<main_sound>./sound/enviro-lake01.ogg</main_sound>
+	</variant>
+	<distance>35</distance>
+	<stereo>1</stereo>
+	<positional>0</positional>
+	<loops>0</loops>
+	<fadeout_time>0</fadeout_time>
+	<echo_delay>0</echo_delay>
+	<echo_volume>0</echo_volume>
+	<time_of_day_flags>0xffff</time_of_day_flags>
+	<priority>8</priority>
+	<type>environmental</type>
+</sound>
+<sound name = "Winter Wind">
+	<variant>
+		<main_sound>./sound/enviro-winter01.ogg</main_sound>
+	</variant>
+	<distance>35</distance>
+	<stereo>1</stereo>
+	<positional>0</positional>
+	<loops>0</loops>
+	<fadeout_time>0</fadeout_time>
+	<echo_delay>0</echo_delay>
+	<echo_volume>0</echo_volume>
+	<time_of_day_flags>0xffff</time_of_day_flags>
+	<priority>8</priority>
+	<type>environmental</type>
+</sound>	
+<sound name = "Wind01">
+	<variant>
+		<main_sound>./sound/wind01.ogg</main_sound>
+	</variant>
+	<distance>35</distance>
+	<stereo>1</stereo>
+	<positional>0</positional>
+	<loops>0</loops>
+	<fadeout_time>0</fadeout_time>
+	<echo_delay>0</echo_delay>
+	<echo_volume>0</echo_volume>
+	<time_of_day_flags>0xffff</time_of_day_flags>
+	<priority>8</priority>
+	<type>environmental</type>
+</sound>
+<sound name = "Wind02">
+	<variant>
+		<main_sound>./sound/wind02.ogg</main_sound>
+	</variant>
+	<distance>35</distance>
+	<stereo>1</stereo>
+	<positional>0</positional>
+	<loops>0</loops>
+	<fadeout_time>0</fadeout_time>
+	<echo_delay>0</echo_delay>
+	<echo_volume>0</echo_volume>
+	<time_of_day_flags>0xffff</time_of_day_flags>
+	<priority>8</priority>
+	<type>environmental</type>
+</sound>
+<sound name = "Waves01">
+	<variant>
+		<main_sound>./sound/waves01.ogg</main_sound>
+	</variant>
+	<distance>35</distance>
+	<stereo>1</stereo>
+	<positional>0</positional>
+	<loops>0</loops>
+	<fadeout_time>0</fadeout_time>
+	<echo_delay>0</echo_delay>
+	<echo_volume>0</echo_volume>
+	<time_of_day_flags>0xffff</time_of_day_flags>
+	<priority>8</priority>
+	<type>environmental</type>
+</sound>
+<sound name = "Waves02">
+	<variant>
+		<main_sound>./sound/waves02.ogg</main_sound>
+	</variant>
+	<distance>35</distance>
+	<stereo>1</stereo>
+	<positional>0</positional>
+	<loops>0</loops>
+	<fadeout_time>0</fadeout_time>
+	<echo_delay>0</echo_delay>
+	<echo_volume>0</echo_volume>
+	<time_of_day_flags>0xffff</time_of_day_flags>
+	<priority>8</priority>
+	<type>environmental</type>
+</sound>
+<sound name = "Water01">
+	<variant>
+		<main_sound>./sound/water01.ogg</main_sound>
+	</variant>
+	<distance>35</distance>
+	<stereo>1</stereo>
+	<positional>0</positional>
+	<loops>0</loops>
+	<fadeout_time>0</fadeout_time>
+	<echo_delay>0</echo_delay>
+	<echo_volume>0</echo_volume>
+	<time_of_day_flags>0xffff</time_of_day_flags>
+	<priority>8</priority>
+	<type>environmental</type>
+</sound>
+<sound name = "Water02">
+	<variant>
+		<main_sound>./sound/water02.ogg</main_sound>
+	</variant>
+	<distance>35</distance>
+	<stereo>1</stereo>
+	<positional>0</positional>
+	<loops>0</loops>
+	<fadeout_time>0</fadeout_time>
+	<echo_delay>0</echo_delay>
+	<echo_volume>0</echo_volume>
+	<time_of_day_flags>0xffff</time_of_day_flags>
+	<priority>8</priority>
+	<type>environmental</type>
+</sound>
+<sound name = "Water03">
+	<variant>
+		<main_sound>./sound/water03.ogg</main_sound>
+	</variant>
+	<distance>35</distance>
+	<stereo>1</stereo>
+	<positional>0</positional>
+	<loops>0</loops>
+	<fadeout_time>0</fadeout_time>
+	<echo_delay>0</echo_delay>
+	<echo_volume>0</echo_volume>
+	<time_of_day_flags>0xffff</time_of_day_flags>
+	<priority>8</priority>
+	<type>environmental</type>
+</sound>
+<sound name = "Cave Water">
+	<variant>
+		<main_sound>./sound/water04.ogg</main_sound>
+	</variant>
+	<distance>35</distance>
+	<stereo>1</stereo>
+	<positional>0</positional>
+	<loops>0</loops>
+	<fadeout_time>0</fadeout_time>
+	<echo_delay>0</echo_delay>
+	<echo_volume>0</echo_volume>
+	<time_of_day_flags>0xffff</time_of_day_flags>
+	<priority>8</priority>
+	<type>environmental</type>
+</sound>
+<!-- Other environmental sounds -->
+<sound name = "Rain">
+	<variant>
+		<main_sound>sound/rain01.ogg</main_sound>
+		<gain>1.5</gain>
+	</variant>		
+	<stereo>0</stereo>
+	<distance>35</distance>
+	<positional>0</positional>
+	<loops>0</loops>
+	<fadeout_time>0</fadeout_time>
+	<echo_delay>0</echo_delay>
+	<echo_volume>0</echo_volume>
+	<time_of_day_flags>0xffff</time_of_day_flags>
+	<priority>5</priority>
+	<type>environmental</type>
+</sound>
+<sound name = "Thunder1">
+	<variant>
+		<main_sound>sound/thunder1.ogg</main_sound>
+	</variant>
+	<stereo>1</stereo>
+	<distance>35</distance>
+	<positional>0</positional>
+	<loops>1</loops>
+	<fadeout_time>0</fadeout_time>
+	<echo_delay>0</echo_delay>
+	<echo_volume>0</echo_volume>
+	<time_of_day_flags>0xffff</time_of_day_flags>
+	<priority>5</priority>
+	<type>environmental</type>
+</sound>
+<sound name = "Thunder2">
+	<variant>
+		<main_sound>sound/thunder2.ogg</main_sound>
+	</variant>
+	<stereo>1</stereo>
+	<distance>35</distance>
+	<positional>0</positional>
+	<loops>1</loops>
+	<fadeout_time>0</fadeout_time>
+	<echo_delay>0</echo_delay>
+	<echo_volume>0</echo_volume>
+	<time_of_day_flags>0xffff</time_of_day_flags>
+	<priority>5</priority>
+	<type>environmental</type>
+</sound>
+<sound name = "Thunder3">
+	<variant>
+		<main_sound>sound/thunder3.ogg</main_sound>
+	</variant>
+	<stereo>1</stereo>
+	<distance>35</distance>
+	<positional>0</positional>
+	<loops>1</loops>
+	<fadeout_time>0</fadeout_time>
+	<echo_delay>0</echo_delay>
+	<echo_volume>0</echo_volume>
+	<time_of_day_flags>0xffff</time_of_day_flags>
+	<priority>5</priority>
+	<type>environmental</type>
+</sound>
+<sound name = "Thunder4">
+	<variant>
+		<main_sound>sound/thunder4.ogg</main_sound>
+	</variant>
+	<stereo>1</stereo>
+	<distance>35</distance>
+	<positional>0</positional>
+	<loops>1</loops>
+	<fadeout_time>0</fadeout_time>
+	<echo_delay>0</echo_delay>
+	<echo_volume>0</echo_volume>
+	<time_of_day_flags>0xffff</time_of_day_flags>
+	<priority>5</priority>
+	<type>environmental</type>
+</sound>
+<sound name = "Thunder5">
+	<variant>
+		<main_sound>sound/thunder5.ogg</main_sound>
+	</variant>
+	<stereo>1</stereo>
+	<distance>35</distance>
+	<positional>0</positional>
+	<loops>1</loops>
+	<fadeout_time>0</fadeout_time>
+	<echo_delay>0</echo_delay>
+	<echo_volume>0</echo_volume>
+	<time_of_day_flags>0xffff</time_of_day_flags>
+	<priority>5</priority>
+	<type>environmental</type>
+</sound>
+<sound name = "Thunder6">
+	<variant>
+		<main_sound>sound/thunder6.ogg</main_sound>
+	</variant>
+	<stereo>1</stereo>
+	<distance>35</distance>
+	<positional>0</positional>
+	<loops>1</loops>
+	<fadeout_time>0</fadeout_time>
+	<echo_delay>0</echo_delay>
+	<echo_volume>0</echo_volume>
+	<time_of_day_flags>0xffff</time_of_day_flags>
+	<priority>5</priority>
+	<type>environmental</type>
+</sound>
+<sound name = "Thunder7">
+	<variant>
+		<main_sound>sound/thunder7.ogg</main_sound>
+	</variant>
+	<stereo>1</stereo>
+	<distance>35</distance>
+	<positional>0</positional>
+	<loops>1</loops>
+	<fadeout_time>0</fadeout_time>
+	<echo_delay>0</echo_delay>
+	<echo_volume>0</echo_volume>
+	<time_of_day_flags>0xffff</time_of_day_flags>
+	<priority>5</priority>
+	<type>environmental</type>
+</sound>
+<!-- Crowd sounds -->
+<sound name = "Crowd01">
+	<variant>
+		<main_sound>sound/crowd01.ogg</main_sound>	
+		<gain>1.0</gain>
+	</variant>
+	<stereo>1</stereo>
+	<distance>35</distance>
+	<positional>0</positional>
+	<loops>0</loops>
+	<priority>3</priority>
+	<type>crowd</type>
+</sound>
+<sound name = "Mining Crowd">
+	<variant>
+		<main_sound>sound/crowd_mining01.ogg</main_sound>
+		<gain>1.0</gain>
+	</variant>
+	<stereo>1</stereo>
+	<distance>35</distance>
+	<positional>0</positional>
+	<loops>0</loops>
+	<priority>3</priority>
+	<type>crowd</type>
+</sound>
+<sound name = "Cavern Wall">
+	<variant>
+		<main_sound>./sound/cavern_wall.ogg</main_sound>
+	</variant>
+	<distance>35</distance>
+	<stereo>1</stereo>
+	<positional>0</positional>
+	<loops>1</loops>
+	<fadeout_time>0</fadeout_time>
+	<echo_delay>0</echo_delay>
+	<echo_volume>0</echo_volume>
+	<time_of_day_flags>0xffff</time_of_day_flags>
+	<priority>8</priority>
+	<type>environmental</type>
+</sound>

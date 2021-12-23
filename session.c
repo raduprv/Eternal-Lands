@@ -222,17 +222,14 @@ static void draw_session_line(window_info *win, int x, int y, const unsigned cha
 int display_session_handler(window_info *win)
 {
 	int i;
-	Uint32 timediff;
+	Uint32 timediff = 0;
 	unsigned char tot_buf[32];
 	unsigned char max_buf[32];
 	unsigned char last_buf[32];
 	unsigned char buffer[32];
-	float oa_exp;
+	Uint32 oa_exp = 0;
 	int x = x_border;
 	int y = y_offset;
-
-	timediff = 0;
-	oa_exp = 0.0f;
 
 	glColor3f(1.0f, 1.0f, 1.0f);
 	draw_session_line(win, x, y, skill_label, total_exp_label, max_exp_label, last_exp_label);
@@ -258,12 +255,21 @@ int display_session_handler(window_info *win)
 			elglColourN("global.mousehighlight");
 		else
 			glColor3f(1.0f, 1.0f, 1.0f);
-		safe_snprintf((char*)tot_buf, sizeof(tot_buf), "%u", *(statsinfo[i].exp) - session_exp[i]);
-		safe_snprintf((char*)max_buf, sizeof(tot_buf), "%u", max_exp[i]);
-		safe_snprintf((char*)last_buf, sizeof(tot_buf), "%u", last_exp[i]);
-		draw_session_line(win, x, y, statsinfo[i].skillnames->name, tot_buf, max_buf, last_buf);
+
+		if ((i == SI_ALL ) && (oa_exp > (*(statsinfo[i].exp) - session_exp[i])))
+		{
+			safe_snprintf((char*)tot_buf, sizeof(tot_buf), "%u", oa_exp);
+			draw_session_line(win, x, y, (const unsigned char *)totalxp_str, tot_buf, (const unsigned char *)"-", (const unsigned char *)"-");
+		}
+		else
+		{
+			safe_snprintf((char*)tot_buf, sizeof(tot_buf), "%u", *(statsinfo[i].exp) - session_exp[i]);
+			safe_snprintf((char*)max_buf, sizeof(tot_buf), "%u", max_exp[i]);
+			safe_snprintf((char*)last_buf, sizeof(tot_buf), "%u", last_exp[i]);
+			draw_session_line(win, x, y, statsinfo[i].skillnames->name, tot_buf, max_buf, last_buf);
+		}
 		y += y_step;
-		if(i < NUM_SKILLS-1)
+		if (i != SI_ALL )
 			oa_exp += *(statsinfo[i].exp) - session_exp[i];
 	}
 
@@ -283,7 +289,7 @@ int display_session_handler(window_info *win)
 	if(timediff<=0){
 		timediff=1;
 	}
-	safe_snprintf((char*)buffer, sizeof(buffer), "%2.2f", oa_exp/((float)timediff/60000.0f));
+	safe_snprintf((char*)buffer, sizeof(buffer), "%2.2f", (float)oa_exp/((float)timediff/60000.0f));
 	draw_string_small_zoomed(tot_exp_left, y, buffer, 1, win->current_scale);
 
 	y += y_step;

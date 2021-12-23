@@ -188,6 +188,7 @@ void kill_3d_object(int object_id)
 	objects_list[object_id]=0;//kill any refference to it*/
 	objects_list[object_id]->blended=20;
 	selected_3d_object=-1;//we have no selected object now...
+	ew_selected_object = -1; // Hide object info in edit window too
 }
 
 void move_3d_object(int object_id)
@@ -1556,11 +1557,7 @@ FILE *my_fopen (const char *fname, const char *mode)
 {
 	FILE *file = fopen (fname, mode);
 	if (file == NULL)
-	{
-		char str[256];
-		snprintf(str, sizeof (str), "%s: %s \"%s\"", reg_error_str, cant_open_file, fname);
-		LOG_ERROR(str);
-	}
+		LOG_ERROR("%s: %s \"%s\"", reg_error_str, cant_open_file, fname);
 	return file;
 }
 

@@ -34,7 +34,9 @@
 #include "sound.h"
 
 static queue_t *chan_name_queue;
-widget_list *input_widget = NULL;
+static widget_list *input_widget = NULL;
+int console_input_at_top = 0;
+static int input_widget_start_x = 1;
 
 /*!
  * \name Tabbed and old behaviour chat
@@ -116,6 +118,7 @@ void enable_chat_shown(void)
 			break;
 	}
 	set_icon_state("chat", (enable_chat_show_hide != 0));
+	update_console_input_size_and_position();
 }
 
 int is_chat_shown(void)
@@ -151,6 +154,7 @@ void toggle_chat(void)
 			chat_shown = get_window_showable(get_id_MW(MW_CHAT));
 			break;
 	}
+	update_console_input_size_and_position();
 }
 
 int get_tabbed_chat_end_x(void)
@@ -160,22 +164,42 @@ int get_tabbed_chat_end_x(void)
 	return windows_list.window[tab_bar_win].cur_x + windows_list.window[tab_bar_win].len_x;
 }
 
+static void common_non_windowed_move_input_widget(window_info *win)
+{
+	if ((win == NULL) || (input_widget == NULL))
+		return;
+
+	if (console_input_at_top)
+		widget_move(input_widget->window_id, input_widget->id, input_widget_start_x, get_tab_bar_y());
+	else
+		widget_move(input_widget->window_id, input_widget->id, input_widget_start_x, win->len_y - input_widget->len_y - HUD_MARGIN_Y);
+}
+
 void input_widget_move_to_win(int window_id)
 {
 	window_info *win = NULL;
-	if ((window_id >= 0) && (window_id < windows_list.num_windows))
-		win = &windows_list.window[window_id];
-	if ((input_widget == NULL) || (win == NULL))
+
+	if (input_widget == NULL)
 		return;
 
-	widget_move_win(input_widget->window_id, input_widget->id, window_id);
+	if (window_id < 0)
+		window_id = input_widget->window_id;
+
+	if ((window_id >= 0) && (window_id < windows_list.num_windows))
+		win = &windows_list.window[window_id];
+	if (win == NULL)
+		return;
+
+	if (input_widget->window_id != window_id)
+		widget_move_win(input_widget->window_id, input_widget->id, window_id);
+
 	if(window_id == get_id_MW(MW_CHAT)) {
 		widget_set_flags(input_widget->window_id, input_widget->id, TEXT_FIELD_BORDER|TEXT_FIELD_EDITABLE|TEXT_FIELD_NO_KEYPRESS);
 		input_widget->OnResize = NULL;
 		resize_chat_handler(win, win->len_x, win->len_y);
 	} else {
 		text_field *tf = input_widget->widget_info;
-		int text_height = get_text_height(tf->nr_lines, CHAT_FONT, input_widget->size);
+		int text_height = get_text_height(max2i(1, tf->nr_lines), CHAT_FONT, input_widget->size);
 		Uint32 flags;
 
 		input_widget->OnResize = input_field_resize;
@@ -188,10 +212,12 @@ void input_widget_move_to_win(int window_id)
 		} else {
 			flags = INPUT_DEFAULT_FLAGS;
 		}
+		if (console_input_at_top)
+			flags |= TEXT_FIELD_BORDER;
 		widget_set_flags(input_widget->window_id, input_widget->id, flags);
+		tf->x_space = tf->y_space = INPUT_MARGIN * font_scales[CHAT_FONT];
 		widget_resize(input_widget->window_id, input_widget->id,
-			win->len_x - HUD_MARGIN_X, 2 * tf->y_space + text_height);
-		widget_move(input_widget->window_id, input_widget->id, 0, win->len_y-input_widget->len_y-HUD_MARGIN_Y);
+			win->len_x - HUD_MARGIN_X - input_widget_start_x, 2 * tf->y_space + text_height);
 	}
 }
 
@@ -287,13 +313,10 @@ void set_active_channels (Uint8 active, const Uint32 *channels, int nchan)
 
 static void send_active_channel (Uint8 chan)
 {
-	Uint8 msg[2];
-
 	if (chan >= CHAT_CHANNEL1 && chan <= CHAT_CHANNEL3)
 	{
-		msg[0] = SET_ACTIVE_CHANNEL;
-		msg[1] = chan;
-		my_tcp_send (my_socket, msg, 2);
+		Uint8 msg[2] = { SET_ACTIVE_CHANNEL, chan };
+		my_tcp_send(msg, 2);
 
 		current_channel = chan - CHAT_CHANNEL1;
 	}
@@ -384,15 +407,7 @@ void clear_input_line(void)
 		field->cursor = 0;
 		field->cursor_line = 0;
 		field->nr_lines = 1;
-		if (use_windowed_chat != 2)
-		{
-			int line_height = get_line_height(CHAT_FONT, input_widget->size);
-			widget_resize(input_widget->window_id, input_widget->id,
-				input_widget->len_x, 2*field->y_space + line_height);
-		}
-		/* Hide the game win input widget */
-		if(input_widget->window_id == game_root_win)
-			widget_set_flags(game_root_win, input_widget->id, INPUT_DEFAULT_FLAGS|WIDGET_DISABLED);
+		input_widget_move_to_win(-1);
 	}
 	history_reset();
 }
@@ -412,7 +427,7 @@ static int close_channel (window_info *win)
 			{
 				char str[256];
 				safe_snprintf(str, sizeof(str), "%c#lc %d", RAW_TEXT, active_channels[idx]);
-				my_tcp_send(my_socket, (Uint8*)str, strlen(str+1)+1);
+				my_tcp_send((Uint8*)str, strlen(str+1)+1);
 			}
 
 			// Safe to remove?
@@ -652,8 +667,7 @@ static int display_chat_handler (window_info *win)
 		text_changed = 0;
 	}
 
-	if ((input_widget!= NULL) && (input_widget->window_id != win->window_id))
-		input_widget_move_to_win(win->window_id);
+	check_and_get_console_input(win->window_id);
 
 	return 1;
 }
@@ -825,7 +839,7 @@ static int chat_scroll_click (widget_list *widget, int mx, int my, Uint32 flags)
         return 0;
 }
 
-int chat_input_key (widget_list *widget, int mx, int my, SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_mod)
+static int chat_input_key (widget_list *widget, int mx, int my, SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_mod)
 {
 	text_field *tf;
 	text_message *msg;
@@ -1040,6 +1054,8 @@ int root_key_to_input_field (SDL_Keycode key_code, Uint32 key_unicode, Uint16 ke
 		input_widget->Flags &= ~TEXT_FIELD_NO_KEYPRESS;
 		text_field_keypress (input_widget, 0, 0, key_code, key_unicode, key_mod);
 		input_widget->Flags |= TEXT_FIELD_NO_KEYPRESS;
+		if (input_text_line.len == 0)
+			clear_input_line();
 	}
 	else if (KEY_DEF_CMP(K_TABCOMPLETE, key_code, key_mod) && input_text_line.len > 0)
 	{
@@ -1065,7 +1081,7 @@ int root_key_to_input_field (SDL_Keycode key_code, Uint32 key_unicode, Uint16 ke
 	{
 		/* Resize the input widget if needed */
 		widget_resize(input_widget->window_id, input_widget->id,
-			input_widget->len_x, tf->y_space*2 + get_text_height(tf->nr_lines, CHAT_FONT, 1.0));
+			input_widget->len_x, tf->y_space*2 + get_text_height(max2i(1, tf->nr_lines), CHAT_FONT, 1.0));
 	}
 	while(tf->buffer->data[tf->cursor] == '\r' && tf->cursor < tf->buffer->len)
 	{
@@ -1097,7 +1113,7 @@ void paste_in_input_field (const Uint8 *text)
 	if (use_windowed_chat != 2)
 	{
 		widget_resize(input_widget->window_id, input_widget->id,
-			input_widget->len_x, tf->y_space*2 + get_text_height(tf->nr_lines, CHAT_FONT, 1.0));
+			input_widget->len_x, tf->y_space*2 + get_text_height(max2i(1, tf->nr_lines), CHAT_FONT, 1.0));
 	}
 }
 
@@ -1115,7 +1131,7 @@ void put_string_in_input_field(const Uint8 *text)
 		if (use_windowed_chat != 2)
 		{
 			widget_resize(input_widget->window_id, input_widget->id,
-				input_widget->len_x, tf->y_space*2 + get_text_height(tf->nr_lines, CHAT_FONT, 1.0));
+				input_widget->len_x, tf->y_space*2 + get_text_height(max2i(1, tf->nr_lines), CHAT_FONT, 1.0));
 		}
 		if(input_widget->window_id == game_root_win) {
 			widget_unset_flags (input_widget->window_id, input_widget->id, WIDGET_DISABLED);
@@ -1132,10 +1148,8 @@ static int close_chat_handler (window_info *win)
 		return 1;
 	}
 
-	// revert to using the tab bar
-	// call the config function to make sure it's done properly
-	change_windowed_chat(&use_windowed_chat, 1);
-	set_var_unsaved("windowed_chat", INI_FILE_VAR);
+	// revert to using the tab bar, new state will be saved
+	set_multiselect_var("windowed_chat", 1, 1);
 
 	return 1;
 }
@@ -1202,7 +1216,7 @@ static void create_chat_window(void)
 	widget_set_OnDrag (chat_win, chat_scroll_id, chat_scroll_drag);
 	widget_set_OnClick (chat_win, chat_scroll_id, chat_scroll_click);
 
-	chat_tabcollection_id = tab_collection_add_extended (chat_win, chat_tabcollection_id, NULL, CHAT_WIN_SPACE, CHAT_WIN_SPACE, inout_width, tabcol_height, 0, DEFAULT_SMALL_RATIO, MAX_CHAT_TABS);
+	chat_tabcollection_id = tab_collection_add_extended (chat_win, chat_tabcollection_id, NULL, CHAT_WIN_SPACE, CHAT_WIN_SPACE, inout_width, tabcol_height, 0, DEFAULT_SMALL_RATIO, MAX_CHAT_TABS, 0);
 	widget_set_OnClick (chat_win, chat_tabcollection_id, chat_tabs_click);
 
 	channels[0].tab_id = tab_add (chat_win, chat_tabcollection_id, (tab_label(CHAT_ALL))->name, 0, 0, 0);
@@ -1249,6 +1263,7 @@ void display_chat(void)
 		select_window (chat_win);
 	}
 	update_chat_win_buffers();
+	update_console_input_size_and_position();
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -1363,7 +1378,7 @@ void init_channel_names(void)
 	if (doc == NULL ) {
 		doc = xmlParseFile("languages/en/strings/channels.xml");
 		if (doc == NULL) { //darn, don't have that either?
-			LOG_ERROR (using_builtin_chanlist);
+			LOG_ERROR ("%s", using_builtin_chanlist);
 			generic_chans();
 			return;
 		}
@@ -1375,7 +1390,7 @@ void init_channel_names(void)
 	cur = xmlDocGetRootElement (doc);
 	if (cur == NULL) {
 		// Use generics. Defaulting to english, then using the fallbacks makes obfuscated, messy code.
-		LOG_ERROR (using_builtin_chanlist);
+		LOG_ERROR ("%s", using_builtin_chanlist);
 		generic_chans();
 		xmlFreeDoc(doc);
 		return;
@@ -1400,12 +1415,12 @@ void init_channel_names(void)
 			// Get the name.
 			attrib = xmlGetProp (cur, (xmlChar*)"name");
 			if (attrib == NULL) {
-				LOG_ERROR (xml_bad_node);
+				LOG_ERROR ("%s", xml_bad_node);
 				xmlFree (attrib);
 				continue;
 			}
 			if (xmlStrlen(attrib) < 1) {
-				LOG_ERROR (xml_bad_node);
+				LOG_ERROR ("%s", xml_bad_node);
 				xmlFree (attrib);
 				continue;
 			}
@@ -1415,12 +1430,12 @@ void init_channel_names(void)
 			// Get the index number
 			attrib = xmlGetProp (cur, (xmlChar*)"index");
 			if (attrib == NULL) {
-				LOG_ERROR (xml_bad_node);
+				LOG_ERROR ("%s", xml_bad_node);
 				xmlFree (attrib);
 				continue;
 			}
 			if (xmlStrlen(attrib) < 1) {
-				LOG_ERROR (xml_bad_node);
+				LOG_ERROR ("%s", xml_bad_node);
 				xmlFree (attrib);
 				continue;
 			}
@@ -1430,7 +1445,7 @@ void init_channel_names(void)
 			// Get the description.
 			if ((cur->children == NULL) || (strlen ((char*)cur->children->content) < 1)) {
 				free (channelname);
-				LOG_ERROR (xml_bad_node);
+				LOG_ERROR ("%s", xml_bad_node);
 				continue;
 			}
 			attrib = cur->children->content;
@@ -1444,12 +1459,12 @@ void init_channel_names(void)
 			// Get the channel.
 			attrib = xmlGetProp (cur, (xmlChar*)"number");
 			if (attrib == NULL){
-				LOG_ERROR (xml_bad_node);
+				LOG_ERROR ("%s", xml_bad_node);
 				xmlFree (attrib);
 				continue;
 			}
 			if (xmlStrlen(attrib) < 1){
-				LOG_ERROR (xml_bad_node);
+				LOG_ERROR ("%s", xml_bad_node);
 				xmlFree (attrib);
 				continue;
 			}
@@ -1459,12 +1474,12 @@ void init_channel_names(void)
 			// Get the name.
 			attrib = xmlGetProp (cur, (xmlChar*)"name");
 			if (attrib == NULL){
-				LOG_ERROR (xml_bad_node);
+				LOG_ERROR ("%s", xml_bad_node);
 				xmlFree (attrib);
 				continue;
 			}
 			if (xmlStrlen(attrib) < 1){
-				LOG_ERROR (xml_bad_node);
+				LOG_ERROR ("%s", xml_bad_node);
 				xmlFree (attrib);
 				continue;
 			}
@@ -1474,11 +1489,11 @@ void init_channel_names(void)
 			// Get the description.
 			if (cur->children == NULL) {
 				free (channelname);
-				LOG_ERROR (xml_bad_node);
+				LOG_ERROR ("%s", xml_bad_node);
 				continue;
 			} else if (strlen ((char*)cur->children->content) < 1) {
 				free (channelname);
-				LOG_ERROR (xml_bad_node);
+				LOG_ERROR ("%s", xml_bad_node);
 				continue;
 			}
 			attrib = cur->children->content;
@@ -1495,7 +1510,7 @@ void init_channel_names(void)
 	}
 	if(queue_isempty(chan_name_queue)) {
 		//how did we not get any channels from it?
-		LOG_ERROR(using_builtin_chanlist);
+		LOG_ERROR("%s", using_builtin_chanlist);
 		generic_chans();
 	}
 	xmlFreeDoc(doc);
@@ -1662,7 +1677,7 @@ static int tab_bar_button_click (widget_list *w, int mx, int my, Uint32 flags)
 			{
 				// Drop this channel via #lc
 				safe_snprintf(str, sizeof(str), "%c#lc %d", RAW_TEXT, active_channels[tabs[itab].channel-CHAT_CHANNEL1]);
-				my_tcp_send(my_socket, (Uint8*)str, strlen(str+1)+1);
+				my_tcp_send((Uint8*)str, strlen(str+1)+1);
 				// Can I remove this?
 				remove_tab(tabs[itab].channel);
 				if(current_tab == itab) {
@@ -2207,6 +2222,7 @@ void display_tab_bar(void)
 		show_window (tab_bar_win);
 		select_window (tab_bar_win);
 	}
+	update_console_input_size_and_position();
 }
 
 static void change_to_current_tab(const char *input)
@@ -2759,9 +2775,9 @@ int get_tab_bar_x(void)
 
 int get_tab_bar_y(void)
 {
-	if (use_windowed_chat == 1 && tab_bar_win >= 0 && tab_bar_win < windows_list.num_windows)
+	if (use_windowed_chat == 1 && tab_bar_win >= 0 && tab_bar_win < windows_list.num_windows && chat_shown)
 		return 4 + windows_list.window[tab_bar_win].pos_y + windows_list.window[tab_bar_win].len_y;
-	return 20;
+	return 1;
 }
 
 void next_channel_tab(void)
@@ -2957,7 +2973,140 @@ void change_to_channel_tab(const char *line)
 	}
 }
 
-int get_input_height()
+/*
+ * Consolidate all the input widget usage into functions here.
+*/
+
+int get_input_default_height(void)
 {
-	return get_line_height(CHAT_FONT, 1.0) + 2*INPUT_MARGIN;
+	return get_line_height(CHAT_FONT, 1.0) + 2 * INPUT_MARGIN;
+}
+
+int get_input_at_top_height(void)
+{
+	if (console_input_at_top && (input_widget != NULL))
+		return input_widget->len_y;
+	else
+		return 0;
+}
+
+int get_input_at_bottom_height(void)
+{
+	if (!console_input_at_top && (input_widget != NULL))
+		return input_widget->len_y;
+	else
+		return 0;
+}
+
+void show_console_input(void)
+{
+	if (input_widget != NULL)
+		widget_unset_flags (input_widget->window_id, input_widget->id, WIDGET_INVISIBLE);
+}
+
+void check_owned_and_show_console_input(int window_id)
+{
+	// moved from gamewin text_input_handler() during tidy up
+	if(input_widget != NULL)
+	{
+		text_field *tf = input_widget->widget_info;
+		tf->cursor = tf->buffer->len;
+		if(input_widget->window_id == window_id)
+			widget_unset_flags (input_widget->window_id, input_widget->id, WIDGET_DISABLED);
+	}
+}
+
+int get_console_input_cursor(void)
+{
+	if ((input_widget != NULL) && (input_widget->widget_info != NULL))
+	{
+		text_field *tf = input_widget->widget_info;
+		return tf->cursor;
+	}
+	else
+		return 0;
+}
+
+void set_console_input_cursor(int new_value)
+{
+	if ((input_widget != NULL) && (input_widget->widget_info != NULL))
+	{
+		text_field *tf = input_widget->widget_info;
+		tf->cursor = new_value;
+	}
+}
+
+void update_console_input_zoom(void)
+{
+	// Original comment FIXME?
+	// Called from change_chat_zoom() moved here while tidying up
+	if (input_widget != NULL)
+	{
+		text_field *tf= input_widget->widget_info;
+		if (use_windowed_chat != 2)
+		{
+			int text_height = get_text_height(max2i(1, tf->nr_lines), CHAT_FONT, input_widget->size);
+			tf->x_space = tf->y_space = INPUT_MARGIN * font_scales[CHAT_FONT];
+			widget_resize(input_widget->window_id, input_widget->id,
+				input_widget->len_x, tf->y_space * 2 + text_height);
+		}
+	}
+}
+
+void update_console_input_size_and_position(void)
+{
+	if (input_widget != NULL)
+		input_widget_move_to_win(input_widget->window_id);
+}
+
+void check_and_get_console_input(int window_id)
+{
+	if ((input_widget != NULL) && (input_widget->window_id != window_id))
+		input_widget_move_to_win(window_id);
+}
+
+void move_console_input_on_input_resize(void)
+{
+	if ((input_widget != NULL) && ((use_windowed_chat != 2) || !get_show_window(get_id_MW(MW_CHAT))))
+		if ((input_widget->window_id >= 0) && (input_widget->window_id < windows_list.num_windows))
+			common_non_windowed_move_input_widget(&windows_list.window[input_widget->window_id]);
+}
+
+int have_console_input(void)
+{
+	return (input_widget != NULL);
+}
+
+void create_console_input(int window_id, int widget_id, int pos_x, int pos_y, int len_x, int len_y, Uint32 flags)
+{
+	Uint32 id;
+
+	if (console_input_at_top)
+	{
+		pos_y = get_tab_bar_y();
+		flags |= TEXT_FIELD_BORDER;
+	}
+
+	id = text_field_add_extended(window_id, widget_id, NULL,
+		pos_x, pos_y, len_x, len_y, flags,
+		CHAT_FONT, 1.0, &input_text_line, 1, FILTER_ALL, INPUT_MARGIN * font_scales[CHAT_FONT], INPUT_MARGIN * font_scales[CHAT_FONT]);
+
+	input_widget = widget_find(window_id, id);
+	input_widget->OnResize = input_field_resize;
+
+	input_widget_move_to_win(window_id);
+}
+
+void set_console_input_onkey(void)
+{
+	if (input_widget == NULL)
+		return;
+	widget_set_OnKey(input_widget->window_id, input_widget->id, (int (*)())chat_input_key);
+	if (input_text_line.len > 0)
+		widget_unset_flags(input_widget->window_id, input_widget->id, WIDGET_DISABLED);
+}
+
+int console_input_active_at_top(void)
+{
+	return (console_input_at_top && (input_widget != NULL) && (input_text_line.len > 0) && (use_windowed_chat != 2));
 }

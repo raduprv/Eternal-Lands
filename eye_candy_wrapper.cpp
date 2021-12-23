@@ -21,6 +21,7 @@
 #include "missiles.h"
 #endif
 #include "particles.h"
+#include "platform.h"
 #include "shadows.h"
 #ifndef MAP_EDITOR
 #include "skeletons.h"
@@ -356,7 +357,7 @@ extern "C" void ec_idle()
 
 	const std::vector<std::string> ec_errors = ec::logger.fetch();
 	for (const auto& error: ec_errors)
-		LOG_ERROR(error.c_str());
+		LOG_ERROR("%s", error.c_str());
 
 	if (ec::get_error_status())
 	{
@@ -649,7 +650,7 @@ extern "C" void ec_destroy_all_effects()
 		ec_idle();
 	}
 	if (!references.empty()) // unlikely to happen but just so we don't get stick on exit.
-		LOG_ERROR("%s: failed to clear up. references.size()=%lu", __PRETTY_FUNCTION__, references.size());
+		LOG_ERROR("%s: failed to clear up. references.size()=%" PRI_SIZET, __PRETTY_FUNCTION__, references.size());
 #ifndef MAP_EDITOR
 	delete self_actor.obstruction;
 #endif

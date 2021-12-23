@@ -250,7 +250,7 @@ void move_to_category(int cat)
 	str[0]=GET_STORAGE_CATEGORY;
 	*((Uint8 *)(str+1))=storage_categories[cat].id;
 
-	my_tcp_send(my_socket, str, 2);
+	my_tcp_send(str, 2);
 }
 
 static int item_cmp(const void *a, const void *b)
@@ -522,8 +522,8 @@ int storage_item_dragged=-1;
 
 static int post_display_storage_handler(window_info * win)
 {
-	if (cur_item_over !=- 1 && mouse_in_window(win->window_id, mouse_x, mouse_y) == 1
-		&& active_storage_item != storage_items[cur_item_over].pos)
+	if ((cur_item_over !=- 1) && (mouse_in_window(win->window_id, mouse_x, mouse_y) == 1) &&
+		(active_storage_item != storage_items[cur_item_over].pos)  && (storage_items[cur_item_over].quantity > 0))
 	{
 		float zoom = enlarge_text() ? win->current_scale : win->current_scale_small;
 		float line_height = enlarge_text() ? win->default_font_len_y : win->small_font_len_y;
@@ -738,7 +738,7 @@ int click_storage_handler(window_info * win, int mx, int my, Uint32 flags)
 					str[1]=item_list[item_dragged].pos;
 					*((Uint32*)(str+2))=SDL_SwapLE32(item_quantity);
 
-					my_tcp_send(my_socket, str, 6);
+					my_tcp_send(str, 6);
 					do_drop_item_sound();
 
 					if(item_list[item_dragged].quantity<=item_quantity) item_dragged=-1;//Stop dragging this item...
@@ -752,7 +752,7 @@ int click_storage_handler(window_info * win, int mx, int my, Uint32 flags)
 						str[0]=LOOK_AT_STORAGE_ITEM;
 						*((Uint16*)(str+1))=SDL_SwapLE16(storage_items[cur_item_over].pos);
 
-						my_tcp_send(my_socket, str, 3);
+						my_tcp_send(str, 3);
 
 						active_storage_item=storage_items[cur_item_over].pos;
 						do_click_sound();
@@ -861,7 +861,7 @@ void print_items(void)
 			number_to_print++;
 			str[0]=LOOK_AT_STORAGE_ITEM;
 			*((Uint16*)(str+1))=SDL_SwapLE16(storage_items[i].pos);
-			my_tcp_send(my_socket, str, 3);
+			my_tcp_send(str, 3);
 		}
 	}
 }
@@ -932,6 +932,7 @@ void display_storage_menu()
 		vscrollbar_set_pos(storage_win, STORAGE_SCROLLBAR_ITEMS, 0);
 	}
 
+	cur_item_over = -1;
 	storage_text[0] = '\0';
 	set_window_name("", "");
 

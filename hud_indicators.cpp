@@ -19,6 +19,7 @@
 #include "asc.h"
 #include "chat.h"
 #include "context_menu.h"
+#include "console.h"
 #include "counters.h"
 #include "errors.h"
 #include "font.h"
@@ -47,22 +48,17 @@ namespace Indicators
 			static float zoom(void) { return scale; }
 			static int space(void) { return (int)(0.5 + scale * 5); }
 			static int border(void) { return (int)(0.5 + scale * 2); }
-			static float font_x(void)
-			{
-				return FontManager::get_instance()
-					.max_width_spacing(FontManager::Category::UI_FONT);
-			}
-			static float font_y(void)
-			{
-				return FontManager::get_instance().line_height(FontManager::Category::UI_FONT);
-			}
+			static float font_x(void) { return FontManager::get_instance().max_width_spacing(font_cat); }
+			static float font_y(void) { return FontManager::get_instance().line_height(font_cat); }
 			static int y_len(void) { return static_cast<int>(border() + zoom() * font_y() + 0.5); }
 			static void set_scale(float new_scale) { scale = new_scale; }
+			static FontManager::Category const font_cat;
 		private:
 			static float scale;
 	};
 
 	float Vars::scale = 1.0;
+	FontManager::Category const Vars::font_cat = FontManager::Category::UI_FONT;
 
 	//	A class to hold the state for an individual, basic indicator.
 	//	Has a simple on / of state and no action.
@@ -79,7 +75,8 @@ namespace Indicators
 			virtual void set_active(bool new_active) { is_active = (new_active) ?1 :0; }
 			virtual bool not_active(void) const { return (is_active==0); }
 			virtual void set_over(void) { mouse_over = true; }
-			virtual int get_width(void) const { return indicator_text.size() * static_cast<int>(Vars::font_x() * Vars::zoom()); }
+			virtual int get_width(void) const { return indicator_width; }
+			virtual void ui_scale(void);
 			virtual ~Basic_Indicator(void) {}
 		protected:
 			std::string on_tooltip;
@@ -92,6 +89,7 @@ namespace Indicators
 			std::string context_menu_str;
 			int is_active;
 			bool mouse_over;
+			int indicator_width;
 	};
 
 
@@ -135,7 +133,7 @@ namespace Indicators
 				: indicators_win(-1), cm_menu_id(CM_INIT_VALUE),
 					cm_relocatable(0), x_len(0), y_len(0), default_location(true),
 					option_settings(0), position_settings(0), have_settings(false),
-					background_on(0), border_on(0) {}
+					background_on(0), border_on(0), no_indicators_str_width(0) {}
 			void init(void);
 			void destroy(void);
 			void show(void) { if (indicators_win >= 0) show_window (indicators_win); }
@@ -151,7 +149,7 @@ namespace Indicators
 			void read_settings(const char *dict_name);
 			void write_settings(const char *dict_name) const;
 #endif
-			void ui_scale_handler(window_info *win) { x_len = 0; y_len = 0; Vars::set_scale(win->current_scale); }
+			void ui_scale_handler(window_info *win);
 			int get_default_width(void);
 		private:
 			void set_win_flag(Uint32 flag, int state);
@@ -169,6 +167,7 @@ namespace Indicators
 			bool have_settings;
 			int background_on;
 			int border_on;
+			int no_indicators_str_width;
 			std::vector<Basic_Indicator *>::iterator get_over(int mx);
 			std::pair<int,int> get_default_location(void);
 			void change_width(int new_x_len);
@@ -181,7 +180,7 @@ namespace Indicators
 	//
 	Basic_Indicator::Basic_Indicator(const char *the_strings, int (*ctrl)(void), int (*unavailable)(void), int no)
 		: on_tooltip("Unset"), off_tooltip("Unset"), unavailable_tooltip("Unset"), cntr_func(ctrl), unavailable_func(unavailable),
-			indicator_text("*"), is_active(1), mouse_over(false)
+			indicator_text("*"), is_active(1), mouse_over(false), indicator_width(0)
 	{
 		if (the_strings)
 		{
@@ -234,6 +233,14 @@ namespace Indicators
 			tooltip = unavailable_tooltip;
 		else
 			tooltip = ((cntr_func && cntr_func()) ?on_tooltip : off_tooltip);
+	}
+
+	//	Respond to scale or font changes
+	//
+	void Basic_Indicator::ui_scale(void)
+	{
+		indicator_width = FontManager::get_instance().line_width(Vars::font_cat,
+			reinterpret_cast<const unsigned char*>(indicator_text.c_str()), indicator_text.size(), Vars::zoom());
 	}
 
 	//	If an action string is defined, execute using the standard command line parser.
@@ -310,13 +317,15 @@ namespace Indicators
 
 		if (indicators.empty())
 		{
-			indicators.reserve(6);
+			indicators.reserve(7);
 			indicators.push_back(new Parse_Action_Indicator(day_indicator_str, today_is_special_day, 0, indicators.size(), "#day"));
 			indicators.push_back(new Basic_Indicator(harvest_indicator_str, now_harvesting, 0, indicators.size()));
 			indicators.push_back(new Basic_Indicator(poison_indicator_str, we_are_poisoned, 0, indicators.size()));
 			indicators.push_back(new Value_Indicator(messages_indicator_str, get_seen_pm_count, 0, indicators.size(), clear_seen_pm_count));
 			indicators.push_back(new Parse_Action_Indicator(ranginglock_indicator_str, ranging_lock_is_on, 0, indicators.size(), "#keypress #K_RANGINGLOCK"));
 			indicators.push_back(new Parse_Action_Indicator(glowperk_indicator_str, glow_perk_is_active, glow_perk_is_unavailable, indicators.size(), "#glow"));
+			std::string summon_attach_command = "#" +  std::string(cmd_summon_attack);
+			indicators.push_back(new Parse_Action_Indicator(summon_attack_indicator_str, summon_attack_is_active, summon_attack_is_unknown, indicators.size(), summon_attach_command.c_str()));
 		}
 
 		x_len = static_cast<int>(Vars::font_x() * indicators.size() * Vars::zoom() +
@@ -363,6 +372,7 @@ namespace Indicators
 			set_window_handler(indicators_win, ELW_HANDLER_MOUSEOVER, (int (*)())&mouseover_indicators_handler);
 			set_window_handler(indicators_win, ELW_HANDLER_CLICK, (int (*)())&click_indicators_handler);
 			set_window_handler(indicators_win, ELW_HANDLER_UI_SCALE, (int (*)())&ui_scale_indicators_handler);
+			set_window_handler(indicators_win, ELW_HANDLER_FONT_CHANGE, (int (*)())&ui_scale_indicators_handler);
 			ui_scale_indicators_handler(&windows_list.window[indicators_win]);
 
 			background_on = ((option_settings >> 25) & 1);
@@ -381,9 +391,7 @@ namespace Indicators
 			cm_menu << cm_indicators_str;
 			for (i=indicators.begin(); i<indicators.end(); ++i)
 				cm_menu << (*i)->get_context_menu_str() << std::endl;
-			cm_menu_id = cm_create(cm_title_menu_str, NULL);
-			cm_bool_line(cm_menu_id, 1, &windows_list.window[indicators_win].opaque, NULL);
-			cm_bool_line(cm_menu_id, 2, &windows_on_top, "windows_on_top");
+			cm_menu_id = cm_title_create_menu(&windows_list.window[indicators_win], cm_title_menu_str, NULL);
 			cm_add(cm_menu_id, cm_menu.str().c_str(), cm_indicators_handler);
 			cm_bool_line(cm_menu_id, CMHI_RELOC, &cm_relocatable, 0);
 			cm_bool_line(cm_menu_id, CMHI_BACKGROUND, &background_on, 0);
@@ -446,7 +454,7 @@ namespace Indicators
 		{
 			glColor3fv(gui_dull_color);
 			draw_string_zoomed(pos_x, Vars::border(), (const unsigned char *)no_indicators_str, 1, Vars::zoom());
-			pos_x += static_cast<int>(strlen(no_indicators_str) * Vars::zoom() * Vars::font_x() + 0.5);
+			pos_x += no_indicators_str_width;
 		}
 		change_width(pos_x + Vars::border());
 	}
@@ -587,6 +595,19 @@ namespace Indicators
 				return 0;
 		}
 		return 1;
+	}
+
+
+	// Respond to scale or font changes
+	//
+	void Indicators_Container::ui_scale_handler(window_info *win)
+	{
+		x_len = y_len = 0;
+		Vars::set_scale(win->current_scale);
+		no_indicators_str_width = FontManager::get_instance().line_width(Vars::font_cat,
+			reinterpret_cast<const unsigned char*>(no_indicators_str), strlen(no_indicators_str), Vars::zoom());
+		for (auto iter: indicators)
+			iter->ui_scale();
 	}
 
 

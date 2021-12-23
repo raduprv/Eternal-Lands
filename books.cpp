@@ -1123,7 +1123,7 @@ void BookCollection::request_server_page(int id, int page)
 		static_cast<unsigned char>((id >> 8) & 0xff),
 		static_cast<unsigned char>(page & 0xff),
 		static_cast<unsigned char>((page >> 8) & 0xff) };
-	my_tcp_send(my_socket, msg, 5);
+	my_tcp_send(msg, 5);
 }
 
 void BookCollection::open_book(int id)

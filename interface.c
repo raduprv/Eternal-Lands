@@ -642,10 +642,11 @@ int switch_to_game_map(void)
 
 	map_font_scale_fac = get_global_scale();
 	// Set screen coordinates of the edges of the map
-	size = min2i(4*(window_width-hud_x)/5, window_height-hud_y);
-	small_map_screen_x_left = (window_width - hud_x - 5*size/4) / 2;
+	// Don't use hud_[xy] here, otherwise the tab map will shift under the GUI buttons in F6 mode.
+	size = min2i(4*(window_width-HUD_MARGIN_X)/5, window_height-HUD_MARGIN_Y);
+	small_map_screen_x_left = (window_width - HUD_MARGIN_X - 5*size/4) / 2;
 	small_map_screen_x_right = small_map_screen_x_left + size/4;
-	small_map_screen_y_top = (window_height - hud_y - size) / 2;
+	small_map_screen_y_top = (window_height - HUD_MARGIN_Y - size) / 2;
 	small_map_screen_y_bottom = small_map_screen_y_top + size/4;
 	main_map_screen_x_left = small_map_screen_x_right;
 	main_map_screen_x_right = main_map_screen_x_left + size;
@@ -659,11 +660,12 @@ static void draw_mark_filter(void)
 {
 	int x = small_map_screen_x_left + (small_map_screen_x_right - small_map_screen_x_left) / 2;
 	int h = small_map_screen_y_bottom - small_map_screen_y_top, y = main_map_screen_y_bottom - h;
+	int text_height = get_line_height(UI_FONT, map_font_scale_fac);
 
 	// display the Mark filter title
 	glColor3f(1.0f,1.0f,0.0f);
-	draw_text(x, (int)(y+0.44*h), (const unsigned char*)label_mark_filter, strlen(label_mark_filter),
-		MAPMARK_FONT, TDO_ALIGNMENT, CENTER, TDO_ZOOM, map_font_scale_fac, TDO_END);
+	draw_text(x, (int)(y + (h - text_height) / 2), (const unsigned char*)label_mark_filter, strlen(label_mark_filter),
+		UI_FONT, TDO_ALIGNMENT, CENTER, TDO_ZOOM, map_font_scale_fac, TDO_END);
 
 	// if filtering marks, display the label and the current filter text
 	if (mark_filter_active) {
@@ -675,8 +677,8 @@ static void draw_mark_filter(void)
 			show_mark_filter_text = "_";
 		else
 		  show_mark_filter_text = mark_filter_text;
-		draw_text(x, (int)(y+0.58*h), (const unsigned char*)show_mark_filter_text,
-			strlen(show_mark_filter_text), MAPMARK_FONT, TDO_ALIGNMENT, CENTER,
+		draw_text(x, (int)(y + (h + text_height) / 2), (const unsigned char*)show_mark_filter_text,
+			strlen(show_mark_filter_text), UI_FONT, TDO_ALIGNMENT, CENTER,
 			TDO_ZOOM, map_font_scale_fac, TDO_END);
 	}
 	// display which key to activate the filter
@@ -684,7 +686,7 @@ static void draw_mark_filter(void)
 	{
 		char buf[20];
 		get_key_string(K_MARKFILTER, buf, sizeof(buf));
-		draw_text(x, (int)(y+0.58*h), (const unsigned char *)buf, strlen(buf), MAPMARK_FONT,
+		draw_text(x, (int)(y + (h + text_height) / 2), (const unsigned char *)buf, strlen(buf), UI_FONT,
 			TDO_ALIGNMENT, CENTER, TDO_ZOOM, map_font_scale_fac, TDO_END);
 	}
 }
@@ -703,25 +705,25 @@ static void draw_marks(marking *the_marks, int the_max_mark, int the_tile_map_si
 	 {
 		int x = the_marks[i].x;
 		int y = the_marks[i].y;
-		if ( x > 0 ) {
+		if ( x >= 0 ) {
 
 			// if filtering marks, don't display if it doesn't match the current filter
 			if (mark_filter_active
-				  && (get_string_occurance(mark_filter_text, the_marks[i].text, strlen(the_marks[i].text), 1) == -1))
+				&& !safe_strcasestr(the_marks[i].text, strlen(the_marks[i].text), mark_filter_text, strlen(mark_filter_text)))
 				continue;
 
-			screen_x = left + width*x/(the_tile_map_size_x*6);
-			screen_y = bottom - height*y/(the_tile_map_size_y*6);
+			screen_x = left + width*x/(the_tile_map_size_x*6) + width/(the_tile_map_size_x*12);
+			screen_y = bottom - height*y/(the_tile_map_size_y*6) - height/(the_tile_map_size_y*12);
 
 			if(!the_marks[i].server_side) glColor3f((float)the_marks[i].r/255,(float)the_marks[i].g/255,(float)the_marks[i].b/255);//glColor3f(0.4f,1.0f,0.0f);
 			else glColor3f(0.33f,0.6f,1.0f);
 			glDisable(GL_TEXTURE_2D);
 			glBegin(GL_LINES);
-				glVertex2i(screen_x-9*mapmark_zoom,screen_y-9*mapmark_zoom);
-				glVertex2i(screen_x+6*mapmark_zoom,screen_y+6*mapmark_zoom);
+				glVertex2i(screen_x-7*mapmark_zoom,screen_y-7*mapmark_zoom);
+				glVertex2i(screen_x+7*mapmark_zoom,screen_y+7*mapmark_zoom);
 
-				glVertex2i(screen_x+6*mapmark_zoom,screen_y-9*mapmark_zoom);
-				glVertex2i(screen_x-9*mapmark_zoom,screen_y+6*mapmark_zoom);
+				glVertex2i(screen_x+7*mapmark_zoom,screen_y-7*mapmark_zoom);
+				glVertex2i(screen_x-7*mapmark_zoom,screen_y+7*mapmark_zoom);
 			glEnd();
 				glEnable(GL_TEXTURE_2D);
 				if(!the_marks[i].server_side) glColor3f((float)the_marks[i].r/255,(float)the_marks[i].g/255,(float)the_marks[i].b/255);//glColor3f(0.2f,1.0f,0.0f);
@@ -736,6 +738,7 @@ void draw_coordinates(int the_tile_map_size_x, int the_tile_map_size_y)
 {
 	int x = small_map_screen_x_left + (small_map_screen_x_right - small_map_screen_x_left) / 2;
 	int h = small_map_screen_y_bottom - small_map_screen_y_top, y = main_map_screen_y_bottom - h;
+	int text_height = get_line_height(UI_FONT, map_font_scale_fac);
 	int map_x, map_y;
 
 	// draw coordinates
@@ -744,10 +747,10 @@ void draw_coordinates(int the_tile_map_size_x, int the_tile_map_size_y)
 		char buf[10];
 		safe_snprintf(buf, sizeof(buf), "%d,%d", map_x, map_y);
 		glColor3f(1.0f,1.0f,0.0f);
-		draw_text(x, y+0.16*h, (const unsigned char*)buf, strlen(buf), MAPMARK_FONT,
+		draw_text(x, y + 1.1 * text_height, (const unsigned char*)buf, strlen(buf), UI_FONT,
 			TDO_ALIGNMENT, CENTER, TDO_ZOOM, map_font_scale_fac, TDO_END);
-		draw_text(x, y+0.02*h, (const unsigned char*)label_cursor_coords, strlen(label_cursor_coords),
-			MAPMARK_FONT, TDO_ALIGNMENT, CENTER, TDO_ZOOM, map_font_scale_fac, TDO_END);
+		draw_text(x, y + 0.1 * text_height, (const unsigned char*)label_cursor_coords, strlen(label_cursor_coords),
+			UI_FONT, TDO_ALIGNMENT, CENTER, TDO_ZOOM, map_font_scale_fac, TDO_END);
 	}
 }
 
@@ -877,8 +880,8 @@ void draw_game_map (int map, int mouse_mini)
 			glEnable(GL_TEXTURE_2D);
 			safe_snprintf(buf, sizeof(buf), "%s %s", win_minimap, get_key_string(K_MINIMAP, keybuf, sizeof(keybuf)));
 			glColor3f (1.0f, 1.0f, 0.0f);
-			draw_text(small_l+small_w/2, (int)(main_t + 0.965*main_h), (const unsigned char *)buf,
-				strlen(buf), MAPMARK_FONT, TDO_ALIGNMENT, CENTER, TDO_ZOOM, map_font_scale_fac, TDO_END);
+			draw_text(small_l+small_w/2, (int)(main_t + main_h - 1.1 * get_line_height(UI_FONT, map_font_scale_fac)), (const unsigned char *)buf,
+				strlen(buf), UI_FONT, TDO_ALIGNMENT, CENTER, TDO_ZOOM, map_font_scale_fac, TDO_END);
 		}
 
 		// draw a temporary mark until the text is entered
@@ -887,17 +890,17 @@ void draw_game_map (int map, int mouse_mini)
 			int x = mark_x;
 			int y = mark_y;
 
-			screen_x = main_l + main_w*x/(tile_map_size_x*6);
-			screen_y = main_b - main_h*y/(tile_map_size_y*6);
+			screen_x = main_l + main_w*x/(tile_map_size_x*6) + main_w/(tile_map_size_x*12);
+			screen_y = main_b - main_h*y/(tile_map_size_y*6) - main_h/(tile_map_size_y*12);
 
 			glColor3f(1.0f,1.0f,0.0f);
 			glDisable(GL_TEXTURE_2D);
 			glBegin(GL_LINES);
-				glVertex2i(screen_x-9*mapmark_zoom,screen_y-9*mapmark_zoom);
-				glVertex2i(screen_x+6*mapmark_zoom,screen_y+6*mapmark_zoom);
+				glVertex2i(screen_x-7*mapmark_zoom,screen_y-7*mapmark_zoom);
+				glVertex2i(screen_x+7*mapmark_zoom,screen_y+7*mapmark_zoom);
 
-				glVertex2i(screen_x+6*mapmark_zoom,screen_y-9*mapmark_zoom);
-				glVertex2i(screen_x-9*mapmark_zoom,screen_y+6*mapmark_zoom);
+				glVertex2i(screen_x+7*mapmark_zoom,screen_y-7*mapmark_zoom);
+				glVertex2i(screen_x-7*mapmark_zoom,screen_y+7*mapmark_zoom);
 			glEnd();
 		        glEnable(GL_TEXTURE_2D);
 		        glColor3f(1.0f,1.0f,0.0f);
@@ -936,8 +939,8 @@ void draw_game_map (int map, int mouse_mini)
 		}
 		else
 		{
-			screen_x = main_l + main_w*px/(tile_map_size_x*6);
-			screen_y = main_b - main_h*py/(tile_map_size_y*6);
+			screen_x = main_l + main_w*px/(tile_map_size_x*6) + main_w/(tile_map_size_x*12);
+			screen_y = main_b - main_h*py/(tile_map_size_y*6) - main_h/(tile_map_size_y*12);
 		}
 
 		glColor3f(1.0f,0.0f,0.0f);
@@ -945,11 +948,11 @@ void draw_game_map (int map, int mouse_mini)
 		glDisable(GL_TEXTURE_2D);
 		glBegin(GL_LINES);
 
-		glVertex2i(screen_x-9*mapmark_zoom,screen_y-9*mapmark_zoom);
-		glVertex2i(screen_x+6*mapmark_zoom,screen_y+6*mapmark_zoom);
+		glVertex2i(screen_x-7*mapmark_zoom,screen_y-7*mapmark_zoom);
+		glVertex2i(screen_x+7*mapmark_zoom,screen_y+7*mapmark_zoom);
 
-		glVertex2i(screen_x+6*mapmark_zoom,screen_y-9*mapmark_zoom);
-		glVertex2i(screen_x-9*mapmark_zoom,screen_y+6*mapmark_zoom);
+		glVertex2i(screen_x+7*mapmark_zoom,screen_y-7*mapmark_zoom);
+		glVertex2i(screen_x-7*mapmark_zoom,screen_y+7*mapmark_zoom);
 
 		glEnd();
 	}
@@ -981,8 +984,8 @@ void draw_game_map (int map, int mouse_mini)
 	}
 	else
 	{
-		screen_x = main_l + main_w*x/(tile_map_size_x*6);
-		screen_y = main_b - main_h*y/(tile_map_size_y*6);
+		screen_x = main_l + main_w*x/(tile_map_size_x*6) + main_w/(tile_map_size_x*12);
+		screen_y = main_b - main_h*y/(tile_map_size_y*6) - main_h/(tile_map_size_y*12);
 	}
 
 	if ( (map || !dungeon) && x != -1 )
@@ -994,11 +997,11 @@ void draw_game_map (int map, int mouse_mini)
 		glEnable(GL_LINE_SMOOTH);
 		glBegin (GL_LINES);
 
-		glVertex2i(screen_x-9*mapmark_zoom,screen_y-9*mapmark_zoom);
-		glVertex2i(screen_x+6*mapmark_zoom,screen_y+6*mapmark_zoom);
+		glVertex2i(screen_x-7*mapmark_zoom,screen_y-7*mapmark_zoom);
+		glVertex2i(screen_x+7*mapmark_zoom,screen_y+7*mapmark_zoom);
 
-		glVertex2i(screen_x+6*mapmark_zoom,screen_y-9*mapmark_zoom);
-		glVertex2i(screen_x-9*mapmark_zoom,screen_y+6*mapmark_zoom);
+		glVertex2i(screen_x+7*mapmark_zoom,screen_y-7*mapmark_zoom);
+		glVertex2i(screen_x-7*mapmark_zoom,screen_y+7*mapmark_zoom);
 
 		glEnd();
 		glPopAttrib();
@@ -1073,7 +1076,7 @@ void draw_game_map (int map, int mouse_mini)
 #ifdef DEBUG_MAP_SOUND
 	// If we are in map view (not continent view) draw the sound area boundaries
 	if (map) {
-		print_sound_boundaries(cur_tab_map);
+		print_sound_boundaries(map_file_name);
 	}
 #endif // DEBUG_MAP_SOUND
 
@@ -1163,7 +1166,7 @@ void delete_mark_on_map_on_mouse_position(void)
 	}
 
 	mx = ((mouse_x - main_map_screen_x_left) * tile_map_size_x * 6) / screen_map_width;
-	my = (tile_map_size_y * 6) - ((mouse_y - main_map_screen_y_top) * tile_map_size_y * 6) / screen_map_height;
+	my = (tile_map_size_y * 6 - 1) - ((mouse_y - main_map_screen_y_top) * tile_map_size_y * 6) / screen_map_height;
 
 	// delete mark closest to cursor
 	min_distance = screen_map_width/10 * screen_map_height/10; // only check close marks
@@ -1174,7 +1177,7 @@ void delete_mark_on_map_on_mouse_position(void)
 
 		// skip marks not shown due to filter
 		if (mark_filter_active
-			  && (get_string_occurance(mark_filter_text, mark->text, strlen(mark->text), 1) == -1))
+			&& !safe_strcasestr(mark->text, strlen(mark->text), mark_filter_text, strlen(mark_filter_text)))
 			continue;
 
 		// skip masked marks
@@ -1247,9 +1250,7 @@ void resize_all_root_windows (Uint32 ow, Uint32 w, Uint32 oh, Uint32 h)
 	if (newchar_root_win >= 0) resize_window (newchar_root_win, w, h);
 	if (update_root_win >= 0) resize_window (update_root_win, w, h);
 	if (langsel_rootwin >= 0) resize_window (langsel_rootwin, w, h);
-	if ((input_widget != NULL) && (input_widget->window_id != get_id_MW(MW_CHAT))) {
-		widget_resize (input_widget->window_id, input_widget->id, w-HUD_MARGIN_X, input_widget->len_y);
-		widget_move (input_widget->window_id, input_widget->id, 0, h-input_widget->len_y-HUD_MARGIN_Y);
-	}
+	input_widget_move_to_win(-1);
 	resize_newchar_hud_window();
+	set_windows_autoscale_needed();
 }

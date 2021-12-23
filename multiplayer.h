@@ -6,8 +6,6 @@
 #ifndef __MULTIPLAYER_H__
 #define __MULTIPLAYER_H__
 
-#include <SDL_net.h>
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -15,14 +13,11 @@ extern "C" {
 
 extern int port; /*!< the server port we use */
 extern unsigned char server_address[60]; /*!< the server address we use */
-extern volatile int disconnected; /*!< indicates whether we are currently connected or not */
-
-extern TCPsocket my_socket; /*!< our TCP socket to communiate with the server */
 
 /*! \name Version information
  * @{ */
 extern int always_pathfinding; /*!< use pathfinding for walk click on far visible tiles of the 3d map */
-extern int mixed_message_filter; /*!< If true, do not display console messages for mixed items when other windows are closed */
+extern int mixed_message_filter; /*!< If true, do not display console messages for mixed items when other windows are not visible */
 /*! @} */
 
 
@@ -69,14 +64,6 @@ Uint32 get_game_time_sec(void);
  * \return	the time difference in seconds, wrapped appropriately
 */
 Uint32 diff_game_time_sec(Uint32 ref_time);
-
-/*!
- * \brief	Set the state to disconnected from the server, showing messages and recording time.
- *
- * \param	message A message string, or NULL
- *
-*/
-void enter_disconnected_state(const char *message);
 
 /*!
  * \brief	Close connection and call enter_disconnected_state().
@@ -139,11 +126,10 @@ void move_to (short int x, short int y, int try_pathfinder);
 
 /*!
  * \ingroup network_actors
- * \brief   Sends the given message \a str using the socket \a my_socket to the server.
+ * \brief   Sends the given message \a str to the server.
  *
- *      The message \a str will be sent to the server using the socket \a my_socket. The max. length of \a str is given in \a len.
+ *      The message \a str will be sent to the server. The max. length of \a str is given in \a len.
  *
- * \param my_socket the socket used to communicate with the server
  * \param str       the message to sent
  * \param len       the length of \a str
  * \retval int      0, if the client is not connected, or if the actor has been sitting for a specific amount of time, or if the packet is already stored in the \ref tcp_cache,
@@ -154,10 +140,9 @@ void move_to (short int x, short int y, int try_pathfinder);
  * \pre If the actor is already sitting this function will return 0, when the \ref SIT_DOWN command is sent.
  * \pre If the message given in \a str was already sent during a specific amount of time, meaning it is still in the \ref tcp_cache, this function will return 0.
  */
-int my_tcp_send (TCPsocket my_socket, const Uint8 *str, int len);
+int my_tcp_send(const Uint8 *str, int len);
 
-int my_tcp_flush (TCPsocket my_socket);
-
+int my_tcp_flush(void);
 
 /*!
  * \ingroup network_actors
@@ -204,7 +189,7 @@ void send_login_info();
  * \pre If the length of \a pass_str is less than 4, this function will create an error and returns.
  * \pre If the \a conf_pass_str doesn't match the \a pass_str, this function will create an error and returns.
  */
-void send_new_char(char * user_str, char * pass_str, char skin, char hair, char eyes, char shirt, char pants, char boots,char head, char type);
+void send_new_char(const char * user_str, const char * pass_str, char skin, char hair, char eyes, char shirt, char pants, char boots,char head, char type);
 
 /*!
  * \ingroup network_actors
@@ -245,6 +230,8 @@ int set_date(const char *the_string);
  * \retval	string pointer	NULL is no date ready
 */
 const char *get_date(void (*callback)(const char *));
+
+int is_disconnected();
 
 #ifdef __cplusplus
 } // extern "C"

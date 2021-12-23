@@ -665,8 +665,8 @@ namespace cm
 		{
 			// if the mouse is over a valid line, draw the highlight and select line
 			if (!menu_lines[i].is_grey && !menu_lines[i].is_separator &&
-			  (mouse_y > win->cur_y + currenty) &&
-			  (mouse_y < win->cur_y + currenty + line_step) &&
+			  (mouse_y > win->cur_y + currenty - line_sep) &&
+			  (mouse_y < win->cur_y + currenty + line_step - line_sep) &&
 			  (mouse_x > win->cur_x + border) &&
 			  (mouse_x < win->cur_x + width - border))
 			{
@@ -711,7 +711,7 @@ namespace cm
 				if (menu_has_bools && menu_lines[i].control_var)
 				{
 					int box_x = border+text_border;
-					int box_y = std::round(currenty + (box_size < line_height ? 0.5 * (line_height - box_size) : 0));
+					int box_y = std::round(currenty + (box_size < line_height ? 0.5 * (line_height - box_size) : 0)) - line_sep / 2;
 					glDisable(GL_TEXTURE_2D);
 					glBegin( *menu_lines[i].control_var ? GL_QUADS: GL_LINE_LOOP);
 					glVertex3i(box_x, box_y, 0);
@@ -724,7 +724,7 @@ namespace cm
 
 				// draw the text
 				int text_y = std::round(currenty + (box_size < line_height ? 0 : 0.5*(box_size - line_height)));
-				draw_string_zoomed(int(border+text_border+bool_tick_width+0.5), text_y,
+				draw_string_zoomed(int(border+text_border+bool_tick_width+0.5), text_y - line_sep / 2,
 					(const unsigned char *)menu_lines[i].text.c_str(), 1, scaled_value(1.0));
 				currenty += line_step;
 			}

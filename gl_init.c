@@ -234,7 +234,7 @@ void init_video(void)
 			DO_CHECK_GL_ERRORS();
 			LOG_ERROR("%s: %s\n", error_str, SDL_GetError());
 			SDL_Quit();
-			FATAL_ERROR_WINDOW(error_str);
+			FATAL_ERROR_WINDOW("%s", error_str);
 			exit(1);
 		}
 	}
@@ -950,3 +950,16 @@ int print_gl_errors(const char *file, int line)
 	return anyErr;
 }
 
+void gl_window_cleanup(void)
+{
+	if (el_gl_window != NULL)
+	{
+		SDL_DestroyWindow(el_gl_window);
+		el_gl_window = NULL;
+	}
+	if (icon_bmp != NULL)
+	{
+		SDL_FreeSurface(icon_bmp);
+		icon_bmp = NULL;
+	}
+}

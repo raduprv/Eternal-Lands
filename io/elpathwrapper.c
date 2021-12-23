@@ -56,7 +56,7 @@ Theoretically safe, unless someone has a HOME that has a really long path. Such 
 #ifdef CONFIGDIR
 static const char* cfgdirname = CONFIGDIR;
 #elif defined(OSX)
-static const char* cfgdirname = "Library/Application\ Support/Eternal\ Lands";
+static const char* cfgdirname = "Library/Application Support/Eternal Lands";
 #elif defined(WINDOWS)
 static const char* cfgdirname = "Eternal Lands";
 #else /* *nix */
@@ -795,11 +795,11 @@ int search_files_and_apply(const char* base_path, const char *pattern, void (*fn
 #ifdef WINDOWS
 	char full_pattern[512];
 	struct _finddata_t c_file;
-	long hFile;
+	intptr_t hFile;
 
 	// First get the matching files
 	safe_snprintf(full_pattern, sizeof(full_pattern), "%s/%s", base_path, pattern);
-	if ((hFile = _findfirst(full_pattern, &c_file)) != -1L)
+	if ((hFile = _findfirst(full_pattern, &c_file)) != (intptr_t)-1)
 	{
 		errno = 0;
 		do
@@ -824,7 +824,7 @@ int search_files_and_apply(const char* base_path, const char *pattern, void (*fn
 	}
 
 	// Now find the subdirectories, and recurse into them
-	if ((hFile = _findfirst(base_path, &c_file)) != -1L)
+	if ((hFile = _findfirst(base_path, &c_file)) != (intptr_t)-1)
 	{
 		errno = 0;
 		do

@@ -64,6 +64,7 @@ static int digital_clock_height = 0;
 static int analog_clock_size = 0;
 static int compass_size = 0;
 static const int min_side_stats_bar = 5;
+static int hud_margin = 0; /* scaled to avoid the edge line in the hud texture */
 
 
 enum {	CMH_STATS=0, CMH_STATBARS, CMH_KNOWBAR, CMH_TIMER, CMH_DIGCLOCK, CMH_ANACLOCK,
@@ -71,7 +72,7 @@ enum {	CMH_STATS=0, CMH_STATBARS, CMH_KNOWBAR, CMH_TIMER, CMH_DIGCLOCK, CMH_ANAC
 		CMH_SEP2, CMH_SOUND, CMH_MUSIC, CMH_SEP3, CMH_LOCATION };
 
 
-static void draw_side_stats_bar(window_info *win, const int x, const int y, const int baselev, const int cur_exp, const int nl_exp, size_t colour)
+static void draw_side_stats_bar(window_info *win, const int x, const int y, const Sint16 baselev, const Uint32 cur_exp, const Uint32 nl_exp, size_t colour)
 {
 	const int max_len = win->len_x - x - 1;
 	const int bar_height = side_stats_bar_text_height + 2;
@@ -130,7 +131,7 @@ static int context_hud_handler(window_info *win, int widget_id, int mx, int my, 
 		case CMH_LOCATION:
 			copy_next_LOCATE_ME = 1;
 			protocol_name= LOCATE_ME;
-			my_tcp_send(my_socket,&protocol_name,1);
+			my_tcp_send(&protocol_name,1);
 			break;
 		default:
 			init_misc_display();
@@ -272,6 +273,7 @@ CHECK_GL_ERRORS();
 	//Digital Clock
 	if(view_digital_clock > 0)
 	{
+		int centre_x = (0.5 + win->len_x / 2.0);
 		char str[10];
 
 		base_y_start -= digital_clock_height;
@@ -284,17 +286,17 @@ CHECK_GL_ERRORS();
 		{
 			int x;
 			safe_snprintf(str, sizeof(str), "%1d:%02d:%02d", real_game_minute/60, real_game_minute%60, real_game_second);
-			x = win->len_x / 2
+			x = centre_x
 				- get_buf_width_zoom((const unsigned char*)str, 4, win->font_category, digital_clock_zoom)
 				+ get_char_width_zoom(str[3], win->font_category, digital_clock_zoom) / 2;
-			draw_text(x, base_y_start, (const unsigned char*)str, strlen(str),
+			draw_text(max2i(x, hud_margin), base_y_start, (const unsigned char*)str, strlen(str),
 				win->font_category, TDO_SHADOW, 1, TDO_FOREGROUND, gui_color[0], gui_color[1], gui_color[2],
 				TDO_BACKGROUND, 0.0, 0.0, 0.0, TDO_ZOOM, digital_clock_zoom, TDO_END);
 		}
 		else
 		{
 			safe_snprintf(str, sizeof(str), "%1d:%02d", real_game_minute/60, real_game_minute%60);
-			draw_text(win->len_x/2, base_y_start, (const unsigned char*)str, strlen(str),
+			draw_text(centre_x, base_y_start, (const unsigned char*)str, strlen(str),
 				win->font_category, TDO_SHADOW, 1, TDO_FOREGROUND, gui_color[0], gui_color[1], gui_color[2],
 				TDO_BACKGROUND, 0.0, 0.0, 0.0, TDO_ALIGNMENT, CENTER, TDO_ZOOM, digital_clock_zoom,
 				TDO_END);
@@ -342,7 +344,6 @@ CHECK_GL_ERRORS();
 		char str[20];
 		char *use_str = idle_str;
 		int percentage_done = 0;
-		int x = (int)(0.5 + win->current_scale * 3);
 		int y = base_y_start - side_stats_bar_height - ((knowledge_bar_height - side_stats_bar_height) / 2);
 
 		if (is_researching())
@@ -351,8 +352,8 @@ CHECK_GL_ERRORS();
 			safe_snprintf(str, sizeof(str), "%d%%", percentage_done);
 			use_str = str;
 		}
-		draw_side_stats_bar(win, x, y, 0, percentage_done, 100, 1);
-		draw_string_shadowed_zoomed_centered((x + win->len_x - 1) / 2, y,
+		draw_side_stats_bar(win, hud_margin, y, 0, percentage_done, 100, 1);
+		draw_string_shadowed_zoomed_centered(hud_margin + (win->len_x - hud_margin - 1) / 2, y,
 			(unsigned char *)use_str, 1,1.0f,1.0f,1.0f,0.0f,0.0f,0.0f,
 			side_stats_bar_text_zoom);
 
@@ -378,8 +379,7 @@ CHECK_GL_ERRORS();
 	if(show_stats_in_hud && have_stats)
 	{
 		char str[20];
-		int box_x = (int)(0.5 + win->current_scale * 3);
-		int text_x_center = box_x + (win->len_x - box_x - 1) / 2;
+		int text_x_center = hud_margin + (win->len_x - hud_margin - 1) / 2;
 		int text_x_left, text_x_right;
 		int thestat;
 		int y = 0;
@@ -411,7 +411,7 @@ CHECK_GL_ERRORS();
 				break;
 
 			if (show_statbars_in_hud)
-				draw_side_stats_bar(win, box_x, y, statsinfo[thestat].skillattr->base,
+				draw_side_stats_bar(win, hud_margin, y, statsinfo[thestat].skillattr->base,
 					*statsinfo[thestat].exp, *statsinfo[thestat].next_lev, 0);
 
 			col = (statsinfo[thestat].is_selected == 1) ? gui_color : white_color;
@@ -448,7 +448,7 @@ CHECK_GL_ERRORS();
 			/* if the mouse is over the stat bar, draw the XP remaining */
 			if (stat_mouse_is_over == thestat)
 			{
-				safe_snprintf(str,sizeof(str),"%li",(*statsinfo[thestat].next_lev - *statsinfo[thestat].exp));
+				safe_snprintf(str, sizeof(str), "%i", (*statsinfo[thestat].next_lev - *statsinfo[thestat].exp));
 				draw_text(-hover_offset-tooltip_sep, y + side_stats_bar_height / 2,
 					(const unsigned char*)str, strlen(str), win->font_category, TDO_SHADOW, 1,
 					TDO_FOREGROUND, 1.0, 1.0, 1.0, TDO_BACKGROUND, 0.0, 0.0, 0.0,
@@ -546,7 +546,7 @@ static int click_misc_handler(window_info *win, int mx, int my, Uint32 flags)
 		unsigned char protocol_name;
 		do_click_sound();
 		protocol_name= GET_TIME;
-		my_tcp_send(my_socket,&protocol_name,1);
+		my_tcp_send(&protocol_name,1);
 		return 1;
 	}
 
@@ -568,7 +568,7 @@ static int click_misc_handler(window_info *win, int mx, int my, Uint32 flags)
 		{
 			copy_next_LOCATE_ME = 2;
 		}
-		my_tcp_send(my_socket,&protocol_name,1);
+		my_tcp_send(&protocol_name,1);
 		return 1;
 	}
 	//check to see if we clicked on the stats
@@ -637,7 +637,6 @@ static int destroy_misc_handler(window_info *win)
 
 static int ui_scale_misc_handler(window_info *win)
 {
-	int box_x = (int)(0.5 + win->current_scale * 3);
 	int y_len = 0;
 	int thestat, max_width, width, text_width, text_top, text_bottom, top, bottom;
 	unsigned char str[5];
@@ -649,6 +648,7 @@ static int ui_scale_misc_handler(window_info *win)
 	analog_clock_size = (int)(0.5 + win->current_scale * 64);
 	compass_size = (int)(0.5 + win->current_scale * 64);
 	knowledge_bar_height = win->small_font_len_y + 6;
+	hud_margin = (int)(0.5 + 3 * win->current_scale);
 
 	side_stats_bar_text_zoom = win->current_scale_small;
 	text_width = get_string_width_zoom((const unsigned char*)idle_str, win->font_category,
@@ -663,11 +663,11 @@ static int ui_scale_misc_handler(window_info *win)
 			+ 3 * get_max_digit_width_zoom(win->font_category, side_stats_bar_text_zoom);
 		text_width = max2i(text_width, width);
 	}
-	max_width = win->len_x - box_x - 1;
+	max_width = win->len_x - hud_margin - 1;
 	if (text_width > max_width)
 	{
 		side_stats_bar_text_zoom *= (float)max_width / text_width;
-		text_width = win->len_x - box_x - 1;
+		text_width = win->len_x - hud_margin - 1;
 	}
 
 	get_top_bottom((const unsigned char*)"0123456789%", 11, win->font_category, side_stats_bar_text_zoom,
@@ -693,14 +693,11 @@ static int ui_scale_misc_handler(window_info *win)
 		+ 2 // border around bar
 		+ (int)(win->current_scale * 2); // separation between bars
 
-	if (show_game_seconds)
-		digital_clock_width = 5 * get_max_digit_width_zoom(win->font_category, 1.0)
-			+ 2 * get_char_width_zoom(':', win->font_category, 1.0);
-	else
-		digital_clock_width = 3 * get_max_digit_width_zoom(win->font_category, 1.0)
-			+ get_char_width_zoom(':', win->font_category, 1.0)
-			+ 2 * get_char_width_zoom(' ', win->font_category, 1.0);
-	digital_clock_zoom = (float)(win->len_x - (int)(0.5 + 6 * win->current_scale)) / digital_clock_width;
+	// always scale the digital clock as when seconds enabled
+	// allow 7px for max rouding error, margin to avoid the edges
+	digital_clock_width = 5 * get_max_digit_width_zoom(win->font_category, 1.0)
+		+ 2 * get_char_width_zoom(':', win->font_category, 1.0) + 7;
+	digital_clock_zoom = ((float)win->len_x - 2 * hud_margin) / (float)digital_clock_width;
 	digital_clock_height = get_line_height(win->font_category, digital_clock_zoom);
 
 	ui_scale_timer(win);

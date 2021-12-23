@@ -184,6 +184,8 @@ void draw_scene()
 			used_item_counter_timer();
 			/* make sure minimised or restored window is noticed */
 			check_minimised_or_restore_window();
+			/* check if open and support windows need to be rescaled */
+			check_for_windows_autoscale();
 			/* check if we need to action a scale change for the config window */
 			check_for_config_window_scale();
 			/* until next time */
@@ -574,13 +576,11 @@ void update_camera()
 		if      (adjust >=  180) adjust -= 360.0;
 		else if (adjust <= -180) adjust += 360.0;
 		if (adjust > 35){
-			Uint8 str[2];
-			str[0] = TURN_LEFT;
-			my_tcp_send (my_socket, str, 1);
+			Uint8 cmd = TURN_LEFT;
+			my_tcp_send(&cmd, 1);
 		} else if (adjust < -35){
-			Uint8 str[2];
-			str[0] = TURN_RIGHT;
-			my_tcp_send (my_socket, str, 1);
+			Uint8 cmd = TURN_RIGHT;
+			my_tcp_send(&cmd, 1);
 		}
 	}
 	adjust_view = 0;

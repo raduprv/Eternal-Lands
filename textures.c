@@ -1090,7 +1090,7 @@ static Uint32 load_to_coordinates_mask2(el_file_ptr source0, el_file_ptr source1
 	if ((src0.width != tw) || (src0.height != th))
 	{
 		LOG_ERROR("File '%s' has wrong size <%d, %d> instead of "
-			"<%d, %d>.", src0.width, src0.height, tw, th);
+			"<%d, %d>.", el_file_name(source0), src0.width, src0.height, tw, th);
 		return 0;
 	}
 
@@ -1106,7 +1106,7 @@ static Uint32 load_to_coordinates_mask2(el_file_ptr source0, el_file_ptr source1
 	if ((src1.width != tw) || (src1.height != th))
 	{
 		LOG_ERROR("File '%s' has wrong size <%d, %d> instead of "
-			"<%d, %d>.", src1.width, src1.height, tw, th);
+			"<%d, %d>.", el_file_name(source1), src1.width, src1.height, tw, th);
 		return 0;
 	}
 
@@ -1119,7 +1119,7 @@ static Uint32 load_to_coordinates_mask2(el_file_ptr source0, el_file_ptr source1
 	if ((msk.width != tw) || (msk.height != th))
 	{
 		LOG_ERROR("File '%s' has wrong size <%d, %d> instead of "
-			"<%d, %d>.", msk.width, msk.height, tw, th);
+			"<%d, %d>.", el_file_name(mask), msk.width, msk.height, tw, th);
 
 		free_image(&src0);
 		free_image(&src1);

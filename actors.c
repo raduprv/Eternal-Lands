@@ -17,6 +17,7 @@
 #include "load_gl_extensions.h"
 #include "map.h"
 #include "missiles.h"
+#include "named_colours.h"
 #include "new_actors.h"
 #include "platform.h"
 #include "shadows.h"
@@ -400,34 +401,54 @@ static void set_health_color(actor * actor_id, float percent, float multiplier, 
 
 static void set_mana_color(float percent, float multiplier, float a)
 {
-	float c;
+	static int have_colours = 0;
+	static GLfloat full_mana[3], zero_mana[3];
+	GLfloat use_colours[3];
+	size_t i;
 
+	// get the mana colour range
+	if (!have_colours)
+	{
+		elglGetColour3v("banner.mana.full", full_mana);
+		elglGetColour3v("banner.mana.zero", zero_mana);
+		have_colours = 1;
+	}
+
+	// not dynamic so just to full mana colour
 	if (!dynamic_banner_colour.yourself)
-		percent = 1.0f;
+	{
+		glColor4f(multiplier * full_mana[0], multiplier * full_mana[1], full_mana[2], a);
+		return;
+	}
 
-	c=0.6f - percent*0.6f;
+	// dynamic so find step between full and zero mana for each colour
+	for (i = 0; i < 3; i++)
+	{
+		use_colours[i] = full_mana[i] + (zero_mana[i] - full_mana[i]) * (1.0f - percent);
+		if (use_colours[i] < 0.0f)
+			use_colours[i] = 0.0f;
+		else if (use_colours[i] > 1.0f)
+			use_colours[i] = 1.0f;
+	}
 
-	if(c<0.0f)c=0.0f;
-	else if(c>1.0f)c=1.0f;
-
-	glColor4f(c,c,2.0f, a);
+	glColor4f(multiplier * use_colours[0], multiplier * use_colours[1], use_colours[2], a);
 }
 
 
-void draw_actor_banner(actor * actor_id, float offset_z)
+static void draw_actor_banner(actor * actor_id, float offset_z)
 {
 	unsigned char str[60];
-	unsigned char temp[255];
 	GLdouble model[16],proj[16];
 	GLint view[4];
 
 	GLdouble hx,hy,hz,a_bounce;
 	float name_zoom = font_scales[NAME_FONT];
 	float font_scale = 1.0f/ALT_INGAME_FONT_X_LEN;
+	float stat_font_size = font_scale * ALT_INGAME_FONT_X_LEN; // base it on font_scale - OK so this makes it 1.0f currently
+	float name_font_size = font_scale * SMALL_INGAME_FONT_X_LEN;
 	double healthbar_x=0.0f;
 	double healthbar_y=0.0f;
 	double healthbar_z=offset_z+0.1;
-	double health_str_x_len=ALT_INGAME_FONT_X_LEN*12.0*name_zoom*3*font_scale;
 	double healthbar_x_len_converted=0;
 	double healthbar_x_len_loss=0;
 	double healthbar_x_loss_fade=1.0f;
@@ -436,13 +457,12 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 	//we use health bar variables if possible, all the extras we need for ether bar are:
 	double ether_str_x_len = 0;
 	double etherbar_x_len_converted=0;
-	GLdouble ey;
+	GLdouble name_bot_y, health_bot_y, ether_bot_y;
 
 	//some general values valid for whole banner
 	double bar_x_len = 0;
-	double bar_y_len=ALT_INGAME_FONT_Y_LEN*12.0*name_zoom*font_scale;
+	double bar_y_len = get_line_height(NAME_FONT, stat_font_size);
 	float banner_width = 0.0f;
-	int num_lines;
 
 	//define inner display_xxxxx variables to have more control over displaying inside this function
 	//necesary to implement instance mode makes code a bit more easy to understand imho
@@ -576,31 +596,29 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 
 	glDepthFunc(GL_LESS);
 
-	//figure out which lines should we display and how many lines total do we show
+	//figure out which lines should we display
 	display_health_line = (actor_id->kind_of_actor != NPC && (display_hp || display_health_bar) && actor_id->cur_health > 0 && actor_id->max_health > 0);
 	display_ether_line = ((display_ether || display_ether_bar) && displaying_me && your_info.ethereal_points.base > 0 );
-	num_lines = display_names + display_health_line + display_ether_line;
 	if (view_mode_instance && displaying_me) {
 		//make your bar a bit more above everything else so you can see it good enough
 		//and got no problems with attacking mobs
 		hy += view_mode_instance_banner_height*bar_y_len;
-	} else if (displaying_me && display_health_line && display_ether_line) {
-		hy += 1.5*bar_y_len;
 	}
 
-	//calculate "y" positions of ether lines
-	ey = hy -(display_health_line * bar_y_len);
+	// calculate the bottom y coord for the displayed info lines, keep centred around a the same point whether 3, 2 or 1 line being displays
+	hy += bar_y_len;
+	name_bot_y = (display_names) ?hy + (display_health_line * bar_y_len / 2) + (display_ether_line * bar_y_len / 2) :0.0;
+	health_bot_y = (display_health_line) ?hy - (display_names * bar_y_len / 2) + (display_ether_line * bar_y_len / 2) :0.0;
+	ether_bot_y = (display_ether_line) ?hy -(display_names * bar_y_len / 2) - (display_health_line * bar_y_len / 2) : 0.0;
+	// printf("hy=%.1lf name=%.1lf health=%.1lf ether=%.1lf\n", hy, name_bot_y, health_bot_y, ether_bot_y);
 
-	// Schmurk: same here, we actually never reach this code
+	// main block that draws the name, health and ether text
 	if (!((first_person)&&(actor_id->actor_id==yourself)))
 	{
 		if(actor_id->actor_name[0] && (display_names || display_health_line || display_ether_line))
 		{
 			if (display_names)
 			{
-				float font_size_x=font_scale*SMALL_INGAME_FONT_X_LEN;
-				float font_size_y=font_scale*SMALL_INGAME_FONT_X_LEN;
-
 				if(actor_id->kind_of_actor==NPC){
 					glColor3f(0.3f,0.8f,1.0f);
 				} else if(actor_id->kind_of_actor==HUMAN || actor_id->kind_of_actor==COMPUTER_CONTROLLED_HUMAN){
@@ -614,10 +632,9 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 				} else {
 					glColor3f(1.0f,1.0f,0.0f);
 				}
-				safe_snprintf ((char*)temp, sizeof (temp), "%s", actor_id->actor_name);
-				banner_width = 0.5 * (float)get_string_width_zoom((unsigned char*)actor_id->actor_name, NAME_FONT, font_size_x);
-				draw_ortho_ingame_string(hx-banner_width, hy+bar_y_len/2.0f, hz, temp,
-					1, NAME_FONT, font_size_x, font_size_y);
+				banner_width = 0.5 * (float)get_string_width_zoom((unsigned char*)actor_id->actor_name, NAME_FONT, name_font_size);
+				draw_ortho_ingame_string(hx - banner_width, name_bot_y, hz,
+					(const unsigned char*)actor_id->actor_name, 1, NAME_FONT, name_font_size, name_font_size);
 			}
 			if (view_buffs)
 			{
@@ -627,17 +644,16 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 			if(  (!actor_id->dead) && (actor_id->kind_of_actor != NPC) && (display_health_line || display_ether_line)){
 				unsigned char hp[200];
 				unsigned char mana[200];
+				double health_str_x_len = 0.0;
 
 				// make the heath bar the same length as the the health text so they are balanced
 				// use the same length health bar, even if not displaying the health text
 				sprintf((char*)hp,"%u/%u", actor_id->cur_health, actor_id->max_health);
-				health_str_x_len = (float)get_string_width_zoom(hp, NAME_FONT,
-					ALT_INGAME_FONT_X_LEN * font_scale);
+				health_str_x_len = (float)get_string_width_zoom(hp, NAME_FONT, stat_font_size);
 				//do the same with mana if we want to display it
 				if (display_ether || display_ether_bar) {
 					sprintf((char*)mana,"%d/%d", your_info.ethereal_points.cur, your_info.ethereal_points.base);
-					ether_str_x_len=(float)get_string_width_zoom(mana, NAME_FONT,
-						ALT_INGAME_FONT_X_LEN * font_scale);
+					ether_str_x_len=(float)get_string_width_zoom(mana, NAME_FONT, stat_font_size);
 				}
 				//set bar length to longer one (mana or health) - not really clean solution
 				if (ether_str_x_len > health_str_x_len) {
@@ -668,16 +684,14 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 					if (display_hp) {
 						//choose color for the health
 						set_health_color(actor_id, (float)actor_id->cur_health/(float)actor_id->max_health, 1.0f, 1.0f);
-						draw_ortho_ingame_string(hx-disp+hp_off, hy-bar_y_len/3.0f,
-							hz, hp, 1, NAME_FONT, ALT_INGAME_FONT_X_LEN*font_scale,
-							ALT_INGAME_FONT_X_LEN*font_scale);
+						draw_ortho_ingame_string(hx - disp + hp_off, health_bot_y,
+							hz, hp, 1, NAME_FONT, stat_font_size, stat_font_size);
 					}
 
 					if (display_ether) {
 						set_mana_color((float)your_info.ethereal_points.cur / (float)your_info.ethereal_points.base, 1.0f, 1.0f);
-						draw_ortho_ingame_string(hx-disp+eth_off, ey-bar_y_len/3.0f,
-							hz, mana, 1, NAME_FONT, ALT_INGAME_FONT_X_LEN*font_scale,
-							ALT_INGAME_FONT_X_LEN*font_scale);
+						draw_ortho_ingame_string(hx - disp + eth_off, ether_bot_y,
+							hz, mana, 1, NAME_FONT, stat_font_size, stat_font_size);
 					}
 				}
 			}
@@ -690,6 +704,8 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 	if(display_health_bar && display_health_line && (!actor_id->dead) && (actor_id->kind_of_actor != NPC)){
 		float percentage = (float)actor_id->cur_health/(float)actor_id->max_health;
 		float off;
+		float top_y = health_bot_y + bar_y_len / 3.0;
+		float bot_y = health_bot_y + 2 * bar_y_len / 3.0;
 
 		if(percentage>1.1f) //deal with massive bars by trimming at 110%
 			percentage = 1.1f;
@@ -723,13 +739,13 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 		//choose tint color
 		set_health_color(actor_id, percentage, 0.5f, 1.0f);
 		glBegin(GL_QUADS);
-			glVertex3d(hx,hy,hz);
-			glVertex3d(hx+healthbar_x_len_converted,hy,hz);
+			glVertex3d(hx, top_y, hz);
+			glVertex3d(hx + healthbar_x_len_converted, top_y, hz);
 
 		set_health_color(actor_id, percentage, 1.0f, 1.0f);
 
-			glVertex3d(hx+healthbar_x_len_converted,hy+bar_y_len/3.0,hz);
-			glVertex3d(hx,hy+bar_y_len/3.0,hz);
+			glVertex3d(hx + healthbar_x_len_converted, bot_y, hz);
+			glVertex3d(hx, bot_y, hz);
 		glEnd();
 
 		if(healthbar_x_len_loss){
@@ -739,27 +755,26 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 			set_health_color(actor_id, percentage, 0.5f, healthbar_x_loss_fade);
 
 			glBegin(GL_QUADS);
-				glVertex3d(hx+healthbar_x_len_converted, hy, hz);
-				glVertex3d(hx+healthbar_x_len_converted+healthbar_x_len_loss, hy, hz);
+				glVertex3d(hx + healthbar_x_len_converted, top_y, hz);
+				glVertex3d(hx + healthbar_x_len_converted + healthbar_x_len_loss, top_y, hz);
 
 			set_health_color(actor_id, percentage, 1.0f, healthbar_x_loss_fade);
 
-				glVertex3d(hx+healthbar_x_len_converted+healthbar_x_len_loss, hy+bar_y_len/3.0,hz);
-				glVertex3d(hx+healthbar_x_len_converted, hy+bar_y_len/3.0,hz);
+				glVertex3d(hx + healthbar_x_len_converted + healthbar_x_len_loss, bot_y, hz);
+				glVertex3d(hx + healthbar_x_len_converted, bot_y, hz);
 			glEnd();
 
 			glDisable(GL_BLEND);
 		}
 
-
 		//draw the frame
 		glDepthFunc(GL_LEQUAL);
-		glColor3f (0.0f, 0.0f, 0.0f);
+		glColor3f(0.0f, 0.0f, 0.0f);
 		glBegin(GL_LINE_LOOP);
-			glVertex3f (hx-1.0, hy-1.0, hz);
-			glVertex3f (hx+bar_x_len+1.0, hy-1.0,hz);
-			glVertex3f (hx+bar_x_len+1.0, hy+bar_y_len/3.0+1.0,hz);
-			glVertex3f (hx-1.0, hy+bar_y_len/3.0+1.0,hz);
+			glVertex3f(hx - 1.0, top_y - 1.0, hz);
+			glVertex3f(hx + bar_x_len + 1.0, top_y - 1.0, hz);
+			glVertex3f(hx + bar_x_len + 1.0, bot_y + 1.0, hz);
+			glVertex3f(hx - 1.0, bot_y + 1.0, hz);
 		glEnd();
 
 		hx+=off;
@@ -768,6 +783,8 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 	if (display_ether_bar && display_ether_line) {
 		float percentage = (float)your_info.ethereal_points.cur / (float)your_info.ethereal_points.base;
 		float off;
+		float top_y = ether_bot_y + bar_y_len / 3.0;
+		float bot_y = ether_bot_y + 2 * bar_y_len / 3.0;
 		if(percentage>1.1f) // limit bar length to +10%
 			percentage = 1.1f;
 		if (display_ether){
@@ -783,34 +800,32 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 		set_mana_color(percentage, 0.5f, 1.0f);
 		etherbar_x_len_converted = percentage * bar_x_len;
 		glBegin(GL_QUADS);
-			glVertex3d(hx,ey,hz);
-			glVertex3d(hx+etherbar_x_len_converted,ey,hz);
+			glVertex3d(hx, top_y, hz);
+			glVertex3d(hx + etherbar_x_len_converted, top_y, hz);
 
 		set_mana_color(percentage, 1.0f, 1.0f);
 
-			glVertex3d(hx+etherbar_x_len_converted,ey+bar_y_len/3.0,hz);
-			glVertex3d(hx,ey+bar_y_len/3.0,hz);
+			glVertex3d(hx + etherbar_x_len_converted, bot_y, hz);
+			glVertex3d(hx, bot_y, hz);
 		glEnd();
 		set_health_color(actor_id, percentage, 1.0f, 1.0f);
 		glDepthFunc(GL_LEQUAL);
 		glColor3f (0.0f, 0.0f, 0.0f);
 		glBegin(GL_LINE_LOOP);
-			glVertex3f (hx-1.0, ey-1.0 , hz);
-			glVertex3f (hx+bar_x_len+1.0, ey-1.0,hz);
-			glVertex3f (hx+bar_x_len+1.0, ey+bar_y_len/3.0+1.0,hz);
-			glVertex3f (hx-1.0, ey+bar_y_len/3.0+1.0,hz);
+			glVertex3f (hx - 1.0, top_y - 1.0 , hz);
+			glVertex3f (hx + bar_x_len + 1.0, top_y - 1.0, hz);
+			glVertex3f (hx + bar_x_len + 1.0, bot_y + 1.0, hz);
+			glVertex3f (hx - 1.0, bot_y + 1.0, hz);
 		glEnd();
 		hx+=off;
 	}
 
 	// draw the alpha background (if ness)
-	y_bottom = hy;
-	y_bottom += (!display_health_line && !display_ether_line && display_names) ? bar_y_len-6.0 : -5.0;
-	y_bottom -= (num_lines == 3 || (num_lines==2 && !display_names)) ? bar_y_len : 0.0;
-	y_top = y_bottom + bar_y_len * num_lines + 2;
+	y_bottom = ((ether_bot_y > 0) ?ether_bot_y :((health_bot_y > 0) ?health_bot_y : name_bot_y)) - 0.2 * bar_y_len;
+	y_top = ((name_bot_y > 0) ?name_bot_y :((health_bot_y > 0) ?health_bot_y : ether_bot_y)) + 1.2 * bar_y_len;
 	if (display_banner_alpha && banner_width > 0) {
 		//if banner width > 0 there MUST be something displayed in the banner
-		banner_width += 3;
+		banner_width += name_zoom * 3;
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_ONE, GL_SRC_ALPHA);
 		glColor4f(0.0f, 0.0f, 0.0f, 0.6f);
@@ -841,11 +856,9 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 	{
 		/* use the same calculation as for the alpha background but have a fallback if no banner shown */
 		int xoff = (banner_width > 0) ?banner_width: 60;
-		float start_y = hy;
-		start_y  += ((!display_health_line && !display_ether_line && display_names) ?bar_y_len-6.0 :-5.0);
-		start_y  -= (num_lines == 3 || (num_lines==2 && !display_names)) ? bar_y_len:0.0;
+		int yoff = (banner_width > 0) ?y_top - y_bottom: bar_y_len;
 		if ((mouse_x > hx-xoff) && (mouse_x < hx+xoff) &&
-			(window_height-mouse_y > start_y) && (window_height-mouse_y < start_y+bar_y_len*((num_lines>0)?num_lines:3)))
+			((window_height - mouse_y) > y_bottom) && ((window_height - mouse_y) < (y_bottom + yoff)))
 			cm_mouse_over_banner = 1;
 		else
 			cm_mouse_over_banner = 0;
@@ -1051,7 +1064,7 @@ CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
 }
 
-static __inline__ void draw_actor_banner_new(actor * actor_id)
+static void draw_actor_banner_new(actor * actor_id)
 {
 	float x_pos, y_pos, z_pos;
 	float healthbar_z;

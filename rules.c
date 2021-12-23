@@ -183,15 +183,15 @@ int read_rules(void)
 	if ((doc = xmlReadFile(file_name, NULL, 0)) == NULL) {
 		if((doc=xmlReadFile("languages/en/rules.xml",NULL,0))==NULL){
 			//report this error:
-			LOG_ERROR(read_rules_str);
+			LOG_ERROR("%s", read_rules_str);
 			return 0;
 		}
 	}
 
 	if ((root = xmlDocGetRootElement(doc))==NULL) {
-		LOG_ERROR(read_rules_str);
+		LOG_ERROR("%s", read_rules_str);
 	} else if(!parse_rules(root->children)){
-		LOG_ERROR(parse_rules_str);
+		LOG_ERROR("%s", parse_rules_str);
 	}
 
 	xmlFreeDoc(doc);
@@ -799,8 +799,7 @@ static void draw_rules_interface (window_info * win)
 
 	/* scale the string if it is too wide for the screen */
 	string_zoom = win->current_scale;
-	string_width = get_string_width_zoom((const unsigned char*)str, win->font_category,
-			string_zoom)
+	string_width = get_string_width_zoom((const unsigned char*)str, win->font_category, string_zoom)
 		+ 2 * win->default_font_max_len_x;
 	if (string_width > win->len_x)
 		string_zoom *= win->len_x / string_width;
@@ -851,7 +850,7 @@ static void switch_rules_to_next ()
 	show_hud_windows();
 	destroy_window (rules_root_win);
 	rules_root_win = -1;
-	if (disconnected) connect_to_server();
+	if (is_disconnected()) connect_to_server();
 }
 
 static int rules_root_scroll_handler ()
@@ -933,17 +932,14 @@ static int keypress_rules_root_handler (window_info *win, int mx, int my, SDL_Ke
 
 static void adjust_ui_elements(window_info *win, int scroll_id, int accept_id)
 {
-	int accept_label_width;
-	int char_per_line = 65;
-	if (char_per_line * win->default_font_max_len_x > win->len_x - 3 * win->box_size)
-		char_per_line = (win->len_x - 3 * win->box_size) / win->default_font_max_len_x;
+	int get_avg_char_width = get_avg_char_width_zoom(win->font_category, win->current_scale);
+	int char_per_line = 72;
+	if (char_per_line * get_avg_char_width > win->len_x - 3 * win->box_size)
+		char_per_line = (win->len_x - 3 * win->box_size) / get_avg_char_width;
 
-	accept_label_width = get_string_width_zoom((const unsigned char*)accept_label,
-		win->font_category, win->current_scale);
-	button_resize(win->window_id, accept_id, accept_label_width + 40, (int)(0.5 + win->current_scale * 32), win->current_scale);
+	button_resize(win->window_id, accept_id, 0, 0, win->current_scale);
 
-	text_box_width = char_per_line * get_avg_char_width_zoom(win->font_category,
-		win->current_scale);
+	text_box_width = char_per_line * get_avg_char_width;
 	box_border_x = (win->len_x - text_box_width - win->box_size) / 2;
 
 	text_box_height = 0.75 * (win->len_y - widget_get_height(win->window_id, accept_id) - win->default_font_len_y);

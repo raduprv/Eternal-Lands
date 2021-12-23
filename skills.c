@@ -19,6 +19,11 @@ static int click_skills_handler(window_info *win, int mx, int my, Uint32 flags)
 	return common_encyclopedia_click_handler(win, mx, my, flags, &skillspage, skills_menu_scroll_id);
 }
 
+static int mouseover_skills_handler(window_info *win, int mx, int my)
+{
+	return common_encyclopedia_mouseover_handler(win, mx, my);
+}
+
 static int resize_skills_handler(window_info *win, int new_width, int new_height)
 {
 	widget_resize(win->window_id, skills_menu_scroll_id, win->box_size, win->len_y);
@@ -64,6 +69,7 @@ void fill_skills_win (int window_id)
 	set_window_handler (window_id, ELW_HANDLER_RESIZE, &resize_skills_handler);
 	set_window_handler(window_id, ELW_HANDLER_UI_SCALE, &ui_scale_skills_handler);
 	set_window_handler(window_id, ELW_HANDLER_FONT_CHANGE, &change_skills_font_handler);
+	set_window_handler(window_id, ELW_HANDLER_MOUSEOVER, &mouseover_skills_handler);
 
 	if (window_id >= 0 && window_id < windows_list.num_windows)
 	{

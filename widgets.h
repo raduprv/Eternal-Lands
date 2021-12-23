@@ -27,7 +27,7 @@ typedef struct {
 } tab;
 
 typedef struct {
-	int tag_height, button_size;
+	int tag_height, button_size, tabs_right_margin;
 	int nr_tabs, max_tabs, cur_tab, tab_offset, tab_last_visible;
 	tab *tabs;
 } tab_collection;
@@ -172,7 +172,7 @@ typedef struct
 {
 	int msg, offset;
 	int cursor, cursor_line;
-	int buf_size, buf_fill;
+	int buf_size;
 	int nr_lines, nr_visible_lines;
 	int update_bar;
 	int scroll_id;
@@ -319,6 +319,20 @@ int widget_set_OnMouseover(int window_id, Uint32 widget_id, int (*handler)());
  * \sa widget_find
  */
 int widget_set_OnKey ( int window_id, Uint32 widget_id, int (*handler)() );
+/*!
+ * \ingroup	widgets
+ * \brief 	Sets the widget's destroy handler
+ *
+ * Sets \a handler to be executed on destruction of the widget.
+ *
+ * \param   	window_id The location of the window in the windows_list.window[] array
+ * \param   	widget_id The widget's unique ID
+ * \param   	handler A function pointer to the handler.
+ * \retval int  	Returns 1 on succes or 0 on failure (when the widget was not found in the given window)
+ *
+ * \sa widget_find
+ */
+int widget_set_OnDestroy (int window_id, Uint32 widget_id, int (*handler)());
 
 /*!
  * \ingroup	widgets
@@ -562,18 +576,6 @@ int label_add(int window_id, int (*OnInit)(), const char *text, Uint16 x, Uint16
 
 /*!
  * \ingroup	labels
- * \brief	Draws a label
- *
- * 		Draws the label given by the widget.
- *
- * \param   	W The widget that is to be drawn
- * \retval int  	Returns true
- * \callgraph
- */
-int label_draw(widget_list *W);
-
-/*!
- * \ingroup	labels
  * \brief 	Sets the text of the given widget
  *
  * 		Finds the widget in the given window and sets the text.
@@ -642,33 +644,6 @@ int image_add_extended(int window_id, Uint32 wid,  int (*OnInit)(), Uint16 x, Ui
 int image_add(int window_id, int (*OnInit)(), int id, Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, float u1, float v1, float u2, float v2);
 
 /*!
- * \ingroup	images
- * \brief 	Draws the image widget
- *
- * 		Draws an image widget as given by the widget *.
- *
- * \param   	W A pointer to the widget that should be drawn
- * \retval int  	Returns true
- * \callgraph
- */
-int image_draw(widget_list *W);
-
-/*!
- * \ingroup	images
- * \brief 	Sets the texture ID
- *
- * 		The function sets the texture ID (or rather, the location in the texture_cache) of the given widget.
- *
- * \param   	window_id The location of the window in the windows_list.window[] array
- * \param   	widget_id The widgets unique ID
- * \param   	id The location in the texture_cache array
- * \retval int  	Returns 1 on succes, 0 on failure (if the widget is not found in the given window)
- *
- * \sa widget_find
- */
-int image_set_id(int window_id, Uint32 widget_id, int id);
-
-/*!
  * \ingroup 	images
  * \brief 	Sets the UV coordinates of the image widget
  *
@@ -730,18 +705,6 @@ int checkbox_add_extended(int window_id, Uint32 wid,  int (*OnInit)(), Uint16 x,
  * \sa checkbox_add_extended
  */
 int checkbox_add(int window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, int *checked);
-
-/*!
- * \ingroup	checkboxes
- * \brief 	Draws a checkbox
- *
- * 		Draws the checkbox pointed to by *W.
- *
- * \param   	W The widget you wish to draw
- * \retval int  	Returns true
- * \callgraph
- */
-int checkbox_draw(widget_list *W);
 
 /*!
  * \ingroup	checkboxes
@@ -850,21 +813,6 @@ int button_add(int window_id, int (*OnInit)(), const char *text, Uint16 x, Uint1
 int button_resize(int window_id, Uint32 wid, Uint16 lx, Uint16 ly, float size);
 
 /*!
- * \ingroup	buttons
- * \brief 	Sets the button text
- *
- * 		Finds the given button widget and sets the button text
- *
- * \param   window_id The location of the window in the windows_list.window[] array
- * \param   widget_id The unique widget ID
- * \param   text The button label
- * \retval int  Returns 1 on succes, 0 on failure (if the widget is not found in the given window)
- *
- * \sa widget_find
- */
-int button_set_text(int window_id, Uint32 widget_id, const char *text);
-
-/*!
  * \ingroup buttons
  * \brief Draws a button with round corners.
  *
@@ -948,32 +896,6 @@ int progressbar_add(int window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 l
 
 /*!
  * \ingroup	progressbars
- * \brief 	Draws a progressbar
- *
- * 		The function draws the progressbar pointed to by *W
- *
- * \param   	W The progressbar widget that is going to be drawn
- * \retval int  	Returns false
- * \callgraph
- */
-int progressbar_draw(widget_list *W);
-
-/*!
- * \ingroup	progressbars
- * \brief 	Gets the progress from a progressbar
- *
- * 		Finds the progressbar widget and returns the current progress
- *
- * \param   	window_id The location of the window in the windows_list.window[] array
- * \param   	widget_id The unique widget ID
- * \retval float  	Returns -1 on failure, otherwise the current progress.
- *
- * \sa widget_find
- */
-float progressbar_get_progress(int window_id, Uint32 widget_id);
-
-/*!
- * \ingroup	progressbars
  * \brief 	Sets the current progress in the progressbar
  *
  * 		The function finds the progressbar and sets it's progress.
@@ -1032,18 +954,6 @@ int vscrollbar_add_extended(int window_id, Uint32 wid,  int (*OnInit)(), Uint16 
  * \sa vscrollbar_add_extended
  */
 int vscrollbar_add(int window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly);
-
-/*!
- * \ingroup	scrollbars
- * \brief 	Draws a vertical scrollbar
- *
- * 		Draws the vertical scrollbar given by *W
- *
- * \param   	W A pointer to the vertical scrollbar widget you wish to draw
- * \retval int  	Returns false
- * \callgraph
- */
-int vscrollbar_draw(widget_list *W);
 
 /*!
  * \ingroup	scrollbars
@@ -1176,18 +1086,6 @@ int tab_collection_get_tab_nr (int window_id, Uint32 col_id, int tab_id);
 
 /*!
  * \ingroup	tabs
- * \brief 	Returns the number of tabs in this collection
- *
- * 		Returns the number of tabs in this collection
- *
- * \param   	window_id The location of the window in the windows_list.window[] array
- * \param   	widget_id The unique widget ID of the tab collection
- * \retval int  	Returns the number of tabs, or -1 on failure
- */
-int tab_collection_get_nr_tabs (int window_id, Uint32 widget_id);
-
-/*!
- * \ingroup	tabs
  * \brief 	Sets the label color for a tab
  *
  * 		Sets the color with which the label of the tab belonging to the window with ID \a tab_id is drawn.
@@ -1277,25 +1175,14 @@ int tab_collection_add (int window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint
  * \param   	ly The height
  * \param   	Flags The flags
  * \param   	size The text size
- * \param	max_tabs The largest number of tabs this collection will hold
+ * \param   	max_tabs The largest number of tabs this collection will hold
+ * \param   	right_margin space to leave to the right of the line of tabs (for example, for a close box)
  * \retval int  	Returns the new widgets unique ID
  *
  * \sa tab_collection_add
  */
 int tab_collection_add_extended (int window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 y,
-	Uint16 lx, Uint16 ly, Uint32 Flags, float size, int max_tabs);
-
-/*!
- * \ingroup	tabs
- * \brief 	Draws a tabbed window collection
- *
- * 		Draws the vertical tabbed window collection given by *W
- *
- * \param   	W A pointer to the tabbed window collection you wish to draw
- * \retval int  	Returns 1 on success, 0 on error
- * \callgraph
- */
-int tab_collection_draw (widget_list *W);
+	Uint16 lx, Uint16 ly, Uint32 Flags, float size, int max_tabs, int right_margin);
 
 /*!
  * \ingroup	tabs
@@ -1394,16 +1281,16 @@ int text_field_add_extended (int window_id, Uint32 wid, int (*OnInit)(),
 	float size, text_message *buf, int buf_size, Uint8 chan_filt, int x_space, int y_space);
 
 /*!
- * \ingroup	textfields
- * \brief 	Draws a text field
+ * \ingroup textfields
+ * \brief Return the number of visible lines
  *
- * 		Draws the vertical textfield given by \a *w
+ * Return the number of lines shown by a text field.
  *
- * \param   	w A pointer to the text field you wish to draw
- * \retval int  	Returns 1 on success, 0 on error
- * \callgraph
+ * \param window_id The location of the window in the windows_list.window[] array
+ * \param widget_id The unique widget ID
+ * \retval int Return the number of visible lines on success, 0 on failure
  */
-int text_field_draw (widget_list *w);
+int text_field_get_nr_visible_lines(int window_id, int widget_id);
 
 /*!
  * \ingroup	textfields
@@ -1419,6 +1306,20 @@ int text_field_draw (widget_list *w);
  * \callgraph
  */
 int text_field_set_buf_pos (int window_id, Uint32 widget_id, int msg, int offset);
+/*!
+ * \ingroup	textfields
+ * \brief Scroll to a line
+ *
+ * Set the drawing offset of the text field such that it starts drawing at line \a line_nr.
+ *
+ * \param window_id The location of the window in the windows_list.window[] array
+ * \param widget_id The unique widget ID
+ * \param line_nr   The line number to scroll to (zero based)
+ * \retval int Returns 1 on success, 0 on error
+ * \sa text_field_set_buf_pos.
+ * \callgraph
+ */
+int text_field_scroll_to_line(int window_id, Uint32 widget_id, int line_nr);
 
 /*!
  * \ingroup	textfields
@@ -1433,22 +1334,6 @@ int text_field_set_buf_pos (int window_id, Uint32 widget_id, int msg, int offset
  * \callgraph
  */
 int text_field_clear (int window_id, Uint32 widget_id);
-
-/*!
- * \ingroup	textfields
- * \brief 	Sets the text color
- *
- * 		Sets the color with which the text is drawn. Not that color characters in the text override this setting.
- *
- * \param   	window_id The location of the window in the windows_list.window[] array
- * \param	widget_id The unique widget ID
- * \param	r the red component of the text color
- * \param	g the green component of the text color
- * \param	b the blue component of the text color
- * \retval int  	Returns 1 on success, 0 on error
- * \callgraph
- */
-int text_field_set_text_color (int window_id, Uint32 widget_id, float r, float g, float b);
 
 /*!
  * \ingroup	widgets
@@ -1466,20 +1351,6 @@ int text_field_set_text_color (int window_id, Uint32 widget_id, float r, float g
  */
 int text_field_keypress (widget_list *w, int mx, int my, SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_mod);
 
-/*!
- * \ingroup widgets
- *
- * \brief Force a text field to rewrap the lines.
- *
- * Force the textfield identified by window ID \a window_id and widget ID
- * \a widget_id, to recalculate the positions of the soft line breaks. This is
- * done e.g. in situations where the font or font size is changed.
- *
- * \param window_id The identifier for the window the text field resides in
- * \param widget_id The identifier for the text field widget
- */
-void text_field_force_rewrap(int window_id, Uint32 widget_id);
-
 //FIXME: Write documentation for these...
 #define P_NORMAL    0
 #define P_TEXT      1
@@ -1488,24 +1359,6 @@ void text_field_force_rewrap(int window_id, Uint32 widget_id);
 int pword_field_add (int window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint8 status, unsigned char *buffer, int buffer_size);
 int pword_field_add_extended (int window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint8 status, float size, unsigned char *buffer, int buffer_size);
 int pword_field_set_content(int window_id, Uint32 widget_id, const unsigned char* buf, size_t len);
-/*!
- * \ingroup widgets
- *
- * \brief Set the shadow color of the text
- *
- * Set the shadow color of the text in the password field identified by window ID \a window_id
- * and widget ID \a widget_id, to \a r, \a g, \a b. If this function is not called, or \a r < 0,
- * no shadow is drawn.
- *
- * \param window_id The window identifier for the password field
- * \param widget_id The widget identifier for the password field
- * \param r         The red component of the shadow color
- * \param g         The green component of the shadow color
- * \param b         The blue component of the shadow color
- * \return 1 on success, 0 on failure (widget not found)
- */
-int pword_field_set_shadow_color(int window_id, Uint32 widget_id, float r, float g, float b);
-void pword_set_status(widget_list *w, Uint8 status);
 int pword_clear(int window_id, Uint32 widget_id);
 
 int multiselect_add(int window_id, int (*OnInit)(), Uint16 x, Uint16 y, int width);
@@ -1514,8 +1367,11 @@ int multiselect_button_add(int window_id, Uint32 multiselect_id, Uint16 x, Uint1
 int multiselect_button_add_extended(int window_id, Uint32 multiselect_id, Uint16 x, Uint16 y, int width, const char *text, float size, const char selected);
 int multiselect_get_selected(int window_id, Uint32 widget_id);
 int multiselect_set_selected(int window_id, Uint32 widget_id, int button_id);
+int multiselect_get_scrollbar_pos(int window_id, Uint32 widget_id);
+int multiselect_set_scrollbar_pos(int window_id, Uint32 widget_id, int pos);
 int multiselect_get_height(int window_id, Uint32 widget_id);
 int multiselect_clear(int window_id, Uint32 widget_id);
+int multiselect_set_scrollbar_inc(int window_id, Uint32 multiselect_id, int inc);
 
 #define SPIN_FLOAT 0
 #define SPIN_INT 1
@@ -1623,21 +1479,6 @@ int widget_handle_paste(widget_list *widget, const char* text);
  * \param	half the width in pixels of cross lines
  */
 void draw_cross(int centre_x, int centre_y, int half_len, int half_width);
-
-
-// XML Windows
-
-/*!
- * \ingroup 	xml_windows
- * \brief 	Adds a window from an xml-file.
- *
- * 		Adds a window from an xml-file.
- *
- * \param   	fn The filename
- * \retval int  	Returns 0 on failure and the window_id on succes
- * \callgraph
- */
-int AddXMLWindow(char *fn);
 
 #ifdef __cplusplus
 } // extern "C"

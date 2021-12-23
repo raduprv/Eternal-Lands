@@ -1,10 +1,15 @@
 *.o
 .deps/
 make.conf
-el.x86.linux.bin
+el.linux.bin
 git_version
 map_editor/mapedit.x86.linux.bin
 docs/DOXYTAGS
 docs/html
 pawn_scripts/*.amx
 pawn_scripts/features.inc
+
+# macOS Specific
+.DS_Store
+.DS_Store?
+xcuserdata/

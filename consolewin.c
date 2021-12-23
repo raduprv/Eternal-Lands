@@ -38,7 +38,6 @@
  * - Mouse paste can resize input box (have a patch)
  * Code Tidy:
  * 	- Sort out len_y of console output text field - sep/margin etc
- * 	- Intimate use of input_widget all over the place in different modules
  */
 
 int console_scrollbar_enabled = 1;
@@ -48,7 +47,7 @@ static int console_out_id = 40;
 static int console_in_id = 41;
 static int console_scrollbar_id = 42;
 
-static int CONSOLE_Y_OFFSET = 25;
+static int CONSOLE_Y_OFFSET = 0;
 static const int CONSOLE_TEXT_X_BORDER = 10;
 
 static int nr_console_lines = 0;
@@ -56,6 +55,7 @@ static int total_nr_lines = 0;
 static int scroll_up_lines = 0;
 static int console_text_changed = 0;
 static int console_text_width = -1;
+static int hud_init_on_resize = 1;
 
 static inline int get_console_sep_height(void)
 {
@@ -82,10 +82,17 @@ static int display_console_handler (window_info *win)
 {
 	static int msg = 0, offset = 0;
 
-	if (get_tab_bar_y() != CONSOLE_Y_OFFSET)
+	if ((get_tab_bar_y() + get_input_at_top_height()) != CONSOLE_Y_OFFSET)
 	{
-		CONSOLE_Y_OFFSET = get_tab_bar_y();
+		CONSOLE_Y_OFFSET = get_tab_bar_y() + get_input_at_top_height();
+		// The resize handler calls the HUD initialisation which when done from
+		// the console display handler, causes the window to flash. As the HUD interface
+		// is not actually changed when we change CONSOLE_Y_OFFSET, just the console
+		// window size, we do not need to call the HUD init function in this case.
+		// Ok, its a hack.
+		hud_init_on_resize = 0;
 		resize_window(win->window_id, win->len_x, win->len_y);
+		hud_init_on_resize = 1;
 	}
 
 	if (console_text_changed)
@@ -102,7 +109,7 @@ static int display_console_handler (window_info *win)
 	{
 		glColor3f (1.0, 1.0, 1.0);
 		draw_console_separator(CONSOLE_TEXT_X_BORDER,
-			win->len_y - HUD_MARGIN_Y - input_widget->len_y - get_console_sep_height(),
+			win->len_y - HUD_MARGIN_Y - get_input_at_bottom_height() - get_console_sep_height(),
 			console_text_width, 1.0);
 	}
 	//ttlanhil: disabled, until the scrolling in console is adusted to work with filtering properly
@@ -213,14 +220,13 @@ static int resize_console_handler (window_info *win, int width, int height)
 	int scrollbar_x_adjust = (console_scrollbar_enabled) ?win->box_size :0;
 	int console_active_width = width - HUD_MARGIN_X;
 	int console_active_height = height - HUD_MARGIN_Y;
-	int text_display_height = console_active_height - input_widget->len_y - get_console_sep_height() - CONSOLE_Y_OFFSET;
+	int text_display_height = console_active_height - get_input_at_bottom_height() - get_console_sep_height() - CONSOLE_Y_OFFSET;
 
 	console_text_width = (int) (console_active_width - 2*CONSOLE_TEXT_X_BORDER - scrollbar_x_adjust);
 
 	widget_resize (win->window_id, console_out_id, console_text_width, text_display_height);
 	widget_move (win->window_id, console_out_id, CONSOLE_TEXT_X_BORDER, CONSOLE_Y_OFFSET);
-	widget_resize (win->window_id, input_widget->id, console_active_width, input_widget->len_y);
-	widget_move (win->window_id, input_widget->id, 0, console_active_height - input_widget->len_y);
+	input_widget_move_to_win(win->window_id);
 
 	nr_console_lines = get_max_nr_lines(text_display_height, CHAT_FONT, 1.0);
 	recalc_message_lines();
@@ -236,7 +242,7 @@ static int resize_console_handler (window_info *win, int width, int height)
 	if (scroll_up_lines && (total_nr_lines <= nr_console_lines))
 		scroll_up_lines = 0;
 
-	if (get_show_window(win->window_id))
+	if (get_show_window(win->window_id) && hud_init_on_resize)
 		init_hud_interface (HUD_INTERFACE_GAME);
 
 	return 1;
@@ -258,11 +264,11 @@ static void create_console_scrollbar(window_info *win)
 {
 	int console_active_width = window_width - HUD_MARGIN_X;
 	int console_active_height = window_height - HUD_MARGIN_Y;
-	if (input_widget == NULL)
+	if (!have_console_input())
 		return;
 	console_scrollbar_id = vscrollbar_add_extended(win->window_id, console_scrollbar_id, NULL,
 		console_active_width - win->box_size, CONSOLE_Y_OFFSET,
-		win->box_size, console_active_height - get_console_sep_height() - CONSOLE_Y_OFFSET - input_widget->len_y,
+		win->box_size, console_active_height - get_console_sep_height() - CONSOLE_Y_OFFSET - get_input_at_bottom_height(),
 		0, 1.0, 0, 1, total_nr_lines-nr_console_lines);
 	widget_set_OnDrag(win->window_id, console_scrollbar_id, console_scroll_drag);
 	widget_set_OnClick(win->window_id, console_scrollbar_id, console_scroll_click);
@@ -328,7 +334,8 @@ int get_total_nr_lines(void)
 	return total_nr_lines;
 }
 
-void clear_console(){
+void clear_console(void)
+{
 	console_text_changed = 1;
 	clear_lines_to_show();
 	scroll_up_lines = 0;
@@ -385,7 +392,7 @@ static int change_console_font_handler(window_info *win, font_cat cat)
 	if (cat != CHAT_FONT)
 		return 0;
 
-	nr_console_lines = get_max_nr_lines(window_height - input_widget->len_y - get_console_sep_height() - hud_y - CONSOLE_Y_OFFSET,
+	nr_console_lines = get_max_nr_lines(window_height - get_input_at_bottom_height() - get_console_sep_height() - hud_y - CONSOLE_Y_OFFSET,
 		CHAT_FONT, 1.0);
 	resize_console_handler(win, window_width, window_height);
 	return 1;
@@ -400,7 +407,6 @@ void create_console_root_window (int width, int height)
 		int scrollbar_x_adjust = 0;
 		int console_active_width = width - HUD_MARGIN_X;
 		int console_active_height = height - HUD_MARGIN_Y;
-		int input_height = get_input_height();
 
 		console_root_win = create_window ("Console", -1, -1, 0, 0, width, height, ELW_USE_UISCALE|ELW_TITLE_NONE|ELW_SHOW_LAST);
 		set_id_MW(MW_CONSOLE, console_root_win);
@@ -423,25 +429,19 @@ void create_console_root_window (int width, int height)
 
 		console_out_id = text_field_add_extended(console_root_win, console_out_id, NULL,
 			CONSOLE_TEXT_X_BORDER, CONSOLE_Y_OFFSET, console_text_width,
-			console_active_height - input_height - get_console_sep_height() - CONSOLE_Y_OFFSET,
+			console_active_height - get_input_default_height() - get_console_sep_height() - CONSOLE_Y_OFFSET,
 			0, CHAT_FONT, 1.0, display_text_buffer, DISPLAY_TEXT_BUFFER_SIZE, CHAT_ALL, 0, 0);
 		widget_unset_color(console_root_win, console_out_id);
 
 		recalc_message_lines();
 
-		if (input_widget == NULL)
-		{
-			Uint32 id;
-			id = text_field_add_extended(console_root_win, console_in_id, NULL,
-				0, console_active_height - input_height, console_active_width, input_height,
-				(INPUT_DEFAULT_FLAGS|TEXT_FIELD_BORDER)^WIDGET_CLICK_TRANSPARENT,
-				CHAT_FONT, 1.0, &input_text_line, 1, FILTER_ALL, INPUT_MARGIN, INPUT_MARGIN);
-			input_widget = widget_find(console_root_win, id);
-			input_widget->OnResize = input_field_resize;
-		}
-		widget_set_OnKey(input_widget->window_id, input_widget->id, (int (*)())chat_input_key);
+		if (!have_console_input())
+			create_console_input(console_root_win, console_in_id,
+				0, console_active_height - get_input_default_height(), console_active_width, get_input_default_height(),
+				(INPUT_DEFAULT_FLAGS|TEXT_FIELD_BORDER)^WIDGET_CLICK_TRANSPARENT);
+		set_console_input_onkey();
 
-		nr_console_lines = get_max_nr_lines(console_active_height - input_widget->len_y - get_console_sep_height() - CONSOLE_Y_OFFSET,
+		nr_console_lines = get_max_nr_lines(console_active_height - get_input_at_bottom_height() - get_console_sep_height() - CONSOLE_Y_OFFSET,
 			CHAT_FONT, 1.0);
 
 		if (console_scrollbar_enabled && (console_root_win >= 0) && (console_root_win < windows_list.num_windows))
@@ -455,8 +455,8 @@ void create_console_root_window (int width, int height)
 int input_field_resize(widget_list *w, Uint32 x, Uint32 y)
 {
 	int console_root_win = get_id_MW(MW_CONSOLE);
-	window_info *console_win = &windows_list.window[console_root_win];
-	widget_list *console_out_w = widget_find(console_root_win, console_out_id);
+	window_info *console_win = NULL;
+	widget_list *console_out_w = NULL;
 	text_field *tf = w->widget_info;
 	text_message *msg = &(tf->buffer[tf->msg]);
 	int console_active_height;
@@ -465,12 +465,18 @@ int input_field_resize(widget_list *w, Uint32 x, Uint32 y)
 	msg->wrap_width = 0;
 	tf->nr_lines = rewrap_message(msg, w->fcat, w->size,
 		w->len_x - 2 * tf->x_space, &tf->cursor);
-	if(use_windowed_chat != 2 || !get_show_window(get_id_MW(MW_CHAT))) {
-		window_info *win = &windows_list.window[w->window_id];
-		widget_move(input_widget->window_id, input_widget->id, 0, win->len_y - input_widget->len_y - HUD_MARGIN_Y);
-	}
 
-	console_active_height = console_win->len_y - HUD_MARGIN_Y - input_widget->len_y - get_console_sep_height() - CONSOLE_Y_OFFSET;
+	move_console_input_on_input_resize();
+
+	// check pointers as at inital start up, as with some combinations of chat, we can get called before the console setup is complete
+	if ((console_root_win < 0) || (console_root_win > windows_list.num_windows))
+		return 0;
+	console_win = &windows_list.window[console_root_win];
+	console_out_w = widget_find(console_root_win, console_out_id);
+	if ((console_win == NULL) || (console_out_w == NULL))
+		return 0;
+
+	console_active_height = console_win->len_y - HUD_MARGIN_Y - get_input_at_bottom_height() - get_console_sep_height() - CONSOLE_Y_OFFSET;
 	widget_resize(console_root_win, console_out_id, console_out_w->len_x, console_active_height);
 	if (console_scrollbar_enabled)
 		widget_resize(console_root_win, console_scrollbar_id, console_win->box_size, console_active_height);

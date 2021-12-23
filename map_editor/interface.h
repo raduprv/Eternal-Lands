@@ -29,6 +29,8 @@ extern "C"
 #define tool_select 2
 #define tool_clone 3
 
+extern int toolbar_button_height;
+
 extern int mouse_x;
 extern int mouse_y;
 extern int mouse_delta_x;
