@@ -1251,6 +1251,16 @@ static void change_use_json_user_files(int *var)
 	else
 		USE_JSON_DEBUG("Not ready for user files");
 }
+
+void check_using_json_files(void)
+{
+	if (!use_json_user_files && ready_for_user_files)
+	{
+		LOG_INFO("Forcing JSON files");
+		set_var_unsaved("use_json_user_files_v1", INI_FILE_VAR);
+		change_use_json_user_files(&use_json_user_files);
+	}
+}
 #endif
 
 static void change_dark_channeltext(int *dct, int value)
@@ -2982,7 +2992,7 @@ static void init_ELC_vars(void)
 	add_var(OPT_BOOL,"showcustomclothing","scc",&custom_clothing,change_custom_clothing,1,"Show Custom clothing","Toggles whether custom clothing is shown.",SERVER);
 #endif	//CUSTOM_UPDATE
 #ifdef JSON_FILES
-	add_var(OPT_BOOL, "use_json_user_files_v1", "usejsonuserfiles_v1", &use_json_user_files, change_use_json_user_files, 0, "Use New Format To Save User Files (.json)",
+	add_var(OPT_BOOL_INI, "use_json_user_files_v1", "usejsonuserfiles_v1", &use_json_user_files, change_use_json_user_files, 0, "Use New Format To Save User Files (.json)",
 		"NOTE: Use this option to enable the new format for saving user data.  If you change this option, data is automatically saved using the chosen format.  Disable this option before switching back to 1.9.5p8 or older clients.", SERVER);
 #endif
 	// SERVER TAB

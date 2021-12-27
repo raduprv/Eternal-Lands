@@ -1680,6 +1680,8 @@ void save_local_data(void)
 	save_channel_colors();
 #ifdef JSON_FILES
 	save_character_options();
+	// if we not already using json files, switch to them now and save again
+	check_using_json_files();
 #endif
 }
 
