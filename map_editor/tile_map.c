@@ -142,12 +142,7 @@ void load_map_tiles()
 
 int get_tile_walkable(const int x, const int y)
 {
-	if (!get_tile_valid(x, y))
-	{
-		return 0;
-	}
-
-	return (height_map[x * tile_map_size_x * 6 + y] & 0x3F) != 0;
+	return get_tile_valid(x, y) && (height_map[y * tile_map_size_x * 6 + x] & 0x3F) != 0;
 }
 
 int get_tile_valid(const int x, const int y)

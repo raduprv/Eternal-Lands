@@ -45,6 +45,7 @@
 #include "item_info.h"
 #include "item_lists.h"
 #include "loginwin.h"
+#include "platform.h"
 #include "questlog.h"
 #include "sound.h"
 #include "storage.h"
@@ -395,7 +396,7 @@ namespace ItemLists
 		// don't use a list with unequal or empty data sets
 		if ((quantities.size() != image_ids.size()) || (quantities.size() != item_ids.size()) || quantities.empty())
 		{
-			LOG_ERROR("%s: %s name=[%s] #id=%zu #cnts=%zu #uid=%zu\n", __FILE__,
+			LOG_ERROR("%s: %s name=[%s] #id=%" PRI_SIZET " #cnts=%" PRI_SIZET " #uid=%" PRI_SIZET "\n", __FILE__,
 				item_list_format_error, name_line.c_str(), size_t(image_ids.size()),
 				size_t(quantities.size()), size_t(item_ids.size()));
 			format_error = true;

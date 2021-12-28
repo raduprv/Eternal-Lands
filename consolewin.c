@@ -455,8 +455,8 @@ void create_console_root_window (int width, int height)
 int input_field_resize(widget_list *w, Uint32 x, Uint32 y)
 {
 	int console_root_win = get_id_MW(MW_CONSOLE);
-	window_info *console_win = &windows_list.window[console_root_win];
-	widget_list *console_out_w = widget_find(console_root_win, console_out_id);
+	window_info *console_win = NULL;
+	widget_list *console_out_w = NULL;
 	text_field *tf = w->widget_info;
 	text_message *msg = &(tf->buffer[tf->msg]);
 	int console_active_height;
@@ -467,6 +467,14 @@ int input_field_resize(widget_list *w, Uint32 x, Uint32 y)
 		w->len_x - 2 * tf->x_space, &tf->cursor);
 
 	move_console_input_on_input_resize();
+
+	// check pointers as at inital start up, as with some combinations of chat, we can get called before the console setup is complete
+	if ((console_root_win < 0) || (console_root_win > windows_list.num_windows))
+		return 0;
+	console_win = &windows_list.window[console_root_win];
+	console_out_w = widget_find(console_root_win, console_out_id);
+	if ((console_win == NULL) || (console_out_w == NULL))
+		return 0;
 
 	console_active_height = console_win->len_y - HUD_MARGIN_Y - get_input_at_bottom_height() - get_console_sep_height() - CONSOLE_Y_OFFSET;
 	widget_resize(console_root_win, console_out_id, console_out_w->len_x, console_active_height);

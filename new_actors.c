@@ -635,10 +635,7 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 #endif
 
 	if(actor_type >= MAX_ACTOR_DEFS || (actor_type > 0 && actors_defs[actor_type].actor_type != actor_type) ){
-		char    str[256];
-
-		safe_snprintf(str, sizeof(str), "Illegal/missing enhanced actor definition %d", actor_type);
-		LOG_ERROR(str);
+		LOG_ERROR("Illegal/missing enhanced actor definition %d", actor_type);
 		return;		// We cannot load an actor without a def (seg fault) so bail here.
 	}
 
@@ -822,7 +819,7 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 		if (!already_said)
 		{
 			char *message = "Looks like we compiled with NEW_EYES but do not have the textures";
-			LOG_ERROR(message);
+			LOG_ERROR("%s", message);
 			LOG_TO_CONSOLE(c_red2,message);
 			already_said = 1;
 		}
@@ -1219,7 +1216,7 @@ actor * add_actor_interface(float x, float y, float z_rot, float scale, int acto
 	a->stop_animation=1;//helps when the actor is dead...
 	a->kind_of_actor=HUMAN;
 
-	safe_snprintf(a->actor_name, sizeof(a->actor_name), playername);
+	safe_snprintf(a->actor_name, sizeof(a->actor_name), "%s", playername);
 
 	if (actors_defs[actor_type].coremodel!=NULL) {
 		a->calmodel=model_new(actors_defs[actor_type].coremodel);

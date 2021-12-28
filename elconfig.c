@@ -62,6 +62,7 @@
  #include "openingwin.h"
  #include "particles.h"
  #include "password_manager.h"
+ #include "platform.h"
  #include "pm_log.h"
  #include "questlog.h"
  #include "reflection.h"
@@ -83,6 +84,7 @@
  #include "io/elpathwrapper.h"
  #include "notepad.h"
  #include "sky.h"
+ #include "servers.h"
  #ifdef OSX
   #include "events.h"
  #endif // OSX
@@ -151,7 +153,7 @@ static int recheck_window_scale = 0;
 #define ELCONFIG_SCALED_VALUE(BASE) ((int)(0.5 + ((BASE) * elconf_scale)))
 #endif
 
-#define MULTI_LINE_HEIGHT (ELCONFIG_SCALED_VALUE(22) + SPACING)
+#define MULTI_LINE_HEIGHT (ELCONFIG_SCALED_VALUE(2.0 * BUTTONRADIUS * DEFAULT_SMALL_RATIO) + SPACING)
 
 typedef char input_line[256];
 
@@ -600,6 +602,13 @@ static void change_use_animation_program(int * var)
 			LOG_TO_CONSOLE(c_red1, "Not using vertex program for actor animation.");
 		}
 	}
+}
+
+static void change_def_server(size_t *var, size_t value)
+{
+	*var = value;
+	// save the server to the base config file
+	write_def_server_ID(value);
 }
 #endif //MAP_EDITOR
 
@@ -1816,7 +1825,7 @@ static int set_var_OPT_MULTI(const char *str, size_t new_value)
 		size_t max_sel = option->args.multi.count;
 		if (new_value >= max_sel)
 		{
-			LOG_ERROR("Invalid value '%lu' for var '%s', type 'OPT_MULTI*' max '%lu'", new_value, str, max_sel);
+			LOG_ERROR("Invalid value '%'" PRI_SIZET " for var '%s', type 'OPT_MULTI*' max '%" PRI_SIZET "'", new_value, str, max_sel);
 			return 0;
 		}
 		option->func(option->var, new_value);
@@ -2558,6 +2567,7 @@ int command_set_default_fonts(char *text, int len)
 		"book_font", "rules_font", "encyclopedia_font" };
 	char const * size_vars[] = { "ui_text_size", "name_text_size", "chat_text_size",
 		"note_text_size", "book_text_size", "rules_text_size", "encyclopedia_text_size" };
+	const float def_font_size[] = { 1.0f, get_global_scale(), get_global_scale(), 1.0f, 1.0f, 1.0f, 1.0f };
 	char const * font_names[] = { def_ui_font_str, def_name_font_str, def_chat_font_str,
 		def_note_font_str, def_book_font_str, def_rules_font_str, def_encyclopedia_font_str };
 	int elconfig_win = get_id_MW(MW_CONFIG);
@@ -2586,7 +2596,7 @@ int command_set_default_fonts(char *text, int len)
 		var_idx = find_var(size_vars[i], INI_FILE_VAR);
 		if (var_idx >= 0)
 		{
-			float new_val = 1.0f;
+			float new_val = def_font_size[i];
 			var_struct *var = our_vars.var[var_idx];
 			var->func(var->var, &new_val);
 			var->saved = 0;
@@ -3237,6 +3247,23 @@ int read_el_ini (void)
 #endif
 
 	fclose (fin);
+
+#ifdef	ELC
+	// add the default server selection option now we know the servers list has been loaded
+	// the ini file value is never used, we just want to use the options UI to set the base config file value
+	{
+		static size_t def_server_index = 0;
+		def_server_index = get_def_server_index();
+		add_var(OPT_MULTI, "autoset_def_server_index", "adefsrvi", &def_server_index, change_def_server,
+			(def_server_index > 0) ?def_server_index :0, "Default Server ID",
+			"Set the default server ID when starting the client; "
+			"stored in a file of the users top level config folder and shared across all configurations.  "
+			"If not set the main server ID is used.  Command line options will overide these values.",
+			SERVER, NULL);
+		populate_def_server_options("autoset_def_server_index");
+	}
+#endif
+
 	return 1;
 }
 
@@ -3794,7 +3821,8 @@ static void elconfig_populate_tabs(void)
 	int spin_button_width = max2i(ELCONFIG_SCALED_VALUE(100),
 		4 * get_max_digit_width_zoom(CONFIG_FONT, elconf_scale) + 4 * (int)(0.5 + 5 * elconf_scale));
 	int right_margin = TAB_MARGIN;
-	int multi_height = 3 * MULTI_LINE_HEIGHT;
+	const int num_visible_options = 3;
+	const int multi_height = num_visible_options * MULTI_LINE_HEIGHT;
 
 	for(i= 0; i < MAX_TABS; i++) {
 		//Set default values
@@ -3885,7 +3913,7 @@ static void elconfig_populate_tabs(void)
 				widget_width = ELCONFIG_SCALED_VALUE(250);
 				widget_id = multiselect_add_extended(window_id, elconfig_free_widget_id++, NULL,
 					window_width - right_margin - widget_width, current_y, widget_width,
-					multi_height, elconf_scale, gui_color[0], gui_color[1], gui_color[2],
+					multi_height - SPACING + 2, elconf_scale, gui_color[0], gui_color[1], gui_color[2],
 					gui_invert_color[0], gui_invert_color[1], gui_invert_color[2], 0);
 				for (iopt = 0; iopt < var->args.multi.count; ++iopt)
 				{
@@ -3896,6 +3924,7 @@ static void elconfig_populate_tabs(void)
 						0, iopt * MULTI_LINE_HEIGHT, 0, label,
 						DEFAULT_SMALL_RATIO*elconf_scale, iopt == *(int *)var->var);
 				}
+				multiselect_set_scrollbar_inc(window_id, widget_id, var->args.multi.count - num_visible_options);
 				multiselect_set_selected(window_id, widget_id, *((const int*)var->var));
 				widget_set_OnClick(window_id, widget_id, multiselect_click_handler);
 				widget_set_OnKey(window_id, widget_id, (int (*)())multiselect_keypress_handler);

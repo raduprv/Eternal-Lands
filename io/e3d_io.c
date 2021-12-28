@@ -476,7 +476,7 @@ static e3d_object* do_load_e3d_detail(e3d_object* cur_object)
 	{
 		if (index_size != sizeof(Uint16))
 		{
-			LOG_ERROR("File '%s' has wrong index size! Expected size %zu, found size %d.",
+			LOG_ERROR("File '%s' has wrong index size! Expected size %" PRI_SIZET ", found size %d.",
 				cur_object->file_name, sizeof(Uint16), index_size);
 			free_e3d_pointer(cur_object);
 			el_close(file);
@@ -487,7 +487,7 @@ static e3d_object* do_load_e3d_detail(e3d_object* cur_object)
 	{
 		if (index_size != sizeof(Uint32))
 		{
-			LOG_ERROR("File '%s' has wrong index size! Expected size %zu, found size %d.",
+			LOG_ERROR("File '%s' has wrong index size! Expected size %" PRI_SIZET ", found size %d.",
 				cur_object->file_name, sizeof(Uint32), index_size);
 			free_e3d_pointer(cur_object);
 			el_close(file);

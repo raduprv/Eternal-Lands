@@ -574,29 +574,29 @@ void ogg_error(int code)
 	switch(code)
 	{     
 		case OV_EREAD:
-			LOG_ERROR(snd_media_read); break;
+			LOG_ERROR("%s", snd_media_read); break;
 		case OV_ENOTVORBIS:
-			LOG_ERROR(snd_media_notvorbis); break;
+			LOG_ERROR("%s", snd_media_notvorbis); break;
 		case OV_EVERSION:
-			LOG_ERROR(snd_media_ver_mismatch); break;
+			LOG_ERROR("%s", snd_media_ver_mismatch); break;
 		case OV_EBADHEADER:
-			LOG_ERROR(snd_media_invalid_header); break;
+			LOG_ERROR("%s", snd_media_invalid_header); break;
 		case OV_EFAULT:
-			LOG_ERROR(snd_media_internal_error); break;
+			LOG_ERROR("%s", snd_media_internal_error); break;
 		case OV_EOF:
-			LOG_ERROR(snd_media_eof); break;
+			LOG_ERROR("%s", snd_media_eof); break;
 		case OV_HOLE:
-			LOG_ERROR(snd_media_hole); break;
+			LOG_ERROR("%s", snd_media_hole); break;
 		case OV_EINVAL:
-			LOG_ERROR(snd_media_einval); break;
+			LOG_ERROR("%s", snd_media_einval); break;
 		case OV_EBADLINK:
-			LOG_ERROR(snd_media_ebadlink); break;
+			LOG_ERROR("%s", snd_media_ebadlink); break;
 		case OV_FALSE:
-			LOG_ERROR(snd_media_false); break;
+			LOG_ERROR("%s", snd_media_false); break;
 		case OV_ENOSEEK:
-			LOG_ERROR(snd_media_enoseek); break;
+			LOG_ERROR("%s", snd_media_enoseek); break;
 		default:
-			LOG_ERROR(snd_media_ogg_error);
+			LOG_ERROR("%s", snd_media_ogg_error);
     }
 }
 
@@ -1305,7 +1305,7 @@ int process_stream(stream_data * stream, ALfloat gain, int * sleep)
 		else
 		{
 			LOG_TO_CONSOLE(c_red1, snd_too_slow);
-			LOG_ERROR(snd_too_slow);
+			LOG_ERROR("%s", snd_too_slow);
 			if (stream->type == STREAM_TYPE_MUSIC)
 				turn_music_off();
 			else
@@ -4302,7 +4302,7 @@ void init_sound()
 			char str[256];
 			safe_snprintf(str, sizeof(str), "alcOpenDevice(): %s: %s\n", snd_init_error, alcGetString(device, error));
 			LOG_TO_CONSOLE(c_red1, str);
-			LOG_ERROR(str);
+			LOG_ERROR("%s", str);
 			have_sound = have_music = 0;
 			return;
 		} else {
@@ -4319,7 +4319,7 @@ void init_sound()
 		char str[256];
 		safe_snprintf(str, sizeof(str), "context: %s: %s\n", snd_init_error, alcGetString(device, error));
 		LOG_TO_CONSOLE(c_red1, str);
-		LOG_ERROR(str);
+		LOG_ERROR("%s", str);
 		have_sound = have_music = 0;
 		return;
 	}
@@ -4349,9 +4349,7 @@ void init_sound()
 
 	if ((error = alGetError()) != AL_NO_ERROR)
 	{
-		char str[256];
-		safe_snprintf(str, sizeof(str), "%s: Error setting up listener - %s\n", snd_init_error, alGetString(error));
-		LOG_ERROR(str);
+		LOG_ERROR("%s: Error setting up listener - %s\n", snd_init_error, alGetString(error));
 	}
 
 	// Start with our max and see how many sources we can allocate
@@ -4384,7 +4382,7 @@ void init_sound()
 				char str[256];
 				safe_snprintf(str, sizeof(str), "alGenSources(): %s: %s - %s\n", snd_init_error, snd_source_error, alGetString(error));
 				LOG_TO_CONSOLE(c_red1, str);
-				LOG_ERROR(str);
+				LOG_ERROR("%s", str);
 				have_sound = have_music = 0;
 				UNLOCK_SOUND_LIST();
 				return;
@@ -4488,7 +4486,7 @@ void destroy_sound()
 		char str[256];
 		safe_snprintf(str, sizeof(str), "%s: %s\n", snd_init_error, alcGetString(device, error));
 		LOG_TO_CONSOLE(c_red1, str);
-		LOG_ERROR(str);
+		LOG_ERROR("%s", str);
 	}
 }
 
@@ -5850,7 +5848,7 @@ void load_sound_config_data (const char *file)
 	{
 		char str[200];
 		safe_snprintf(str, sizeof(str), snd_config_open_err_str, file);
-		LOG_ERROR(str);
+		LOG_ERROR("%s", str);
 		LOG_TO_CONSOLE(c_red1,str);
 	}
 	// Can we find a root element

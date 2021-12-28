@@ -9,6 +9,7 @@
 #include <SDL_types.h>
 #include <libxml/tree.h>
 #include "client_serv.h"
+#include "platform.h"
 #ifndef MAP_EDITOR
 #include "font.h"
 #endif

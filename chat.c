@@ -36,6 +36,7 @@
 static queue_t *chan_name_queue;
 static widget_list *input_widget = NULL;
 int console_input_at_top = 0;
+static int input_widget_start_x = 1;
 
 /*!
  * \name Tabbed and old behaviour chat
@@ -163,6 +164,17 @@ int get_tabbed_chat_end_x(void)
 	return windows_list.window[tab_bar_win].cur_x + windows_list.window[tab_bar_win].len_x;
 }
 
+static void common_non_windowed_move_input_widget(window_info *win)
+{
+	if ((win == NULL) || (input_widget == NULL))
+		return;
+
+	if (console_input_at_top)
+		widget_move(input_widget->window_id, input_widget->id, input_widget_start_x, get_tab_bar_y());
+	else
+		widget_move(input_widget->window_id, input_widget->id, input_widget_start_x, win->len_y - input_widget->len_y - HUD_MARGIN_Y);
+}
+
 void input_widget_move_to_win(int window_id)
 {
 	window_info *win = NULL;
@@ -205,12 +217,7 @@ void input_widget_move_to_win(int window_id)
 		widget_set_flags(input_widget->window_id, input_widget->id, flags);
 		tf->x_space = tf->y_space = INPUT_MARGIN * font_scales[CHAT_FONT];
 		widget_resize(input_widget->window_id, input_widget->id,
-			win->len_x - HUD_MARGIN_X, 2 * tf->y_space + text_height);
-
-		if (console_input_at_top)
-			widget_move(input_widget->window_id, input_widget->id, 0, get_tab_bar_y());
-		else
-			widget_move(input_widget->window_id, input_widget->id, 0, win->len_y-input_widget->len_y-HUD_MARGIN_Y);
+			win->len_x - HUD_MARGIN_X - input_widget_start_x, 2 * tf->y_space + text_height);
 	}
 }
 
@@ -1141,10 +1148,8 @@ static int close_chat_handler (window_info *win)
 		return 1;
 	}
 
-	// revert to using the tab bar
-	// call the config function to make sure it's done properly
-	change_windowed_chat(&use_windowed_chat, 1);
-	set_var_unsaved("windowed_chat", INI_FILE_VAR);
+	// revert to using the tab bar, new state will be saved
+	set_multiselect_var("windowed_chat", 1, 1);
 
 	return 1;
 }
@@ -1373,7 +1378,7 @@ void init_channel_names(void)
 	if (doc == NULL ) {
 		doc = xmlParseFile("languages/en/strings/channels.xml");
 		if (doc == NULL) { //darn, don't have that either?
-			LOG_ERROR (using_builtin_chanlist);
+			LOG_ERROR ("%s", using_builtin_chanlist);
 			generic_chans();
 			return;
 		}
@@ -1385,7 +1390,7 @@ void init_channel_names(void)
 	cur = xmlDocGetRootElement (doc);
 	if (cur == NULL) {
 		// Use generics. Defaulting to english, then using the fallbacks makes obfuscated, messy code.
-		LOG_ERROR (using_builtin_chanlist);
+		LOG_ERROR ("%s", using_builtin_chanlist);
 		generic_chans();
 		xmlFreeDoc(doc);
 		return;
@@ -1410,12 +1415,12 @@ void init_channel_names(void)
 			// Get the name.
 			attrib = xmlGetProp (cur, (xmlChar*)"name");
 			if (attrib == NULL) {
-				LOG_ERROR (xml_bad_node);
+				LOG_ERROR ("%s", xml_bad_node);
 				xmlFree (attrib);
 				continue;
 			}
 			if (xmlStrlen(attrib) < 1) {
-				LOG_ERROR (xml_bad_node);
+				LOG_ERROR ("%s", xml_bad_node);
 				xmlFree (attrib);
 				continue;
 			}
@@ -1425,12 +1430,12 @@ void init_channel_names(void)
 			// Get the index number
 			attrib = xmlGetProp (cur, (xmlChar*)"index");
 			if (attrib == NULL) {
-				LOG_ERROR (xml_bad_node);
+				LOG_ERROR ("%s", xml_bad_node);
 				xmlFree (attrib);
 				continue;
 			}
 			if (xmlStrlen(attrib) < 1) {
-				LOG_ERROR (xml_bad_node);
+				LOG_ERROR ("%s", xml_bad_node);
 				xmlFree (attrib);
 				continue;
 			}
@@ -1440,7 +1445,7 @@ void init_channel_names(void)
 			// Get the description.
 			if ((cur->children == NULL) || (strlen ((char*)cur->children->content) < 1)) {
 				free (channelname);
-				LOG_ERROR (xml_bad_node);
+				LOG_ERROR ("%s", xml_bad_node);
 				continue;
 			}
 			attrib = cur->children->content;
@@ -1454,12 +1459,12 @@ void init_channel_names(void)
 			// Get the channel.
 			attrib = xmlGetProp (cur, (xmlChar*)"number");
 			if (attrib == NULL){
-				LOG_ERROR (xml_bad_node);
+				LOG_ERROR ("%s", xml_bad_node);
 				xmlFree (attrib);
 				continue;
 			}
 			if (xmlStrlen(attrib) < 1){
-				LOG_ERROR (xml_bad_node);
+				LOG_ERROR ("%s", xml_bad_node);
 				xmlFree (attrib);
 				continue;
 			}
@@ -1469,12 +1474,12 @@ void init_channel_names(void)
 			// Get the name.
 			attrib = xmlGetProp (cur, (xmlChar*)"name");
 			if (attrib == NULL){
-				LOG_ERROR (xml_bad_node);
+				LOG_ERROR ("%s", xml_bad_node);
 				xmlFree (attrib);
 				continue;
 			}
 			if (xmlStrlen(attrib) < 1){
-				LOG_ERROR (xml_bad_node);
+				LOG_ERROR ("%s", xml_bad_node);
 				xmlFree (attrib);
 				continue;
 			}
@@ -1484,11 +1489,11 @@ void init_channel_names(void)
 			// Get the description.
 			if (cur->children == NULL) {
 				free (channelname);
-				LOG_ERROR (xml_bad_node);
+				LOG_ERROR ("%s", xml_bad_node);
 				continue;
 			} else if (strlen ((char*)cur->children->content) < 1) {
 				free (channelname);
-				LOG_ERROR (xml_bad_node);
+				LOG_ERROR ("%s", xml_bad_node);
 				continue;
 			}
 			attrib = cur->children->content;
@@ -1505,7 +1510,7 @@ void init_channel_names(void)
 	}
 	if(queue_isempty(chan_name_queue)) {
 		//how did we not get any channels from it?
-		LOG_ERROR(using_builtin_chanlist);
+		LOG_ERROR("%s", using_builtin_chanlist);
 		generic_chans();
 	}
 	xmlFreeDoc(doc);
@@ -3063,16 +3068,8 @@ void check_and_get_console_input(int window_id)
 void move_console_input_on_input_resize(void)
 {
 	if ((input_widget != NULL) && ((use_windowed_chat != 2) || !get_show_window(get_id_MW(MW_CHAT))))
-	{
 		if ((input_widget->window_id >= 0) && (input_widget->window_id < windows_list.num_windows))
-		{
-			if (console_input_at_top)
-				widget_move(input_widget->window_id, input_widget->id, 0, get_tab_bar_y());
-			else
-				widget_move(input_widget->window_id, input_widget->id,
-					0, windows_list.window[input_widget->window_id].len_y - input_widget->len_y - HUD_MARGIN_Y);
-		}
-	}
+			common_non_windowed_move_input_widget(&windows_list.window[input_widget->window_id]);
 }
 
 int have_console_input(void)
@@ -3096,6 +3093,8 @@ void create_console_input(int window_id, int widget_id, int pos_x, int pos_y, in
 
 	input_widget = widget_find(window_id, id);
 	input_widget->OnResize = input_field_resize;
+
+	input_widget_move_to_win(window_id);
 }
 
 void set_console_input_onkey(void)

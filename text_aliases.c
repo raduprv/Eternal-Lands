@@ -21,6 +21,7 @@
 #include "dbuffer.h"
 #include "asc.h"
 #include "chat.h"
+#include "platform.h"
 
 static char *numeric_aliases[100]; /* Stores the alias buffer */
 static int numeric_alias_sizes[100]; /* Stores the alias buffer size */
@@ -313,7 +314,7 @@ static dbuffer_t *expand_alias_parameters( char *parameters, const char *aliaste
 
 	return_text = dbuffer_append_data(return_text, &nullchar, 1);
 
-	LOG_DEBUG("Finished, text is '%s', len %zu\n", return_text->data, return_text->current_size);
+	LOG_DEBUG("Finished, text is '%s', len %" PRI_SIZET "\n", return_text->data, return_text->current_size);
 
 	LEAVE_DEBUG_MARK("expand text aliases");
 

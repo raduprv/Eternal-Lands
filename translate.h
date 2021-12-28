@@ -852,6 +852,7 @@ extern char	reg_error_str[15],
 		snd_media_music_stopped[50],
 		snd_media_ogg_info_noartist[50],
 		snd_media_ogg_info[50], //sound.c
+		totalxp_str[20], //session.c
 		stat_no_invalid[50], //stats.c
 		timer_lagging_behind[100], //timers.c
 		/*spells.c*/

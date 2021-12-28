@@ -10,6 +10,7 @@
 #ifdef	USE_SIMD
 #include "mm_malloc.h"
 #endif	/* SIMD */
+#include "platform.h"
 
 void* malloc_aligned(const Uint64 size, const Uint64 alignment)
 {
@@ -20,7 +21,7 @@ void* malloc_aligned(const Uint64 size, const Uint64 alignment)
 #else	/* USE_SIMD */
 	result = malloc(size);
 #endif	/* USE_SIMD */
-	LOG_DEBUG_VERBOSE("size: %lu, alignment: %lu, memory: %p", size, alignment, result);
+	LOG_DEBUG_VERBOSE("size: %" PRI_SIZET ", alignment: %" PRI_SIZET ", memory: %p", size, alignment, result);
 
 	return result;
 }

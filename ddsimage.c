@@ -12,6 +12,7 @@
 #include "misc.h"
 #include "el_memory.h"
 #include "io/elfilewrapper.h"
+#include "platform.h"
 #include <assert.h>
 
 static Uint32 decompression_needed(const DdsHeader *header,
@@ -204,7 +205,7 @@ static Uint32 validate_header(DdsHeader *header, const char* file_name)
 	if (header->m_size != DDS_HEADER_SIZE)
 	{
 		LOG_ERROR("File '%s' is invalid. Size of header is"
-			" %u bytes, but must be %zu bytes for valid DDS files.",
+			" %u bytes, but must be %" PRI_SIZET " bytes for valid DDS files.",
 			file_name, header->m_size, DDS_HEADER_SIZE);
 		return 0;
 	}
@@ -212,7 +213,7 @@ static Uint32 validate_header(DdsHeader *header, const char* file_name)
 	if (header->m_pixel_format.m_size != DDS_PIXEL_FORMAT_SIZE)
 	{
 		LOG_ERROR("File '%s' is invalid. Size of pixe format header is"
-			" %u bytes, but must be %zu bytes for valid DDS files.",
+			" %u bytes, but must be %" PRI_SIZET " bytes for valid DDS files.",
 			file_name, header->m_pixel_format.m_size,
 			DDS_PIXEL_FORMAT_SIZE);
 		return 0;

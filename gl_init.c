@@ -234,7 +234,7 @@ void init_video(void)
 			DO_CHECK_GL_ERRORS();
 			LOG_ERROR("%s: %s\n", error_str, SDL_GetError());
 			SDL_Quit();
-			FATAL_ERROR_WINDOW(error_str);
+			FATAL_ERROR_WINDOW("%s", error_str);
 			exit(1);
 		}
 	}

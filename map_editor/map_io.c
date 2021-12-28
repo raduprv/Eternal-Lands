@@ -174,9 +174,7 @@ int save_map (const char* file_name)
 #endif	//ZLIBW
 
 	if (!f) {
-		char msg[500];
-		snprintf (msg, sizeof(msg), "Could not open file for writing: %s", file_name);
-		LOG_ERROR(msg);
+		LOG_ERROR("Could not open file for writing: %s", file_name);
 	} else {
 
 #ifdef	ZLIBW

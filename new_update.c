@@ -772,7 +772,7 @@ static Uint32 build_update_list(const char* server, const char* file,
 			" file '%s' from server '%s' using path '%s', error %d.",
 			file, server, path, result);
 
-		LOG_ERROR(error_str);
+		LOG_ERROR("%s", error_str);
 
 		update_progress_function(error_str, 0, 0, user_data);
 
@@ -802,7 +802,7 @@ static Uint32 build_update_list(const char* server, const char* file,
 			" file '%s' from server '%s' using path '%s' has wrong"
 			" magic number in first line.", file, server, path);
 
-		LOG_ERROR(error_str);
+		LOG_ERROR("%s", error_str);
 
 		update_progress_function(error_str, 0, 0, user_data);
 

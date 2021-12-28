@@ -4596,28 +4596,16 @@ int parse_actor_script(const xmlNode *cfg)
 	}
 */
 	if (act_idx < 0 || act_idx >= MAX_ACTOR_DEFS){
-		char	str[256];
-		char    name[256];
-
-		safe_strncpy(name, get_string_property(cfg, "type"), sizeof(name));
-		safe_snprintf(str, sizeof(str), "Data Error in %s(%d): Actor ID out of range %d",
-			name, act_idx, act_idx
-		);
-		LOG_ERROR(str);
+		LOG_ERROR("Data Error in %s(%d): Actor ID out of range %d",
+			get_string_property(cfg, "type"), act_idx, act_idx);
 		return 0;
 	}
 
 	act= &(actors_defs[act_idx]);
 	// watch for loading an actor more then once
 	if(act->actor_type > 0 || *act->actor_name){
-		char	str[256];
-		char    name[256];
-
-		safe_strncpy(name, get_string_property(cfg, "type"), sizeof(name));
-		safe_snprintf(str, sizeof(str), "Data Error in %s(%d): Already loaded %s(%d)",
-			name, act_idx, act->actor_name, act->actor_type
-		);
-		LOG_ERROR(str);
+		LOG_ERROR("Data Error in %s(%d): Already loaded %s(%d)",
+			get_string_property(cfg, "type"), act_idx, act->actor_name, act->actor_type);
 	}
 	act->actor_type= act_idx;	// memorize the ID & name to help in debugging
 	safe_strncpy(act->actor_name, get_string_property(cfg, "type"), sizeof(act->actor_name));

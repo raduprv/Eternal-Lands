@@ -264,10 +264,6 @@ int start_rendering()
 	LOG_INFO("free_pm_log()");
 	free_pm_log();
 
-	// window positions are proportionally adjusted ready for the next client run
-	LOG_INFO("restore_window_proportionally()");
-	restore_window_proportionally();
-
 	//save all local data
 	LOG_INFO("save_local_date()");
 	save_local_data();
@@ -436,6 +432,17 @@ const char * check_server_id_on_command_line()
 		return "";
 
 	// FIXME!! This should parse for -options rather than blindly returning the last option!
+
+#ifdef WINDOWS
+	{
+		// Windows unhelpfully splits the executable path+name into separate parameters if it contains
+		// space characters.  We can see this as the first and last contain opening/closing quotes.  If the last
+		// parameter ends in a quote, its not a server id so return an empty string.
+		size_t len = strlen(gargv[gargc - 1]);
+		if (gargv[gargc - 1][len-1] == '"')
+			return "";
+	}
+#endif
 
 	return gargv[gargc - 1];
 }

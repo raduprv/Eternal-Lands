@@ -25,6 +25,18 @@
 #endif
 #endif // FASTER_STARTUP
 
+// work around %z not supported on windows due to Visucal C runtime
+// https://stackoverflow.com/questions/44382862/how-to-printf-a-size-t-without-warning-in-mingw-w64-gcc-7-1
+#ifdef _WIN32
+#  ifdef _WIN64
+#    define PRI_SIZET PRIu64
+#  else
+#    define PRI_SIZET PRIu32
+#  endif
+#else
+#  define PRI_SIZET "zu"
+#endif
+
 // only ever use WINDOWS anywhere else, in case we need to add another 'catch' to 
 // enable WINDOWS
 #if defined (_WIN32) || defined (_WIN64) || defined (WIN32)

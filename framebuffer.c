@@ -243,25 +243,25 @@ void print_fbo_errors(const char *file, int line)
 		case GL_FRAMEBUFFER_COMPLETE_EXT:
 			break;
 		case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT_EXT:
-			log_error(file, line, fbo_attachment_error);
+			log_error(file, line, "%s", fbo_attachment_error);
 			break;
 		case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT_EXT:
-			log_error(file, line, fbo_missing_attachment_error);
+			log_error(file, line, "%s", fbo_missing_attachment_error);
 			break;
 		case GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS_EXT:
-			log_error(file, line, fbo_dimensions_error);
+			log_error(file, line, "%s", fbo_dimensions_error);
 			break;
 		case GL_FRAMEBUFFER_INCOMPLETE_FORMATS_EXT:
-			log_error(file, line, fbo_formats_error);
+			log_error(file, line, "%s", fbo_formats_error);
 			break;
 		case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER_EXT:
-			log_error(file, line, fbo_draw_buffer_error);
+			log_error(file, line, "%s", fbo_draw_buffer_error);
 			break;
 		case GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER_EXT:
-			log_error(file, line, fbo_read_buffer_error);
+			log_error(file, line, "%s", fbo_read_buffer_error);
 			break;
 		case GL_FRAMEBUFFER_UNSUPPORTED_EXT:
-			log_error(file, line, fbo_unsupported_fromat_error);
+			log_error(file, line, "%s", fbo_unsupported_fromat_error);
 			break;
 		default:
 			log_error(file, line, fbo_unknown_error, error_no);

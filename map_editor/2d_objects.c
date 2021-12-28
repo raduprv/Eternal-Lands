@@ -283,10 +283,8 @@ obj_2d_def * load_obj_2d_def(char *file_name)
   file = el_open(file_name);
   if(file == NULL)
   {
-    char str[120];
-    sprintf(str,"Error: Can't open file: %s\n",file_name);
-    log_error(__FILE__, __LINE__, str);
-	free(cur_object);
+    log_error(__FILE__, __LINE__, "Error: Can't open file: %s\n", file_name);
+    free(cur_object);
     return NULL;
   }
   
@@ -434,12 +432,10 @@ int add_2d_obj(char * file_name, float x_pos, float y_pos, float z_pos, float x_
 
 	returned_obj_2d_def=load_obj_2d_def_cache(fname);
 	if(!returned_obj_2d_def)
-	   {
-            char str[200];
-            sprintf(str,"Error: Can't load 2d object: %s\n",fname);
-            log_error(__FILE__, __LINE__, str);
-	        return 0;
-	   }
+	{
+		log_error(__FILE__, __LINE__, "Error: Can't load 2d object: %s\n", fname);
+		return 0;
+	}
 
 	sprintf(our_object->file_name,"%s",fname);
 	our_object->x_pos=x_pos;
