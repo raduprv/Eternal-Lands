@@ -174,6 +174,7 @@ void save_character_options(void);
 
 #ifdef ANDROID
 extern void set_scale_from_window_size(void);
+void set_screen_orientation_hint(void);
 #endif
 
 /*!

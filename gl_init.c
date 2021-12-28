@@ -193,6 +193,10 @@ void init_video(void)
 	}
 #endif	/* FSAA */
 
+#ifdef ANDROID
+	set_screen_orientation_hint();
+#endif
+
 	//try to find a stencil buffer
 	if (el_gl_window == NULL)
 	{

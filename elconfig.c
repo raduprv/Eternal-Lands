@@ -1482,6 +1482,18 @@ void set_scale_from_window_size(void)
 	set_var_unsaved("minimap_scale", INI_FILE_VAR);
 }
 
+static int screen_orientation_modes = 0;
+void set_screen_orientation_hint(void)
+{
+	char *str = NULL;
+	if (screen_orientation_modes == 1)
+		str = "LandscapeLeft LandscapeRight";
+	else if (screen_orientation_modes == 2)
+		str = "Portrait PortraitUpsideDown";
+	else
+		return;
+	SDL_SetHint(SDL_HINT_ORIENTATIONS, str);
+}
 #endif
 
 void update_highdpi_auto_scaling(void)
@@ -3154,6 +3166,9 @@ static void init_ELC_vars(void)
 #endif
 	add_var(OPT_BOOL,"use_vertex_buffers","vbo",&use_vertex_buffers,change_vertex_buffers,0,"Vertex Buffer Objects","Toggle the use of the vertex buffer objects, restart required to activate it",VIDEO);
 	add_var(OPT_BOOL, "use_animation_program", "uap", &use_animation_program, change_use_animation_program, 1, "Use animation program", "Use GL_ARB_vertex_program for actor animation", VIDEO);
+#if ANDROID
+	add_var(OPT_MULTI_H,"screen_orientation_modes","sorm",&screen_orientation_modes, change_int, 0, "Suported Screen Orientations", "Set which screen orientations are supported. Takes effect after a client restart", VIDEO, "All", "Landscape", "Portrait", NULL);
+#endif
 	add_var(OPT_BOOL_INI, "video_info_sent", "svi", &video_info_sent, change_var, 0, "Video info sent", "Video information are sent to the server (like OpenGL version and OpenGL extentions)", VIDEO);
 	// VIDEO TAB
 
