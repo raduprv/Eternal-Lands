@@ -3,6 +3,7 @@
 #include <numeric>
 #include <sstream>
 #include <limits>
+#include <iostream>
 #ifdef TTF
 #ifndef WINDOWS
 #include <glob.h>
@@ -694,7 +695,7 @@ std::tuple<ustring, int, int> Font::reset_soft_breaks(const unsigned char *text,
 
 	// If a cursor will not fit behind the last line, add an extra line break.
 	int last_line_width = line_width(text + last_start, text_len - last_start, options.zoom());
-	if (last_line_width + cursor_width > options.max_width())
+	if ((cursor != -1) && (last_line_width + cursor_width > options.max_width()))
 	{
 		wrapped_text.push_back('\r');
 		++nr_lines;
