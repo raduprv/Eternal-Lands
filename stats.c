@@ -657,11 +657,11 @@ static void draw_stat(const window_info *win, int x, int y, const attrib_16 *var
 	const names *name)
 {
 	int x_mid_var = x + max_label_width + sep_width + max_lvl_width / 2;
-	char buf[10];
+	char buf[12];
 	draw_string_small_zoomed(x, y, name->name, 1, win->current_scale);
-	safe_snprintf(buf, sizeof(buf), "%3d / %d", var->cur, var->base);
+	safe_snprintf(buf, sizeof(buf), "%4d / %d", var->cur, var->base);
 	draw_string_small_zoomed_centered_around(x_mid_var, y, (const unsigned char*)buf,
-		4, win->current_scale);
+		5, win->current_scale);
 }
 
 static void draw_skill(const window_info *win, int x, int y, const attrib_16 *lvl,
@@ -823,14 +823,13 @@ static void set_content_widths(window_info *win)
 		win->current_scale_small);
 	max_label_width = max2i(max_label_width, width);
 
-	sep_width = 2 * win->small_font_max_len_x;
-	max_lvl_width = get_string_width_zoom((const unsigned char*)"888 / 888",
+	sep_width = 2 * get_max_digit_width_zoom(win->font_category, win->current_scale_small);
+	max_lvl_width = get_string_width_zoom((const unsigned char*)"8888 / 8888",
 		win->font_category, win->current_scale_small);
-	max_exp_width = get_string_width_zoom((const unsigned char*)"888888888 / 888888888",
+	max_exp_width = get_string_width_zoom((const unsigned char*)"8888888888 / 8888888888",
 		win->font_category, win->current_scale_small);
 
-	win->min_len_x = 1.5 * win->small_font_max_len_x + 2 * max_label_width + 2 * max_lvl_width
-		+ max_exp_width + 5 * sep_width;
+	win->min_len_x = 2 * max_label_width + 2 * max_lvl_width + max_exp_width + 6 * sep_width;
 	win->min_len_y = 24 * win->small_font_len_y;
 }
 
@@ -838,7 +837,7 @@ int display_stats_handler(window_info *win)
 {
         player_attribs cur_stats = your_info;
         char str[10];
-        int x = win->small_font_max_len_x / 2;
+        int x = sep_width / 2;
         int c2_x_offset = max_label_width + max_lvl_width + 3 * sep_width;
         int start_y = (int)(0.5 + win->small_font_len_y / 2);
         int y = start_y;

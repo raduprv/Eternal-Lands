@@ -83,6 +83,65 @@ static void load_window_icon(void)
 	free(str_buf);
 }
 
+#ifndef ANDROID
+// check if the window fits within the available space and resize if not
+// check if the window is on-screen and move it if not
+enum size_and_position_enum { DO_SIZE = 0, DO_POSITION, DO_SIZE_AND_POSITION };
+static void fix_window_size_and_position(enum size_and_position_enum mode)
+{
+#if SDL_VERSION_ATLEAST(2, 0, 5)
+	SDL_Rect usable_rect;
+	int display_index = SDL_GetWindowDisplayIndex(el_gl_window);
+	if ((display_index >= 0) && (SDL_GetDisplayUsableBounds(display_index, &usable_rect) == 0))
+	{
+		int top, left, bottom, right;
+		if (SDL_GetWindowBordersSize(el_gl_window, &top, &left, &bottom, &right) == 0)
+		{
+			int ww, wh;
+			SDL_GL_GetDrawableSize(el_gl_window, &ww, &wh);
+
+			if ((mode == DO_SIZE) || (mode == DO_SIZE_AND_POSITION))
+			{
+				int do_resize = 0;
+				if ((ww + left + right) > usable_rect.w)
+				{
+					ww = usable_rect.w - left - right;
+					do_resize = 1;
+				}
+				if ((wh + top + bottom) > usable_rect.h)
+				{
+					wh = usable_rect.h - top - bottom;
+					do_resize = 1;
+				}
+				if (do_resize)
+				{
+					SDL_SetWindowSize(el_gl_window, ww, wh);
+					SDL_RestoreWindow(el_gl_window);
+					printf("resized to %d %d\n", ww, wh);
+				}
+			}
+
+			if ((mode == DO_POSITION) || (mode == DO_SIZE_AND_POSITION))
+			{
+				int posx, posy;
+				SDL_GetWindowPosition(el_gl_window, &posx, &posy);
+				if (((posx - left) < usable_rect.x) ||
+					((posy - top) < usable_rect.y) ||
+					((posx + ww + left + right) > (usable_rect.x + usable_rect.w)) ||
+					((posy + wh + top + bottom) > (usable_rect.y + usable_rect.h)))
+				{
+					posx = usable_rect.x + left + (usable_rect.w - ww - left - right) / 2;
+					posy = usable_rect.y + top + (usable_rect.h - wh - top - bottom) / 2;
+					SDL_SetWindowPosition(el_gl_window, posx, posy);
+					printf("moved to %d %d\n", posx, posy);
+				}
+			}
+		}
+	}
+#endif
+}
+#endif
+
 void init_video(void)
 {
 	int target_width = 0, target_height = 0;
@@ -260,6 +319,11 @@ void init_video(void)
 			SDL_Delay(1);
 		}
 	}
+
+#ifndef ANDROID
+	if (!full_screen)
+		fix_window_size_and_position(DO_SIZE_AND_POSITION);
+#endif
 
 	// get the windos size, these variables are used globaly
 	update_window_size_and_scale();
@@ -905,6 +969,7 @@ void set_client_window_size(int width, int height)
 	SDL_SetWindowFullscreen(el_gl_window, 0);
 #ifndef ANDROID
 	SDL_SetWindowSize(el_gl_window, width, height);
+	fix_window_size_and_position(DO_POSITION);
 #endif
 }
 

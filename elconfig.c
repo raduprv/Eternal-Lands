@@ -1274,6 +1274,16 @@ static void change_use_json_user_files(int *var)
 	else
 		USE_JSON_DEBUG("Not ready for user files");
 }
+
+void check_using_json_files(void)
+{
+	if (!use_json_user_files && ready_for_user_files)
+	{
+		LOG_INFO("Forcing JSON files");
+		set_var_unsaved("use_json_user_files_v1", INI_FILE_VAR);
+		change_use_json_user_files(&use_json_user_files);
+	}
+}
 #endif
 
 static void change_dark_channeltext(int *dct, int value)
@@ -2855,7 +2865,6 @@ static void init_ELC_vars(void)
 	add_var(OPT_BOOL,"open_close_clicked_bag", "openupcloseclickedbag", &open_close_clicked_bag, change_var, 1, "Open a bag if you click close to it", "When enabled, if you click close to a bag that is in range, you will open it.", CONTROLS);
 	add_var(OPT_BOOL,"use_floating_messages", "floating", &floatingmessages_enabled, change_var, 1, "Floating Messages", "Toggles the use of floating experience messages and other graphical enhancements", CONTROLS);
 	add_var(OPT_BOOL,"floating_session_counters", "floatingsessioncounters", &floating_session_counters, change_var, 0, "Floating Session Counters", "Toggles the display of floating session counters.  Configure each type using the context menu of the counter category.", CONTROLS);
-	add_var(OPT_BOOL,"enable_used_item_counter", "enable_used_item_counter", &enable_used_item_counter, change_var, 0, "Enable Used Item Counter", "WARNING: If enabled, saved counters will not be compatible with previous versions of the client.  Previous versions of the client may crash when loading counters.  If disabled, Used Item counts will not be saved.", CONTROLS);
 	add_var(OPT_BOOL,"use_keypress_dialog_boxes", "keypressdialogues", &use_keypress_dialogue_boxes, change_var, 0, "Keypresses in dialogue boxes", "Toggles the ability to press a key to select a menu option in dialogue boxes (eg The Wraith)", CONTROLS);
 	add_var(OPT_BOOL,"use_full_dialogue_window", "keypressdialoguesfullwindow", &use_full_dialogue_window, change_var, 0, "Keypresses allowed anywhere in dialogue boxes", "If set, the above will work anywhere in the Dialogue Window, if unset only on the NPC's face", CONTROLS);
 	add_var(OPT_BOOL,"use_cursor_on_animal", "useanimal", &include_use_cursor_on_animals, change_var, 0, "For animals, right click includes use cursor", "Toggles inclusion of the use cursor when right clicking on animals, useful for your summoned creatures.  Even when this option is off, you can still click the use icon.", CONTROLS);
@@ -3043,6 +3052,7 @@ static void init_ELC_vars(void)
 	add_var(OPT_FLOAT,"quickbar_win_scale","quickbarwinscale",get_scale_WM(MW_QUICKBAR),change_win_scale_factor,1.0f,"Quickbar window scaling factor",win_scale_description,FONT,win_scale_min,win_scale_max,win_scale_step);
 	add_var(OPT_FLOAT,"quickspells_win_scale","quickspellswinscale",get_scale_WM(MW_QUICKSPELLS),change_win_scale_factor,1.0f,"Quickspells window scaling factor",win_scale_description,FONT,win_scale_min,win_scale_max,win_scale_step);
 	add_var(OPT_FLOAT,"chat_win_scale","chatwinscale",get_scale_WM(MW_CHAT),change_win_scale_factor,1.0f,"Chat window scaling factor",win_scale_description,FONT,win_scale_min,win_scale_max,win_scale_step);
+	add_var(OPT_FLOAT,"chancols_win_scale","chancolswinscale",get_scale_WM(MW_CHANCOLS),change_win_scale_factor,1.0f,"Chat channel colours window scaling factor",win_scale_description,FONT,win_scale_min,win_scale_max,win_scale_step);
 	add_var(OPT_FLOAT,"options_win_scale","optionswinscale",&elconf_custom_scale,change_elconf_win_scale_factor,1.0f,"Options window scaling factor","Multiplied by the user interface scaling factor. Change will take effect after closing then reopening the window.",FONT,win_scale_min,win_scale_max,win_scale_step);
 #ifdef NEW_CURSOR
 	add_var(OPT_BOOL,"sdl_cursors","sdl_cursors", &sdl_cursors, change_sdl_cursor,1,"Use Standard Black/White Mouse Pointers", "When disabled, use the experimental coloured mouse pointers. Needs the texture from Git dev-data-files/cursor2.dss.", FONT);
@@ -3091,13 +3101,8 @@ static void init_ELC_vars(void)
 	add_var(OPT_BOOL,"showcustomclothing","scc",&custom_clothing,change_custom_clothing,1,"Show Custom clothing","Toggles whether custom clothing is shown.",SERVER);
 #endif	//CUSTOM_UPDATE
 #ifdef JSON_FILES
-#ifdef ANDROID
 	add_var(OPT_BOOL_INI, "use_json_user_files_v1", "usejsonuserfiles_v1", &use_json_user_files, change_use_json_user_files, 0, "Use New Format To Save User Files (.json)",
 		"NOTE: Use this option to enable the new format for saving user data.  If you change this option, data is automatically saved using the chosen format.  Disable this option before switching back to 1.9.5p8 or older clients.", SERVER);
-#else
-	add_var(OPT_BOOL, "use_json_user_files_v1", "usejsonuserfiles_v1", &use_json_user_files, change_use_json_user_files, 0, "Use New Format To Save User Files (.json)",
-		"NOTE: Use this option to enable the new format for saving user data.  If you change this option, data is automatically saved using the chosen format.  Disable this option before switching back to 1.9.5p8 or older clients.", SERVER);
-#endif
 #endif
 	// SERVER TAB
 

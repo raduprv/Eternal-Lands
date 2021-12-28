@@ -72,7 +72,7 @@ enum {	CMH_STATS=0, CMH_STATBARS, CMH_KNOWBAR, CMH_TIMER, CMH_DIGCLOCK, CMH_ANAC
 		CMH_SEP2, CMH_SOUND, CMH_MUSIC, CMH_SEP3, CMH_LOCATION };
 
 
-static void draw_side_stats_bar(window_info *win, const int x, const int y, const int baselev, const int cur_exp, const int nl_exp, size_t colour)
+static void draw_side_stats_bar(window_info *win, const int x, const int y, const Sint16 baselev, const Uint32 cur_exp, const Uint32 nl_exp, size_t colour)
 {
 	const int max_len = win->len_x - x - 1;
 	const int bar_height = side_stats_bar_text_height + 2;

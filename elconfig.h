@@ -170,6 +170,7 @@ void set_ready_for_user_files(void);
 int get_use_json_user_files(void);
 void load_character_options(void);
 void save_character_options(void);
+void check_using_json_files(void);
 #endif
 
 #ifdef ANDROID

@@ -156,7 +156,6 @@ static int cm_entry_count = -1;
 static int cm_floating_flag = 0;
 unsigned int floating_counter_flags = 0;		/* persisted in cfg file */
 int floating_session_counters = 0;			/* persisted in ini file */
-int enable_used_item_counter = 0;			/* persisted in ini file */
 
 int sort_counter_func(const void *a, const void *b)
 {
@@ -347,9 +346,6 @@ void flush_counters(void)
 
 	for (i = 0; i < NUM_COUNTERS; i++) {
 		io_counter_id = i + 1;
-
-		if (!enable_used_item_counter && io_counter_id == USED_ITEMS)
-			break;
 
 		for (j = 0; j < entries[i]; j++) {
 			io_name_len = strlen(counters[i][j].name);
@@ -839,9 +835,6 @@ static int display_counters_handler(window_info *win)
 		else
 			glColor3f(1.0f, 1.0f, 1.0f);
 
-		if (!enable_used_item_counter && selected_counter_id == USED_ITEMS)
-			glColor3f(0.25f, 0.25f, 0.25f);
-
 		/* draw first so left padding does not overwrite name */
 		safe_snprintf((char*)buffer, sizeof(buffer), "%u", counters[i][j].n_session);
 		draw_string_small_zoomed_right(session_x_end, y, buffer, 1, win->current_scale);
@@ -876,8 +869,6 @@ static int display_counters_handler(window_info *win)
 #else
 		show_help(cm_help_options_str, -TAB_MARGIN, win->len_y+10+TAB_MARGIN, win->current_scale);
 #endif
-		if (!enable_used_item_counter && selected_counter_id == USED_ITEMS)
-			show_help("Saving used item counters is disabled, see Options->Controls to enable.", -TAB_MARGIN, win->len_y+10+TAB_MARGIN+win->small_font_len_y, win->current_scale);
 		counters_show_win_help = 0;
 	}
 

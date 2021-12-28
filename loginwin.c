@@ -427,6 +427,7 @@ static int display_login_handler (window_info *win)
 			y_offset = 0;
 		glColor3f (1.0f, 0.0f, 0.0f);
 		draw_string_zoomed_centered(window_width/2, y_offset, (const unsigned char*)log_in_error_str, num_lines, win->current_scale);
+		glColor3f (1.0f, 1.0f, 1.0f);
 	}
 
 	if (mouseover_version_trigger)

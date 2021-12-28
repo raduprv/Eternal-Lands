@@ -298,6 +298,7 @@ enum managed_window_enum
 	MW_TABMAP,
 	MW_CONSOLE,
 	MW_CHAT,
+	MW_CHANCOLS,
 #ifdef ECDEBUGWIN
 	MW_ECDEBUG,
 #endif
