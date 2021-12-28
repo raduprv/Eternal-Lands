@@ -3,7 +3,6 @@
 #include <numeric>
 #include <sstream>
 #include <limits>
-#include <iostream>
 #ifdef TTF
 #ifndef WINDOWS
 #include <glob.h>
