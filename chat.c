@@ -2421,7 +2421,6 @@ int command_jlc(char * text, int len)
 static Uint32 channel_to_change = 0;
 static int selected_color = -1;
 static int channel_colors_set = 0;
-static int channel_color_win = -1;
 static int color_set_button_id = COLROWS * COLCOLS;
 static int color_delete_button_id = COLROWS * COLCOLS + 1;
 static int color_label_id = COLROWS * COLCOLS + 2;
@@ -2431,7 +2430,7 @@ static int display_channel_color_handler(window_info *win)
 	char string[50] = {0};
 
 	safe_snprintf(string, sizeof(string), "%s %i", channel_color_str, channel_to_change);
-	label_set_text(channel_color_win, color_label_id, string);
+	label_set_text(win->window_id, color_label_id, string);
 	return 1;
 }
 
@@ -2469,7 +2468,7 @@ static int click_channel_color_handler(widget_list *w, int mx, int my, Uint32 fl
 			{
 				channel_colors[i].color = selected_color;
 				do_click_sound();
-				hide_window(channel_color_win);
+				hide_window(w->window_id);
 				channel_to_change = 0;
 				selected_color = -1;
 				channel_colors_set = 1;
@@ -2486,7 +2485,7 @@ static int click_channel_color_handler(widget_list *w, int mx, int my, Uint32 fl
 				channel_colors[i].nr = channel_to_change;
 				channel_colors[i].color = selected_color;
 				do_click_sound();
-				hide_window(channel_color_win);
+				hide_window(w->window_id);
 				channel_to_change = 0;
 				selected_color = -1;
 				channel_colors_set = 1;
@@ -2513,7 +2512,7 @@ static int click_channel_color_handler(widget_list *w, int mx, int my, Uint32 fl
 			channel_colors_set = 1;
 		}
 		do_click_sound();
-		hide_window(channel_color_win);
+		hide_window(w->window_id);
 		channel_to_change = 0;
 		selected_color = -1;
 		return 1;
@@ -2560,13 +2559,16 @@ static int ui_scale_color_handler(window_info *win)
 
 	resize_window(win->window_id, len_x, len_y);
 	if (win->pos_y - win->title_height < get_tab_bar_y() * 1.25)
+	{
 		move_window(win->window_id, win->pos_id, win->pos_loc, win->pos_x, win->title_height + get_tab_bar_y() * 1.25);
-
+		set_pos_MW(MW_CHANCOLS, win->pos_x, win->pos_y);
+	}
 	return 1;
 }
 
 static int display_channel_color_win(Uint32 channel_number)
 {
+	int channel_color_win = get_id_MW(MW_CHANCOLS);
 	if(channel_number == 0){
 		return -1;
 	}
@@ -2576,7 +2578,10 @@ static int display_channel_color_win(Uint32 channel_number)
 	if(channel_color_win < 0)
 	{
 		/* Create the window */
-		channel_color_win = create_window(channel_color_title_str, -1, 0, 300, 0, 0, 0, ELW_USE_UISCALE|ELW_WIN_DEFAULT);
+		channel_color_win = create_window(channel_color_title_str, -1, 0,
+			get_pos_x_MW(MW_CHANCOLS), get_pos_y_MW(MW_CHANCOLS), 0, 0, ELW_USE_UISCALE|ELW_WIN_DEFAULT);
+		set_id_MW(MW_CHANCOLS, channel_color_win);
+		set_window_custom_scale(channel_color_win, MW_CHANCOLS);
 		set_window_handler(channel_color_win, ELW_HANDLER_DISPLAY, &display_channel_color_handler);
 		set_window_handler(channel_color_win, ELW_HANDLER_HIDE, &hide_channel_color_handler);
 		set_window_handler(channel_color_win, ELW_HANDLER_UI_SCALE, &ui_scale_color_handler);
@@ -2616,6 +2621,7 @@ static int display_channel_color_win(Uint32 channel_number)
 		/* scale the window */
 		if (channel_color_win >= 0 && channel_color_win < windows_list.num_windows)
 			ui_scale_color_handler(&windows_list.window[channel_color_win]);
+		check_proportional_move(MW_CHANCOLS);
 	}
 	else
 	{

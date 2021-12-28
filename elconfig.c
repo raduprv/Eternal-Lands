@@ -2950,6 +2950,7 @@ static void init_ELC_vars(void)
 	add_var(OPT_FLOAT,"quickbar_win_scale","quickbarwinscale",get_scale_WM(MW_QUICKBAR),change_win_scale_factor,1.0f,"Quickbar window scaling factor",win_scale_description,FONT,win_scale_min,win_scale_max,win_scale_step);
 	add_var(OPT_FLOAT,"quickspells_win_scale","quickspellswinscale",get_scale_WM(MW_QUICKSPELLS),change_win_scale_factor,1.0f,"Quickspells window scaling factor",win_scale_description,FONT,win_scale_min,win_scale_max,win_scale_step);
 	add_var(OPT_FLOAT,"chat_win_scale","chatwinscale",get_scale_WM(MW_CHAT),change_win_scale_factor,1.0f,"Chat window scaling factor",win_scale_description,FONT,win_scale_min,win_scale_max,win_scale_step);
+	add_var(OPT_FLOAT,"chancols_win_scale","chancolswinscale",get_scale_WM(MW_CHANCOLS),change_win_scale_factor,1.0f,"Chat channel colours window scaling factor",win_scale_description,FONT,win_scale_min,win_scale_max,win_scale_step);
 	add_var(OPT_FLOAT,"options_win_scale","optionswinscale",&elconf_custom_scale,change_elconf_win_scale_factor,1.0f,"Options window scaling factor","Multiplied by the user interface scaling factor. Change will take effect after closing then reopening the window.",FONT,win_scale_min,win_scale_max,win_scale_step);
 #ifdef NEW_CURSOR
 	add_var(OPT_BOOL,"sdl_cursors","sdl_cursors", &sdl_cursors, change_sdl_cursor,1,"Use Standard Black/White Mouse Pointers", "When disabled, use the experimental coloured mouse pointers. Needs the texture from Git dev-data-files/cursor2.dss.", FONT);
