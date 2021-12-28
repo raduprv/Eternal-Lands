@@ -131,7 +131,10 @@ static int reduce_stack(CalcStack* cs)
 		{
 			nt.type = CALCTOK_NUM;
 			lvl = (int)trunc(cs1->value);
-			nt.value = XPL(lvl) + (cs1->value-lvl) * XPLDIFF(lvl, lvl+1);
+			if (lvl == XPT_MAX)
+				nt.value = XPL(lvl);
+			else
+				nt.value = XPL(lvl) + (cs1->value-lvl) * XPLDIFF(lvl, lvl+1);
 			calcpush(cs, &nt);
 		}
 		else

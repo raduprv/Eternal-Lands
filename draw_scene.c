@@ -185,6 +185,8 @@ void draw_scene()
 			used_item_counter_timer();
 			/* make sure minimised or restored window is noticed */
 			check_minimised_or_restore_window();
+			/* check if open and support windows need to be rescaled */
+			check_for_windows_autoscale();
 			/* check if we need to action a scale change for the config window */
 			check_for_config_window_scale();
 			/* until next time */

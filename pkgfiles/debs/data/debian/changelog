@@ -1,5 +1,5 @@
-eternallands-data (1.9.5.9-0ubuntu1) xenial; urgency=low
+eternallands-data (1.9.6.0-0ubuntu1) bionic; urgency=low
 
-  * 1.9.5p9 release
+  * 1.9.6 release
 
- -- Paul Broadhead <pjbroad@twinmoons.org.uk>  Fri, 09 Apr 2021 15:23:48 +0100
+ -- Paul Broadhead <pjbroad@twinmoons.org.uk>  Wed, 15 Dec 2021 22:10:57 +0000

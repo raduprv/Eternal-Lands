@@ -25,7 +25,6 @@ extern Uint32 disconnect_time;
 extern char last_spell_name[60];
 extern unsigned int floating_counter_flags;
 extern int floating_session_counters;
-extern int enable_used_item_counter;
 
 void load_counters(void);
 void flush_counters(void);

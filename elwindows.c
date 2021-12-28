@@ -22,6 +22,7 @@
 #include "keys.h"
 #include "misc.h"
 #include "multiplayer.h"
+#include "new_character.h"
 #include "textures.h"
 #include "widgets.h"
 #include "sound.h"
@@ -51,6 +52,9 @@ enum default_position {
 	ELW_P_BR
 };
 
+// autoscale states
+enum { ELW_AS_NONE = 0, ELW_AS_ENABLED, ELW_AS_NEEDED };
+
 // structure for indivual window information
 typedef struct {
 	int id;
@@ -65,6 +69,7 @@ typedef struct {
 	const char * icon_name;
 	int hideable;
 	int was_open;
+	int autoscale;
 	float scale;
 	const el_key_def *key_def;
 	void (*display)(void);
@@ -80,31 +85,32 @@ typedef struct {
 
 static managed_window_def managed_windows =
 {
-	.list[MW_TRADE] = { .id = -1, .pos_x = 10, .pos_y = 20, .default_pos = ELW_P_CC, .use_def_pos = 1, .prop_pos = 1, .pos_ratio_x = 1.0f, .pos_ratio_y = 1.0f, .on_top = 1, .icon_name = "trade", .hideable = 0, .was_open = 0, .scale = 1.0f, .key_def = NULL, .display = display_trade_menu, .toggle = NULL, .showable = NULL },
-	.list[MW_ITEMS] = { .id = -1, .pos_x = 10, .pos_y = 20, .default_pos = ELW_P_CL, .use_def_pos = 1, .prop_pos = 1, .pos_ratio_x = 1.0f, .pos_ratio_y = 1.0f, .on_top = 1, .icon_name = "invent", .hideable = 1, .was_open = 0, .scale = 1.0f, .key_def = &K_ITEMS, .display = display_items_menu, .toggle = NULL, .showable = NULL },
-	.list[MW_BAGS] = { .id = -1, .pos_x = 400, .pos_y = 20, .default_pos = ELW_P_CC, .use_def_pos = 1, .prop_pos = 1, .pos_ratio_x = 1.0f, .pos_ratio_y = 1.0f, .on_top = 1, .icon_name = "bags", .hideable = 1, .was_open = 0, .scale = 1.0f, .key_def = NULL, .display = NULL, .toggle = NULL, .showable = NULL },
-	.list[MW_SPELLS] = { .id = -1, .pos_x = 10, .pos_y = 20, .default_pos = ELW_P_CC, .use_def_pos = 1, .prop_pos = 1, .pos_ratio_x = 1.0f, .pos_ratio_y = 1.0f, .on_top = 1, .icon_name = "spell", .hideable = 1, .was_open = 0, .scale = 1.0f, .key_def = &K_SIGILS, .display = display_sigils_menu, .toggle = NULL, .showable = NULL },
-	.list[MW_STORAGE] = { .id = -1, .pos_x = 100, .pos_y = 100, .default_pos = ELW_P_CR, .use_def_pos = 1, .prop_pos = 1, .pos_ratio_x = 1.0f, .pos_ratio_y = 1.0f, .on_top = 1, .icon_name = "storage", .hideable = 1, .was_open = 0, .scale = 1.0f, .key_def = NULL, .display = display_storage_menu, .toggle = NULL, .showable = NULL },
-	.list[MW_MANU] = { .id = -1, .pos_x = 10, .pos_y = 20, .default_pos = ELW_P_TC, .use_def_pos = 1, .prop_pos = 1, .pos_ratio_x = 1.0f, .pos_ratio_y = 1.0f, .on_top = 1, .icon_name = "manu", .hideable = 1, .was_open = 0, .scale = 1.0f, .key_def = &K_MANUFACTURE, .display = display_manufacture_menu, .toggle = NULL, .showable = NULL },
-	.list[MW_EMOTE] = { .id = -1, .pos_x = 10, .pos_y = 20, .default_pos = ELW_P_CR, .use_def_pos = 1, .prop_pos = 1, .pos_ratio_x = 1.0f, .pos_ratio_y = 1.0f, .on_top = 1, .icon_name = "emotewin", .hideable = 1, .was_open = 0, .scale = 1.0f, .key_def = &K_EMOTES, .display = display_emotes_menu, .toggle = NULL, .showable = NULL },
-	.list[MW_QUESTLOG] = { .id = -1, .pos_x = 10, .pos_y = 20, .default_pos = ELW_P_CC, .use_def_pos = 1, .prop_pos = 1, .pos_ratio_x = 1.0f, .pos_ratio_y = 1.0f, .on_top = 1, .icon_name = "quest", .hideable = 1, .was_open = 0, .scale = 1.0f, .key_def = &K_QUESTLOG, .display = display_questlog, .toggle = NULL, .showable = NULL },
-	.list[MW_INFO] = { .id = -1, .pos_x = 150, .pos_y = 70, .default_pos = ELW_P_CC, .use_def_pos = 1, .prop_pos = 1, .pos_ratio_x = 1.0f, .pos_ratio_y = 1.0f, .on_top = 1, .icon_name = "info", .hideable = 1, .was_open = 0, .scale = 1.0f, .key_def = NULL, .display = display_tab_info, .toggle = NULL, .showable = NULL },
-	.list[MW_BUDDY] = { .id = -1, .pos_x = 150, .pos_y = 70, .default_pos = ELW_P_CR, .use_def_pos = 1, .prop_pos = 1, .pos_ratio_x = 1.0f, .pos_ratio_y = 1.0f, .on_top = 1, .icon_name = "buddy", .hideable = 1, .was_open = 0, .scale = 1.0f, .key_def = &K_BUDDY, .display = display_buddy, .toggle = NULL, .showable = NULL },
-	.list[MW_STATS] = { .id = -1, .pos_x = 150, .pos_y = 70, .default_pos = ELW_P_CC, .use_def_pos = 1, .prop_pos = 1, .pos_ratio_x = 1.0f, .pos_ratio_y = 1.0f, .on_top = 1, .icon_name = "stats", .hideable = 1, .was_open = 0, .scale = 1.0f, .key_def = NULL, .display = display_tab_stats, .toggle = NULL, .showable = NULL },
-	.list[MW_HELP] = { .id = -1, .pos_x = 150, .pos_y = 70, .default_pos = ELW_P_CC, .use_def_pos = 1, .prop_pos = 1, .pos_ratio_x = 1.0f, .pos_ratio_y = 1.0f, .on_top = 0, .icon_name = "help", .hideable = 1, .was_open = 0, .scale = 1.0f, .key_def = NULL, .display = display_tab_help, .toggle = NULL, .showable = NULL },
-	.list[MW_RANGING] = { .id = -1, .pos_x = 10, .pos_y = 20, .default_pos = ELW_P_TL, .use_def_pos = 1, .prop_pos = 1, .pos_ratio_x = 1.0f, .pos_ratio_y = 1.0f, .on_top = 1, .icon_name = "range", .hideable = 1, .was_open = 0, .scale = 1.0f, .key_def = &K_RANGINGWIN, .display = display_range_win, .toggle = NULL, .showable = NULL },
-	.list[MW_ACHIEVE] = { .id = -1, .pos_x = 0, .pos_y = 0, .default_pos = ELW_P_NONE, .use_def_pos = 0, .prop_pos = 0, .pos_ratio_x = 1.0f, .pos_ratio_y = 1.0f, .on_top = 0, .icon_name = "achievements", .hideable = 0, .was_open = 0, .scale = 1.0f, .key_def = NULL, .display = NULL, .toggle = NULL, .showable = NULL },
-	.list[MW_DIALOGUE] = { .id = -1, .pos_x = 1, .pos_y = 1, .default_pos = ELW_P_CC, .use_def_pos = 1, .prop_pos = 1, .pos_ratio_x = 1.0f, .pos_ratio_y = 1.0f, .on_top = 0, .icon_name = "dialogue", .hideable = 1, .was_open = 0, .scale = 1.0f, .key_def = NULL, .display = NULL, .toggle = NULL, .showable = NULL },
-	.list[MW_QUICKBAR] = { .id = -1, .pos_x = 100, .pos_y = 100, .default_pos = ELW_P_NONE, .use_def_pos = 0, .prop_pos = 1, .pos_ratio_x = 1.0f, .pos_ratio_y = 1.0f, .on_top = 0, .icon_name = "quickbar", .hideable = 0, .was_open = 0, .scale = 1.0f, .key_def = NULL, .display = NULL, .toggle = NULL, .showable = NULL },
-	.list[MW_QUICKSPELLS] = { .id = -1, .pos_x = 10, .pos_y = 20, .default_pos = ELW_P_NONE, .use_def_pos = 0, .prop_pos = 1, .pos_ratio_x = 1.0f, .pos_ratio_y = 1.0f, .on_top = 0, .icon_name = "quickspells", .hideable = 0, .was_open = 0, .scale = 1.0f, .key_def = NULL, .display = NULL, .toggle = NULL, .showable = NULL },
-	.list[MW_CONFIG] = { .id = -1, .pos_x = 10, .pos_y = 10, .default_pos = ELW_P_CC, .use_def_pos = 1, .prop_pos = 1, .pos_ratio_x = 1.0f, .pos_ratio_y = 1.0f, .on_top = 1, .icon_name = "opts", .hideable = 1, .was_open = 0, .scale = 1.0f, .key_def = &K_OPTIONS, .display = display_elconfig_win, .toggle = NULL, .showable = NULL },
-	.list[MW_MINIMAP] = { .id = -1, .pos_x = 50, .pos_y = 50, .default_pos = ELW_P_TR, .use_def_pos = 1, .prop_pos = 1, .pos_ratio_x = 1.0f, .pos_ratio_y = 1.0f, .on_top = 1, .icon_name = "minimap", .hideable = 1, .was_open = 0, .scale = 1.0f, .key_def = &K_MINIMAP, .display = display_minimap, .toggle = NULL, .showable = NULL },
-	.list[MW_ASTRO] = { .id = -1, .pos_x = 10, .pos_y = 20, .default_pos = ELW_P_TC, .use_def_pos = 1, .prop_pos = 1, .pos_ratio_x = 1.0f, .pos_ratio_y = 1.0f, .on_top = 1, .icon_name = "astro", .hideable = 0, .was_open = 0, .scale = 1.0f, .key_def = NULL, .display = NULL, .toggle = NULL, .showable = NULL },
-	.list[MW_TABMAP] = { .id = -1, .pos_x = 0, .pos_y = 0, .default_pos = ELW_P_NONE, .use_def_pos = 0, .prop_pos = 0, .pos_ratio_x = 1.0f, .pos_ratio_y = 1.0f, .on_top = 0, .icon_name = "map", .hideable = 0, .was_open = 0, .scale = 1.0f, .key_def = NULL, .display = NULL, .toggle = NULL, .showable = NULL },
-	.list[MW_CONSOLE] = { .id = -1, .pos_x = 0, .pos_y = 0, .default_pos = ELW_P_NONE, .use_def_pos = 0, .prop_pos = 0, .pos_ratio_x = 1.0f, .pos_ratio_y = 1.0f, .on_top = 0, .icon_name = "console", .hideable = 0, .was_open = 0, .scale = 1.0f, .key_def = NULL, .display = NULL, .toggle = NULL, .showable = NULL },
-	.list[MW_CHAT] = { .id = -1, .pos_x = 0, .pos_y = 0, .default_pos = ELW_P_NONE, .use_def_pos = 0, .prop_pos = 1, .pos_ratio_x = 1.0f, .pos_ratio_y = 1.0f, .on_top = 0, .icon_name = "chat", .hideable = 0, .was_open = 0, .scale = 1.0f, .key_def = &K_CHAT, .display = open_chat, .toggle = toggle_chat, .showable = is_chat_shown },
+	.list[MW_TRADE] = { .id = -1, .pos_x = 10, .pos_y = 20, .default_pos = ELW_P_CC, .use_def_pos = 1, .prop_pos = 1, .pos_ratio_x = 1.0f, .pos_ratio_y = 1.0f, .on_top = 1, .icon_name = "trade", .hideable = 0, .was_open = 0, .autoscale = ELW_AS_ENABLED, .scale = 1.0f, .key_def = NULL, .display = display_trade_menu, .toggle = NULL, .showable = NULL },
+	.list[MW_ITEMS] = { .id = -1, .pos_x = 10, .pos_y = 20, .default_pos = ELW_P_CL, .use_def_pos = 1, .prop_pos = 1, .pos_ratio_x = 1.0f, .pos_ratio_y = 1.0f, .on_top = 1, .icon_name = "invent", .hideable = 1, .was_open = 0, .autoscale = ELW_AS_ENABLED, .scale = 1.0f, .key_def = &K_ITEMS, .display = display_items_menu, .toggle = NULL, .showable = NULL },
+	.list[MW_BAGS] = { .id = -1, .pos_x = 400, .pos_y = 20, .default_pos = ELW_P_BC, .use_def_pos = 1, .prop_pos = 1, .pos_ratio_x = 1.0f, .pos_ratio_y = 1.0f, .on_top = 1, .icon_name = "bags", .hideable = 1, .was_open = 0, .autoscale = ELW_AS_ENABLED, .scale = 1.0f, .key_def = NULL, .display = NULL, .toggle = NULL, .showable = NULL },
+	.list[MW_SPELLS] = { .id = -1, .pos_x = 10, .pos_y = 20, .default_pos = ELW_P_CC, .use_def_pos = 1, .prop_pos = 1, .pos_ratio_x = 1.0f, .pos_ratio_y = 1.0f, .on_top = 1, .icon_name = "spell", .hideable = 1, .was_open = 0, .autoscale = ELW_AS_ENABLED, .scale = 1.0f, .key_def = &K_SIGILS, .display = display_sigils_menu, .toggle = NULL, .showable = NULL },
+	.list[MW_STORAGE] = { .id = -1, .pos_x = 100, .pos_y = 100, .default_pos = ELW_P_CR, .use_def_pos = 1, .prop_pos = 1, .pos_ratio_x = 1.0f, .pos_ratio_y = 1.0f, .on_top = 1, .icon_name = "storage", .hideable = 1, .was_open = 0, .autoscale = ELW_AS_ENABLED, .scale = 1.0f, .key_def = NULL, .display = display_storage_menu, .toggle = NULL, .showable = NULL },
+	.list[MW_MANU] = { .id = -1, .pos_x = 10, .pos_y = 20, .default_pos = ELW_P_TC, .use_def_pos = 1, .prop_pos = 1, .pos_ratio_x = 1.0f, .pos_ratio_y = 1.0f, .on_top = 1, .icon_name = "manu", .hideable = 1, .was_open = 0, .autoscale = ELW_AS_ENABLED, .scale = 1.0f, .key_def = &K_MANUFACTURE, .display = display_manufacture_menu, .toggle = NULL, .showable = NULL },
+	.list[MW_EMOTE] = { .id = -1, .pos_x = 10, .pos_y = 20, .default_pos = ELW_P_CR, .use_def_pos = 1, .prop_pos = 1, .pos_ratio_x = 1.0f, .pos_ratio_y = 1.0f, .on_top = 1, .icon_name = "emotewin", .hideable = 1, .was_open = 0, .autoscale = ELW_AS_ENABLED, .scale = 1.0f, .key_def = &K_EMOTES, .display = display_emotes_menu, .toggle = NULL, .showable = NULL },
+	.list[MW_QUESTLOG] = { .id = -1, .pos_x = 10, .pos_y = 20, .default_pos = ELW_P_CC, .use_def_pos = 1, .prop_pos = 1, .pos_ratio_x = 1.0f, .pos_ratio_y = 1.0f, .on_top = 1, .icon_name = "quest", .hideable = 1, .was_open = 0, .autoscale = ELW_AS_ENABLED, .scale = 1.0f, .key_def = &K_QUESTLOG, .display = display_questlog, .toggle = NULL, .showable = NULL },
+	.list[MW_INFO] = { .id = -1, .pos_x = 150, .pos_y = 70, .default_pos = ELW_P_CC, .use_def_pos = 1, .prop_pos = 1, .pos_ratio_x = 1.0f, .pos_ratio_y = 1.0f, .on_top = 1, .icon_name = "info", .hideable = 1, .was_open = 0, .autoscale = ELW_AS_ENABLED, .scale = 1.0f, .key_def = NULL, .display = display_tab_info, .toggle = NULL, .showable = NULL },
+	.list[MW_BUDDY] = { .id = -1, .pos_x = 150, .pos_y = 70, .default_pos = ELW_P_CR, .use_def_pos = 1, .prop_pos = 1, .pos_ratio_x = 1.0f, .pos_ratio_y = 1.0f, .on_top = 1, .icon_name = "buddy", .hideable = 1, .was_open = 0, .autoscale = ELW_AS_ENABLED, .scale = 1.0f, .key_def = &K_BUDDY, .display = display_buddy, .toggle = NULL, .showable = NULL },
+	.list[MW_STATS] = { .id = -1, .pos_x = 150, .pos_y = 70, .default_pos = ELW_P_CC, .use_def_pos = 1, .prop_pos = 1, .pos_ratio_x = 1.0f, .pos_ratio_y = 1.0f, .on_top = 1, .icon_name = "stats", .hideable = 1, .was_open = 0, .autoscale = ELW_AS_ENABLED, .scale = 1.0f, .key_def = NULL, .display = display_tab_stats, .toggle = NULL, .showable = NULL },
+	.list[MW_HELP] = { .id = -1, .pos_x = 150, .pos_y = 70, .default_pos = ELW_P_CC, .use_def_pos = 1, .prop_pos = 1, .pos_ratio_x = 1.0f, .pos_ratio_y = 1.0f, .on_top = 0, .icon_name = "help", .hideable = 1, .was_open = 0, .autoscale = ELW_AS_ENABLED, .scale = 1.0f, .key_def = NULL, .display = display_tab_help, .toggle = NULL, .showable = NULL },
+	.list[MW_RANGING] = { .id = -1, .pos_x = 10, .pos_y = 20, .default_pos = ELW_P_TL, .use_def_pos = 1, .prop_pos = 1, .pos_ratio_x = 1.0f, .pos_ratio_y = 1.0f, .on_top = 1, .icon_name = "range", .hideable = 1, .was_open = 0, .autoscale = ELW_AS_ENABLED, .scale = 1.0f, .key_def = &K_RANGINGWIN, .display = display_range_win, .toggle = NULL, .showable = NULL },
+	.list[MW_ACHIEVE] = { .id = -1, .pos_x = 0, .pos_y = 0, .default_pos = ELW_P_NONE, .use_def_pos = 0, .prop_pos = 0, .pos_ratio_x = 1.0f, .pos_ratio_y = 1.0f, .on_top = 0, .icon_name = "achievements", .hideable = 0, .was_open = 0, .autoscale = ELW_AS_ENABLED, .scale = 1.0f, .key_def = NULL, .display = NULL, .toggle = NULL, .showable = NULL },
+	.list[MW_DIALOGUE] = { .id = -1, .pos_x = 1, .pos_y = 1, .default_pos = ELW_P_CC, .use_def_pos = 1, .prop_pos = 1, .pos_ratio_x = 1.0f, .pos_ratio_y = 1.0f, .on_top = 0, .icon_name = "dialogue", .hideable = 1, .was_open = 0, .autoscale = ELW_AS_ENABLED, .scale = 1.0f, .key_def = NULL, .display = NULL, .toggle = NULL, .showable = NULL },
+	.list[MW_QUICKBAR] = { .id = -1, .pos_x = 100, .pos_y = 100, .default_pos = ELW_P_NONE, .use_def_pos = 0, .prop_pos = 1, .pos_ratio_x = 1.0f, .pos_ratio_y = 1.0f, .on_top = 0, .icon_name = "quickbar", .hideable = 0, .was_open = 0, .autoscale = ELW_AS_NONE, .scale = 1.0f, .key_def = NULL, .display = NULL, .toggle = NULL, .showable = NULL },
+	.list[MW_QUICKSPELLS] = { .id = -1, .pos_x = 10, .pos_y = 20, .default_pos = ELW_P_NONE, .use_def_pos = 0, .prop_pos = 1, .pos_ratio_x = 1.0f, .pos_ratio_y = 1.0f, .on_top = 0, .icon_name = "quickspells", .hideable = 0, .was_open = 0, .autoscale = ELW_AS_NONE, .scale = 1.0f, .key_def = NULL, .display = NULL, .toggle = NULL, .showable = NULL },
+	.list[MW_CONFIG] = { .id = -1, .pos_x = 10, .pos_y = 10, .default_pos = ELW_P_CC, .use_def_pos = 1, .prop_pos = 1, .pos_ratio_x = 1.0f, .pos_ratio_y = 1.0f, .on_top = 1, .icon_name = "opts", .hideable = 1, .was_open = 0, .autoscale = ELW_AS_ENABLED, .scale = 1.0f, .key_def = &K_OPTIONS, .display = display_elconfig_win, .toggle = NULL, .showable = NULL },
+	.list[MW_MINIMAP] = { .id = -1, .pos_x = 50, .pos_y = 50, .default_pos = ELW_P_TR, .use_def_pos = 1, .prop_pos = 1, .pos_ratio_x = 1.0f, .pos_ratio_y = 1.0f, .on_top = 1, .icon_name = "minimap", .hideable = 1, .was_open = 0, .autoscale = ELW_AS_ENABLED, .scale = 1.0f, .key_def = &K_MINIMAP, .display = display_minimap, .toggle = NULL, .showable = NULL },
+	.list[MW_ASTRO] = { .id = -1, .pos_x = 10, .pos_y = 20, .default_pos = ELW_P_TC, .use_def_pos = 1, .prop_pos = 1, .pos_ratio_x = 1.0f, .pos_ratio_y = 1.0f, .on_top = 1, .icon_name = "astro", .hideable = 0, .was_open = 0, .autoscale = ELW_AS_ENABLED, .scale = 1.0f, .key_def = NULL, .display = NULL, .toggle = NULL, .showable = NULL },
+	.list[MW_TABMAP] = { .id = -1, .pos_x = 0, .pos_y = 0, .default_pos = ELW_P_NONE, .use_def_pos = 0, .prop_pos = 0, .pos_ratio_x = 1.0f, .pos_ratio_y = 1.0f, .on_top = 0, .icon_name = "map", .hideable = 0, .was_open = 0, .autoscale = ELW_AS_NONE, .scale = 1.0f, .key_def = NULL, .display = NULL, .toggle = NULL, .showable = NULL },
+	.list[MW_CONSOLE] = { .id = -1, .pos_x = 0, .pos_y = 0, .default_pos = ELW_P_NONE, .use_def_pos = 0, .prop_pos = 0, .pos_ratio_x = 1.0f, .pos_ratio_y = 1.0f, .on_top = 0, .icon_name = "console", .hideable = 0, .was_open = 0, .autoscale = ELW_AS_NONE, .scale = 1.0f, .key_def = NULL, .display = NULL, .toggle = NULL, .showable = NULL },
+	.list[MW_CHAT] = { .id = -1, .pos_x = 0, .pos_y = 0, .default_pos = ELW_P_NONE, .use_def_pos = 0, .prop_pos = 1, .pos_ratio_x = 1.0f, .pos_ratio_y = 1.0f, .on_top = 0, .icon_name = "chat", .hideable = 0, .was_open = 0, .autoscale = ELW_AS_ENABLED, .scale = 1.0f, .key_def = &K_CHAT, .display = open_chat, .toggle = toggle_chat, .showable = is_chat_shown },
+	.list[MW_CHANCOLS] = { .id = -1, .pos_x = 300, .pos_y = 0, .default_pos = ELW_P_CC, .use_def_pos = 0, .prop_pos = 1, .pos_ratio_x = 1.0f, .pos_ratio_y = 1.0f, .on_top = 0, .icon_name = "chancols", .hideable = 0, .was_open = 0, .autoscale = ELW_AS_ENABLED, .scale = 1.0f, .key_def = NULL, .display = NULL, .toggle = NULL, .showable = NULL },
 #ifdef ECDEBUGWIN
-	.list[MW_ECDEBUG] = { .id = -1, .pos_x = 10, .pos_y = 10, .default_pos = ELW_P_BC, .use_def_pos = 1, .prop_pos = 0, .pos_ratio_x = 1.0f, .pos_ratio_y = 1.0f, .on_top = 0, .icon_name = "ecdebug", .hideable = 0, .was_open = 0, .scale = 1.0f, .key_def = &K_ECDEBUGWIN, .display = display_ecdebugwin, .toggle = NULL, .showable = NULL },
+	.list[MW_ECDEBUG] = { .id = -1, .pos_x = 10, .pos_y = 10, .default_pos = ELW_P_BC, .use_def_pos = 1, .prop_pos = 0, .pos_ratio_x = 1.0f, .pos_ratio_y = 1.0f, .on_top = 0, .icon_name = "ecdebug", .hideable = 0, .was_open = 0, .autoscale = ELW_AS_ENABLED, .scale = 1.0f, .key_def = &K_ECDEBUGWIN, .display = display_ecdebugwin, .toggle = NULL, .showable = NULL },
 #endif
 	.disable_mouse_or_keys_scaling = 0
 };
@@ -115,6 +121,7 @@ static window_info *cur_drag_window = NULL;
 static widget_list *cur_drag_widget = NULL;
 int top_SWITCHABLE_OPAQUE_window_drawn = -1;
 int opaque_window_backgrounds = 0;
+int enable_windows_autoscale = 0;
 static int last_opaque_window_backgrounds = 0;
 
 static int drag_in_window(int win_id, int x, int y, Uint32 flags, int dx, int dy);
@@ -278,29 +285,37 @@ static void move_to_default_pos(enum managed_window_enum managed_win)
 		(managed_windows.list[managed_win].default_pos != ELW_P_NONE))
 	{
 		window_info *win = &windows_list.window[managed_windows.list[managed_win].id];
+		int have_hud = get_show_window(game_root_win) || get_show_window(newchar_root_win) ||
+			get_show_window(get_id_MW(MW_CONSOLE)) || get_show_window(get_id_MW(MW_TABMAP));
+		int margin_x_to_use = (have_hud && ((window_width - hud_x) > win->len_x)) ?hud_x :0;
+		int margin_y_to_use = (have_hud && ((window_height - hud_y) > win->len_y)) ?hud_y :0;
 		int new_x, new_y;
 		switch (managed_windows.list[managed_win].default_pos)
 		{
 			case ELW_P_TL: case ELW_P_CL: case ELW_P_BL:
-				new_x = (window_width - HUD_MARGIN_X) / 5 -  win->len_x / 2;
+				new_x = (window_width - margin_x_to_use) / 5 -  win->len_x / 2;
 				break;
 			case ELW_P_TR: case ELW_P_CR: case ELW_P_BR:
-				new_x = 4 * (window_width - HUD_MARGIN_X) / 5 -  win->len_x / 2;
+				new_x = 4 * (window_width - margin_x_to_use) / 5 -  win->len_x / 2;
 				break;
 			default: // this will be case ELW_P_TC: case ELW_P_CC: case ELW_P_BC:
-				new_x = (window_width - win->len_x - HUD_MARGIN_X) / 2;
+				new_x = (window_width - win->len_x - margin_x_to_use) / 2;
 		}
+		new_x = max2i(0, new_x);
+		new_x = min2i(new_x, window_width - win->len_x);
 		switch (managed_windows.list[managed_win].default_pos)
 		{
 			case ELW_P_TL: case ELW_P_TC: case ELW_P_TR:
-				new_y = (window_height - HUD_MARGIN_Y) / 5 - win->len_y / 2;
+				new_y = (window_height - margin_y_to_use) / 5 - win->len_y / 2;
 				break;
 			case ELW_P_BL: case ELW_P_BC: case ELW_P_BR:
-				new_y = 4 * (window_height - HUD_MARGIN_Y) / 5 - win->len_y / 2;
+				new_y = 4 * (window_height - margin_y_to_use) / 5 - win->len_y / 2;
 				break;
 			default: // this will be case ELW_P_CL: case ELW_P_CC: case ELW_P_CR:
-				new_y = (window_height - win->len_y - HUD_MARGIN_Y) / 2;
+				new_y = (window_height - win->len_y - margin_y_to_use) / 2;
 		}
+		new_y = min2i(new_y, window_height - win->len_y);
+		new_y = max2i((win->flags & ELW_TITLE_BAR) ? win->title_height :0, new_y);
 		move_window(win->window_id, win->pos_id, win->pos_loc, new_x, new_y);
 	}
 }
@@ -348,6 +363,7 @@ void get_json_window_state_MW(enum managed_window_enum managed_win)
 		if ((pos_x >= 0) || (pos_y >= 0))
 		{
 			set_pos_MW(managed_win, pos_x, pos_y);
+			managed_windows.list[managed_win].use_def_pos = 0;
 			managed_windows.list[managed_win].pos_ratio_x = json_cstate_get_float(window_dict_name, "pos_ratio_x", 1.0f);
 			managed_windows.list[managed_win].pos_ratio_y = json_cstate_get_float(window_dict_name, "pos_ratio_y", 1.0f);
 		}
@@ -442,7 +458,6 @@ void set_pos_MW(enum managed_window_enum managed_win, int pos_x, int pos_y)
 	{
 		managed_windows.list[managed_win].pos_x = pos_x;
 		managed_windows.list[managed_win].pos_y = pos_y;
-		managed_windows.list[managed_win].use_def_pos = 0;
 	}
 }
 
@@ -581,6 +596,13 @@ int get_window_showable_MW(enum managed_window_enum managed_win)
 		return get_window_showable(get_id_MW(managed_win));
 }
 
+void set_cfg_fallback_state(void)
+{
+	enum managed_window_enum i;
+	for (i = 0; i < MW_MAX; i++)
+		managed_windows.list[i].use_def_pos = 0;
+}
+
 static void change_window_font(window_info *win, font_cat cat)
 {
 	widget_list *W;
@@ -621,6 +643,73 @@ void change_windows_font(font_cat cat)
 		window_info *win = &windows_list.window[win_id];
 		change_window_font(win, cat);
 	}
+}
+
+// calculate and set the window scale factor so the window fits the screen
+//
+int calc_windows_autoscale(window_info *win, float *scale)
+{
+	if ((win != NULL) && (scale != NULL) && (win->len_x > 0) && (win->len_y > 0))
+	{
+		// calculate scale based on height and width that would fit in the current window, with a little slack
+		float height_scale = *scale * 0.95f * (float)window_height / (float)(win->len_y + win->title_height);
+		float width_scale = *scale * 0.95f * (float)window_width / (float)win->len_x;
+
+		// use the smaller of the scales
+		float new_scale = (height_scale < width_scale) ?height_scale :width_scale;
+
+		// no change needed if we already fit and already at default scale or larger
+		if ((new_scale >= 1.0f) && (*scale >= 1.0f))
+			return 0;
+
+		// limit scale change to default, we will make windows bigger up to the default
+		if (new_scale > 1.0f)
+			new_scale = 1.0f;
+
+		// bound check the proposed new scale
+		if ((new_scale >= win_scale_min) && (new_scale <= win_scale_max))
+		{
+			*scale = new_scale;
+			update_windows_custom_scale(scale);
+			set_custom_scale_unsaved(scale);
+			return 1;
+		}
+	}
+	return 0;
+}
+
+// called by the 1/2 seeond timer
+//
+void check_for_windows_autoscale(void)
+{
+	enum managed_window_enum i;
+	if (!enable_windows_autoscale)
+		return;
+	for (i = 0; i < MW_MAX; i++)
+	{
+		int win_id = managed_windows.list[i].id;
+		// if the window is already shown and is marked as needing autoscale check
+		if (get_show_window(win_id) && (managed_windows.list[i].autoscale == ELW_AS_NEEDED))
+		{
+			window_info *win = &windows_list.window[win_id];
+			if (get_MW_index(win->window_id) == MW_CONFIG)
+				calc_config_windows_autoscale();
+			else if (win->custom_scale != NULL)
+				calc_windows_autoscale(win, win->custom_scale);
+			managed_windows.list[i].autoscale = ELW_AS_ENABLED;
+		}
+	}
+}
+
+// called at startup, on main window size change and when autoscalng enabled
+//
+void set_windows_autoscale_needed(void)
+{
+	enum managed_window_enum i;
+	// mark all windows that can autoscale, as needing a check
+	for (i = 0; i < MW_MAX; i++)
+		if (managed_windows.list[i].autoscale == ELW_AS_ENABLED)
+			managed_windows.list[i].autoscale = ELW_AS_NEEDED;
 }
 
 // general windows manager functions
@@ -1948,6 +2037,7 @@ static void resize_scrollbar(window_info *win)
 
 void resize_window (int win_id, int new_width, int new_height)
 {
+	enum managed_window_enum managed_win = get_MW_index(win_id);
 	window_info *win;
 
 	if (win_id < 0 || win_id >= windows_list.num_windows)	return;
@@ -1971,6 +2061,10 @@ void resize_window (int win_id, int new_width, int new_height)
 		(*win->resize_handler) (win, new_width, new_height);
 		glPopMatrix  ();
 	}
+
+	if ((managed_win < MW_MAX) && (managed_windows.list[managed_win].use_def_pos))
+		move_to_default_pos(managed_win);
+
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE

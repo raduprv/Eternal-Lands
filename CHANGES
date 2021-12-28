@@ -1,3 +1,113 @@
+2021-Dec-16: Release 1.9.6.0
+	Server updates
+		* Haidir cockatrice daily was not counting one of the cockatrices. Fixed.
+		* New ice dragon spawn in a new location
+		* New blue dragon spawn in a redesigned location
+		* Maps the pear can be found on have been updated. It should now only appear on maps where 98% or more of the harvestables can actually be harvested, based on the new and updated 1.9.6 maps.
+	Client Data updates
+		* Two standard user menus added. Right-click and deselect "Standard Menus" to disable.
+		* 90+ new inventory images added. Majority are to show used/damaged/second-hand and rare weapons and armor differently.
+		* A few 2d bones images were accidentally deleted years ago prior to 1.9.3. They've been readded, so you may see more 2d bones on various maps that have just been invisible the past several client releases.
+		* F5 invance rules updated, and some of the encyclopedia.
+	Client updates
+		Hide the just exp message in console when the mixed item filter is enabled.
+		Add primary clipboard support for text line widget.
+		Added #? command to search #command names and descriptions.
+		Add updates path to standard user menus search.
+		Resize quest log NPC window when we get a new NPC.
+		Fix too wide width for HUD indicators for some fonts.
+		Fix too wide width for buddy window for some fonts.
+		Always show a least one line of input text for the console.
+		Fix ranging critical rate for window.
+		Fixes for all caps filter.
+		Fix auto disable ranging lock to only happen if it is you fighting.
+		Restore previous behaviour for saved manu items.
+		Fix custom cloths for colour tagged names.
+		Rate limit "You need to quip a quiver first".
+		Improved URL parsing.
+		Dynamically allocate servers list.
+		Fix 3d marks extending into the depths when in console more.
+		Added option to apply the current map mark filter to 3d marks.
+		Don't scale map window side text with mapmark scale factor.
+		Don't scale map window in F6 mode.
+		New network code allowing encrypted connections.
+		Fix crash when dragging mouse over hidden text field.
+		Fix for updates and custom cloth with multiple clients open.
+		Fix crash when window is minimized in new character interface.
+		Make the mana numbers and bar brighter on player banner.
+		Improve the accuracy of the map markers in the map window and map click to walk.
+		Added #summon_attack & #sa command and hud indicator.
+		Centre the map marks symmetrically around the tile centre.
+		Allow 'm' as million suffix in #calc.
+		Switch to total session exp if no longer collecting OA.
+		Fix for windows command line space issues.
+		Added server tab option to set default server ID.
+		Fix eye candy issue causing screen to go dark when casting some spells.
+		Fix resizing of the language select window.
+		Fix calculation that limited width used for login screen rules window.
+		Fix chat startup resize issues for some combinations of chat.
+		Fix new character hud not resizing sometimes.
+		Automatically down-scale the new character hud.
+		Use true font width to set password manager size.
+		Added option to automatically set the windows scaling factor.
+		Improvements to default window locations.
+		Various code clean ups and minor behind the scenes fixes.
+	Map updates
+		The client now comes with a default tab map for every map, not just select ones.
+		Morcraven Marsh - New "Market" area next to the battle hall for bots. (All bots in or near this area need to make a new home in one of the 30 stalls as quickly as possible.)
+		Isla Prima - New semi-secret map "Newbie Dream Temple" for brand new players. (If you're helping new players, you're free to tell them how to get into this. Even in public chat.)
+		Imbroglio Islands - New island "Hadlioth Isle".
+		Imbroglio Islands - Moglo northern (no-pk) fort moved
+		Thelinor - The formerly-secret dangerous "Brick Palace" is no longer a secret. You still need a Brick to enter it, but the entrance is no longer secret, having been moved to Thelinor city, inside the "volcano"-type thing just south of storage in the city.
+		Thelinor - A new safe (non-pk) small cave near the Zirak exit, using a door that was already there but previously unused.
+		Kusamura Jungle - The entrance to the temple is no longer a secret, as it is now entered via an addition to the main map. (Note: The questions inside are still considered secrets though.)
+		Kusamura Jungle - The temple has been overhauled to go with this change, and is now a temple for the shadow goddess Varyssa, goddess of enchantment, who affects people's imaginations and creativity, along with their dreams. (Read more about her: http://www.eternal-lands.com/forum/index.php?/topic/45289-varyssa/ )
+		Token Map - Overhauled to remove the nasty snapdragon/rose mess on the west side. Replaced with a beach decor that's less likely to cause grue and gives more space for invasions. Includes 2 new minor insides.
+		Idaloran - The area between Jahir Beach and Nymorq Woods is now a ruins area in keeping with the original Idaloran storyline. One new minor enterable hut can be found among the ruins.
+		Idaloran - New cathedral building in the northwest area within the city walls. ("Insides" of three buildings removed for this are still available, attached to buildings elsewhere in the city.)
+		Idaloran - new bridge west of the castle leading towards Irsis exit
+		Irsis - Due to an increase in exports from Irsis, the previously unused ships at the docks are now available for travel! There's ships that lead to four more maps. Each of those four maps now have ships that lead back to Irsis as well.
+		Zirakinbar - All 3 wagons on the map can now be entered, includes the one next to storage.
+		Zirakinbar - 4 teleport pads added for getting around the map
+		Zirakinbar - A few harvestables adjusted to improve storage walk, including one that makes this a slightly better map for stocking honeycomb than Palon Vertas. (However it comes with a much higher risk for Leonard at night.)
+		North Zirakgunda - The gnomes who call Zirakgunda home have discovered silver ore in a previously unchecked part of North Gunda near the plant growing room.
+		Irinveron - The southwest teleport pad leading to northeast Irin moved a bit more towards storage for improved use as a path from storage to Waveneck caves in Glacmor.
+		Irinveron - The huge "harvesting cave" now has carts and tracks for getting around it quicker.
+		Aeth Aelfan - Wyrmgoth cave has 4 teleport spots added for getting around the map
+		Aeth Aelfan - levers added to gate directly north of storage to "use" to go through gate
+		Aeth Aelfan Lothalith Fortress - Has a new room addition.
+		Trassian Dra Syn Caves - One cave is expanded and redesigned.
+		Whitestone - House in Northern Woods just east of the city walls is now enterable.
+		Portland - House next to blueberries east of the city walls is now enterable.
+		Sedicolis - Eveline's tent can be entered.
+		Nordcarn South Cave - House south of amber (with fruit next to it) can be entered.
+		South Redmoon - House with garden behind it (north of storage) can be entered.
+		C2 Portal Room - fourth same-map teleport that goes to the northern-most row of portals (cold maps), and some minor tweaks for mapwalking improvement
+		Bethel - The two small caves that were "You try to enter, but a barrier blocks you" secrets are no longer secret, and can be entered normally. (The secrets made no sense, nor did they serve any purpose on a map with plenty of secrets already.)
+		Melinis has a new secret path, may or may not be useful if discovered. (Or more correctly, a 1-way secret was turned into a tweaked 2-way path.)
+		Appearantly there's a new, very silly secret location on C2.
+	Minor Additional Map Changes
+		South Redmoon - at 273,238 - "eye" the tombstone for a memorial to Looter / Hydroman.
+		All Fast Read and Fast Regen locations are now the same speed. (Only the ones closest to sto were used anyway)
+		Every storage now has a no-summoning zone placed around them. (This will be most noticeable in Naralik where that rule was more commonly violated.)
+		EVTR Mine - one emerald harv spot that was directly in a common walk path removed. Emeralds there moved to other nearby spots.
+		Naralik - For the house next to storage, click the door now to enter instead of the whole house (reduce misclicks while mixing at or going to storage)
+		Grubani Insides / DP Crystal Caves Insides map - Has had decoration changes and is now fully harvestable (for pear hunting purposes).
+		Irinveron, Whitestone, etc. - some tree reduction in various parts of the map
+		Two secret places got all their exits completely redone...
+		Morcraven Marsh cave - Minor redesign to kill the bottleneck of players in a single silver spot
+		A few places have gotten some more decoration (North Zirakgunda and AA Smuggler's Cave are a couple examples)
+		Some basic cleanup and decor fixes (not relevant to gameplay) on many maps
+		more height tiling (where you can walk) fixes on most every map
+		For pear hunters: more harvestables that were stuck inside rocks or underground have either been moved to be visible or just removed in many maps, including VotD gold cave, MM silver, AA Wyrmgoth (huge improvement for diamonds), Thelinor + Theli caves, and more. No guarantee all were found but the overwhelming majority should be fixed.
+	Credits
+		CLIENT work: Bluap, Grum, Ben, Ladrilho, and Nogrod
+		And special thanks to everyone who helped by using the git code (or bluap's p# releases), testing it and reporting issues.
+		SERVER work: Radu, some data provided by Burn
+		MAP work: Burn, except:
+			In the Newbie Dream Temple, the entrance and God Altar rooms (first two seen going in) were done by Acelon.
+		Also thanks to Learner for assistance with scripts that helped both with automating finding some map issues and improved automation of making the tab maps.
+
 2021-Apr-11: Release 1.9.5 (build 9-1)
 	Major features included in this stable release:
 		True Type font support, with a default set of fonts included in the data pack.

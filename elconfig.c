@@ -150,6 +150,7 @@ static float elconf_custom_scale = 1.0f;
 static float elconf_desc_size = 0.0f;
 static float elconf_desc_max_height = 0.0f;
 static int recheck_window_scale = 0;
+static int reopen_after_autoscale = 0;
 #define ELCONFIG_SCALED_VALUE(BASE) ((int)(0.5 + ((BASE) * elconf_scale)))
 #endif
 
@@ -610,6 +611,13 @@ static void change_def_server(size_t *var, size_t value)
 	// save the server to the base config file
 	write_def_server_ID(value);
 }
+
+static void change_windows_autoscale(int * var)
+{
+	*var= !*var;
+	if (*var)
+		set_windows_autoscale_needed();
+}
 #endif //MAP_EDITOR
 
 #ifndef MAP_EDITOR
@@ -689,8 +697,8 @@ static void change_win_scale_factor(float *var, float *value)
 	update_windows_custom_scale(var);
 }
 
-static const float win_scale_min = 0.25f;
-static const float win_scale_max = 3.0f;
+const float win_scale_min = 0.25f;
+const float win_scale_max = 3.0f;
 static const float win_scale_step = 0.01f;
 
 static var_struct * find_win_scale_factor(float *changed_window_custom_scale)
@@ -703,6 +711,13 @@ static var_struct * find_win_scale_factor(float *changed_window_custom_scale)
 				return our_vars.var[i];
 	}
 	return NULL;
+}
+
+void set_custom_scale_unsaved(float *changed_window_custom_scale)
+{
+	var_struct * var = find_win_scale_factor(changed_window_custom_scale);
+	if (var != NULL)
+		var->saved = 0;
 }
 
 void step_win_scale_factor(int increase, float *changed_window_custom_scale)
@@ -1236,6 +1251,16 @@ static void change_use_json_user_files(int *var)
 	}
 	else
 		USE_JSON_DEBUG("Not ready for user files");
+}
+
+void check_using_json_files(void)
+{
+	if (!use_json_user_files && ready_for_user_files)
+	{
+		LOG_INFO("Forcing JSON files");
+		set_var_unsaved("use_json_user_files_v1", INI_FILE_VAR);
+		change_use_json_user_files(&use_json_user_files);
+	}
 }
 #endif
 
@@ -2752,7 +2777,6 @@ static void init_ELC_vars(void)
 	add_var(OPT_BOOL,"open_close_clicked_bag", "openupcloseclickedbag", &open_close_clicked_bag, change_var, 1, "Open a bag if you click close to it", "When enabled, if you click close to a bag that is in range, you will open it.", CONTROLS);
 	add_var(OPT_BOOL,"use_floating_messages", "floating", &floatingmessages_enabled, change_var, 1, "Floating Messages", "Toggles the use of floating experience messages and other graphical enhancements", CONTROLS);
 	add_var(OPT_BOOL,"floating_session_counters", "floatingsessioncounters", &floating_session_counters, change_var, 0, "Floating Session Counters", "Toggles the display of floating session counters.  Configure each type using the context menu of the counter category.", CONTROLS);
-	add_var(OPT_BOOL,"enable_used_item_counter", "enable_used_item_counter", &enable_used_item_counter, change_var, 0, "Enable Used Item Counter", "WARNING: If enabled, saved counters will not be compatible with previous versions of the client.  Previous versions of the client may crash when loading counters.  If disabled, Used Item counts will not be saved.", CONTROLS);
 	add_var(OPT_BOOL,"use_keypress_dialog_boxes", "keypressdialogues", &use_keypress_dialogue_boxes, change_var, 0, "Keypresses in dialogue boxes", "Toggles the ability to press a key to select a menu option in dialogue boxes (eg The Wraith)", CONTROLS);
 	add_var(OPT_BOOL,"use_full_dialogue_window", "keypressdialoguesfullwindow", &use_full_dialogue_window, change_var, 0, "Keypresses allowed anywhere in dialogue boxes", "If set, the above will work anywhere in the Dialogue Window, if unset only on the NPC's face", CONTROLS);
 	add_var(OPT_BOOL,"use_cursor_on_animal", "useanimal", &include_use_cursor_on_animals, change_var, 0, "For animals, right click includes use cursor", "Toggles inclusion of the use cursor when right clicking on animals, useful for your summoned creatures.  Even when this option is off, you can still click the use icon.", CONTROLS);
@@ -2908,6 +2932,7 @@ static void init_ELC_vars(void)
 	add_var(OPT_FLOAT,"ui_scale","ui_scale",&local_ui_scale,change_ui_scale,1,"User interface scaling factor","Scale user interface by this factor, useful for high DPI displays.  Note: the options window will be rescaled after reopening.",FONT,0.75,3.0,0.01);
 	add_var(OPT_INT,"cursor_scale_factor","cursor_scale_factor",&cursor_scale_factor ,change_cursor_scale_factor,cursor_scale_factor,"Mouse pointer scaling factor","The size of the mouse pointer is scaled by this factor",FONT, 1, max_cursor_scale_factor);
 	add_var(OPT_BOOL,"disable_window_scaling_controls","disablewindowscalingcontrols", get_scale_flag_MW(), change_var, 0, "Disable Window Scaling Controls", "If you do not want to use keys or mouse+scrollwheel to scale individual windows, set this option.", FONT);
+	add_var(OPT_BOOL,"enable_windows_autoscale","enable_windows_autoscale", &enable_windows_autoscale, change_windows_autoscale, 0, "Autoscale windows to fit", "If enabled, the scaling factor for a window will be automatically calculated to fit within the main window. The scaling factor will not be set greater than the default.", FONT);
 	add_var(OPT_FLOAT,"trade_win_scale","tradewinscale",get_scale_WM(MW_TRADE),change_win_scale_factor,1.0f,"Trade window scaling factor",win_scale_description,FONT,win_scale_min,win_scale_max,win_scale_step);
 	add_var(OPT_FLOAT,"item_win_scale","itemwinscale",get_scale_WM(MW_ITEMS),change_win_scale_factor,1.0f,"Inventory window scaling factor",win_scale_description,FONT,win_scale_min,win_scale_max,win_scale_step);
 	add_var(OPT_FLOAT,"bags_win_scale","bagswinscale",get_scale_WM(MW_BAGS),change_win_scale_factor,1.0f,"Ground bag window scaling factor",win_scale_description,FONT,win_scale_min,win_scale_max,win_scale_step);
@@ -2926,6 +2951,7 @@ static void init_ELC_vars(void)
 	add_var(OPT_FLOAT,"quickbar_win_scale","quickbarwinscale",get_scale_WM(MW_QUICKBAR),change_win_scale_factor,1.0f,"Quickbar window scaling factor",win_scale_description,FONT,win_scale_min,win_scale_max,win_scale_step);
 	add_var(OPT_FLOAT,"quickspells_win_scale","quickspellswinscale",get_scale_WM(MW_QUICKSPELLS),change_win_scale_factor,1.0f,"Quickspells window scaling factor",win_scale_description,FONT,win_scale_min,win_scale_max,win_scale_step);
 	add_var(OPT_FLOAT,"chat_win_scale","chatwinscale",get_scale_WM(MW_CHAT),change_win_scale_factor,1.0f,"Chat window scaling factor",win_scale_description,FONT,win_scale_min,win_scale_max,win_scale_step);
+	add_var(OPT_FLOAT,"chancols_win_scale","chancolswinscale",get_scale_WM(MW_CHANCOLS),change_win_scale_factor,1.0f,"Chat channel colours window scaling factor",win_scale_description,FONT,win_scale_min,win_scale_max,win_scale_step);
 	add_var(OPT_FLOAT,"options_win_scale","optionswinscale",&elconf_custom_scale,change_elconf_win_scale_factor,1.0f,"Options window scaling factor","Multiplied by the user interface scaling factor. Change will take effect after closing then reopening the window.",FONT,win_scale_min,win_scale_max,win_scale_step);
 #ifdef NEW_CURSOR
 	add_var(OPT_BOOL,"sdl_cursors","sdl_cursors", &sdl_cursors, change_sdl_cursor,1,"Use Standard Black/White Mouse Pointers", "When disabled, use the experimental coloured mouse pointers. Needs the texture from Git dev-data-files/cursor2.dss.", FONT);
@@ -2967,7 +2993,7 @@ static void init_ELC_vars(void)
 	add_var(OPT_BOOL,"showcustomclothing","scc",&custom_clothing,change_custom_clothing,1,"Show Custom clothing","Toggles whether custom clothing is shown.",SERVER);
 #endif	//CUSTOM_UPDATE
 #ifdef JSON_FILES
-	add_var(OPT_BOOL, "use_json_user_files_v1", "usejsonuserfiles_v1", &use_json_user_files, change_use_json_user_files, 0, "Use New Format To Save User Files (.json)",
+	add_var(OPT_BOOL_INI, "use_json_user_files_v1", "usejsonuserfiles_v1", &use_json_user_files, change_use_json_user_files, 0, "Use New Format To Save User Files (.json)",
 		"NOTE: Use this option to enable the new format for saving user data.  If you change this option, data is automatically saved using the chosen format.  Disable this option before switching back to 1.9.5p8 or older clients.", SERVER);
 #endif
 	// SERVER TAB
@@ -4065,6 +4091,22 @@ static int change_elconfig_font_handler(window_info *win, font_cat cat)
 	return 1;
 }
 
+// Called when the config window is first opened after client start or a main window resize
+// The window scale factor will be set so that the window fits within the main window.
+void calc_config_windows_autoscale(void)
+{
+	int elconfig_win = get_id_MW(MW_CONFIG);
+	if ((elconfig_win >=0) && (elconfig_win < windows_list.num_windows))
+	{
+		window_info *win = &windows_list.window[elconfig_win];
+		if (calc_windows_autoscale(win, &elconf_custom_scale))
+		{
+			reopen_after_autoscale = recheck_window_scale = 1;
+			hide_window(elconfig_win);
+		}
+	}
+}
+
 //  Called from the low freqency timer as we can't initiate distorying a window in from one of its call backs.
 //  If the scale has changed and the window is hidden, destroy it, it will be re-create with the new scale
 void check_for_config_window_scale(void)
@@ -4080,6 +4122,11 @@ void check_for_config_window_scale(void)
 		set_id_MW(MW_CONFIG, -1);
 		recheck_window_scale = 0;
 		elconf_description_buffer[0] = '\0';
+		if (reopen_after_autoscale)
+		{
+			reopen_after_autoscale = 0;
+			display_elconfig_win();
+		}
 	}
 }
 
