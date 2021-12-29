@@ -241,6 +241,8 @@ int display_browser_handler(window_info *win)
 		glRotatef(0, 0.0f, 0.0f, 1.0f);
 		glRotatef(45, 0.0f, 0.0f, 1.0f);
 
+		glColor4f(1.0, 1.0, 1.0, 1.0);
+
 		glViewport(win->pos_x,window_height-win->pos_y-150,200,150);
 		glClearStencil(0);
 		glClear (GL_DEPTH_BUFFER_BIT);
