@@ -569,7 +569,7 @@ void display_trade_menu()
 	int trade_win = get_id_MW(MW_TRADE);
 
 	if(trade_win < 0){
-		trade_win = create_window(win_trade, (not_on_top_now(MW_TRADE) ?game_root_win : -1), 0,
+		trade_win = create_window(win_trade, -1, 0,
 			get_pos_x_MW(MW_TRADE), get_pos_y_MW(MW_TRADE), 0, 0, ELW_USE_UISCALE|ELW_WIN_DEFAULT);
 		set_id_MW(MW_TRADE, trade_win);
 
