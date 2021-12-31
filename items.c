@@ -1400,6 +1400,7 @@ static int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 				do_drop_item_sound();
 			} else if (alt_on && (items_mod_click_any_cursor || (item_action_mode==ACTION_WALK))) {
 				if ((get_id_MW(MW_STORAGE) >= 0) && (get_show_window_MW(MW_STORAGE)) && (view_only_storage == 0)) {
+					reset_storage_rate_limit();
 					str[0]=DEPOSITE_ITEM;
 					str[1]=item_list[pos].pos;
 					*((Uint32*)(str+2))=SDL_SwapLE32(INT_MAX);
@@ -1465,6 +1466,7 @@ static int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 
 	// Sto All button
 	else if(over_button(win, mx, my)==BUT_STORE && get_id_MW(MW_STORAGE) >= 0 && view_only_storage == 0 && get_show_window_MW(MW_STORAGE) /*thanks alberich*/){
+		reset_storage_rate_limit();
 #ifdef STORE_ALL
 		/*
 		* Future code to save server load by having one byte to represent the 36 slot inventory loop. Will need server support.

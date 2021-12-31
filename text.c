@@ -66,6 +66,21 @@ static Uint32 glow_perk_timer = 0;
 void check_glow_perk(void) { glow_perk_check_state = 3; }
 int glow_perk_is_active(void) { return glow_perk_active; };
 
+#define rate_limit_count 4
+static const char* rate_limit_msgs[rate_limit_count] = {
+	"You are too far away! Get closer!",
+	"Can't do, your target is already fighting with someone else,",
+	"You need to equip a quiver first!",
+	"You cannot access the storage from here!"
+};
+static Uint32 rate_limit_last_time[rate_limit_count] = { 0, 0, 0, 0 };
+static int rate_limit_done_one[rate_limit_count] = { 0, 0, 0, 0 };
+
+void reset_storage_rate_limit()
+{
+	rate_limit_done_one[3] = 0;
+}
+
 /*
  * Called each frame by the hud indicator code if the glow perk indcator is enabled.
 */
@@ -649,32 +664,24 @@ int filter_or_ignore_text (char *text_to_add, int len, int size, Uint8 channel)
 			clear_buddy();
 		}
 		else {
-			static const char* rate_limit_msgs[] = {
-				"You are too far away! Get closer!",
-				"Can't do, your target is already fighting with someone else,",
-				"You need to equip a quiver first!"
-			};
-			static const int nr_msgs = sizeof(rate_limit_msgs) / sizeof(*rate_limit_msgs);
-			static Uint32 last_time[] = { 0, 0, 0 };
-			static int done_one[] = { 0, 0, 0 };
 			int match_index;
-			for (match_index = 0; match_index < nr_msgs; ++match_index)
+			for (match_index = 0; match_index < rate_limit_count; ++match_index)
 			{
 				const char* msg = rate_limit_msgs[match_index];
 				if (!strncasecmp(text_to_add+1, msg, strlen(msg)))
 					break;
 			}
-			if (match_index < nr_msgs)
+			if (match_index < rate_limit_count)
 			{
 				Uint32 new_time = SDL_GetTicks();
 				clear_now_harvesting();
 				if(your_actor != NULL)
 					add_highlight(your_actor->x_tile_pos,your_actor->y_tile_pos, HIGHLIGHT_SOFT_FAIL);
 				/* suppress further messages within for 5 seconds of last */
-				if (done_one[match_index] && ((new_time - last_time[match_index]) < 5000))
+				if (rate_limit_done_one[match_index] && new_time - rate_limit_last_time[match_index] < 5000)
 					return 0;
-				done_one[match_index] = 1;
-				last_time[match_index] = new_time;
+				rate_limit_done_one[match_index] = 1;
+				rate_limit_last_time[match_index] = new_time;
 			}
 		}
 

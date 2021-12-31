@@ -69,6 +69,13 @@ void put_item_on_trade (const Uint8 *data);
  */
 void remove_item_from_trade (const Uint8 *data);
 
+/*!
+ * \ingroup 	trade
+ * \brief Hide the trade window and reset state.
+ *
+ */
+void trading_window_exit(void);
+
 #ifdef __cplusplus
 } // extern "C"
 #endif

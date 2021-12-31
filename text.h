@@ -464,6 +464,15 @@ int glow_perk_is_active(void);
 int glow_perk_is_unavailable(void);
 void check_glow_perk(void);
 
+/*!
+ * \brief Reset rate limiting for storage message
+ *
+ * Reset the rate limiting for the "You cannot access the storage from here!" message, allowing
+ * it to be displayed multiple times even within the timeout when the "store all" button is clicked
+ * repeatedly.
+ */
+void reset_storage_rate_limit();
+
 #define LOG_TO_CONSOLE(color,buffer)	put_colored_text_in_buffer(color,CHAT_SERVER,(const Uint8*)buffer,-1) /*!< logs the text in buffer with the specified color to the console. */
 
 #ifdef __cplusplus

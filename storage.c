@@ -763,6 +763,7 @@ int click_storage_handler(window_info * win, int mx, int my, Uint32 flags)
 				} else if(!view_only_storage && item_dragged!=-1 && left_click){
 					Uint8 str[6];
 
+					reset_storage_rate_limit();
 					str[0]=DEPOSITE_ITEM;
 					str[1]=item_list[item_dragged].pos;
 					*((Uint32*)(str+2))=SDL_SwapLE32(item_quantity);
