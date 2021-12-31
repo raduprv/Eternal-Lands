@@ -621,7 +621,7 @@ void connect_to_server()
 	clear_now_harvesting();
 	last_heart_beat= time(NULL);
 	send_heart_beat();	// prime the hearbeat to prevent some stray issues when there is lots of lag
-	hide_window_MW(MW_TRADE);
+	trading_window_exit();
 	do_connect_sound();
 
 	my_tcp_flush();    // make sure tcp output buffer is empty
@@ -1640,7 +1640,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 
 		case GET_TRADE_EXIT:
 			{
-				hide_window_MW(MW_TRADE);
+				trading_window_exit();
 				trade_exit();
 			}
 			break;

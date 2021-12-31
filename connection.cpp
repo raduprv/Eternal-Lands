@@ -21,6 +21,7 @@
 #include "questlog.h"
 #include "sound.h"
 #include "text.h"
+#include "trade.h"
 #include "translate.h"
 
 int always_pathfinding = 0;
@@ -204,7 +205,7 @@ void Connection::finish_connect_to_server()
 	clear_today_is_special_day();
 	clear_now_harvesting();
 	send_heart_beat();     // prime the heart beat to prevent some stray issues when there is lots of lag
-	hide_window_MW(MW_TRADE);
+	trading_window_exit();
 	do_connect_sound();
 
 	flush();               // make sure tcp output buffer is empty

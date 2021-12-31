@@ -554,14 +554,13 @@ static int close_trade_handler(window_info *win)
 	return 1;
 }
 
-static int hide_trade_handler(window_info *win)
+void trading_window_exit(void)
 {
-	// Reset trade partner information when the window is hidden (either because one partner
+	// Reset trade partner information when trading ends (either because one partner
 	// aborted the trade, or because the trade was finished
 	storage_available = 0;
 	other_player_trade_name[0] = '\0';
-
-	return 1;
+	hide_window_MW(MW_TRADE);
 }
 
 void display_trade_menu()
@@ -569,7 +568,7 @@ void display_trade_menu()
 	int trade_win = get_id_MW(MW_TRADE);
 
 	if(trade_win < 0){
-		trade_win = create_window(win_trade, -1, 0,
+		trade_win = create_window(win_trade, (not_on_top_now(MW_TRADE) ?game_root_win : -1), 0,
 			get_pos_x_MW(MW_TRADE), get_pos_y_MW(MW_TRADE), 0, 0, ELW_USE_UISCALE|ELW_WIN_DEFAULT);
 		set_id_MW(MW_TRADE, trade_win);
 
@@ -578,7 +577,6 @@ void display_trade_menu()
 		set_window_handler(trade_win, ELW_HANDLER_CLICK, &click_trade_handler );
 		set_window_handler(trade_win, ELW_HANDLER_MOUSEOVER, &mouseover_trade_handler );
 		set_window_handler(trade_win, ELW_HANDLER_CLOSE, &close_trade_handler );
-		set_window_handler(trade_win, ELW_HANDLER_HIDE, &hide_trade_handler );
 		set_window_handler(trade_win, ELW_HANDLER_UI_SCALE, &ui_scale_trade_handler );
 
 		if (trade_win >= 0 && trade_win < windows_list.num_windows)
