@@ -181,7 +181,7 @@ void LockedActorsList::remove_and_destroy(Storage::const_iterator iter)
 	{
 		Storage::iterator att_iter = _list.find(act->attached_actor_id);
 		if (att_iter != _list.end())
-			remove_and_destroy_single(iter);
+			remove_and_destroy_single(att_iter);
 	}
 	remove_and_destroy_single(iter);
 }
