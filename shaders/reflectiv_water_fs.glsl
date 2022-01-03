@@ -44,7 +44,10 @@ void main (void)
 
 	noise_diplacment = texture3D(noise_texture, noise_tex_coord).ga * 2.0 - 1.0;
 
-	reflection_tex_coord += noise_diplacment * noise_scale.xy;
+	// Next line does not play nice on VirtualBox/Windows/Intel HD 530. Why? No idea.
+	//reflection_tex_coord += noise_diplacment * noise_scale.xy;
+	reflection_tex_coord = vec2(reflection_tex_coord.x + noise_diplacment.x * noise_scale.x,
+		reflection_tex_coord.y + noise_diplacment.y * noise_scale.y);
 	tile_tex_coord += noise_diplacment * noise_scale.zw;
 #endif	// USE_NOISE
 
