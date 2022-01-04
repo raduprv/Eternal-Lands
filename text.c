@@ -294,7 +294,7 @@ void write_to_log (Uint8 channel, const Uint8* const data, int len)
 		// Start filling the buffer with the time stamp
 		time (&c_time);
 		l_time = localtime (&c_time);
-		j = strftime (str, sizeof(str), "[%H:%M:%S] ", l_time);
+		j = strftime (str, sizeof(str), "[%F %H:%M:%S] ", l_time);
 	}
 	else
 	{
