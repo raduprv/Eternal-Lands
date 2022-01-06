@@ -50,6 +50,47 @@ namespace eternal_lands
 {
 
 /*!
+ * \brief Wrapper for actor struct
+ *
+ * Class ActorWrapper is a C++ wrapper for struct actor, with associated destructor.
+ */
+class ActorWrapper
+{
+public:
+	/*!
+	 * \brief Constructor
+	 *
+	 * Create anew ActorWrapper instance, wraping the actor \a act.
+	 * \param act Pointer to the wrapped actor
+	 */
+	explicit ActorWrapper(actor* act): _act(act) {}
+	/*!
+	 * \brief Move onstructor
+	 *
+	 * Move constructor moves the wrapped actor from \a other to this.
+	 * \other The actor wrapper from which to move the actor
+	 */
+	ActorWrapper(ActorWrapper&& other)
+	{
+		_act = other._act;
+		other._act = nullptr;
+	}
+	//! Delete copy constructor to prevent two wrappers holding the same actor
+	ActorWrapper(const ActorWrapper&) = delete;
+	//! Destructor
+	~ActorWrapper();
+
+	//! Return a read-only pointer to the wrapped actor
+	const actor* unwrap() const { return _act; }
+	//! Return a pointer to the wrapped actor
+	actor* unwrap() { return _act; }
+
+private:
+	//! Pointer to wrapped actor
+	actor *_act;
+};
+
+/*!
  * \brief A lock guard class for the actors list
  *
  * Class LockedActorsList provides a lock guard object to safely manipulate the actors list. Access
@@ -89,7 +130,7 @@ public:
 	typedef std::recursive_mutex Mutex;
  #endif // ACTORS_LIST_NO_RECURSIVE_MUTEX
 #endif // ACTORS_LIST_MUTEX_DEBUG
-	typedef std::unordered_map<int, actor*> Storage;
+	typedef std::unordered_map<int, ActorWrapper> Storage;
 
 	/*!
 	 * \brief Constructor
@@ -121,7 +162,7 @@ public:
 	void for_each_actor(T fun, void* data)
 	{
 		for (auto& id_act: _list)
-			fun(id_act.second, data, this);
+			fun(id_act.second.unwrap(), data, this);
 	}
 	/*!
 	 * \brief Execute a function for each actor and attached actor in the actors list
@@ -142,7 +183,7 @@ public:
 	{
 		for (auto& id_act: _list)
 		{
-			actor* act = id_act.second;
+			actor* act = id_act.second.unwrap();
 			actor *attached = has_attachment(act)
 				? get_actor_from_id(act->attached_actor_id)
 				: nullptr;
@@ -242,8 +283,8 @@ public:
 	bool actor_occupies_tile(int x, int y)
 	{
 		return std::find_if(_list.begin(), _list.end(),
-			[x, y](const std::pair<int, actor*>& id_act) {
-				actor* act = id_act.second;
+			[x, y](const std::pair<int, const ActorWrapper&>& id_act) {
+				const actor* act = id_act.second.unwrap();
 				return act->x_tile_pos == x && act->y_tile_pos == y;
 			}
 		) != _list.end();
@@ -260,7 +301,7 @@ public:
 	actor* get_actor_from_id(int actor_id)
 	{
 		Storage::iterator iter = _list.find(actor_id);
-		return (iter != _list.end()) ? iter->second : nullptr;
+		return (iter != _list.end()) ? iter->second.unwrap() : nullptr;
 	}
 	/*!
 	 * \brief Find an actor and its attached actor
@@ -321,14 +362,6 @@ private:
 	 * \param iter Iterator pointing to the position of the actor to be removed
 	 */
 	void remove_and_destroy(Storage::const_iterator iter);
-	/*!
-	 * \brief Remove and destroy a single actor
-	 *
-	 * Remove the actor at position \a iter in the actors list, and free its resources. No other
-	 * actors are affected.
-	 * \param iter Iterator pointing to the position of the actor to be removed
-	 */
-	void remove_and_destroy_single(Storage::const_iterator iter);
 };
 
 } // namespace eternal_lands
@@ -551,7 +584,7 @@ void add_actor_to_list(actor *act, actor *attached);
  */
 void remove_and_destroy_actor_from_list(int actor_id);
 //! Remove all actors from the actors list and free up the resources they use
-void remove_and_destroy_all_actors(void);
+void destroy_all_actors(void);
 /*!
  * \brief Check if the player's own actor is set
  *

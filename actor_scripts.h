@@ -80,29 +80,6 @@ void free_actor_data(actor *act);
 
 /*!
  * \ingroup	network_actors
- * \brief	The function destroys an actor and releases the memory it used.
- *
- * 		The function destroys the actor pointed to bya act, and releases the memory it used.
- *
- * \param	act The actor to destroy
- *
- * \sa		destroy_all_actors
- */
-void destroy_actor(actor *act);
-
-/*!
- * \ingroup	network_actors
- * \brief	The function destroys all actors.
- *
- * 		The function removes all actors from the actors list, destroys them, and free()s the
- * 		memory/textures.
- *
- * \sa		destroy_actor
- */
-void destroy_all_actors();
-
-/*!
- * \ingroup	network_actors
  * \brief	The function destroys all actors then requests an update.
  *
  * 		The calls destroy_all_actors() then requests the server sends all actor informaiton.

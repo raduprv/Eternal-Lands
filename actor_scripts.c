@@ -1933,20 +1933,6 @@ void free_actor_data(actor* act)
     ec_actor_delete(act);
 }
 
-void destroy_actor(actor *act)
-{
-	free_actor_special_effect(act->actor_id);
-	free_actor_data(act);
-	free(act);
-}
-
-void destroy_all_actors()
-{
-	remove_and_destroy_all_actors();
-	my_timer_adjust= 0;
-	harvesting_effect_reference = NULL;
-}
-
 void update_all_actors(int log_the_update)
 {
 	Uint8 cmd = SEND_ME_MY_ACTORS;

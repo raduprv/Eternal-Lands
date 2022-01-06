@@ -13,6 +13,7 @@
 #include "misc.h"
 #include "special_effects.h"
 #include "textures.h"
+#include "timers.h"
 #include "translate.h"
 
 namespace eternal_lands
@@ -22,6 +23,16 @@ LockedActorsList::Storage LockedActorsList::_list;
 LockedActorsList::Mutex LockedActorsList::_mutex;
 actor* LockedActorsList::_self = nullptr;
 actor* LockedActorsList::_actor_under_mouse = nullptr;
+
+ActorWrapper::~ActorWrapper()
+{
+	if (_act)
+	{
+		free_actor_special_effect(_act->actor_id);
+		free_actor_data(_act);
+		free(_act);
+	}
+}
 
 std::pair<actor*, actor*> LockedActorsList::get_actor_and_attached_from_id(int actor_id)
 {
@@ -43,13 +54,13 @@ actor* LockedActorsList::get_actor_from_name(const char* name)
 		return nullptr;
 
 	Storage::iterator iter = std::find_if(_list.begin(), _list.end(),
-		[name, name_len](const std::pair<int, actor*>& id_act) {
-			actor* act = id_act.second;
+		[name, name_len](const std::pair<int, const ActorWrapper&>& id_act) {
+			const actor* act = id_act.second.unwrap();
 			return !strncasecmp(act->actor_name, name, name_len)
 				&& (act->actor_name[name_len] == ' ' || act->actor_name[name_len] == '\0');
 		}
 	);
-	return (iter != _list.end()) ? iter->second : nullptr;
+	return (iter != _list.end()) ? iter->second.unwrap() : nullptr;
 }
 
 actor* LockedActorsList::get_nearest_actor(int tile_x, int tile_y, float max_distance)
@@ -71,9 +82,9 @@ actor* LockedActorsList::get_nearest_actor(int tile_x, int tile_y, float max_dis
 
 	actor* nearest_actor = nullptr;
 	float min_dist_sq_found = max_distance * max_distance;
-	for (auto id_act: _list)
+	for (auto& id_act: _list)
 	{
-		actor* act = id_act.second;
+		actor* act = id_act.second.unwrap();
 		if (act->dead || act->kind_of_actor == NPC || act->kind_of_actor == HUMAN
 			|| act->kind_of_actor == COMPUTER_CONTROLLED_HUMAN)
 		{
@@ -111,7 +122,7 @@ void LockedActorsList::add(actor* act, actor *attached)
 	Storage::const_iterator iter = _list.find(act->actor_id);
 	if (iter != _list.end())
 	{
-		LOG_ERROR(duplicate_actors_str, act->actor_id, iter->second->actor_name,
+		LOG_ERROR(duplicate_actors_str, act->actor_id, iter->second.unwrap()->actor_name,
 			act->actor_name);
 		remove_and_destroy(iter);
 	}
@@ -119,8 +130,8 @@ void LockedActorsList::add(actor* act, actor *attached)
 	if (act->is_enhanced_model && act->kind_of_actor == COMPUTER_CONTROLLED_HUMAN)
 	{
 		Storage::const_iterator iter = std::find_if(_list.begin(), _list.end(),
-			[act](const std::pair<int, actor*>& id_act) {
-				const actor* other = id_act.second;
+			[act](const std::pair<int, const ActorWrapper&>& id_act) {
+				const actor* other = id_act.second.unwrap();
 				return (other->kind_of_actor == COMPUTER_CONTROLLED_HUMAN
 							|| other->kind_of_actor == PKABLE_COMPUTER_CONTROLLED)
 					&& strcasecmp(act->actor_name, other->actor_name) == 0;
@@ -128,19 +139,19 @@ void LockedActorsList::add(actor* act, actor *attached)
 		if (iter != _list.end())
 		{
 			LOG_ERROR("%s(%d) = %s => %s\n", duplicate_npc_actor, act->actor_id,
-				iter->second->actor_name, act->actor_name);
+				iter->second.unwrap()->actor_name, act->actor_name);
 			remove_and_destroy(iter);
 		}
 	}
 
-	_list.insert( { act->actor_id, act } );
+	_list.insert( { act->actor_id, ActorWrapper(act) } );
 
 	if (act->actor_id == yourself)
 		_self = act;
 
 	if (attached)
 	{
-		_list.insert( { attached->actor_id, attached } );
+		_list.insert( { attached->actor_id, ActorWrapper(attached) } );
 		attached->attached_actor_id = act->actor_id;
 		act->attached_actor_id = attached->actor_id;
 	}
@@ -160,30 +171,19 @@ bool LockedActorsList::add_attachment(int actor_id, actor *attached)
 		return false;
 	}
 
-	_list.insert( { attached->actor_id, attached } );
+	_list.insert( { attached->actor_id, ActorWrapper(attached) } );
 	attached->attached_actor_id = parent->actor_id;
 	parent->attached_actor_id = attached->actor_id;
 
 	return true;
 }
 
-void LockedActorsList::remove_and_destroy_single(Storage::const_iterator iter)
-{
-	actor *act = iter->second;
-	_list.erase(iter);
-	::destroy_actor(act);
-}
-
 void LockedActorsList::remove_and_destroy(Storage::const_iterator iter)
 {
-	actor *act = iter->second;
+	const actor *act = iter->second.unwrap();
 	if (has_attachment(act))
-	{
-		Storage::iterator att_iter = _list.find(act->attached_actor_id);
-		if (att_iter != _list.end())
-			remove_and_destroy_single(att_iter);
-	}
-	remove_and_destroy_single(iter);
+		_list.erase(act->attached_actor_id);
+	_list.erase(iter);
 }
 
 void LockedActorsList::remove_and_destroy(int actor_id)
@@ -198,9 +198,7 @@ void LockedActorsList::remove_and_destroy_attachment(int actor_id)
 	actor *parent = get_actor_from_id(actor_id);
 	if (parent && has_attachment(parent))
 	{
-		Storage::const_iterator iter = _list.find(parent->attached_actor_id);
-		if (iter != _list.end())
-			remove_and_destroy_single(iter);
+		_list.erase(parent->attached_actor_id);
 		parent->attached_actor_id = -1;
 		parent->attachment_shift[0] = parent->attachment_shift[1]
 			= parent->attachment_shift[2] = 0.0f;
@@ -211,10 +209,6 @@ void LockedActorsList::clear()
 {
 	_self = nullptr;
 	_actor_under_mouse = nullptr;
-	for (const std::pair<const int, actor*>& id_act: _list)
-	{
-		::destroy_actor(id_act.second);
-	}
 	_list.clear();
 }
 
@@ -367,10 +361,12 @@ extern "C" void remove_and_destroy_actor_from_list(int actor_id)
 	list.remove_and_destroy(actor_id);
 }
 
-extern "C" void remove_and_destroy_all_actors()
+extern "C" void destroy_all_actors()
 {
 	LockedActorsList list;
 	list.clear();
+	my_timer_adjust = 0;
+	harvesting_effect_reference = NULL;
 }
 
 extern "C" int have_self()
