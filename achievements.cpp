@@ -121,8 +121,8 @@ class Achievements_Window
 		void set_mouse_over(int mx, int my) { win_mouse_x = mx; win_mouse_y = my; }
 		void window_clicked(void) { clicked = true; }
 		void window_ctrl_clicked(void)  { ctrl_clicked = true; }
-
-private:
+		int get_window_id(void) const { return main_win_id; }
+	private:
 		std::vector<size_t> their_achievements;
 		std::string their_name;
 		int win_mouse_x, win_mouse_y;
@@ -982,4 +982,13 @@ extern "C" void achievements_data(Uint32 *data, size_t word_count)
 extern "C" void achievements_requested(int mouse_pos_x, int mouse_pos_y, int control_used)
 {
 	Achievements_System::get_instance()->requested(mouse_pos_x, mouse_pos_y, control_used);
+}
+
+
+//	Close any open windows, they will get destroyed later.
+//	If no windows are open return 0, otherwise return 1.
+//
+extern "C" int achievements_close_all(void)
+{
+	return (Achievements_System::get_instance()->hide_all()) ?1: 0;
 }

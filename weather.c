@@ -234,6 +234,39 @@ void weather_set_area(int area, float x, float y, float radius, int type, float 
 #endif // DEBUG
 }
 
+void weather_get_from_server(const Uint8* data)
+{
+/*
+	//first, catch non-precipitations
+	if(data[0] == weather_effect_wind){
+		wind_direction_srv = (2 * data[1])%360;
+		wind_speed_srv = data[2];
+		return;
+	} else if(data[0] == weather_effect_leaves){
+		//EC_TAG
+		return;
+	} else if(data[0] > MAX_WEATHER_TYPES){
+#ifdef DEBUG
+		LOG_TO_CONSOLE(c_red1, "Server sent an unknown weather type");
+#endif // DEBUG
+		LOG_ERROR("Server sent unknown weather type %d", data[0]);
+		return;
+		//from now on, deal with the set of precipitations
+	} else if(data[2] == 0 && !weather_active()){
+		return;	//stop? but we're already stopped...
+	} else if(data[2] != 0 && weather_active()){
+		set_weather_ratio(data[0], data[2]);
+		return;
+	} else if(data[2] != 0 && !weather_active()){
+		set_weather_ratio(data[0], data[2]);
+		start_weather(data[1], ((float)(data[2]))/100.0f);
+		return;
+	} else {
+		stop_weather(data[1], ((float)(data[2]))/100.0f);
+	}
+*/
+}
+
 void weather_compute_ratios(float ratios[MAX_WEATHER_TYPES], float x, float y)
 {
 	int i;
@@ -580,12 +613,10 @@ void weather_render()
 #endif //OPENGL_TRACE
 }
 
-#ifdef DEBUG
 int weather_get_drops_count(int type)
 {
 	return weather_drops_count[type];
 }
-#endif // DEBUG
 
 float weather_get_intensity()
 {
