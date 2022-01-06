@@ -33,7 +33,6 @@ extern int show_weather;
 void weather_init();
 void weather_clear();
 void weather_set_area(int area, float x, float y, float radius, int type, float intensity, int change_duration);
-void weather_get_from_server(const Uint8* data);
 weather_type get_weather_type_from_string(const char *weather_name);
 weather_type get_weather_type_for_map(void);
 
@@ -42,7 +41,9 @@ void weather_update();
 void weather_render_fog();
 void weather_render();
 
+#ifdef DEBUG
 int weather_get_drops_count(int type);
+#endif // DEBUG
 float weather_get_intensity();
 float weather_get_density();
 float weather_get_density_from_ratios(float ratios[MAX_WEATHER_TYPES]);
