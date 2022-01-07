@@ -1031,16 +1031,9 @@ static int click_game_handler(window_info *win, int mx, int my, Uint32 flags)
 
 			if (target_close_clicked_creature)
 			{
-				actor *this_actor;
-				locked_list_ptr actors_list = lock_and_get_nearest_actor(x, y, 0.8f,
-					&this_actor);
-				if (actors_list)
+				int actor_id = get_nearest_actor_id(&x, &y, 0.8f);
+				if (actor_id >= 0)
 				{
-					int x = this_actor->x_tile_pos;
-					int y = this_actor->y_tile_pos;
-					int actor_id = this_actor->actor_id;
-
-					release_locked_actors_list(actors_list);
 					if (spell_result == 3)
 					{
 						add_highlight(x, y, HIGHLIGHT_TYPE_SPELL_TARGET);

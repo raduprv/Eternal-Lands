@@ -333,7 +333,7 @@ public:
 	 * \param max_distance Maximum search distance
 	 * \return Pointer to the nearest attackable actor
 	 */
-	actor* get_nearest_actor(int tile_x, int tile_y, float max_distance);
+	const actor* get_nearest_actor(int tile_x, int tile_y, float max_distance) const;
 #ifdef ECDEBUGWIN
 	/*!
 	 * \brief Get a target for an eye candy effect
@@ -536,20 +536,18 @@ locked_list_ptr lock_and_get_actor_from_name(const char* name, actor **act);
  * \brief Find actor nearest to a position
  *
  * Lock the actors list, and find the actor nearest to tile position (\a tile_x, \a tile_y)
- * that can be attacked and is within a distance \a max_distance. If successful, \a act is
- * set to the requested actor. If no attackable actor can be found within the distance, a
- * \c nullptr is returned, and the actors list is unlocked.
- * \note On succesful return, the caller is responsible for unlocking the actors list by calling
- *       release_locked_actors_list().
- * \note On an error return (result is \c nullptr), the actors list is already unlocked
+ * that can be attacked and is within a distance \a max_distance. If successful, \a tile_x and
+ * \a tile_y are set to the tile position of the actor found, and its ID is returned. If no
+ * attackable actor can be found within the distance, -1 is returned.
+ * \note Use with caution: because the actors list mutex is dropped when leaving the function,
+ *       the actor may be removed by another thread at any time, invalidating the result. Use
+ *       this function only when the return value is validated before being used.
  * \param x_tile       x-coordinate of the tile to search around
  * \param y_tile       y-coordinate of the tile to search around
  * \param max_distance Maximum search distance
- * \param act          Place to store the pointer to the actor
- * \return Pointer to the actors list
+ * \return ID of the nearest actor
  */
-locked_list_ptr lock_and_get_nearest_actor(int tile_x, int tile_y, float max_distance,
-	actor **act);
+int get_nearest_actor_id(short *tile_x, short *tile_y, float max_distance);
 #ifdef ECDEBUGWIN
 /*!
  * \brief Get a target for an eye candy effect

@@ -1564,8 +1564,6 @@ void add_actor_from_server (const char *in_data, int len)
 		return;//A nasty error occured and we couldn't add the actor. Ignore it.
 	}
 
-	//The actors list is locked when we get here...
-
 	actor->async_fighting = 0;
 	actor->async_x_tile_pos = x_pos;
 	actor->async_y_tile_pos = y_pos;

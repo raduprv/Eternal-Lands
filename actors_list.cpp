@@ -63,7 +63,7 @@ actor* LockedActorsList::get_actor_from_name(const char* name)
 	return (iter != _list.end()) ? iter->second.unwrap() : nullptr;
 }
 
-actor* LockedActorsList::get_nearest_actor(int tile_x, int tile_y, float max_distance)
+const actor* LockedActorsList::get_nearest_actor(int tile_x, int tile_y, float max_distance) const
 {
 	const float self_max_dist = 6.0;
 	const float self_max_dist_sq = self_max_dist * self_max_dist;
@@ -80,11 +80,11 @@ actor* LockedActorsList::get_nearest_actor(int tile_x, int tile_y, float max_dis
 			return nullptr;
 	}
 
-	actor* nearest_actor = nullptr;
+	const actor* nearest_actor = nullptr;
 	float min_dist_sq_found = max_distance * max_distance;
-	for (auto& id_act: _list)
+	for (const auto& id_act: _list)
 	{
-		actor* act = id_act.second.unwrap();
+		const actor* act = id_act.second.unwrap();
 		if (act->dead || act->kind_of_actor == NPC || act->kind_of_actor == HUMAN
 			|| act->kind_of_actor == COMPUTER_CONTROLLED_HUMAN)
 		{
@@ -322,17 +322,15 @@ extern "C" LockedActorsList* lock_and_get_actor_from_name(const char* name, acto
 	return list;
 }
 
-extern "C" LockedActorsList* lock_and_get_nearest_actor(int tile_x, int tile_y,
-	float max_distance, actor **act)
+extern "C" int get_nearest_actor_id(short *tile_x, short *tile_y, float max_distance)
 {
-	auto list = new LockedActorsList();
-	*act = list->get_nearest_actor(tile_x, tile_y, max_distance);
-	if (!*act)
-	{
-		delete list;
-		return nullptr;
-	}
-	return list;
+	LockedActorsList list;
+	const actor *act = list.get_nearest_actor(*tile_x, *tile_y, max_distance);
+	if (!act)
+		return -1;
+	*tile_x = act->x_tile_pos;
+	*tile_y = act->y_tile_pos;
+	return act->actor_id;
 }
 
 #ifdef ECDEBUGWIN
