@@ -150,6 +150,31 @@ static float get_bag_tilt(float pos_x, float pos_y, int bag_id, int map_x, int m
 		digest[6]) + cosf(digest[7])) / 5.0f) * 30;
 }
 
+void revalidate_ground_bag_window(void)
+{
+	// never opened a bag window so nothing to do
+	if (get_id_MW(MW_BAGS) < 0)
+		return;
+
+	// if we are over an open bag, refresh its contents
+	if (your_actor && get_show_window_MW(MW_BAGS))
+	{
+		size_t i;
+		for (i = 0; i < NUM_BAGS; i++)
+			if ((bag_list[i].obj_3d_id != -1) &&
+				(bag_list[i].x == (your_actor->x_pos * 2)) &&
+				(bag_list[i].y == (your_actor->y_pos * 2)))
+			{
+				Uint8 str[2] = { INSPECT_BAG, i };
+				my_tcp_send(str, 2);
+				return;
+			}
+	}
+
+	// either we have an open window but no bag, or a previously opened window - clear the state
+	client_close_bag();
+}
+
 void put_bag_on_ground(int bag_x,int bag_y,int bag_id)
 {
 	float x,y,z;
