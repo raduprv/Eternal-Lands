@@ -39,6 +39,7 @@ struct storage_category {
 int no_storage_categories=0;
 int selected_category=-1;
 int view_only_storage=0;
+int storage_use_allowed = 0;
 Uint32 drop_fail_time = 0;
 int sort_storage_categories = 0;
 int sort_storage_items = 0;
@@ -936,6 +937,7 @@ void display_storage_menu()
 	cur_item_over = -1;
 	storage_text[0] = '\0';
 	set_window_name("", "");
+	storage_use_allowed = 1;
 
 	ui_scale_storage_handler(&windows_list.window[storage_win]);
 	check_proportional_move(MW_STORAGE);
@@ -944,5 +946,9 @@ void display_storage_menu()
 void close_storagewin()
 {
 	if(!view_only_storage)
+	{
 		hide_window_MW(MW_STORAGE);
+		clear_was_open_MW(MW_STORAGE);
+		storage_use_allowed = 0;
+	}
 }
