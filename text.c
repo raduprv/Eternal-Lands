@@ -294,7 +294,7 @@ void write_to_log (Uint8 channel, const Uint8* const data, int len)
 	if(!show_timestamp)
 	{
 		// Start filling the buffer with the time stamp
-		j = strftime (str, sizeof(str), "[%F %H:%M:%S] ", l_time);
+		j = strftime (str, sizeof(str), "[%Y-%m-%d %H:%M:%S] ", l_time);
 		i = 0;
 	}
 	else
@@ -308,7 +308,7 @@ void write_to_log (Uint8 channel, const Uint8* const data, int len)
 		if (i+9 < len && data[i] == '[' && data[i+9] == ']')
 		{
 			// That should be it, copy the time part from the string, but prepend the year
-			j = strftime(str, sizeof(str), "[%F ", l_time);
+			j = strftime(str, sizeof(str), "[%Y-%m-%d ", l_time);
 			++i;
 		}
 		else
