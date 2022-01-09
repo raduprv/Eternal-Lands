@@ -1399,7 +1399,7 @@ static int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 				my_tcp_send(str, 6);
 				do_drop_item_sound();
 			} else if (alt_on && (items_mod_click_any_cursor || (item_action_mode==ACTION_WALK))) {
-				if ((get_id_MW(MW_STORAGE) >= 0) && (get_show_window_MW(MW_STORAGE)) && (view_only_storage == 0)) {
+				if ((get_id_MW(MW_STORAGE) >= 0) && (view_only_storage == 0) && storage_use_allowed) {
 					reset_storage_rate_limit();
 					str[0]=DEPOSITE_ITEM;
 					str[1]=item_list[pos].pos;
@@ -1465,25 +1465,32 @@ static int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 	}
 
 	// Sto All button
-	else if(over_button(win, mx, my)==BUT_STORE && get_id_MW(MW_STORAGE) >= 0 && view_only_storage == 0 && get_show_window_MW(MW_STORAGE) /*thanks alberich*/){
-		reset_storage_rate_limit();
+	else if (over_button(win, mx, my) == BUT_STORE) {
+		if ((get_id_MW(MW_STORAGE) >= 0) && (view_only_storage == 0) && storage_use_allowed) {
+			reset_storage_rate_limit();
 #ifdef STORE_ALL
-		/*
-		* Future code to save server load by having one byte to represent the 36 slot inventory loop. Will need server support.
-		*/
-		str[0]=DEPOSITE_ITEM;
-		str[1]=STORE_ALL;
-		my_tcp_send(str, 2);
+			/*
+			* Future code to save server load by having one byte to represent the 36 slot inventory loop. Will need server support.
+			*/
+			str[0]=DEPOSITE_ITEM;
+			str[1]=STORE_ALL;
+			my_tcp_send(str, 2);
 #else
-		for(pos=((items_stoall_nofirstrow)?6:0);pos<((items_stoall_nolastrow)?30:36);pos++){
-			if(item_list[pos].quantity>0){
-				str[0]=DEPOSITE_ITEM;
-				str[1]=item_list[pos].pos;
-				*((Uint32*)(str+2))=SDL_SwapLE32(item_list[pos].quantity);
-				my_tcp_send(str, 6);
+			for(pos=((items_stoall_nofirstrow)?6:0);pos<((items_stoall_nolastrow)?30:36);pos++){
+				if(item_list[pos].quantity>0){
+					str[0]=DEPOSITE_ITEM;
+					str[1]=item_list[pos].pos;
+					*((Uint32*)(str+2))=SDL_SwapLE32(item_list[pos].quantity);
+					my_tcp_send(str, 6);
+				}
 			}
-		}
 #endif
+		}
+		else
+		{
+			drop_fail_time = SDL_GetTicks();
+			do_alert1_sound();
+		}
 	}
 
 	// Drop All button

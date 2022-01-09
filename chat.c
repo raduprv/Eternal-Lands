@@ -45,7 +45,7 @@ static int input_keyboard_button_id = -1;
  * \name Tabbed and old behaviour chat
  */
 /*! @{ */
-max_chat_lines_def max_chat_lines = { .value = 10, .lower = 5, .upper = 100 }; /*!< the upper, lower and current max lines to display */
+max_chat_lines_def max_chat_lines = { .value = 10, .lower = 1, .upper = 100 }; /*!< the upper, lower and current max lines to display */
 static int lines_to_show = 0; /*!< the number of lines currently shown */
 int get_lines_to_show(void) { return lines_to_show; }
 void dec_lines_to_show(void) { if (lines_to_show > 0) lines_to_show--; }

@@ -28,6 +28,7 @@ extern int video_mode; /*!< currently selected video mode */
 extern int video_user_width; /*!< userdefined window width */
 extern int video_user_height; /*!< userdefined window height */
 extern int full_screen; /*!< flag that inidicates whether we are in fullscreen or windowed mode */
+extern int enable_screensaver; /*!< if set true in VIDEO options, we prevent SDL2 disabling the systems screensaver */
 extern int disable_gamma_adjust;
 extern float gamma_var; /*!< The current gamma value */
 extern float perspective; /*!< The perspective "angle". Higher values mean higher distortion. Default is 0.15f */

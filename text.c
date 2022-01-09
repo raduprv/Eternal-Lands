@@ -289,20 +289,37 @@ void write_to_log (Uint8 channel, const Uint8* const data, int len)
 	// The file we'll write to
 	fout = (channel == CHAT_SERVER && log_chat >= 3) ? srv_log : chat_log;
 
+	time (&c_time);
+	l_time = localtime (&c_time);
 	if(!show_timestamp)
 	{
 		// Start filling the buffer with the time stamp
-		time (&c_time);
-		l_time = localtime (&c_time);
-		j = strftime (str, sizeof(str), "[%H:%M:%S] ", l_time);
+		j = strftime (str, sizeof(str), "[%Y-%m-%d %H:%M:%S] ", l_time);
+		i = 0;
 	}
 	else
 	{
-		//we already have a time stamp
-		j=0;
+		// There should be a timestamp, see if it's there at the start of the line
+		for (i = 0; i < len; ++i)
+		{
+			if (!is_color(data[i]))
+				break;
+		}
+		if (i+9 < len && data[i] == '[' && data[i+9] == ']')
+		{
+			// That should be it, copy the time part from the string, but prepend the year
+			j = strftime(str, sizeof(str), "[%Y-%m-%d ", l_time);
+			++i;
+		}
+		else
+		{
+			// Cannot find a timestamp, though there should be one. Give up in confusion.
+			j = 0;
+			i = 0;
+		}
 	}
 
-	i = 0;
+	// Now copy the data to the output buffer
 	while (i < len)
 	{
 		for ( ; i < len && j < sizeof (str) - 1; i++)

@@ -41,6 +41,7 @@ int use_frame_buffer = 0;
 int use_mipmaps = 0;
 int use_draw_range_elements = 1;
 float anisotropic_filter = 1.0f;
+int enable_screensaver = 0;
 int disable_gamma_adjust = 0;
 float gamma_var = 1.00f;
 float perspective = 0.15f;
@@ -344,6 +345,9 @@ void init_video(void)
 	if (SDL_VERSIONNUM(el_gl_linked.major, el_gl_linked.minor, el_gl_linked.patch) >= 2005)
 		SDL_SetHint(SDL_HINT_MOUSE_FOCUS_CLICKTHROUGH, "1");
 #endif
+
+	if (enable_screensaver)
+		SDL_EnableScreenSaver();
 
 	// set the gamma of we are controlling it
 	if (!disable_gamma_adjust)
