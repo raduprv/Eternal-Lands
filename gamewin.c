@@ -50,6 +50,7 @@
 #include "storage.h"
 #include "tabs.h"
 #include "textures.h"
+#include "tiles.h"
 #include "translate.h"
 #include "trade.h"
 #include "url.h"
@@ -1025,8 +1026,9 @@ static int click_game_handler(window_info *win, int mx, int my, Uint32 flags)
 
 			if (open_close_clicked_bag && find_and_open_closest_bag(x, y, 0.8f))
 				return 1;
-
-			add_highlight(x, y, HIGHLIGHT_TYPE_WALKING_DESTINATION);
+			
+			if (get_tile_walkable(x,y))
+				add_highlight(x, y, HIGHLIGHT_TYPE_WALKING_DESTINATION);
 
 #ifdef DEBUG // FOR DEBUG ONLY!
 			if (enable_client_aiming) {
