@@ -8,6 +8,9 @@
 #include "multiplayer.h"
 #include "tiles.h"
 
+// Maximum deviation from the target tile, when clicking on an unwalkable tile
+#define MAX_DEVIATION 2
+
 PF_TILE *pf_tile_map = NULL;
 PF_TILE *pf_dst_tile;
 int pf_follow_path = 0;
@@ -23,6 +26,17 @@ static SDL_TimerID pf_movement_timer = 0;
 	PF_TILE *a = pf_open.tiles[i], *b = pf_open.tiles[j];\
 	a->open_pos = j; b->open_pos = i;\
 	pf_open.tiles[i] = b; pf_open.tiles[j] = a;\
+}
+
+// Return the octile distance (allowing diagonal moves) for a movement of dx steps in the
+// x direction and dy steps in the y direction. This is _not_ a cost function, it returns the
+// number of steps required for covering a distance (dx, dy), with diagonal steps treated the
+// same as grid-aligned steps.
+static inline int octile_distance(int dx, int dy)
+{
+	if (dx < 0) dx = -dx;
+	if (dy < 0) dy = -dy;
+	return max2i(dx, dy);
 }
 
 static __inline__ int pf_heuristic(int dx, int dy)
@@ -157,11 +171,55 @@ static Uint32 pf_movement_timer_callback(Uint32 interval, void* UNUSED(param))
 		return interval;
 }
 
+// Find the maximum deviation from the destination position (dst_x, dst_y), i.e. the minimum
+// distance to the destination at which there is a walkable tile. If the destination itself is
+// walkable, 0 is returned. If there is no walkable tile within MAX_DEVIATION tiles of the
+// destination, -1 is returned.
+static int find_max_deviation(int dst_x, int dst_y)
+{
+	PF_TILE* tile = pf_get_tile(dst_x, dst_y);
+	if (tile && tile->z != 0)
+		return 0;
+
+	for (int dist = 1; dist <= MAX_DEVIATION; ++dist)
+	{
+		int x, y;
+
+		y = dst_y - dist;
+		for (x = dst_x - dist; x < dst_x + dist; ++x)
+		{
+			tile = pf_get_tile(x, y);
+			if (tile && tile->z != 0)
+				return dist;
+		}
+		for ( ; y < dst_y + dist; ++y)
+		{
+			tile = pf_get_tile(x, y);
+			if (tile && tile->z != 0)
+				return dist;
+		}
+		for ( ; x > dst_x - dist; --x)
+		{
+			tile = pf_get_tile(x, y);
+			if (tile && tile->z != 0)
+				return dist;
+		}
+		for ( ; y > dst_y - dist; --y)
+		{
+			tile = pf_get_tile(x, y);
+			if (tile && tile->z != 0)
+				return dist;
+		}
+	}
+	return -1;
+}
+
 int pf_find_path(int x, int y)
 {
 	actor *me;
 	int i;
 	int attempts= 0;
+	int max_dev;
 
 	pf_destroy_path();
 
@@ -171,8 +229,13 @@ int pf_find_path(int x, int y)
 
 	pf_src_tile = pf_get_tile(me->x_tile_pos, me->y_tile_pos);
 	pf_dst_tile = pf_get_tile(x, y);
+	if (!pf_dst_tile)
+		// Destination is outside the map
+		return 0;
 
-	if (!pf_dst_tile || pf_dst_tile->z == 0)
+	max_dev = find_max_deviation(x, y);
+	if (max_dev < 0)
+		// Unable to get even near the destination tile
 		return 0;
 
 	for (i = 0; i < tile_map_size_x*tile_map_size_y*6*6; i++)
@@ -188,8 +251,9 @@ int pf_find_path(int x, int y)
 
 	while ((pf_cur_tile = pf_get_next_open_tile()) && attempts++ < MAX_PATHFINDER_ATTEMPTS)
 	{
-		if (pf_cur_tile == pf_dst_tile)
+		if (octile_distance(pf_cur_tile->x - x, pf_cur_tile->y - y) <= max_dev)
 		{
+			pf_dst_tile = pf_cur_tile;
 			pf_follow_path = 1;
 
 			pf_movement_timer_callback(0, NULL);
