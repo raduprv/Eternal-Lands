@@ -11,6 +11,8 @@
 #include <fstream>
 #include <string>
 #include <iomanip>
+#include <cerrno>
+#include <cstring>
 #include <nlohmann/json.hpp>
 
 #include "chat.h"
@@ -34,6 +36,13 @@ namespace JSON_IO
 		{ std::string full_message = "Problem with " + file_type + ": " + message; LOG_TO_CONSOLE(c_red3, full_message.c_str()); }
 	static void file_format_error(const std::string& file_type)
 		{ console_message(file_type, "File format error. " + file_type + " will not be saved until this is corrected."); }
+	static int exit_close_error(const char *function, size_t line, const std::string& file_type, int error_code)
+	{
+		std::string log_message = std::string("Error closing file - ") + std::string(strerror(errno));
+		console_message(file_type, "closing file failed, use #save to retry if possible.");
+		LOG_ERROR("%s:%" PRI_SIZET " %s", function, line, log_message.c_str());
+		return error_code;
+	}
 }
 
 
@@ -224,6 +233,9 @@ namespace JSON_IO_Recipes
 		if (out_file)
 		{
 			out_file << std::setw(JSON_IO::get_json_indent()) << write_json << std::endl;
+			out_file.close();
+			if (out_file.fail())
+				return JSON_IO::exit_close_error(__PRETTY_FUNCTION__, __LINE__, class_name_str, -1);
 			return 0;
 		}
 		else
@@ -310,6 +322,9 @@ namespace JSON_IO_Quickspells
 		if (out_file)
 		{
 			out_file << std::setw(JSON_IO::get_json_indent()) << write_json << std::endl;
+			out_file.close();
+			if (out_file.fail())
+				return JSON_IO::exit_close_error(__PRETTY_FUNCTION__, __LINE__, class_name_str, -1);
 			return 0;
 		}
 		else
@@ -434,6 +449,9 @@ namespace JSON_IO_Counters
 		if (out_file)
 		{
 			out_file << std::setw(JSON_IO::get_json_indent()) << write_json << std::endl;
+			out_file.close();
+			if (out_file.fail())
+				return JSON_IO::exit_close_error(__PRETTY_FUNCTION__, __LINE__, class_name_str, -1);
 			return 0;
 		}
 		else
@@ -535,6 +553,9 @@ namespace JSON_IO_Channel_Colours
 		if (out_file)
 		{
 			out_file << std::setw(JSON_IO::get_json_indent()) << write_json << std::endl;
+			out_file.close();
+			if (out_file.fail())
+				return JSON_IO::exit_close_error(__PRETTY_FUNCTION__, __LINE__, class_name_str, -1);
 			return 0;
 		}
 		else
@@ -627,6 +648,9 @@ namespace JSON_IO_Character_Options
 		if (out_file)
 		{
 			out_file << std::setw(JSON_IO::get_json_indent()) << json_data << std::endl;
+			out_file.close();
+			if (out_file.fail())
+				return JSON_IO::exit_close_error(__PRETTY_FUNCTION__, __LINE__, class_name_str, -1);
 			modified = false;
 			return 0;
 		}
@@ -779,6 +803,9 @@ namespace JSON_IO_Client_State
 		if (out_file)
 		{
 			out_file << std::setw(JSON_IO::get_json_indent()) << state_write << std::endl;
+			out_file.close();
+			if (out_file.fail())
+				return JSON_IO::exit_close_error(__PRETTY_FUNCTION__, __LINE__, class_name_str, -1);
 			return 0;
 		}
 		else
