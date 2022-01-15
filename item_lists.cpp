@@ -556,6 +556,7 @@ namespace ItemLists
 			out << std::endl << std::endl;
 		}
 
+		out.close();
 		must_save = false;
 	}
 

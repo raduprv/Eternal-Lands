@@ -57,15 +57,6 @@ int show_timestamp = 0;
 
 int dark_channeltext = 0;
 
-/* Impliment the glow perk hud indicator state. */
-static int glow_perk_check_state = 0;
-static int glow_perk_active = 0;
-static int glow_perk_unavailable = 1;
-static Uint32 glow_perk_timer = 0;
-
-void check_glow_perk(void) { glow_perk_check_state = 3; }
-int glow_perk_is_active(void) { return glow_perk_active; };
-
 #define rate_limit_count 4
 static const char* rate_limit_msgs[rate_limit_count] = {
 	"You are too far away! Get closer!",
@@ -81,11 +72,31 @@ void reset_storage_rate_limit()
 	rate_limit_done_one[3] = 0;
 }
 
+/* Impliment the glow perk hud indicator state. */
+
+static int glow_perk_check_state = 0;
+static int glow_perk_active = 0;
+static int glow_perk_unavailable = 1;
+static int glow_perk_do_check_when_active = 1;
+static Uint32 glow_perk_timer = 0;
+
+void check_glow_perk(void) { glow_perk_do_check_when_active = 1; }
+int glow_perk_is_active(void) { return glow_perk_active; }
+
 /*
  * Called each frame by the hud indicator code if the glow perk indcator is enabled.
 */
 int glow_perk_is_unavailable(void)
 {
+	/*
+	 * If this is the first time since loging, start the state check.
+	*/
+	if (glow_perk_do_check_when_active)
+	{
+		glow_perk_check_state = 3;
+		glow_perk_do_check_when_active = 0;
+	}
+
 	/*
 	 * The first #glow will be sent when a new login happens.  When the
 	 * message text arrives, another #glow will be sent after a timeout.
@@ -103,7 +114,7 @@ int glow_perk_is_unavailable(void)
 		glow_perk_timer = 0;
 	}
 	return glow_perk_unavailable;
-};
+}
 
 /*
  * Called when we receive #glow command text.
@@ -122,6 +133,7 @@ static int set_glow_status(int value)
 	glow_perk_unavailable = 0;
 	return 0;
 }
+
 /* End glow perk hud indicator state. */
 
 static int is_special_day = 0;

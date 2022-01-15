@@ -19,6 +19,7 @@
 #include "elloggingwrapper.h"
 #include "counters.h"
 #include "manufacture.h"
+#include "misc.h"
 #include "platform.h"
 #include "text.h"
 
@@ -42,6 +43,20 @@ namespace JSON_IO
 		console_message(file_type, "closing file failed, use #save to retry if possible.");
 		LOG_ERROR("%s:%" PRI_SIZET " %s", function, line, log_message.c_str());
 		return error_code;
+	}
+	static bool file_is_zero_length(const std::string& file_type, const char * file_name)
+	{
+		// If the file is zero length, it's useless so tell the user.  The caller should behave as it if did not exist.
+		// Previously we treated such a file as if it had an invalid structure, assumed it could be fixed and so blocked saving.
+		// Ideally, we'll never see this issue but some users have reported zero length files.  It seams unlikely but the recent
+		// addition of explicit close() when saving files may have fixed the cause.  If so this action will clear up the
+		// mess for users and we'll not see the problem again.  We can hope....
+		if (file_exists(file_name) && (get_file_size(file_name) == 0))
+		{
+			JSON_IO::console_message(file_type, "zero length file ignored, please report if this error persists.");
+			return true;
+		}
+		return false;
 	}
 }
 
@@ -73,6 +88,9 @@ namespace JSON_IO_Recipes
 	int Recipes::open(const char *file_name)
 	{
 		JSON_IO::info_message(__PRETTY_FUNCTION__, __LINE__, " [" + std::string(file_name) + "]");
+
+		if (JSON_IO::file_is_zero_length(class_name_str, file_name))
+			return 0;
 
 		std::ifstream in_file(file_name);
 		if (!in_file)
@@ -271,6 +289,9 @@ namespace JSON_IO_Quickspells
 	{
 		JSON_IO::info_message(__PRETTY_FUNCTION__, __LINE__, " [" + std::string(file_name) + "]");
 
+		if (JSON_IO::file_is_zero_length(class_name_str, file_name))
+			return 0;
+
 		std::ifstream in_file(file_name);
 		if (!in_file)
 			return JSON_IO::exit_error(__PRETTY_FUNCTION__, __LINE__, "Failed to open [" + std::string(file_name) + "]", -1);
@@ -360,6 +381,9 @@ namespace JSON_IO_Counters
 	int Counters::load(const char *file_name, const char **cat_str, int *entries, size_t num_categories, struct Counter **the_counters)
 	{
 		JSON_IO::info_message(__PRETTY_FUNCTION__, __LINE__, " [" + std::string(file_name) + "]");
+
+		if (JSON_IO::file_is_zero_length(class_name_str, file_name))
+			return 0;
 
 		std::ifstream in_file(file_name);
 		if (!in_file)
@@ -488,6 +512,9 @@ namespace JSON_IO_Channel_Colours
 	{
 		JSON_IO::info_message(__PRETTY_FUNCTION__, __LINE__, " [" + std::string(file_name) + "]");
 
+		if (JSON_IO::file_is_zero_length(class_name_str, file_name))
+			return 0;
+
 		std::ifstream in_file(file_name);
 		if (!in_file)
 			return JSON_IO::exit_error(__PRETTY_FUNCTION__, __LINE__, "Failed to open [" + std::string(file_name) + "]", -1);
@@ -606,6 +633,9 @@ namespace JSON_IO_Character_Options
 			return 0;
 
 		JSON_IO::info_message(__PRETTY_FUNCTION__, __LINE__, " [" + the_file_name + "]");
+
+		if (JSON_IO::file_is_zero_length(class_name_str, the_file_name.c_str()))
+			return 0;
 
 		std::ifstream in_file(the_file_name);
 		if (!in_file)
@@ -766,6 +796,9 @@ namespace JSON_IO_Client_State
 	int Client_State::load(const char *file_name)
 	{
 		JSON_IO::info_message(__PRETTY_FUNCTION__, __LINE__, " [" + std::string(file_name) + "]");
+
+		if (JSON_IO::file_is_zero_length(class_name_str, file_name))
+			return 0;
 
 		std::ifstream in_file(file_name);
 		if (!in_file)
