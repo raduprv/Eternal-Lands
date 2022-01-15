@@ -142,6 +142,7 @@ void draw_3d_object(object3d * object_id)
 	CHECK_GL_ERRORS();
 }
 
+
 //Tests to see if an e3d object is already loaded. If it is, return the handle.
 //If not, load it, and return the handle
 e3d_object * load_e3d_cache(char * file_name)
