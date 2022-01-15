@@ -159,9 +159,9 @@ void draw_browser_item(window_info *win, int index)
     if(i+index<Dir[cd].nf) {
 
         if (index % 2 == 0) {
-            pos_x_increment = 200;
-        } else {
             pos_x_increment = 0;
+        } else {
+            pos_x_increment = 200;
         }
 
         pos_y_increment = ((int) index / 2) * 180 + 180;
