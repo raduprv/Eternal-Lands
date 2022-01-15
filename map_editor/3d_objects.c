@@ -142,6 +142,124 @@ void draw_3d_object(object3d * object_id)
 	CHECK_GL_ERRORS();
 }
 
+#define SCALE_FACTOR 4
+void draw_3d_object_in_browser(object3d * object_id)
+{
+    int i;
+    float s_plane[4], t_plane[4];
+    float x_pos,y_pos,z_pos;
+    float x_rot,y_rot,z_rot;
+    float scale;
+
+    //fprintf(stderr, "Max Size: %f\n", object_id->e3d_data->max_size);
+
+    if (object_id->e3d_data==NULL)
+    {
+        fprintf(stderr, "%s:%d null pointer\n", __FUNCTION__, __LINE__);
+        return;
+    }
+
+    //also, update the last time this object was used
+    object_id->last_acessed_time=cur_time;
+
+    if(object_id->blended)
+    {
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_ONE,GL_ONE);
+    }
+
+    set_emission(object_id);
+
+    CHECK_GL_ERRORS();
+
+    glPushMatrix();//we don't want to affect the rest of the scene
+    scale = SCALE_FACTOR / object_id->e3d_data->max_size;
+    //fprintf(stderr, "Scale: %f\n",scale);
+    glScalef(scale,scale,scale);
+    x_pos = object_id->x_pos;
+    y_pos = object_id->y_pos;
+    z_pos = object_id->z_pos;
+    glTranslatef (x_pos-SCALE_FACTOR/scale+1/scale, y_pos-SCALE_FACTOR/scale+1/scale, z_pos);
+    //glTranslatef (x_pos, y_pos, z_pos);
+
+    x_rot = object_id->x_rot;
+    y_rot = object_id->y_rot;
+    z_rot = object_id->z_rot;
+    glRotatef(z_rot, 0.0f, 0.0f, 1.0f);
+    glRotatef(x_rot, 1.0f, 0.0f, 0.0f);
+    glRotatef(y_rot, 0.0f, 1.0f, 0.0f);
+
+    CHECK_GL_ERRORS();
+
+    if (have_multitexture && clouds_shadows)
+    {
+        glClientActiveTextureARB(GL_TEXTURE1_ARB);
+        glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+
+        ELglActiveTextureARB(GL_TEXTURE1_ARB);
+        get_texture_object_linear_plane(object_id->z_rot, object_id->x_pos, object_id->y_pos, s_plane, t_plane);
+        glTexGenfv(GL_S, GL_EYE_PLANE, s_plane);
+        glTexGenfv(GL_T, GL_EYE_PLANE, t_plane);
+        ELglActiveTextureARB(GL_TEXTURE0_ARB);
+
+        glClientActiveTextureARB(GL_TEXTURE0_ARB);
+        glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+    }
+
+    e3d_enable_vertex_arrays(object_id->e3d_data, 1, 1);
+
+    CHECK_GL_ERRORS();
+
+    for (i = 0; i < object_id->e3d_data->material_no; i++)
+    {
+        if (object_id->e3d_data->materials[i].options)
+        {
+            //enable alpha filtering, so we have some alpha key
+            glEnable(GL_ALPHA_TEST);
+            if (object_id->e3d_data->vertex_layout->normal_count == 0) glAlphaFunc(GL_GREATER, 0.23f);
+            else glAlphaFunc(GL_GREATER, 0.06f);
+            glDisable(GL_CULL_FACE);
+        }
+        else
+        {
+            glDisable(GL_ALPHA_TEST);
+            glEnable(GL_CULL_FACE);
+        }
+
+        bind_texture(object_id->e3d_data->materials[i].texture);
+
+        ELglDrawRangeElementsEXT(GL_TRIANGLES,
+                                 object_id->e3d_data->materials[i].triangles_indices_min,
+                                 object_id->e3d_data->materials[i].triangles_indices_max,
+                                 object_id->e3d_data->materials[i].triangles_indices_count,
+                                 object_id->e3d_data->index_type,
+                                 object_id->e3d_data->materials[i].triangles_indices_index);
+    }
+
+    glPopMatrix();//restore the scene
+    CHECK_GL_ERRORS();
+
+    if (have_multitexture && clouds_shadows)
+    {
+        glClientActiveTextureARB(GL_TEXTURE1_ARB);
+        glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+        glClientActiveTextureARB(GL_TEXTURE0_ARB);
+    }
+
+    e3d_disable_vertex_arrays();
+    glDisable(GL_COLOR_MATERIAL);
+    glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+
+    if (object_id->blended) glDisable(GL_BLEND);
+    if (object_id->self_lit && (night_shadows_on || dungeon)) glEnable(GL_LIGHTING);
+    if (object_id->e3d_data->materials[object_id->e3d_data->material_no-1].options)
+    {
+        glDisable(GL_ALPHA_TEST);
+        glEnable(GL_CULL_FACE);
+    }
+    CHECK_GL_ERRORS();
+}
+
 
 //Tests to see if an e3d object is already loaded. If it is, return the handle.
 //If not, load it, and return the handle

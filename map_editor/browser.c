@@ -256,8 +256,8 @@ int display_browser_handler(window_info *win)
 		valid_object=setobject(0,fn,Dir[cd].xrot[i],Dir[cd].yrot[i],Dir[cd].zrot[i]);
 		if(valid_object){
 			glPushMatrix();
-			glScalef(Dir[cd].size[i],Dir[cd].size[i],Dir[cd].size[i]);
-			draw_3d_object(&o3d[0]);
+			//glScalef(Dir[cd].size[i],Dir[cd].size[i],Dir[cd].size[i]);
+            draw_3d_object_in_browser(&o3d[0]);
 			glPopMatrix();
 		}
 		
@@ -275,8 +275,8 @@ int display_browser_handler(window_info *win)
 			valid_object=setobject(1,fn,Dir[cd].xrot[i+1],Dir[cd].yrot[i+1],Dir[cd].zrot[i+1]);
 			if(valid_object){
 				glPushMatrix();
-				glScalef(Dir[cd].size[i+1],Dir[cd].size[i+1],Dir[cd].size[i+1]);
-				draw_3d_object(&o3d[1]);
+				//glScalef(Dir[cd].size[i+1],Dir[cd].size[i+1],Dir[cd].size[i+1]);
+                draw_3d_object_in_browser(&o3d[1]);
 				glPopMatrix();
 			}
 		}
@@ -295,8 +295,8 @@ int display_browser_handler(window_info *win)
 			valid_object=setobject(2,fn,Dir[cd].xrot[i+2],Dir[cd].yrot[i+2],Dir[cd].zrot[i+2]);
 			if(valid_object){
 				glPushMatrix();
-				glScalef(Dir[cd].size[i+2],Dir[cd].size[i+2],Dir[cd].size[i+2]);
-				draw_3d_object(&o3d[2]);
+				//glScalef(Dir[cd].size[i+2],Dir[cd].size[i+2],Dir[cd].size[i+2]);
+                draw_3d_object_in_browser(&o3d[2]);
 				glPopMatrix();
 			}
 		}
@@ -315,8 +315,8 @@ int display_browser_handler(window_info *win)
 			valid_object=setobject(3,fn,Dir[cd].xrot[i+3],Dir[cd].yrot[i+3],Dir[cd].zrot[i+3]);
 			if(valid_object){
 				glPushMatrix();
-				glScalef(Dir[cd].size[i+3],Dir[cd].size[i+3],Dir[cd].size[i+3]);
-				draw_3d_object(&o3d[3]);
+				//glScalef(Dir[cd].size[i+3],Dir[cd].size[i+3],Dir[cd].size[i+3]);
+                draw_3d_object_in_browser(&o3d[3]);
 				glPopMatrix();
 			}
 		}
