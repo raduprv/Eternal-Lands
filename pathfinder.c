@@ -8,7 +8,8 @@
 #include "multiplayer.h"
 #include "tiles.h"
 
-// Maximum deviation from the target tile, when clicking on an unwalkable tile
+// Maximum deviation from the target tile, when clicking on an unwalkable tile. Used only when
+// search_destination_area is non-zero.
 #define MAX_DEVIATION 2
 
 // Cost of a grid-aligned step
@@ -19,6 +20,7 @@ static const uint16_t diagonal_cost = 14;
 PF_TILE *pf_tile_map = NULL;
 PF_TILE *pf_dst_tile;
 int pf_follow_path = 0;
+int pf_search_destination_area = 1;
 
 static PF_OPEN_LIST pf_open;
 static PF_TILE *pf_src_tile, *pf_cur_tile;
@@ -185,6 +187,8 @@ static int find_max_deviation(int src_x, int src_y, int dst_x, int dst_y)
 	PF_TILE* tile = pf_get_tile(dst_x, dst_y);
 	if (tile && tile->z != 0)
 		return 0;
+	if (!pf_search_destination_area)
+		return -1;
 
 	for (int dist = 1; dist <= MAX_DEVIATION; ++dist)
 	{
