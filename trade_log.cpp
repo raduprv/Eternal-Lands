@@ -181,6 +181,7 @@ namespace Trade_Log
 			}
 			else
 				out << message.str();
+			out.close();
 		}
 	}
 
