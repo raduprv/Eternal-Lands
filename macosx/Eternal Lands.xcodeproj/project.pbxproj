@@ -1714,7 +1714,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
+				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
 				CODE_SIGN_ENTITLEMENTS = "Eternal Lands.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Manual;
@@ -1740,7 +1740,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
+				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
 				CODE_SIGN_ENTITLEMENTS = "Eternal Lands.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Manual;
@@ -1767,7 +1767,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 1.9.5p9;
+				CURRENT_PROJECT_VERSION = 1.9.6p1;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(USER_LIBRARY_DIR)/Frameworks",
@@ -1801,7 +1801,7 @@
 					"$(USER_LIBRARY_DIR)/Frameworks/SDL2_image.framework/Headers",
 					"$(SRCROOT)/../nlohmann_json/single_include/",
 				);
-				MARKETING_VERSION = 1.9.5p9;
+				MARKETING_VERSION = 1.9.6p1;
 				OTHER_CFLAGS = (
 					"-Wno-deprecated-declarations",
 					"-Wno-pointer-sign",
@@ -1828,7 +1828,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 1.9.5p9;
+				CURRENT_PROJECT_VERSION = 1.9.6p1;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(USER_LIBRARY_DIR)/Frameworks",
@@ -1861,7 +1861,7 @@
 					"$(USER_LIBRARY_DIR)/Frameworks/SDL2_image.framework/Headers",
 					"$(SRCROOT)/../nlohmann_json/single_include/",
 				);
-				MARKETING_VERSION = 1.9.5p9;
+				MARKETING_VERSION = 1.9.6p1;
 				OTHER_CFLAGS = (
 					"-Wno-deprecated-declarations",
 					"-Wno-pointer-sign",
