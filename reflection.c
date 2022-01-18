@@ -52,6 +52,68 @@ int water_buffer_usage = 0;
 int water_buffer_reflectiv_index = 0;
 int water_shader_quality = 0;
 
+static int flip_water_reflection_texture = 0;
+
+/*!
+ * \brief Check if the texture coordinates for the reflection buffer should be flipped
+ *
+ * On some systems (e.g. Intel integrated graphics on Windows), the reflection texture is rendered
+ * upside down (or interpreted to be such), so that the texture coordinates must be flipped
+ * vertically to render the water reflection correctly. This function determines if this must be
+ * done, by setting up a 2-pixel frame buffer, making the bottom pixel white, and reading
+ * back the pixels. If the first pixel read is white all is OK, if it is the second pixel that is
+ * white, the texture must be flipped.
+ */
+void check_flip_fbo_texture(void)
+{
+	GLsizei width = 1, height = 2;
+	GLuint fbo, texture;
+	uint8_t pixels[4*1*2] = { 0 };
+	GLenum status;
+
+	make_color_framebuffer(width, height, &fbo, NULL, NULL, &texture);
+
+	ELglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, fbo);
+	status = ELglCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
+	if (status == GL_FRAMEBUFFER_COMPLETE)
+	{
+		glMatrixMode(GL_PROJECTION);
+		glLoadIdentity();
+		glOrtho(0.0, (GLdouble)width, 0.0, (GLdouble)height, -1.0, 1.0);
+
+		glMatrixMode(GL_MODELVIEW);
+		glLoadIdentity();
+
+		glViewport(0, 0, width, height);
+
+		glDisable(GL_DEPTH_TEST);
+		glDisable(GL_LIGHTING);
+		glCullFace(GL_NONE);
+
+		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+		glPointSize(1);
+		glBegin(GL_POINTS);
+		glVertex3f(0.5f, 0.5f, 0.0f);
+		glEnd();
+
+		glFinish();
+
+		glReadBuffer(GL_COLOR_ATTACHMENT0_EXT);
+		glReadPixels(0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+
+		flip_water_reflection_texture = (pixels[4] != 0);
+		if (flip_water_reflection_texture)
+			LOG_INFO("Frame buffer texture appears upside down, flipping water reflection");
+		else
+			LOG_INFO("Frame buffer texture looks right, not flipping water reflection");
+	}
+
+	free_color_framebuffer(&fbo, NULL, NULL, &texture);
+}
+
 int get_max_supported_water_shader_quality()
 {
 	if (get_shader(st_water, sst_shadow_receiver, sft_disabled, 0) == 0)
@@ -570,50 +632,61 @@ void display_3d_reflection()
 		CHECK_GL_ERRORS();
 		CHECK_FBO_ERRORS();
 
+		if (flip_water_reflection_texture)
+		{
+			glMatrixMode(GL_PROJECTION);
+			glPushMatrix();
+			glScalef(1.0f, -1.0f, 1.0f);
+			glMatrixMode(GL_MODELVIEW);
+
+			for (int j = 0; j < 4; ++j)
+				skybox_view[1+4*j] = -skybox_view[1+4*j];
+		}
+
 		glPushMatrix();
 		glTranslatef(0.0f, 0.0f, water_depth_offset);
 	}
 	else
-    {
+	{
 		glPushMatrix();
 		glTranslatef(0.0f, 0.0f, water_depth_offset);
 
-        if (have_stencil)
-        {
-            unsigned int start, stop;
-            
-            glClearStencil(0);
-            glClear(GL_STENCIL_BUFFER_BIT);
-            glEnable(GL_STENCIL_TEST);
-            glStencilFunc(GL_ALWAYS, 1, 1);
-            glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+		if (have_stencil)
+		{
+			unsigned int start, stop;
+
+			glClearStencil(0);
+			glClear(GL_STENCIL_BUFFER_BIT);
+			glEnable(GL_STENCIL_TEST);
+			glStencilFunc(GL_ALWAYS, 1, 1);
+			glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
 			glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
 			glDepthMask(GL_FALSE);
-            
-            if (use_vertex_buffers)
-            {
-                ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, water_tile_buffer_object);
-                glInterleavedArrays(GL_V2F, 0, 0);
-            }
-            else
-            {
-                glInterleavedArrays(GL_V2F, 0, water_tile_buffer);
-            }
-            
-            get_intersect_start_stop(main_bbox_tree, TYPE_REFLECTIV_WATER, &start, &stop);
-            glDrawArrays(GL_QUADS, water_buffer_reflectiv_index*4, (stop-start) * 4);
-            
-            if (use_vertex_buffers)
-            {
-                ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
-                glDisableClientState(GL_VERTEX_ARRAY);
-            }
-        
-            glStencilFunc(GL_EQUAL, 1, 1);
-            glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+
+			if (use_vertex_buffers)
+			{
+				ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, water_tile_buffer_object);
+				glInterleavedArrays(GL_V2F, 0, 0);
+			}
+			else
+			{
+				glInterleavedArrays(GL_V2F, 0, water_tile_buffer);
+			}
+
+			get_intersect_start_stop(main_bbox_tree, TYPE_REFLECTIV_WATER, &start, &stop);
+			glDrawArrays(GL_QUADS, water_buffer_reflectiv_index*4, (stop-start) * 4);
+
+			if (use_vertex_buffers)
+			{
+				ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+				glDisableClientState(GL_VERTEX_ARRAY);
+			}
+
+			glStencilFunc(GL_EQUAL, 1, 1);
+			glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
 			glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 			glDepthMask(GL_TRUE);
-        }
+		}
 		else
 		{
 			clip_sky = 1;
@@ -628,8 +701,8 @@ void display_3d_reflection()
 	glLightfv(GL_LIGHT7, GL_POSITION, sun_position);
 	if (skybox_show_sky)
 	{
-        glPushMatrix();
-        glTranslatef(0.0, 0.0, -skybox_get_z_position());
+		glPushMatrix();
+		glTranslatef(0.0, 0.0, -skybox_get_z_position());
 		if (!clip_sky)
 		{
 			skybox_display();
@@ -642,46 +715,45 @@ void display_3d_reflection()
 			skybox_display();
 			glDisable(GL_CLIP_PLANE0);
 		}
-        glPopMatrix();
+		glPopMatrix();
 	}
 
 	if (far_reflection_plane > 0.0)
 	{
 		weather_init_lightning_light();
 
-	cur_intersect_type = get_cur_intersect_type(main_bbox_tree);
-	set_cur_intersect_type(main_bbox_tree, INTERSECTION_TYPE_REFLECTION);
-	calculate_reflection_frustum(water_depth_offset);
+		cur_intersect_type = get_cur_intersect_type(main_bbox_tree);
+		set_cur_intersect_type(main_bbox_tree, INTERSECTION_TYPE_REFLECTION);
+		calculate_reflection_frustum(water_depth_offset);
 
-	enable_reflection_clip_planes();
+		enable_reflection_clip_planes();
 
-//	draw_tile_map();
-//	display_2d_objects();
-	display_objects();
-	display_ground_objects();
+//		draw_tile_map();
+//		display_2d_objects();
+		display_objects();
+		display_ground_objects();
 #ifndef MAP_EDITOR2
-	display_actors(0, REFLECTION_RENDER_PASS);
+		display_actors(0, REFLECTION_RENDER_PASS);
 #endif
-	display_alpha_objects();
-//	display_blended_objects();
-	set_cur_intersect_type(main_bbox_tree, cur_intersect_type);
+		display_alpha_objects();
+//		display_blended_objects();
+		set_cur_intersect_type(main_bbox_tree, cur_intersect_type);
 #ifdef OPENGL_TRACE
-	CHECK_GL_ERRORS();
+		CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
 
-	glMatrixMode(GL_PROJECTION);
-	glPushMatrix();
-	glLoadMatrixd(skybox_view);
-	glMatrixMode(GL_MODELVIEW);
+		glMatrixMode(GL_PROJECTION);
+		glPushMatrix();
+		glLoadMatrixd(skybox_view);
+		glMatrixMode(GL_MODELVIEW);
 
-	weather_render_lightning();
+		weather_render_lightning();
 
-	glMatrixMode(GL_PROJECTION);
-	glPopMatrix();
-	glMatrixMode(GL_MODELVIEW);
+		glMatrixMode(GL_PROJECTION);
+		glPopMatrix();
+		glMatrixMode(GL_MODELVIEW);
 
-	disable_reflection_clip_planes();
-
+		disable_reflection_clip_planes();
 	}
 
 	glPopMatrix();
@@ -690,6 +762,16 @@ void display_3d_reflection()
 
 	if (use_frame_buffer && water_shader_quality > 0)
 	{
+		if (flip_water_reflection_texture)
+		{
+			for (int j = 0; j < 4; ++j)
+				skybox_view[1+4*j] = -skybox_view[1+4*j];
+
+			glMatrixMode(GL_PROJECTION);
+			glPopMatrix();
+			glMatrixMode(GL_MODELVIEW);
+		}
+
 		CHECK_GL_ERRORS();
 		CHECK_FBO_ERRORS();
 		ELglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
@@ -697,8 +779,8 @@ void display_3d_reflection()
 		CHECK_GL_ERRORS();
 		CHECK_FBO_ERRORS();
 	}
-    else if (have_stencil)
-    {
+	else if (have_stencil)
+	{
 		glDisable(GL_STENCIL_TEST);
 	}
 	glLightfv(GL_LIGHT7, GL_POSITION, sun_position);
