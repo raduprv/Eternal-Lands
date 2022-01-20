@@ -361,6 +361,9 @@ namespace Item_Info
 		Item *matching_item = object->get_item(item_id, image_id);
 		if (matching_item)
 			matching_item->set_equip_type(fields[2]);
+		else
+			LOG_ERROR("Unmatched item id=%d imageid=%d type=[%s] description=[%s]\n",
+				item_id, image_id, fields[2].c_str(), fields[3].c_str());
 	}
 
 
