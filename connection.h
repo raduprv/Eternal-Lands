@@ -132,7 +132,24 @@ public:
 	 * \param success \c true if the login attempt was successful, \c false otherwise.
 	 */
 	void set_logged_in(bool success) { _previously_logged_in = success; }
-	void send_move_to(std::int16_t x, std::int16_t y, bool try_pathfinder);
+	/*!
+	 * \brief Send command to move to a tile.
+	 *
+	 * When \a try_pathfinding is \c true and the configuration option \a always_pathfinding is
+	 * also \c true, this function tries to find a path (near) to destination tile (\a *x, \a *y)
+	 * using the client-side pathfinder, and when successful, updates \a x and \a y with the
+	 * coordinates of the actual destination being walked to. If the pathfinder is not used, or
+	 * fails to find a path, a request to move the actor to (\a *x, \a *y) is sent to the server.
+	 * The return value can be used to determine whether to highlight the destintion position.
+	 * It is \c true when the path finder succeeds, or when the pathfinder was not tried and
+	 * the destination tile is walkable; in all other cases \c false is returned.
+	 * \param x              x-coordinate of the position to move to
+	 * \param y              y-coordinate of the position to move to
+	 * \param try_pathfinder Whether to try using the client-side pathfinder
+	 * \return \c true if a path was found by the pathfinder, or the pathfinder was bypassed and
+	 * 	the destination tile is walkable.
+	 */
+	bool send_move_to(std::int16_t *x, std::int16_t *y, bool try_pathfinder);
 	void send_new_char(const std::string& username, const std::string& password,
 		std::uint8_t skin, std::uint8_t hair, std::uint8_t eyes, std::uint8_t shirt,
 		std::uint8_t pants, std::uint8_t boots, std::uint8_t head, std::uint8_t type);
@@ -261,7 +278,7 @@ void send_login_info(void);
 void set_logged_in(int success);
 void send_new_char(const char* user_str, const char* pass_str, char skin, char hair, char eyes,
 	char shirt, char pants, char boots,char head, char type);
-void move_to (short int x, short int y, int try_pathfinder);
+int move_to(short int *x, short int *y, int try_pathfinder);
 void send_ping_request(void);
 void handle_encryption_invitation(void);
 int my_tcp_send(const Uint8* str, int len);

@@ -2419,7 +2419,8 @@ void get_actor_health(int actor_id, int quantity)
 
 void move_self_forward()
 {
-	int x,y,rot,tx,ty;
+	int x,y,rot;
+	short tx, ty;
 
 	actor *me = get_our_actor ();
 
@@ -2476,7 +2477,7 @@ void move_self_forward()
 		pf_destroy_path();
 	}
 
-	move_to (tx, ty, 0);
+	move_to(&tx, &ty, 0);
 }
 
 

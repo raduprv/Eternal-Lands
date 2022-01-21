@@ -953,9 +953,9 @@ static int click_game_handler(window_info *win, int mx, int my, Uint32 flags)
 		if (y < 0 || x < 0 || x >= tile_map_size_x*6 || y >= tile_map_size_y*6)
 			return 1;
 
-		add_highlight(x, y, HIGHLIGHT_TYPE_WALKING_DESTINATION);
+		if (move_to(&x, &y, 1))
+			add_highlight(x, y, HIGHLIGHT_TYPE_WALKING_DESTINATION);
 
-		move_to (x, y, 1);
 		return 1;
 	}
 
@@ -1015,7 +1015,7 @@ static int click_game_handler(window_info *win, int mx, int my, Uint32 flags)
 				if (y < 0 || x < 0 || x >= tile_map_size_x*6 || y >= tile_map_size_y*6)
 					return 1;
 
-				move_to(x,y,0);
+				move_to(&x, &y, 0);
 				return 1;
 			}
 			else if (spell_result==3)
@@ -1228,8 +1228,6 @@ static int click_game_handler(window_info *win, int mx, int my, Uint32 flags)
 			if (open_close_clicked_bag && find_and_open_closest_bag(x, y, 0.8f))
 				return 1;
 
-			add_highlight(x, y, HIGHLIGHT_TYPE_WALKING_DESTINATION);
-
 #ifdef DEBUG // FOR DEBUG ONLY!
 			if (enable_client_aiming) {
 				if (flag_ctrl) {
@@ -1242,6 +1240,7 @@ static int click_game_handler(window_info *win, int mx, int my, Uint32 flags)
 					missiles_aim_at_xyz(yourself, target);
 					add_command_to_actor(yourself, aim_mode_reload);
 					missiles_fire_a_to_xyz(yourself, target);
+					add_highlight(x, y, HIGHLIGHT_TYPE_WALKING_DESTINATION);
 				}
 				else {
 					char in_aim_mode;
@@ -1251,13 +1250,17 @@ static int click_game_handler(window_info *win, int mx, int my, Uint32 flags)
 					UNLOCK_ACTORS_LISTS();
 					if (in_aim_mode == 1)
 						add_command_to_actor(yourself, leave_aim_mode);
-					move_to(x, y, 1);
+					if (move_to(&x, &y, 1))
+						add_highlight(x, y, HIGHLIGHT_TYPE_WALKING_DESTINATION);
 				}
 			}
-			else
-				move_to (x, y, 1);
+			else if (move_to(&x, &y, 1))
+			{
+				add_highlight(x, y, HIGHLIGHT_TYPE_WALKING_DESTINATION);
+			}
 #else
-			move_to (x, y, 1);
+			if (move_to(&x, &y, 1))
+				add_highlight(x, y, HIGHLIGHT_TYPE_WALKING_DESTINATION);
 #endif // DEBUG
 
 			return 1;
