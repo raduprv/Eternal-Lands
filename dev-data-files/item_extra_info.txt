@@ -1,0 +1,436 @@
+1
+# the first line is the data format version
+# blank lines and lines starting with # are ignored
+# space and case are ignored, the description is not used
+# the file must be located in the data or update direcotry
+# data format is similar to the item_info.txt file
+# item id | image id | equipment type | description
+
+      92 |       85 | CLOAK | Fur Cloak
+     134 |      130 | CLOAK | Body Piercing Cloak
+     136 |      129 | CLOAK | Monster Magnetism Cloak
+     137 |      127 | CLOAK | Conjurer Cloak
+     148 |      133 | CLOAK | Mirror Cloak
+     149 |      132 | CLOAK | Powersaving Cloak
+     339 |      126 | CLOAK | Warlock's Cloak
+     344 |      754 | CLOAK | Mod Cloak
+     345 |      366 | CLOAK | Derin Cloak
+     346 |      366 | CLOAK | Ravenod Cloak
+     347 |      366 | CLOAK | Placid Cloak
+     348 |      366 | CLOAK | Acelon Cloak
+     349 |      366 | CLOAK | Aislinn Cloak
+     527 |      366 | CLOAK | Soldus Cloak
+     528 |      366 | CLOAK | Lotharion Cloak
+     529 |      366 | CLOAK | Learner Cloak
+     135 |      125 | CLOAK | Excavator Cape
+     138 |      131 | CLOAK | Fast Regeneration Cape
+     336 |      225 | CLOAK | The artificer cape
+     337 |      227 | CLOAK | Cape of No More Warlock
+     338 |      226 | CLOAK | Cape of passive camouflage
+     340 |      128 | CLOAK | Cape of The Unbreakable
+     341 |      134 | CLOAK | No More Tears Cape
+     676 |      460 | CLOAK | Red Royal Cape
+     677 |      461 | CLOAK | Purple Royal Cape
+     678 |      366 | CLOAK | Custom Cape
+    1193 |      460 | CLOAK | Runner's cape
+
+
+      91 |       84 | HEAD | Fur Hat
+     364 |      247 | HEAD | Raccoon hat
+     365 |      249 | HEAD | Skunk hat
+     806 |      545 | HEAD | Black Tricorn Hat
+     807 |      546 | HEAD | Brown Tricorn Hat
+     808 |      547 | HEAD | Blue Tricorn Hat
+     809 |      548 | HEAD | Brown Buccaneer Hat
+     810 |      549 | HEAD | Black Buccaneer Hat
+     811 |      550 | HEAD | Black Cavalier Peacock Hat
+     812 |      551 | HEAD | Green Cavalier Peacock Hat
+     813 |      552 | HEAD | Blue Cavalier Hat
+     814 |      553 | HEAD | Black Cavalier Hat
+     815 |      554 | HEAD | Santa Hat
+    1095 |      641 | HEAD | Gray Wizard Hat
+    1096 |      642 | HEAD | Black Wizard Hat
+    1097 |      643 | HEAD | White Wizard Hat
+    1189 |      780 | HEAD | White Wizard Hat of Life and Mana
+
+     140 |      136 | HEAD | Iron Helm
+     323 |      181 | HEAD | Leather Helm
+     451 |      360 | HEAD | Steel Helm
+     452 |      365 | HEAD | Titanium Helm
+     467 |      728 | HEAD | Used Steel Helm
+     468 |      733 | HEAD | Used Titanium Helm
+     480 |      785 | HEAD | Titanium Helm of Life
+     481 |      786 | HEAD | Steel Helm of Mana
+     594 |      415 | HEAD | Bronze Helm
+     655 |      430 | HEAD | Red Dragon Helm
+     817 |      578 | HEAD | Black Dragon Helm
+     938 |      607 | HEAD | Ice Dragon Helm
+     969 |      784 | HEAD | Red Dragon Helm Of Life and Mana
+     970 |      743 | HEAD | Damaged Ice Dragon Helm
+    1091 |      644 | HEAD | Blue Dragon Helm
+    1148 |      747 | HEAD | Used Blue Dragon Helm
+
+     367 |      323 | HEAD | Crown of Life
+     368 |      324 | HEAD | Crown of Mana
+     435 |      716 | HEAD | Damaged Crown of Life
+     436 |      717 | HEAD | Damaged Crown of Mana
+     665 |      437 | HEAD | Gold Crown
+
+     656 |      449 | HEAD | Blue Adventurer's cap
+     657 |      445 | HEAD | Brown Adventurer's cap
+     658 |      447 | HEAD | Green Adventurer's cap
+     659 |      446 | HEAD | Black Adventurer's cap
+     660 |      448 | HEAD | Red Adventurer's cap
+
+     816 |      582 | HEAD | Universal Hood
+
+     803 |      542 | HEAD | Skull Crossbones Scarf
+     804 |      543 | HEAD | Black Scarf
+     805 |      544 | HEAD | Red Scarf
+
+     661 |      434 | HEAD | Gold Circlet
+     662 |      439 | HEAD | Silver Circlet
+     663 |      435 | HEAD | Gold Tiara
+     664 |      436 | HEAD | Silver Tiara
+
+     667 |      440 | HEAD | Brown Bandana
+     668 |      441 | HEAD | Blue Bandana
+     669 |      442 | HEAD | Red Bandana
+     670 |      444 | HEAD | Black Bandana
+     671 |      443 | HEAD | Green Bandana
+
+     672 |      452 | HEAD | Night Visor
+
+
+      95 |      168 | NECK | Silver Medallion
+      96 |      167 | NECK | Gold Medallion
+     104 |       94 | NECK | Unicorn Medallion
+     105 |       95 | NECK | Sun Medallion
+     106 |      233 | NECK | Moon Medallion
+     107 |      231 | NECK | Stars Medallion
+     276 |      172 | NECK | Medallion Mold
+     619 |      420 | NECK | Heavenspawn Medallion
+     620 |      421 | NECK | Harvester Medallion
+     633 |       97 | NECK | Medallion of Life
+     997 |      422 | NECK | Gatherer Medallion
+    1006 |       96 | NECK | Medallion of Mana
+    1073 |      697 | NECK | Enhanced Unicorn Medallion
+    1074 |      698 | NECK | Enhanced Sun Medallion
+      90 |       83 | NECK | Fox Scarf
+
+
+      98 |       91 | BODY | Iron Chain Mail
+     141 |      138 | BODY | Steel Chain Mail
+     144 |      139 | BODY | Titanium Chain Mail
+     281 |      709 | BODY | Second Hand Titanium Chain Mail
+     319 |      178 | BODY | Iron Plate Mail
+     328 |      713 | BODY | Damaged Iron Plate Mail
+     455 |      357 | BODY | Steel Plate Mail
+     456 |      362 | BODY | Titanium Plate Mail
+     471 |      725 | BODY | Used Steel Plate Mail
+     472 |      730 | BODY | Used Titanium Plate Mail
+     549 |      781 | BODY | Titanium Plate Mail of Freezing
+     550 |      779 | BODY | Steel Plate Mail of Healing
+     591 |      417 | BODY | Bronze Plate Mail
+     675 |      431 | BODY | Red Dragon Mail
+     818 |      579 | BODY | Black Dragon Mail
+     914 |      734 | BODY | Damaged Bronze Plate Mail
+     919 |      737 | BODY | Damaged Red Dragon Mail
+     920 |      740 | BODY | Damaged Black Dragon Mail
+     939 |      608 | BODY | Ice Dragon Mail
+     968 |      778 | BODY | Enhanced Iron Plate Mail
+     971 |      744 | BODY | Damaged Ice Dragon Mail
+    1088 |      645 | BODY | Blue Dragon Mail
+    1146 |      748 | BODY | Used Blue Dragon Mail
+
+      97 |       90 | BODY | Padded Leather Armor
+     503 |      372 | BODY | Augmented Leather Armor
+
+     768 |      507 | BODY | Red Tunic White Shirt
+     769 |      508 | BODY | Blue Tunic White Shirt
+     770 |      509 | BODY | Brown Tunic White Shirt
+     771 |      514 | BODY | Black Tunic White Shirt
+     772 |      510 | BODY | Black Tunic Green Shirt
+     773 |      511 | BODY | Black Tunic Purple Shirt
+     774 |      512 | BODY | Black Tunic Red Shirt
+     775 |      513 | BODY | Black Tunic Black Shirt
+     776 |      515 | BODY | Brown Tunic Blue Shirt
+     975 |      621 | BODY | Mage Robe Shirt
+
+     761 |      500 | BODY | Brown Tunic
+     762 |      501 | BODY | Lavender Tunic
+     763 |      502 | BODY | Green Tunic
+     764 |      503 | BODY | Black Tunic
+     765 |      504 | BODY | Red Tunic
+     766 |      505 | BODY | Blue Tunic
+     767 |      506 | BODY | White Tunic
+     768 |      507 | BODY | Red Tunic White Shirt
+     769 |      508 | BODY | Blue Tunic White Shirt
+     770 |      509 | BODY | Brown Tunic White Shirt
+     771 |      514 | BODY | Black Tunic White Shirt
+     772 |      510 | BODY | Black Tunic Green Shirt
+     773 |      511 | BODY | Black Tunic Purple Shirt
+     774 |      512 | BODY | Black Tunic Red Shirt
+     775 |      513 | BODY | Black Tunic Black Shirt
+     776 |      515 | BODY | Brown Tunic Blue Shirt
+    1005 |      777 | BODY | Tunic of the Ninja
+
+     342 |      212 | BODY | Fur Torso
+
+    1104 |      662 | BODY | White doublet
+    1105 |      663 | BODY | Black doublet
+    1106 |      664 | BODY | Navy doublet
+    1107 |      665 | BODY | Brown doublet
+
+    1108 |      666 | BODY | Brown jacket
+    1109 |      667 | BODY | Green jacket
+    1110 |      668 | BODY | Navy jacket
+    1111 |      669 | BODY | Black jacket
+
+     777 |      522 | BODY | Purple Robe
+     778 |      523 | BODY | Green Robe
+     779 |      524 | BODY | Light Blue Robe
+     780 |      525 | BODY | White Robe
+     781 |      526 | BODY | Blue Robe
+     782 |      527 | BODY | Black Robe
+     783 |      528 | BODY | Gray Robe
+     784 |      529 | BODY | Brown Robe
+     785 |      530 | BODY | Red Robe
+     786 |      531 | BODY | Yellow Robe
+
+    1051 |      625 | BODY | Blue green vest
+    1052 |      626 | BODY | Red vest
+    1053 |      627 | BODY | Black vest
+    1054 |      628 | BODY | Brown vest
+
+    1055 |      629 | BODY | Purple white dress
+    1056 |      630 | BODY | Green white dress
+    1057 |      631 | BODY | Black white dress
+    1058 |      632 | BODY | Red pink dress
+    1098 |      650 | BODY | White gold wedding dress
+    1099 |      652 | BODY | White silver wedding dress
+    1100 |      654 | BODY | White red peasant dress
+    1101 |      656 | BODY | White blue peasant dress
+    1102 |      658 | BODY | Brown blue peasant dress
+    1103 |      660 | BODY | Purple peasant dress
+
+
+     142 |      137 | LEGS | Leather Pants
+     343 |      213 | LEGS | Fur Pants
+     540 |      373 | LEGS | Augmented Leather Pants
+     797 |      516 | LEGS | Black Red Striped Baggy Pants
+     798 |      517 | LEGS | White Red Striped Baggy Pants
+     799 |      518 | LEGS | Black Purple Striped Baggy Pants
+     800 |      519 | LEGS | Black Blue Striped Baggy Pants
+     801 |      520 | LEGS | Black Baggy Pants
+     802 |      521 | LEGS | Brown Baggy Pants
+     976 |      620 | LEGS | Mage Robe Pants
+
+     320 |      179 | LEGS | Iron Cuisses
+     332 |      714 | LEGS | Damaged Iron Cuisses
+     449 |      358 | LEGS | Steel Cuisses
+     454 |      363 | LEGS | Titanium Cuisses
+     465 |      726 | LEGS | Used Steel Cuisses
+     470 |      731 | LEGS | Used Titanium Cuisses
+     551 |      775 | LEGS | Steel Cuisses of Mana Drain
+     592 |      418 | LEGS | Bronze Cuisses
+     674 |      432 | LEGS | Red Dragon Cuisses
+     819 |      580 | LEGS | Black Dragon Cuisses
+     915 |      735 | LEGS | Damaged Bronze Cuisses
+     918 |      738 | LEGS | Damaged Red Dragon Cuisses
+     921 |      741 | LEGS | Damaged Black Dragon Cuisses
+     940 |      609 | LEGS | Ice Dragon Cuisses
+     967 |      782 | LEGS | Enhanced Iron Cuisses
+     972 |      745 | LEGS | Damaged Ice Dragon Cuisses
+    1087 |      646 | LEGS | Blue Dragon Cuisses
+    1145 |      749 | LEGS | Used Blue Dragon Cuisses
+
+     787 |      532 | LEGS | Black Robe Skirt
+     788 |      533 | LEGS | Gray Robe Skirt
+     789 |      534 | LEGS | Brown Robe Skirt
+     790 |      535 | LEGS | White Robe Skirt
+     791 |      536 | LEGS | Blue Robe Skirt
+     792 |      537 | LEGS | Purple Robe Skirt
+     793 |      538 | LEGS | Green Robe Skirt
+     794 |      539 | LEGS | Light Blue Robe Skirt
+     795 |      540 | LEGS | Red Robe Skirt
+     796 |      541 | LEGS | Yellow Robe Skirt
+    1059 |      633 | LEGS | Purple white skirt
+    1060 |      634 | LEGS | Green white skirt
+    1061 |      635 | LEGS | Black white skirt
+    1062 |      636 | LEGS | Red pink skirt
+    1112 |      651 | LEGS | White Gold wedding skirt
+    1113 |      653 | LEGS | White Silver wedding skirt
+    1114 |      655 | LEGS | White Red Peasant skirt
+    1115 |      657 | LEGS | White Blue Peasant skirt
+    1116 |      659 | LEGS | Brown Blue Peasant skirt
+    1117 |      661 | LEGS | Purple Peasant skirt
+
+
+     143 |       93 | FEET | Leather Boots
+     321 |      149 | FEET | Fur Boots
+    1092 |      638 | FEET | Black boots
+    1093 |      639 | FEET | Brown boots
+    1094 |      640 | FEET | White boots
+
+     322 |      180 | FEET | Iron Greave
+     333 |      715 | FEET | Damaged Iron Greave
+     448 |      359 | FEET | Steel Greave
+     453 |      364 | FEET | Titanium Greave
+     464 |      727 | FEET | Used Steel Greave
+     469 |      732 | FEET | Used Titanium Greave
+     552 |      787 | FEET | Steel Greave of Ubber Defense
+     554 |      764 | FEET | Titanium Greave of Mirroring
+     593 |      419 | FEET | Bronze Greave
+     673 |      433 | FEET | Red Dragon Greave
+     820 |      581 | FEET | Black Dragon Greave
+     916 |      736 | FEET | Damaged Bronze Greave
+     917 |      739 | FEET | Damaged Red Dragon Greave
+     922 |      742 | FEET | Damaged Black Dragon Greave
+     941 |      610 | FEET | Ice Dragon Greave
+     966 |      783 | FEET | Enhanced Iron Greave
+     973 |      746 | FEET | Damaged Ice Dragon Greave
+    1086 |      647 | FEET | Blue Dragon Greave
+    1144 |      750 | FEET | Used Blue Dragon Greave
+
+
+      54 |       63 | RIGHT_HAND | Bones
+     372 |      337 | RIGHT_HAND | Bone of Death
+     334 |      140 | RIGHT_HAND | Wood Branches
+     371 |      338 | RIGHT_HAND | Branch Of Destruction
+     685 |      425 | RIGHT_HAND | Frying Pan
+     899 |      331 | RIGHT_HAND | Saw
+
+     113 |      108 | RIGHT_HAND | Pickaxe
+     316 |      175 | RIGHT_HAND | Iron Axe
+     317 |      176 | RIGHT_HAND | Steel Axe
+     318 |      177 | RIGHT_HAND | Titanium Axe
+     350 |      710 | RIGHT_HAND | Used Iron Axe
+     351 |      711 | RIGHT_HAND | Second Hand Steel Axe
+     352 |      712 | RIGHT_HAND | Pre-owned Titanium Axe
+     369 |      707 | RIGHT_HAND | Pickaxe of Magic
+     374 |      344 | RIGHT_HAND | Axe of freezing
+    1172 |      771 | RIGHT_HAND | Titanium Axe of Evanescence
+
+     115 |      101 | RIGHT_HAND | Iron Sword
+     116 |      102 | RIGHT_HAND | Iron Broad Sword
+     117 |      103 | RIGHT_HAND | Steel Long Sword
+     118 |      104 | RIGHT_HAND | Steel Two Edged Sword
+     119 |      105 | RIGHT_HAND | Titanium/Steel Alloy Short Sword
+     120 |      106 | RIGHT_HAND | Titanium/Steel Alloy Long Sword
+     121 |      107 | RIGHT_HAND | Titanium Serpent Sword
+     277 |      706 | RIGHT_HAND | Pre-owned Serpent Sword
+     278 |      708 | RIGHT_HAND | Second Hand Titanium Long Sword
+     279 |      705 | RIGHT_HAND | Pre-Owned Titanium/Steel Alloy Short Sword
+     280 |      704 | RIGHT_HAND | Used Steel Two Edged Sword
+     294 |      173 | RIGHT_HAND | Iron Sword of Fire
+     295 |      174 | RIGHT_HAND | Iron Broad Sword of Fire
+     296 |      182 | RIGHT_HAND | Iron Broad Sword of Ice
+     297 |      183 | RIGHT_HAND | Steel Long Sword of Fire
+     298 |      184 | RIGHT_HAND | Steel Long Sword of Ice
+     299 |      185 | RIGHT_HAND | Steel Long Sword of Magic
+     300 |      187 | RIGHT_HAND | Steel Two Edged Sword of Fire
+     301 |      186 | RIGHT_HAND | Steel Two Edged Sword of Ice
+     302 |      188 | RIGHT_HAND | Steel Two Edged Sword of Magic
+     303 |      189 | RIGHT_HAND | Steel Two Edged Sword of Thermal
+     304 |      190 | RIGHT_HAND | Titanium/Steel Alloy Short Sword of Fire
+     305 |      191 | RIGHT_HAND | Titanium/Steel Alloy Short Sword of Ice
+     306 |      192 | RIGHT_HAND | Titanium/Steel Alloy Short Sword of Magic
+     307 |      193 | RIGHT_HAND | Titanium/Steel Alloy Short Sword of Thermal
+     308 |      194 | RIGHT_HAND | Titanium/Steel Alloy Long Sword of Fire
+     309 |      195 | RIGHT_HAND | Titanium/Steel Alloy Long Sword of Ice
+     310 |      196 | RIGHT_HAND | Titanium/Steel Alloy Long Sword of Magic
+     311 |      197 | RIGHT_HAND | Titanium/Steel Alloy Long Sword of Thermal
+     312 |      198 | RIGHT_HAND | Titanium Serpent Sword of Fire
+     313 |      199 | RIGHT_HAND | Titanium Serpent Sword of Ice
+     314 |      200 | RIGHT_HAND | Titanium Serpent Sword of Magic
+     315 |      201 | RIGHT_HAND | Titanium Serpent Sword of Thermal
+     679 |      413 | RIGHT_HAND | Bronze Sword
+     991 |      761 | RIGHT_HAND | Radioactive Titanium Long Sword
+    1090 |      649 | RIGHT_HAND | Blue dragon sword
+
+     879 |      590 | RIGHT_HAND | Long Bow
+     881 |      591 | RIGHT_HAND | Short Bow
+     882 |      592 | RIGHT_HAND | Crossbow
+     886 |      593 | RIGHT_HAND | Recurve Bow
+     887 |      594 | RIGHT_HAND | Elven Bow
+    1169 |      773 | RIGHT_HAND | Marksman's Crossbow
+    1171 |      770 | RIGHT_HAND | Elven Bow of Wilhelm Hood
+    1191 |      767 | RIGHT_HAND | Short Bow of Ethereal Ranger
+
+     122 |      110 | RIGHT_HAND | Wooden Battle Hammer
+     125 |      109 | RIGHT_HAND | Hammer
+     139 |      135 | RIGHT_HAND | Iron Battle Hammer
+
+     460 |      353 | RIGHT_HAND | Orc Slayer
+     476 |      721 | RIGHT_HAND | Used Orc Slayer
+     544 |      759 | RIGHT_HAND | Orc Slayer of Mana Nullification
+
+     458 |      351 | RIGHT_HAND | Cutlass
+     474 |      719 | RIGHT_HAND | Used Cutlass
+     543 |      768 | RIGHT_HAND | Cutlass of the mage
+     974 |      753 | RIGHT_HAND | Cheap Cutlass
+
+     461 |      354 | RIGHT_HAND | Eagle Wing
+     477 |      722 | RIGHT_HAND | Used Eagle Wing
+     545 |      769 | RIGHT_HAND | Eagle Wing of Extra Damage
+
+     457 |      350 | RIGHT_HAND | Emerald Claymore
+     473 |      718 | RIGHT_HAND | Used Emerald Claymore
+     547 |      774 | RIGHT_HAND | Emerald Claymore of Life and Mana
+
+     463 |      356 | RIGHT_HAND | Jagged Saber
+     479 |      724 | RIGHT_HAND | Used Jagged Saber
+     546 |      760 | RIGHT_HAND | Jagged Saber of Cooling
+
+     462 |      355 | RIGHT_HAND | Rapier
+     478 |      723 | RIGHT_HAND | Used Rapier
+     541 |      757 | RIGHT_HAND | Rapier of death
+     994 |      756 | RIGHT_HAND | Radioactive Rapier From the Shop
+    1003 |      755 | RIGHT_HAND | Radioactive Rapier
+
+     459 |      352 | RIGHT_HAND | Sunbreaker
+     475 |      720 | RIGHT_HAND | Used Sunbreaker
+     542 |      772 | RIGHT_HAND | Sunbreaker of destruction
+
+     684 |      426 | RIGHT_HAND | Golden Star Mace
+
+
+     129 |      121 | LEFT_HAND | Wooden Shield
+     130 |      122 | LEFT_HAND | Enhanced Wooden Shield
+     131 |      123 | LEFT_HAND | Iron Shield
+     132 |      124 | LEFT_HAND | Steel Shield
+     466 |      729 | LEFT_HAND | Used Titanium Shield
+     450 |      361 | LEFT_HAND | Titanium Shield
+     595 |      416 | LEFT_HAND | Bronze Shield
+    1089 |      648 | LEFT_HAND | Blue Dragon Shield
+     548 |      762 | LEFT_HAND | Titanium Shield of Life Drain
+    1147 |      751 | LEFT_HAND | Used Blue Dragon Shield
+
+     880 |      671 | LEFT_HAND | Training arrows
+     888 |      595 | LEFT_HAND | Magic arrows
+     889 |      596 | LEFT_HAND | Fire arrows
+     890 |      597 | LEFT_HAND | Ice arrows
+     912 |      589 | LEFT_HAND | Pking arrows
+
+     883 |      672 | LEFT_HAND | Crossbow training bolts
+     891 |      599 | LEFT_HAND | Magic bolts
+     892 |      600 | LEFT_HAND | Fire bolts
+     893 |      601 | LEFT_HAND | Ice bolts
+     913 |      588 | LEFT_HAND | Pking bolts
+
+
+      89 |       82 | BOTH_HANDS | Warm Fur Gloves
+      93 |       86 | BOTH_HANDS | Leather Gloves
+
+     123 |      111 | BOTH_HANDS | Wooden Staff
+     124 |      112 | BOTH_HANDS | Quarterstaff
+     681 |      428 | BOTH_HANDS | Spear
+     682 |      427 | BOTH_HANDS | Halberd
+    1158 |      766 | BOTH_HANDS | Halberd of action
+     683 |      429 | BOTH_HANDS | Dragon Blade
+    1170 |      763 | BOTH_HANDS | Dragon Blade of Mirroring
+     937 |      611 | BOTH_HANDS | Scythe
+     370 |      114 | BOTH_HANDS | Staff of the mage
+     373 |      113 | BOTH_HANDS | Staff of Protection
+    1192 |      765 | BOTH_HANDS | Staff of the action mage
