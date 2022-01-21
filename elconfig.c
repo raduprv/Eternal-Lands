@@ -19,7 +19,7 @@
  #include "map_editor/browser.h"
  #include "map_editor/interface.h"
  #include "load_gl_extensions.h"
-#else
+#else // MAP_EDITOR
  #include "achievements.h"
  #include "alphamap.h"
  #include "bags.h"
@@ -61,6 +61,7 @@
  #include "openingwin.h"
  #include "particles.h"
  #include "password_manager.h"
+ #include "pathfinder.h"
  #include "platform.h"
  #include "pm_log.h"
  #include "questlog.h"
@@ -2792,6 +2793,8 @@ static void init_ELC_vars(void)
 	add_var(OPT_BOOL,"always_pathfinding", "alwayspathfinding", &always_pathfinding, change_var, 0, "Extend the range of the walk cursor", "Extends the range of the walk cursor to as far as you can see.  Using this option, movement may be slightly less responsive on larger maps.", CONTROLS);
 	add_var(OPT_BOOL,"target_close_clicked_creature", "targetcloseclickedcreature", &target_close_clicked_creature, change_var, 1, "Target creature if you click close to it", "When enabled, if you click close to a creature that is in range, you will attack it or select it as the target for an active spell.", CONTROLS);
 	add_var(OPT_BOOL,"open_close_clicked_bag", "openupcloseclickedbag", &open_close_clicked_bag, change_var, 1, "Open a bag if you click close to it", "When enabled, if you click close to a bag that is in range, you will open it.", CONTROLS);
+	add_var(OPT_BOOL, "pf_search_destination_area", "pfsearchdest", &pf_search_destination_area, change_var, 1,
+		"Less strict pathfinding", "When enabled, the pathfinder will search for a reachable spot in the immediate area of the destination when an unwalkable spot is clicked. This option requires \"Extend the range of the walk cursor\" to be enabled.", CONTROLS);
 	add_var(OPT_BOOL,"use_floating_messages", "floating", &floatingmessages_enabled, change_var, 1, "Floating Messages", "Toggles the use of floating experience messages and other graphical enhancements", CONTROLS);
 	add_var(OPT_BOOL,"floating_session_counters", "floatingsessioncounters", &floating_session_counters, change_var, 0, "Floating Session Counters", "Toggles the display of floating session counters.  Configure each type using the context menu of the counter category.", CONTROLS);
 	add_var(OPT_BOOL,"use_keypress_dialog_boxes", "keypressdialogues", &use_keypress_dialogue_boxes, change_var, 0, "Keypresses in dialogue boxes", "Toggles the ability to press a key to select a menu option in dialogue boxes (eg The Wraith)", CONTROLS);

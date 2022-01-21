@@ -280,24 +280,37 @@ void print_packet(const char *in_data, int len){
 #endif
 
 #ifndef USE_SSL
-void move_to (short int x, short int y, int try_pathfinder)
+int move_to (short int *x, short int *y, int try_pathfinder)
 {
+	int pathfinder_failed = 0;
 	Uint8 str[5];
 
 	if (try_pathfinder && always_pathfinding)
 	{
 		actor *me = get_our_actor();
 		/* check distance */
-		if (me && (abs(me->x_tile_pos-x)+abs(me->y_tile_pos-y)) > 2)
+		if (me && (abs(me->x_tile_pos-*x) + abs(me->y_tile_pos-*y)) > 2)
+		{
 			/* if path finder fails, try standard move */
-			if (pf_find_path(x,y))
-				return;
+			if (pf_find_path(*x, *y))
+			{
+				*x = pf_dst_tile->x;
+				*y = pf_dst_tile->y;
+				return 1;
+			}
+			else
+			{
+				pathfinder_failed = 1;
+			}
+		}
 	}
 
 	str[0]= MOVE_TO;
-	*((short *)(str+1))= SDL_SwapLE16 (x);
-	*((short *)(str+3))= SDL_SwapLE16 (y);
+	*((short *)(str+1))= SDL_SwapLE16 (*x);
+	*((short *)(str+3))= SDL_SwapLE16 (*y);
 	my_tcp_send(str, 5);
+
+	return !pathfinder_failed && get_tile_walkable(*x, *y);
 }
 
 void send_heart_beat()
