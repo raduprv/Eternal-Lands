@@ -43,6 +43,7 @@ int use_draw_range_elements = 1;
 float anisotropic_filter = 1.0f;
 int enable_screensaver = 0;
 int disable_gamma_adjust = 0;
+int disable_focus_clickthrough = 0;
 float gamma_var = 1.00f;
 float perspective = 0.15f;
 float near_plane = 0.1f; // don't cut off anything
@@ -93,6 +94,8 @@ static void fix_window_size_and_position(enum size_and_position_enum mode)
 #if SDL_VERSION_ATLEAST(2, 0, 5)
 	SDL_Rect usable_rect;
 	int display_index = SDL_GetWindowDisplayIndex(el_gl_window);
+	if (SDL_VERSIONNUM(el_gl_linked.major, el_gl_linked.minor, el_gl_linked.patch) < 2005)
+		return;
 	if ((display_index >= 0) && (SDL_GetDisplayUsableBounds(display_index, &usable_rect) == 0))
 	{
 		int top, left, bottom, right;
@@ -142,6 +145,19 @@ static void fix_window_size_and_position(enum size_and_position_enum mode)
 #endif
 }
 #endif
+
+void update_SDL_HINT_MOUSE_FOCUS_CLICKTHROUGH(void)
+{
+#if SDL_VERSION_ATLEAST(2, 0, 5)
+	if (SDL_VERSIONNUM(el_gl_linked.major, el_gl_linked.minor, el_gl_linked.patch) >= 2005)
+	{
+		if (disable_focus_clickthrough)
+			SDL_SetHint(SDL_HINT_MOUSE_FOCUS_CLICKTHROUGH, "0");
+		else
+			SDL_SetHint(SDL_HINT_MOUSE_FOCUS_CLICKTHROUGH, "1");
+	}
+#endif
+}
 
 void init_video(void)
 {
@@ -340,11 +356,8 @@ void init_video(void)
 	if (SDL_GL_SetSwapInterval(-1) < 0)
 		SDL_GL_SetSwapInterval(1);
 
-	// set the hint that clicks that focus the window, pass through for action too
-#if SDL_VERSION_ATLEAST(2, 0, 5)
-	if (SDL_VERSIONNUM(el_gl_linked.major, el_gl_linked.minor, el_gl_linked.patch) >= 2005)
-		SDL_SetHint(SDL_HINT_MOUSE_FOCUS_CLICKTHROUGH, "1");
-#endif
+	// set the hint that determines if clicks that focus the window, pass through for action too
+	update_SDL_HINT_MOUSE_FOCUS_CLICKTHROUGH();
 
 	if (enable_screensaver)
 		SDL_EnableScreenSaver();
@@ -957,6 +970,7 @@ void set_client_window_size(int width, int height)
 {
 	// limit the window size to the actual available space
 #if SDL_VERSION_ATLEAST(2, 0, 5)
+	if (SDL_VERSIONNUM(el_gl_linked.major, el_gl_linked.minor, el_gl_linked.patch) >= 2005)
 	{
 		SDL_Rect rect;
 		int display_index = SDL_GetWindowDisplayIndex(el_gl_window);

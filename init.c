@@ -1155,6 +1155,8 @@ void init_stuff(void)
 	skybox_init_gl();
 	popup_init();
 
+	check_flip_fbo_texture();
+
 	DO_CHECK_GL_ERRORS();
 	LOG_DEBUG("Init done!");
 }

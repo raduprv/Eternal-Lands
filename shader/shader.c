@@ -326,7 +326,7 @@ static __inline__ GLuint build_filter_lut(const Uint32 size)
 	glTexParameterf(GL_TEXTURE_1D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameterf(GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameterf(GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexImage1D(GL_TEXTURE_1D, 0, GL_RGB10_A2, size, 0, GL_RGB, GL_FLOAT, data);
+	glTexImage1D(GL_TEXTURE_1D, 0, GL_RGB, size, 0, GL_RGB, GL_FLOAT, data);
 	glBindTexture(GL_TEXTURE_1D, 0);
 	free(data);
 

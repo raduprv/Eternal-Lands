@@ -1592,10 +1592,19 @@ static void change_gamma(float *pointer, float *value)
 static void change_screensaver(int * var)
 {
 	*var= !*var;
+	if (!video_mode_set)
+		return;
 	if (*var)
 		SDL_EnableScreenSaver();
 	else
 		SDL_DisableScreenSaver();
+}
+
+static void change_focus_clickthrough(int * var)
+{
+	*var= !*var;
+	if (video_mode_set)
+		update_SDL_HINT_MOUSE_FOCUS_CLICKTHROUGH();
 }
 
 #ifndef MAP_EDITOR2
@@ -2887,6 +2896,7 @@ static void init_ELC_vars(void)
 	add_var(OPT_BOOL,"osx_right_mouse_cam","osxrightmousecam", &osx_right_mouse_cam, change_var,0,"Rotate Camera with right mouse button", "Allows to rotate the camera by pressing the right mouse button and dragging the cursor", CONTROLS);
 	add_var(OPT_BOOL,"emulate_3_button_mouse","emulate3buttonmouse", &emulate3buttonmouse, change_var,0,"Emulate a 3 Button Mouse", "If you have a 1 Button Mouse you can use <apple> click to emulate a rightclick. Needs client restart.", CONTROLS);
 #endif // OSX
+	add_var(OPT_BOOL,"disable_focus_clickthrough", "dfct", &disable_focus_clickthrough, change_focus_clickthrough, 0, "Disable click through on focus", "By default, clicks into the main window are passed though immediately even if the window does not have focus. Set this option to disable this behaviour.  Your computer settings may override this option.", CONTROLS);
 	add_var(OPT_MULTI,"trade_log_mode","tradelogmode",&trade_log_mode,change_int, TRADE_LOG_NONE,"Trade log","Set how successful trades are logged.",CONTROLS,"Do not log trades", "Log only to console", "Log only to file", "Log to console and file", NULL);
 	// CONTROLS TAB
 
