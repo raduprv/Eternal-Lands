@@ -53,6 +53,7 @@ int water_buffer_reflectiv_index = 0;
 int water_shader_quality = 0;
 
 static int flip_water_reflection_texture = 0;
+static int do_disable_water_ripples = 0;
 
 /*!
  * \brief Check if the texture coordinates for the reflection buffer should be flipped
@@ -111,6 +112,11 @@ void check_flip_fbo_texture(void)
 	}
 
 	free_color_framebuffer(&fbo, NULL, NULL, &texture);
+}
+
+void disable_water_ripples()
+{
+	do_disable_water_ripples = 1;
 }
 
 int get_max_supported_water_shader_quality()
@@ -180,6 +186,9 @@ int get_max_supported_water_shader_quality()
 	{
 		return 1;
 	}
+
+	if (do_disable_water_ripples)
+		return 1;
 
 	return 2;
 }

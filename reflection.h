@@ -174,6 +174,14 @@ void init_water_buffers(int water_buffer_size);
 
 /**
  * @ingroup reflections
+ * @brief Disable water ripples
+ *
+ * Limits the maximum quality for water so water ripples are not rendered.
+ * @callgraph
+ */
+void disable_water_ripples();
+/**
+ * @ingroup reflections
  * @brief Gets the maximum quality for water rendering supported by the hardware.
  *
  * Gets the maximum quality for water rendering supported by the hardware.
