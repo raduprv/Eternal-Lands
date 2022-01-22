@@ -120,7 +120,6 @@ static void fix_window_size_and_position(enum size_and_position_enum mode)
 				{
 					SDL_SetWindowSize(el_gl_window, ww, wh);
 					SDL_RestoreWindow(el_gl_window);
-					printf("resized to %d %d\n", ww, wh);
 				}
 			}
 
@@ -136,7 +135,6 @@ static void fix_window_size_and_position(enum size_and_position_enum mode)
 					posx = usable_rect.x + left + (usable_rect.w - ww - left - right) / 2;
 					posy = usable_rect.y + top + (usable_rect.h - wh - top - bottom) / 2;
 					SDL_SetWindowPosition(el_gl_window, posx, posy);
-					printf("moved to %d %d\n", posx, posy);
 				}
 			}
 		}
