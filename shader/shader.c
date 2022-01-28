@@ -18,23 +18,48 @@ typedef struct
 	const char* fragment_shader_defines;
 } shader_data;
 
+#define DEF_SHD     "#define USE_SHADOW\n"
+#define DEF_FOG     "#define USE_FOG\n"
+#define DEF_RFL     "#define USE_REFLECTION\n"
+#define DEF_CUB     "#define USE_CUBIC_FILTER\n"
+#define DEF_NOI     "#define USE_NOISE\n"
+#define VER_120     "#version 120\n"
+#define VER_150     "#version 150\n"
+
 shader_data shader_data_list[] = {
-	{ NULL, NULL, "./shaders/water_fs.glsl", " " },
-	{ NULL, NULL, "./shaders/water_fs.glsl", "#define\tUSE_SHADOW\n" },
-	{ NULL, NULL, "./shaders/water_fs.glsl", "#define\tUSE_FOG\n" },
-	{ NULL, NULL, "./shaders/water_fs.glsl", "#define\tUSE_FOG\n#define\tUSE_SHADOW\n" },
-	{ NULL, NULL, "./shaders/reflectiv_water_fs.glsl", "#define\tUSE_CUBIC_FILTER\n" },
-	{ NULL, NULL, "./shaders/reflectiv_water_fs.glsl", "#define\tUSE_CUBIC_FILTER\n#define\tUSE_SHADOW\n" },
-	{ NULL, NULL, "./shaders/reflectiv_water_fs.glsl", "#define\tUSE_CUBIC_FILTER\n#define\tUSE_FOG\n" },
-	{ NULL, NULL, "./shaders/reflectiv_water_fs.glsl", "#define\tUSE_CUBIC_FILTER\n#define\tUSE_FOG\n#define\tUSE_SHADOW\n" },
-	{ NULL, NULL, "./shaders/water_fs.glsl", "#define\tUSE_NOISE\n" },
-	{ NULL, NULL, "./shaders/water_fs.glsl", "#define\tUSE_NOISE\n#define\tUSE_SHADOW\n" },
-	{ NULL, NULL, "./shaders/water_fs.glsl", "#define\tUSE_NOISE\n#define\tUSE_FOG\n" },
-	{ NULL, NULL, "./shaders/water_fs.glsl", "#define\tUSE_NOISE\n#define\tUSE_FOG\n#define\tUSE_SHADOW\n" },
-	{ NULL, NULL, "./shaders/reflectiv_water_fs.glsl", "#define\tUSE_NOISE\n#define\tUSE_CUBIC_FILTER\n" },
-	{ NULL, NULL, "./shaders/reflectiv_water_fs.glsl", "#define\tUSE_NOISE\n#define\tUSE_CUBIC_FILTER\n#define\tUSE_SHADOW\n" },
-	{ NULL, NULL, "./shaders/reflectiv_water_fs.glsl", "#define\tUSE_NOISE\n#define\tUSE_CUBIC_FILTER\n#define\tUSE_FOG\n" },
-	{ NULL, NULL, "./shaders/reflectiv_water_fs.glsl", "#define\tUSE_NOISE\n#define\tUSE_CUBIC_FILTER\n#define\tUSE_FOG\n#define\tUSE_SHADOW\n" }
+	{ NULL, NULL, "./shaders/water_fs.glsl", VER_120 },
+	{ NULL, NULL, "./shaders/water_fs.glsl", VER_120 DEF_SHD },
+	{ NULL, NULL, "./shaders/water_fs.glsl", VER_120 DEF_FOG },
+	{ NULL, NULL, "./shaders/water_fs.glsl", VER_120 DEF_FOG DEF_SHD },
+	{ NULL, NULL, "./shaders/reflectiv_water_fs.glsl", VER_120 DEF_CUB },
+	{ NULL, NULL, "./shaders/reflectiv_water_fs.glsl", VER_120 DEF_CUB DEF_SHD },
+	{ NULL, NULL, "./shaders/reflectiv_water_fs.glsl", VER_120 DEF_CUB DEF_FOG },
+	{ NULL, NULL, "./shaders/reflectiv_water_fs.glsl", VER_120 DEF_CUB DEF_FOG DEF_SHD },
+	{ NULL, NULL, "./shaders/water_fs.glsl", VER_120 DEF_NOI },
+	{ NULL, NULL, "./shaders/water_fs.glsl", VER_120 DEF_NOI DEF_SHD },
+	{ NULL, NULL, "./shaders/water_fs.glsl", VER_120 DEF_NOI DEF_FOG },
+	{ NULL, NULL, "./shaders/water_fs.glsl", VER_120 DEF_NOI DEF_FOG DEF_SHD },
+	{ NULL, NULL, "./shaders/reflectiv_water_fs.glsl", VER_120 DEF_NOI DEF_CUB },
+	{ NULL, NULL, "./shaders/reflectiv_water_fs.glsl", VER_120 DEF_NOI DEF_CUB DEF_SHD },
+	{ NULL, NULL, "./shaders/reflectiv_water_fs.glsl", VER_120 DEF_NOI DEF_CUB DEF_FOG },
+	{ NULL, NULL, "./shaders/reflectiv_water_fs.glsl", VER_120 DEF_NOI DEF_CUB DEF_FOG DEF_SHD },
+
+	{ "./shaders/new_water.vert", VER_150, "./shaders/new_water.frag", VER_150 },
+	{ "./shaders/new_water.vert", VER_150 DEF_SHD, "./shaders/new_water.frag", VER_150 DEF_SHD },
+	{ "./shaders/new_water.vert", VER_150 DEF_FOG, "./shaders/new_water.frag", VER_150 DEF_FOG },
+	{ "./shaders/new_water.vert", VER_150 DEF_FOG DEF_SHD, "./shaders/new_water.frag", VER_150 DEF_FOG DEF_SHD },
+	{ "./shaders/new_water.vert", VER_150 DEF_RFL DEF_CUB, "./shaders/new_water.frag", VER_150 DEF_RFL DEF_CUB },
+	{ "./shaders/new_water.vert", VER_150 DEF_RFL DEF_CUB DEF_SHD, "./shaders/new_water.frag", VER_150 DEF_RFL DEF_CUB DEF_SHD },
+	{ "./shaders/new_water.vert", VER_150 DEF_RFL DEF_CUB DEF_FOG, "./shaders/new_water.frag", VER_150 DEF_RFL DEF_CUB DEF_FOG },
+	{ "./shaders/new_water.vert", VER_150 DEF_RFL DEF_CUB DEF_FOG DEF_SHD, "./shaders/new_water.frag", VER_150 DEF_RFL DEF_CUB DEF_FOG DEF_SHD },
+	{ "./shaders/new_water.vert", VER_150 DEF_NOI, "./shaders/new_water.frag", VER_150 DEF_NOI },
+	{ "./shaders/new_water.vert", VER_150 DEF_NOI DEF_SHD, "./shaders/new_water.frag", VER_150 DEF_NOI DEF_SHD },
+	{ "./shaders/new_water.vert", VER_150 DEF_NOI DEF_FOG, "./shaders/new_water.frag", VER_150 DEF_NOI DEF_FOG },
+	{ "./shaders/new_water.vert", VER_150 DEF_NOI DEF_FOG DEF_SHD, "./shaders/new_water.frag", VER_150 DEF_NOI DEF_FOG DEF_SHD },
+	{ "./shaders/new_water.vert", VER_150 DEF_NOI DEF_RFL DEF_CUB, "./shaders/new_water.frag", VER_150 DEF_NOI DEF_RFL DEF_CUB },
+	{ "./shaders/new_water.vert", VER_150 DEF_NOI DEF_RFL DEF_CUB DEF_SHD, "./shaders/new_water.frag", VER_150 DEF_NOI DEF_RFL DEF_CUB DEF_SHD },
+	{ "./shaders/new_water.vert", VER_150 DEF_NOI DEF_RFL DEF_CUB DEF_FOG, "./shaders/new_water.frag", VER_150 DEF_NOI DEF_RFL DEF_CUB DEF_FOG },
+	{ "./shaders/new_water.vert", VER_150 DEF_NOI DEF_RFL DEF_CUB DEF_FOG DEF_SHD, "./shaders/new_water.frag", VER_150 DEF_NOI DEF_RFL DEF_CUB DEF_FOG DEF_SHD },
 };
 
 #define	shader_data_size (sizeof(shader_data_list) / sizeof(shader_data))
@@ -286,6 +311,8 @@ static __inline__ int get_shader_index(shader_type type, shader_shadow_type shad
 	ret += fog_type * 2;
 	ret += shadow_type;
 	ret += max2i(min2i(quality, 1), 0) * 8;
+	if (max_supported_glsl_version() >= 150) // GLSL 1.5 remove gl_TexCoord, which was used in the old shader
+		ret += 16;
 
 	return ret;
 }
