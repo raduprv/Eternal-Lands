@@ -156,6 +156,13 @@ void gl_window_cleanup(void);
 void update_SDL_HINT_MOUSE_FOCUS_CLICKTHROUGH(void);
 
 /*!
+ * \ingroup video
+ * \brief Return the GL context version string
+ *
+ * Return a constant version of the OpenGL context currently in use.
+ */
+const char* gl_context_version_string();
+/*!
  * \name CHECK_GL_ERRORS macro - only done if DEBUG or OPENGL_TRACE defined
  */
 /*! @{ */

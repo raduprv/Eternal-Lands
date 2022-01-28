@@ -473,6 +473,7 @@ char	name_too_long[75],
 	video_card_str[20],
 	video_vendor_str[20],
 	opengl_version_str[20],
+	context_version_str[30],
 	supported_extensions_str[30],
 	pm_from_str[10],
 	gm_from_str[10],
@@ -1131,6 +1132,7 @@ void init_console()
 	add_xml_identifier(misc,"vendor",video_vendor_str,"Vendor ID",sizeof(video_vendor_str));
 	add_xml_identifier(misc,"ext",supported_extensions_str,"Supported extensions",sizeof(supported_extensions_str));
 	add_xml_identifier(misc,"opengl",opengl_version_str,"OpenGL Version",sizeof(opengl_version_str));
+	add_xml_identifier(misc,"context",context_version_str,"OpenGL Context version",sizeof(context_version_str));
 	add_xml_identifier(misc,"pm_from",pm_from_str,"[PM from",sizeof(pm_from_str));
 	add_xml_identifier(misc,"mod_pm_from",mod_pm_from_str,"[Mod PM from",sizeof(mod_pm_from_str));
 	add_xml_identifier(misc,"gm_from",gm_from_str,"#GM from",sizeof(gm_from_str));

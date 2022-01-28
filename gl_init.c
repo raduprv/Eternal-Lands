@@ -17,6 +17,16 @@
 #include "fsaa/fsaa.h"
 #endif	/* FSAA */
 
+typedef struct
+{
+	int profile;
+	int major;
+	int minor;
+	char version_string[80];
+} GLContextInfo;
+
+static GLContextInfo gl_context_info = { 0, 0, 0, { 0 } };
+
 int window_width = 640;
 int window_height = 480;
 static float window_highdpi_scale_width = 1.0f;
@@ -309,6 +319,29 @@ void init_video(void)
 			FATAL_ERROR_WINDOW("%s", error_str);
 			exit(1);
 		}
+	}
+
+	// Set the GL verion info, so we can use different code paths for rendering if necessary
+	SDL_GL_GetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, &gl_context_info.profile);
+	SDL_GL_GetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, &gl_context_info.major);
+	SDL_GL_GetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, &gl_context_info.minor);
+	switch (gl_context_info.profile)
+	{
+		case SDL_GL_CONTEXT_PROFILE_CORE:
+			safe_snprintf(gl_context_info.version_string, sizeof(gl_context_info.version_string),
+				"OpenGL Core %d.%d", gl_context_info.major, gl_context_info.minor);
+			break;
+		case SDL_GL_CONTEXT_PROFILE_COMPATIBILITY:
+			safe_snprintf(gl_context_info.version_string, sizeof(gl_context_info.version_string),
+				"OpenGL Compatibility %d.%d", gl_context_info.major, gl_context_info.minor);
+			break;
+		case SDL_GL_CONTEXT_PROFILE_ES:
+			safe_snprintf(gl_context_info.version_string, sizeof(gl_context_info.version_string),
+				"OpenGL ES %d.%d", gl_context_info.major, gl_context_info.minor);
+			break;
+		default:
+			safe_snprintf(gl_context_info.version_string, sizeof(gl_context_info.version_string),
+				"Unknown %d.%d", gl_context_info.major, gl_context_info.minor);
 	}
 
 	// set the minimum size for the window, this is too small perhaps but a config option
@@ -1039,4 +1072,9 @@ void gl_window_cleanup(void)
 		SDL_FreeSurface(icon_bmp);
 		icon_bmp = NULL;
 	}
+}
+
+const char* gl_context_version_string()
+{
+	return gl_context_info.version_string;
 }

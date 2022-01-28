@@ -1246,6 +1246,16 @@ static int command_glinfo (const char *text, int len)
 	safe_snprintf (this_string, size, "%s: %s", opengl_version_str, my_string);
 	LOG_TO_CONSOLE (c_yellow2, this_string);
 
+	my_string = gl_context_version_string();
+	minlen = strlen(context_version_str) + strlen(my_string) + 3;
+	if (size < minlen)
+	{
+		while (size < minlen) size += size;
+		this_string = realloc(this_string, size);
+	}
+	safe_snprintf(this_string, size,"%s: %s", context_version_str, my_string);
+	LOG_TO_CONSOLE(c_yellow2, this_string);
+
 	my_string = (const char*) glGetString (GL_EXTENSIONS);
 	minlen = strlen (supported_extensions_str) + strlen (my_string) + 3;
 	if (size < minlen)
