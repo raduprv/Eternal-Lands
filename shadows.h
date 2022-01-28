@@ -22,6 +22,8 @@ extern GLuint depth_map_id;
 extern GLenum depth_texture_target;
 extern int shadow_map_size; /*!< max. size of the shadow maps in byte */
 
+extern double shadow_texgen_mat[16]; //!< Texure coordinate projection matrix, used by water shader
+
 /*!
  * \ingroup shadows
  * \brief Computes the shadow transformation matrix

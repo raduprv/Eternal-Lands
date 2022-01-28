@@ -32,7 +32,8 @@
 float proj_on_ground[16];
 float ground_plane[4]={0,0,1,0};
 float sun_position[4]={400.0, 400.0, 500.0, 0.0};
-double light_view_mat[16],light_proj_mat[16],shadow_texgen_mat[16];
+static double light_view_mat[16],light_proj_mat[16];
+double shadow_texgen_mat[16];
 int shadows_on=0;
 int is_day=0;
 int use_shadow_mapping=1;
@@ -431,10 +432,10 @@ void render_light_view()
 				CHECK_GL_ERRORS();
 				CHECK_FBO_ERRORS();
 				ELglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, shadow_fbo);
-			        ELglFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_TEXTURE_2D, depth_map_id, 0);
+				ELglFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_TEXTURE_2D, depth_map_id, 0);
 				glClear(GL_DEPTH_BUFFER_BIT);
-        			glDrawBuffer(GL_NONE);
-	        		glReadBuffer(GL_NONE);
+				glDrawBuffer(GL_NONE);
+				glReadBuffer(GL_NONE);
 				CHECK_GL_ERRORS();
 				CHECK_FBO_ERRORS();
 			}
@@ -554,12 +555,12 @@ void setup_shadow_mapping()
 	glPushMatrix();
 	glLoadIdentity();
 	if (!first_person)
-	glTranslatef(0.0f, 0.0f, -zoom_level*camera_distance);
+		glTranslatef(0.0f, 0.0f, -zoom_level*camera_distance);
 	glRotatef(rx, 1.0f, 0.0f, 0.0f);
 	if (first_person)
 	{
 		float head_pos[3];
-        cal_get_actor_bone_local_position(get_our_actor(), get_actor_bone_id(get_our_actor(), head_bone), NULL, head_pos);
+		cal_get_actor_bone_local_position(get_our_actor(), get_actor_bone_id(get_our_actor(), head_bone), NULL, head_pos);
 		glTranslatef(head_pos[0], head_pos[1], 0.0);
 	}
 	glRotatef(rz, 0.0f, 0.0f, 1.0f);
