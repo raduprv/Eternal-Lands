@@ -167,6 +167,22 @@ void update_SDL_HINT_MOUSE_FOCUS_CLICKTHROUGH(void)
 
 void init_video(void)
 {
+	int versions_to_try[][3] = {
+		{ SDL_GL_CONTEXT_PROFILE_COMPATIBILITY, 3, 3 }, // OpenGL 3.3 compatibility profile
+		{ SDL_GL_CONTEXT_PROFILE_COMPATIBILITY, 3, 2 }, // OpenGL 3.2 compatibility profile
+		{ SDL_GL_CONTEXT_PROFILE_COMPATIBILITY, 3, 1 }, // OpenGL 3.1
+		{ SDL_GL_CONTEXT_PROFILE_COMPATIBILITY, 3, 0 }, // OpenGL 3.0
+		{ SDL_GL_CONTEXT_PROFILE_COMPATIBILITY, 2, 1 }, // OpenGL 2.1
+		{ SDL_GL_CONTEXT_PROFILE_COMPATIBILITY, 2, 0 }, // OpenGL 2.0. Not sure if lower versions will still work
+		{ SDL_GL_CONTEXT_PROFILE_COMPATIBILITY, 1, 5 }, // OpenGL 1.5
+		{ SDL_GL_CONTEXT_PROFILE_COMPATIBILITY, 1, 4 }, // OpenGL 1.4
+		{ SDL_GL_CONTEXT_PROFILE_COMPATIBILITY, 1, 3 }, // OpenGL 1.3
+		{ SDL_GL_CONTEXT_PROFILE_COMPATIBILITY, 1, 2 }, // OpenGL 1.2
+		{ SDL_GL_CONTEXT_PROFILE_COMPATIBILITY, 1, 1 }, // OpenGL 1.1
+		{ SDL_GL_CONTEXT_PROFILE_COMPATIBILITY, 1, 0 }, // OpenGL 1.0
+	};
+	int nr_versions_to_try = sizeof(versions_to_try) / sizeof(*versions_to_try);
+
 	int target_width = 0, target_height = 0;
 	int rgb_size[3];
 	Uint32 flags;
@@ -298,7 +314,15 @@ void init_video(void)
 		}
 	}
 
-	el_gl_context = SDL_GL_CreateContext(el_gl_window);
+	for (int i = 0; i < nr_versions_to_try; ++i)
+	{
+		SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, versions_to_try[i][0]);
+		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, versions_to_try[i][1]);
+		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, versions_to_try[i][2]);
+		el_gl_context = SDL_GL_CreateContext(el_gl_window);
+		if (el_gl_context)
+			break;
+	}
 	if (el_gl_context == NULL)
 	{
 		LOG_ERROR("%s: %s\n", "SDL_GL_CreateContext() Failed", SDL_GetError());
