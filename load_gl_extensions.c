@@ -10,8 +10,8 @@
 #include "errors.h"
 #include "gl_init.h"
 
-const char* gl_versions_str[] = { "1.1", "1.2", "1.3", "1.4", "1.5", "2.0", "2.1" };
-const Uint16 gl_versions[] = { 0x0101, 0x0102, 0x0103, 0x0104, 0x0105, 0x0200, 0x0201 };
+const char* gl_versions_str[] = { "1.1", "1.2", "1.3", "1.4", "1.5", "2.0", "2.1", "3.0" };
+const Uint16 gl_versions[] = { 0x0101, 0x0102, 0x0103, 0x0104, 0x0105, 0x0200, 0x0201, 0x0300 };
 
 Uint32 gl_version = 0;
 Uint64 extensions = 0;
@@ -248,12 +248,18 @@ PFNGLUNIFORMMATRIX4X2FVPROC ELglUniformMatrix4x2fv = NULL;
 PFNGLUNIFORMMATRIX4X3FVPROC ELglUniformMatrix4x3fv = NULL;
 /*	GL_VERSION_2_1		*/
 
+// GL_VERSION_3_0
+PFNGLBINDVERTEXARRAYPROC ELglBindVertexArray = NULL;
+PFNGLGENVERTEXARRAYSPROC ELglGenVertexArrays = NULL;
+// GL_VERSION_3_0
+
 GLboolean is_GL_VERSION_1_2 = GL_FALSE;
 GLboolean is_GL_VERSION_1_3 = GL_FALSE;
 GLboolean is_GL_VERSION_1_4 = GL_FALSE;
 GLboolean is_GL_VERSION_1_5 = GL_FALSE;
 GLboolean is_GL_VERSION_2_0 = GL_FALSE;
 GLboolean is_GL_VERSION_2_1 = GL_FALSE;
+GLboolean is_GL_VERSION_3_0 = GL_FALSE;
 
 int vertex_program_problem=0;
 int multitexture_problem=0;
@@ -584,6 +590,15 @@ static GLboolean el_init_GL_VERSION_2_1()
 	r = ((ELglUniformMatrix4x2fv = (PFNGLUNIFORMMATRIX4X2FVPROC)SDL_GL_GetProcAddress("glUniformMatrix4x2fv")) != NULL) && r;
 	r = ((ELglUniformMatrix4x3fv = (PFNGLUNIFORMMATRIX4X3FVPROC)SDL_GL_GetProcAddress("glUniformMatrix4x3fv")) != NULL) && r;
 
+	return r;
+}
+
+static GLboolean el_init_GL_VERSION_3_0()
+{
+	GLboolean r = GL_TRUE;
+
+	r = r && (ELglBindVertexArray = (PFNGLBINDVERTEXARRAYPROC)SDL_GL_GetProcAddress("glBindVertexArray")) != NULL;
+	r = r && (ELglGenVertexArrays = (PFNGLGENVERTEXARRAYSPROC)SDL_GL_GetProcAddress("glGenVertexArrays")) != NULL;
 	return r;
 }
 /*	GL_VERSION_2_1		*/
@@ -1130,6 +1145,7 @@ void init_opengl_extensions()
 	is_GL_VERSION_1_5 = is_GL_VERSION_1_4 && el_init_GL_VERSION_1_5();
 	is_GL_VERSION_2_0 = is_GL_VERSION_1_5 && el_init_GL_VERSION_2_0();
 	is_GL_VERSION_2_1 = is_GL_VERSION_2_0 && el_init_GL_VERSION_2_1();
+	is_GL_VERSION_3_0 = is_GL_VERSION_2_1 && el_init_GL_VERSION_3_0();
 
 	gl_version = 0;
 
@@ -1159,6 +1175,11 @@ void init_opengl_extensions()
 	}
 
 	if (is_GL_VERSION_2_1)
+	{
+		gl_version++;
+	}
+
+	if (is_GL_VERSION_3_0)
 	{
 		gl_version++;
 	}
