@@ -1102,3 +1102,32 @@ const char* gl_context_version_string()
 {
 	return gl_context_info.version_string;
 }
+
+int max_supported_glsl_version()
+{
+	switch (gl_context_info.profile)
+	{
+		case SDL_GL_CONTEXT_PROFILE_COMPATIBILITY:
+		case SDL_GL_CONTEXT_PROFILE_CORE:
+			switch (10*gl_context_info.major + gl_context_info.minor)
+			{
+				case 33: return 330;
+				case 32: return 150;
+				case 31: return 140;
+				case 30: return 130;
+				case 21: return 120;
+				case 20: return 110;
+				default: return 0;
+			}
+		case SDL_GL_CONTEXT_PROFILE_ES:
+			switch (10*gl_context_info.major + gl_context_info.minor)
+			{
+				case 31: return 10310;
+				case 30: return 10300;
+				case 20: return 10100;
+				default: return 0;
+			}
+		default:
+			return 0;
+	}
+}
