@@ -14,6 +14,7 @@ uniform vec4 viewport;
 
 uniform sampler2D tile_texture;
 uniform float blend;
+uniform vec4 light_color;
 
 #ifdef USE_REFLECTION
 uniform sampler2D reflection_texture;
@@ -87,10 +88,9 @@ void main (void)
 
 #ifdef USE_SHADOW
 	float shadow = textureProj(shadow_texture, vs_pos_light_space);
-	light = vec4(1.0, 1.0, 1.0, 1.0); //gl_LightSource[7].ambient + gl_LightModel.ambient;
-	light = mix(shadow_color, light, shadow);
+	light = mix(light_color, shadow_color, shadow);
 #else // USE_SHADOW
-	light = vec4(1.0, 0.0, 1.0, 1.0);
+	light = light_color;
 #endif // USE_SHADOW
 
 	frag_color = light * texture(tile_texture, tile_tex_coords);
