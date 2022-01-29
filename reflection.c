@@ -892,7 +892,9 @@ static void draw_lake_tiles_150()
 	int water_id;
 	GLint idx;
 	GLhandleARB cur_shader;
+	int use_reflection = show_reflection && water_shader_quality > 0;
 	int use_shadow = !dungeon && shadows_on && (is_day || lightning_falling);
+	int use_noise = water_shader_quality > 1;
 	GLfloat projection[16], model_view[16];
 	GLint viewport[4];
 	// FIXME:
@@ -935,8 +937,11 @@ static void draw_lake_tiles_150()
 	ELglUniformMatrix4fv(ELglGetUniformLocationARB(cur_shader, "projection"), 1, GL_FALSE, projection);
 	ELglUniformMatrix4fv(ELglGetUniformLocationARB(cur_shader, "model_view"), 1, GL_FALSE, model_view);
 	ELglUniform1fARB(ELglGetUniformLocationARB(cur_shader, "water_depth_offset"), water_depth_offset);
+	ELglUniform4fvARB(ELglGetUniformLocationARB(cur_shader, "light_color"), 1, light_color);
+	ELglUniform1iARB(ELglGetUniformLocationARB(cur_shader, "tile_texture"), base_unit - GL_TEXTURE0);
+	ELglUniform2fARB(ELglGetUniformLocationARB(cur_shader, "water_movement"), water_movement_u, water_movement_v);
 
-	if (water_shader_quality > 1)
+	if (use_noise)
 	{
 		ELglActiveTextureARB(GL_TEXTURE3);
 		glEnable(GL_TEXTURE_3D);
@@ -956,8 +961,6 @@ static void draw_lake_tiles_150()
 		ELglUniformMatrix4fv(ELglGetUniformLocationARB(cur_shader, "shadow_texgen_mat"), 1, GL_FALSE, shadow_texgen_mat);
 		ELglUniform3fARB(ELglGetUniformLocationARB(cur_shader, "camera_pos"), camera_x, camera_y, camera_z);
 	}
-	ELglUniform4fvARB(ELglGetUniformLocationARB(cur_shader, "light_color"), 1, light_color);
-	ELglUniform1iARB(ELglGetUniformLocationARB(cur_shader, "tile_texture"), base_unit - GL_TEXTURE0);
 	CHECK_GL_ERRORS();
 
 	ELglBindVertexArray(water_tile_array_object);
@@ -984,7 +987,7 @@ static void draw_lake_tiles_150()
 	ELglActiveTextureARB(base_unit);
 	CHECK_GL_ERRORS();
 
-	cur_shader = get_shader(water_shader_quality > 0 && show_reflection ? st_reflectiv_water : st_water,
+	cur_shader = get_shader(use_reflection ? st_reflectiv_water : st_water,
 			use_shadow ? sst_shadow_receiver : sst_no_shadow_receiver, use_fog,
 			water_shader_quality - 1);
 	ELglUseProgramObjectARB(cur_shader);
@@ -992,13 +995,21 @@ static void draw_lake_tiles_150()
 
 	ELglUniformMatrix4fv(ELglGetUniformLocationARB(cur_shader, "projection"), 1, GL_FALSE, projection);
 	ELglUniformMatrix4fv(ELglGetUniformLocationARB(cur_shader, "model_view"), 1, GL_FALSE, model_view);
-	{
-		GLfloat vp[4] = { viewport[0], viewport[1], viewport[2], viewport[3] };
-		ELglUniform4fvARB(ELglGetUniformLocationARB(cur_shader, "viewport"), 1, vp);
-	}
 	ELglUniform1fARB(ELglGetUniformLocationARB(cur_shader, "water_depth_offset"), water_depth_offset);
+	ELglUniform4fvARB(ELglGetUniformLocationARB(cur_shader, "light_color"), 1, light_color);
+	ELglUniform1iARB(ELglGetUniformLocationARB(cur_shader, "tile_texture"), base_unit - GL_TEXTURE0);
+	ELglUniform2fARB(ELglGetUniformLocationARB(cur_shader, "water_movement"), water_movement_u, water_movement_v);
 
-	if (water_shader_quality > 1)
+	if (use_reflection)
+	{
+		ELglUniform4fARB(ELglGetUniformLocationARB(cur_shader, "viewport"), viewport[0], viewport[1],
+			viewport[2], viewport[3]);
+		ELglUniform1iARB(ELglGetUniformLocationARB(cur_shader, "reflection_texture"),
+			detail_unit - GL_TEXTURE0);
+		ELglUniform1fARB(ELglGetUniformLocationARB(cur_shader, "blend"), 0.75f);
+	}
+
+	if (use_noise)
 	{
 		ELglActiveTextureARB(GL_TEXTURE3);
 		glBindTexture(GL_TEXTURE_3D, noise_tex);
@@ -1042,10 +1053,6 @@ static void draw_lake_tiles_150()
 		ELglUniformMatrix4fv(ELglGetUniformLocationARB(cur_shader, "shadow_texgen_mat"), 1, GL_FALSE, shadow_texgen_mat);
 		ELglUniform3fARB(ELglGetUniformLocationARB(cur_shader, "camera_pos"), camera_x, camera_y, camera_z);
 	}
-	ELglUniform4fvARB(ELglGetUniformLocationARB(cur_shader, "light_color"), 1, light_color);
-	ELglUniform1iARB(ELglGetUniformLocationARB(cur_shader, "reflection_texture"), detail_unit - GL_TEXTURE0);
-	ELglUniform1iARB(ELglGetUniformLocationARB(cur_shader, "tile_texture"), base_unit - GL_TEXTURE0);
-	ELglUniform1fARB(ELglGetUniformLocationARB(cur_shader, "blend"), 0.75f);
 	CHECK_GL_ERRORS();
 
 	get_intersect_start_stop(main_bbox_tree, TYPE_REFLECTIV_WATER, &start, &stop);

@@ -8,16 +8,13 @@ in vec3 vs_noise_tex_coords;
 
 out vec4 frag_color;
 
-#ifdef USE_REFLECTION
-uniform vec4 viewport;
-#endif
-
 uniform sampler2D tile_texture;
-uniform float blend;
 uniform vec4 light_color;
 
 #ifdef USE_REFLECTION
 uniform sampler2D reflection_texture;
+uniform vec4 viewport;
+uniform float blend;
 #endif // USE_REFLECTION
 
 #ifdef	USE_SHADOW
