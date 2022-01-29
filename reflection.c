@@ -902,9 +902,9 @@ static void draw_lake_tiles_150()
 	if (use_shadow)
 	{
 		if (lightning_falling)
-			memcpy(light_color, lightning_ambient_color, 4*sizeof(float));
+			memcpy(shadow_color, lightning_ambient_color, 4*sizeof(float));
 		else
-			memcpy(light_color, ambient_light, 4*sizeof(float));
+			memcpy(shadow_color, ambient_light, 4*sizeof(float));
 	}
 
 	build_water_buffer();
@@ -921,14 +921,8 @@ static void draw_lake_tiles_150()
 	if (dungeon) water_id = tile_list[231];
 	else water_id = tile_list[0];
 
-	if (use_shadow)
-	{
-		cur_shader = get_shader(st_water, sst_shadow_receiver, use_fog, water_shader_quality - 1);
-	}
-	else
-	{
-		cur_shader = get_shader(st_water, sst_no_shadow_receiver, use_fog, water_shader_quality - 1);
-	}
+	cur_shader = get_shader(st_water, use_shadow ? sst_shadow_receiver : sst_no_shadow_receiver,
+		use_fog, water_shader_quality - 1);
 	ELglUseProgramObjectARB(cur_shader);
 	CHECK_GL_ERRORS();
 
@@ -952,11 +946,11 @@ static void draw_lake_tiles_150()
 	if (use_shadow)
 	{
 		ELglUniform1iARB(ELglGetUniformLocationARB(cur_shader, "shadow_texture"), shadow_unit - GL_TEXTURE0);
-		ELglUniform4fvARB(ELglGetUniformLocationARB(cur_shader, "light_color"), 1, light_color);
 		ELglUniform4fvARB(ELglGetUniformLocationARB(cur_shader, "shadow_color"), 1, shadow_color);
 		ELglUniformMatrix4fv(ELglGetUniformLocationARB(cur_shader, "shadow_texgen_mat"), 1, GL_FALSE, shadow_texgen_mat);
 		ELglUniform3fARB(ELglGetUniformLocationARB(cur_shader, "camera_pos"), camera_x, camera_y, camera_z);
 	}
+	ELglUniform4fvARB(ELglGetUniformLocationARB(cur_shader, "light_color"), 1, light_color);
 	ELglUniform1iARB(ELglGetUniformLocationARB(cur_shader, "tile_texture"), base_unit - GL_TEXTURE0);
 	CHECK_GL_ERRORS();
 
@@ -984,14 +978,9 @@ static void draw_lake_tiles_150()
 	ELglActiveTextureARB(base_unit);
 	CHECK_GL_ERRORS();
 
-	if (use_shadow)
-	{
-		cur_shader = get_shader(st_reflectiv_water, sst_shadow_receiver, use_fog, water_shader_quality - 1);
-	}
-	else
-	{
-		cur_shader = get_shader(st_reflectiv_water, sst_no_shadow_receiver, use_fog, water_shader_quality - 1);
-	}
+	cur_shader = get_shader(water_shader_quality > 0 ? st_reflectiv_water : st_water,
+			use_shadow ? sst_shadow_receiver : sst_no_shadow_receiver, use_fog,
+			water_shader_quality - 1);
 	ELglUseProgramObjectARB(cur_shader);
 	CHECK_GL_ERRORS();
 
@@ -1043,11 +1032,11 @@ static void draw_lake_tiles_150()
 	if (use_shadow)
 	{
 		ELglUniform1iARB(ELglGetUniformLocationARB(cur_shader, "shadow_texture"), shadow_unit - GL_TEXTURE0);
-		ELglUniform4fvARB(ELglGetUniformLocationARB(cur_shader, "light_color"), 1, light_color);
 		ELglUniform4fvARB(ELglGetUniformLocationARB(cur_shader, "shadow_color"), 1, shadow_color);
 		ELglUniformMatrix4fv(ELglGetUniformLocationARB(cur_shader, "shadow_texgen_mat"), 1, GL_FALSE, shadow_texgen_mat);
 		ELglUniform3fARB(ELglGetUniformLocationARB(cur_shader, "camera_pos"), camera_x, camera_y, camera_z);
 	}
+	ELglUniform4fvARB(ELglGetUniformLocationARB(cur_shader, "light_color"), 1, light_color);
 	ELglUniform1iARB(ELglGetUniformLocationARB(cur_shader, "reflection_texture"), detail_unit - GL_TEXTURE0);
 	ELglUniform1iARB(ELglGetUniformLocationARB(cur_shader, "tile_texture"), base_unit - GL_TEXTURE0);
 	ELglUniform1fARB(ELglGetUniformLocationARB(cur_shader, "blend"), 0.75f);

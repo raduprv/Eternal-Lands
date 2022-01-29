@@ -58,6 +58,14 @@ void main (void)
 	tile_tex_coords += noise_displacement * noise_scale.zw;
 #endif // USE_NOISE
 
+#ifdef USE_SHADOW
+	float shadow = textureProj(shadow_texture, vs_pos_light_space);
+	light = mix(shadow_color, light_color, shadow);
+#else // USE_SHADOW
+	light = light_color;
+#endif // USE_SHADOW
+	vec4 tile_color = light * texture(tile_texture, tile_tex_coords);
+
 #ifdef USE_REFLECTION
  #ifdef USE_CUBIC_FILTER
 	vec2 coord_hg = reflection_tex_coords * size - vec2(0.5, 0.5);
@@ -82,19 +90,10 @@ void main (void)
  #else // USE_CUBIC_FILTER
 	color = texture(reflection_texture, reflection_tex_coords);
  #endif // USE_CUBIC_FILTER
+	frag_color = mix(tile_color, color, blend);
 #else // USE_REFLECTION
-	color = vec4(1.0, 1.0, 1.0, 1.0);
+	frag_color = tile_color;
 #endif // USE_REFLECTION
-
-#ifdef USE_SHADOW
-	float shadow = textureProj(shadow_texture, vs_pos_light_space);
-	light = mix(light_color, shadow_color, shadow);
-#else // USE_SHADOW
-	light = light_color;
-#endif // USE_SHADOW
-
-	frag_color = light * texture(tile_texture, tile_tex_coords);
-	frag_color = mix(frag_color, color, blend);
 
 #ifdef USE_FOG
 	const float LOG2 = 1.442695;
