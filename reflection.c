@@ -898,6 +898,9 @@ static void draw_lake_tiles_150()
 	// FIXME:
 	float shadow_color[4] = { 1.0, 1.0, 1.0, 1.0 };
 	float light_color[4] = { 1.0, 1.0, 1.0, 1.0 };
+	// This is gl_LightModel.ambient in the old shader. The client never sets this parameter, so
+	// it is fixed at the default value:
+	float lightmodel_ambient[4] = { 0.2, 0.2, 0.2, 1.0 };
 
 	if (use_shadow)
 	{
@@ -905,6 +908,9 @@ static void draw_lake_tiles_150()
 			memcpy(shadow_color, lightning_ambient_color, 4*sizeof(float));
 		else
 			memcpy(shadow_color, ambient_light, 4*sizeof(float));
+		shadow_color[0] += lightmodel_ambient[0];
+		shadow_color[1] += lightmodel_ambient[1];
+		shadow_color[2] += lightmodel_ambient[2];
 	}
 
 	build_water_buffer();
