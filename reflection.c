@@ -978,7 +978,7 @@ static void draw_lake_tiles_150()
 	ELglActiveTextureARB(base_unit);
 	CHECK_GL_ERRORS();
 
-	cur_shader = get_shader(water_shader_quality > 0 ? st_reflectiv_water : st_water,
+	cur_shader = get_shader(water_shader_quality > 0 && show_reflection ? st_reflectiv_water : st_water,
 			use_shadow ? sst_shadow_receiver : sst_no_shadow_receiver, use_fog,
 			water_shader_quality - 1);
 	ELglUseProgramObjectARB(cur_shader);
