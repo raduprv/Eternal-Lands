@@ -79,14 +79,17 @@ void check_flip_fbo_texture(void)
 	if (status == GL_FRAMEBUFFER_COMPLETE)
 	{
 		glMatrixMode(GL_PROJECTION);
+		glPushMatrix();
 		glLoadIdentity();
 		glOrtho(0.0, (GLdouble)width, 0.0, (GLdouble)height, -1.0, 1.0);
 
 		glMatrixMode(GL_MODELVIEW);
+		glPushMatrix();
 		glLoadIdentity();
 
 		glViewport(0, 0, width, height);
 
+		glPushAttrib(GL_ENABLE_BIT);
 		glDisable(GL_DEPTH_TEST);
 		glDisable(GL_LIGHTING);
 
@@ -109,6 +112,12 @@ void check_flip_fbo_texture(void)
 			LOG_INFO("Frame buffer texture appears upside down, flipping water reflection");
 		else
 			LOG_INFO("Frame buffer texture looks right, not flipping water reflection");
+
+		glPopAttrib();
+		glPopMatrix();
+		glMatrixMode(GL_PROJECTION);
+		glPopMatrix();
+		glMatrixMode(GL_MODELVIEW);
 	}
 
 	free_color_framebuffer(&fbo, NULL, NULL, &texture);
