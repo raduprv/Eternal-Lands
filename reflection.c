@@ -892,7 +892,7 @@ static void draw_lake_tiles_150()
 	int water_id;
 	GLint idx;
 	GLhandleARB cur_shader;
-	int use_reflection = show_reflection && water_shader_quality > 0;
+	int use_reflection = show_reflection && use_frame_buffer && water_shader_quality > 0;
 	int use_shadow = !dungeon && shadows_on && (is_day || lightning_falling);
 	int use_noise = water_shader_quality > 1;
 	GLfloat projection[16], model_view[16];
