@@ -48,7 +48,7 @@ void main (void)
 #endif // USE_REFLECTION
 
 #ifdef USE_NOISE
-	vec2 noise_displacement = texture3D(noise_texture, vs_noise_tex_coords).ga * 2.0 - 1.0;
+	vec2 noise_displacement = texture(noise_texture, vs_noise_tex_coords).ga * 2.0 - 1.0;
  #ifdef USE_REFLECTION
 	reflection_tex_coords += noise_displacement * noise_scale.xy;
  #endif // USE_REFLECTION

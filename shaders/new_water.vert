@@ -30,6 +30,6 @@ void main()
 	vs_pos_light_space = shadow_texgen_mat * (position4 + vec4(trunc(camera_pos), 0.0));
 #endif
 #ifdef USE_NOISE
-	vs_noise_tex_coords = vec3(position / 3.0, time);
+	vs_noise_tex_coords = vec3(position/3.0, time);
 #endif // USE_NOISE
 }

@@ -897,7 +897,6 @@ static void draw_lake_tiles_150()
 	int use_noise = water_shader_quality > 1;
 	GLfloat projection[16], model_view[16];
 	GLint viewport[4];
-	// FIXME:
 	float shadow_color[4] = { 1.0, 1.0, 1.0, 1.0 };
 	float light_color[4] = { 1.0, 1.0, 1.0, 1.0 };
 	// This is gl_LightModel.ambient in the old shader. The client never sets this parameter, so
