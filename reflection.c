@@ -52,6 +52,7 @@ GLuint water_tile_array_object = 0;
 int water_buffer_usage = 0;
 int water_buffer_reflectiv_index = 0;
 int water_shader_quality = 0;
+int use_150_water_shader = 0;
 
 static int flip_water_reflection_texture = 0;
 static int do_disable_water_ripples = 0;
@@ -194,6 +195,20 @@ int get_max_supported_water_shader_quality()
 	return 2;
 }
 
+void init_water_vertex_vao()
+{
+	if (use_150_water_shader) // GLSL 1.50 implies OpenGL 3.2, so this should be safe
+	{
+		if (water_tile_array_object == 0)
+			ELglGenVertexArrays(1, &water_tile_array_object);
+		ELglBindVertexArray(water_tile_array_object);
+		ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, water_tile_buffer_object);
+		ELglEnableVertexAttribArray(0);
+		ELglVertexAttribPointer(0, 2, GL_FLOAT, 0, 2*sizeof(float), 0);
+		ELglBindVertexArray(0);
+	}
+}
+
 void init_water_buffers(int water_buffer_size)
 {
 	static int current_size = 0;
@@ -211,15 +226,7 @@ void init_water_buffers(int water_buffer_size)
 			ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, water_tile_buffer_object);
 			ELglBufferDataARB(GL_ARRAY_BUFFER_ARB, buffer_size_bytes, NULL, GL_DYNAMIC_DRAW_ARB);
 
-			if (max_supported_glsl_version() > 150) // GLSL 1.50 implies OpenGL 3.2, so this should be safe
-			{
-				if (water_tile_array_object == 0)
-					ELglGenVertexArrays(1, &water_tile_array_object);
-				ELglBindVertexArray(water_tile_array_object);
-				ELglEnableVertexAttribArray(0);
-				ELglVertexAttribPointer(0, 2, GL_FLOAT, 0, 2*sizeof(float), 0);
-				ELglBindVertexArray(0);
-			}
+			init_water_vertex_vao();
 
 			ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
 
@@ -1331,15 +1338,7 @@ static void draw_lake_tiles_old()
 
 void draw_lake_tiles()
 {
-	static int glsl_version = -1;
-
-	if (glsl_version < 0)
-	{
-		glsl_version = max_supported_glsl_version();
-		LOG_INFO("Using %s water shader", glsl_version >= 150 ? "1.50" : "old");
-	}
-
-	if (glsl_version >= 150)
+	if (use_150_water_shader)
 		draw_lake_tiles_150();
 	else
 		draw_lake_tiles_old();

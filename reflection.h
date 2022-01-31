@@ -13,6 +13,7 @@ extern "C" {
 extern float water_movement_u; /**< movement of the water in u direction */
 extern float water_movement_v; /**< movement of the water in v direction */
 extern int water_shader_quality; /**< quality of the shader used for drawing water. Zero means no shader. */
+extern int use_150_water_shader; //!< Whether to use the new water shader
 
 /*!
  * \brief Check if the texture coordinates for the reflection buffer should be flipped
@@ -160,6 +161,15 @@ void make_reflection_framebuffer(int width, int height);
  */
 void change_reflection_framebuffer_size(int width, int height);
 
+/**
+ * @ingroup reflections
+ * @brief Initialises the water vertex array object,
+ *
+ * Initialises the vertex array object for the water shader, if necessary.
+ *
+ * @callgraph
+ */
+void init_water_vertex_vao();
 /**
  * @ingroup reflections
  * @brief Inits the buffer used for water.

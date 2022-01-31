@@ -5,6 +5,7 @@
 #include "../gl_init.h"
 #include "../load_gl_extensions.h"
 #include "../misc.h"
+#include "../reflection.h"
 #include "../io/elfilewrapper.h"
 
 GLuint noise_tex;
@@ -311,7 +312,7 @@ static __inline__ int get_shader_index(shader_type type, shader_shadow_type shad
 	ret += fog_type * 2;
 	ret += shadow_type;
 	ret += max2i(min2i(quality, 1), 0) * 8;
-	if (max_supported_glsl_version() >= 150) // GLSL 1.5 removed gl_TexCoord, which was used in the old shader
+	if (use_150_water_shader) // GLSL 1.5 removed gl_TexCoord, which was used in the old shader
 		ret += 16;
 
 	return ret;
