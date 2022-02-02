@@ -48,6 +48,7 @@ int	show_lights;
 int	num_lights;	// the highest light number loaded
 light *lights_list[MAX_LIGHTS];
 
+float global_light_position[4] = { 0.0, 0.0, 1.0, 1.0 };
 int enabled_local_lights[MAX_ENABLED_LOCAL_LIGHTS];
 int nr_enabled_local_lights;
 float local_light_linear_attenuation = 1.41f;
@@ -339,7 +340,7 @@ GLfloat diffuse_light[] = { 0.0, 0.0, 0.0, 0.0 };
 void draw_global_light()
 {
 	int i;
-	GLfloat global_light_position[] = { 400.0, 400.0, 500.0, 0.0 };
+	GLfloat static_global_light_position[] = { 400.0, 400.0, 500.0, 0.0 };
 
 	//add the thunder light to the ambient/diffuse light
 #ifndef MAP_EDITOR2
@@ -371,18 +372,18 @@ void draw_global_light()
 
 	if (sun_use_static_position)
 	{
-		glLightfv(GL_LIGHT7, GL_POSITION, global_light_position);
+		set_global_light_position(static_global_light_position);
 	}
 	else
 	{
 		if ((sun_position[0] == 0.0f) && (sun_position[1] == 0.0f) &&
 			(sun_position[2] == 0.0f) && (sun_position[3] == 0.0f))
 		{
-			glLightfv(GL_LIGHT7, GL_POSITION, global_light_position);
+			set_global_light_position(static_global_light_position);
 		}
 		else
 		{
-			glLightfv(GL_LIGHT7, GL_POSITION, sun_position);
+			set_global_light_position(sun_position);
 		}
 	}
 #ifdef OPENGL_TRACE
@@ -392,7 +393,7 @@ CHECK_GL_ERRORS();
 
 void draw_dungeon_light()
 {
-	GLfloat global_light_position[] = { 400.0, 400.0, 500.0, 0.0 };
+	GLfloat static_global_light_position[] = { 400.0, 400.0, 500.0, 0.0 };
 	GLfloat diffuse_light[] = { 0.0, 0.0, 0.0, 0.0 };
 	GLfloat ambient_light[4];
 	int i;
@@ -415,7 +416,7 @@ void draw_dungeon_light()
 	}
 
 	glLightfv(GL_LIGHT7,GL_AMBIENT,ambient_light);
-	glLightfv(GL_LIGHT7, GL_POSITION, global_light_position);
+	set_global_light_position(static_global_light_position);
 	glLightfv(GL_LIGHT7,GL_DIFFUSE,diffuse_light);
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
@@ -643,6 +644,14 @@ void new_second()
 	{
 		skybox_update_colors();
 	}
+}
+
+void set_global_light_position(const float *pos)
+{
+	global_light_position[0] = pos[0];
+	global_light_position[1] = pos[1];
+	global_light_position[2] = pos[2];
+	glLightfv(GL_LIGHT7, GL_POSITION, global_light_position);
 }
 
 #ifdef DEBUG_TIME

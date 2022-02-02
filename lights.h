@@ -67,9 +67,10 @@ extern int	show_lights;	/*! the highest numbered light in the current GL display
 extern int	num_lights; /*! the number of lights currently loaded */
 extern light *lights_list[MAX_LIGHTS]; /*!< global lights list */
 
+extern float global_light_position[4];       //!< The position of the sun, or global light in the dungeons
 extern int enabled_local_lights[MAX_ENABLED_LOCAL_LIGHTS]; //!< Indices into lights_list of enabled local lights
-extern int nr_enabled_local_lights;
-extern float local_light_linear_attenuation;
+extern int nr_enabled_local_lights;          //!< The number of local light currenltly seen
+extern float local_light_linear_attenuation; //! Linear attenuation factor for local lights
 
 extern unsigned char light_level; /*!< the light level */
 extern short game_minute; /*!< the current game minute */
@@ -223,6 +224,8 @@ void build_sun_pos_table();
 void new_minute();
 
 void new_second();
+
+void set_global_light_position(const float *pos);
 
 void cleanup_lights(void);
 

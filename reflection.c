@@ -732,7 +732,7 @@ void display_3d_reflection()
 	glTranslatef(0.0f, 0.0f, -water_depth_offset);
 	glNormal3f(0.0f, 0.0f, 1.0f);
 
-	glLightfv(GL_LIGHT7, GL_POSITION, sun_position);
+	set_global_light_position(sun_position);
 	if (skybox_show_sky)
 	{
 		glPushMatrix();
@@ -817,7 +817,7 @@ void display_3d_reflection()
 	{
 		glDisable(GL_STENCIL_TEST);
 	}
-	glLightfv(GL_LIGHT7, GL_POSITION, sun_position);
+	set_global_light_position(sun_position);
 	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 
 #ifdef OPENGL_TRACE
@@ -895,14 +895,13 @@ CHECK_GL_ERRORS();
 
 static void set_lights_150(GLuint shader)
 {
-	GLfloat light_pos[4];
+	GLfloat *light_pos = global_light_position;
 	GLfloat ambient[4];
 	GLfloat diffuse[4];
 	int count;
 	GLchar name[128];
 
 	// Sun light outside, or global light in dungeon
-	glGetLightfv(GL_LIGHT7, GL_POSITION, light_pos);
 	glGetLightfv(GL_LIGHT7, GL_AMBIENT, ambient);
 	glGetLightfv(GL_LIGHT7, GL_DIFFUSE, diffuse);
 
