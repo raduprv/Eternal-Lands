@@ -1,4 +1,5 @@
 in vec2 vs_tile_tex_coords;
+in vec3 frag_position;
 #ifdef USE_SHADOW
 in vec4 vs_pos_light_space;
 #endif // USE_SHADOW
@@ -8,8 +9,34 @@ in vec3 vs_noise_tex_coords;
 
 out vec4 frag_color;
 
+struct DirectionalLight
+{
+	vec3 direction;
+	vec3 ambient;
+	vec3 diffuse;
+	//vec3 specular;
+};
+
+struct PositionalLight
+{
+	vec3 position;
+	float constant_attenuation;
+	float linear_attenuation;
+	float quadratic_attenuation;
+	vec3 ambient;
+	vec3 diffuse;
+// 	vec3 specular;
+};
+
+// All water tiles are horizontally flat surfaces
+const vec3 normal = vec3(0.0, 0.0, 1.0);
+// gl_LightModel.ambient. Client never sets it, so use default value of:
+const vec3 lightmodel_ambient = vec3(0.2, 0.2, 0.2);
+
 uniform sampler2D tile_texture;
-uniform vec4 light_color;
+uniform DirectionalLight directional_light;
+uniform PositionalLight positional_lights[8];
+uniform int nr_positional_lights;
 
 #ifdef USE_REFLECTION
 uniform sampler2D reflection_texture;
@@ -19,7 +46,6 @@ uniform float blend;
 
 #ifdef	USE_SHADOW
 uniform sampler2DShadow shadow_texture;
-uniform vec4 shadow_color;
 #endif	// USE_SHADOW
 
 #ifdef	USE_NOISE
@@ -39,8 +65,40 @@ uniform vec4 fog_color;
 uniform float fog_density;
 #endif // USE_FOG
 
+void calc_directional_light(DirectionalLight light, vec3 normal, out vec3 ambient, out vec3 diffuse)
+{
+	vec3 light_direction = normalize(-light.direction);
+	float diff = max(dot(normal, light_direction), 0.0);
+	ambient = light.ambient;
+	diffuse = light.diffuse * diff;
+}
+
+void calc_positional_light(PositionalLight light, vec3 position, out vec3 ambient, out vec3 diffuse)
+{
+	vec3 light_direction = normalize(light.position - position);
+	float diff = max(dot(normal, light_direction), 0.0);
+	float dist = length(light.position - position);
+	float attenuation = 1.0 / (light.constant_attenuation
+	                          + light.linear_attenuation * dist
+	                          + light.quadratic_attenuation * dist * dist);
+	ambient = light.ambient * attenuation;
+	diffuse = light.diffuse * diff * attenuation;
+}
+
 void main (void)
 {
+	vec3 ambient, diffuse;
+	calc_directional_light(directional_light, normal, ambient, diffuse);
+	for (int i = 0; i < nr_positional_lights; ++i)
+	{
+		vec3 p_ambient, p_diffuse;
+		calc_positional_light(positional_lights[i], frag_position, p_ambient, p_diffuse);
+		ambient += p_ambient;
+		diffuse += p_diffuse;
+	}
+	ambient += lightmodel_ambient;
+	vec4 light_color = vec4(ambient + diffuse, 1.0);
+
 	vec2 tile_tex_coords = vs_tile_tex_coords;
 	vec4 color, light;
 #ifdef USE_REFLECTION
@@ -56,6 +114,7 @@ void main (void)
 #endif // USE_NOISE
 
 #ifdef USE_SHADOW
+	vec4 shadow_color = vec4(ambient, 1.0);
 	float shadow = textureProj(shadow_texture, vs_pos_light_space);
 	light = mix(shadow_color, light_color, shadow);
 #else // USE_SHADOW

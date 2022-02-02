@@ -3,6 +3,7 @@
 #include <math.h>
 #include "reflection.h"
 #include "3d_objects.h"
+#include "asc.h"
 #include "bbox_tree.h"
 #include "cal.h"
 #include "draw_scene.h"
@@ -892,6 +893,47 @@ CHECK_GL_ERRORS();
 }
 #endif
 
+static void set_lights(GLuint shader)
+{
+	GLfloat light_pos[4];
+	GLfloat ambient[4];
+	GLfloat diffuse[4];
+	int count;
+	GLchar name[128];
+
+	// Sun light outside, or global light in dungeon
+	glGetLightfv(GL_LIGHT7, GL_POSITION, light_pos);
+	glGetLightfv(GL_LIGHT7, GL_AMBIENT, ambient);
+	glGetLightfv(GL_LIGHT7, GL_DIFFUSE, diffuse);
+
+	ELglUniform3f(ELglGetUniformLocationARB(shader, "directional_light.direction"),
+		-light_pos[0], -light_pos[1], -light_pos[2]);
+	ELglUniform3fv(ELglGetUniformLocationARB(shader, "directional_light.ambient"), 1, ambient);
+	ELglUniform3fv(ELglGetUniformLocationARB(shader, "directional_light.diffuse"), 1, diffuse);
+
+	count = 0;
+	for (int i = 0; i < nr_enabled_local_lights; ++i)
+	{
+		light* ll = lights_list[enabled_local_lights[i]];
+
+		safe_snprintf(name, sizeof(name), "positional_lights[%d].position", count);
+		ELglUniform3f(ELglGetUniformLocationARB(shader, name), ll->pos_x, ll->pos_y, ll->pos_z);
+		safe_snprintf(name, sizeof(name), "positional_lights[%d].ambient", count);
+		ELglUniform3f(ELglGetUniformLocationARB(shader, name), 0.0, 0.0, 0.0);
+		safe_snprintf(name, sizeof(name), "positional_lights[%d].diffuse", count);
+		ELglUniform3f(ELglGetUniformLocationARB(shader, name), ll->r, ll->g, ll->b);
+		safe_snprintf(name, sizeof(name), "positional_lights[%d].constant_attenuation", count);
+		ELglUniform1f(ELglGetUniformLocationARB(shader, name), 1.0);
+		safe_snprintf(name, sizeof(name), "positional_lights[%d].linear_attenuation", count);
+		ELglUniform1f(ELglGetUniformLocationARB(shader, name), local_light_linear_attenuation);
+		safe_snprintf(name, sizeof(name), "positional_lights[%d].quadratic_attenuation", count);
+		ELglUniform1f(ELglGetUniformLocationARB(shader, name), 0.0);
+
+		++count;
+	}
+	ELglUniform1i(ELglGetUniformLocationARB(shader, "nr_positional_lights"), count);
+}
+
 static void draw_lake_tiles_150()
 {
 	static const float noise_scale[4] = {0.125f, 0.125f, 0.0625f, 0.0625f};
@@ -904,22 +946,6 @@ static void draw_lake_tiles_150()
 	int use_noise = water_shader_quality > 1;
 	GLfloat projection[16], model_view[16];
 	GLint viewport[4];
-	float shadow_color[4] = { 1.0, 1.0, 1.0, 1.0 };
-	float light_color[4] = { 1.0, 1.0, 1.0, 1.0 };
-	// This is gl_LightModel.ambient in the old shader. The client never sets this parameter, so
-	// it is fixed at the default value:
-	float lightmodel_ambient[4] = { 0.2, 0.2, 0.2, 1.0 };
-
-	if (use_shadow)
-	{
-		if (lightning_falling)
-			memcpy(shadow_color, lightning_ambient_color, 4*sizeof(float));
-		else
-			memcpy(shadow_color, ambient_light, 4*sizeof(float));
-		shadow_color[0] += lightmodel_ambient[0];
-		shadow_color[1] += lightmodel_ambient[1];
-		shadow_color[2] += lightmodel_ambient[2];
-	}
 
 	build_water_buffer();
 	CHECK_GL_ERRORS();
@@ -943,9 +969,9 @@ static void draw_lake_tiles_150()
 	ELglUniformMatrix4fv(ELglGetUniformLocationARB(cur_shader, "projection"), 1, GL_FALSE, projection);
 	ELglUniformMatrix4fv(ELglGetUniformLocationARB(cur_shader, "model_view"), 1, GL_FALSE, model_view);
 	ELglUniform1fARB(ELglGetUniformLocationARB(cur_shader, "water_depth_offset"), water_depth_offset);
-	ELglUniform4fvARB(ELglGetUniformLocationARB(cur_shader, "light_color"), 1, light_color);
 	ELglUniform1iARB(ELglGetUniformLocationARB(cur_shader, "tile_texture"), base_unit - GL_TEXTURE0);
 	ELglUniform2fARB(ELglGetUniformLocationARB(cur_shader, "water_movement"), water_movement_u, water_movement_v);
+	set_lights(cur_shader);
 
 	if (use_noise)
 	{
@@ -963,7 +989,6 @@ static void draw_lake_tiles_150()
 	if (use_shadow)
 	{
 		ELglUniform1iARB(ELglGetUniformLocationARB(cur_shader, "shadow_texture"), shadow_unit - GL_TEXTURE0);
-		ELglUniform4fvARB(ELglGetUniformLocationARB(cur_shader, "shadow_color"), 1, shadow_color);
 		ELglUniformMatrix4fv(ELglGetUniformLocationARB(cur_shader, "shadow_texgen_mat"), 1, GL_FALSE, shadow_texgen_mat);
 		ELglUniform3fARB(ELglGetUniformLocationARB(cur_shader, "camera_pos"), camera_x, camera_y, camera_z);
 	}
@@ -1002,9 +1027,9 @@ static void draw_lake_tiles_150()
 	ELglUniformMatrix4fv(ELglGetUniformLocationARB(cur_shader, "projection"), 1, GL_FALSE, projection);
 	ELglUniformMatrix4fv(ELglGetUniformLocationARB(cur_shader, "model_view"), 1, GL_FALSE, model_view);
 	ELglUniform1fARB(ELglGetUniformLocationARB(cur_shader, "water_depth_offset"), water_depth_offset);
-	ELglUniform4fvARB(ELglGetUniformLocationARB(cur_shader, "light_color"), 1, light_color);
 	ELglUniform1iARB(ELglGetUniformLocationARB(cur_shader, "tile_texture"), base_unit - GL_TEXTURE0);
 	ELglUniform2fARB(ELglGetUniformLocationARB(cur_shader, "water_movement"), water_movement_u, water_movement_v);
+	set_lights(cur_shader);
 
 	if (use_reflection)
 	{
@@ -1055,7 +1080,6 @@ static void draw_lake_tiles_150()
 	if (use_shadow)
 	{
 		ELglUniform1iARB(ELglGetUniformLocationARB(cur_shader, "shadow_texture"), shadow_unit - GL_TEXTURE0);
-		ELglUniform4fvARB(ELglGetUniformLocationARB(cur_shader, "shadow_color"), 1, shadow_color);
 		ELglUniformMatrix4fv(ELglGetUniformLocationARB(cur_shader, "shadow_texgen_mat"), 1, GL_FALSE, shadow_texgen_mat);
 		ELglUniform3fARB(ELglGetUniformLocationARB(cur_shader, "camera_pos"), camera_x, camera_y, camera_z);
 	}
