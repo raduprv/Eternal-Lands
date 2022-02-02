@@ -829,7 +829,7 @@ CHECK_GL_ERRORS();
 void blend_reflection_fog()
 {
 	static GLfloat blendColor[4] = { 1.0f, 1.0f, 1.0f, 0.0f };
-	if (use_frame_buffer && water_shader_quality > 0)
+	if (use_150_water_shader || (use_frame_buffer && water_shader_quality > 0))
 	{
 		return;
 	}
@@ -893,7 +893,7 @@ CHECK_GL_ERRORS();
 }
 #endif
 
-static void set_lights(GLuint shader)
+static void set_lights_150(GLuint shader)
 {
 	GLfloat light_pos[4];
 	GLfloat ambient[4];
@@ -934,6 +934,18 @@ static void set_lights(GLuint shader)
 	ELglUniform1i(ELglGetUniformLocationARB(shader, "nr_positional_lights"), count);
 }
 
+static void set_fog_150(GLuint shader)
+{
+	GLfloat density;
+	GLfloat color[4];
+
+	glGetFloatv(GL_FOG_DENSITY, &density);
+	glGetFloatv(GL_FOG_COLOR, color);
+
+	ELglUniform1f(ELglGetUniformLocationARB(shader, "fog_density"), density);
+	ELglUniform4fv(ELglGetUniformLocationARB(shader, "fog_color"), 1, color);
+}
+
 static void draw_lake_tiles_150()
 {
 	static const float noise_scale[4] = {0.125f, 0.125f, 0.0625f, 0.0625f};
@@ -971,7 +983,7 @@ static void draw_lake_tiles_150()
 	ELglUniform1fARB(ELglGetUniformLocationARB(cur_shader, "water_depth_offset"), water_depth_offset);
 	ELglUniform1iARB(ELglGetUniformLocationARB(cur_shader, "tile_texture"), base_unit - GL_TEXTURE0);
 	ELglUniform2fARB(ELglGetUniformLocationARB(cur_shader, "water_movement"), water_movement_u, water_movement_v);
-	set_lights(cur_shader);
+	set_lights_150(cur_shader);
 
 	if (use_noise)
 	{
@@ -991,6 +1003,10 @@ static void draw_lake_tiles_150()
 		ELglUniform1iARB(ELglGetUniformLocationARB(cur_shader, "shadow_texture"), shadow_unit - GL_TEXTURE0);
 		ELglUniformMatrix4fv(ELglGetUniformLocationARB(cur_shader, "shadow_texgen_mat"), 1, GL_FALSE, shadow_texgen_mat);
 		ELglUniform3fARB(ELglGetUniformLocationARB(cur_shader, "camera_pos"), camera_x, camera_y, camera_z);
+	}
+	if (use_fog)
+	{
+		set_fog_150(cur_shader);
 	}
 	CHECK_GL_ERRORS();
 
@@ -1029,7 +1045,7 @@ static void draw_lake_tiles_150()
 	ELglUniform1fARB(ELglGetUniformLocationARB(cur_shader, "water_depth_offset"), water_depth_offset);
 	ELglUniform1iARB(ELglGetUniformLocationARB(cur_shader, "tile_texture"), base_unit - GL_TEXTURE0);
 	ELglUniform2fARB(ELglGetUniformLocationARB(cur_shader, "water_movement"), water_movement_u, water_movement_v);
-	set_lights(cur_shader);
+	set_lights_150(cur_shader);
 
 	if (use_reflection)
 	{
@@ -1082,6 +1098,11 @@ static void draw_lake_tiles_150()
 		ELglUniform1iARB(ELglGetUniformLocationARB(cur_shader, "shadow_texture"), shadow_unit - GL_TEXTURE0);
 		ELglUniformMatrix4fv(ELglGetUniformLocationARB(cur_shader, "shadow_texgen_mat"), 1, GL_FALSE, shadow_texgen_mat);
 		ELglUniform3fARB(ELglGetUniformLocationARB(cur_shader, "camera_pos"), camera_x, camera_y, camera_z);
+	}
+
+	if (use_fog)
+	{
+		set_fog_150(cur_shader);
 	}
 	CHECK_GL_ERRORS();
 

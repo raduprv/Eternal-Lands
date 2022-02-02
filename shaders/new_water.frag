@@ -61,8 +61,8 @@ uniform vec2 texel_size_y;
 #endif	// USE_CUBIC_FILTER
 
 #ifdef USE_FOG
-uniform vec4 fog_color;
 uniform float fog_density;
+uniform vec4 fog_color;
 #endif // USE_FOG
 
 void calc_directional_light(DirectionalLight light, vec3 normal, out vec3 ambient, out vec3 diffuse)
