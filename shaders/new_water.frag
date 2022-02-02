@@ -32,6 +32,8 @@ struct PositionalLight
 const vec3 normal = vec3(0.0, 0.0, 1.0);
 // gl_LightModel.ambient. Client never sets it, so use default value of:
 const vec3 lightmodel_ambient = vec3(0.2, 0.2, 0.2);
+// This is the value of glColor when the shader is called
+const vec4 white = vec4(1.0, 1.0, 1.0, 1.0);
 
 uniform sampler2D tile_texture;
 uniform DirectionalLight directional_light;
@@ -116,9 +118,11 @@ void main (void)
 #ifdef USE_SHADOW
 	vec4 shadow_color = vec4(ambient, 1.0);
 	float shadow = textureProj(shadow_texture, vs_pos_light_space);
-	light = mix(shadow_color, light_color, shadow);
+// 	light = mix(shadow_color, light_color, shadow);
+	light = mix(shadow_color, white, shadow);
 #else // USE_SHADOW
-	light = light_color;
+// 	light = light_color;
+	light = white;
 #endif // USE_SHADOW
 	vec4 tile_color = light * texture(tile_texture, tile_tex_coords);
 
