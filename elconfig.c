@@ -1705,6 +1705,8 @@ static void change_150_water_shader(int *use)
 		// We don't know what is supported. Update and hope for the best
 		*use = !*use;
 	}
+
+	log_water_shader_version();
 }
 #endif
 

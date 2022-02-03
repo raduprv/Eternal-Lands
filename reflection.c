@@ -1380,7 +1380,15 @@ static void draw_lake_tiles_old()
 #endif //OPENGL_TRACE
 }
 
-void draw_lake_tiles()
+void log_water_shader_version(void)
+{
+	if (use_150_water_shader)
+		LOG_INFO("Using the new water shader");
+	else
+		LOG_INFO("Using the old water shader");
+}
+
+void draw_lake_tiles(void)
 {
 	if (use_150_water_shader)
 		draw_lake_tiles_150();

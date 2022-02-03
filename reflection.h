@@ -77,6 +77,11 @@ void make_lake_water_noise();
 void blend_reflection_fog();
 
 /**
+ * \ingroup reflections
+ * \brief Log which water shader is used to the log file
+ */
+void log_water_shader_version(void);
+/**
  * @ingroup reflections
  * @brief Draws the tiles of all lakes on the map
  *
@@ -84,7 +89,7 @@ void blend_reflection_fog();
  *
  * @callgraph
  */
-void draw_lake_tiles();
+void draw_lake_tiles(void);
 
 /**
  * @ingroup reflections
