@@ -45,11 +45,22 @@ typedef struct
 #endif
 }light;
 
+typedef struct
+{
+	//! Position in worlds coordinates
+	float position[3];
+	//! Diffuse color (ambient is assumed to be black)
+	float diffuse[3];
+	//! Linear attenuation (constant is assumed to be 1.0, quadratic 0.0)
+	float lin_att;
+} ec_light_info;
+
 /*! \name Lights limits */
 /*! @{ */
 #define GLOBAL_LIGHTS_NO 60 /*!< The maximum number of global lights to use */
 #define MAX_LIGHTS 1000     /*!< The maximum amount of lights (global and local) */
 #define MAX_ENABLED_LOCAL_LIGHTS 8 //!< The maximum number of local lights to display simultaneously
+#define MAX_ENABLED_EC_LIGHTS 8    //!< The maximum number of eye candy lights to display simultaneously
 /*! @} */
 
 /*! \name Sky lights arrays */
@@ -71,6 +82,9 @@ extern float global_light_position[4];       //!< The position of the sun, or gl
 extern int enabled_local_lights[MAX_ENABLED_LOCAL_LIGHTS]; //!< Indices into lights_list of enabled local lights
 extern int nr_enabled_local_lights;          //!< The number of local light currenltly seen
 extern float local_light_linear_attenuation; //! Linear attenuation factor for local lights
+
+extern ec_light_info ec_lights[MAX_ENABLED_EC_LIGHTS];
+extern int nr_enabled_ec_lights;
 
 extern unsigned char light_level; /*!< the light level */
 extern short game_minute; /*!< the current game minute */
@@ -226,6 +240,8 @@ void new_minute();
 void new_second();
 
 void set_global_light_position(const float *pos);
+static inline void reset_eye_candy_lights(void) { nr_enabled_ec_lights = 0; }
+void add_eye_candy_light(const float* position, const float* diffuse, float lin_att);
 
 void cleanup_lights(void);
 

@@ -930,6 +930,27 @@ static void set_lights_150(GLuint shader)
 
 		++count;
 	}
+
+	for (int i = 0; i < nr_enabled_ec_lights; ++i)
+	{
+		ec_light_info* info = ec_lights + i;;
+
+		safe_snprintf(name, sizeof(name), "positional_lights[%d].position", count);
+		ELglUniform3fv(ELglGetUniformLocationARB(shader, name), 1, info->position);
+		safe_snprintf(name, sizeof(name), "positional_lights[%d].ambient", count);
+		ELglUniform3f(ELglGetUniformLocationARB(shader, name), 0.0, 0.0, 0.0);
+		safe_snprintf(name, sizeof(name), "positional_lights[%d].diffuse", count);
+		ELglUniform3fv(ELglGetUniformLocationARB(shader, name), 1, info->diffuse);
+		safe_snprintf(name, sizeof(name), "positional_lights[%d].constant_attenuation", count);
+		ELglUniform1f(ELglGetUniformLocationARB(shader, name), 1.0);
+		safe_snprintf(name, sizeof(name), "positional_lights[%d].linear_attenuation", count);
+		ELglUniform1f(ELglGetUniformLocationARB(shader, name), info->lin_att);
+		safe_snprintf(name, sizeof(name), "positional_lights[%d].quadratic_attenuation", count);
+		ELglUniform1f(ELglGetUniformLocationARB(shader, name), 0.0);
+
+		++count;
+	}
+
 	ELglUniform1i(ELglGetUniformLocationARB(shader, "nr_positional_lights"), count);
 }
 

@@ -53,6 +53,9 @@ int enabled_local_lights[MAX_ENABLED_LOCAL_LIGHTS];
 int nr_enabled_local_lights;
 float local_light_linear_attenuation = 1.41f;
 
+ec_light_info ec_lights[MAX_ENABLED_EC_LIGHTS];
+int nr_enabled_ec_lights;
+
 unsigned char light_level=58;
 sun sun_pos[360];
 sun sun_show[181];
@@ -652,6 +655,15 @@ void set_global_light_position(const float *pos)
 	global_light_position[1] = pos[1];
 	global_light_position[2] = pos[2];
 	glLightfv(GL_LIGHT7, GL_POSITION, global_light_position);
+}
+
+void add_eye_candy_light(const float* position, const float* diffuse, float lin_att)
+{
+	ec_light_info *info = ec_lights + nr_enabled_ec_lights;
+	memcpy(info->position, position, 3*sizeof(float));
+	memcpy(info->diffuse, diffuse, 3*sizeof(float));
+	info->lin_att = lin_att;
+	++nr_enabled_ec_lights;
 }
 
 #ifdef DEBUG_TIME
