@@ -48,7 +48,7 @@ int	show_lights;
 int	num_lights;	// the highest light number loaded
 light *lights_list[MAX_LIGHTS];
 
-float global_light_position[4] = { 0.0, 0.0, 1.0, 1.0 };
+float global_light_position[4] = { 0.0, 0.0, 1.0, 0.0 };
 int enabled_local_lights[MAX_ENABLED_LOCAL_LIGHTS];
 int nr_enabled_local_lights;
 float local_light_linear_attenuation = 1.41f;
@@ -651,9 +651,7 @@ void new_second()
 
 void set_global_light_position(const float *pos)
 {
-	global_light_position[0] = pos[0];
-	global_light_position[1] = pos[1];
-	global_light_position[2] = pos[2];
+	memcpy(global_light_position, pos, 4*sizeof(float));
 	glLightfv(GL_LIGHT7, GL_POSITION, global_light_position);
 }
 

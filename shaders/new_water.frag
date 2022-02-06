@@ -118,11 +118,9 @@ void main (void)
 #ifdef USE_SHADOW
 	vec4 shadow_color = vec4(ambient, 1.0);
 	float shadow = textureProj(shadow_texture, vs_pos_light_space);
-// 	light = mix(shadow_color, light_color, shadow);
-	light = mix(shadow_color, white, shadow);
+	light = mix(shadow_color, light_color, shadow);
 #else // USE_SHADOW
-// 	light = light_color;
-	light = white;
+	light = light_color;
 #endif // USE_SHADOW
 	vec4 tile_color = light * texture(tile_texture, tile_tex_coords);
 
