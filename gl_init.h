@@ -165,6 +165,15 @@ const char* gl_context_version_string();
 
 /*!
  * \ingroup video
+ * \brief Return the GL context version
+ *
+ * Return a numerical constant describing the OpenGL context currently in use. The version is
+ * encoded as (100*major + minor), so OpenGL 3.3 would be returned as 303.
+ */
+int gl_context_version();
+
+/*!
+ * \ingroup video
  * \brief Return the maximum supported GLSL version
  *
  * Get the maximum version of the GL shading language supported by the current context. this is

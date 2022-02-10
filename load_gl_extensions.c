@@ -1136,7 +1136,7 @@ static GLboolean el_init_GL_EXT_gpu_program_parameters()
 
 char* get_extensions_string(void)
 {
-	if (is_GL_VERSION_3_0)
+	if (gl_context_version() >= 300)
 	{
 		size_t size, used;
 		char* extensions;
