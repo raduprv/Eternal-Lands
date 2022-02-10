@@ -321,7 +321,19 @@ void init_video(void)
 		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, versions_to_try[i][2]);
 		el_gl_context = SDL_GL_CreateContext(el_gl_window);
 		if (el_gl_context)
-			break;
+		{
+			// OpenGL deprecated a lot of features we use in OpenGL 3.0, and removed them in
+			// 3.1. OpenGL. OpenGL 3.2 introduced compatibility profiles, and 3.1 has the
+			// ARB_compativility extension, but some systems fail with an OpenGL context >= 3.0
+			// even when they report compatibility, or when the context is OpenGL 3.0 which should
+			// still support the old functionality, Therefore, try a deprecated function here,
+			// and if it fails, downgrade to a lower version context.
+			const GLubyte* extensions_str = glGetString(GL_EXTENSIONS);
+			DO_CHECK_GL_ERRORS();
+			if (extensions_str)
+				// That seemd to work, hopefully we're good
+				break;
+		}
 	}
 	if (el_gl_context == NULL)
 	{
