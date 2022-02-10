@@ -160,9 +160,9 @@ namespace eternal_lands
 				{
 					try
 					{
-						parse_extentions(root_element,
-							reinterpret_cast<const char *>
-							(glGetString(GL_EXTENSIONS)), caps);
+						char* extensions = get_extensions_string();
+						parse_extentions(root_element, extensions, caps);
+						std::free(extensions);
 					}
 					CATCH_AND_LOG_EXCEPTIONS
 
