@@ -156,6 +156,33 @@ void gl_window_cleanup(void);
 void update_SDL_HINT_MOUSE_FOCUS_CLICKTHROUGH(void);
 
 /*!
+ * \ingroup video
+ * \brief Return the GL context version string
+ *
+ * Return a constant version of the OpenGL context currently in use.
+ */
+const char* gl_context_version_string();
+
+/*!
+ * \ingroup video
+ * \brief Return the GL context version
+ *
+ * Return a numerical constant describing the OpenGL context currently in use. The version is
+ * encoded as (100*major + minor), so OpenGL 3.3 would be returned as 303.
+ */
+int gl_context_version();
+
+/*!
+ * \ingroup video
+ * \brief Return the maximum supported GLSL version
+ *
+ * Get the maximum version of the GL shading language supported by the current context. this is
+ * returned as a single integer (100*major + minor), so GLSL 3.30 would be returned as 330. For
+ * GLSL ES, 10,000 is added to the number, so GLSL 3.10 ES  would be returned as 10310.
+ */
+int max_supported_glsl_version();
+
+/*!
  * \name CHECK_GL_ERRORS macro - only done if DEBUG or OPENGL_TRACE defined
  */
 /*! @{ */
