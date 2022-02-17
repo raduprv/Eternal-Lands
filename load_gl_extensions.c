@@ -1243,10 +1243,10 @@ void init_opengl_extensions()
 	{
 		const char *error_str = "Failed to get OpenGL extensions string";
 		DO_CHECK_GL_ERRORS();
-		LOG_ERROR(error_str);
+		LOG_ERROR("%s", error_str);
 		SDL_Quit();
 #ifdef ELC
-		FATAL_ERROR_WINDOW(error_str);
+		FATAL_ERROR_WINDOW("%s", error_str);
 #endif
 		exit(1);
 	}
