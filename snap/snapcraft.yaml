@@ -71,6 +71,8 @@ parts:
       snapcraftctl build
       sed -i 's|^#browser.*$|#browser = x-www-browser|g' $SNAPCRAFT_PART_INSTALL/el_data/el.ini
       sed -i 's|^#use_new_selection.*$|#use_new_selection = 1|g' $SNAPCRAFT_PART_INSTALL/el_data/el.ini
+      rm -f $SNAPCRAFT_PART_INSTALL/el_data/maps/guildmap_lion.elm.gz
+      rm -f $SNAPCRAFT_PART_INSTALL/el_data/item_extra_info.txt
 
   sound:
     source: https://github.com/raduprv/Eternal-Lands/releases/download/1.9.5.9-1/eternallands-sound_1.9.5.9.zip
@@ -78,6 +80,9 @@ parts:
     plugin: dump
     organize:
       '*' : data/
+    override-build: |
+      snapcraftctl build
+      rm -f $SNAPCRAFT_PART_INSTALL/sound/snds_client.xml
 
   music:
     source: https://github.com/raduprv/Eternal-Lands/releases/download/1.9.5.9-1/eternallands-music_1.9.5.9.zip
@@ -85,6 +90,13 @@ parts:
     plugin: dump
     organize:
       '*' : data/music/
+
+  data-patch:
+    source: https://github.com/raduprv/Eternal-Lands/releases/download/1.9.6.0-p1-rc1/eternallands-data-patch-1.9.6.0-1.zip
+    source-checksum: sha256/6c9d157edf6fc67071d0e6e0f94d8bbd94b8132ab2c9831a5e5c22273410bce7
+    plugin: dump
+    organize:
+      '*' : data/
 
   launcher:
     plugin: nil
