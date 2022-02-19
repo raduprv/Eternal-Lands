@@ -1755,6 +1755,37 @@ static void change_water_shader_quality(int *wsq, int value)
 	}
 	update_fbos();
 }
+
+static void change_150_water_shader(int *use)
+{
+	if (gl_extensions_loaded)
+	{
+		if (!*use && max_supported_glsl_version() < 150)
+		{
+			LOG_TO_CONSOLE(c_red1, "Your system does not support the new water shader");
+		}
+		else
+		{
+			*use = !*use;
+			init_water_vertex_vao();
+			// The new water shader *should* support the same options as the old one. But just in case
+			// we messed up:
+			change_water_shader_quality(&water_shader_quality, water_shader_quality);
+
+			if (*use)
+				LOG_TO_CONSOLE(c_green2, "Using the new water shader");
+			else
+				LOG_TO_CONSOLE(c_green2, "Using the old water shader");
+		}
+	}
+	else
+	{
+		// We don't know what is supported. Update and hope for the best
+		*use = !*use;
+	}
+
+	log_water_shader_version();
+}
 #endif
 
 #ifdef MAP_EDITOR
@@ -3188,6 +3219,10 @@ static void init_ELC_vars(void)
 #endif /* ANDROID */
 	add_var (OPT_BOOL, "use_frame_buffer", "fb", &use_frame_buffer, change_frame_buffer, 0, "Toggle Frame Buffer Support", "Toggle frame buffer support. Used for reflection and shadow mapping.", VIDEO);
 	add_var(OPT_INT_F,"water_shader_quality","water_shader_quality",&water_shader_quality,change_water_shader_quality,1,"  water shader quality","Defines what shader is used for water rendering. Higher values are slower but look better. Needs \"toggle frame buffer support\" to be turned on.",VIDEO, int_zero_func, int_max_water_shader_quality);
+	add_var(OPT_BOOL, "use_150_water_shader", "use_150_water_shader", &use_150_water_shader,
+		change_150_water_shader, 0, "Use new water shader",
+		"Use the new shader program for rendering water. If water reflections do not work (and you have frame buffer support enabled), try enabling this option.",
+		 VIDEO);
 	add_var(OPT_BOOL,"small_actor_texture_cache","small_actor_tc",&small_actor_texture_cache,change_small_actor_texture_cache,0,"Small actor texture cache","A small Actor texture cache uses less video memory, but actor loading can be slower.",VIDEO);
 #ifdef ANDROID
 	add_var(OPT_BOOL,"textures_32bpp","t32bpp",&textures_32bpp,change_var,1,"32 BPP textures","Slower, requires restart",VIDEO);

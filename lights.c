@@ -47,6 +47,15 @@ GLfloat sky_lights_c4[GLOBAL_LIGHTS_NO*2][4];
 int	show_lights;
 int	num_lights;	// the highest light number loaded
 light *lights_list[MAX_LIGHTS];
+
+float global_light_position[4] = { 0.0, 0.0, 1.0, 0.0 };
+int enabled_local_lights[MAX_ENABLED_LOCAL_LIGHTS];
+int nr_enabled_local_lights;
+float local_light_linear_attenuation = 1.41f;
+
+ec_light_info ec_lights[MAX_ENABLED_EC_LIGHTS];
+int nr_enabled_ec_lights;
+
 unsigned char light_level=58;
 sun sun_pos[360];
 sun sun_show[181];
@@ -113,6 +122,8 @@ void draw_lights()
 	short cluster = get_actor_cluster ();
 #endif
 	
+	nr_enabled_local_lights = 0;
+
 	if(show_lights <0){
 		if(max_enabled >= 0){
 			disable_local_lights();
@@ -141,6 +152,7 @@ void draw_lights()
 #endif
 			continue;
 		}
+
 		vec4[0] = lights_list[l]->pos_x;
 		vec4[1] = lights_list[l]->pos_y;
 		vec4[2] = lights_list[l]->pos_z;
@@ -151,6 +163,9 @@ void draw_lights()
 		vec4[2] = lights_list[l]->b;
 		vec4[3] = 1.0f;
 		glLightfv(GL_LIGHT0+j, GL_DIFFUSE, vec4);
+
+		enabled_local_lights[nr_enabled_local_lights++] = l;
+
 		if (j >= 4) break;
 		else j++;
 	}
@@ -211,7 +226,7 @@ int add_light(GLfloat x, GLfloat y, GLfloat z, GLfloat r, GLfloat g, GLfloat b, 
 
 	lights_list[i] = new_light;
 	if (i >= num_lights) num_lights = i+1;	
-	calc_light_aabb(&bbox, x, y, z, r*intensity, g*intensity, b*intensity, 1.41f, 1.0f, 0.004f); // 0.004 ~ 1/256
+	calc_light_aabb(&bbox, x, y, z, r*intensity, g*intensity, b*intensity, local_light_linear_attenuation, 1.0f, 0.004f); // 0.004 ~ 1/256
 	if ((main_bbox_tree_items != NULL) && (dynamic == 0)) add_light_to_list(main_bbox_tree_items, i, bbox);
 	else add_light_to_abt(main_bbox_tree, i, bbox, dynamic);
 
@@ -244,7 +259,6 @@ void init_lights()
 {
 	GLfloat light_diffuse[] = { 0.0, 0.0, 0.0, 0.0 };
 	GLfloat no_light[] = { 0.0, 0.0, 0.0, 0.0 };
-	float linear_att=1.41f;
 	float cut_off=180;
 	//most of the things in here are redundant, since we kind of set the light sources
 	//to their default values. However, better safe than sorry.
@@ -253,28 +267,28 @@ void init_lights()
 	glLightfv(GL_LIGHT0,GL_SPECULAR,no_light);
 	glLightfv(GL_LIGHT0,GL_DIFFUSE,light_diffuse);
 	glLightfv(GL_LIGHT0,GL_AMBIENT,no_light);
-	glLightf(GL_LIGHT0,GL_LINEAR_ATTENUATION,linear_att);
+	glLightf(GL_LIGHT0,GL_LINEAR_ATTENUATION, local_light_linear_attenuation);
     glEnable(GL_LIGHT0);
 
 	glLightf(GL_LIGHT1, GL_SPOT_CUTOFF, cut_off);
 	glLightfv(GL_LIGHT1,GL_SPECULAR,no_light);
 	glLightfv(GL_LIGHT1,GL_DIFFUSE,light_diffuse);
 	glLightfv(GL_LIGHT1,GL_AMBIENT,no_light);
-	glLightf(GL_LIGHT1,GL_LINEAR_ATTENUATION,linear_att);
+	glLightf(GL_LIGHT1,GL_LINEAR_ATTENUATION, local_light_linear_attenuation);
     glEnable(GL_LIGHT1);
 
 	glLightf(GL_LIGHT2, GL_SPOT_CUTOFF, cut_off);
 	glLightfv(GL_LIGHT2,GL_SPECULAR,no_light);
 	glLightfv(GL_LIGHT2,GL_DIFFUSE,light_diffuse);
 	glLightfv(GL_LIGHT2,GL_AMBIENT,no_light);
-	glLightf(GL_LIGHT2,GL_LINEAR_ATTENUATION,linear_att);
+	glLightf(GL_LIGHT2,GL_LINEAR_ATTENUATION, local_light_linear_attenuation);
     glEnable(GL_LIGHT2);
 
 	glLightf(GL_LIGHT3, GL_SPOT_CUTOFF, cut_off);
 	glLightfv(GL_LIGHT3,GL_SPECULAR,no_light);
 	glLightfv(GL_LIGHT3,GL_DIFFUSE,light_diffuse);
 	glLightfv(GL_LIGHT3,GL_AMBIENT,no_light);
-	glLightf(GL_LIGHT3,GL_LINEAR_ATTENUATION,linear_att);
+	glLightf(GL_LIGHT3,GL_LINEAR_ATTENUATION, local_light_linear_attenuation);
     glEnable(GL_LIGHT3);
 
 	glLightfv(GL_LIGHT7,GL_AMBIENT,no_light);
@@ -329,7 +343,7 @@ GLfloat diffuse_light[] = { 0.0, 0.0, 0.0, 0.0 };
 void draw_global_light()
 {
 	int i;
-	GLfloat global_light_position[] = { 400.0, 400.0, 500.0, 0.0 };
+	GLfloat static_global_light_position[] = { 400.0, 400.0, 500.0, 0.0 };
 
 	//add the thunder light to the ambient/diffuse light
 #ifndef MAP_EDITOR2
@@ -361,18 +375,18 @@ void draw_global_light()
 
 	if (sun_use_static_position)
 	{
-		glLightfv(GL_LIGHT7, GL_POSITION, global_light_position);
+		set_global_light_position(static_global_light_position);
 	}
 	else
 	{
 		if ((sun_position[0] == 0.0f) && (sun_position[1] == 0.0f) &&
 			(sun_position[2] == 0.0f) && (sun_position[3] == 0.0f))
 		{
-			glLightfv(GL_LIGHT7, GL_POSITION, global_light_position);
+			set_global_light_position(static_global_light_position);
 		}
 		else
 		{
-			glLightfv(GL_LIGHT7, GL_POSITION, sun_position);
+			set_global_light_position(sun_position);
 		}
 	}
 #ifdef OPENGL_TRACE
@@ -382,7 +396,7 @@ CHECK_GL_ERRORS();
 
 void draw_dungeon_light()
 {
-	GLfloat global_light_position[] = { 400.0, 400.0, 500.0, 0.0 };
+	GLfloat static_global_light_position[] = { 400.0, 400.0, 500.0, 0.0 };
 	GLfloat diffuse_light[] = { 0.0, 0.0, 0.0, 0.0 };
 	GLfloat ambient_light[4];
 	int i;
@@ -405,7 +419,7 @@ void draw_dungeon_light()
 	}
 
 	glLightfv(GL_LIGHT7,GL_AMBIENT,ambient_light);
-	glLightfv(GL_LIGHT7, GL_POSITION, global_light_position);
+	set_global_light_position(static_global_light_position);
 	glLightfv(GL_LIGHT7,GL_DIFFUSE,diffuse_light);
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
@@ -633,6 +647,21 @@ void new_second()
 	{
 		skybox_update_colors();
 	}
+}
+
+void set_global_light_position(const float *pos)
+{
+	memcpy(global_light_position, pos, 4*sizeof(float));
+	glLightfv(GL_LIGHT7, GL_POSITION, global_light_position);
+}
+
+void add_eye_candy_light(const float* position, const float* diffuse, float lin_att)
+{
+	ec_light_info *info = ec_lights + nr_enabled_ec_lights;
+	memcpy(info->position, position, 3*sizeof(float));
+	memcpy(info->diffuse, diffuse, 3*sizeof(float));
+	info->lin_att = lin_att;
+	++nr_enabled_ec_lights;
 }
 
 #ifdef DEBUG_TIME

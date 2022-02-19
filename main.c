@@ -156,8 +156,6 @@ void cleanup_mem(void)
 		if (video_modes[i].name)
 			free(video_modes[i].name);
 	}
-	LOG_INFO("free_shaders()");
-	free_shaders();
 }
 
 /* temp code to allow my_timer to dynamically adjust partical update rate */
@@ -383,6 +381,9 @@ int start_rendering()
 
 	LOG_INFO("cursors_cleanup()");
 	cursors_cleanup();
+
+	LOG_INFO("free_shaders()");
+	free_shaders();
 
 	LOG_INFO("gl_window_cleanup()");
 	gl_window_cleanup();
