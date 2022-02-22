@@ -1988,7 +1988,9 @@ namespace ec
 		end_draw();
 
 		// Draw lights.
+#ifndef MAP_EDITOR
 		reset_eye_candy_lights();
+#endif // MAP_EDITOR
 		if ((use_lights) && (particles.size() > 0))
 		{
 			while (light_particles.size() < lights.size())
@@ -2030,8 +2032,10 @@ namespace ec
 				glLightfv(light_id, GL_DIFFUSE, light_color);
 
 				// For some reason eye candy coordinates are rotated 90 degrees around the x axis
+#ifndef MAP_EDITOR
 				const float light_pos_world[3] = { p->pos.x, -p->pos.z, p->pos.y };
 				add_eye_candy_light(light_pos_world, light_color, light_linear_attenuation);
+#endif // MAP_EDITOR
 			}
 			for (int i = (int)light_particles.size(); i < (int)lights.size(); i++)
 				glDisable(lights[i]);
