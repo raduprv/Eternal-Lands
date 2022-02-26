@@ -922,7 +922,7 @@ static void set_lights_150(GLuint shader)
 	count = 0;
 	for (int i = 0; i < nr_enabled_local_lights; ++i)
 	{
-		light* ll = lights_list[enabled_local_lights[i]];
+		const light* ll = lights_list[enabled_local_lights[i]];
 
 		safe_snprintf(name, sizeof(name), "positional_lights[%d].position", count);
 		ELglUniform3f(ELglGetUniformLocationARB(shader, name), ll->pos_x, ll->pos_y, ll->pos_z);

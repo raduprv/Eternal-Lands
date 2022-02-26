@@ -367,14 +367,11 @@ static int click_trade_handler(window_info *win, int mx, int my, Uint32 flags)
 			my_tcp_send(str, 1);
 			do_click_sound();
 		} else {
-			str[0]= ACCEPT_TRADE;
-			if(trade_you_accepted==1){
-				int i;
-				for(i=0;i<MAX_ITEMS;i++){
-					str[i+1]=(others_trade_list[i].quantity>0)*others_trade_list[i].type;
-				}
-				trade_accepted(other_player_trade_name, your_trade_list, others_trade_list, MAX_ITEMS);
-			}
+			int i;
+			str[0] = ACCEPT_TRADE;
+			for(i = 0; i < MAX_ITEMS; i++)
+				str[i + 1] = (others_trade_list[i].quantity > 0) * others_trade_list[i].type;
+			trade_accepted(other_player_trade_name, your_trade_list, others_trade_list, MAX_ITEMS);
 			my_tcp_send(str, MAX_ITEMS + 1);
 			do_click_sound();
 		}
