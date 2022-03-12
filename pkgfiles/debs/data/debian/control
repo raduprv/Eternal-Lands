@@ -9,7 +9,7 @@ Homepage: http://www.eternal-lands.com
 Package: eternallands-data
 Architecture: all
 Depends: ${misc:Depends}, wget (>>1), unzip (>>2), findutils (>>4), eternallands (>=1.9.6)
-Recommends: eternallands-sound (>=1.9.5)
+Recommends: eternallands-sound (>=1.9.6)
 Suggests: eternallands-music (>=1.9.5)
 Description: data package for Eternal Lands, a free MMORPG
  Eternal Lands is a free to play, graphical MMORPG (massively-multi-player

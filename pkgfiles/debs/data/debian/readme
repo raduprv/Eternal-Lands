@@ -14,7 +14,7 @@
 # Now we're ready:
 
 # Set the version number
-elver="1.9.6.0"
+elver="1.9.6.1"
 packagename="eternallands-data"
 debdir="data"
 
