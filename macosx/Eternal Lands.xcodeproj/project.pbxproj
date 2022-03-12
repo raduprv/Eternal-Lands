@@ -1800,6 +1800,7 @@
 					"$(USER_LIBRARY_DIR)/Frameworks/SDL2_ttf.framework/Headers",
 					"$(USER_LIBRARY_DIR)/Frameworks/SDL2_image.framework/Headers",
 					"$(SRCROOT)/../nlohmann_json/single_include/",
+					"$(SRCROOT)/include/",
 				);
 				MARKETING_VERSION = 1.9.6p1;
 				OTHER_CFLAGS = (
@@ -1860,6 +1861,7 @@
 					"$(USER_LIBRARY_DIR)/Frameworks/SDL2_ttf.framework/Headers",
 					"$(USER_LIBRARY_DIR)/Frameworks/SDL2_image.framework/Headers",
 					"$(SRCROOT)/../nlohmann_json/single_include/",
+					"$(SRCROOT)/include/",
 				);
 				MARKETING_VERSION = 1.9.6p1;
 				OTHER_CFLAGS = (
