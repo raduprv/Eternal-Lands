@@ -1203,12 +1203,29 @@ static int vscrollbar_draw(widget_list *W)
 		if(W->r!=-1.0)
 			glColor3f(W->r/3, W->g/3, W->b/3);
 	}
-	glBegin(GL_QUADS);
-	glVertex3i(W->pos_x + 2 * arrow_size - (int)(0.5 + (float)arrow_size / 1.5f), W->pos_y + 3 * arrow_size + (c->pos * ((float)(W->len_y -11 * arrow_size) / drawn_bar_len)), 0);
-	glVertex3i(W->pos_x + 2 * arrow_size + (int)(0.5 + (float)arrow_size / 1.5f), W->pos_y + 3 * arrow_size + (c->pos * ((float)(W->len_y -11 * arrow_size) / drawn_bar_len)), 0);
-	glVertex3i(W->pos_x + 2 * arrow_size + (int)(0.5 + (float)arrow_size / 1.5f), W->pos_y + 8 * arrow_size + (c->pos * ((float)(W->len_y -11 * arrow_size) / drawn_bar_len)), 0);
-	glVertex3i(W->pos_x + 2 * arrow_size - (int)(0.5 + (float)arrow_size / 1.5f), W->pos_y + 8 * arrow_size + (c->pos * ((float)(W->len_y -11 * arrow_size) / drawn_bar_len)), 0);
-	glEnd();
+
+	// make sure the scroll bar does not extend beyond the arrows
+	// ANDROID_TODO - this is needed in the non-android client too so no #defs
+	{
+		float max_y_space = 11 * arrow_size;
+		float bar_y_gap = 3 * arrow_size;
+		float bar_offset = (c->pos * ((float)(W->len_y - max_y_space) / drawn_bar_len));
+		float top = bar_y_gap + bar_offset;
+		float bot = max_y_space - bar_y_gap + bar_offset;
+		if (top < bar_y_gap)
+			top = bar_y_gap;
+		if ((bar_y_gap + bot) > W->len_y)
+			bot = W->len_y - bar_y_gap;
+		if (bot > top)
+		{
+			glBegin(GL_QUADS);
+			glVertex3i(W->pos_x + 2 * arrow_size - (int)(0.5 + (float)arrow_size / 1.5f), W->pos_y + top, 0);
+			glVertex3i(W->pos_x + 2 * arrow_size + (int)(0.5 + (float)arrow_size / 1.5f), W->pos_y + top, 0);
+			glVertex3i(W->pos_x + 2 * arrow_size + (int)(0.5 + (float)arrow_size / 1.5f), W->pos_y + bot, 0);
+			glVertex3i(W->pos_x + 2 * arrow_size - (int)(0.5 + (float)arrow_size / 1.5f), W->pos_y + bot, 0);
+			glEnd();
+		}
+	}
 
 	glEnable(GL_TEXTURE_2D);
 #ifdef OPENGL_TRACE
