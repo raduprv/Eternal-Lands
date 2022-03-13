@@ -24,8 +24,13 @@ extern const GLfloat gui_dull_color[3];
  * \name Title bar & other constants
  */
 /*! @{ */
+#ifdef ANDROID
+#define	ELW_TITLE_HEIGHT	24
+#define	ELW_BOX_SIZE		30
+#else
 #define	ELW_TITLE_HEIGHT	16
 #define	ELW_BOX_SIZE		20
+#endif
 #define ELW_TITLE_SIZE 35
 #define ELW_CM_MENU_LEN		6
 /*! @} */
