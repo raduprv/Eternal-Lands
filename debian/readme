@@ -17,7 +17,7 @@
 git clone https://github.com/raduprv/Eternal-Lands.git Eternal-Lands
 
 # Set the version number
-elver="1.9.6.0"
+elver="1.9.6.1"
 packagename="eternallands"
 
 # Make an original source tar ball:

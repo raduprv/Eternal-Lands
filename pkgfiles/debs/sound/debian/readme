@@ -17,38 +17,39 @@ https://help.ubuntu.com/community/GnuPrivacyGuardHowto
 
 Now we're ready:
 
-Set the version number
-	
-	elver="1.9.4"
-	packagename="eternallands-sound"
+# Set the version number
+elver="1.9.6.1"
+packagename="eternallands-sound"
+debdir="sound"
 
-Make a destination directory:
+# start in the correct location <the repo diretory>
+cd pkgfiles/debs
+mkdir -p tmp
+cd tmp
 
-	mkdir ${packagename}-${elver}
+# Make a destination directory:
+tmpdir=${packagename}-${elver}-$(date +"%s")
+mkdir $tmpdir
+cd $tmpdir
+mkdir ${packagename}-${elver}
 
-Copy packaging files:
+# Copy packaging files:
+rm -rf ${packagename}-${elver}/debian
+cp -a ../../$debdir/debian/ ${packagename}-${elver}/
 
-	rm -rf ${packagename}-${elver}/debian
-	cp -a sound/debian/ ${packagename}-${elver}/
+# Append the licence file and clean up:
+wget -O - http://www.eternal-lands.com/page/license.txt | fmt -w 79 >> ${packagename}-${elver}/debian/copyright
+less ${packagename}-${elver}/debian/copyright
 
-Append the licence file and clean up:
+# Save the source archive:
+tar cfz ${packagename}_${elver}.orig.tar.gz ${packagename}-${elver}
 
-	wget -O - http://www.eternal-lands.com/page/license.txt | fmt -w 79 >> ${packagename}-${elver}/debian/copyright
-	less ${packagename}-${elver}/debian/copyright
+# Move into package directory:
+cd ${packagename}-${elver}/
 
-Save the source archive:
+# Make any modifications required then update the changelog:
+dch --release --force-save-on-release
 
-	tar cfz ${packagename}_${elver}.orig.tar.gz ${packagename}-${elver}
-
-Move into package directory:
-
-	cd ${packagename}-${elver}/
-
-Make any modifications required then update the changelog:
-
-	dch --release --force-save-on-release
-
-Build the package:
-
-	debuild
-	debuild -S -sa
+# Build the package:
+debuild
+debuild -S -sa
