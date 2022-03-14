@@ -6,7 +6,9 @@
 
 #include "noise.h"
 #include "../errors.h"
+#include "../gl_init.h"
 #include "../load_gl_extensions.h"
+#include "../reflection.h"
 
 #define MAXB 0x100
 #define N 0x1000
@@ -366,7 +368,27 @@ GLuint build_3d_noise_texture(int size, int frequency, int dimensions)
 	glTexParameterf(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_REPEAT);
 	glTexParameterf(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameterf(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	DO_CHECK_GL_ERRORS();
+
 	ELglTexImage3D(GL_TEXTURE_3D, 0, texture_format, size, size, size, 0, input_format, GL_UNSIGNED_BYTE, data);
+	if (glGetError() == GL_INVALID_ENUM)
+	{
+		// OpenGL > 3 deprecated GL_LUMINANCE_ALPHA. Try GL_RG instead.
+		ELglTexImage3D(GL_TEXTURE_3D, 0, GL_RG, size, size, size, 0, GL_RG, GL_UNSIGNED_BYTE, data);
+		if (glGetError() == GL_NO_ERROR)
+		{
+			// Now map channels around to build our own Luminance-Alpha
+			GLint swizzle_mask[] = {GL_RED, GL_RED, GL_RED, GL_GREEN};
+			glTexParameteriv(GL_TEXTURE_3D, GL_TEXTURE_SWIZZLE_RGBA, swizzle_mask);
+			LOG_DEBUG("GL_LUMINANCE_ALPHA not supported for water noise texture, using GL_RG");
+		}
+		else
+		{
+			LOG_ERROR("Unable to generate a water noise texture, disabling water ripples");
+			disable_water_ripples();
+		}
+	}
+
 	glBindTexture(GL_TEXTURE_3D, 0);
 	free(data);
 	LOG_DEBUG("Done with noise");

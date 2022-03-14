@@ -10,8 +10,8 @@
 #include "errors.h"
 #include "gl_init.h"
 
-const char* gl_versions_str[] = { "1.1", "1.2", "1.3", "1.4", "1.5", "2.0", "2.1" };
-const Uint16 gl_versions[] = { 0x0101, 0x0102, 0x0103, 0x0104, 0x0105, 0x0200, 0x0201 };
+const char* gl_versions_str[] = { "1.1", "1.2", "1.3", "1.4", "1.5", "2.0", "2.1", "3.0" };
+const Uint16 gl_versions[] = { 0x0101, 0x0102, 0x0103, 0x0104, 0x0105, 0x0200, 0x0201, 0x0300 };
 
 Uint32 gl_version = 0;
 Uint64 extensions = 0;
@@ -248,12 +248,19 @@ PFNGLUNIFORMMATRIX4X2FVPROC ELglUniformMatrix4x2fv = NULL;
 PFNGLUNIFORMMATRIX4X3FVPROC ELglUniformMatrix4x3fv = NULL;
 /*	GL_VERSION_2_1		*/
 
+// GL_VERSION_3_0
+PFNGLBINDVERTEXARRAYPROC ELglBindVertexArray = NULL;
+PFNGLGENVERTEXARRAYSPROC ELglGenVertexArrays = NULL;
+PFNGLGETSTRINGIPROC ELglGetStringi = NULL;
+// GL_VERSION_3_0
+
 GLboolean is_GL_VERSION_1_2 = GL_FALSE;
 GLboolean is_GL_VERSION_1_3 = GL_FALSE;
 GLboolean is_GL_VERSION_1_4 = GL_FALSE;
 GLboolean is_GL_VERSION_1_5 = GL_FALSE;
 GLboolean is_GL_VERSION_2_0 = GL_FALSE;
 GLboolean is_GL_VERSION_2_1 = GL_FALSE;
+GLboolean is_GL_VERSION_3_0 = GL_FALSE;
 
 int vertex_program_problem=0;
 int multitexture_problem=0;
@@ -584,6 +591,16 @@ static GLboolean el_init_GL_VERSION_2_1()
 	r = ((ELglUniformMatrix4x2fv = (PFNGLUNIFORMMATRIX4X2FVPROC)SDL_GL_GetProcAddress("glUniformMatrix4x2fv")) != NULL) && r;
 	r = ((ELglUniformMatrix4x3fv = (PFNGLUNIFORMMATRIX4X3FVPROC)SDL_GL_GetProcAddress("glUniformMatrix4x3fv")) != NULL) && r;
 
+	return r;
+}
+
+static GLboolean el_init_GL_VERSION_3_0()
+{
+	GLboolean r = GL_TRUE;
+
+	r = r && (ELglBindVertexArray = (PFNGLBINDVERTEXARRAYPROC)SDL_GL_GetProcAddress("glBindVertexArray")) != NULL;
+	r = r && (ELglGenVertexArrays = (PFNGLGENVERTEXARRAYSPROC)SDL_GL_GetProcAddress("glGenVertexArrays")) != NULL;
+	r = r && (ELglGetStringi = (PFNGLGETSTRINGIPROC)SDL_GL_GetProcAddress("glGetStringi")) != NULL;
 	return r;
 }
 /*	GL_VERSION_2_1		*/
@@ -1117,6 +1134,58 @@ static GLboolean el_init_GL_EXT_gpu_program_parameters()
 	return r;
 }
 
+char* get_extensions_string(void)
+{
+	if (gl_context_version() >= 300)
+	{
+		size_t size, used;
+		char* extensions;
+		GLint nr_extensions;
+
+		glGetIntegerv(GL_NUM_EXTENSIONS, &nr_extensions);
+		if (nr_extensions == 0)
+			return NULL;
+
+		size = 32 * nr_extensions;
+		extensions = malloc(size);
+		if (!extensions)
+			return NULL;
+		used = 0;
+
+		for (GLint i = 0; i < nr_extensions; ++i)
+		{
+			const char* extension = (const char*)ELglGetStringi(GL_EXTENSIONS, i);
+			size_t len = strlen(extension);
+			if (used + len + 2 >= size)
+			{
+				size_t new_size = 2 * size;
+				char * new_extensions = realloc(extensions, new_size);
+				if (!new_extensions)
+				{
+					// Not goo, we can't allocate more memory for new extensions. Break and
+					// return incomplete string (though likely the game will fail soon enough)
+					break;
+				}
+
+				extensions = new_extensions;
+				size = new_size;
+			}
+
+			if (used > 0)
+				extensions[used++] = ' ';
+			strcpy(extensions + used, extension);
+			used += len;
+		}
+		extensions[used] = '\0';
+
+		return extensions;
+	}
+	else
+	{
+		return strdup((const char*)glGetString(GL_EXTENSIONS));
+	}
+}
+
 void init_opengl_extensions()
 {
 	GLboolean e;
@@ -1130,6 +1199,7 @@ void init_opengl_extensions()
 	is_GL_VERSION_1_5 = is_GL_VERSION_1_4 && el_init_GL_VERSION_1_5();
 	is_GL_VERSION_2_0 = is_GL_VERSION_1_5 && el_init_GL_VERSION_2_0();
 	is_GL_VERSION_2_1 = is_GL_VERSION_2_0 && el_init_GL_VERSION_2_1();
+	is_GL_VERSION_3_0 = is_GL_VERSION_2_1 && el_init_GL_VERSION_3_0();
 
 	gl_version = 0;
 
@@ -1163,15 +1233,20 @@ void init_opengl_extensions()
 		gl_version++;
 	}
 
-	extensions_string = (char*)glGetString(GL_EXTENSIONS);
-	if (extensions_string == NULL)
+	if (is_GL_VERSION_3_0)
 	{
-		const char *error_str = "glGetString() returned NULL for GL_EXTENSIONS=0x%x";
+		gl_version++;
+	}
+
+	extensions_string = get_extensions_string();
+	if (!extensions_string)
+	{
+		const char *error_str = "Failed to get OpenGL extensions string";
 		DO_CHECK_GL_ERRORS();
-		LOG_ERROR(error_str, GL_EXTENSIONS);
+		LOG_ERROR("%s", error_str);
 		SDL_Quit();
 #ifdef ELC
-		FATAL_ERROR_WINDOW(error_str, GL_EXTENSIONS);
+		FATAL_ERROR_WINDOW("%s", error_str);
 #endif
 		exit(1);
 	}
@@ -1433,6 +1508,8 @@ void init_opengl_extensions()
 		}
 	}
 /*	GL_EXT_gpu_program_parameters	*/
+
+	free(extensions_string);
 }
 
 Uint32 have_extension(extension_enum extension)

@@ -1,3 +1,42 @@
+2022-Mar-12: Release 1.9.6.1
+	Client:
+		Re-enable "~" as a valid URL character.
+		Fix trade issue where items would not be sent to storage as expected.
+		Reset number of enabled local lights on map change.
+		Fixes for water effects on newer drivers that no longer support the older effects. To use the new effects you need to install the new shader files that included in the data patch. There is a new option on the video tab that is used to enabled the new shaders. Grum has done a lot of work on the to fix the water effect in this and the 2022-01-21 update. This updated should fixed all the reported issues.
+		Less strict pathfinding" option (Controls tab): Allow the pathfinder to walk to a nearby location when clicking an unwalkable tile, discussed in part in this topic.
+		Fixes for water effects for some Intel, AMD and GPU graphics driver issues. Setting "water shader quality" to 2 will now enable the nice ripple effect for more users. It also fixes the non-working water and corrupt reflections some users were experiencing.
+		Provide an option (Controls tab) to turn off the click through action when focusing the main window.
+		Add additional logging when saving user files. The explicit file close needed for the logging may possibly fix "problem with ..." issues.
+		Detect if loading a zero length user file, log to user but don't disable saving. Zero length files have been reported but required user action to resolve.
+		Fix showing #glow command output when indicator disabled.
+		Add date to timestamp in chat log.
+		Provide and option (Video tab) to enable the desktop screen saver / monitor power management.
+		Set lower bound of chat lines from 5 to 1.
+		Issue #165: Re-validate ground bag window status on reconnect.
+		Issue #163: Fix storage access inconstancy, Store-All and ALT-click access for closed window.
+		Fix mouse over issues for spells windows on Android.
+		Fix only initial spells window mode using default position.
+		Fix possible crash with #calc using L.
+		Fix possible crash in character creation window.
+		Fixed display of action point > 999 in the stats window.
+		Correct colour for login window version text when there is an error.
+		Ensure main window fits the available space and is on-screen.
+		Use the new (JSON) personal files format by default.
+		Enable the item use counter by default.
+		Channel colours window can be scaled and its position managed.
+		Change ground bag window default position to bottom centre.
+		Fix blank lines in console when wrapping text to fit width.
+		Add basic screen orientation options for Android (video tab).
+		Limit "You cannot access the storage from here" messages.
+		Add date to timestamps in log messages.
+		Fix trade bug where storage could not be used if the window was hidden then shown.
+	Data:
+		An updated version of item_extra_info.txt that fixes issues with equipment swap for the "Mod Cloak", "White Wizard Hat of Life and Mana" and "Tunic of the Ninja" as detailed elsewhere.  A server restart is needed for other, similar issues.
+		An updated version of sound/snds_client.xml that fixed some positional sounds.
+		An update version of the lion guild map maps/guildmap_lion.elm.gz.
+		The new shader files shaders/new_water.vert and shaders/new_water.frag that fix the water effects for some newer drivers.
+
 2021-Dec-16: Release 1.9.6.0
 	Server updates
 		* Haidir cockatrice daily was not counting one of the cockatrices. Fixed.

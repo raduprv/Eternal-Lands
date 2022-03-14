@@ -18,6 +18,7 @@ extern int storage_item_dragged;
 extern ground_item storage_items[STORAGE_ITEMS_SIZE]; /*!< list of storage items. */
 
 extern int view_only_storage;
+extern int storage_use_allowed;
 extern int sort_storage_categories;
 extern int sort_storage_items;
 extern Uint32 drop_fail_time;

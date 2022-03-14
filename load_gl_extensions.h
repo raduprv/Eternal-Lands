@@ -292,6 +292,11 @@ extern PFNGLUNIFORMMATRIX4X2FVPROC ELglUniformMatrix4x2fv;
 extern PFNGLUNIFORMMATRIX4X3FVPROC ELglUniformMatrix4x3fv;
 /*	GL_VERSION_2_1		*/
 
+// GL_VERSION_3_0
+extern PFNGLBINDVERTEXARRAYPROC ELglBindVertexArray;
+extern PFNGLGENVERTEXARRAYSPROC ELglGenVertexArrays;
+// GL_VERSION_3_0
+
 /*	GL_ARB_multitexture	*/
 extern PFNGLACTIVETEXTUREARBPROC ELglActiveTextureARB;
 extern PFNGLCLIENTACTIVETEXTUREARBPROC ELglClientActiveTextureARB;
@@ -524,6 +529,13 @@ extern PFNGLPROGRAMENVPARAMETERS4FVEXTPROC ELglProgramEnvParameters4fvEXT;
 extern PFNGLPROGRAMLOCALPARAMETERS4FVEXTPROC ELglProgramLocalParameters4fvEXT;
 /*	GL_EXT_gpu_program_parameters	*/
 
+/*!
+ * \brief Return the OpenGL extensions string
+ *
+ * Return a text string containing the names of all supported OpenGL extensions, separated by a
+ * space. The string is dynamically allocated, and should be freed by the caller.
+ */
+char* get_extensions_string(void);
 extern void init_opengl_extensions();
 extern Uint32 have_extension(extension_enum extension);
 extern Uint32 get_texture_units();

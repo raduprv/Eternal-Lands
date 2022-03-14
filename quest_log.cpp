@@ -682,6 +682,7 @@ void Quest_List::save(void)
 	for (std::map<Uint16,Quest,QuestCompare>::const_iterator i=quests.begin(); i!=quests.end(); ++i)
 		if (i->first != Quest::UNSET_ID)
 			i->second.write(out);
+	out.close();
 	save_needed = false;
 }
 
@@ -2036,6 +2037,7 @@ void Questlog_Container::save(void)
 	for (std::vector<Quest_Entry>::const_iterator entry=quest_entries.begin(); entry!=quest_entries.end(); ++entry)
 		if (!entry->get_deleted())
 			entry->save(out);
+	out.close();
 	need_to_save = false;
 
 	LOG_DEBUG("Wrote questlog to file '%s'", filename.c_str());
@@ -2095,8 +2097,9 @@ void Questlog_Container::add_entry(const unsigned char *t, int len)
 		LOG_ERROR("%s: %s \"%s\"\n", reg_error_str, file_write_error_str, filename.c_str());
 		return;
 	}
-    quest_entries.back().save(out);
-    flash_icon(tt_questlog, 5);
+	quest_entries.back().save(out);
+	out.close();
+	flash_icon(tt_questlog, 5);
 }
 
 
@@ -2140,6 +2143,9 @@ void Questlog_Container::load(void)
 				quest_entries.back().save(out);
 		}
 	}
+
+	if (out)
+		out.close();
 
 	LOG_DEBUG("Read questlog from file '%s'", filename.c_str());
 

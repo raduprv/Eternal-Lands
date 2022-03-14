@@ -241,6 +241,8 @@ int display_browser_handler(window_info *win)
 		glRotatef(0, 0.0f, 0.0f, 1.0f);
 		glRotatef(45, 0.0f, 0.0f, 1.0f);
 
+		glColor4f(1.0, 1.0, 1.0, 1.0);
+
 		glViewport(win->pos_x,window_height-win->pos_y-150,200,150);
 		glClearStencil(0);
 		glClear (GL_DEPTH_BUFFER_BIT);
@@ -250,7 +252,7 @@ int display_browser_handler(window_info *win)
 		//Fedora: don't ask me why, if you use exec_path, e3d files are not found
 		safe_strncpy(fn, "."/*exec_path*/, sizeof(fn));
 #endif
-		strncat(fn, Dir[cd].Files[i], sizeof(fn)-1);
+		safe_strcat(fn, Dir[cd].Files[i], sizeof(fn));
 		valid_object=setobject(0,fn,Dir[cd].xrot[i],Dir[cd].yrot[i],Dir[cd].zrot[i]);
 		if(valid_object){
 			glPushMatrix();
@@ -259,18 +261,17 @@ int display_browser_handler(window_info *win)
 			glPopMatrix();
 		}
 		
-
 		if(i+1<Dir[cd].nf){
 			glViewport(win->pos_x+200,window_height-win->pos_y-150,200,150);	
 			glClearStencil(0);
 			glClear (GL_DEPTH_BUFFER_BIT);
 #ifdef LINUX
-			strcpy(fn,exec_path);
+			safe_strncpy(fn, exec_path, sizeof(fn));
 #else
 			//Fedora: don't ask me why, if you use exec_path, e3d files are not found
-			strcpy(fn,"."/*exec_path*/);
+			safe_strncpy(fn, "."/*exec_path*/, sizeof(fn));
 #endif
-			strcat(fn,Dir[cd].Files[i+1]);
+			safe_strcat(fn, Dir[cd].Files[i+1], sizeof(fn));
 			valid_object=setobject(1,fn,Dir[cd].xrot[i+1],Dir[cd].yrot[i+1],Dir[cd].zrot[i+1]);
 			if(valid_object){
 				glPushMatrix();
@@ -285,12 +286,12 @@ int display_browser_handler(window_info *win)
 			glClearStencil(0);
 			glClear (GL_DEPTH_BUFFER_BIT);
 #ifdef LINUX
-			strcpy(fn,exec_path);
+			safe_strncpy(fn, exec_path, sizeof(fn));
 #else
 			//Fedora: don't ask me why, if you use exec_path, e3d files are not found
-			strcpy(fn,"."/*exec_path*/);
+			safe_strncpy(fn, "."/*exec_path*/, sizeof(fn));
 #endif
-			strcat(fn,Dir[cd].Files[i+2]);
+			safe_strcat(fn, Dir[cd].Files[i+2], sizeof(fn));
 			valid_object=setobject(2,fn,Dir[cd].xrot[i+2],Dir[cd].yrot[i+2],Dir[cd].zrot[i+2]);
 			if(valid_object){
 				glPushMatrix();
@@ -305,12 +306,12 @@ int display_browser_handler(window_info *win)
 			glClearStencil(0);
 			glClear (GL_DEPTH_BUFFER_BIT);
 #ifdef LINUX
-			strcpy(fn,exec_path);
+			safe_strncpy(fn, exec_path, sizeof(fn));
 #else
 			//Fedora: don't ask me why, if you use exec_path, e3d files are not found
-			strcpy(fn,"."/*exec_path*/);
+			safe_strncpy(fn, "."/*exec_path*/, sizeof(fn));
 #endif
-			strcat(fn,Dir[cd].Files[i+3]);
+			safe_strcat(fn, Dir[cd].Files[i+3], sizeof(fn));
 			valid_object=setobject(3,fn,Dir[cd].xrot[i+3],Dir[cd].yrot[i+3],Dir[cd].zrot[i+3]);
 			if(valid_object){
 				glPushMatrix();

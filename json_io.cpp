@@ -11,12 +11,15 @@
 #include <fstream>
 #include <string>
 #include <iomanip>
+#include <cerrno>
+#include <cstring>
 #include <nlohmann/json.hpp>
 
 #include "chat.h"
 #include "elloggingwrapper.h"
 #include "counters.h"
 #include "manufacture.h"
+#include "misc.h"
 #include "platform.h"
 #include "text.h"
 
@@ -34,6 +37,27 @@ namespace JSON_IO
 		{ std::string full_message = "Problem with " + file_type + ": " + message; LOG_TO_CONSOLE(c_red3, full_message.c_str()); }
 	static void file_format_error(const std::string& file_type)
 		{ console_message(file_type, "File format error. " + file_type + " will not be saved until this is corrected."); }
+	static int exit_close_error(const char *function, size_t line, const std::string& file_type, int error_code)
+	{
+		std::string log_message = std::string("Error closing file - ") + std::string(strerror(errno));
+		console_message(file_type, "closing file failed, use #save to retry if possible.");
+		LOG_ERROR("%s:%" PRI_SIZET " %s", function, line, log_message.c_str());
+		return error_code;
+	}
+	static bool file_is_zero_length(const std::string& file_type, const char * file_name)
+	{
+		// If the file is zero length, it's useless so tell the user.  The caller should behave as it if did not exist.
+		// Previously we treated such a file as if it had an invalid structure, assumed it could be fixed and so blocked saving.
+		// Ideally, we'll never see this issue but some users have reported zero length files.  It seams unlikely but the recent
+		// addition of explicit close() when saving files may have fixed the cause.  If so this action will clear up the
+		// mess for users and we'll not see the problem again.  We can hope....
+		if (file_exists(file_name) && (get_file_size(file_name) == 0))
+		{
+			JSON_IO::console_message(file_type, "zero length file ignored, please report if this error persists.");
+			return true;
+		}
+		return false;
+	}
 }
 
 
@@ -64,6 +88,9 @@ namespace JSON_IO_Recipes
 	int Recipes::open(const char *file_name)
 	{
 		JSON_IO::info_message(__PRETTY_FUNCTION__, __LINE__, " [" + std::string(file_name) + "]");
+
+		if (JSON_IO::file_is_zero_length(class_name_str, file_name))
+			return 0;
 
 		std::ifstream in_file(file_name);
 		if (!in_file)
@@ -224,6 +251,9 @@ namespace JSON_IO_Recipes
 		if (out_file)
 		{
 			out_file << std::setw(JSON_IO::get_json_indent()) << write_json << std::endl;
+			out_file.close();
+			if (out_file.fail())
+				return JSON_IO::exit_close_error(__PRETTY_FUNCTION__, __LINE__, class_name_str, -1);
 			return 0;
 		}
 		else
@@ -258,6 +288,9 @@ namespace JSON_IO_Quickspells
 	int Quickspells::load(const char *file_name, int *spell_ids, size_t max_num_spell_id)
 	{
 		JSON_IO::info_message(__PRETTY_FUNCTION__, __LINE__, " [" + std::string(file_name) + "]");
+
+		if (JSON_IO::file_is_zero_length(class_name_str, file_name))
+			return 0;
 
 		std::ifstream in_file(file_name);
 		if (!in_file)
@@ -310,6 +343,9 @@ namespace JSON_IO_Quickspells
 		if (out_file)
 		{
 			out_file << std::setw(JSON_IO::get_json_indent()) << write_json << std::endl;
+			out_file.close();
+			if (out_file.fail())
+				return JSON_IO::exit_close_error(__PRETTY_FUNCTION__, __LINE__, class_name_str, -1);
 			return 0;
 		}
 		else
@@ -345,6 +381,9 @@ namespace JSON_IO_Counters
 	int Counters::load(const char *file_name, const char **cat_str, int *entries, size_t num_categories, struct Counter **the_counters)
 	{
 		JSON_IO::info_message(__PRETTY_FUNCTION__, __LINE__, " [" + std::string(file_name) + "]");
+
+		if (JSON_IO::file_is_zero_length(class_name_str, file_name))
+			return 0;
 
 		std::ifstream in_file(file_name);
 		if (!in_file)
@@ -434,6 +473,9 @@ namespace JSON_IO_Counters
 		if (out_file)
 		{
 			out_file << std::setw(JSON_IO::get_json_indent()) << write_json << std::endl;
+			out_file.close();
+			if (out_file.fail())
+				return JSON_IO::exit_close_error(__PRETTY_FUNCTION__, __LINE__, class_name_str, -1);
 			return 0;
 		}
 		else
@@ -469,6 +511,9 @@ namespace JSON_IO_Channel_Colours
 	int Channel_Colours::load(const char *file_name, channelcolor *the_channel_colours, size_t max_channel_colours)
 	{
 		JSON_IO::info_message(__PRETTY_FUNCTION__, __LINE__, " [" + std::string(file_name) + "]");
+
+		if (JSON_IO::file_is_zero_length(class_name_str, file_name))
+			return 0;
 
 		std::ifstream in_file(file_name);
 		if (!in_file)
@@ -535,6 +580,9 @@ namespace JSON_IO_Channel_Colours
 		if (out_file)
 		{
 			out_file << std::setw(JSON_IO::get_json_indent()) << write_json << std::endl;
+			out_file.close();
+			if (out_file.fail())
+				return JSON_IO::exit_close_error(__PRETTY_FUNCTION__, __LINE__, class_name_str, -1);
 			return 0;
 		}
 		else
@@ -586,6 +634,9 @@ namespace JSON_IO_Character_Options
 
 		JSON_IO::info_message(__PRETTY_FUNCTION__, __LINE__, " [" + the_file_name + "]");
 
+		if (JSON_IO::file_is_zero_length(class_name_str, the_file_name.c_str()))
+			return 0;
+
 		std::ifstream in_file(the_file_name);
 		if (!in_file)
 			return JSON_IO::exit_error(__PRETTY_FUNCTION__, __LINE__, "Failed to open [" + the_file_name + "]", -1);
@@ -627,6 +678,9 @@ namespace JSON_IO_Character_Options
 		if (out_file)
 		{
 			out_file << std::setw(JSON_IO::get_json_indent()) << json_data << std::endl;
+			out_file.close();
+			if (out_file.fail())
+				return JSON_IO::exit_close_error(__PRETTY_FUNCTION__, __LINE__, class_name_str, -1);
 			modified = false;
 			return 0;
 		}
@@ -743,6 +797,9 @@ namespace JSON_IO_Client_State
 	{
 		JSON_IO::info_message(__PRETTY_FUNCTION__, __LINE__, " [" + std::string(file_name) + "]");
 
+		if (JSON_IO::file_is_zero_length(class_name_str, file_name))
+			return 0;
+
 		std::ifstream in_file(file_name);
 		if (!in_file)
 			return JSON_IO::exit_error(__PRETTY_FUNCTION__, __LINE__, "Failed to open [" + std::string(file_name) + "]", -1);
@@ -779,6 +836,9 @@ namespace JSON_IO_Client_State
 		if (out_file)
 		{
 			out_file << std::setw(JSON_IO::get_json_indent()) << state_write << std::endl;
+			out_file.close();
+			if (out_file.fail())
+				return JSON_IO::exit_close_error(__PRETTY_FUNCTION__, __LINE__, class_name_str, -1);
 			return 0;
 		}
 		else

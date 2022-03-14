@@ -57,20 +57,46 @@ int show_timestamp = 0;
 
 int dark_channeltext = 0;
 
+#define rate_limit_count 4
+static const char* rate_limit_msgs[rate_limit_count] = {
+	"You are too far away! Get closer!",
+	"Can't do, your target is already fighting with someone else,",
+	"You need to equip a quiver first!",
+	"You cannot access the storage from here!"
+};
+static Uint32 rate_limit_last_time[rate_limit_count] = { 0, 0, 0, 0 };
+static int rate_limit_done_one[rate_limit_count] = { 0, 0, 0, 0 };
+
+void reset_storage_rate_limit()
+{
+	rate_limit_done_one[3] = 0;
+}
+
 /* Impliment the glow perk hud indicator state. */
+
 static int glow_perk_check_state = 0;
 static int glow_perk_active = 0;
 static int glow_perk_unavailable = 1;
+static int glow_perk_do_check_when_active = 1;
 static Uint32 glow_perk_timer = 0;
 
-void check_glow_perk(void) { glow_perk_check_state = 3; }
-int glow_perk_is_active(void) { return glow_perk_active; };
+void check_glow_perk(void) { glow_perk_do_check_when_active = 1; }
+int glow_perk_is_active(void) { return glow_perk_active; }
 
 /*
  * Called each frame by the hud indicator code if the glow perk indcator is enabled.
 */
 int glow_perk_is_unavailable(void)
 {
+	/*
+	 * If this is the first time since loging, start the state check.
+	*/
+	if (glow_perk_do_check_when_active)
+	{
+		glow_perk_check_state = 3;
+		glow_perk_do_check_when_active = 0;
+	}
+
 	/*
 	 * The first #glow will be sent when a new login happens.  When the
 	 * message text arrives, another #glow will be sent after a timeout.
@@ -88,7 +114,7 @@ int glow_perk_is_unavailable(void)
 		glow_perk_timer = 0;
 	}
 	return glow_perk_unavailable;
-};
+}
 
 /*
  * Called when we receive #glow command text.
@@ -107,6 +133,7 @@ static int set_glow_status(int value)
 	glow_perk_unavailable = 0;
 	return 0;
 }
+
 /* End glow perk hud indicator state. */
 
 static int is_special_day = 0;
@@ -274,20 +301,37 @@ void write_to_log (Uint8 channel, const Uint8* const data, int len)
 	// The file we'll write to
 	fout = (channel == CHAT_SERVER && log_chat >= 3) ? srv_log : chat_log;
 
+	time (&c_time);
+	l_time = localtime (&c_time);
 	if(!show_timestamp)
 	{
 		// Start filling the buffer with the time stamp
-		time (&c_time);
-		l_time = localtime (&c_time);
-		j = strftime (str, sizeof(str), "[%H:%M:%S] ", l_time);
+		j = strftime (str, sizeof(str), "[%Y-%m-%d %H:%M:%S] ", l_time);
+		i = 0;
 	}
 	else
 	{
-		//we already have a time stamp
-		j=0;
+		// There should be a timestamp, see if it's there at the start of the line
+		for (i = 0; i < len; ++i)
+		{
+			if (!is_color(data[i]))
+				break;
+		}
+		if (i+9 < len && data[i] == '[' && data[i+9] == ']')
+		{
+			// That should be it, copy the time part from the string, but prepend the year
+			j = strftime(str, sizeof(str), "[%Y-%m-%d ", l_time);
+			++i;
+		}
+		else
+		{
+			// Cannot find a timestamp, though there should be one. Give up in confusion.
+			j = 0;
+			i = 0;
+		}
 	}
 
-	i = 0;
+	// Now copy the data to the output buffer
 	while (i < len)
 	{
 		for ( ; i < len && j < sizeof (str) - 1; i++)
@@ -646,32 +690,24 @@ int filter_or_ignore_text (char *text_to_add, int len, int size, Uint8 channel)
 			clear_buddy();
 		}
 		else {
-			static const char* rate_limit_msgs[] = {
-				"You are too far away! Get closer!",
-				"Can't do, your target is already fighting with someone else,",
-				"You need to equip a quiver first!"
-			};
-			static const int nr_msgs = sizeof(rate_limit_msgs) / sizeof(*rate_limit_msgs);
-			static Uint32 last_time[] = { 0, 0, 0 };
-			static int done_one[] = { 0, 0, 0 };
 			int match_index;
-			for (match_index = 0; match_index < nr_msgs; ++match_index)
+			for (match_index = 0; match_index < rate_limit_count; ++match_index)
 			{
 				const char* msg = rate_limit_msgs[match_index];
 				if (!strncasecmp(text_to_add+1, msg, strlen(msg)))
 					break;
 			}
-			if (match_index < nr_msgs)
+			if (match_index < rate_limit_count)
 			{
 				Uint32 new_time = SDL_GetTicks();
 				clear_now_harvesting();
 				if(your_actor != NULL)
 					add_highlight(your_actor->x_tile_pos,your_actor->y_tile_pos, HIGHLIGHT_SOFT_FAIL);
 				/* suppress further messages within for 5 seconds of last */
-				if (done_one[match_index] && ((new_time - last_time[match_index]) < 5000))
+				if (rate_limit_done_one[match_index] && new_time - rate_limit_last_time[match_index] < 5000)
 					return 0;
-				done_one[match_index] = 1;
-				last_time[match_index] = new_time;
+				rate_limit_done_one[match_index] = 1;
+				rate_limit_last_time[match_index] = new_time;
 			}
 		}
 

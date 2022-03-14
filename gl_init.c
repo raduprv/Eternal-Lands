@@ -17,6 +17,16 @@
 #include "fsaa/fsaa.h"
 #endif	/* FSAA */
 
+typedef struct
+{
+	int profile;
+	int major;
+	int minor;
+	char version_string[80];
+} GLContextInfo;
+
+static GLContextInfo gl_context_info = { 0, 0, 0, { 0 } };
+
 int window_width = 640;
 int window_height = 480;
 static float window_highdpi_scale_width = 1.0f;
@@ -41,7 +51,9 @@ int use_frame_buffer = 0;
 int use_mipmaps = 0;
 int use_draw_range_elements = 1;
 float anisotropic_filter = 1.0f;
+int enable_screensaver = 0;
 int disable_gamma_adjust = 0;
+int disable_focus_clickthrough = 0;
 float gamma_var = 1.00f;
 float perspective = 0.15f;
 float near_plane = 0.1f; // don't cut off anything
@@ -83,8 +95,94 @@ static void load_window_icon(void)
 	free(str_buf);
 }
 
+// check if the window fits within the available space and resize if not
+// check if the window is on-screen and move it if not
+enum size_and_position_enum { DO_SIZE = 0, DO_POSITION, DO_SIZE_AND_POSITION };
+static void fix_window_size_and_position(enum size_and_position_enum mode)
+{
+#if SDL_VERSION_ATLEAST(2, 0, 5)
+	SDL_Rect usable_rect;
+	int display_index = SDL_GetWindowDisplayIndex(el_gl_window);
+	if (SDL_VERSIONNUM(el_gl_linked.major, el_gl_linked.minor, el_gl_linked.patch) < 2005)
+		return;
+	if ((display_index >= 0) && (SDL_GetDisplayUsableBounds(display_index, &usable_rect) == 0))
+	{
+		int top, left, bottom, right;
+		if (SDL_GetWindowBordersSize(el_gl_window, &top, &left, &bottom, &right) == 0)
+		{
+			int ww, wh;
+			SDL_GL_GetDrawableSize(el_gl_window, &ww, &wh);
+
+			if ((mode == DO_SIZE) || (mode == DO_SIZE_AND_POSITION))
+			{
+				int do_resize = 0;
+				if ((ww + left + right) > usable_rect.w)
+				{
+					ww = usable_rect.w - left - right;
+					do_resize = 1;
+				}
+				if ((wh + top + bottom) > usable_rect.h)
+				{
+					wh = usable_rect.h - top - bottom;
+					do_resize = 1;
+				}
+				if (do_resize)
+				{
+					SDL_SetWindowSize(el_gl_window, ww, wh);
+					SDL_RestoreWindow(el_gl_window);
+				}
+			}
+
+			if ((mode == DO_POSITION) || (mode == DO_SIZE_AND_POSITION))
+			{
+				int posx, posy;
+				SDL_GetWindowPosition(el_gl_window, &posx, &posy);
+				if (((posx - left) < usable_rect.x) ||
+					((posy - top) < usable_rect.y) ||
+					((posx + ww + left + right) > (usable_rect.x + usable_rect.w)) ||
+					((posy + wh + top + bottom) > (usable_rect.y + usable_rect.h)))
+				{
+					posx = usable_rect.x + left + (usable_rect.w - ww - left - right) / 2;
+					posy = usable_rect.y + top + (usable_rect.h - wh - top - bottom) / 2;
+					SDL_SetWindowPosition(el_gl_window, posx, posy);
+				}
+			}
+		}
+	}
+#endif
+}
+
+void update_SDL_HINT_MOUSE_FOCUS_CLICKTHROUGH(void)
+{
+#if SDL_VERSION_ATLEAST(2, 0, 5)
+	if (SDL_VERSIONNUM(el_gl_linked.major, el_gl_linked.minor, el_gl_linked.patch) >= 2005)
+	{
+		if (disable_focus_clickthrough)
+			SDL_SetHint(SDL_HINT_MOUSE_FOCUS_CLICKTHROUGH, "0");
+		else
+			SDL_SetHint(SDL_HINT_MOUSE_FOCUS_CLICKTHROUGH, "1");
+	}
+#endif
+}
+
 void init_video(void)
 {
+	int versions_to_try[][3] = {
+		{ SDL_GL_CONTEXT_PROFILE_COMPATIBILITY, 3, 3 }, // OpenGL 3.3 compatibility profile
+		{ SDL_GL_CONTEXT_PROFILE_COMPATIBILITY, 3, 2 }, // OpenGL 3.2 compatibility profile
+		{ SDL_GL_CONTEXT_PROFILE_COMPATIBILITY, 3, 1 }, // OpenGL 3.1
+		{ SDL_GL_CONTEXT_PROFILE_COMPATIBILITY, 3, 0 }, // OpenGL 3.0
+		{ SDL_GL_CONTEXT_PROFILE_COMPATIBILITY, 2, 1 }, // OpenGL 2.1
+		{ SDL_GL_CONTEXT_PROFILE_COMPATIBILITY, 2, 0 }, // OpenGL 2.0. Not sure if lower versions will still work
+		{ SDL_GL_CONTEXT_PROFILE_COMPATIBILITY, 1, 5 }, // OpenGL 1.5
+		{ SDL_GL_CONTEXT_PROFILE_COMPATIBILITY, 1, 4 }, // OpenGL 1.4
+		{ SDL_GL_CONTEXT_PROFILE_COMPATIBILITY, 1, 3 }, // OpenGL 1.3
+		{ SDL_GL_CONTEXT_PROFILE_COMPATIBILITY, 1, 2 }, // OpenGL 1.2
+		{ SDL_GL_CONTEXT_PROFILE_COMPATIBILITY, 1, 1 }, // OpenGL 1.1
+		{ SDL_GL_CONTEXT_PROFILE_COMPATIBILITY, 1, 0 }, // OpenGL 1.0
+	};
+	int nr_versions_to_try = sizeof(versions_to_try) / sizeof(*versions_to_try);
+
 	int target_width = 0, target_height = 0;
 	int rgb_size[3];
 	Uint32 flags;
@@ -216,7 +314,27 @@ void init_video(void)
 		}
 	}
 
-	el_gl_context = SDL_GL_CreateContext(el_gl_window);
+	for (int i = 0; i < nr_versions_to_try; ++i)
+	{
+		SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, versions_to_try[i][0]);
+		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, versions_to_try[i][1]);
+		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, versions_to_try[i][2]);
+		el_gl_context = SDL_GL_CreateContext(el_gl_window);
+		if (el_gl_context)
+		{
+			// OpenGL deprecated a lot of features we use in OpenGL 3.0, and removed them in
+			// 3.1. OpenGL. OpenGL 3.2 introduced compatibility profiles, and 3.1 has the
+			// ARB_compativility extension, but some systems fail with an OpenGL context >= 3.0
+			// even when they report compatibility, or when the context is OpenGL 3.0 which should
+			// still support the old functionality, Therefore, try a deprecated function here,
+			// and if it fails, downgrade to a lower version context.
+			const GLubyte* extensions_str = glGetString(GL_EXTENSIONS);
+			DO_CHECK_GL_ERRORS();
+			if (extensions_str)
+				// That seemd to work, hopefully we're good
+				break;
+		}
+	}
 	if (el_gl_context == NULL)
 	{
 		LOG_ERROR("%s: %s\n", "SDL_GL_CreateContext() Failed", SDL_GetError());
@@ -239,6 +357,29 @@ void init_video(void)
 		}
 	}
 
+	// Set the GL verion info, so we can use different code paths for rendering if necessary
+	SDL_GL_GetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, &gl_context_info.profile);
+	SDL_GL_GetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, &gl_context_info.major);
+	SDL_GL_GetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, &gl_context_info.minor);
+	switch (gl_context_info.profile)
+	{
+		case SDL_GL_CONTEXT_PROFILE_CORE:
+			safe_snprintf(gl_context_info.version_string, sizeof(gl_context_info.version_string),
+				"OpenGL Core %d.%d", gl_context_info.major, gl_context_info.minor);
+			break;
+		case SDL_GL_CONTEXT_PROFILE_COMPATIBILITY:
+			safe_snprintf(gl_context_info.version_string, sizeof(gl_context_info.version_string),
+				"OpenGL Compatibility %d.%d", gl_context_info.major, gl_context_info.minor);
+			break;
+		case SDL_GL_CONTEXT_PROFILE_ES:
+			safe_snprintf(gl_context_info.version_string, sizeof(gl_context_info.version_string),
+				"OpenGL ES %d.%d", gl_context_info.major, gl_context_info.minor);
+			break;
+		default:
+			safe_snprintf(gl_context_info.version_string, sizeof(gl_context_info.version_string),
+				"Unknown %d.%d", gl_context_info.major, gl_context_info.minor);
+	}
+
 	// set the minimum size for the window, this is too small perhaps but a config option
 	SDL_SetWindowMinimumSize(el_gl_window, 640,  480);
 
@@ -253,6 +394,9 @@ void init_video(void)
 		}
 	}
 
+	if (!full_screen)
+		fix_window_size_and_position(DO_SIZE_AND_POSITION);
+
 	// get the windos size, these variables are used globaly
 	update_window_size_and_scale();
 	// even though no windows have been created, their starting position need to be adjusted
@@ -263,11 +407,11 @@ void init_video(void)
 	if (SDL_GL_SetSwapInterval(-1) < 0)
 		SDL_GL_SetSwapInterval(1);
 
-	// set the hint that clicks that focus the window, pass through for action too
-#if SDL_VERSION_ATLEAST(2, 0, 5)
-	if (SDL_VERSIONNUM(el_gl_linked.major, el_gl_linked.minor, el_gl_linked.patch) >= 2005)
-		SDL_SetHint(SDL_HINT_MOUSE_FOCUS_CLICKTHROUGH, "1");
-#endif
+	// set the hint that determines if clicks that focus the window, pass through for action too
+	update_SDL_HINT_MOUSE_FOCUS_CLICKTHROUGH();
+
+	if (enable_screensaver)
+		SDL_EnableScreenSaver();
 
 	// set the gamma of we are controlling it
 	if (!disable_gamma_adjust)
@@ -877,6 +1021,7 @@ void set_client_window_size(int width, int height)
 {
 	// limit the window size to the actual available space
 #if SDL_VERSION_ATLEAST(2, 0, 5)
+	if (SDL_VERSIONNUM(el_gl_linked.major, el_gl_linked.minor, el_gl_linked.patch) >= 2005)
 	{
 		SDL_Rect rect;
 		int display_index = SDL_GetWindowDisplayIndex(el_gl_window);
@@ -892,6 +1037,7 @@ void set_client_window_size(int width, int height)
 	SDL_RestoreWindow(el_gl_window);
 	SDL_SetWindowFullscreen(el_gl_window, 0);
 	SDL_SetWindowSize(el_gl_window, width, height);
+	fix_window_size_and_position(DO_POSITION);
 }
 
 //	Get a single value for highhdpi scaling.
@@ -961,5 +1107,44 @@ void gl_window_cleanup(void)
 	{
 		SDL_FreeSurface(icon_bmp);
 		icon_bmp = NULL;
+	}
+}
+
+const char* gl_context_version_string()
+{
+	return gl_context_info.version_string;
+}
+
+int gl_context_version()
+{
+	return 100*gl_context_info.major + gl_context_info.minor;
+}
+
+int max_supported_glsl_version()
+{
+	switch (gl_context_info.profile)
+	{
+		case SDL_GL_CONTEXT_PROFILE_COMPATIBILITY:
+		case SDL_GL_CONTEXT_PROFILE_CORE:
+			switch (gl_context_version())
+			{
+				case 303: return 330;
+				case 302: return 150;
+				case 301: return 140;
+				case 300: return 130;
+				case 201: return 120;
+				case 200: return 110;
+				default: return 0;
+			}
+		case SDL_GL_CONTEXT_PROFILE_ES:
+			switch (10*gl_context_info.major + gl_context_info.minor)
+			{
+				case 31: return 10310;
+				case 30: return 10300;
+				case 20: return 10100;
+				default: return 0;
+			}
+		default:
+			return 0;
 	}
 }

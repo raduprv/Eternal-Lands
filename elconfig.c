@@ -19,7 +19,7 @@
  #include "map_editor/browser.h"
  #include "map_editor/interface.h"
  #include "load_gl_extensions.h"
-#else
+#else // MAP_EDITOR
  #include "achievements.h"
  #include "alphamap.h"
  #include "bags.h"
@@ -61,6 +61,7 @@
  #include "openingwin.h"
  #include "particles.h"
  #include "password_manager.h"
+ #include "pathfinder.h"
  #include "platform.h"
  #include "pm_log.h"
  #include "questlog.h"
@@ -1251,6 +1252,16 @@ static void change_use_json_user_files(int *var)
 	else
 		USE_JSON_DEBUG("Not ready for user files");
 }
+
+void check_using_json_files(void)
+{
+	if (!use_json_user_files && ready_for_user_files)
+	{
+		LOG_INFO("Forcing JSON files");
+		set_var_unsaved("use_json_user_files_v1", INI_FILE_VAR);
+		change_use_json_user_files(&use_json_user_files);
+	}
+}
 #endif
 
 static void change_dark_channeltext(int *dct, int value)
@@ -1501,6 +1512,24 @@ static void change_gamma(float *pointer, float *value)
 	}
 }
 
+static void change_screensaver(int * var)
+{
+	*var= !*var;
+	if (!video_mode_set)
+		return;
+	if (*var)
+		SDL_EnableScreenSaver();
+	else
+		SDL_DisableScreenSaver();
+}
+
+static void change_focus_clickthrough(int * var)
+{
+	*var= !*var;
+	if (video_mode_set)
+		update_SDL_HINT_MOUSE_FOCUS_CLICKTHROUGH();
+}
+
 #ifndef MAP_EDITOR2
 void change_windows_on_top(int *var)
 {
@@ -1647,6 +1676,37 @@ static void change_water_shader_quality(int *wsq, int value)
 		*wsq = value;
 	}
 	update_fbos();
+}
+
+static void change_150_water_shader(int *use)
+{
+	if (gl_extensions_loaded)
+	{
+		if (!*use && max_supported_glsl_version() < 150)
+		{
+			LOG_TO_CONSOLE(c_red1, "Your system does not support the new water shader");
+		}
+		else
+		{
+			*use = !*use;
+			init_water_vertex_vao();
+			// The new water shader *should* support the same options as the old one. But just in case
+			// we messed up:
+			change_water_shader_quality(&water_shader_quality, water_shader_quality);
+
+			if (*use)
+				LOG_TO_CONSOLE(c_green2, "Using the new water shader");
+			else
+				LOG_TO_CONSOLE(c_green2, "Using the old water shader");
+		}
+	}
+	else
+	{
+		// We don't know what is supported. Update and hope for the best
+		*use = !*use;
+	}
+
+	log_water_shader_version();
 }
 #endif
 
@@ -2764,9 +2824,11 @@ static void init_ELC_vars(void)
 	add_var(OPT_BOOL,"always_pathfinding", "alwayspathfinding", &always_pathfinding, change_var, 0, "Extend the range of the walk cursor", "Extends the range of the walk cursor to as far as you can see.  Using this option, movement may be slightly less responsive on larger maps.", CONTROLS);
 	add_var(OPT_BOOL,"target_close_clicked_creature", "targetcloseclickedcreature", &target_close_clicked_creature, change_var, 1, "Target creature if you click close to it", "When enabled, if you click close to a creature that is in range, you will attack it or select it as the target for an active spell.", CONTROLS);
 	add_var(OPT_BOOL,"open_close_clicked_bag", "openupcloseclickedbag", &open_close_clicked_bag, change_var, 1, "Open a bag if you click close to it", "When enabled, if you click close to a bag that is in range, you will open it.", CONTROLS);
+	add_var(OPT_BOOL, "pf_search_destination_area", "pfsearchdest", &pf_search_destination_area, change_var, 1,
+		"Less strict pathfinding", "When enabled, the pathfinder will search for a reachable spot in the immediate area of the destination when an unwalkable spot is clicked. This option requires \"Extend the range of the walk cursor\" to be enabled.", CONTROLS);
+	add_var(OPT_BOOL,"disable_focus_clickthrough", "dfct", &disable_focus_clickthrough, change_focus_clickthrough, 0, "Disable click through on focus", "By default, clicks into the main window are passed though immediately even if the window does not have focus. Set this option to disable this behaviour.  Your computer settings may override this option.", CONTROLS);
 	add_var(OPT_BOOL,"use_floating_messages", "floating", &floatingmessages_enabled, change_var, 1, "Floating Messages", "Toggles the use of floating experience messages and other graphical enhancements", CONTROLS);
 	add_var(OPT_BOOL,"floating_session_counters", "floatingsessioncounters", &floating_session_counters, change_var, 0, "Floating Session Counters", "Toggles the display of floating session counters.  Configure each type using the context menu of the counter category.", CONTROLS);
-	add_var(OPT_BOOL,"enable_used_item_counter", "enable_used_item_counter", &enable_used_item_counter, change_var, 0, "Enable Used Item Counter", "WARNING: If enabled, saved counters will not be compatible with previous versions of the client.  Previous versions of the client may crash when loading counters.  If disabled, Used Item counts will not be saved.", CONTROLS);
 	add_var(OPT_BOOL,"use_keypress_dialog_boxes", "keypressdialogues", &use_keypress_dialogue_boxes, change_var, 0, "Keypresses in dialogue boxes", "Toggles the ability to press a key to select a menu option in dialogue boxes (eg The Wraith)", CONTROLS);
 	add_var(OPT_BOOL,"use_full_dialogue_window", "keypressdialoguesfullwindow", &use_full_dialogue_window, change_var, 0, "Keypresses allowed anywhere in dialogue boxes", "If set, the above will work anywhere in the Dialogue Window, if unset only on the NPC's face", CONTROLS);
 	add_var(OPT_BOOL,"use_cursor_on_animal", "useanimal", &include_use_cursor_on_animals, change_var, 0, "For animals, right click includes use cursor", "Toggles inclusion of the use cursor when right clicking on animals, useful for your summoned creatures.  Even when this option is off, you can still click the use icon.", CONTROLS);
@@ -2941,6 +3003,7 @@ static void init_ELC_vars(void)
 	add_var(OPT_FLOAT,"quickbar_win_scale","quickbarwinscale",get_scale_WM(MW_QUICKBAR),change_win_scale_factor,1.0f,"Quickbar window scaling factor",win_scale_description,FONT,win_scale_min,win_scale_max,win_scale_step);
 	add_var(OPT_FLOAT,"quickspells_win_scale","quickspellswinscale",get_scale_WM(MW_QUICKSPELLS),change_win_scale_factor,1.0f,"Quickspells window scaling factor",win_scale_description,FONT,win_scale_min,win_scale_max,win_scale_step);
 	add_var(OPT_FLOAT,"chat_win_scale","chatwinscale",get_scale_WM(MW_CHAT),change_win_scale_factor,1.0f,"Chat window scaling factor",win_scale_description,FONT,win_scale_min,win_scale_max,win_scale_step);
+	add_var(OPT_FLOAT,"chancols_win_scale","chancolswinscale",get_scale_WM(MW_CHANCOLS),change_win_scale_factor,1.0f,"Chat channel colours window scaling factor",win_scale_description,FONT,win_scale_min,win_scale_max,win_scale_step);
 	add_var(OPT_FLOAT,"options_win_scale","optionswinscale",&elconf_custom_scale,change_elconf_win_scale_factor,1.0f,"Options window scaling factor","Multiplied by the user interface scaling factor. Change will take effect after closing then reopening the window.",FONT,win_scale_min,win_scale_max,win_scale_step);
 #ifdef NEW_CURSOR
 	add_var(OPT_BOOL,"sdl_cursors","sdl_cursors", &sdl_cursors, change_sdl_cursor,1,"Use Standard Black/White Mouse Pointers", "When disabled, use the experimental coloured mouse pointers. Needs the texture from Git dev-data-files/cursor2.dss.", FONT);
@@ -2982,7 +3045,7 @@ static void init_ELC_vars(void)
 	add_var(OPT_BOOL,"showcustomclothing","scc",&custom_clothing,change_custom_clothing,1,"Show Custom clothing","Toggles whether custom clothing is shown.",SERVER);
 #endif	//CUSTOM_UPDATE
 #ifdef JSON_FILES
-	add_var(OPT_BOOL, "use_json_user_files_v1", "usejsonuserfiles_v1", &use_json_user_files, change_use_json_user_files, 0, "Use New Format To Save User Files (.json)",
+	add_var(OPT_BOOL_INI, "use_json_user_files_v1", "usejsonuserfiles_v1", &use_json_user_files, change_use_json_user_files, 0, "Use New Format To Save User Files (.json)",
 		"NOTE: Use this option to enable the new format for saving user data.  If you change this option, data is automatically saved using the chosen format.  Disable this option before switching back to 1.9.5p8 or older clients.", SERVER);
 #endif
 	// SERVER TAB
@@ -3023,6 +3086,7 @@ static void init_ELC_vars(void)
 	add_var(OPT_INT,"video_width","width",&video_user_width,change_int, 640,"Userdefined width","Userdefined window width",VIDEO, 640,INT_MAX);
 	add_var(OPT_INT,"video_height","height",&video_user_height,change_int, 480,"Userdefined height","Userdefined window height",VIDEO, 480,INT_MAX);
 	add_var(OPT_INT,"limit_fps","lfps",&limit_fps,change_fps,0,"Limit FPS","Limit the frame rate to reduce load on the system",VIDEO,0,INT_MAX);
+	add_var(OPT_BOOL,"enable_screensaver","esc",&enable_screensaver,change_screensaver,0,"Enable Desktop Screensaver","By default your desktop screen saver is disabled, this is normal behavour for games and media players. Set this option to enable the screensaver / monitor power managment.",VIDEO);
 	add_var(OPT_FLOAT,"gamma","g",&gamma_var,change_gamma,1,"Gamma","How bright your display should be.",VIDEO,0.10,3.00,0.05);
 	add_var(OPT_BOOL,"disable_gamma_adjust","dga",&disable_gamma_adjust,change_var,0,"Disable Gamma Adjustment","Stop the client from adjusting the display gamma.",VIDEO);
 #ifdef ANTI_ALIAS
@@ -3040,6 +3104,10 @@ static void init_ELC_vars(void)
 #endif	/* FSAA */
 	add_var (OPT_BOOL, "use_frame_buffer", "fb", &use_frame_buffer, change_frame_buffer, 0, "Toggle Frame Buffer Support", "Toggle frame buffer support. Used for reflection and shadow mapping.", VIDEO);
 	add_var(OPT_INT_F,"water_shader_quality","water_shader_quality",&water_shader_quality,change_water_shader_quality,1,"  water shader quality","Defines what shader is used for water rendering. Higher values are slower but look better. Needs \"toggle frame buffer support\" to be turned on.",VIDEO, int_zero_func, int_max_water_shader_quality);
+	add_var(OPT_BOOL, "use_150_water_shader", "use_150_water_shader", &use_150_water_shader,
+		change_150_water_shader, 0, "Use new water shader",
+		"Use the new shader program for rendering water. If water reflections do not work (and you have frame buffer support enabled), try enabling this option.",
+		 VIDEO);
 	add_var(OPT_BOOL,"small_actor_texture_cache","small_actor_tc",&small_actor_texture_cache,change_small_actor_texture_cache,0,"Small actor texture cache","A small Actor texture cache uses less video memory, but actor loading can be slower.",VIDEO);
 	add_var(OPT_BOOL,"use_vertex_buffers","vbo",&use_vertex_buffers,change_vertex_buffers,0,"Vertex Buffer Objects","Toggle the use of the vertex buffer objects, restart required to activate it",VIDEO);
 	add_var(OPT_BOOL, "use_animation_program", "uap", &use_animation_program, change_use_animation_program, 1, "Use animation program", "Use GL_ARB_vertex_program for actor animation", VIDEO);

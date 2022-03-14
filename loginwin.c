@@ -398,6 +398,7 @@ static int display_login_handler (window_info *win)
 			win->current_scale, max_win_width, NULL, NULL);
 		glColor3f (1.0f, 0.0f, 0.0f);
 		draw_string_zoomed_centered(window_width/2, username_bar_y - (num_lines + 2) * win->default_font_len_y, (const unsigned char*)log_in_error_str, num_lines, win->current_scale);
+		glColor3f (1.0f, 1.0f, 1.0f);
 	}
 
 	if (mouseover_version_trigger)

@@ -90,7 +90,7 @@ namespace eternal_lands
 
 			std::time(&raw_time);
 			memset(buffer, 0, sizeof(buffer));
-			std::strftime(buffer, sizeof(buffer), "%X",
+			std::strftime(buffer, sizeof(buffer), "%Y-%m-%d %X",
 				std::localtime(&raw_time));
 
 			str << ", " << file << ":" << line << "] " << type;

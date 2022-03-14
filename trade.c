@@ -362,14 +362,11 @@ static int click_trade_handler(window_info *win, int mx, int my, Uint32 flags)
 			my_tcp_send(str, 1);
 			do_click_sound();
 		} else {
-			str[0]= ACCEPT_TRADE;
-			if(trade_you_accepted==1){
-				int i;
-				for(i=0;i<MAX_ITEMS;i++){
-					str[i+1]=(others_trade_list[i].quantity>0)*others_trade_list[i].type;
-				}
-				trade_accepted(other_player_trade_name, your_trade_list, others_trade_list, MAX_ITEMS);
-			}
+			int i;
+			str[0] = ACCEPT_TRADE;
+			for(i = 0; i < MAX_ITEMS; i++)
+				str[i + 1] = (others_trade_list[i].quantity > 0) * others_trade_list[i].type;
+			trade_accepted(other_player_trade_name, your_trade_list, others_trade_list, MAX_ITEMS);
 			my_tcp_send(str, MAX_ITEMS + 1);
 			do_click_sound();
 		}
@@ -554,14 +551,13 @@ static int close_trade_handler(window_info *win)
 	return 1;
 }
 
-static int hide_trade_handler(window_info *win)
+void trading_window_exit(void)
 {
-	// Reset trade partner information when the window is hidden (either because one partner
+	// Reset trade partner information when trading ends (either because one partner
 	// aborted the trade, or because the trade was finished
 	storage_available = 0;
 	other_player_trade_name[0] = '\0';
-
-	return 1;
+	hide_window_MW(MW_TRADE);
 }
 
 void display_trade_menu()
@@ -578,7 +574,6 @@ void display_trade_menu()
 		set_window_handler(trade_win, ELW_HANDLER_CLICK, &click_trade_handler );
 		set_window_handler(trade_win, ELW_HANDLER_MOUSEOVER, &mouseover_trade_handler );
 		set_window_handler(trade_win, ELW_HANDLER_CLOSE, &close_trade_handler );
-		set_window_handler(trade_win, ELW_HANDLER_HIDE, &hide_trade_handler );
 		set_window_handler(trade_win, ELW_HANDLER_UI_SCALE, &ui_scale_trade_handler );
 
 		if (trade_win >= 0 && trade_win < windows_list.num_windows)

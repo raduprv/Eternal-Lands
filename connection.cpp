@@ -21,6 +21,7 @@
 #include "questlog.h"
 #include "sound.h"
 #include "text.h"
+#include "trade.h"
 #include "translate.h"
 
 int always_pathfinding = 0;
@@ -204,7 +205,7 @@ void Connection::finish_connect_to_server()
 	clear_today_is_special_day();
 	clear_now_harvesting();
 	send_heart_beat();     // prime the heart beat to prevent some stray issues when there is lots of lag
-	hide_window_MW(MW_TRADE);
+	trading_window_exit();
 	do_connect_sound();
 
 	flush();               // make sure tcp output buffer is empty
@@ -422,24 +423,35 @@ void Connection::send_login_info()
 	flush();
 }
 
-void Connection::send_move_to(std::int16_t x, std::int16_t y, bool try_pathfinder)
+bool Connection::send_move_to(std::int16_t *x, std::int16_t *y, bool try_pathfinder)
 {
+	bool pathfinder_failed = false;
 	if (try_pathfinder && always_pathfinding)
 	{
 		actor *me = get_our_actor();
 		// Check distance
-		if (me && (abs(me->x_tile_pos - x) + abs(me->y_tile_pos - y)) > 2)
+		if (me && (abs(me->x_tile_pos - *x) + abs(me->y_tile_pos - *y)) > 2)
 		{
 			// If path finder fails, try standard move
-			if (pf_find_path(x, y))
-				return;
+			if (pf_find_path(*x, *y))
+			{
+				*x = pf_dst_tile->x;
+				*y = pf_dst_tile->y;
+				return true;
+			}
+			else
+			{
+				pathfinder_failed = true;
+			}
 		}
 	}
 
-	std::uint16_t ux = x;
-	std::uint16_t uy = y;
+	std::uint16_t ux = *x;
+	std::uint16_t uy = *y;
 	std::uint8_t data[] = { std::uint8_t(ux), std::uint8_t(ux >> 8), std::uint8_t(uy), std::uint8_t(uy >> 8) };
 	send(MOVE_TO, data, 4);
+
+	return !pathfinder_failed && get_tile_walkable(*x, *y);
 }
 
 void Connection::send_new_char(const std::string& username, const std::string& password,
@@ -707,9 +719,9 @@ extern "C" void send_ping_request()
 	Connection::get_instance().send_ping_request();
 }
 
-extern "C" void move_to(short int x, short int y, int try_pathfinder)
+extern "C" int move_to(short int *x, short int *y, int try_pathfinder)
 {
-	Connection::get_instance().send_move_to(x, y, try_pathfinder);
+	return Connection::get_instance().send_move_to(x, y, try_pathfinder);
 }
 
 extern "C" int my_tcp_send(const Uint8* str, int len)

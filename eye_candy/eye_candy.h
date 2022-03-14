@@ -2043,7 +2043,7 @@ namespace ec
 			short getCluster () const
 			{
 				if (!pos)
-				return 0;
+					return 0;
 				return get_cluster (int (pos->x / 0.5f), int (-pos->z / 0.5f));
 			}
 
@@ -2096,6 +2096,8 @@ namespace ec
 		class EyeCandy
 		{
 			public:
+			//! Linear attenuation factor for lights used in eye candy effects
+			static constexpr const float light_linear_attenuation = 1.0;
 
 			EyeCandy();
 			EyeCandy(int _max_particles);

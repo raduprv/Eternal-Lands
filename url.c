@@ -220,8 +220,8 @@ int url_command(const char *text, int len)
 /* determine if character can delimit the end of a url */
 int is_url_end_delim(unsigned char chr)
 {
-	// from rfc1738
-	unsigned char non_url_printable_chars[] = {' ','<','>','"','{','}','|','\\','^','~','[',']','`',};
+	// from rfc1738, updated in rfc3986 to allow "~"
+	unsigned char non_url_printable_chars[] = {' ','<','>','"','{','}','|','\\','^','[',']','`',};
 	int i;
 	
 	// character is not ascii graphic

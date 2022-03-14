@@ -1246,7 +1246,17 @@ static int command_glinfo (const char *text, int len)
 	safe_snprintf (this_string, size, "%s: %s", opengl_version_str, my_string);
 	LOG_TO_CONSOLE (c_yellow2, this_string);
 
-	my_string = (const char*) glGetString (GL_EXTENSIONS);
+	my_string = gl_context_version_string();
+	minlen = strlen(context_version_str) + strlen(my_string) + 3;
+	if (size < minlen)
+	{
+		while (size < minlen) size += size;
+		this_string = realloc(this_string, size);
+	}
+	safe_snprintf(this_string, size,"%s: %s", context_version_str, my_string);
+	LOG_TO_CONSOLE(c_yellow2, this_string);
+
+	my_string = get_extensions_string();
 	minlen = strlen (supported_extensions_str) + strlen (my_string) + 3;
 	if (size < minlen)
 	{
@@ -1254,6 +1264,8 @@ static int command_glinfo (const char *text, int len)
 		this_string = realloc (this_string, size);
 	}
 	safe_snprintf (this_string, size, "%s: %s", supported_extensions_str, my_string);
+	// get_extensions_string() returns a dynamically allocated string, it should be freed
+	free((char*)my_string);
 	LOG_TO_CONSOLE (c_grey1, this_string);
 
 	free (this_string);
@@ -1680,6 +1692,8 @@ void save_local_data(void)
 	save_channel_colors();
 #ifdef JSON_FILES
 	save_character_options();
+	// if we not already using json files, switch to them now and save again
+	check_using_json_files();
 #endif
 }
 

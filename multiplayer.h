@@ -110,19 +110,25 @@ void create_tcp_out_mutex();
  */
 void cleanup_tcp();
 
-	/*!
+/*!
  * \ingroup network_actors
  * \brief Move the actor to a new location
  *
- *	Move the actor to a nearby location by calling the pathfinder.
- *
- * \param x the x-coordinate of the new position
- * \param y the y-coordinate of the new position
- * \param try_pathfinder if true, and other conditions permit, use the pathfinder
- *
- * \pre pathfinder will be used if try_pathfinder and always_pathfinding true and distance over the threshold
+ * When \a try_pathfinding is \c true and the configuration option \a always_pathfinding is
+ * also \c true, this function tries to find a path (near) to destination tile (\a *x, \a *y)
+ * using the client-side pathfinder, and when successful, updates \a x and \a y with the
+ * coordinates of the actual destination being walked to. If the pathfinder is not used, or
+ * fails to find a path, a request to move the actor to (\a *x, \a *y) is sent to the server.
+ * The return value can be used to determine whether to highlight the destintion position.
+ * It is \c true when the path finder succeeds, or when the pathfinder was not tried and
+ * the destination tile is walkable; in all other cases \c false is returned.
+ * \param x              x-coordinate of the position to move to
+ * \param y              y-coordinate of the position to move to
+ * \param try_pathfinder Whether to try using the client-side pathfinder
+ * \return \c true if a path was found by the pathfinder, or the pathfinder was bypassed and
+ * 	the destination tile is walkable.
  */
-void move_to (short int x, short int y, int try_pathfinder);
+int move_to(short *x, short *y, int try_pathfinder);
 
 /*!
  * \ingroup network_actors
