@@ -1138,7 +1138,10 @@ void try_auto_equip(int from_item)
 static int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 {
 	Uint8 str[100];
+#ifdef ANDROID
+	// ANDROID_TO_DO resolve use of the global
 	int left_click = flags & ELW_LEFT_MOUSE;
+#endif
 	int right_click = flags & ELW_RIGHT_MOUSE;
 	int ctrl_on = flags & KMOD_CTRL;
 	int shift_on = flags & KMOD_SHIFT;
@@ -1155,7 +1158,7 @@ static int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 	if (!right_click && over_button(win, mx, my) != -1)
 		do_click_sound();
 
-	if ((left_click) && (mx > text_arrow.pos_x) && (mx < text_arrow.pos_x + text_arrow.len_x) &&
+	if ((flags & ELW_LEFT_MOUSE) && (mx > text_arrow.pos_x) && (mx < text_arrow.pos_x + text_arrow.len_x) &&
 			(my < text_arrow.pos_y) && (my > text_arrow.pos_y - text_arrow.len_y))
 	{
 		items_disable_text_block ^= 1;
@@ -1164,7 +1167,7 @@ static int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 		return 1;
 	}
 
-	if ((left_click) && (mx > unequip_arrow.pos_x) && (mx < unequip_arrow.pos_x + unequip_arrow.len_x) &&
+	if ((flags & ELW_LEFT_MOUSE) && (mx > unequip_arrow.pos_x) && (mx < unequip_arrow.pos_x + unequip_arrow.len_x) &&
 		(my > unequip_arrow.pos_y) && (my < unequip_arrow.pos_y + unequip_arrow.len_y))
 	{
 		size_t i;
@@ -1272,7 +1275,7 @@ static int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 			edit_quantity = pos;
 			quantities.quantity[edit_quantity].len = 0;
 #endif
-		} else if(left_click){
+		} else if(flags & ELW_LEFT_MOUSE){
 			if(edit_quantity!=-1){
 				if(!quantities.quantity[edit_quantity].len){
 					//Reset the quantity
@@ -1305,8 +1308,8 @@ static int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 	else if(mx>items_grid.pos_x && (mx < items_grid.pos_x + items_grid.len_x) &&
 				my>0 && my < items_grid.len_y) {
 		int pos=get_mouse_pos_in_grid(mx, my, items_grid.cols, items_grid.rows, items_grid.pos_x, items_grid.pos_y, items_grid.width, items_grid.height);
-#ifdef ANDROID
 
+#ifdef ANDROID
 		if ((item_action_mode != ACTION_LOOK) && (pos !=- 1) && get_show_window(get_id_MW(MW_TRADE)))
 		{
 			if(!item_list[pos].quantity)

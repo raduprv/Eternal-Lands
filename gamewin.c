@@ -1156,7 +1156,7 @@ static int click_game_handler(window_info *win, int mx, int my, Uint32 flags)
 				return 1;
 			str[0] = HARVEST;
 			*((Uint16 *)(str+1)) = SDL_SwapLE16((Uint16)object_under_mouse);
-			my_tcp_send (str, 3);
+			my_tcp_send(str, 3);
 #ifdef ANDROID
 			highlight_3d_object = object_under_mouse;
 			highlight_3d_object_timestamp = SDL_GetTicks();
