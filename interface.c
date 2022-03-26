@@ -888,8 +888,8 @@ void draw_game_map (int map, int mouse_mini)
 // because of the coordinate display - Lachesis
 	if(map/*&&(adding_mark||max_mark>0)*/)
 	{
-		// Draw help for toggling the mini-map
 #ifndef ANDROID
+		// Draw help for toggling the mini-map
 		{
 			char buf[80];
 			char keybuf[20];

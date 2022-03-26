@@ -5,7 +5,9 @@
 #include <SDL_syswm.h>
 #endif
 
+#ifdef ANDROID
 #include "asc.h"
+#endif
 #include "elconfig.h"
 #include "events.h"
 #ifdef ANDROID
@@ -28,6 +30,7 @@
 #include "pawn/elpawn.h"
 #endif
 #include "textures.h"
+
 #include "actor_scripts.h"
 
 #ifdef ANDROID
@@ -317,7 +320,6 @@ int HandleEvent (SDL_Event *event)
 				case SDL_WINDOWEVENT_LEAVE:
 				case SDL_WINDOWEVENT_FOCUS_LOST:
 #ifndef ANDROID
-					last_loss = SDL_GetTicks();
 					if (clear_mod_keys_on_focus)
 						last_loss = SDL_GetTicks();
 					el_input_focus = 0;

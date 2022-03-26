@@ -13,8 +13,8 @@
 #include "gamewin.h"
 #include "gl_init.h"
 #include "interface.h"
-#include "misc.h"
 #ifdef ANDROID
+#include "misc.h"
 #include "items.h"
 #endif
 #include "sound.h"

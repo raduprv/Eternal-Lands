@@ -43,10 +43,7 @@ extern int osx_right_mouse_cam; /*!< flag indication whether the right mouse but
 extern int back_on; /*!< flag indicating whether the Android back key is pressed. */
 extern float long_touch_delay_s; /*!< Long Touch Delay in seconds. */
 extern float motion_touch_delay_s;  /*!< the time in seconds before motion is chosen over touch */
-#endif
-
-#ifdef ANDROID
-extern int enable_keyboard_debug;
+extern int enable_keyboard_debug; /*!< enabled by #kbd, shos key codes in console */
 #endif
 
 /*!

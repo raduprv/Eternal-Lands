@@ -1775,7 +1775,6 @@ void FontManager::initialize_ttf()
 				}
 				break;
 			}
-
 		}
 	}
 #endif

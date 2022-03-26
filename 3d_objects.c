@@ -273,7 +273,8 @@ void draw_3d_objects(unsigned int object_type)
 #endif  //DEBUG
 
 #ifdef ANDROID
-	if(highlight_3d_object_timestamp+1000<SDL_GetTicks())highlight_3d_object=-1;
+	if (highlight_3d_object_timestamp + 1000 < SDL_GetTicks())
+		highlight_3d_object = -1;
 #endif
 
 	get_intersect_start_stop(main_bbox_tree, object_type, &start, &stop);
@@ -348,7 +349,7 @@ void draw_3d_objects(unsigned int object_type)
 #endif  //SIMPLE_LOD
 
 #ifdef ANDROID
-		if(l==highlight_3d_object)
+		if (l == highlight_3d_object)
 		{
 			glEnable(GL_BLEND);
 			glBlendFunc(GL_ONE, GL_SRC_ALPHA);

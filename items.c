@@ -810,7 +810,7 @@ static int display_items_handler(window_info *win)
 			{
 				glColor4f((float) colors_list[colour].r1 / 255.0f, (float) colors_list[colour].g1 / 255.0f, (float) colors_list[colour].b1 / 255.0f, 1.0f);
 #ifdef ANDROID
-	if (!disable_GL_POINT_SMOOTH)
+				if (!disable_GL_POINT_SMOOTH)
 #endif
 				glEnable( GL_POINT_SMOOTH );
 				glEnable( GL_BLEND );
@@ -821,7 +821,7 @@ static int display_items_handler(window_info *win)
 				glEnd();
 				glDisable(GL_BLEND);
 #ifdef ANDROID
-	if (!disable_GL_POINT_SMOOTH)
+				if (!disable_GL_POINT_SMOOTH)
 #endif
 				glDisable(GL_POINT_SMOOTH);
 			}
@@ -1138,10 +1138,7 @@ void try_auto_equip(int from_item)
 static int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 {
 	Uint8 str[100];
-#ifdef ANDROID
-	// ANDROID_TODO this needs sorting in the main client
 	int left_click = flags & ELW_LEFT_MOUSE;
-#endif
 	int right_click = flags & ELW_RIGHT_MOUSE;
 	int ctrl_on = flags & KMOD_CTRL;
 	int shift_on = flags & KMOD_SHIFT;
@@ -1158,7 +1155,7 @@ static int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 	if (!right_click && over_button(win, mx, my) != -1)
 		do_click_sound();
 
-	if ((flags & ELW_LEFT_MOUSE) && (mx > text_arrow.pos_x) && (mx < text_arrow.pos_x + text_arrow.len_x) &&
+	if ((left_click) && (mx > text_arrow.pos_x) && (mx < text_arrow.pos_x + text_arrow.len_x) &&
 			(my < text_arrow.pos_y) && (my > text_arrow.pos_y - text_arrow.len_y))
 	{
 		items_disable_text_block ^= 1;
@@ -1167,7 +1164,7 @@ static int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 		return 1;
 	}
 
-	if ((flags & ELW_LEFT_MOUSE) && (mx > unequip_arrow.pos_x) && (mx < unequip_arrow.pos_x + unequip_arrow.len_x) &&
+	if ((left_click) && (mx > unequip_arrow.pos_x) && (mx < unequip_arrow.pos_x + unequip_arrow.len_x) &&
 		(my > unequip_arrow.pos_y) && (my < unequip_arrow.pos_y + unequip_arrow.len_y))
 	{
 		size_t i;
@@ -1275,7 +1272,7 @@ static int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 			edit_quantity = pos;
 			quantities.quantity[edit_quantity].len = 0;
 #endif
-		} else if(flags & ELW_LEFT_MOUSE){
+		} else if(left_click){
 			if(edit_quantity!=-1){
 				if(!quantities.quantity[edit_quantity].len){
 					//Reset the quantity
@@ -1596,8 +1593,10 @@ static int mouseover_items_handler(window_info *win, int mx, int my) {
 		if(pos==-1) {
 		} else if(item_list[pos].quantity){
 			set_description_help(pos);
+#ifndef ANDROID
 			if ((item_dragged == -1) && (items_mod_click_any_cursor || (item_action_mode==ACTION_WALK)))
 					item_help_str = mod_click_item_help_str;
+#endif
 			if(item_action_mode==ACTION_LOOK) {
 				elwin_mouse=CURSOR_EYE;
 			} else if(item_action_mode==ACTION_USE) {

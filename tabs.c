@@ -219,6 +219,7 @@ static int do_scale_info_handler(window_info *win)
 	const tab_collection *col = (const tab_collection*)w->widget_info;
 
 #ifdef ANDROID
+	// keep the notepad smaller than half the screen height so its fully visible when the keyboard is open
 	if (new_height > (0.8 * ((window_height / 2) - get_input_default_height())))
 		new_height = 0.8 * ((window_height / 2) - get_input_default_height());
 #endif

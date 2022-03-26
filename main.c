@@ -598,7 +598,7 @@ int main(int argc, char **argv)
 #endif	//OLC
 
 #ifdef ANDROID
-	// ANDROID_TODO - if restarted, static structures ate not reinitialised so exit fully.
+	// ANDROID_TODO - if restarted, static structures are not reinitialised so exit fully.
 	exit(0);
 #endif
 

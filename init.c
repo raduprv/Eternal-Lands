@@ -350,14 +350,12 @@ static void read_bin_cfg(void)
 		USE_JSON_DEBUG("Loading json file");
 		// if neither the json or the old cfg exist, try the data dir
 		if (!file_exists_config(client_state_filename) && !file_exists_config(cfg_filename))
-#ifdef ANDROID
 		{
+#ifdef ANDROID
 			do_file_exists(client_state_filename, datadir, sizeof(fname), fname);
+#endif
 			safe_snprintf(fname, sizeof(fname), "%s%s", datadir, client_state_filename);
 		}
-#else
-			safe_snprintf(fname, sizeof(fname), "%s%s", datadir, client_state_filename);
-#endif
 		// else use the config json, it may still fail but will fall through to the non json code
 		else
 			safe_snprintf(fname, sizeof(fname), "%s%s", get_path_config(), client_state_filename);
@@ -803,8 +801,8 @@ void init_stuff(void)
 	int i;
 	char config_location[300];
 	const char * cfgdir;
-#ifdef ANDROID
 
+#ifdef ANDROID
 	strcpy(datadir,SDL_AndroidGetInternalStoragePath());
 	strcat(datadir,"/");
 	chdir(datadir);
@@ -833,12 +831,13 @@ void init_stuff(void)
 
 	// Read the config file
 	read_config();
+
 #ifdef ANDROID
 	// ANDROID_TODO fix repeated setting of this path
 	strcpy(datadir,SDL_AndroidGetInternalStoragePath());//issue with cfg
 	strcat(datadir,"/");
 
-	// ANDROID TODO does this belong elsewhere?
+	// ANDROID_TODO does this belong elsewhere?
 	if (textures_32bpp)
 		glHint(GL_NODOWNSAMPLING_HINT_GL4ES, 1);
 #endif

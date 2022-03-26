@@ -1390,7 +1390,6 @@ static int click_spells_mini_handler(window_info *win, int mx, int my, Uint32 fl
 
 
 //MOUSEOVER HANDLERS
-#ifndef ANDROID
 static int mouseover_sigils_handler(window_info *win, int mx, int my)
 {
 	if(!have_error_message) {
@@ -1433,7 +1432,7 @@ static int mouseover_sigils_handler(window_info *win, int mx, int my)
 
 	return 0;
 }
-#endif
+
 
 static void set_spell_help_text(int spell){
 
@@ -1468,7 +1467,6 @@ static void set_spell_help_text(int spell){
 
 }
 
-#ifndef ANDROID
 static int mouseover_spells_handler(window_info *win, int mx, int my){
 	int i,pos;
 
@@ -1497,9 +1495,8 @@ static int mouseover_spells_handler(window_info *win, int mx, int my){
 	}
 	return 0;
 }
-#endif
 
-#ifndef ANDROID
+
 static int mouseover_spells_mini_handler(window_info *win, int mx, int my)
 {
 	int pos=get_mouse_pos_in_grid(mx,my, SPELLS_ALIGN_X, spell_mini_rows, spell_mini_border, spell_mini_border, spell_mini_grid_size, spell_mini_grid_size);
@@ -1526,7 +1523,7 @@ static int mouseover_spells_mini_handler(window_info *win, int mx, int my)
 	}
 	return 0;
 }
-#endif
+
 
 
 

@@ -1415,7 +1415,7 @@ static int display_game_handler (window_info *win)
 #ifndef ANDROID
 	set_click_line();
 #else
-	if(do_cursor_check)
+	if (do_cursor_check)
 	{
 		read_mouse_now = 1;
 		set_click_line();
@@ -1427,17 +1427,17 @@ static int display_game_handler (window_info *win)
 #ifndef ANDROID
 	reset_under_the_mouse();
 #else
-	if(do_cursor_check)
+	if (do_cursor_check)
 	{
 		SDL_Event e;
 		reset_under_the_mouse();
-		cursor_check_ready=1;
+		cursor_check_ready = 1;
 		e.type = SDL_USEREVENT;
 		e.user.code = EVENT_CURSOR_CALCULATION_COMPLETE;
 		SDL_PushEvent(&e);
 	}
 	else
-	clear_selections(); // clear the selections even if we didn't do the cursor check
+		clear_selections(); // clear the selections even if we didn't do the cursor check
 #endif
 
 	if (!dungeon){
@@ -1489,7 +1489,7 @@ static int display_game_handler (window_info *win)
 		weather_init_lightning_light();
 
 #ifndef ANDROID
-// is this really a problem? ANDROID_TODO
+// ANDROID_TODO shadow_on should be zero so no need for this?
 	if (!dungeon && shadows_on && (is_day || lightning_falling))
 	{
 		glNormal3f(0.0f,0.0f,1.0f);
@@ -2213,12 +2213,12 @@ int keypress_root_common (SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_m
 int text_input_handler (SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_mod)
 {
 	Uint8 ch = key_to_char (key_unicode);
-#ifdef ANDROID
 
+#ifdef ANDROID
 	if (!text_widget_already_setup)
 	{
-			text_widget_already_setup = 1;
-			input_widget_move_to_win(-1);
+		text_widget_already_setup = 1;
+		input_widget_move_to_win(-1);
 	}
 #endif
 

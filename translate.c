@@ -1585,7 +1585,7 @@ void init_help()
 	add_xml_identifier(misc,"caches",cache_size_str,"Cache size",sizeof(cache_size_str));
 	add_xml_identifier (misc, "appropr_name", use_appropriate_name, "Use an appropriate name:\nPlease do not create a name that is obscene or offensive, contains more than 2 digits, is senseless or stupid (i.e. djrtq47fa), or is made with the intent of impersonating another player.\nTake into consideration that the name you choose does affect the atmosphere of the game. Inappropriate names can and will be locked.", sizeof (use_appropriate_name) );
 #ifdef ANDROID
-	add_xml_identifier(misc,"edit_quantity_touch",quantity_edit_touch_str,"Click selected category to edit",sizeof(quantity_edit_touch_str));
+	add_xml_identifier(misc,"edit_quantity_touch",quantity_edit_touch_str,"Long-touch a quantity to edit",sizeof(quantity_edit_touch_str));
 #endif
 	add_xml_identifier(misc,"edit_quantity",quantity_edit_str,"Right-click on the quantity you wish to edit",sizeof(quantity_edit_str));
 	add_xml_identifier(misc,"equip_here",equip_here_str,"Place an item in these boxes to equip it",sizeof(equip_here_str));

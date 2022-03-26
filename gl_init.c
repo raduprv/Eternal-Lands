@@ -349,6 +349,7 @@ void init_video(void)
 		}
 	}
 #endif
+
 	if (el_gl_context == NULL)
 	{
 		LOG_ERROR("%s: %s\n", "SDL_GL_CreateContext() Failed", SDL_GetError());

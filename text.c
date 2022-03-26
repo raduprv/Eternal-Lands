@@ -657,7 +657,7 @@ int filter_or_ignore_text (char *text_to_add, int len, int size, Uint8 channel)
 		}
 		else if (!strncasecmp(text_to_add+1, "You see: ", 9)) {
 #ifdef ANDROID
-			achievements_close_all();
+			achievements_close_all(); // allow only one window
 #endif
 			achievements_player_name(text_to_add+10, len-10);
 		}

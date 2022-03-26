@@ -413,7 +413,7 @@ extern "C" int anything_under_the_mouse(int object_id, int object_type)
 }
 
 #ifdef ANDROID
-extern "C" void clear_selections()
+extern "C" void clear_selections(void)
 {
 	selections.clear();
 }

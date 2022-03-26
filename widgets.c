@@ -1205,7 +1205,7 @@ static int vscrollbar_draw(widget_list *W)
 	}
 
 	// make sure the scroll bar does not extend beyond the arrows
-	// ANDROID_TODO - this is needed in the non-android client too so no #defs
+	// fixed in the android client but needed in the main client too
 	{
 		float max_y_space = 11 * arrow_size;
 		float bar_y_gap = 3 * arrow_size;

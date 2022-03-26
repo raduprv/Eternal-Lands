@@ -1616,11 +1616,9 @@ void display_manufacture_menu()
 		set_window_handler(recipe_win, ELW_HANDLER_CLICK, &recipe_dropdown_click_handler );
 #ifndef ANDROID
 		set_window_handler(recipe_win, ELW_HANDLER_MOUSEOVER, &mouseover_recipe_handler );
-#endif
-		set_window_handler(recipe_win, ELW_HANDLER_RESIZE, &resize_recipe_handler );
-#ifndef ANDROID
 		set_window_handler(recipe_win, ELW_HANDLER_KEYPRESS, (int (*)())&keypress_recipe_handler );
 #endif
+		set_window_handler(recipe_win, ELW_HANDLER_RESIZE, &resize_recipe_handler );
 
 		recipe_win_scroll_id = vscrollbar_add_extended(recipe_win, 1, NULL, 0,
 			0, 0, 0, 0, 1.0, 0, 1, num_recipe_entries-num_displayed_recipes);

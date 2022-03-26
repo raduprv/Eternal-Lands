@@ -1,6 +1,8 @@
 #include "../platform.h"
 #include "elpathwrapper.h"
+#ifdef ANDROID
 #include "elfilewrapper.h"
+#endif
 #include "../asc.h"
 #include "../elconfig.h"
 #include "../elc_private.h"

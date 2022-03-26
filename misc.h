@@ -57,7 +57,7 @@ void reset_under_the_mouse();
 int anything_under_the_mouse(int object_id, int object_type);
 
 #ifdef ANDROID
-void clear_selections();
+void clear_selections(void);
 #endif
 
 //some prototypes, that won't fit somewhere else

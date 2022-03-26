@@ -33,7 +33,9 @@
  #include "draw_scene.h"
  #include "emotes.h"
  #include "errors.h"
+#ifdef ANDROID
  #include "events.h"
+#endif
  #include "elwindows.h"
  #include "filter.h"
  #include "gamewin.h"
@@ -3184,7 +3186,11 @@ static void init_ELC_vars(void)
 #ifdef ANDROID
 	add_var(OPT_BOOL,"full_screen","fs",&full_screen,toggle_full_screen_mode,0,"Full Screen","Changes between full screen and windowed mode",VIDEO);
 	video_mode = 4;
+	use_animation_program = 0;
 	add_var(OPT_INT,"limit_fps","lfps",&limit_fps,change_fps,0,"Limit FPS","Limit the frame rate to reduce load on the system",VIDEO,0,INT_MAX);
+	add_var(OPT_MULTI_H,"screen_orientation_modes","sorm",&screen_orientation_modes, change_int, 0, "Suported Screen Orientations", "Set which screen orientations are supported. Takes effect after a client restart", VIDEO, "All", "Landscape", "Portrait", NULL);
+	add_var(OPT_BOOL,"enable_screensaver","esc",&enable_screensaver,change_screensaver,0,"Enable Desktop Screensaver","By default your desktop screen saver is disabled, this is normal behavour for games and media players. Set this option to enable the screensaver / monitor power managment.",VIDEO);
+	add_var(OPT_BOOL,"textures_32bpp","t32bpp",&textures_32bpp,change_var,1,"32 BPP textures","Slower, requires restart",VIDEO);
 #else
 	add_var(OPT_BOOL,"full_screen","fs",&full_screen,toggle_full_screen_mode,0,"Full Screen","Changes between full screen and windowed mode",VIDEO);
 	add_var(OPT_MULTI,"video_mode","vid",&video_mode,switch_vidmode,4,"Video Mode","The video mode you wish to use",VIDEO, "Userdefined", NULL);
@@ -3224,14 +3230,9 @@ static void init_ELC_vars(void)
 		 VIDEO);
 #endif /* ANDROID */
 	add_var(OPT_BOOL,"small_actor_texture_cache","small_actor_tc",&small_actor_texture_cache,change_small_actor_texture_cache,0,"Small actor texture cache","A small Actor texture cache uses less video memory, but actor loading can be slower.",VIDEO);
-#ifdef ANDROID
-	add_var(OPT_BOOL,"textures_32bpp","t32bpp",&textures_32bpp,change_var,1,"32 BPP textures","Slower, requires restart",VIDEO);
-#endif
 	add_var(OPT_BOOL,"use_vertex_buffers","vbo",&use_vertex_buffers,change_vertex_buffers,0,"Vertex Buffer Objects","Toggle the use of the vertex buffer objects, restart required to activate it",VIDEO);
+#ifndef ANDROID
 	add_var(OPT_BOOL, "use_animation_program", "uap", &use_animation_program, change_use_animation_program, 1, "Use animation program", "Use GL_ARB_vertex_program for actor animation", VIDEO);
-#ifdef ANDROID
-	add_var(OPT_MULTI_H,"screen_orientation_modes","sorm",&screen_orientation_modes, change_int, 0, "Suported Screen Orientations", "Set which screen orientations are supported. Takes effect after a client restart", VIDEO, "All", "Landscape", "Portrait", NULL);
-	add_var(OPT_BOOL,"enable_screensaver","esc",&enable_screensaver,change_screensaver,0,"Enable Desktop Screensaver","By default your desktop screen saver is disabled, this is normal behavour for games and media players. Set this option to enable the screensaver / monitor power managment.",VIDEO);
 #endif
 	add_var(OPT_BOOL_INI, "video_info_sent", "svi", &video_info_sent, change_var, 0, "Video info sent", "Video information are sent to the server (like OpenGL version and OpenGL extentions)", VIDEO);
 	// VIDEO TAB
