@@ -1676,6 +1676,7 @@ static int display_game_handler (window_info *win)
 			safe_snprintf ((char*)str, sizeof(str), "FPS: %i", fps[0]);
 		draw_string_zoomed_centered_around(fps_center_x, fps_y, str, 4, win->current_scale);
 
+#ifdef DEBUG
 		// Don't display UVP info if its off.  Either your system does not support it or you turned
 		// it off so why keep reminding you? Show only if enabled to help with fault diagnostics.
 		if (use_animation_program)
@@ -1684,6 +1685,7 @@ static int display_game_handler (window_info *win)
 			draw_string_zoomed_centered_around(fps_center_x, fps_y + win->default_font_len_y,
 				str, 4, win->current_scale);
 		}
+#endif
 	}
 	else
 		fps_default_width = 0;

@@ -218,7 +218,7 @@ int common_encyclopedia_click_handler(window_info *win, int mx, int my, Uint32 f
 			if(t->ref)
 			{
 				// check if its a webpage
-				if (!strncasecmp(t->ref, "http://", 7)) {
+				if ((!strncasecmp(t->ref, "http://", 7)) || (!strncasecmp(t->ref, "https://", 8))) {
 					open_web_link(t->ref);
 				} else {
 					//changing page
