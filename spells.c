@@ -1231,6 +1231,9 @@ static int switch_handler(int new_win){
 	set_id_MW(MW_SPELLS, this_win);
 	check_proportional_move(MW_SPELLS);
 	start_mini_spells=(this_win == spell_mini_win)? 1:0;
+#ifdef ANDROID
+	set_spell_help_text(we_have_spell);
+#endif
 
 	return 1;
 }
@@ -1314,6 +1317,9 @@ static int click_spells_handler(window_info *win, int mx, int my, Uint32 flags){
 		//a spell has been clicked
 		int code_pos=(the_group*256+the_spell);
 		we_have_spell=groups_list[the_group].spells_id[the_spell];
+#ifdef ANDROID
+		set_spell_help_text(we_have_spell);
+#endif
 		put_on_cast();
 		//handle double click && cast spell
 		if ( ((SDL_GetTicks() - last_clicked) < 400)&&last_pos==code_pos) cast_handler();
@@ -1972,7 +1978,9 @@ void display_sigils_menu()
 		set_window_custom_scale(sigils_win, MW_SPELLS);
 		set_window_handler(sigils_win, ELW_HANDLER_DISPLAY, &display_sigils_handler );
 		set_window_handler(sigils_win, ELW_HANDLER_CLICK, &click_sigils_handler );
+#ifndef ANDROID
 		set_window_handler(sigils_win, ELW_HANDLER_MOUSEOVER, &mouseover_sigils_handler );
+#endif
 		set_window_handler(sigils_win, ELW_HANDLER_UI_SCALE, &ui_scale_sigils_handler );
 		set_window_handler(sigils_win, ELW_HANDLER_FONT_CHANGE, &change_sigils_font_handler);
 
@@ -1996,7 +2004,9 @@ void display_sigils_menu()
 		set_window_custom_scale(spell_win, MW_SPELLS);
 		set_window_handler(spell_win, ELW_HANDLER_DISPLAY, &display_spells_handler );
 		set_window_handler(spell_win, ELW_HANDLER_CLICK, &click_spells_handler );
+#ifndef ANDROID
 		set_window_handler(spell_win, ELW_HANDLER_MOUSEOVER, &mouseover_spells_handler );
+#endif
 		set_window_handler(spell_win, ELW_HANDLER_UI_SCALE, &ui_scale_spells_handler );
 		set_window_handler(spell_win, ELW_HANDLER_FONT_CHANGE, &change_spells_font_handler);
 
@@ -2018,7 +2028,9 @@ void display_sigils_menu()
 		set_window_custom_scale(spell_mini_win, MW_SPELLS);
 		set_window_handler(spell_mini_win, ELW_HANDLER_DISPLAY, &display_spells_mini_handler );
 		set_window_handler(spell_mini_win, ELW_HANDLER_CLICK, &click_spells_mini_handler );
+#ifndef ANDROID
 		set_window_handler(spell_mini_win, ELW_HANDLER_MOUSEOVER, &mouseover_spells_mini_handler );
+#endif
 		set_window_handler(spell_mini_win, ELW_HANDLER_UI_SCALE, &ui_scale_spells_mini_handler );
 
 		if (spell_mini_win >= 0 && spell_mini_win < windows_list.num_windows)

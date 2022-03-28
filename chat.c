@@ -37,12 +37,15 @@ static queue_t *chan_name_queue;
 static widget_list *input_widget = NULL;
 int console_input_at_top = 0;
 static int input_widget_start_x = 1;
+#ifdef ANDROID
+static int input_keyboard_button_id = -1;
+#endif
 
 /*!
  * \name Tabbed and old behaviour chat
  */
 /*! @{ */
-max_chat_lines_def max_chat_lines = { .value = 10, .lower = 5, .upper = 100 }; /*!< the upper, lower and current max lines to display */
+max_chat_lines_def max_chat_lines = { .value = 10, .lower = 1, .upper = 100 }; /*!< the upper, lower and current max lines to display */
 static int lines_to_show = 0; /*!< the number of lines currently shown */
 int get_lines_to_show(void) { return lines_to_show; }
 void dec_lines_to_show(void) { if (lines_to_show > 0) lines_to_show--; }
@@ -164,10 +167,46 @@ int get_tabbed_chat_end_x(void)
 	return windows_list.window[tab_bar_win].cur_x + windows_list.window[tab_bar_win].len_x;
 }
 
+#ifdef ANDROID
+static void remove_keyboard_button(void)
+{
+	widget_destroy(input_widget->window_id, input_keyboard_button_id);
+	input_keyboard_button_id = -1;
+	input_widget_start_x = 1;
+}
+
+static int toggle_keyboard_click(widget_list *w, int mx, int my, Uint32 flags)
+{
+	toggle_active_input();
+	return 1;
+}
+#endif
+
 static void common_non_windowed_move_input_widget(window_info *win)
 {
 	if ((win == NULL) || (input_widget == NULL))
 		return;
+
+#ifdef ANDROID
+	if (input_widget->window_id != get_id_MW(MW_TABMAP))
+	{
+		if (widget_find(input_widget->window_id, input_keyboard_button_id) == NULL)
+		{
+			input_keyboard_button_id = button_add_extended(input_widget->window_id, 99, NULL, 0, 0, 0, 0, BUTTON_SQUARE, 1.0f, keyboard_button_str);
+			widget_set_font_cat(input_widget->window_id, input_keyboard_button_id, CHAT_FONT);
+			widget_set_OnClick(input_widget->window_id, input_keyboard_button_id, toggle_keyboard_click);
+		}
+
+		button_resize(input_widget->window_id, input_keyboard_button_id, 0, input_widget->len_y,  1.0f);
+
+		if (console_input_at_top)
+			widget_move(input_widget->window_id, input_keyboard_button_id, 1, get_tab_bar_y());
+		else
+			widget_move(input_widget->window_id, input_keyboard_button_id, 1, win->len_y - input_widget->len_y  - HUD_MARGIN_Y);
+
+		input_widget_start_x = widget_get_width(input_widget->window_id, input_keyboard_button_id) + INPUT_MARGIN * font_scales[CHAT_FONT];
+	}
+#endif
 
 	if (console_input_at_top)
 		widget_move(input_widget->window_id, input_widget->id, input_widget_start_x, get_tab_bar_y());
@@ -189,6 +228,11 @@ void input_widget_move_to_win(int window_id)
 		win = &windows_list.window[window_id];
 	if (win == NULL)
 		return;
+
+#ifdef ANDROID
+	if ((input_widget->window_id != window_id) && (widget_find(input_widget->window_id, input_keyboard_button_id) != NULL))
+		remove_keyboard_button();
+#endif
 
 	if (input_widget->window_id != window_id)
 		widget_move_win(input_widget->window_id, input_widget->id, window_id);
@@ -216,6 +260,9 @@ void input_widget_move_to_win(int window_id)
 			flags |= TEXT_FIELD_BORDER;
 		widget_set_flags(input_widget->window_id, input_widget->id, flags);
 		tf->x_space = tf->y_space = INPUT_MARGIN * font_scales[CHAT_FONT];
+#ifdef ANDROID
+		common_non_windowed_move_input_widget(win);
+#endif
 		widget_resize(input_widget->window_id, input_widget->id,
 			win->len_x - HUD_MARGIN_X - input_widget_start_x, 2 * tf->y_space + text_height);
 	}
@@ -839,6 +886,14 @@ static int chat_scroll_click (widget_list *widget, int mx, int my, Uint32 flags)
         return 0;
 }
 
+#ifdef ANDROID
+static int chat_input_click(widget_list *widget, int mx, int my, Uint32 flags)
+{
+	SDL_StartTextInput();
+	return 1;
+}
+#endif
+
 static int chat_input_key (widget_list *widget, int mx, int my, SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_mod)
 {
 	text_field *tf;
@@ -1021,6 +1076,9 @@ int root_key_to_input_field (SDL_Keycode key_code, Uint32 key_unicode, Uint16 ke
 		parse_input(msg->data, msg->len);
 		add_line_to_history((char*)msg->data, msg->len);
 		clear_input_line();
+#ifdef ANDROID
+		SDL_StopTextInput();
+#endif
 	}
 	else if (tf->cursor == 1 && (ch == '/' || ch == char_slash_str[0])
 	             && (msg->data[0] == '/' || msg->data[0]==char_slash_str[0])
@@ -1239,6 +1297,9 @@ static void create_chat_window(void)
 			CHAT_FONT, 1.0, &input_text_line, 1, FILTER_ALL,
 			CHAT_WIN_SPACE, CHAT_WIN_SPACE);
 		widget_set_OnKey (chat_win, id, (int (*)())chat_input_key);
+#ifdef ANDROID
+		widget_set_OnClick(chat_win, id, chat_input_click);
+#endif
 		input_widget = widget_find(chat_win, id);
 	}
 	set_window_min_size (chat_win, min_width, min_height);
@@ -3099,6 +3160,9 @@ void create_console_input(int window_id, int widget_id, int pos_x, int pos_y, in
 
 	input_widget = widget_find(window_id, id);
 	input_widget->OnResize = input_field_resize;
+#ifdef ANDROID
+	widget_set_OnClick(window_id, id, chat_input_click);
+#endif
 
 	input_widget_move_to_win(window_id);
 }

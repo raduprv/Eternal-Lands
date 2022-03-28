@@ -13,6 +13,17 @@ extern "C" {
 extern float water_movement_u; /**< movement of the water in u direction */
 extern float water_movement_v; /**< movement of the water in v direction */
 extern int water_shader_quality; /**< quality of the shader used for drawing water. Zero means no shader. */
+extern int use_150_water_shader; //!< Whether to use the new water shader
+
+/*!
+ * \brief Check if the texture coordinates for the reflection buffer should be flipped
+ *
+ * On some systems (e.g. Intel integrated graphics on Windows), the reflection texture is rendered
+ * upside down (or interpreted to be such), so that the texture coordinates must be flipped
+ * vertically to render the water reflection correctly. This function determines if this must be
+ * done.
+ */
+void check_flip_fbo_texture(void);
 
 /**
  * defines whether a tile is a water tile or not
@@ -66,6 +77,11 @@ void make_lake_water_noise();
 void blend_reflection_fog();
 
 /**
+ * \ingroup reflections
+ * \brief Log which water shader is used to the log file
+ */
+void log_water_shader_version(void);
+/**
  * @ingroup reflections
  * @brief Draws the tiles of all lakes on the map
  *
@@ -73,7 +89,7 @@ void blend_reflection_fog();
  *
  * @callgraph
  */
-void draw_lake_tiles();
+void draw_lake_tiles(void);
 
 /**
  * @ingroup reflections
@@ -152,6 +168,15 @@ void change_reflection_framebuffer_size(int width, int height);
 
 /**
  * @ingroup reflections
+ * @brief Initialises the water vertex array object,
+ *
+ * Initialises the vertex array object for the water shader, if necessary.
+ *
+ * @callgraph
+ */
+void init_water_vertex_vao();
+/**
+ * @ingroup reflections
  * @brief Inits the buffer used for water.
  *
  * Inits the buffer used for water (reflectiv and non reflectiv). Must be called every time map
@@ -162,6 +187,14 @@ void change_reflection_framebuffer_size(int width, int height);
  */
 void init_water_buffers(int water_buffer_size);
 
+/**
+ * @ingroup reflections
+ * @brief Disable water ripples
+ *
+ * Limits the maximum quality for water so water ripples are not rendered.
+ * @callgraph
+ */
+void disable_water_ripples();
 /**
  * @ingroup reflections
  * @brief Gets the maximum quality for water rendering supported by the hardware.

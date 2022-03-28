@@ -178,6 +178,9 @@ static void draw_actor_points(window_info *win, float zoom_multip, float px, flo
 	glDisable(GL_TEXTURE_2D);
 
 	//display the actors
+#ifdef ANDROID
+	if (!disable_GL_POINT_SMOOTH)
+#endif
 	glEnable( GL_POINT_SMOOTH );
 	glEnable( GL_BLEND );
 	glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
@@ -209,6 +212,9 @@ static void draw_actor_points(window_info *win, float zoom_multip, float px, flo
 
 	glEnd();//GL_POINTS
 	glDisable(GL_BLEND);
+#ifdef ANDROID
+	if (!disable_GL_POINT_SMOOTH)
+#endif
 	glDisable(GL_POINT_SMOOTH);
 
 	glPopMatrix();
@@ -571,7 +577,12 @@ static void decrease_zoom()
 static int click_minimap_handler(window_info * win, int mx, int my, Uint32 flags)
 {
 	int close_button_x = win->len_x/2 + title_len - 1;
+#ifdef ANDROID
+	// ANDROID_TODO this needs sorting in the main client
+	if(flags & ELW_LEFT_MOUSE)
+#else
 	if(left_click)
+#endif
 	{
 		//check for close button click
 		if((mx >=close_button_x) && (mx <=close_button_x + win->title_height) 
@@ -768,6 +779,20 @@ static int ui_scale_minimap_handler(window_info *win)
 	return 1;
 }
 
+#ifdef ANDROID
+int finger_minimap_handler(window_info *win, Uint32 timestamp, float x, float y, float dx, float dy)
+{
+	if ((fabsf(dx) > fabsf(dy)) && (fabsf(dx) > 0.002))
+	{
+		if (dx > 0)
+			increase_zoom();
+		else
+			decrease_zoom();
+	}
+	return 1;
+}
+#endif
+
 void display_minimap(void)
 {
 	int minimap_win = get_id_MW(MW_MINIMAP);
@@ -791,6 +816,9 @@ void display_minimap(void)
 		set_window_handler(minimap_win, ELW_HANDLER_CLICK, &click_minimap_handler);	
 		set_window_handler(minimap_win, ELW_HANDLER_MOUSEOVER, &mouseover_minimap_handler);	
 		set_window_handler(minimap_win, ELW_HANDLER_KEYPRESS, (int (*)())&keypress_minimap_handler );
+#ifdef ANDROID
+		set_window_handler(minimap_win, ELW_HANDLER_FINGER_MOTION, (int (*)())&finger_minimap_handler );
+#endif
 		set_window_handler(minimap_win, ELW_HANDLER_UI_SCALE, &ui_scale_minimap_handler);
 		win = &(windows_list.window[minimap_win]);
 		win->owner_drawn_title_bar = 1;

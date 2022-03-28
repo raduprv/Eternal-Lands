@@ -12,6 +12,10 @@
 extern "C" {
 #endif
 
+#ifdef ANDROID
+#define ITEM_INVENTORY 1
+#endif
+
 extern int trade_you_accepted; /*!< flag, indicating whether you have accepted the trade or not */
 extern int trade_other_accepted; /*!< flag, indicating whether the trade partner has accepted the trade or not */
 
@@ -64,6 +68,13 @@ void put_item_on_trade (const Uint8 *data);
  * \param   	data The trade data
  */
 void remove_item_from_trade (const Uint8 *data);
+
+/*!
+ * \ingroup 	trade
+ * \brief Hide the trade window and reset state.
+ *
+ */
+void trading_window_exit(void);
 
 #ifdef __cplusplus
 } // extern "C"

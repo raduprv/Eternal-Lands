@@ -135,6 +135,13 @@ dichar	sig_change,
 char
 	/*3d_objects.c*/
 	values_str[20],
+#ifdef ANDROID
+	/* misc android help */
+	touch_help_str[20],
+	long_touch_cm_title_str[40],
+	long_touch_cm_options_str[40],
+	keyboard_button_str[30],
+#endif
 	/*buddy.c*/
 	buddy_name_str[20],
 	buddy_long_name_str[100],
@@ -176,6 +183,9 @@ char
 	urlcmd_invalid_str[30],
 	urlcmd_afk_str[30],
 	urlcmd_clear_str[30],
+#ifdef ANDROID
+	urlwin_longtouch_str[50],
+#endif
 	urlwin_open_str[50],
 	urlwin_clear_str[30],
 	/*draw_scene.c*/
@@ -233,6 +243,9 @@ char
 	auto_get_all_str[30],
 	item_list_but_str[35],
 	inv_keeprow_str[30],
+#ifdef ANDROID
+	quantity_edit_touch_str[100],
+#endif
 	quantity_edit_str[100],
 	equip_here_str[100],
 	items_text_toggle_help_str[50],
@@ -473,6 +486,7 @@ char	name_too_long[75],
 	video_card_str[20],
 	video_vendor_str[20],
 	opengl_version_str[20],
+	context_version_str[30],
 	supported_extensions_str[30],
 	pm_from_str[10],
 	gm_from_str[10],
@@ -1131,6 +1145,7 @@ void init_console()
 	add_xml_identifier(misc,"vendor",video_vendor_str,"Vendor ID",sizeof(video_vendor_str));
 	add_xml_identifier(misc,"ext",supported_extensions_str,"Supported extensions",sizeof(supported_extensions_str));
 	add_xml_identifier(misc,"opengl",opengl_version_str,"OpenGL Version",sizeof(opengl_version_str));
+	add_xml_identifier(misc,"context",context_version_str,"OpenGL Context version",sizeof(context_version_str));
 	add_xml_identifier(misc,"pm_from",pm_from_str,"[PM from",sizeof(pm_from_str));
 	add_xml_identifier(misc,"mod_pm_from",mod_pm_from_str,"[Mod PM from",sizeof(mod_pm_from_str));
 	add_xml_identifier(misc,"gm_from",gm_from_str,"#GM from",sizeof(gm_from_str));
@@ -1484,6 +1499,13 @@ void init_help()
 	add_xml_identifier(afk,"names",afk_names,"Names",sizeof(afk_names));
 	add_xml_identifier(afk,"messages",afk_messages,"Messages",sizeof(afk_messages));
 	add_xml_identifier(afk,"help",afk_print_help,"To print the messages from the different people type #msg <number> or #msg all to view them all",sizeof(afk_print_help));
+#ifdef ANDROID
+	// Android-touch specific
+	add_xml_identifier(misc, "touch_help_str", touch_help_str, "Touch", sizeof(touch_help_str));
+	add_xml_identifier(misc, "long_touch_cm_title_str", long_touch_cm_title_str, "Long-touch for window menu", sizeof(long_touch_cm_title_str));
+	add_xml_identifier(misc, "long_touch_cm_options_str", long_touch_cm_options_str, "Long-touch for options", sizeof(long_touch_cm_options_str));
+	add_xml_identifier(misc, "keyboard_button_str", keyboard_button_str, "Keyboard", sizeof(keyboard_button_str));
+#endif
 	//Miscellaneous
 	add_xml_identifier(misc,"values",values_str,"values",sizeof(values_str));
 	add_xml_identifier(misc,"close",close_str,"[close]",sizeof(close_str));
@@ -1562,6 +1584,9 @@ void init_help()
 	add_xml_identifier(misc,"cachei",cache_items_str,"items",sizeof(cache_items_str));
 	add_xml_identifier(misc,"caches",cache_size_str,"Cache size",sizeof(cache_size_str));
 	add_xml_identifier (misc, "appropr_name", use_appropriate_name, "Use an appropriate name:\nPlease do not create a name that is obscene or offensive, contains more than 2 digits, is senseless or stupid (i.e. djrtq47fa), or is made with the intent of impersonating another player.\nTake into consideration that the name you choose does affect the atmosphere of the game. Inappropriate names can and will be locked.", sizeof (use_appropriate_name) );
+#ifdef ANDROID
+	add_xml_identifier(misc,"edit_quantity_touch",quantity_edit_touch_str,"Long-touch a quantity to edit",sizeof(quantity_edit_touch_str));
+#endif
 	add_xml_identifier(misc,"edit_quantity",quantity_edit_str,"Right-click on the quantity you wish to edit",sizeof(quantity_edit_str));
 	add_xml_identifier(misc,"equip_here",equip_here_str,"Place an item in these boxes to equip it",sizeof(equip_here_str));
 	add_xml_identifier(misc,"items_text_toggle_help",items_text_toggle_help_str,"Show/hide the text message panel",sizeof(items_text_toggle_help_str));
@@ -1601,6 +1626,9 @@ void init_help()
 	add_xml_identifier(misc,"invalid_url",urlcmd_invalid_str,"Invalid URL number",sizeof(urlcmd_invalid_str));
 	add_xml_identifier(misc,"afk_url",urlcmd_afk_str,"URL seen while AFK:",sizeof(urlcmd_afk_str));
 	add_xml_identifier(misc,"clear_url",urlcmd_clear_str,"clear",sizeof(urlcmd_clear_str));
+#ifdef ANDROID
+	add_xml_identifier(misc,"urlwin_longtouch",urlwin_longtouch_str,"Long-touch for open and other options",sizeof(urlwin_longtouch_str));
+#endif
 	add_xml_identifier(misc,"open_urlwin",urlwin_open_str,"Click to open; right+click for options",sizeof(urlwin_open_str));
 	add_xml_identifier(misc,"clear_urlwin",urlwin_clear_str,"Clear the URL list",sizeof(urlwin_clear_str));
 	add_xml_identifier(misc,"reset",reset_str,"Reset",sizeof(reset_str));

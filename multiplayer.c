@@ -280,8 +280,9 @@ void print_packet(const char *in_data, int len){
 #endif
 
 #ifndef USE_SSL
-void move_to (short int x, short int y, int try_pathfinder)
+int move_to (short int *x, short int *y, int try_pathfinder)
 {
+	int pathfinder_failed = 0;
 	Uint8 str[5];
 
 	if (try_pathfinder && always_pathfinding)
@@ -290,19 +291,35 @@ void move_to (short int x, short int y, int try_pathfinder)
 		locked_list_ptr actors_list = lock_and_get_self(&me);
 		if (actors_list)
 		{
-			/* if path finder fails, try standard move */
-			int path_found = abs(me->x_tile_pos-x) + abs(me->y_tile_pos-y) > 2
-				&& pf_find_path(me, x, y);
+			int path_found = 0;
+
+			if (abs(me->x_tile_pos-*x) + abs(me->y_tile_pos-*y) > 2)
+			{
+				/* if path finder fails, try standard move */
+				if (pf_find_path(me, *x, *y))
+				{
+					*x = pf_dst_tile->x;
+					*y = pf_dst_tile->y;
+					path_found = 1;
+				}
+				else
+				{
+					pathfinder_failed = 1;
+				}
+			}
+
 			release_locked_actors_list(actors_list);
 			if (path_found)
-				return;
+				return 1;
 		}
 	}
 
 	str[0]= MOVE_TO;
-	*((short *)(str+1))= SDL_SwapLE16 (x);
-	*((short *)(str+3))= SDL_SwapLE16 (y);
+	*((short *)(str+1))= SDL_SwapLE16 (*x);
+	*((short *)(str+3))= SDL_SwapLE16 (*y);
 	my_tcp_send(str, 5);
+
+	return !pathfinder_failed && get_tile_walkable(*x, *y);
 }
 
 void send_heart_beat()
@@ -632,7 +649,7 @@ void connect_to_server()
 	clear_now_harvesting();
 	last_heart_beat= time(NULL);
 	send_heart_beat();	// prime the hearbeat to prevent some stray issues when there is lots of lag
-	hide_window_MW(MW_TRADE);
+	trading_window_exit();
 	do_connect_sound();
 
 	my_tcp_flush();    // make sure tcp output buffer is empty
@@ -647,6 +664,10 @@ void send_login_info()
 
 	if (!valid_username_password())
 		return;
+
+#ifdef ANDROID
+	SDL_StopTextInput();
+#endif
 
 	local_username_str = get_username();
 	local_password_str = get_password();
@@ -911,6 +932,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 				load_channel_colors();
 				send_video_info();
 				check_glow_perk();
+				revalidate_ground_bag_window();
 #ifdef USE_SSL
 				set_logged_in(1);
 #else // USE_SSL
@@ -1649,7 +1671,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 
 		case GET_TRADE_EXIT:
 			{
-				hide_window_MW(MW_TRADE);
+				trading_window_exit();
 				trade_exit();
 			}
 			break;

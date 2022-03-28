@@ -90,13 +90,20 @@
  #endif
 #endif //WINDOWS
 
+// Include the platform-specific OpenGL location
 #ifdef OSX
+ #define GL_GLEXT_LEGACY
  #include <OpenGL/gl.h>
  #include <OpenGL/glu.h>
  //#include <OpenGL/glext.h>
- #include "elglext.h"
- #define APIENTRY 
- #define APIENTRYP *
+ #undef GL_VERSION_1_2
+ #undef GL_VERSION_1_3
+ #undef GL_VERSION_1_4
+ #undef GL_VERSION_1_5
+ #undef GL_VERSION_2_0
+ #undef GL_VERSION_2_1
+ #undef GL_VERSION_3_0
+ #include "glext.h"
 #else
  #define GL_GLEXT_LEGACY
  #include <GL/gl.h>
@@ -106,6 +113,7 @@
  #include "glext.h"
 #endif
 
+#ifdef NEW_SOUND
 // Inlucde the plaform specific location sound libs
 #ifdef OSX
 	#include <Carbon/Carbon.h>
@@ -119,6 +127,7 @@
 	#include <AL/al.h>
 	#include <AL/alc.h>
 #endif //lib location platform checking
+#endif
 
 #include <math.h>
 #ifndef M_PI

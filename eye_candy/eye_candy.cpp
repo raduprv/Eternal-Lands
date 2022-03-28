@@ -1986,7 +1986,11 @@ namespace ec
 		el::HardwareBuffer::unbind(el::hbt_vertex);
 
 		end_draw();
+
 		// Draw lights.
+#ifndef MAP_EDITOR
+		reset_eye_candy_lights();
+#endif // MAP_EDITOR
 		if ((use_lights) && (particles.size() > 0))
 		{
 			while (light_particles.size() < lights.size())
@@ -2026,6 +2030,12 @@ namespace ec
 				glEnable(light_id);
 				glLightfv(light_id, GL_POSITION, light_pos);
 				glLightfv(light_id, GL_DIFFUSE, light_color);
+
+				// For some reason eye candy coordinates are rotated 90 degrees around the x axis
+#ifndef MAP_EDITOR
+				const float light_pos_world[3] = { p->pos.x, -p->pos.z, p->pos.y };
+				add_eye_candy_light(light_pos_world, light_color, light_linear_attenuation);
+#endif // MAP_EDITOR
 			}
 			for (int i = (int)light_particles.size(); i < (int)lights.size(); i++)
 				glDisable(lights[i]);
@@ -2033,7 +2043,7 @@ namespace ec
 		else
 		{
 			for (int i = 0; i < (int)lights.size(); i++)
-			glDisable(lights[i]); // Save the graphics card some work when rendering the rest of the scene, ne? :)
+				glDisable(lights[i]); // Save the graphics card some work when rendering the rest of the scene, ne? :)
 		}
 	}
 
@@ -2310,7 +2320,7 @@ namespace ec
 			{	0.0, 0.0, 0.0, 0.0};
 			glLightfv(light_id, GL_SPECULAR, light_white);
 			glLightfv(light_id, GL_POSITION, light_pos);
-			glLightf(light_id, GL_LINEAR_ATTENUATION, 1.0);
+			glLightf(light_id, GL_LINEAR_ATTENUATION, light_linear_attenuation);
 		}
 
 		// F U N C T I O N S //////////////////////////////////////////////////////////

@@ -147,6 +147,14 @@ void client_close_bag(void);
 
 /*!
  * \ingroup item
+ * \brief   Revalidate ground bag window status on reconnect.
+ *
+ * \callgraph
+ */
+void revalidate_ground_bag_window(void);
+
+/*!
+ * \ingroup item
  * \brief   Handle the inventory Get All button.
  *
  *      Handle the inventory Get All button.

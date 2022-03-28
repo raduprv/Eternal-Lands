@@ -2,6 +2,16 @@
 #include "global.h"
 #include "../asc.h"
 
+typedef struct
+{
+	int profile;
+	int major;
+	int minor;
+	char version_string[80];
+} GLContextInfo;
+
+static GLContextInfo gl_context_info = { 0, 0, 0, { 0 } };
+
 #if defined(SDL2)
 SDL_Window *el_gl_window = NULL;
 static SDL_GLContext el_gl_context = NULL;
@@ -78,6 +88,10 @@ void init_gl()
 		exit(1);
 	}
 
+	// Set the GL verion info, so we can use different code paths for rendering if necessary
+	SDL_GL_GetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, &gl_context_info.profile);
+	SDL_GL_GetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, &gl_context_info.major);
+	SDL_GL_GetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, &gl_context_info.minor);
 	SDL_GetVersion(&el_gl_linked);
 
 	SDL_GetWindowSize(el_gl_window, &window_width, &window_height);
@@ -186,4 +200,9 @@ void handle_window_resize()
 	map_has_changed=1;
 	reset_material();
 	init_lights();
+}
+
+int gl_context_version()
+{
+	return 100*gl_context_info.major + gl_context_info.minor;
 }

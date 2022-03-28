@@ -33,7 +33,8 @@
 float proj_on_ground[16];
 float ground_plane[4]={0,0,1,0};
 float sun_position[4]={400.0, 400.0, 500.0, 0.0};
-double light_view_mat[16],light_proj_mat[16],shadow_texgen_mat[16];
+static float light_view_mat[16],light_proj_mat[16];
+float shadow_texgen_mat[16];
 int shadows_on=0;
 int is_day=0;
 int use_shadow_mapping=1;
@@ -140,18 +141,18 @@ void calc_shadow_matrix()
 			xrot*=180.0f/(float)M_PI;
 			glOrtho(-light_view_hscale,light_view_hscale,
 				light_view_bottom,light_view_top,light_view_near,light_view_far);
-			glGetDoublev(GL_MODELVIEW_MATRIX,light_proj_mat);
+			glGetFloatv(GL_MODELVIEW_MATRIX,light_proj_mat);
 			glLoadIdentity();
 			glRotatef(xrot,1.0f,0.0f,0.0f);
 			glRotatef(zrot,0.0f,0.0f,1.0f);
-			glGetDoublev(GL_MODELVIEW_MATRIX,light_view_mat);
+			glGetFloatv(GL_MODELVIEW_MATRIX,light_view_mat);
 			glLoadIdentity();
 			if(depth_texture_target!=GL_TEXTURE_2D)glScalef(shadow_map_size,shadow_map_size,0);
 			glTranslatef(0.5,0.5,0.5);   // This...
 			glScalef(0.5,0.5,0.5);       // ...and this == S
-			glMultMatrixd(light_proj_mat);     // Plight
-			glMultMatrixd(light_view_mat);     // L^-1
-			glGetDoublev(GL_MODELVIEW_MATRIX,shadow_texgen_mat);
+			glMultMatrixf(light_proj_mat);     // Plight
+			glMultMatrixf(light_view_mat);     // L^-1
+			glGetFloatv(GL_MODELVIEW_MATRIX,shadow_texgen_mat);
 			glPopMatrix();
 		}
 	else
@@ -432,10 +433,10 @@ void render_light_view()
 				CHECK_GL_ERRORS();
 				CHECK_FBO_ERRORS();
 				ELglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, shadow_fbo);
-			        ELglFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_TEXTURE_2D, depth_map_id, 0);
+				ELglFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_TEXTURE_2D, depth_map_id, 0);
 				glClear(GL_DEPTH_BUFFER_BIT);
-        			glDrawBuffer(GL_NONE);
-	        		glReadBuffer(GL_NONE);
+				glDrawBuffer(GL_NONE);
+				glReadBuffer(GL_NONE);
 				CHECK_GL_ERRORS();
 				CHECK_FBO_ERRORS();
 			}
@@ -458,10 +459,10 @@ void render_light_view()
 			CHECK_GL_ERRORS();
 			glMatrixMode(GL_PROJECTION);
 			glPushMatrix();
-			glLoadMatrixd(light_proj_mat);
+			glLoadMatrixf(light_proj_mat);
 			glMatrixMode(GL_MODELVIEW);
 			glPushMatrix();
-			glLoadMatrixd(light_view_mat);
+			glLoadMatrixf(light_view_mat);
 			glTranslatef((int)camera_x,(int)camera_y,(int)camera_z);
 			cur_intersect_type = get_cur_intersect_type(main_bbox_tree);
 			set_cur_intersect_type(main_bbox_tree, INTERSECTION_TYPE_SHADOW);
@@ -555,7 +556,7 @@ void setup_shadow_mapping()
 	glPushMatrix();
 	glLoadIdentity();
 	if (!first_person)
-	glTranslatef(0.0f, 0.0f, -zoom_level*camera_distance);
+		glTranslatef(0.0f, 0.0f, -zoom_level*camera_distance);
 	glRotatef(rx, 1.0f, 0.0f, 0.0f);
 	if (first_person)
 	{

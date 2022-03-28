@@ -864,7 +864,11 @@ static int display_counters_handler(window_info *win)
 	}
 
 	if (counters_show_win_help) {
+#ifdef ANDROID
+		show_help(long_touch_cm_options_str, -TAB_MARGIN, win->len_y+10+TAB_MARGIN, win->current_scale);
+#else
 		show_help(cm_help_options_str, -TAB_MARGIN, win->len_y+10+TAB_MARGIN, win->current_scale);
+#endif
 		counters_show_win_help = 0;
 	}
 

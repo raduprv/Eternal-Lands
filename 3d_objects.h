@@ -15,6 +15,11 @@ extern "C" {
 
 extern int use_3d_alpha_blend;	// do 3d models use alpha blending?
 
+#ifdef ANDROID
+extern int highlight_3d_object;
+extern int highlight_3d_object_timestamp;
+#endif
+
 /*!
  * \ingroup	display_3d
  * \brief	Optimized display or a selected 3d object list

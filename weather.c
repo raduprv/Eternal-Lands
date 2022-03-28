@@ -675,7 +675,7 @@ void weather_init_lightning_light()
 	{
 		glLightfv(GL_LIGHT7, GL_AMBIENT, lightning_ambient_color);
 		glLightfv(GL_LIGHT7, GL_DIFFUSE, lightning_color);
-		glLightfv(GL_LIGHT7, GL_POSITION, lightning_position);
+		set_global_light_position(lightning_position);
 	}
 }
 

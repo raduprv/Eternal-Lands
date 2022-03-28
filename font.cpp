@@ -3,6 +3,9 @@
 #include <numeric>
 #include <sstream>
 #include <limits>
+#ifdef ANDROID
+#include <fstream>
+#endif
 #ifdef TTF
 #ifndef WINDOWS
 #include <glob.h>
@@ -25,6 +28,9 @@
 #include "elconfig.h"
 #include "elloggingwrapper.h"
 #include "exceptions/extendedexception.hpp"
+#ifdef ANDROID
+#include "init.h"
+#endif
 #include "io/elpathwrapper.h"
 #include "init.h"
 #include "gl_init.h"
@@ -1721,6 +1727,23 @@ void FontManager::initialize_ttf()
 		return;
 	}
 
+#ifdef ANDROID
+	{
+		// The list of supplied TTF fonts and their path is detailed in the ttf_list.txt file.
+		// Make sure to unpack them from the assest file by calling do_file_exists()
+		char tmp_str[256];
+		std::string list_filename("ttf_list.txt");
+		std::string full_path = std::string(datadir) + list_filename;
+		if (do_file_exists(list_filename.c_str(), datadir, sizeof(tmp_str), tmp_str))
+		{
+			std::string line;
+			std::ifstream file(full_path.c_str());
+			while (std::getline(file, line))
+				Uint32 stat = do_file_exists(line.c_str(), datadir, sizeof(tmp_str), tmp_str);
+		}
+	}
+#endif
+
 #ifdef LINUX
 	// on linux there is no standard location for TTF so try others if the current is not valid
 	struct stat stat_str;
@@ -2033,6 +2056,8 @@ int use_ttf = 0;
 char ttf_directory[TTF_DIR_SIZE] = "/usr/share/fonts/TTF";
 #elif defined WINDOWS
 char ttf_directory[TTF_DIR_SIZE] = "C:/Windows/Fonts";
+#elif defined ANDROID
+char ttf_directory[TTF_DIR_SIZE] = "/system/fonts";
 #elif defined OSX
 char ttf_directory[TTF_DIR_SIZE] = "/System/Library/Fonts";
 #else

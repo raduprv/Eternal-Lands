@@ -59,6 +59,9 @@ void clear_popup_window(INPUT_POPUP *ipu)
 	else
 		text_field_clear (ipu->popup_win, ipu->popup_field);
 	hide_window (ipu->popup_win);
+#ifdef ANDROID
+	SDL_StopTextInput();
+#endif
 }
 
 void close_ipu (INPUT_POPUP *ipu)
@@ -74,6 +77,9 @@ void close_ipu (INPUT_POPUP *ipu)
 		clear_text_message_data (&ipu->popup_text);
 		free_text_message_data (&ipu->popup_text);
 		init_ipu(ipu, -1, 0, 0, 0, NULL, NULL);
+#ifdef ANDROID
+		SDL_StopTextInput();
+#endif
 	}
 }
 
@@ -319,14 +325,29 @@ void centre_popup_window(INPUT_POPUP *ipu)
 	if ((ipu->parent > -1) && (ipu->parent < windows_list.num_windows))
 	{
 		window_info *pwin = &windows_list.window[ipu->parent];
+#ifdef ANDROID
+		move_window(win->window_id, win->pos_id,win->pos_loc, win->pos_x + (pwin->len_x - win->len_x) / 2, win->pos_y + (pwin->len_y - win->len_y) / 5);
+#else
 		move_window(win->window_id, win->pos_id,win->pos_loc, win->pos_x + (pwin->len_x - win->len_x) / 2, win->pos_y + (pwin->len_y - win->len_y) / 2);
+#endif
 	}
 	else
 	{
+#ifdef ANDROID
+		move_window(win->window_id, win->pos_id,win->pos_loc, (window_width - win->len_x) / 2, (window_height - win->len_y) / 5);
+#else
 		move_window(win->window_id, win->pos_id,win->pos_loc, (window_width - win->len_x) / 2, (window_height - win->len_y) / 2);
+#endif
 	}
 }
 
+#ifdef ANDROID
+static int click_input_handler(widget_list *w, int mx, int my, Uint32 flags)
+{
+	SDL_StartTextInput();
+	return 1;
+}
+#endif
 
 void display_popup_win (INPUT_POPUP *ipu, const char* label)
 {
@@ -361,6 +382,10 @@ void display_popup_win (INPUT_POPUP *ipu, const char* label)
 		ipu->popup_line = pword_field_add_extended(ipu->popup_win, widget_id++,
 			NULL, 0, 0, 0, 0, P_TEXT, 1.0, ipu->popup_line_text, ipu->maxlen);
 		widget_set_flags(win->window_id, ipu->popup_line, WIDGET_DISABLED);
+#ifdef ANDROID
+		widget_set_OnClick(ipu->popup_win, ipu->popup_field, click_input_handler);
+		widget_set_OnClick(ipu->popup_win, ipu->popup_line, click_input_handler);
+#endif
 
 		// Accept
 		ipu->popup_ok = button_add_extended (ipu->popup_win, widget_id++, NULL, 0, 0, 0, 0, 0, 1.0, button_okay);
@@ -440,7 +465,7 @@ static unsigned short nr_notes = 0;
 static int widget_space = 0;
 
 // Note selection button parameters
-static const int note_button_max_rows = 10;
+static int note_button_max_rows = 10;
 static int note_button_y_offset = 0;
 static int note_button_width = 0;
 static int note_button_height = 0;
@@ -816,6 +841,9 @@ static void open_note_tab_continued(int id)
 		TEXT_FIELD_BORDER|TEXT_FIELD_EDITABLE|TEXT_FIELD_CAN_GROW|TEXT_FIELD_SCROLLBAR,
 		NOTE_FONT, tab_win->current_scale, &note_list[id].text,
 		1, FILTER_ALL, widget_space, widget_space);
+#ifdef ANDROID
+		widget_set_OnClick(note_list[id].window, note_list[id].input, click_input_handler);
+#endif
 
 	tab = tab_collection_get_tab_nr (notepad_win, note_tabcollection_id, note_list[id].window);
 	tab_collection_select_tab (notepad_win, note_tabcollection_id, tab);
@@ -955,6 +983,7 @@ static int resize_buttonwin_handler(window_info *win, int new_width, int new_hei
 	widget_list *wsave = widget_find(main_note_tab_id, save_notes_button_id);
 	int tab_tag_height = tab_collection_calc_tab_height(win->font_category,
 		win->current_scale * note_tab_zoom);
+	int min_but_y_space = (int)(0.5 + win->current_scale * 2);
 	int nr;
 	int but_space;
 
@@ -985,6 +1014,13 @@ static int resize_buttonwin_handler(window_info *win, int new_width, int new_hei
 		note_button_height = (int)(0.5 + win->current_scale * 22);
 
 	note_button_space = (int)((float)(win->len_y - note_button_y_offset - tab_tag_height) / (float)note_button_max_rows) - note_button_height;
+
+	// fixed first on ANDROID
+	if (note_button_space < but_space)
+	{
+		note_button_max_rows = (int)((float)(win->len_y - note_button_y_offset - tab_tag_height) / (float)(note_button_height + min_but_y_space));
+		note_button_space = (int)((float)(win->len_y - note_button_y_offset - tab_tag_height) / (float)note_button_max_rows) - note_button_height;
+	}
 
 	widget_resize(win->window_id, note_button_scroll_id, win->box_size, note_button_max_rows * (note_button_height + note_button_space) - widget_space);
 	widget_move(win->window_id, note_button_scroll_id, win->len_x - win->box_size - widget_space, note_button_y_offset);

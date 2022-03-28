@@ -27,6 +27,13 @@ extern Uint32 max_actor_texture_handles;
 
 extern int write_ini_on_exit; /*< variable that determines if the ini file is rewritten on exit of the program */
 
+#ifdef ANDROID
+extern int textures_32bpp;
+extern int full_camera_bars;
+extern int window_camera_controls;
+extern int disable_GL_POINT_SMOOTH;
+#endif
+
 extern int video_mode_set;
 extern int no_adjust_shadows;
 extern int clouds_shadows; /*!< flag that indicates whether the shadows of clouds should be displayed or not */
@@ -164,6 +171,11 @@ int get_use_json_user_files(void);
 void load_character_options(void);
 void save_character_options(void);
 void check_using_json_files(void);
+#endif
+
+#ifdef ANDROID
+void set_scale_from_window_size(void);
+void set_screen_orientation_hint(void);
 #endif
 
 /*!

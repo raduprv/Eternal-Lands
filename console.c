@@ -11,6 +11,9 @@
 #include "chat.h"
 #include "consolewin.h"
 #include "elconfig.h"
+#ifdef ANDROID
+#include "events.h"
+#endif
 #include "filter.h"
 #include "gamewin.h"
 #include "gl_init.h"
@@ -1236,7 +1239,17 @@ static int command_glinfo (const char *text, int len)
 	safe_snprintf (this_string, size, "%s: %s", opengl_version_str, my_string);
 	LOG_TO_CONSOLE (c_yellow2, this_string);
 
-	my_string = (const char*) glGetString (GL_EXTENSIONS);
+	my_string = gl_context_version_string();
+	minlen = strlen(context_version_str) + strlen(my_string) + 3;
+	if (size < minlen)
+	{
+		while (size < minlen) size += size;
+		this_string = realloc(this_string, size);
+	}
+	safe_snprintf(this_string, size,"%s: %s", context_version_str, my_string);
+	LOG_TO_CONSOLE(c_yellow2, this_string);
+
+	my_string = get_extensions_string();
 	minlen = strlen (supported_extensions_str) + strlen (my_string) + 3;
 	if (size < minlen)
 	{
@@ -1244,6 +1257,8 @@ static int command_glinfo (const char *text, int len)
 		this_string = realloc (this_string, size);
 	}
 	safe_snprintf (this_string, size, "%s: %s", supported_extensions_str, my_string);
+	// get_extensions_string() returns a dynamically allocated string, it should be freed
+	free((char*)my_string);
 	LOG_TO_CONSOLE (c_grey1, this_string);
 
 	free (this_string);
@@ -1747,6 +1762,15 @@ static int command_change_pass(char *text, int len)
 }
 
 
+#ifdef ANDROID
+static int toggle_keyboard_debug(char *text, int len)
+{
+	enable_keyboard_debug = (enable_keyboard_debug) ?0 :1;
+	return 1;
+}
+#endif
+
+
 static int command_reset_res(char *text, int len)
 {
 	restore_starting_video_mode();
@@ -2219,6 +2243,10 @@ void init_commands(const char *filename)
 	add_command("set_default_fonts", &command_set_default_fonts);
 	add_command(cmd_summon_attack, &command_summon_attack);
 	add_command(cmd_summon_attack_short, &command_summon_attack);
+
+#ifdef ANDROID
+	add_command("kbd", &toggle_keyboard_debug);
+#endif
 
 	// Sort the command list alphabetically so that the #command lists
 	// them sorted and the ctrl+SPACE cycles them sorted.  Assumes no

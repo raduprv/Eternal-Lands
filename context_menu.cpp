@@ -13,6 +13,10 @@
 #include "gamewin.h"
 #include "gl_init.h"
 #include "interface.h"
+#ifdef ANDROID
+#include "misc.h"
+#include "items.h"
+#endif
 #include "sound.h"
 
 //
@@ -478,6 +482,10 @@ namespace cm
 	Menu::Menu(const char *menu_list, int (*handler)(window_info *, int, int, int, int))
 		: border(5), text_border(5), line_sep(3), zoom(0.8), data_ptr(0), selection(-1), menu_has_bools(false)
 	{
+#ifdef ANDROID
+		// ANDROID_TODO this needs to be change on rescale too, and probably in the non-ANDROID client too
+		line_sep = scaled_value(12);
+#endif
 		set(menu_list, handler);
 		pre_show_handler = 0;
 		highlight_top.set(gui_invert_color[0], gui_invert_color[1], gui_invert_color[2]);
@@ -663,6 +671,7 @@ namespace cm
 		selection = -1;
 		for (size_t i=0; i<menu_lines.size(); ++i)
 		{
+#ifndef ANDROID
 			// if the mouse is over a valid line, draw the highlight and select line
 			if (!menu_lines[i].is_grey && !menu_lines[i].is_separator &&
 			  (mouse_y > win->cur_y + currenty - line_sep) &&
@@ -683,6 +692,7 @@ namespace cm
 				glEnable(GL_TEXTURE_2D);
 				selection = i;
 			}
+#endif
 
 			// draw a separator ...
 			if (menu_lines[i].is_separator)
@@ -740,6 +750,35 @@ namespace cm
 	//  if an option is selected, toggle if a bool option and call any callback function
 	int Menu::click(window_info *win, int mx, int my, Uint32 flags)
 	{
+#ifdef ANDROID
+		// ANDROID_TODO common function with display()
+		// We always want to use the entry that is clicked, the highlight is not used
+		{
+			float scale = scaled_value(1.0);
+			int line_height = get_line_height(win->font_category, scale);
+			int box_size = std::round(scaled_value(bool_box_size()));
+			float currenty = border + line_sep;
+			float line_step = line_sep + max2i(box_size, line_height);
+			for (size_t i=0; i<menu_lines.size(); ++i)
+			{
+				// if the mouse is over a valid line, select it
+				if (!menu_lines[i].is_grey && !menu_lines[i].is_separator &&
+				  (my > currenty - line_sep) &&
+				  (my < currenty + line_step - line_sep) &&
+				  (mx > border) &&
+				  (mx < width - border))
+				{
+					selection = i;
+					break;
+				}
+				if (menu_lines[i].is_separator)
+					currenty += get_line_height(win->font_category, 0.5*scale);
+				else
+					currenty += line_step;
+			}
+		}
+
+#endif
 		if (selection < 0)
 			return 0;
 

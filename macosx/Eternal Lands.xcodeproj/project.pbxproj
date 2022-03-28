@@ -297,7 +297,6 @@
 		1F22CC3E0DBAD57400411752 /* makeargv.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = makeargv.h; path = ../makeargv.h; sourceTree = SOURCE_ROOT; };
 		1F22CC3F0DBAD57400411752 /* text_aliases.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = text_aliases.c; path = ../text_aliases.c; sourceTree = SOURCE_ROOT; };
 		1F22CC400DBAD57400411752 /* text_aliases.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = text_aliases.h; path = ../text_aliases.h; sourceTree = SOURCE_ROOT; };
-		1F3DDB130E92F8450036BD6A /* elglext.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = elglext.h; sourceTree = "<group>"; };
 		1F52AA170D6BCC0800CA2E5F /* calc.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = calc.c; path = ../calc.c; sourceTree = SOURCE_ROOT; };
 		1F52AA180D6BCC0800CA2E5F /* calc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = calc.h; path = ../calc.h; sourceTree = SOURCE_ROOT; };
 		1F52AA190D6BCC0800CA2E5F /* eye_candy_debugwin.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = eye_candy_debugwin.c; path = ../eye_candy_debugwin.c; sourceTree = SOURCE_ROOT; };
@@ -892,7 +891,6 @@
 				1F81297D0D033551008792A7 /* elc_private.h */,
 				1F8129800D033551008792A7 /* elconfig.c */,
 				1F8129810D033551008792A7 /* elconfig.h */,
-				1F3DDB130E92F8450036BD6A /* elglext.h */,
 				1FB7E409143560CB002C4FEA /* elloggingwrapper.cpp */,
 				1FB7E40A143560CB002C4FEA /* elloggingwrapper.h */,
 				1F8129820D033551008792A7 /* elmemory.c */,
@@ -1714,7 +1712,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
+				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
 				CODE_SIGN_ENTITLEMENTS = "Eternal Lands.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Manual;
@@ -1740,7 +1738,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
+				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
 				CODE_SIGN_ENTITLEMENTS = "Eternal Lands.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Manual;
@@ -1767,7 +1765,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 1.9.5p9;
+				CURRENT_PROJECT_VERSION = 1.9.6p1;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(USER_LIBRARY_DIR)/Frameworks",
@@ -1800,8 +1798,9 @@
 					"$(USER_LIBRARY_DIR)/Frameworks/SDL2_ttf.framework/Headers",
 					"$(USER_LIBRARY_DIR)/Frameworks/SDL2_image.framework/Headers",
 					"$(SRCROOT)/../nlohmann_json/single_include/",
+					"$(SRCROOT)/include/",
 				);
-				MARKETING_VERSION = 1.9.5p9;
+				MARKETING_VERSION = 1.9.6p1;
 				OTHER_CFLAGS = (
 					"-Wno-deprecated-declarations",
 					"-Wno-pointer-sign",
@@ -1828,7 +1827,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 1.9.5p9;
+				CURRENT_PROJECT_VERSION = 1.9.6p1;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(USER_LIBRARY_DIR)/Frameworks",
@@ -1860,8 +1859,9 @@
 					"$(USER_LIBRARY_DIR)/Frameworks/SDL2_ttf.framework/Headers",
 					"$(USER_LIBRARY_DIR)/Frameworks/SDL2_image.framework/Headers",
 					"$(SRCROOT)/../nlohmann_json/single_include/",
+					"$(SRCROOT)/include/",
 				);
-				MARKETING_VERSION = 1.9.5p9;
+				MARKETING_VERSION = 1.9.6p1;
 				OTHER_CFLAGS = (
 					"-Wno-deprecated-declarations",
 					"-Wno-pointer-sign",

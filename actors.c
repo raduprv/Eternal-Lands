@@ -449,7 +449,12 @@ static void draw_actor_banner(actor *actor_id, const actor *me, float offset_z)
 
 	glColor3f (1.0f, 0.0f, 0.0f);
 
+#ifdef ANDROID
+	// ANDROID_TODO why do we need this?
+	glDepthFunc(GL_LESS);
+#else
 	glDepthFunc(GL_ALWAYS);
+#endif
 	if(actor_id->damage_ms){
 		if(floatingmessages_enabled){
 			float a=(float)(cur_time-actor_id->last_health_loss)/2000.0f;
@@ -510,7 +515,10 @@ static void draw_actor_banner(actor *actor_id, const actor *me, float offset_z)
 		}
 	}
 
+#ifndef ANDROID
+	// ANDROID_TODO see previous?
 	glDepthFunc(GL_LESS);
+#endif
 
 	//figure out which lines should we display
 	display_health_line = (actor_id->kind_of_actor != NPC && (display_hp || display_health_bar) && actor_id->cur_health > 0 && actor_id->max_health > 0);

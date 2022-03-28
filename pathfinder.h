@@ -62,6 +62,7 @@ typedef struct
 extern PF_TILE *pf_tile_map; /*!< a list of \see PF_TILE structures that form the path */
 extern PF_TILE *pf_dst_tile; /*!< the \see PF_TILE struct that defines our destination tile of the path */
 extern int pf_follow_path; /*!< flag, that indicates whether we should follow the path or not */
+extern int pf_search_destination_area; /*!< If set, try to walk to the immediate area aound the destination when an unwalkable tile is clicked */
 
 /*!
  * \ingroup move_actors

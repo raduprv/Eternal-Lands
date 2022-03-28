@@ -28,7 +28,9 @@ extern int video_mode; /*!< currently selected video mode */
 extern int video_user_width; /*!< userdefined window width */
 extern int video_user_height; /*!< userdefined window height */
 extern int full_screen; /*!< flag that inidicates whether we are in fullscreen or windowed mode */
+extern int enable_screensaver; /*!< if set true in VIDEO options, we prevent SDL2 disabling the systems screensaver */
 extern int disable_gamma_adjust;
+extern int disable_focus_clickthrough; /*< disable setting SDL_HINT_MOUSE_FOCUS_CLICKTHROUGH */
 extern float gamma_var; /*!< The current gamma value */
 extern float perspective; /*!< The perspective "angle". Higher values mean higher distortion. Default is 0.15f */
 /* near plane not used in FPV. FPV uses fixed near clipping plane of .2 
@@ -137,6 +139,48 @@ int print_gl_errors(const char *file, int line);
  *
  */
 void gl_window_cleanup(void);
+
+/*!
+ * \ingroup video
+ * \brief   Set the MOUSE_FOCUS_CLICKTHROUGH hint.
+ *
+ * Set the SDL hint that determines if clicks that
+ * focus the window, pass through for action too.  The
+ * hint value is dependant on the the flag
+ * disable_focus_clickthrough.  Some window managers
+ * appear to override this setting.
+ *
+ * \callgraph
+ *
+ */
+void update_SDL_HINT_MOUSE_FOCUS_CLICKTHROUGH(void);
+
+/*!
+ * \ingroup video
+ * \brief Return the GL context version string
+ *
+ * Return a constant version of the OpenGL context currently in use.
+ */
+const char* gl_context_version_string();
+
+/*!
+ * \ingroup video
+ * \brief Return the GL context version
+ *
+ * Return a numerical constant describing the OpenGL context currently in use. The version is
+ * encoded as (100*major + minor), so OpenGL 3.3 would be returned as 303.
+ */
+int gl_context_version();
+
+/*!
+ * \ingroup video
+ * \brief Return the maximum supported GLSL version
+ *
+ * Get the maximum version of the GL shading language supported by the current context. this is
+ * returned as a single integer (100*major + minor), so GLSL 3.30 would be returned as 330. For
+ * GLSL ES, 10,000 is added to the number, so GLSL 3.10 ES  would be returned as 10310.
+ */
+int max_supported_glsl_version();
 
 /*!
  * \name CHECK_GL_ERRORS macro - only done if DEBUG or OPENGL_TRACE defined

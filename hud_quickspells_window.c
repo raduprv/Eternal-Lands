@@ -251,6 +251,7 @@ CHECK_GL_ERRORS();
 	glDisable(GL_BLEND);	// Turn Blending Off
 	glDisable(GL_ALPHA_TEST);
 
+#ifndef ANDROID
 	if(quickspell_over!=-1 && mqb_data[quickspell_over])
 	{
 		float zoom = win->current_scale_small;
@@ -278,6 +279,7 @@ CHECK_GL_ERRORS();
 		}
 		show_help(mqb_data[quickspell_over]->spell_name, x, y, win->current_scale);
 	}
+#endif
 	quickspell_over=-1;
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
@@ -422,7 +424,9 @@ void init_quickspell(void)
 		set_window_custom_scale(quickspell_win, MW_QUICKSPELLS);
 		set_window_handler(quickspell_win, ELW_HANDLER_DISPLAY, &display_quickspell_handler);
 		set_window_handler(quickspell_win, ELW_HANDLER_CLICK, &click_quickspell_handler);
+#ifndef ANDROID
 		set_window_handler(quickspell_win, ELW_HANDLER_MOUSEOVER, &mouseover_quickspell_handler );
+#endif
 		set_window_handler(quickspell_win, ELW_HANDLER_UI_SCALE, &ui_scale_quickspell_handler );
 
 		if (quickspell_win >= 0 && quickspell_win < windows_list.num_windows)

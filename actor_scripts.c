@@ -2525,7 +2525,8 @@ void get_actor_health(int actor_id, int quantity)
 
 void move_self_forward()
 {
-	int x,y,rot,tx,ty;
+	int x, y, rot;
+	short tx,ty;
 	actor *me;
 	locked_list_ptr actors_list = lock_and_get_self(&me);
 	if (!actors_list)
@@ -2584,7 +2585,7 @@ void move_self_forward()
 			pf_destroy_path();
 		}
 
-		move_to (tx, ty, 0);
+		move_to(&tx, &ty, 0);
 	}
 }
 
