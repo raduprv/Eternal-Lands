@@ -190,8 +190,10 @@ int display_encyclopedia_handler(window_info *win)
 
 int common_encyclopedia_mouseover_handler(window_info *win, int mx, int my)
 {
+#ifndef ANDROID
 	local_mouse_x = mx;
 	local_mouse_y = my;
+#endif
 	return 1;
 }
 
@@ -1337,7 +1339,9 @@ void fill_encyclopedia_win (int window_id)
 		return;
 	}
 
+#ifndef ANDROID
 	set_window_handler(window_id, ELW_HANDLER_MOUSEOVER, &mouseover_encyclopedia_handler);
+#endif
 	set_window_handler(window_id, ELW_HANDLER_KEYPRESS, (int (*)())&keypress_encyclopedia_handler);
 
 	if (!cm_valid(cm_encycl))

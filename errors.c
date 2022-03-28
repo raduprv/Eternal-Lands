@@ -10,6 +10,10 @@
 
 FILE* open_log (const char *fname, const char *mode)
 {
+#ifdef ANDROID
+	return NULL;
+#endif
+
 	FILE *file = open_file_config (fname, mode);
 	char starttime[200], sttime[200];
 	struct tm *l_time; time_t c_time;
@@ -53,6 +57,10 @@ void log_func_err(const char * file, const char * func, unsigned line)
 FILE *conn_file = NULL;
 void clear_conn_log()
 {
+#ifdef ANDROID
+	return;
+#endif
+
 	if(!conn_file) {
 		conn_file = open_log ("connection_log.txt", "w");
 	}

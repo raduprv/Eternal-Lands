@@ -889,7 +889,11 @@ static int recipe_dropdown_draw(window_info *win){
 				SLOT_SIZE*mouse_over_recipe+(SLOT_SIZE-win->small_font_len_y)/2, win->current_scale);
 		if (show_help_text)
 		{
+#ifdef ANDROID
+			show_help(long_touch_cm_options_str, 0, win->len_y + 10 + win->small_font_len_y*help_line++, win->current_scale);
+#else
 			show_help(cm_help_options_str, 0, win->len_y + 10 + win->small_font_len_y*help_line++, win->current_scale);
+#endif
 			show_help(recipe_select_str, 0, win->len_y + 10 + win->small_font_len_y*help_line++, win->current_scale);
 			show_help(recipe_load_str, 0, win->len_y + 10 + win->small_font_len_y*help_line++, win->current_scale);
 			show_help(find_active?recipe_during_find_str:recipe_find_str, 0, win->len_y + 10 + win->small_font_len_y*help_line++, win->current_scale);
@@ -1577,8 +1581,10 @@ void display_manufacture_menu()
 
 		set_window_handler(manufacture_win, ELW_HANDLER_DISPLAY, &display_manufacture_handler );
 		set_window_handler(manufacture_win, ELW_HANDLER_CLICK, &click_manufacture_handler );
+#ifndef ANDROID
 		set_window_handler(manufacture_win, ELW_HANDLER_MOUSEOVER, &mouseover_manufacture_slot_handler );
 		set_window_handler(manufacture_win, ELW_HANDLER_KEYPRESS, (int (*)())&keypress_manufacture_handler );
+#endif
 		set_window_handler(manufacture_win, ELW_HANDLER_UI_SCALE, &ui_scale_manufacture_handler );
 		set_window_handler(manufacture_win, ELW_HANDLER_FONT_CHANGE, &change_manufacture_font_handler);
 
@@ -1608,9 +1614,11 @@ void display_manufacture_menu()
 		set_window_custom_scale(recipe_win, MW_MANU);
 		set_window_handler(recipe_win, ELW_HANDLER_DISPLAY, &recipe_dropdown_draw);
 		set_window_handler(recipe_win, ELW_HANDLER_CLICK, &recipe_dropdown_click_handler );
+#ifndef ANDROID
 		set_window_handler(recipe_win, ELW_HANDLER_MOUSEOVER, &mouseover_recipe_handler );
-		set_window_handler(recipe_win, ELW_HANDLER_RESIZE, &resize_recipe_handler );
 		set_window_handler(recipe_win, ELW_HANDLER_KEYPRESS, (int (*)())&keypress_recipe_handler );
+#endif
+		set_window_handler(recipe_win, ELW_HANDLER_RESIZE, &resize_recipe_handler );
 
 		recipe_win_scroll_id = vscrollbar_add_extended(recipe_win, 1, NULL, 0,
 			0, 0, 0, 0, 1.0, 0, 1, num_recipe_entries-num_displayed_recipes);

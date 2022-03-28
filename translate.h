@@ -221,6 +221,13 @@ extern char 	tt_walk[30],
 extern char	
 		/*3d_objects.c*/
 		values_str[20],
+#ifdef ANDROID
+		/* misc android help */
+		touch_help_str[20],
+		long_touch_cm_title_str[40],
+		long_touch_cm_options_str[40],
+		keyboard_button_str[30],
+#endif
 		/*buddy.c*/
 		buddy_name_str[20],
 		buddy_long_name_str[100],
@@ -315,6 +322,9 @@ extern char
 		urlcmd_invalid_str[30],
 		urlcmd_afk_str[30],
 		urlcmd_clear_str[30],
+#ifdef ANDROID
+		urlwin_longtouch_str[50],
+#endif
 		urlwin_open_str[50],
 		urlwin_clear_str[30],
 		/*draw_scene.c*/
@@ -378,6 +388,9 @@ extern char
 		auto_get_all_str[30],
 		item_list_but_str[35],
 		inv_keeprow_str[30],
+#ifdef ANDROID
+		quantity_edit_touch_str[100],
+#endif
 		quantity_edit_str[100],
 		equip_here_str[100],
 		items_text_toggle_help_str[50],

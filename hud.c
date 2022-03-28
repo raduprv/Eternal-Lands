@@ -36,6 +36,9 @@
 
 int hud_x= 64;
 int hud_y= 48;
+#ifdef ANDROID
+int use_transparent_hud = 1;
+#endif
 int hud_text;
 int show_help_text=1;
 int always_enlarge_text=1;
@@ -77,6 +80,10 @@ int show_exp(char *text, int len)
 // initialize anything related to the hud
 void init_hud_interface (hud_interface type)
 {
+#ifdef ANDROID
+	set_icon_spacing(7);
+#endif
+
 	if (type == HUD_INTERFACE_LAST)
 		type = last_interface;
 
@@ -92,6 +99,15 @@ void init_hud_interface (hud_interface type)
 	}
 	else
 	{
+#ifdef ANDROID
+		if (use_transparent_hud)
+			hud_x = hud_y = 0;
+		else
+		{
+			hud_x = HUD_MARGIN_X;
+			hud_y = HUD_MARGIN_Y;
+		}
+#endif
 		if (hud_x>0)
 			hud_x=HUD_MARGIN_X;
 		resize_root_window();
@@ -158,7 +174,11 @@ static int test_over_logo(window_info *win, int mx, int my)
 {
 	int dead_space = (int)(0.5 + win->current_scale * 10);
 	int hud_logo_size = get_hud_logo_size();
+#ifdef ANDROID
+	return (hud_x || !logo_click_to_url) && (mx > (win->len_x - (hud_logo_size - dead_space))) && (my < (hud_logo_size - dead_space));
+#else
 	return hud_x && (mx > (win->len_x - (hud_logo_size - dead_space))) && (my < (hud_logo_size - dead_space));
+#endif
 }
 
 int hud_mouse_over(window_info *win, int mx, int my)
@@ -183,6 +203,10 @@ int hud_click(window_info *win, int mx, int my, Uint32 flags)
 	{
 		if (logo_click_to_url)
 			open_web_link(LOGO_URL_LINK);
+#ifdef ANDROID
+		else
+			toggle_active_input();
+#endif
 		return 1;
 	}
 	return 0;

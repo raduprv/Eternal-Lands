@@ -10,6 +10,9 @@
 #include "chat.h"
 #include "consolewin.h"
 #include "elconfig.h"
+#ifdef ANDROID
+#include "events.h"
+#endif
 #include "filter.h"
 #include "gamewin.h"
 #include "gl_init.h"
@@ -1765,6 +1768,15 @@ static int command_change_pass(char *text, int len)
 }
 
 
+#ifdef ANDROID
+static int toggle_keyboard_debug(char *text, int len)
+{
+	enable_keyboard_debug = (enable_keyboard_debug) ?0 :1;
+	return 1;
+}
+#endif
+
+
 static int command_reset_res(char *text, int len)
 {
 	restore_starting_video_mode();
@@ -2237,6 +2249,10 @@ void init_commands(const char *filename)
 	add_command("set_default_fonts", &command_set_default_fonts);
 	add_command(cmd_summon_attack, &command_summon_attack);
 	add_command(cmd_summon_attack_short, &command_summon_attack);
+
+#ifdef ANDROID
+	add_command("kbd", &toggle_keyboard_debug);
+#endif
 
 	// Sort the command list alphabetically so that the #command lists
 	// them sorted and the ctrl+SPACE cycles them sorted.  Assumes no

@@ -1203,12 +1203,29 @@ static int vscrollbar_draw(widget_list *W)
 		if(W->r!=-1.0)
 			glColor3f(W->r/3, W->g/3, W->b/3);
 	}
-	glBegin(GL_QUADS);
-	glVertex3i(W->pos_x + 2 * arrow_size - (int)(0.5 + (float)arrow_size / 1.5f), W->pos_y + 3 * arrow_size + (c->pos * ((float)(W->len_y -11 * arrow_size) / drawn_bar_len)), 0);
-	glVertex3i(W->pos_x + 2 * arrow_size + (int)(0.5 + (float)arrow_size / 1.5f), W->pos_y + 3 * arrow_size + (c->pos * ((float)(W->len_y -11 * arrow_size) / drawn_bar_len)), 0);
-	glVertex3i(W->pos_x + 2 * arrow_size + (int)(0.5 + (float)arrow_size / 1.5f), W->pos_y + 8 * arrow_size + (c->pos * ((float)(W->len_y -11 * arrow_size) / drawn_bar_len)), 0);
-	glVertex3i(W->pos_x + 2 * arrow_size - (int)(0.5 + (float)arrow_size / 1.5f), W->pos_y + 8 * arrow_size + (c->pos * ((float)(W->len_y -11 * arrow_size) / drawn_bar_len)), 0);
-	glEnd();
+
+	// make sure the scroll bar does not extend beyond the arrows
+	// fixed in the android client but needed in the main client too
+	{
+		float max_y_space = 11 * arrow_size;
+		float bar_y_gap = 3 * arrow_size;
+		float bar_offset = (c->pos * ((float)(W->len_y - max_y_space) / drawn_bar_len));
+		float top = bar_y_gap + bar_offset;
+		float bot = max_y_space - bar_y_gap + bar_offset;
+		if (top < bar_y_gap)
+			top = bar_y_gap;
+		if ((bar_y_gap + bot) > W->len_y)
+			bot = W->len_y - bar_y_gap;
+		if (bot > top)
+		{
+			glBegin(GL_QUADS);
+			glVertex3i(W->pos_x + 2 * arrow_size - (int)(0.5 + (float)arrow_size / 1.5f), W->pos_y + top, 0);
+			glVertex3i(W->pos_x + 2 * arrow_size + (int)(0.5 + (float)arrow_size / 1.5f), W->pos_y + top, 0);
+			glVertex3i(W->pos_x + 2 * arrow_size + (int)(0.5 + (float)arrow_size / 1.5f), W->pos_y + bot, 0);
+			glVertex3i(W->pos_x + 2 * arrow_size - (int)(0.5 + (float)arrow_size / 1.5f), W->pos_y + bot, 0);
+			glEnd();
+		}
+	}
 
 	glEnable(GL_TEXTURE_2D);
 #ifdef OPENGL_TRACE
@@ -1240,6 +1257,18 @@ int vscrollbar_click(widget_list *W, int mx, int my, Uint32 flags)
 	return 1;
 }
 
+#ifdef ANDROID
+int vscrollbar_simulate_click(widget_list *W, int my)
+{
+	if (W != NULL)
+	{
+		if (vscrollbar_click(W, 0, my, 0))
+			return widget_handle_click (W, 0, my, 0);
+	}
+	return 0;
+}
+#endif
+
 int vscrollbar_set_pos_inc(int window_id, Uint32 widget_id, int pos_inc)
 {
 	widget_list *w = widget_find(window_id, widget_id);
@@ -1268,6 +1297,30 @@ int vscrollbar_set_pos(int window_id, Uint32 widget_id, int pos)
 
 	return 0;
 }
+
+#ifdef ANDROID
+int vscrollbar_scroll_up_amount(int window_id, Uint32 widget_id, int amount)
+{
+	widget_list *w = widget_find(window_id, widget_id);
+	if (w)
+	{
+		vscrollbar *scrollbar = w->widget_info;
+		return vscrollbar_set_pos(window_id, widget_id, scrollbar->pos - amount);
+	}
+	return 0;
+}
+
+int vscrollbar_scroll_down_amount(int window_id, Uint32 widget_id, int amount)
+{
+	widget_list *w = widget_find(window_id, widget_id);
+	if(w && !(w->Flags & WIDGET_DISABLED))
+	{
+		vscrollbar *scrollbar = w->widget_info;
+		return vscrollbar_set_pos(window_id, widget_id, scrollbar->pos + amount);
+	}
+	return 0;
+}
+#endif
 
 int vscrollbar_scroll_up(int window_id, Uint32 widget_id)
 {
@@ -3001,11 +3054,13 @@ static int text_field_click(widget_list *w, int mx, int my, Uint32 flags)
 #endif
 #endif
 
+#ifndef ANDROID
 	em_before = tf->select.em;
 	update_selection(mx, my, w, 0);
 	if (em_before != -1 && tf->select.em == -1)
 		/* We deselected some text, click was handled */
 		return 1;
+#endif
 
 	if ( (w->Flags & TEXT_FIELD_EDITABLE) == 0)
 		return 0;
@@ -3024,7 +3079,9 @@ static int text_field_click(widget_list *w, int mx, int my, Uint32 flags)
 
 static int text_field_drag(widget_list *w, int mx, int my, Uint32 flags, int dx, int dy)
 {
+#ifndef ANDROID
 	update_selection(mx, my, w, 1);
+#endif
 	return 1;
 }
 

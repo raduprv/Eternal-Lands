@@ -24,8 +24,13 @@ extern const GLfloat gui_dull_color[3];
  * \name Title bar & other constants
  */
 /*! @{ */
+#ifdef ANDROID
+#define	ELW_TITLE_HEIGHT	24
+#define	ELW_BOX_SIZE		30
+#else
 #define	ELW_TITLE_HEIGHT	16
 #define	ELW_BOX_SIZE		20
+#endif
 #define ELW_TITLE_SIZE 35
 #define ELW_CM_MENU_LEN		6
 /*! @} */
@@ -98,6 +103,10 @@ typedef	struct	{
 	int (*after_show_handler)();		/*!< executed after the window is shown */
 	int (*hide_handler)();		/*!< executed after the window is hidden */
 	int (*ui_scale_handler)();	/*!< executed if the glabal scale ui_scale is changed */
+#ifdef ANDROID
+	int (*multi_gesture_handler)(void *win, Uint32 timestamp, float x, float y, float distance, float rotation);	/*!< handle touch based multi gestures */
+	int (*finger_motion_handler)(void *win, Uint32 timestamp, float x, float y, float dx, float dy);	/*!< handle touch based multi gestures */
+#endif
 	int (*font_change_handler)(); /*!< executed when font settings are changed */
 	/*! @} */
 
@@ -228,6 +237,10 @@ typedef	struct	{
 #define	ELW_HANDLER_POST_DISPLAY	13
 #define ELW_HANDLER_UI_SCALE 14
 #define ELW_HANDLER_FONT_CHANGE 15
+#ifdef ANDROID
+#define	ELW_HANDLER_MULTI_GESTURE	16
+#define	ELW_HANDLER_FINGER_MOTION	17
+#endif
 /*! @} */
 
 /*!
@@ -894,6 +907,13 @@ int		mouse_in_window(int win_id, int x, int y);	// is a coord in the window?
  * \pre If \a win_id is not equal the \ref window_info::window_id of the window at index \a win_id into the \ref windows_list array, this function returns -1, without performing any actions, indicating an error.
  */
 int		click_in_window(int win_id, int x, int y, Uint32 flags);	// click in  a coord in the window
+
+#ifdef ANDROID
+void multi_gesture_in_windows(Uint32 timestamp, float center_x, float center_y, float distance, float rotation);
+void finger_motion_in_windows(Uint32 timestamp, float center_x, float center_y, float dx, float dy);
+void close_last_window(void);
+void set_default_mangaged_windows(void);
+#endif
 
 /*!
  * \ingroup elwindows

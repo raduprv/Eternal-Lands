@@ -33,6 +33,9 @@
  #include "draw_scene.h"
  #include "emotes.h"
  #include "errors.h"
+#ifdef ANDROID
+ #include "events.h"
+#endif
  #include "elwindows.h"
  #include "filter.h"
  #include "gamewin.h"
@@ -273,6 +276,16 @@ static int fsaa_index = 0;
 
 static float ui_scale = 1.0;
 float get_global_scale(void) { return ui_scale; }
+
+#ifdef ANDROID
+int textures_32bpp = 0;
+int full_camera_bars = 0;
+int window_camera_controls = 0;
+static int done_initial_config = 0;
+#define MIN_UI_SCALE 0.6f
+#define MAX_UI_SCALE 3.2f
+int disable_GL_POINT_SMOOTH = 0;
+#endif
 
 int you_sit= 0;
 int sit_lock= 0;
@@ -519,6 +532,18 @@ static void change_var(int * var)
 {
 	*var= !*var;
 }
+
+#ifdef ANDROID
+static void change_transparent_hud(int * var)
+{
+	*var= !*var;
+	if (game_root_win >= 0)
+	{
+		resize_root_window();
+		resize_all_root_windows(window_width, window_width, window_height, window_height);
+	}
+}
+#endif
 
 #ifndef MAP_EDITOR
 static void change_cursor_scale_factor(int * var, int value)
@@ -1426,6 +1451,61 @@ static void change_use_ttf(int *var)
 		enable_ttf();
 	else
 		disable_ttf();
+}
+#endif
+
+#ifdef ANDROID
+void set_scale_from_window_size(void)
+{
+	const int done_value = 2; // increment this value to force an update for a new release
+	const int max_dimension = max2i(window_width, window_height);
+	float new_value;
+	if (done_initial_config == done_value)
+		return;
+	done_initial_config = done_value;
+	set_var_unsaved("done_initial_config", INI_FILE_VAR);
+	first_time_setup = 1;
+
+	new_value = local_ui_scale;
+	if (max_dimension<640)
+		new_value = MIN_UI_SCALE;
+	else if (max_dimension <= 1024)
+		new_value = 1.1;
+	else if (max_dimension <= 1280)
+		new_value = 1.6;
+	else if (max_dimension <= 1600)
+		new_value = 1.7;
+	else if (max_dimension <= 2160)
+		new_value = 2.5;
+	else if (max_dimension <= 2560)
+		new_value = 2.9;
+	else
+		new_value = MAX_UI_SCALE;
+	change_ui_scale(&local_ui_scale, &new_value);
+	set_var_unsaved("ui_scale", INI_FILE_VAR);
+	SDL_Log("Setting default scale and fonts - scale=%.2f\n", ui_scale);
+
+	enable_windows_autoscale = 1;
+	set_var_unsaved("enable_windows_autoscale", INI_FILE_VAR);
+
+	command_set_default_fonts("", 0);
+
+	new_value = 0.7f * local_ui_scale * 0.8f;
+	change_minimap_scale(&local_minimap_size_coefficient, &new_value);
+	set_var_unsaved("minimap_scale", INI_FILE_VAR);
+}
+
+static int screen_orientation_modes = 0;
+void set_screen_orientation_hint(void)
+{
+	char *str = NULL;
+	if (screen_orientation_modes == 1)
+		str = "LandscapeLeft LandscapeRight";
+	else if (screen_orientation_modes == 2)
+		str = "Portrait PortraitUpsideDown";
+	else
+		return;
+	SDL_SetHint(SDL_HINT_ORIENTATIONS, str);
 }
 #endif
 
@@ -2396,7 +2476,10 @@ int check_var(char *str, var_name_type type)
 	i = find_var(str, type);
 	if (i < 0)
 	{
+#ifndef ANDROID
+		// ANDROID_TODO cut down on logged errors
 		LOG_WARNING("Can't find var '%s', type %d", str, type);
+#endif
 		return -1;
 	}
 	our_vars.var[i]->in_ini_file = 1;
@@ -2720,7 +2803,10 @@ void clear_multiselect_var(const char* name)
 
 	if (var_index == -1)
 	{
+#ifndef ANDROID
+		// ANDROID_TODO cut down on logged errors
 		LOG_ERROR("Can't find var '%s', type 'INI_FILE_VAR'", name);
+#endif
 		return;
 	}
 
@@ -2820,6 +2906,11 @@ static void init_ELC_vars(void)
 	char * win_scale_description = "Multiplied by the user interface scaling factor. With the mouse over the window: change ctrl+mousewheel up/down or ctrl+cursor up/down, set default ctrl+HOME, set initial ctrl+END.";
 
 	// CONTROLS TAB
+#ifdef ANDROID
+	add_var(OPT_FLOAT,"long_touch_delay_s", "ltds", &long_touch_delay_s, change_float, 0.35f, "Long Touch Delay (seconds)", "The time to wait before interpreting a long touch as a right-click equivalent.", CONTROLS, 0.15f, 2.0f, 0.05f);
+	add_var(OPT_FLOAT,"motion_touch_delay_s", "mtds", &motion_touch_delay_s, change_float, 0.15f, "Detect Finger Motion Delay (seconds)", "The time to wait before triggering finger motion rather than using as a click.", CONTROLS, 0.01f, 1.0f, 0.05f);
+	add_var(OPT_BOOL,"window_camera_control","window_cc",&window_camera_controls,change_var,1,"Use Full Window Camera Controls","Use Full Window Camera Controls",CONTROLS);
+#endif
 	add_var(OPT_BOOL,"sit_lock","sl",&sit_lock,change_var,0,"Sit Lock","Enable this to prevent your character from moving by accident when you are sitting.",CONTROLS);
 	add_var(OPT_BOOL,"always_pathfinding", "alwayspathfinding", &always_pathfinding, change_var, 0, "Extend the range of the walk cursor", "Extends the range of the walk cursor to as far as you can see.  Using this option, movement may be slightly less responsive on larger maps.", CONTROLS);
 	add_var(OPT_BOOL,"target_close_clicked_creature", "targetcloseclickedcreature", &target_close_clicked_creature, change_var, 1, "Target creature if you click close to it", "When enabled, if you click close to a creature that is in range, you will attack it or select it as the target for an active spell.", CONTROLS);
@@ -2847,6 +2938,10 @@ static void init_ELC_vars(void)
 
 
 	// HUD TAB
+#ifdef ANDROID
+	add_var(OPT_BOOL,"full_camera_bars","full_cam_bars",&full_camera_bars,change_var,1,"Draw camera bars","Shows the camera bars",HUD);
+	add_var(OPT_BOOL,"use_transparent_hud", "uth", &use_transparent_hud, change_transparent_hud, 0, "Use Transparent Hud", "Removed the background image from the Hud bars.", HUD);
+#endif
 	add_var(OPT_BOOL,"show_fps","fps",&show_fps,change_var,1,"Show FPS","Show the current frames per second in the corner of the window",HUD);
 	add_var(OPT_BOOL,"view_analog_clock","analog",&view_analog_clock,change_var,1,"Analog Clock","Toggle the analog clock",HUD);
 	add_var(OPT_BOOL,"view_digital_clock","digit",&view_digital_clock,change_var,1,"Digital Clock","Toggle the digital clock",HUD);
@@ -2890,7 +2985,7 @@ static void init_ELC_vars(void)
 	add_var(OPT_BOOL, "continent_map_boundaries", "cmb", &show_continent_map_boundaries, change_var, 1, "Map Boundaries On Continent Map", "Show map boundaries on the continent map", HUD);
 	add_var(OPT_BOOL,"enable_user_menus", "user_menus", &enable_user_menus, toggle_user_menus, 0, "Enable User Menus","Create .menu files in your config directory.  First line is the menu name. After that, each line is a command using the format \"Menus Text || command || command\".  Prompt for input using \"command text <prompt text>\".",HUD);
 	add_var(OPT_BOOL,"console_scrollbar_enabled", "console_scrollbar", &console_scrollbar_enabled, toggle_console_scrollbar, 1, "Show Console Scrollbar","If enabled, a scrollbar will be shown in the console window.",HUD);
-#if !defined(WINDOWS) && !defined(OSX)
+#if !defined(WINDOWS) && !defined(OSX) && !defined(ANDROID)
 	add_var(OPT_BOOL,"use_clipboard","uclb",&use_clipboard, change_var, 1, "Use Clipboard For Pasting", "Use CLIPBOARD for pasting (as e.g. GNOME does) or use PRIMARY cutbuffer (as xterm does)",HUD);
 #endif
 
@@ -2921,6 +3016,7 @@ static void init_ELC_vars(void)
 	add_var(OPT_BOOL, "enable_chat_show_hide", "ecsh", &enable_chat_show_hide, change_enable_chat_show_hide, 0, "Enable Show/Hide For Chat", "If enabled, you can show or hide chat either using the #K_CHAT key (usually ALT+c) or using the optional icon-bar icon.", CHAT);
 	add_var(OPT_BOOL, "console_input_at_top", "ciat", &console_input_at_top, change_console_input_at_top, 0, "Console Input At Top Of Window", "If set, console input will be located at the top of the window.", CHAT);
 	add_var(OPT_INT,"max_chat_lines","mcl",&max_chat_lines.value,change_max_chat_lines,10,"Maximum Number Of Chat Lines","For Tabbed and Old behaviour chat modes, this value sets the maximium number of lines of chat displayed.",CHAT, max_chat_lines.lower, max_chat_lines.upper);
+#ifndef ANDROID
 	add_var(OPT_BOOL,"local_chat_separate", "locsep", &local_chat_separate, change_separate_flag, 0, "Separate Local Chat", "Should local chat be separate?", CHAT);
 	// The forces that be want PMs always global, so that they're less likely to be ignored
 	//add_var (OPT_BOOL, "personal_chat_separate", "pmsep", &personal_chat_separate, change_separate_flag, 0, "Separate Personal Chat", "Should personal chat be separate?", CHAT);
@@ -2929,6 +3025,7 @@ static void init_ELC_vars(void)
 	add_var(OPT_BOOL,"mod_chat_separate", "modsep", &mod_chat_separate, change_separate_flag, 0, "Separate Moderator Chat", "Should moderator chat be separated from the rest?", CHAT);
 	// No longer supported, the code is just missing!
 	//add_var(OPT_BOOL,"highlight_tab_on_nick", "highlight", &highlight_tab_on_nick, change_var, 1, "Highlight Tabs On Name", "Should tabs be highlighted when someone mentions your name?", CHAT);
+#endif
 	add_var(OPT_BOOL,"emote_filter", "emote_filter", &emote_filter, change_var, 1, "Emotes filter", "Do not display lines of text in local chat containing emotes only", CHAT);
 	add_var(OPT_BOOL,"summoning_filter", "summ_filter", &summoning_filter, change_var, 0, "Summoning filter", "Do not display lines of text in local chat containing summoning messages", CHAT);
 	add_var(OPT_BOOL,"mixed_message_filter", "mixedmessagefilter", &mixed_message_filter, change_var, 0, "Mixed item filter", "Do not display console messages for mixed items when other windows are not visible", CHAT);
@@ -2952,6 +3049,9 @@ static void init_ELC_vars(void)
 
 
 	// FONT TAB
+#ifdef ANDROID
+	add_var(OPT_INT_INI, "done_initial_config", "dic", &done_initial_config, change_int, 0, "Done initial config", "Set on first run allowing one-time configuration.", FONT);
+#endif
 	add_var(OPT_BOOL,"disable_auto_highdpi_scale", "disautohighdpi", &disable_auto_highdpi_scale, change_disable_auto_highdpi_scale, 0, "Disable High-DPI auto scaling", "For systems with high-dpi support (e.g. OS X): When enabled, name, chat and notepad font values, and the user interface scaling factor are all automatically scaled using the system's scale factor.", FONT);
 #ifdef TTF
 	add_var(OPT_BOOL, "use_ttf", "ttf", &use_ttf, change_use_ttf, 1, "Use TTF",
@@ -2981,7 +3081,11 @@ static void init_ELC_vars(void)
 		 FONT, NULL);
 	// the tab map scale changes mean previous setting are too small, make sure all users are reset to the new scaling by using a different variable
 	add_var(OPT_FLOAT,"mapmark_text_size_1", "marksize", &font_scales[MAPMARK_FONT], change_text_zoom, 1.0, "Mapmark Text Size","Sets the size of the mapmark text", FONT, 0.1, 2.0, 0.01);
+#ifdef ANDROID
+	add_var(OPT_FLOAT,"ui_scale","ui_scale",&local_ui_scale,change_ui_scale,1,"User interface scaling factor","Scale user interface by this factor, useful for high DPI displays.  Note: the options window will be rescaled after reopening.",FONT,MIN_UI_SCALE,MAX_UI_SCALE,0.01);
+#else
 	add_var(OPT_FLOAT,"ui_scale","ui_scale",&local_ui_scale,change_ui_scale,1,"User interface scaling factor","Scale user interface by this factor, useful for high DPI displays.  Note: the options window will be rescaled after reopening.",FONT,0.75,3.0,0.01);
+#endif
 	add_var(OPT_INT,"cursor_scale_factor","cursor_scale_factor",&cursor_scale_factor ,change_cursor_scale_factor,cursor_scale_factor,"Mouse pointer scaling factor","The size of the mouse pointer is scaled by this factor",FONT, 1, max_cursor_scale_factor);
 	add_var(OPT_BOOL,"disable_window_scaling_controls","disablewindowscalingcontrols", get_scale_flag_MW(), change_var, 0, "Disable Window Scaling Controls", "If you do not want to use keys or mouse+scrollwheel to scale individual windows, set this option.", FONT);
 	add_var(OPT_BOOL,"enable_windows_autoscale","enable_windows_autoscale", &enable_windows_autoscale, change_windows_autoscale, 0, "Autoscale windows to fit", "If enabled, the scaling factor for a window will be automatically calculated to fit within the main window. The scaling factor will not be set greater than the default.", FONT);
@@ -3027,16 +3131,23 @@ static void init_ELC_vars(void)
 	add_var(OPT_PASSWORD, "password", "p", active_password_str, change_string, sizeof(active_password_str),
 		"Password", "Put your password here", SERVER);
 	add_var(OPT_BOOL,"passmngr_enabled","pme",&passmngr_enabled,change_var,0,"Enable Password Manager", "If enabled, user names and passwords are saved locally by the built-in password manager.  Multiple sets of details can be saved.  You can choose which details to use at the login screen.",SERVER);
+#ifdef ANDROID
+	log_chat = LOG_NONE;
+	rotate_chat_log_config_var = 0;
+#else
 	add_var(OPT_MULTI,"log_chat","log",&log_chat,change_int,LOG_SERVER,"Log Messages","Log messages from the server (chat, harvesting events, GMs, etc)",SERVER,"Do not log chat", "Log chat only", "Log server messages", "Log server to srv_log.txt", NULL);
 	add_var(OPT_BOOL,"rotate_chat_log","rclog",&rotate_chat_log_config_var,change_rotate_chat_log,0,"Rotate Chat Log File","Tag the chat/server message log files with year and month. You will still need to manage deletion of the old files. Requires a client restart.",SERVER);
+#endif
 	add_var(OPT_BOOL,"buddy_log_notice", "buddy_log_notice", &buddy_log_notice, change_var, 1, "Log Buddy Sign On/Off", "Toggle whether to display notices when people on your buddy list log on or off", SERVER);
 	add_var(OPT_STRING,"language", "lang", lang, change_string, sizeof(lang), "Language", "Wah?", SERVER);
 	add_validator("language", language_validator);
+#ifndef ANDROID
 	add_var(OPT_STRING, "browser", "b", browser_name, change_string, sizeof(browser_name), "Browser",
 		"Location of your web browser (Windows users leave blank to use default browser)",
 		SERVER);
 	add_var(OPT_BOOL,"write_ini_on_exit", "wini", &write_ini_on_exit, change_var, 1,"Save INI","Save options when you quit",SERVER);
 	add_var(OPT_STRING,"data_dir","dir",datadir,change_dir_name,90,"Data Directory","Place were we keep our data. Can only be changed with a Client restart.",SERVER);
+#endif // ANDROID
 	add_var(OPT_BOOL,"serverpopup","spu",&use_server_pop_win,change_var,1,"Use Special Text Window","Toggles whether server messages from channel 255 are displayed in a pop up window.",SERVER);
 	/* Note: We don't take any action on the already-running thread, as that wouldn't necessarily be good. */
 	add_var(OPT_BOOL,"autoupdate","aup",&auto_update,change_var,1,"Automatic Updates","Toggles whether updates are automatically downloaded.",SERVER);
@@ -3072,6 +3183,15 @@ static void init_ELC_vars(void)
 
 
 	// VIDEO TAB
+#ifdef ANDROID
+	add_var(OPT_BOOL,"full_screen","fs",&full_screen,toggle_full_screen_mode,0,"Full Screen","Changes between full screen and windowed mode",VIDEO);
+	video_mode = 4;
+	use_animation_program = 0;
+	add_var(OPT_INT,"limit_fps","lfps",&limit_fps,change_fps,0,"Limit FPS","Limit the frame rate to reduce load on the system",VIDEO,0,INT_MAX);
+	add_var(OPT_MULTI_H,"screen_orientation_modes","sorm",&screen_orientation_modes, change_int, 0, "Suported Screen Orientations", "Set which screen orientations are supported. Takes effect after a client restart", VIDEO, "All", "Landscape", "Portrait", NULL);
+	add_var(OPT_BOOL,"enable_screensaver","esc",&enable_screensaver,change_screensaver,0,"Enable Desktop Screensaver","By default your desktop screen saver is disabled, this is normal behavour for games and media players. Set this option to enable the screensaver / monitor power managment.",VIDEO);
+	add_var(OPT_BOOL,"textures_32bpp","t32bpp",&textures_32bpp,change_var,1,"32 BPP textures","Slower, requires restart",VIDEO);
+#else
 	add_var(OPT_BOOL,"full_screen","fs",&full_screen,toggle_full_screen_mode,0,"Full Screen","Changes between full screen and windowed mode",VIDEO);
 	add_var(OPT_MULTI,"video_mode","vid",&video_mode,switch_vidmode,4,"Video Mode","The video mode you wish to use",VIDEO, "Userdefined", NULL);
 	for (i = 0; i < video_modes_count; i++)
@@ -3108,20 +3228,25 @@ static void init_ELC_vars(void)
 		change_150_water_shader, 0, "Use new water shader",
 		"Use the new shader program for rendering water. If water reflections do not work (and you have frame buffer support enabled), try enabling this option.",
 		 VIDEO);
+#endif /* ANDROID */
 	add_var(OPT_BOOL,"small_actor_texture_cache","small_actor_tc",&small_actor_texture_cache,change_small_actor_texture_cache,0,"Small actor texture cache","A small Actor texture cache uses less video memory, but actor loading can be slower.",VIDEO);
 	add_var(OPT_BOOL,"use_vertex_buffers","vbo",&use_vertex_buffers,change_vertex_buffers,0,"Vertex Buffer Objects","Toggle the use of the vertex buffer objects, restart required to activate it",VIDEO);
+#ifndef ANDROID
 	add_var(OPT_BOOL, "use_animation_program", "uap", &use_animation_program, change_use_animation_program, 1, "Use animation program", "Use GL_ARB_vertex_program for actor animation", VIDEO);
+#endif
 	add_var(OPT_BOOL_INI, "video_info_sent", "svi", &video_info_sent, change_var, 0, "Video info sent", "Video information are sent to the server (like OpenGL version and OpenGL extentions)", VIDEO);
 	// VIDEO TAB
 
 
 	// GFX TAB
+#ifndef ANDROID
 	add_var(OPT_BOOL,"shadows_on","shad",&shadows_on,change_shadows,0,"Shadows","Toggles the shadows", GFX);
 	add_var(OPT_BOOL,"use_shadow_mapping", "sm", &use_shadow_mapping, change_shadow_mapping, 0, "Shadow Mapping", "If you want to use some better quality shadows, enable this. It will use more resources, but look prettier.", GFX);
 	add_var(OPT_MULTI,"shadow_map_size","smsize",&shadow_map_size_multi,change_shadow_map_size,3,"Shadow Map Size","This parameter determines the quality of the shadow maps. You should as minimum set it to 512.",GFX,"256","512","768","1024","1280","1536","1792","2048","3072","4096",NULL);
 	add_var(OPT_BOOL,"no_adjust_shadows","noadj",&no_adjust_shadows,change_var,0,"Don't Adjust Shadows","If enabled, tell the engine not to disable the shadows if the frame rate is too low.",GFX);
 	add_var(OPT_BOOL,"clouds_shadows","cshad",&clouds_shadows,change_clouds_shadows,1,"Cloud Shadows","The clouds shadows are projected on the ground, and the game looks nicer with them on.",GFX);
 	add_var(OPT_BOOL,"show_reflection","refl",&show_reflection,change_reflection,1,"Show Reflections","Toggle the reflections",GFX);
+#endif
 	add_var(OPT_BOOL,"render_fog","fog",&use_fog,change_var,1,"Render Fog","Toggles fog rendering.",GFX);
 	add_var(OPT_BOOL,"show_weather","weather",&show_weather,change_var,1,"Show Weather Effects","Toggles thunder, lightning and rain effects.",GFX);
 	add_var(OPT_BOOL,"skybox_show_sky","sky", &skybox_show_sky, change_sky_var,1,"Show Sky", "Enable the sky box.", GFX);
@@ -3171,10 +3296,12 @@ static void init_ELC_vars(void)
 
 
 	// TROUBLESHOOT TAB
+#ifndef ANDROID
 	add_var(OPT_BOOL,"shadows_on","shad",&shadows_on,change_shadows,0,"Shadow Bug","Some video cards have trouble with the shadows. Uncheck this if everything you see is white.", TROUBLESHOOT);
 	// Grum: attempt to work around bug in Ati linux drivers.
 	add_var(OPT_BOOL,"ati_click_workaround", "atibug", &ati_click_workaround, change_var, 0, "ATI Bug", "If you are using an ATI graphics card and don't move when you click, try this option to work around a bug in their drivers.", TROUBLESHOOT);
 	add_var (OPT_BOOL,"use_old_clicker", "oldmclick", &use_old_clicker, change_var, 0, "Mouse Bug", "Unrelated to ATI graphics cards, if clicking to walk doesn't move you, try toggling this option.", TROUBLESHOOT);
+#endif
 	add_var(OPT_BOOL,"use_new_selection", "uns", &use_new_selection, change_new_selection, 1, "New selection", "Using new selection can give you a higher framerate.  However, if your cursor does not change when over characters or items, try disabling this option.", TROUBLESHOOT);
 	add_var(OPT_BOOL,"clear_mod_keys_on_focus", "clear_mod_keys_on_focus", &clear_mod_keys_on_focus, change_var, 0, "Clear modifier keys when window focused","If you have trouble with modifier keys (shift/ctrl/alt etc) when keyboard focus returns, enable this option to force all modifier keys up.", TROUBLESHOOT);
 #ifndef OSX
@@ -3185,8 +3312,13 @@ static void init_ELC_vars(void)
 #ifdef OSX
 	add_var(OPT_BOOL, "square_buttons", "sqbutt",&square_buttons,change_var,1,"Square Buttons","Use square buttons rather than rounded",TROUBLESHOOT);
 #endif
+#ifndef ANDROID
 	add_var(OPT_BOOL, "use_animation_program", "uap", &use_animation_program, change_use_animation_program, 1, "Use animation program", "Use GL_ARB_vertex_program for actor animation", TROUBLESHOOT);
+#endif
 	add_var(OPT_BOOL,"poor_man","poor",&poor_man,change_poor_man,0,"Poor Man","If the game is running very slow for you, toggle this setting.",TROUBLESHOOT);
+#ifdef ANDROID
+	add_var(OPT_BOOL,"disable_GL_POINT_SMOOTH","dglps",&disable_GL_POINT_SMOOTH,change_var,0,"Fix missing minimap dots.","If mising minimap and other dots, set this option.",TROUBLESHOOT);
+#endif
 	// TROUBLESHOOT TAB
 
 	// DEBUGTAB TAB
@@ -3368,6 +3500,8 @@ int write_el_ini (void)
 	// created in the users $HOME/.elc for Unix users, even if nothing
 	// changed. However, most of the time it's pointless to update an
 	// unchanged file.
+#ifndef ANDROID
+	// ANDROID_TODO check and clean up
 	for (ivar= 0; ivar < our_vars.no; ivar++)
 	{
 		if (!our_vars.var[ivar]->saved)
@@ -3375,6 +3509,7 @@ int write_el_ini (void)
 	}
 	if (ivar >= our_vars.no)
 		return 1; // nothing changed, no need to write
+#endif
 
 	// Consolidate changes for any items featured more than once - on different tabs for example.
 	for (ivar= 0; ivar < our_vars.no; ivar++)
@@ -3392,7 +3527,13 @@ int write_el_ini (void)
 	// read the ini file
 	file = open_file_config(ini_filename, "r");
 	if(file == NULL){
+#ifdef ANDROID
+		// ANDROID_TODO check and clean up
+		SDL_Log("Hmm, couldn't load el.ini for read at exit??");
+		exit(1);
+#else
 		LOG_ERROR("%s: %s \"%s\": %s\n", reg_error_str, cant_open_file, ini_filename, strerror(errno));
+#endif
 	} else {
 		maxlines= 300;
 	 	cont= malloc (maxlines * sizeof (input_line));
@@ -3484,7 +3625,11 @@ static int display_elconfig_handler(window_info *win)
 	// Show the context menu help message
 	if (is_mouse_over_option)
 	{
+#ifdef ANDROID
+		show_help(long_touch_cm_options_str, 0, win->len_y + 10, win->current_scale);
+#else
 		show_help(cm_help_options_str, 0, help_y, win->current_scale);
+#endif
 		help_y += win->small_font_len_y;
 		is_mouse_over_option = 0;
 	}
@@ -3549,6 +3694,10 @@ static int spinbutton_onclick_handler(widget_list *widget, int mx, int my, Uint3
 		for(i= 0; i < our_vars.no; i++) {
 			if(our_vars.var[i]->widgets.widget_id == widget->id) {
 				button= widget->widget_info;
+#ifdef ANDROID
+				if (mx < widget->len_x * 0.75)
+					SDL_StartTextInput();
+#endif
 				switch(button->type) {
 					case SPIN_FLOAT:
 						our_vars.var[i]->func(our_vars.var[i]->var, (float *)button->data);
@@ -3564,6 +3713,14 @@ static int spinbutton_onclick_handler(widget_list *widget, int mx, int my, Uint3
 	}
 	return 0;
 }
+
+#ifdef ANDROID
+static int string_onclick_handler(widget_list *widget, int mx, int my, Uint32 flags)
+{
+	SDL_StartTextInput();
+	return 1;
+}
+#endif
 
 static int multiselect_click_handler(widget_list *widget, int mx, int my, Uint32 flags)
 {
@@ -3903,7 +4060,11 @@ static void elconfig_populate_tabs(void)
 	int y_label, y_widget, dx, dy, iopt;
 	int spin_button_width = max2i(ELCONFIG_SCALED_VALUE(100),
 		4 * get_max_digit_width_zoom(CONFIG_FONT, elconf_scale) + 4 * (int)(0.5 + 5 * elconf_scale));
+#ifdef ANDROID
+	int right_margin = CHECKBOX_SIZE + TAB_MARGIN;
+#else
 	int right_margin = TAB_MARGIN;
+#endif
 	const int num_visible_options = 3;
 	const int multi_height = num_visible_options * MULTI_LINE_HEIGHT;
 
@@ -3954,7 +4115,11 @@ static void elconfig_populate_tabs(void)
 					current_x, current_y, 0, elconf_scale, (char*)var->display.str);
 				widget_width = spin_button_width;
 				widget_id = spinbutton_add_extended(window_id, elconfig_free_widget_id++, NULL,
+#ifdef ANDROID
+					window_width - right_margin - 2.0f * widget_width, current_y, 2.0f * widget_width, 2.0f * line_height,
+#else
 					window_width - right_margin - widget_width, current_y, widget_width, line_height,
+#endif
 					SPIN_INT, var->var, var->args.imm.min,
 					var->args.imm.max, 1.0, elconf_scale);
 				widget_set_OnKey(window_id, widget_id, (int (*)())spinbutton_onkey_handler);
@@ -3965,7 +4130,11 @@ static void elconfig_populate_tabs(void)
 					current_x, current_y, 0, elconf_scale, (char*)var->display.str);
 				widget_width = spin_button_width;
 				widget_id = spinbutton_add_extended(window_id, elconfig_free_widget_id++, NULL,
+#ifdef ANDROID
+					window_width - right_margin - 2.0f * widget_width, current_y, 2.0f * widget_width, 2.0f * line_height,
+#else
 					window_width - right_margin - widget_width, current_y, widget_width, line_height,
+#endif
 					SPIN_FLOAT, var->var, var->args.fmmi.min, var->args.fmmi.max,
 					var->args.fmmi.interval, elconf_scale);
 				widget_set_OnKey(window_id, widget_id, (int (*)())spinbutton_onkey_handler);
@@ -3983,6 +4152,9 @@ static void elconfig_populate_tabs(void)
 				label_id = label_add_extended(window_id, elconfig_free_widget_id++, NULL,
 					current_x, current_y + dy/2, 0, elconf_scale, (char*)var->display.str);
 				widget_set_OnKey (window_id, widget_id, (int (*)())string_onkey_handler);
+#ifdef ANDROID
+				widget_set_OnClick(window_id, widget_id, string_onclick_handler);
+#endif
 			break;
 			case OPT_PASSWORD:
 				// Grum: the client shouldn't store the password, so let's not add it to the configuration window
@@ -4017,7 +4189,11 @@ static void elconfig_populate_tabs(void)
 					current_x, current_y, 0, elconf_scale, (char*)var->display.str);
 				widget_width = spin_button_width;
 				widget_id = spinbutton_add_extended(window_id, elconfig_free_widget_id++, NULL,
+#ifdef ANDROID
+					window_width - right_margin - 2.0f * widget_width, current_y, 2.0f * widget_width, 2.0f * line_height,
+#else
 					window_width - right_margin - widget_width, current_y, widget_width, line_height,
+#endif
 					SPIN_FLOAT, var->var, var->args.fmmif.min(), var->args.fmmif.max(),
 					var->args.fmmif.interval, elconf_scale);
 				widget_set_OnKey(window_id, widget_id, (int (*)())spinbutton_onkey_handler);
@@ -4029,7 +4205,11 @@ static void elconfig_populate_tabs(void)
 					current_x, current_y, 0, elconf_scale, (char*)var->display.str);
 				widget_width = spin_button_width;
 				widget_id = spinbutton_add_extended(window_id, elconfig_free_widget_id++, NULL,
+#ifdef ANDROID
+					window_width - right_margin - 2.0f * widget_width, current_y, 2.0f * widget_width, 2.0f * line_height,
+#else
 					window_width - right_margin - widget_width, current_y, widget_width, line_height,
+#endif
 					SPIN_INT, var->var, var->args.immf.min(), var->args.immf.max(), 1.0, elconf_scale);
 				widget_set_OnKey(window_id, widget_id, (int (*)())spinbutton_onkey_handler);
 				widget_set_OnClick(window_id, widget_id, spinbutton_onclick_handler);
@@ -4198,12 +4378,20 @@ void display_elconfig_win(void)
 
 		elconf_scale = ui_scale * elconf_custom_scale;
 		CHECKBOX_SIZE = ELCONFIG_SCALED_VALUE(15);
+#ifdef ANDROID
+		SPACING = ELCONFIG_SCALED_VALUE(10);
+#else
 		SPACING = ELCONFIG_SCALED_VALUE(5);
+#endif
 		elconf_desc_max_height = MAX_LONG_DESC_LINES * get_line_height(CONFIG_FONT, elconf_scale * DEFAULT_SMALL_RATIO);
 		LONG_DESC_SPACE = SPACING + elconf_desc_max_height;
 		TAB_TAG_HEIGHT = tab_collection_calc_tab_height(CONFIG_FONT, elconf_scale);
 		elconfig_menu_x_len = get_elconfig_content_width() + 2 * TAB_MARGIN;
 		elconfig_menu_y_len = ELCONFIG_SCALED_VALUE(440);
+#ifdef ANDROID
+		if (elconfig_menu_y_len > (window_height - HUD_MARGIN_Y))
+			elconfig_menu_y_len = window_height - HUD_MARGIN_Y;
+#endif
 
 		/* Set up the window */
 		elconfig_win = create_window(win_configuration, (not_on_top_now(MW_CONFIG) ?game_root_win : -1), 0, get_pos_x_MW(MW_CONFIG), get_pos_y_MW(MW_CONFIG),
@@ -4230,7 +4418,11 @@ void display_elconfig_win(void)
 		elconfig_tabs[CHAT].tab= tab_add(elconfig_win, elconfig_tab_collection_id, ttab_chat, 0, 0, ELW_SCROLLABLE|ELW_USE_UISCALE);
 		elconfig_tabs[FONT].tab= tab_add(elconfig_win, elconfig_tab_collection_id, ttab_font, 0, 0, ELW_SCROLLABLE|ELW_USE_UISCALE);
 		elconfig_tabs[SERVER].tab= tab_add(elconfig_win, elconfig_tab_collection_id, ttab_server, 0, 0, ELW_SCROLLABLE|ELW_USE_UISCALE);
+#ifdef NEW_SOUND
 		elconfig_tabs[AUDIO].tab= tab_add(elconfig_win, elconfig_tab_collection_id, ttab_audio, 0, 0, ELW_SCROLLABLE|ELW_USE_UISCALE);
+#else
+		elconfig_tabs[AUDIO].tab = -1;
+#endif
 		elconfig_tabs[VIDEO].tab= tab_add(elconfig_win, elconfig_tab_collection_id, ttab_video, 0, 0, ELW_SCROLLABLE|ELW_USE_UISCALE);
 		elconfig_tabs[GFX].tab= tab_add(elconfig_win, elconfig_tab_collection_id, ttab_gfx, 0, 0, ELW_SCROLLABLE|ELW_USE_UISCALE);
 		elconfig_tabs[CAMERA].tab= tab_add(elconfig_win, elconfig_tab_collection_id, ttab_camera, 0, 0, ELW_SCROLLABLE|ELW_USE_UISCALE);

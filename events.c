@@ -5,8 +5,17 @@
 #include <SDL_syswm.h>
 #endif
 
+#ifdef ANDROID
+#include "asc.h"
+#endif
 #include "elconfig.h"
 #include "events.h"
+#ifdef ANDROID
+#include "console.h"
+#include "consolewin.h"
+#include "elwindows.h"
+#include "multiplayer.h"
+#endif
 #include "context_menu.h"
 #include "gamewin.h"
 #include "gl_init.h"
@@ -23,6 +32,13 @@
 #include "textures.h"
 
 #include "actor_scripts.h"
+
+#ifdef ANDROID
+int back_on;
+float long_touch_delay_s = 0.5f;
+float motion_touch_delay_s = 0.15f;
+int enable_keyboard_debug = 0;
+#endif
 
 #ifdef OSX
 int osx_right_mouse_cam = 0;
@@ -187,6 +203,28 @@ void check_minimised_or_restore_window(void)
 	}
 }
 
+#ifdef ANDROID
+typedef struct
+{
+	float tfinger_x;
+	float tfinger_y;
+} LONG_TOUCH_STRUCT;
+
+Uint32 gen_EVENT_LONG_TOUCH_callback(Uint32 interval, void *param)
+{
+	SDL_Event event;
+	SDL_UserEvent userevent;
+	userevent.type = SDL_USEREVENT;
+	userevent.code = EVENT_LONG_TOUCH;
+	userevent.data1 = param;
+	userevent.data2 = NULL;
+	event.type = SDL_USEREVENT;
+	event.user = userevent;
+	SDL_PushEvent(&event);
+	return 0;
+}
+#endif
+
 int HandleEvent (SDL_Event *event)
 {
 	int done = 0;
@@ -195,6 +233,17 @@ int HandleEvent (SDL_Event *event)
 	Uint32 flags = KMOD_NONE;
 	SDL_Keymod  mod_key_status = 0;
 	Uint8 unicode = '\0';
+#ifdef ANDROID
+	static int last_mouse_x;
+	static int last_mouse_y;
+	static int last_mouse_flags;
+	static SDL_bool have_finger_motion = SDL_FALSE;
+	static Uint32 last_finger_down_start = 0;
+	static SDL_bool have_usable_finger = SDL_FALSE;
+	static Uint32 last_gesture_time = 0;
+	static SDL_TimerID long_touch_timer_id = 0;
+	static LONG_TOUCH_STRUCT long_touch_info = {0.0f, 0.0f};
+#endif
 	static Uint32 last_loss = 0;
 	static Uint32 last_gain = 0;
 	static Uint32 last_SDL_KEYDOWN_timestamp = 0;
@@ -208,8 +257,36 @@ int HandleEvent (SDL_Event *event)
 
 	switch( event->type )
 	{
+#ifdef ANDROID
+		case SDL_APP_DIDENTERFOREGROUND:
+			SDL_Log("App returned to forground");
+			if (is_disconnected() && !locked_to_console)
+			{
+				SDL_Log("Reconnectecing after return to forground");
+				connect_to_server();
+			}
+			break;
 
-#if !defined(WINDOWS) && !defined(OSX)
+		case SDL_RENDER_DEVICE_RESET:
+			SDL_Log("SDL_RENDER_DEVICE_RESET saving and exiting");
+			save_local_data();
+			exit(1);
+			break;
+
+		case SDL_APP_TERMINATING:
+			SDL_Log("OS is terminating us...");
+			// ANDROID_TODO radu removed the save in the latest version - "might cause problems"
+			save_local_data();
+			exit(1);
+			break;
+
+		case SDL_APP_WILLENTERBACKGROUND:
+			SDL_Log("App entered background");
+			save_local_data();
+			break;
+#endif
+
+#if !defined(WINDOWS) && !defined(OSX) && !defined(ANDROID)
 		case SDL_SYSWMEVENT:
 			if (event->syswm.msg->msg.x11.event.type == SelectionNotify)
 				finishpaste(event->syswm.msg->msg.x11.event.xselection);
@@ -242,9 +319,11 @@ int HandleEvent (SDL_Event *event)
 					break;
 				case SDL_WINDOWEVENT_LEAVE:
 				case SDL_WINDOWEVENT_FOCUS_LOST:
+#ifndef ANDROID
 					if (clear_mod_keys_on_focus)
 						last_loss = SDL_GetTicks();
 					el_input_focus = 0;
+#endif
 					break;
 				case SDL_WINDOWEVENT_ENTER:
 				case SDL_WINDOWEVENT_FOCUS_GAINED:
@@ -280,6 +359,16 @@ int HandleEvent (SDL_Event *event)
 				last_action_time = cur_time;  // reset the AFK timer
 			cm_post_show_check(1); // forces any context menu to close
 			unicode = utf8_to_unicode(event->text.text);
+#ifdef ANDROID
+			if (enable_keyboard_debug)
+			{
+				char str[200];
+				safe_snprintf(str, sizeof(str), "SDL_TEXTINPUT text=[%s] len=%" PRI_SIZET ",%" PRI_SIZET " timestamp=%u", (unsigned char *)event->text.text, sizeof(event->text.text), strlen(event->text.text), event->key.timestamp);
+				LOG_TO_CONSOLE(c_green1, str);
+				safe_snprintf(str, sizeof(str), "SDL_TEXTINPUT UTF-8 udf8=(%x,%x) unicode=%x", event->text.text[0], event->text.text[1], unicode);
+				LOG_TO_CONSOLE(c_green1, str);
+			}
+#endif
 			//printf("SDL_TEXTINPUT text=[%s] len=%lu,%lu timestamp=%u\n", (unsigned char *)event->text.text, sizeof(event->text.text), strlen(event->text.text), event->key.timestamp);
 			//printf("UTF-8 udf8=(%x,%x) unicode=%x\n", event->text.text[0], event->text.text[1], unicode);
 			if (unicode)
@@ -288,6 +377,13 @@ int HandleEvent (SDL_Event *event)
 					keypress_in_windows (mouse_x, mouse_y, SDLK_UNKNOWN, unicode, KMOD_NONE);
 			}
 			break;
+#ifdef ANDROID
+
+		case SDL_KEYUP:
+			if (event->key.keysym.sym == SDLK_AC_BACK)
+				back_on = 0;
+			break;
+#endif
 
 		case SDL_KEYDOWN:
 			// Don't let the modifiers GUI, ALT, CTRL and SHIFT change the state if only the key pressed
@@ -304,9 +400,30 @@ int HandleEvent (SDL_Event *event)
 			if (last_gain && (event->key.keysym.sym == SDLK_TAB) && ((SDL_GetTicks() - last_gain) < 50))
 				break;
 			last_gain = 0;
+#ifdef ANDROID
+			if (enable_keyboard_debug)
+			{
+				char str[200];
+				safe_snprintf(str, sizeof(str), "SDL_KEYDOWN keycode=%u,[%s] mod=%u timestamp=%u", event->key.keysym.sym, SDL_GetKeyName(event->key.keysym.sym), event->key.keysym.mod, event->key.timestamp);
+				LOG_TO_CONSOLE(c_green1, str);
+			}
+#endif
 			//printf("SDL_KEYDOWN keycode=%u,[%s] mod=%u timestamp=%u\n", event->key.keysym.sym, SDL_GetKeyName(event->key.keysym.sym), event->key.keysym.mod, event->key.timestamp);
 			last_SDL_KEYDOWN_timestamp = event->key.timestamp;
+#ifdef ANDROID
+			if(event->key.keysym.sym == SDLK_AC_BACK)
+			{
+				last_SDL_KEYDOWN_return_value = 1;
+				close_last_window();
+				back_on = 1;
+				break;
+			}
+			// ANDROID_TODO - the hardware keyboard on Android does not produce SDL_TEXTINPUT for SDLK_SPACE, so fix here
+			last_SDL_KEYDOWN_return_value = keypress_in_windows (mouse_x, mouse_y, event->key.keysym.sym,
+				(event->key.keysym.sym == SDLK_SPACE ?SDLK_SPACE :0), event->key.keysym.mod);
+#else
 			last_SDL_KEYDOWN_return_value = keypress_in_windows (mouse_x, mouse_y, event->key.keysym.sym, 0, event->key.keysym.mod);
+#endif
 			//printf("SDL_KEYDOWN result=%d\n", last_SDL_KEYDOWN_return_value);
 			break;
 
@@ -316,6 +433,85 @@ int HandleEvent (SDL_Event *event)
 			done = 1;
 			break;
 
+#ifdef ANDROID
+		case SDL_MULTIGESTURE:
+			SDL_RemoveTimer(long_touch_timer_id);
+			have_finger_motion = SDL_FALSE;
+			last_finger_down_start = 0;
+			last_gesture_time = SDL_GetTicks();
+			multi_gesture_in_windows(event->mgesture.timestamp, event->mgesture.x, event->mgesture.y, event->mgesture.dDist, event->mgesture.dTheta);
+			break;
+
+		case SDL_FINGERMOTION:
+			if (((SDL_GetTicks() - last_gesture_time) > 100) &&
+				((SDL_GetTicks() - last_finger_down_start) > (motion_touch_delay_s * 1000)))
+			{
+				int drag_x = (int)(event->tfinger.x * window_width + 0.5);
+				int drag_y = (int)(event->tfinger.y * window_height + 0.5);
+				int drag_dx = (int)(event->tfinger.dx * window_width + 0.5);
+				int drag_dy = (int)(event->tfinger.dy * window_height + 0.5);
+
+				if ((abs(drag_dx) > 0) || (abs(drag_dy) > 0))
+				{
+					if (drag_windows (drag_x, drag_y, drag_dx, drag_dy) >= 0)
+					{
+						SDL_RemoveTimer(long_touch_timer_id);
+						last_finger_down_start = 0;
+						have_finger_motion = SDL_TRUE;
+						return done;
+					}
+
+					if (drag_in_windows (drag_x, drag_y, ELW_LEFT_MOUSE, drag_dx, drag_dy) >= 0)
+					{
+						SDL_RemoveTimer(long_touch_timer_id);
+						last_finger_down_start = 0;
+						have_finger_motion = SDL_TRUE;
+						return done;
+					}
+				}
+
+				if ((abs(drag_dx) > 3) || (abs(drag_dy) > 3))
+				{
+					SDL_RemoveTimer(long_touch_timer_id);
+					last_finger_down_start = 0;
+					have_finger_motion = SDL_TRUE;
+					finger_motion_in_windows(event->tfinger.timestamp, event->tfinger.x, event->tfinger.y, event->tfinger.dx, event->tfinger.dy);
+				}
+			}
+			break;
+
+		case SDL_FINGERDOWN:
+			last_finger_down_start = SDL_GetTicks();
+			have_usable_finger = SDL_FALSE;
+			have_finger_motion = SDL_FALSE;
+			SDL_RemoveTimer(long_touch_timer_id);
+			long_touch_info.tfinger_x = event->tfinger.x; long_touch_info.tfinger_y = event->tfinger.y;
+			long_touch_timer_id = SDL_AddTimer((Uint32)(1000 * long_touch_delay_s), gen_EVENT_LONG_TOUCH_callback, &long_touch_info);
+			break;
+
+		case SDL_FINGERUP:
+			SDL_RemoveTimer(long_touch_timer_id);
+			if (have_finger_motion)
+			{
+				have_finger_motion = SDL_FALSE;
+				end_drag_windows();
+			}
+			if (last_finger_down_start == 0)
+				break;
+			if (afk_time)
+				last_action_time = cur_time;	// Set the latest events - don't make mousemotion set the afk_time... (if you prefer that mouse motion sets/resets the afk_time, then move this one step below...
+			have_usable_finger = SDL_TRUE;
+			last_finger_down_start = 0;
+			flags |= ELW_LEFT_MOUSE;
+			mouse_x = (int)(0.5 + window_width * event->tfinger.x);
+			mouse_y = (int)(0.5 + window_height * event->tfinger.y);
+			last_mouse_x = mouse_x;
+			last_mouse_y = mouse_y;
+			last_mouse_flags = flags;
+			click_in_windows (mouse_x, mouse_y, flags);
+			break;
+
+#else // ANDROID
 		case SDL_MOUSEBUTTONDOWN:
 		case SDL_MOUSEBUTTONUP:
 			// make sure the mouse button is our window, or else we ignore it
@@ -474,12 +670,33 @@ int HandleEvent (SDL_Event *event)
 				}
 			}
 			break;
+#endif // ANDROID
 
 		case SDL_USEREVENT:
 			switch(event->user.code){
 			case	EVENT_MOVEMENT_TIMER:
 				pf_move();
 				break;
+#ifdef ANDROID
+			case	EVENT_CURSOR_CALCULATION_COMPLETE:
+				if (have_usable_finger)
+					click_in_windows (last_mouse_x, last_mouse_y, last_mouse_flags);
+				break;
+			case	EVENT_LONG_TOUCH:
+			{
+				LONG_TOUCH_STRUCT *info = (LONG_TOUCH_STRUCT *)event->user.data1;
+				if (info != NULL)
+				{
+					last_mouse_x = mouse_x = (int)(0.5 + window_width * info->tfinger_x);
+					last_mouse_y = mouse_y = (int)(0.5 + window_height * info->tfinger_y);
+					last_mouse_flags = flags |= ELW_RIGHT_MOUSE;
+					have_usable_finger = SDL_TRUE;
+					last_finger_down_start = 0;
+					click_in_windows (mouse_x, mouse_y, flags);
+				}
+				break;
+			}
+#endif
 			case	EVENT_UPDATE_PARTICLES:
 				update_particles();
 				break;

@@ -34,6 +34,9 @@ extern Uint32 exp_lev[MAX_EXP_LEVEL];
 extern int hud_text;
 extern int hud_x;
 extern int hud_y;
+#ifdef ANDROID
+extern int use_transparent_hud;
+#endif
 extern int show_help_text;
 extern int always_enlarge_text;
 extern int logo_click_to_url;

@@ -12,6 +12,10 @@ extern "C" {
 
 #include "list.h"
 
+#ifdef ANDROID
+extern int first_time_setup;
+#endif
+
 /*!
  * Binary configuration data
  */

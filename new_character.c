@@ -414,11 +414,15 @@ static int display_newchar_handler (window_info *win)
 	move_camera ();
 
 	CalculateFrustum ();
+#ifndef ANDROID
 	set_click_line();
+#endif
 	any_reflection = find_reflection ();
 	CHECK_GL_ERRORS ();
 
+#ifndef ANDROID
 	reset_under_the_mouse();
+#endif
 
 	draw_global_light ();
 
@@ -640,6 +644,44 @@ static int show_newchar_handler (window_info *win) {
 	return 1;
 }
 
+#ifdef ANDROID
+int multi_gesture_new_char_handler(window_info *win, Uint32 timestamp, float x, float y, float distance, float rotation)
+{
+	if ((distance < -0.001f) || (distance > 0.001f))
+	{
+		if (distance < 0)
+			camera_zoom_dir = 1;
+		else
+			camera_zoom_dir = -1;
+	}
+
+	camera_zoom_duration += 10;
+	camera_rotation_speed = 0;
+
+	return 1;
+}
+
+int finger_motion_new_char_handler(window_info *win, Uint32 timestamp, float x, float y, float dx, float dy)
+{
+	if ((dx != dx) || (dy != dy))
+		return 1; // we got a nan....
+
+	if ((dx < -2) || (dx > 2) || (dy < -2) || (dy > 2))
+		return 1; // it's the multi gesture stupid bug
+
+	int mx = window_width * x;
+	int my = window_height * y;
+
+	camera_rotation_speed = camera_rotation_speed * 0.5 + normal_camera_rotation_speed * dx * -0.20;
+	camera_rotation_deceleration = normal_camera_deceleration * 1E-3;
+
+	camera_tilt_speed = camera_tilt_speed * 0.5 + normal_camera_rotation_speed * dy * -0.20;
+	camera_tilt_deceleration = normal_camera_deceleration * 1E-3;
+
+	return 1;
+}
+#endif
+
 static void create_newchar_hud_window(void);
 
 static void set_hud_width(window_info *win)
@@ -755,7 +797,9 @@ void create_newchar_root_window (void)
 		newchar_root_win = create_window (win_newchar, -1, -1, 0, 0, window_width, window_height, ELW_USE_UISCALE|ELW_TITLE_NONE|ELW_SHOW_LAST);
 
 		set_window_handler (newchar_root_win, ELW_HANDLER_DISPLAY, &display_newchar_handler);
+#ifndef ANDROID
 		set_window_handler (newchar_root_win, ELW_HANDLER_MOUSEOVER, &mouseover_newchar_handler);
+#endif
 		set_window_handler (newchar_root_win, ELW_HANDLER_CLICK, &click_newchar_handler);
 		set_window_handler (newchar_root_win, ELW_HANDLER_KEYPRESS, (int (*)())&keypress_newchar_handler);
 		set_window_handler (newchar_root_win, ELW_HANDLER_SHOW, &show_newchar_handler);
@@ -763,6 +807,10 @@ void create_newchar_root_window (void)
 		set_window_handler (newchar_root_win, ELW_HANDLER_HIDE, &update_have_display);
 		set_window_handler (newchar_root_win, ELW_HANDLER_UI_SCALE, &ui_scale_newchar_handler);
 		set_window_handler (newchar_root_win, ELW_HANDLER_RESIZE, &ui_resize_newchar_handler);
+#ifdef ANDROID
+		set_window_handler (newchar_root_win, ELW_HANDLER_MULTI_GESTURE, (int (*)())&multi_gesture_new_char_handler);
+		set_window_handler (newchar_root_win, ELW_HANDLER_FINGER_MOTION, (int (*)())&finger_motion_new_char_handler);
+#endif
 		set_window_handler(newchar_root_win, ELW_HANDLER_FONT_CHANGE, &change_newchar_font_handler);
 
 		newchar_advice_win = create_window ("Advice", newchar_root_win, 0, 100, 10, 200, 100, ELW_USE_UISCALE|ELW_USE_BACKGROUND|ELW_USE_BORDER|ELW_SHOW|ELW_ALPHA_BORDER);
@@ -938,6 +986,9 @@ static int click_done_handler(widget_list *w, int mx, int my, Uint32 flags)
 	if(w->window_id == color_race_win)
 	{
 		hide_window(color_race_win);
+#ifdef ANDROID
+		SDL_StartTextInput();
+#endif
 		show_window(namepass_win);
 	}
 	else
@@ -977,6 +1028,9 @@ static int click_back_handler(widget_list *w, int mx, int my, Uint32 flags)
 
 static int click_namepass_field(widget_list *w, int mx, int my, Uint32 flags)
 {
+#ifdef ANDROID
+	SDL_StartTextInput();
+#endif
 	active = *(int*)w->spec;
 	return 1;
 }
