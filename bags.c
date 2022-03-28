@@ -158,18 +158,25 @@ void revalidate_ground_bag_window(void)
 		return;
 
 	// if we are over an open bag, refresh its contents
-	if (your_actor && get_show_window_MW(MW_BAGS))
+
+	if (get_show_window_MW(MW_BAGS))
 	{
-		size_t i;
-		for (i = 0; i < NUM_BAGS; i++)
-			if ((bag_list[i].obj_3d_id != -1) &&
-				(bag_list[i].x == (your_actor->x_pos * 2)) &&
-				(bag_list[i].y == (your_actor->y_pos * 2)))
+		actor *me;
+		locked_list_ptr actors_list = lock_and_get_self(&me);
+		if (actors_list)
+		{
+			for (size_t i = 0; i < NUM_BAGS; i++)
 			{
-				Uint8 str[2] = { INSPECT_BAG, i };
-				my_tcp_send(str, 2);
-				return;
+				if ((bag_list[i].obj_3d_id != -1) &&
+					(bag_list[i].x == (me->x_pos * 2)) &&
+					(bag_list[i].y == (me->y_pos * 2)))
+				{
+					Uint8 str[2] = { INSPECT_BAG, i };
+					my_tcp_send(str, 2);
+					return;
+				}
 			}
+		}
 	}
 
 	// either we have an open window but no bag, or a previously opened window - clear the state
