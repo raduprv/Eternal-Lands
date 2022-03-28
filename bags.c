@@ -158,7 +158,6 @@ void revalidate_ground_bag_window(void)
 		return;
 
 	// if we are over an open bag, refresh its contents
-
 	if (get_show_window_MW(MW_BAGS))
 	{
 		actor *me;
@@ -176,6 +175,7 @@ void revalidate_ground_bag_window(void)
 					return;
 				}
 			}
+			release_locked_actors_list(actors_list);
 		}
 	}
 
