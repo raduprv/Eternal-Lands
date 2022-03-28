@@ -24,7 +24,6 @@ extern "C" {
 
 #define	MAX_FILE_PATH	128	// the max chars allowed int a path/filename for actor textures/masks
 #define MAX_ACTOR_DEFS  256
-#define MAX_ACTORS      1000    /*!< The maximum number of actors the client can hold */
 #define ACTOR_DEF_NAME_SIZE 256
 
 extern int yourself; 	/*!< This variable holds the actor_id (as the server sees it, not the position in the actors_list) of your character.*/
@@ -780,6 +779,13 @@ void check_if_new_actor_last_summoned(const actor *new_actor);
  * \return The id or -1 of none remembered or no longer present.
  */
 int get_id_last_summoned(void);
+
+/*!
+ * \brief Free the list of near actors
+ *
+ * Free the memory allocated for the information on which actors are to be drawn.
+ */
+void free_near_actors(void);
 
 static __inline__ attachment_props* get_attachment_props_if_held(actor *act, actor *attached)
 {

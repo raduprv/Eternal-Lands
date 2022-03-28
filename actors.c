@@ -35,6 +35,9 @@
 #include "fsaa/fsaa.h"
 #endif	/* FSAA */
 
+//! The initial size of the near_actors array
+#define INITIAL_NEAR_ACTORS_SIZE 10
+
 /*!
  * The near_actor structure holds information about the actors within range. It is filled once every frame.
  */
@@ -53,12 +56,13 @@ attached_actors_types attached_actors_defs[MAX_ACTOR_DEFS];
 
 static void draw_actor_overtext(actor* actor_ptr, const actor *me, double x, double y, double z); /* forward declaration */
 
-static int no_near_actors=0;
 #ifdef NEW_SOUND
 int no_near_enhanced_actors = 0;
 float distanceSq_to_near_enhanced_actors;
 #endif // NEW_SOUND
-static near_actor near_actors[MAX_ACTORS];
+static size_t near_actors_size = 0;
+static size_t no_near_actors = 0;
+static near_actor *near_actors = NULL;
 
 int cm_mouse_over_banner = 0;		/* use to trigger banner context menu */
 
@@ -1118,6 +1122,19 @@ static void check_actor_in_range(actor *act, actor *attached, void* data,
 
 	if (aabb_in_frustum(bbox))
 	{
+		if (no_near_actors >= near_actors_size)
+		{
+			size_t new_size = near_actors_size == 0 ? INITIAL_NEAR_ACTORS_SIZE : 2 * near_actors_size;
+			near_actor *new_near_actors = realloc(near_actors, new_size * sizeof(near_actor));
+			if (!new_near_actors)
+			{
+				LOG_ERROR("Failed to resize the list of near actors");
+				return;
+			}
+			near_actors = new_near_actors;
+			near_actors_size = new_size;
+		}
+
 		near_actors[no_near_actors].actor_id = act->actor_id;
 		near_actors[no_near_actors].ghost = act->ghost;
 		near_actors[no_near_actors].buffs = act->buffs;
@@ -1150,7 +1167,7 @@ static void check_actor_in_range(actor *act, actor *attached, void* data,
 	}
 }
 
-void get_actors_in_range()
+static void get_actors_in_range()
 {
 	struct distance_info info = { .nr_enhanced_actors = 0, .distance_sq_sum = 0.0f };
 	locked_list_ptr actors_list;
@@ -1855,4 +1872,11 @@ int get_id_last_summoned(void)
 	}
 
 	return last_summoned_var.actor_id;
+}
+
+void free_near_actors(void)
+{
+	no_near_actors = near_actors_size = 0;
+	free(near_actors);
+	near_actors = NULL;
 }

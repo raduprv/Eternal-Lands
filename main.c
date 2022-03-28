@@ -114,6 +114,7 @@ void cleanup_mem(void)
 	cleanup_text_buffers();
 	LOG_INFO("destroy_all_actors()");
 	destroy_all_actors();
+	free_near_actors();
 	LOG_INFO("cleanup_lights()");
 	cleanup_lights();
 	/* 2d objects */
