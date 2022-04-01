@@ -313,8 +313,6 @@ namespace Indicators
 		if (!FontManager::get_instance().is_initialized())
 			return;
 
-		std::pair<int,int> loc = get_default_location();
-
 		if (indicators.empty())
 		{
 			indicators.reserve(7);
@@ -328,9 +326,13 @@ namespace Indicators
 			indicators.push_back(new Parse_Action_Indicator(summon_attack_indicator_str, summon_attack_is_active, summon_attack_is_unknown, indicators.size(), summon_attach_command.c_str()));
 		}
 
-		x_len = static_cast<int>(Vars::font_x() * indicators.size() * Vars::zoom() +
-			2 * Vars::border() + 2 * Vars::space() * indicators.size() + 0.5);
+		x_len = 2 * Vars::border();
+		for (const auto &i : indicators)
+			if (!i->not_active())
+				x_len += i->get_width() + 2 * Vars::space();
 		y_len = Vars::y_len();
+
+		std::pair<int,int> loc = get_default_location();
 
 		if (indicators_win < 0)
 		{
@@ -357,8 +359,14 @@ namespace Indicators
 			loc.second = windows_list.window[indicators_win].cur_y;
 		}
 
-		if ((loc.first > (window_width - x_len)) || (loc.second > (window_height - y_len)))
-			loc = get_default_location();
+		if (loc.first > (window_width - x_len))
+			loc.first = window_width - x_len;
+		if (loc.first < 0)
+			loc.first = 0;
+		if (loc.second > (window_height - y_len))
+			loc.second = window_height - y_len;
+		if (loc.second < 0)
+			loc.second = 0;
 
 		if (indicators_win < 0)
 		{
