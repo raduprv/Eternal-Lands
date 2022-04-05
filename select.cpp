@@ -411,3 +411,10 @@ extern "C" int anything_under_the_mouse(int object_id, int object_type)
 		return old_anything_under_the_mouse(object_id, object_type);
 	}
 }
+
+#ifdef ANDROID
+extern "C" void clear_selections(void)
+{
+	selections.clear();
+}
+#endif

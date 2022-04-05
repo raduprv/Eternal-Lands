@@ -5,6 +5,10 @@
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
+#ifdef ANDROID
+#include <gl4esinit.h>
+#endif
+
 #include "platform.h"
 
 #ifdef	__GNUC__
@@ -52,6 +56,9 @@
 #include "map.h"
 #include "minimap.h"
 #include "multiplayer.h"
+#ifdef ANDROID
+#include "new_update.h"
+#endif
 #include "particles.h"
 #include "password_manager.h"
 #include "pm_log.h"
@@ -337,6 +344,10 @@ int start_rendering()
 	SDL_QuitSubSystem(SDL_INIT_AUDIO);
 	LOG_INFO("SDL_QuitSubSystem(SDL_INIT_TIMER)");
 	SDL_QuitSubSystem(SDL_INIT_TIMER);
+#ifdef ANDROID
+	LOG_INFO("SDL_QuitSubSystem(SDL_INIT_VIDEO)");
+	SDL_QuitSubSystem(SDL_INIT_VIDEO);
+#endif
 /*#ifdef WINDOWS
 	// attempt to restart if requested
 	if(restart_required > 0){
@@ -354,6 +365,10 @@ int start_rendering()
 	clear_zip_archives();
 	LOG_INFO("clean_update()");
 	clean_update();
+#ifdef ANDROID
+	LOG_INFO("remove_android_tmpfiles()");
+	remove_android_tmpfiles();
+#endif
 
 	LOG_INFO("cleanup_tcp()");
 	cleanup_tcp();
@@ -539,6 +554,9 @@ int Main(int argc, char **argv)
 int main(int argc, char **argv)
 #endif
 {
+#ifdef ANDROID
+	initialize_gl4es();
+#endif
 #ifdef OSX
 	if (argc > 0) // should always be true
 		setupWorkingDirectory(argv[0], strlen(argv[0]));
@@ -578,6 +596,11 @@ int main(int argc, char **argv)
 #ifdef	OLC
 	olc_shutdown();
 #endif	//OLC
+
+#ifdef ANDROID
+	// ANDROID_TODO - if restarted, static structures are not reinitialised so exit fully.
+	exit(0);
+#endif
 
 #ifndef WINDOWS
 	// attempt to restart if requested

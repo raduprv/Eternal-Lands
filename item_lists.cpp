@@ -1116,8 +1116,10 @@ namespace ItemLists
 		{
 			if (i==Vars::lists()->get_active())
 				draw_highlight(1, static_cast<int>(pos_y-get_list_gap()/2), hl_width, hl_height, 1);
+#ifndef ANDROID
 			else if (i==name_under_mouse)
 				draw_highlight(1, static_cast<int>(pos_y-get_list_gap()/2), hl_width, hl_height, 0);
+#endif
 			glColor3f(1.0f,1.0f,1.0f);
 
 			const unsigned char* name = reinterpret_cast<const unsigned char*>(lists[i].get_name().c_str());
@@ -1225,6 +1227,13 @@ CHECK_GL_ERRORS();
 				help_str.push_back((items_list_disable_find_list) ?item_list_find_help_disabled_str :item_list_find_help_str);
 		}
 
+#ifdef ANDROID
+		if (!help_str.empty())
+			help_str.clear();
+		if ((my > start_names) && (my < (start_names+get_names_size_y())))
+			help_str.push_back(long_touch_cm_options_str);
+#endif
+
 		return ret_value;
 	}
 
@@ -1276,7 +1285,11 @@ CHECK_GL_ERRORS();
 		}
 
 		// ctrl+right-click on a selected item opens the edit menu
+#ifdef ANDROID
+		if ((flags & ELW_RIGHT_MOUSE) && (over_item_number<num_items))
+#else
 		if ((flags & ELW_RIGHT_MOUSE) && (flags & KMOD_CTRL) && (over_item_number<num_items))
+#endif
 		{
 			cm_show_direct(Vars::win()->get_grid_cm(), win->window_id, -1);
 			storage_item_dragged = item_dragged = -1;
@@ -1311,7 +1324,11 @@ CHECK_GL_ERRORS();
 		// see if we can use the item quantity or take items from storage
 		if ((flags & ELW_RIGHT_MOUSE) || (flags & ELW_LEFT_MOUSE))
 		{
+#ifdef ANDROID
+			if (over_item_number < num_items)
+#else
 			if ((over_item_number!=last_selected) && (over_item_number < num_items))
+#endif
 			{
 				selected_item_number = over_item_number;
 				last_quantity_selected = quantities.selected;

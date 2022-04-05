@@ -311,12 +311,20 @@ static void calculate_option_positions(window_info *win)
 		if ((start_x + width) > (win->len_x - 2 * border_x_space))
 		{
 			start_x = border_x_space;
+#ifdef ANDROID
+			start_y += win->small_font_len_y * win->current_scale;
+#else
 			start_y += win->small_font_len_y;
+#endif
 		}
 		dialogue_responces[i].pos_x = start_x;
 		dialogue_responces[i].pos_y = start_y;
 		dialogue_responces[i].width = width;
+#ifdef ANDROID
+		start_x += width + 2 * win->small_font_max_len_x * win->current_scale;
+#else
 		start_x += width + 2 * win->small_font_max_len_x;
+#endif
 	}
 	recalc_option_positions = 0;
 }
@@ -462,7 +470,11 @@ static int display_dialogue_handler(window_info *win)
 
 	// display help text if appropriate
 	if ((show_help_text) && (highlight_repeat || highlight_copy || mouse_over_name))
+#ifdef ANDROID
+		show_help(long_touch_cm_options_str, 0, win->len_y+10, win->current_scale);
+#else
 		show_help(cm_help_options_str, 0, win->len_y+10, win->current_scale);
+#endif
 
 	show_keypress_letters = highlight_close = highlight_copy = highlight_repeat = mouse_over_name = 0;
 
@@ -676,6 +688,24 @@ static int click_dialogue_handler(window_info *win, int mx, int my, Uint32 flags
 	// only handle mouse button clicks, not scroll wheels moves
 	if ( (flags & ELW_MOUSE_BUTTON) == 0) return 0;
 
+#ifdef ANDROID
+	for (i = 0; i < MAX_RESPONSES; i++)
+		dialogue_responces[i].mouse_over = 0;
+
+	for (i = 0; i < MAX_RESPONSES; i++)
+	{
+		if (dialogue_responces[i].in_use)
+		{
+			if ((mx >= dialogue_responces[i].pos_x) && (mx <= dialogue_responces[i].pos_x + dialogue_responces[i].width) &&
+				(my >= dialogue_responces[i].pos_y) && (my <= dialogue_responces[i].pos_y + win->small_font_len_y))
+			{
+				send_response(win, &dialogue_responces[i]);
+				do_click_sound();
+				return 1;
+			}
+		}
+	}
+#else
 	for(i=0;i<MAX_RESPONSES;i++)
 		{
 			if(dialogue_responces[i].in_use && dialogue_responces[i].mouse_over)
@@ -685,6 +715,7 @@ static int click_dialogue_handler(window_info *win, int mx, int my, Uint32 flags
 					return 1;
 				}
 		}
+#endif
 	if(mx >= close_pos_x && mx < (close_pos_x + close_str_width) && my >= (win->len_y - bot_line_height))
 		{
 			do_window_close_sound();
@@ -894,7 +925,9 @@ void display_dialogue(const Uint8 *in_data, int data_length)
 
 		set_window_custom_scale(dialogue_win, MW_DIALOGUE);
 		set_window_handler(dialogue_win, ELW_HANDLER_DISPLAY, &display_dialogue_handler );
+#ifndef ANDROID
 		set_window_handler(dialogue_win, ELW_HANDLER_MOUSEOVER, &mouseover_dialogue_handler );
+#endif
 		set_window_handler(dialogue_win, ELW_HANDLER_KEYPRESS, (int (*)())&keypress_dialogue_handler );
 		set_window_handler(dialogue_win, ELW_HANDLER_CLICK, &click_dialogue_handler );
 		set_window_handler(dialogue_win, ELW_HANDLER_UI_SCALE, &ui_scale_dialogue_handler );

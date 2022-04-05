@@ -656,6 +656,9 @@ int filter_or_ignore_text (char *text_to_add, int len, int size, Uint8 channel)
 			return 0;
 		}
 		else if (!strncasecmp(text_to_add+1, "You see: ", 9)) {
+#ifdef ANDROID
+			achievements_close_all(); // allow only one window
+#endif
 			achievements_player_name(text_to_add+10, len-10);
 		}
 		else if ((!strncasecmp(text_to_add+1, "You just got food poisoned!", 27)) ||

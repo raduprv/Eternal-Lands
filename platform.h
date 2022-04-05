@@ -113,6 +113,7 @@
  #include "glext.h"
 #endif
 
+#ifdef NEW_SOUND
 // Inlucde the plaform specific location sound libs
 #ifdef OSX
 	#include <Carbon/Carbon.h>
@@ -126,6 +127,7 @@
 	#include <AL/al.h>
 	#include <AL/alc.h>
 #endif //lib location platform checking
+#endif
 
 #include <math.h>
 #ifndef M_PI

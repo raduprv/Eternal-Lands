@@ -1,6 +1,9 @@
 #ifdef USE_SSL
 
 #include <cstring>
+#ifdef ANDROID
+#include <fstream>
+#endif
 #ifdef WINDOWS
 #define SHUT_RDWR SD_BOTH
 #else // WINDOWS
@@ -16,6 +19,9 @@
 #include "init.h"
 #include "io/elpathwrapper.h"
 #include "ipaddress.h"
+#ifdef ANDROID
+#include "io/elfilewrapper.h"
+#endif
 
 namespace eternal_lands
 {
@@ -364,6 +370,22 @@ void TCPSocket::encrypt(const std::string& hostname)
 			unsigned long err = ERR_get_error();
 			throw EncryptError(ERR_reason_error_string(err));
 		}
+
+#ifdef ANDROID
+		{
+			// Make sure to unpack the certificates from the assest file by calling do_file_exists()
+			char tmp_str[256];
+			std::string list_filename("certs.txt");
+			std::string full_path = std::string(datadir) + list_filename;
+			if (do_file_exists(list_filename.c_str(), datadir, sizeof(tmp_str), tmp_str))
+			{
+				std::string line;
+				std::ifstream file(full_path.c_str());
+				while (std::getline(file, line))
+					do_file_exists(line.c_str(), datadir, sizeof(tmp_str), tmp_str);
+			}
+		}
+#endif
 
 		// Load certificates from the game data directory, as well as the user's configuration directory
 		std::string dir_names[] = {

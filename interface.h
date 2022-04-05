@@ -21,12 +21,14 @@ extern int mouse_x; /*!< current x coordinate of the mouse */
 extern int mouse_y; /*!< current y coordinate of the mouse */
 /*! @} */
 
+#ifndef ANDROID
 /*! \name Mouse buttons
  * @{ */
 extern int right_click; /*!< indicates the right mouse button was clicked */
 extern int middle_click; /*!< indicates the middle mouse button was clicked */
 extern int left_click; /*!< indicates the left mouse button was clicked */
 /*! @} */
+#endif
 
 
 /*!

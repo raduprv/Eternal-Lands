@@ -574,6 +574,9 @@ static int display_langsel_handler(window_info *win)
 			glColor3f(langsel_winRGB[1][0],langsel_winRGB[1][1],langsel_winRGB[1][2]);
 			/* save the highlighted line in case it is clicked - and so chosen */
 			langsel_selected_node = new_lang_node;
+#ifdef ANDROID
+			langsel_chosen_node = new_lang_node;
+#endif
 		}
 		else
 			glColor3f(langsel_winRGB[0][0],langsel_winRGB[0][1],langsel_winRGB[0][2]);

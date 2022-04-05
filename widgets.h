@@ -985,6 +985,12 @@ int vscrollbar_set_pos_inc(int window_id, Uint32 widget_id, int pos_inc);
  */
 int vscrollbar_set_pos(int window_id, Uint32 widget_id, int pos);
 
+#ifdef ANDROID
+int vscrollbar_scroll_up_amount(int window_id, Uint32 widget_id, int amount);
+int vscrollbar_scroll_down_amount(int window_id, Uint32 widget_id, int amount);
+int vscrollbar_simulate_click(widget_list *W, int my);
+#endif
+
 /*!
  * \ingroup	scrollbars
  * \brief 	Scrolls the scrollbar up

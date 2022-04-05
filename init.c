@@ -9,6 +9,9 @@
 #include <errno.h>
 #include <ctype.h>
 #include <time.h>
+#ifdef ANDROID
+#include <gl4eshint.h>
+#endif
 #ifdef TTF
 #include <SDL_ttf.h>
 #endif
@@ -112,6 +115,10 @@ static const char *cfg_filename = "el.cfg";
 static const char *client_state_filename = "client_state.json";
 #endif
 static int no_lang_in_config = 0;
+
+#ifdef ANDROID
+int first_time_setup = 0;
+#endif
 
 #ifndef FASTER_MAP_LOAD
 static void load_harvestable_list(void)
@@ -319,6 +326,11 @@ static void load_cstate(void)
 	read_options_user_menus("user_menus_window");
 
 	resize_root_window();
+
+#ifdef ANDROID
+	if (first_time_setup)
+		set_default_mangaged_windows();
+#endif
 }
 #endif
 
@@ -338,7 +350,12 @@ static void read_bin_cfg(void)
 		USE_JSON_DEBUG("Loading json file");
 		// if neither the json or the old cfg exist, try the data dir
 		if (!file_exists_config(client_state_filename) && !file_exists_config(cfg_filename))
+		{
+#ifdef ANDROID
+			do_file_exists(client_state_filename, datadir, sizeof(fname), fname);
+#endif
 			safe_snprintf(fname, sizeof(fname), "%s%s", datadir, client_state_filename);
+		}
 		// else use the config json, it may still fail but will fall through to the non json code
 		else
 			safe_snprintf(fname, sizeof(fname), "%s%s", get_path_config(), client_state_filename);
@@ -785,10 +802,17 @@ void init_stuff(void)
 	char config_location[300];
 	const char * cfgdir;
 
+#ifdef ANDROID
+	strcpy(datadir,SDL_AndroidGetInternalStoragePath());
+	strcat(datadir,"/");
+	chdir(datadir);
+#else
+
 	if (chdir(datadir) != 0)
 	{
 		LOG_ERROR("%s() chdir(\"%s\") failed: %s\n", __FUNCTION__, datadir, strerror(errno));
 	}
+#endif
 
 	last_save_time = time(NULL);
 
@@ -807,6 +831,16 @@ void init_stuff(void)
 
 	// Read the config file
 	read_config();
+
+#ifdef ANDROID
+	// ANDROID_TODO fix repeated setting of this path
+	strcpy(datadir,SDL_AndroidGetInternalStoragePath());//issue with cfg
+	strcat(datadir,"/");
+
+	// ANDROID_TODO does this belong elsewhere?
+	if (textures_32bpp)
+		glHint(GL_NODOWNSAMPLING_HINT_GL4ES, 1);
+#endif
 
 	// Parse command line options
 	read_command_line();
@@ -911,10 +945,13 @@ void init_stuff(void)
 	load_entrable_list();
 	load_knowledge_list();
 	load_mines_config();
+#ifndef ANDROID
+	// ANDROID_TODO do we need these if we have a mouse?
 	update_loading_win(load_cursors_str, 5);
 	load_cursors();
 	build_cursors();
 	change_cursor(CURSOR_ARROW);
+#endif
 	update_loading_win(bld_glow_str, 3);
 	build_glow_color_table();
 

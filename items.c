@@ -26,6 +26,9 @@
 #include "sound.h"
 #include "storage.h"
 #include "textures.h"
+#ifdef ANDROID
+#include "trade.h"
+#endif
 #include "translate.h"
 #include "counters.h"
 #include "widgets.h"
@@ -806,6 +809,9 @@ static int display_items_handler(window_info *win)
 			if ((colour >= c_lbound) && (colour <= c_ubound))
 			{
 				glColor4f((float) colors_list[colour].r1 / 255.0f, (float) colors_list[colour].g1 / 255.0f, (float) colors_list[colour].b1 / 255.0f, 1.0f);
+#ifdef ANDROID
+				if (!disable_GL_POINT_SMOOTH)
+#endif
 				glEnable( GL_POINT_SMOOTH );
 				glEnable( GL_BLEND );
 				glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
@@ -814,6 +820,9 @@ static int display_items_handler(window_info *win)
 				glVertex2f(text_arrow.pos_x + text_arrow.len_x/2, text_arrow.pos_y - text_arrow.len_y + text_arrow.len_y/6);
 				glEnd();
 				glDisable(GL_BLEND);
+#ifdef ANDROID
+				if (!disable_GL_POINT_SMOOTH)
+#endif
 				glDisable(GL_POINT_SMOOTH);
 			}
 		}
@@ -912,7 +921,11 @@ static int display_items_handler(window_info *win)
 	if ((buttons_grid.mouse_over != -1) && show_help_text) {
 		char *helpstr[NUMBUT] = { stoall_help_str, getall_help_str, ((disable_double_click) ?drpall_help_str :dcdrpall_help_str), mixoneall_help_str, itmlst_help_str };
 		show_help(helpstr[buttons_grid.mouse_over], 0, win->len_y+10, win->current_scale);
+#ifdef ANDROID
+		show_help(long_touch_cm_options_str, 0, win->len_y+10+win->small_font_len_y, win->current_scale);
+#else
 		show_help(cm_help_options_str, 0, win->len_y+10+win->small_font_len_y, win->current_scale);
+#endif
 	}
 	// show help set in the mouse_over handler
 	else {
@@ -1125,6 +1138,10 @@ void try_auto_equip(int from_item)
 static int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 {
 	Uint8 str[100];
+#ifdef ANDROID
+	// ANDROID_TO_DO resolve use of the global
+	int left_click = flags & ELW_LEFT_MOUSE;
+#endif
 	int right_click = flags & ELW_RIGHT_MOUSE;
 	int ctrl_on = flags & KMOD_CTRL;
 	int shift_on = flags & KMOD_SHIFT;
@@ -1251,6 +1268,13 @@ static int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 		int pos = get_mouse_pos_in_grid(mx, my, quantity_grid.cols, quantity_grid.rows, quantity_grid.pos_x, quantity_grid.pos_y, quantity_grid.width, quantity_grid.height);
 
 		if(pos==-1){
+#ifdef ANDROID
+		} else if(right_click || quantities.selected == pos){
+			// Edit the given quantity
+			SDL_StartTextInput();
+			edit_quantity = pos;
+			quantities.quantity[edit_quantity].len = 0;
+#endif
 		} else if(flags & ELW_LEFT_MOUSE){
 			if(edit_quantity!=-1){
 				if(!quantities.quantity[edit_quantity].len){
@@ -1275,12 +1299,63 @@ static int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 		item_quantity=quantities.quantity[edit_quantity].val;
 		quantities.selected=edit_quantity;
 		edit_quantity=-1;
+#ifdef ANDROID
+		SDL_StopTextInput();
+#endif
 	}
 
 	//see if we clicked on any item in the main category
 	else if(mx>items_grid.pos_x && (mx < items_grid.pos_x + items_grid.len_x) &&
 				my>0 && my < items_grid.len_y) {
 		int pos=get_mouse_pos_in_grid(mx, my, items_grid.cols, items_grid.rows, items_grid.pos_x, items_grid.pos_y, items_grid.width, items_grid.height);
+
+#ifdef ANDROID
+		if ((item_action_mode != ACTION_LOOK) && (pos !=- 1) && get_show_window(get_id_MW(MW_TRADE)))
+		{
+			if(!item_list[pos].quantity)
+				return 1; // no item here...
+			str[0] = PUT_OBJECT_ON_TRADE;
+			str[1] = ITEM_INVENTORY;
+			str[2] = item_list[pos].pos;
+			*((Uint32 *)(str + 3)) = SDL_SwapLE32(item_quantity);
+			my_tcp_send(str, 7);
+			do_drop_item_sound();
+
+			return 1;
+		}
+
+		if ((item_action_mode != ACTION_LOOK) && (pos != -1) && get_show_window(get_id_MW(MW_STORAGE)))
+		{
+			if (!item_list[pos].quantity)
+				return 1; // no item here...
+			if (!view_only_storage)
+			{
+				str[0] = DEPOSITE_ITEM;
+				str[1] = item_list[pos].pos;
+				*((Uint32*)(str + 2)) = SDL_SwapLE32(item_quantity);
+				my_tcp_send(str, 6);
+				do_drop_item_sound();
+			}
+			else
+			{
+				drop_fail_time = SDL_GetTicks();
+				do_alert1_sound();
+			}
+			return 1;
+		}
+
+		if ((item_action_mode != ACTION_LOOK) && (item_action_mode != ACTION_USE) && (pos != -1) && get_show_window(get_id_MW(MW_BAGS)))
+		{
+			if(!item_list[pos].quantity)
+				return 1; // no item here...
+			str[0] = DROP_ITEM;
+			str[1] = item_list[pos].pos;
+			*((Uint32 *) (str + 2)) = SDL_SwapLE32(item_quantity);
+			my_tcp_send(str, 6);
+			do_drop_item_sound();
+			return 1;
+		}
+#endif
 
 #ifdef NEW_SOUND
 		if(pos>-1) {
@@ -1303,6 +1378,7 @@ static int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 			}
 
 		}
+#ifndef ANDROID
 		else if(storage_item_dragged!=-1){
 			str[0]=WITHDRAW_ITEM;
 			*((Uint16*)(str+1))=SDL_SwapLE16(storage_items[storage_item_dragged].pos);
@@ -1311,6 +1387,7 @@ static int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 			do_drop_item_sound();
 			if(storage_items[storage_item_dragged].quantity<=item_quantity) storage_item_dragged=-1;
 		}
+#endif
 		else if(item_list[pos].quantity){
 			if (ctrl_on && (items_mod_click_any_cursor || (item_action_mode==ACTION_WALK))) {
 				str[0]=DROP_ITEM;
@@ -1519,8 +1596,10 @@ static int mouseover_items_handler(window_info *win, int mx, int my) {
 		if(pos==-1) {
 		} else if(item_list[pos].quantity){
 			set_description_help(pos);
+#ifndef ANDROID
 			if ((item_dragged == -1) && (items_mod_click_any_cursor || (item_action_mode==ACTION_WALK)))
 					item_help_str = mod_click_item_help_str;
+#endif
 			if(item_action_mode==ACTION_LOOK) {
 				elwin_mouse=CURSOR_EYE;
 			} else if(item_action_mode==ACTION_USE) {
@@ -1556,7 +1635,11 @@ static int mouseover_items_handler(window_info *win, int mx, int my) {
 		}
 	} else if(show_help_text && (mx > quantity_grid.pos_x) && (mx < quantity_grid.pos_x +  quantity_grid.len_x) &&
 			(my > quantity_grid.pos_y) && (my < quantity_grid.pos_y + quantity_grid.len_y)){
+#ifdef ANDROID
+		item_help_str = quantity_edit_touch_str;
+#else
 		item_help_str = quantity_edit_str;
+#endif
 	} else if (show_help_text && *inventory_item_string && !items_disable_text_block &&
 			(mx > message_box.pos_x) && (mx < message_box.pos_x + message_box.len_x) &&
 			(my > message_box.pos_y) && (my < message_box.pos_y + message_box.len_y)) {
@@ -1591,6 +1674,9 @@ static int keypress_items_handler(window_info * win, int x, int y, SDL_Keycode k
 			item_quantity=*val;
 			quantities.selected=edit_quantity;
 			edit_quantity=-1;
+#ifdef ANDROID
+			SDL_StopTextInput();
+#endif
 			return 1;
 		} else if(key_code == SDLK_ESCAPE){
 			reset_quantity(edit_quantity);
