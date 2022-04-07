@@ -508,8 +508,8 @@ void Connection::send_version()
 		host[1],
 		host[2],
 		host[3],
-		std::uint8_t(port & 0xff),
-		std::uint8_t(port >> 8)
+		std::uint8_t(port >> 8),
+		std::uint8_t(port & 0xff)
 	};
 
 	std::size_t len = 14;

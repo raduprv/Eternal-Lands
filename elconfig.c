@@ -3627,7 +3627,7 @@ static int display_elconfig_handler(window_info *win)
 	if (is_mouse_over_option)
 	{
 #ifdef ANDROID
-		show_help(long_touch_cm_options_str, 0, win->len_y + 10, win->current_scale);
+		show_help(long_touch_cm_options_str, 0, help_y, win->current_scale);
 #else
 		show_help(cm_help_options_str, 0, help_y, win->current_scale);
 #endif
