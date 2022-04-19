@@ -1129,21 +1129,24 @@ static int keypress_namepass_handler (window_info *win, int mx, int my, SDL_Keyc
 	}
 
 	actors_list = lock_and_get_self(&act);
-	if(active>0){
-		//Password/confirm
-		if((inputs[1].pos > 0) && (inputs[2].pos > 0) && ret){
-			if(!strncasecmp(inputs[1].str, act->actor_name, strlen(act->actor_name))){
-				add_text_to_buffer(c_red2, error_bad_pass, DEF_MESSAGE_TIMEOUT);
-			} else if(strcmp(inputs[1].str, inputs[2].str)){
-				add_text_to_buffer(c_red2, error_pass_no_match, DEF_MESSAGE_TIMEOUT);
-			} else {
-				add_text_to_buffer(c_green1, passwords_match, DEF_MESSAGE_TIMEOUT);
+	if (actors_list)
+	{
+		if(active>0){
+			//Password/confirm
+			if((inputs[1].pos > 0) && (inputs[2].pos > 0) && ret){
+				if(!strncasecmp(inputs[1].str, act->actor_name, strlen(act->actor_name))){
+					add_text_to_buffer(c_red2, error_bad_pass, DEF_MESSAGE_TIMEOUT);
+				} else if(strcmp(inputs[1].str, inputs[2].str)){
+					add_text_to_buffer(c_red2, error_pass_no_match, DEF_MESSAGE_TIMEOUT);
+				} else {
+					add_text_to_buffer(c_green1, passwords_match, DEF_MESSAGE_TIMEOUT);
+				}
 			}
+		} else {
+			safe_strncpy(act->actor_name, inputs[0].str, sizeof(act->actor_name));
 		}
-	} else {
-		safe_strncpy(act->actor_name, inputs[0].str, sizeof(act->actor_name));
+		release_locked_actors_list(actors_list);
 	}
-	release_locked_actors_list(actors_list);
 
 	return ret;
 }
