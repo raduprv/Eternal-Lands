@@ -601,6 +601,15 @@ int have_self(void);
  */
 void set_self(void);
 /*!
+ * \brief Check if the player's own actor is fighting
+ *
+ * Check if the player's own actor is currently in the actors list and is fighting.
+ * \note Use with caution: because the actors list mutex is dropped when leaving the function,
+ *       the actor's status may be changed by another thread at any time, invalidating the result.
+ *       Use this function only when the result does not strictly need to be correct.
+ */
+int self_is_fighting(void);
+/*!
  * \brief Check if the actor under the mouse is alive
  *
  * Check if there is currently an actor under the mouse cursor, and if so, whether it is still
