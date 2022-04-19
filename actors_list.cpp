@@ -379,6 +379,13 @@ extern "C" void set_self()
 	list.set_self();
 }
 
+extern "C" int self_is_fighting()
+{
+	LockedActorsList list;
+	actor *self = list.self();
+	return self && self->fighting;
+}
+
 extern "C" int actor_under_mouse_alive()
 {
 	LockedActorsList list;
