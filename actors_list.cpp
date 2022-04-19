@@ -108,8 +108,8 @@ const actor* LockedActorsList::get_nearest_actor(int tile_x, int tile_y, float m
 actor* LockedActorsList::get_target()
 {
 	Storage::iterator iter = std::find_if(_list.begin(), _list.end(),
-		[this](const std::pair<int, actor*>& other) { return other.second != _self; });
-	return (iter != _list.end()) ? iter->second : nullptr;
+		[this](const std::pair<int, const ActorWrapper&>& other) { return other.second.unwrap() != _self; });
+	return (iter != _list.end()) ? iter->second.unwrap() : nullptr;
 }
 #endif // ECDEBUGWIN
 
