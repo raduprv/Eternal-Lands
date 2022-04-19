@@ -203,7 +203,7 @@ void unwear_item_from_actor(int actor_id, Uint8 which_part)
 	if (actors_list)
 	{
 		unwear_item_from_actor_locked(act, which_part);
-		release_locked_actors_list(actors_list);
+		release_locked_actors_list_and_invalidate(actors_list, &act);
 	}
 }
 
@@ -566,7 +566,7 @@ void actor_wear_item(int actor_id,Uint8 which_part, Uint8 which_id)
 		}
 	}
 
-	release_locked_actors_list(actors_list);
+	release_locked_actors_list_and_invalidate(actors_list, &act);
 }
 
 void add_enhanced_actor_from_server (const char *in_data, int len)

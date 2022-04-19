@@ -308,7 +308,7 @@ int move_to (short int *x, short int *y, int try_pathfinder)
 				}
 			}
 
-			release_locked_actors_list(actors_list);
+			release_locked_actors_list_and_invalidate(actors_list, &me);
 			if (path_found)
 				return 1;
 		}
@@ -403,7 +403,7 @@ int my_tcp_send(const Uint8 *str, int len)
 	// movement.
 	actors_list = lock_and_get_self(&me);
 	moving = actors_list && on_the_move(me);
-	release_locked_actors_list(actors_list);
+	release_locked_actors_list_and_invalidate(actors_list, &me);
 
 	if ((str[0] == TURN_LEFT || str[0] == TURN_RIGHT) && moving)
 		return 0;
@@ -2127,7 +2127,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 				locked_list_ptr actors_list = lock_and_get_actor_from_id(actor_id, &act);
 				if(actors_list){
 					printf("SEND_BUFFS received for actor %s\n", act->actor_name);
-					release_locked_actors_list(actors_list);
+					release_locked_actors_list_and_invalidate(actors_list, &act);
 				}
 				else {
 					printf("SEND_BUFFS received for actor ID %i\n", actor_id);

@@ -663,7 +663,7 @@ void missiles_aim_at_b(int actor1_id, int actor2_id)
 	if (!act2)
 	{
 		LOG_ERROR("the actor %d does not exists!", actor2_id);
-		release_locked_actors_list(actors_list);
+		release_locked_actors_list_and_invalidate2(actors_list, &act1, &horse1);
 		return;
 	}
 
@@ -694,7 +694,7 @@ void missiles_aim_at_b(int actor1_id, int actor2_id)
 				  act1->actor_name, actor1_id);
 	}
 
-	release_locked_actors_list(actors_list);
+	release_locked_actors_list_and_invalidate2(actors_list, &act1, &horse1);
 }
 
 void missiles_aim_at_xyz(int actor_id, float *target)
@@ -733,7 +733,7 @@ void missiles_aim_at_xyz(int actor_id, float *target)
 				  act->actor_name, actor_id);
 	}
 
-	release_locked_actors_list(actors_list);
+	release_locked_actors_list_and_invalidate2(actors_list, &act, &attached);
 }
 
 void missiles_fire_a_to_b(int actor1_id, int actor2_id)
@@ -751,7 +751,7 @@ void missiles_fire_a_to_b(int actor1_id, int actor2_id)
 	if (!act2)
 	{
 		LOG_ERROR("missiles_fire_a_to_b: the actor %d does not exists!", actor2_id);
-		release_locked_actors_list(actors_list);
+		release_locked_actors_list_and_invalidate2(actors_list, &act1, &horse1);
 		return;
 	}
 
@@ -783,7 +783,7 @@ void missiles_fire_a_to_b(int actor1_id, int actor2_id)
 				  act1->actor_name, actor1_id);
 	}
 
-	release_locked_actors_list(actors_list);
+	release_locked_actors_list_and_invalidate2(actors_list, &act1, &horse1);
 }
 
 void missiles_fire_a_to_xyz(int actor_id, float *target)
@@ -814,7 +814,7 @@ void missiles_fire_a_to_xyz(int actor_id, float *target)
 				  act->actor_name, actor_id);
 	}
 
-	release_locked_actors_list(actors_list);
+	release_locked_actors_list_and_invalidate2(actors_list, &act, &attached);
 }
 
 void missiles_fire_xyz_to_b(float *origin, int actor_id)
@@ -836,7 +836,7 @@ void missiles_fire_xyz_to_b(float *origin, int actor_id)
 	missiles_test_target_validity(target, "missiles_fire_xyz_to_b");
 	act->last_range_attacker_id = -1;
 
-	release_locked_actors_list(actors_list);
+	release_locked_actors_list_and_invalidate(actors_list, &act);
 
 	// here, there's no way to know if the target is missed or not as we don't know the actor who fired!
 	missiles_add(0, origin, target, 0.0, 0);

@@ -1463,7 +1463,7 @@ static int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 			return(1);
 		x=me->x_tile_pos;
 		y=me->y_tile_pos;
-		release_locked_actors_list(actors_list);
+		release_locked_actors_list_and_invalidate(actors_list, &me);
 		items_get_bag(x,y);
 	}
 

@@ -845,7 +845,7 @@ void display_spells_we_have(void)
 			rerequest_durations();
 		}
 
-		release_locked_actors_list(actors_list);
+		release_locked_actors_list_and_invalidate(actors_list, &me);
 	}
 
 #ifdef OPENGL_TRACE

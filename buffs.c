@@ -40,7 +40,7 @@ void update_actor_buffs(int actor_id, Uint32 in_buffs)
 
 	update_actor_buffs_locked(act, attached, in_buffs);
 
-	release_locked_actors_list(actors_list);
+	release_locked_actors_list_and_invalidate2(actors_list, &act, &attached);
 }
 
 void update_actor_buffs_locked(actor *act, actor *attached, Uint32 in_buffs)

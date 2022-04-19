@@ -242,7 +242,7 @@ void get_partial_stat(Uint8 name,Sint32 value)
 								ec_create_glow_level_up_default(me, (poor_man ? 6 : 10));
 								ec_create_glow_level_up_man_left(me, (poor_man ? 6 : 10));
 								ec_create_glow_level_up_man_right(me, (poor_man ? 6 : 10));
-								release_locked_actors_list(actors_list);
+								release_locked_actors_list_and_invalidate(actors_list, &me);
 							}
 						}
                         your_info.manufacturing_skill.base=value;break;
@@ -257,7 +257,7 @@ void get_partial_stat(Uint8 name,Sint32 value)
 							{
 								ec_create_glow_level_up_default(me, (poor_man ? 6 : 10));
 								ec_create_glow_level_up_har(me, (poor_man ? 6 : 10));
-								release_locked_actors_list(actors_list);
+								release_locked_actors_list_and_invalidate(actors_list, &me);
 							}
 						}
                         your_info.harvesting_skill.base=value;break;
@@ -273,7 +273,7 @@ void get_partial_stat(Uint8 name,Sint32 value)
 								ec_create_glow_level_up_default(me, (poor_man ? 6 : 10));
 								ec_create_glow_level_up_alc_left(me, (poor_man ? 6 : 10));
 								ec_create_glow_level_up_alc_right(me, (poor_man ? 6 : 10));
-								release_locked_actors_list(actors_list);
+								release_locked_actors_list_and_invalidate(actors_list, &me);
 							}
 						}
                         your_info.alchemy_skill.base=value;break;
@@ -288,7 +288,7 @@ void get_partial_stat(Uint8 name,Sint32 value)
 							{
 								ec_create_glow_level_up_default(me, (poor_man ? 6 : 10));
 								ec_create_glow_level_up_oa(me, (poor_man ? 6 : 10));
-								release_locked_actors_list(actors_list);
+								release_locked_actors_list_and_invalidate(actors_list, &me);
 							}
 						}
                         your_info.overall_skill.base=value;break;
@@ -303,7 +303,7 @@ void get_partial_stat(Uint8 name,Sint32 value)
 							{
 								ec_create_glow_level_up_default(me, (poor_man ? 6 : 10));
 								ec_create_glow_level_up_att(me, (poor_man ? 6 : 10));
-								release_locked_actors_list(actors_list);
+								release_locked_actors_list_and_invalidate(actors_list, &me);
 							}
 						}
                         your_info.attack_skill.base=value;break;
@@ -318,7 +318,7 @@ void get_partial_stat(Uint8 name,Sint32 value)
 							{
 								ec_create_glow_level_up_default(me, (poor_man ? 6 : 10));
 								ec_create_glow_level_up_def(me, (poor_man ? 6 : 10));
-								release_locked_actors_list(actors_list);
+								release_locked_actors_list_and_invalidate(actors_list, &me);
 							}
 						}
                         your_info.defense_skill.base=value;break;
@@ -333,7 +333,7 @@ void get_partial_stat(Uint8 name,Sint32 value)
 							{
 								ec_create_glow_level_up_default(me, (poor_man ? 6 : 10));
 								ec_create_glow_level_up_mag(me, (poor_man ? 6 : 10));
-								release_locked_actors_list(actors_list);
+								release_locked_actors_list_and_invalidate(actors_list, &me);
 							}
 						}
                         your_info.magic_skill.base=value;break;
@@ -349,7 +349,7 @@ void get_partial_stat(Uint8 name,Sint32 value)
 								ec_create_glow_level_up_default(me, (poor_man ? 6 : 10));
 								ec_create_glow_level_up_pot_left(me, (poor_man ? 6 : 10));
 								ec_create_glow_level_up_pot_right(me, (poor_man ? 6 : 10));
-								release_locked_actors_list(actors_list);
+								release_locked_actors_list_and_invalidate(actors_list, &me);
 							}
 						}
                         your_info.potion_skill.base=value;break;
@@ -460,7 +460,7 @@ void get_partial_stat(Uint8 name,Sint32 value)
 							{
 								ec_create_glow_level_up_default(me, (poor_man ? 6 : 10));
 								ec_create_glow_level_up_sum(me, (poor_man ? 6 : 10));
-								release_locked_actors_list(actors_list);
+								release_locked_actors_list_and_invalidate(actors_list, &me);
 							}
 						}
                         your_info.summoning_skill.base=value;break;
@@ -483,7 +483,7 @@ void get_partial_stat(Uint8 name,Sint32 value)
 								ec_create_glow_level_up_default(me, (poor_man ? 6 : 10));
 								ec_create_glow_level_up_cra_left(me, (poor_man ? 6 : 10));
 								ec_create_glow_level_up_cra_right(me, (poor_man ? 6 : 10));
-								release_locked_actors_list(actors_list);
+								release_locked_actors_list_and_invalidate(actors_list, &me);
 							}
 						}
                         your_info.crafting_skill.base=value;break;
@@ -507,7 +507,7 @@ void get_partial_stat(Uint8 name,Sint32 value)
 								ec_create_glow_level_up_default(me, (poor_man ? 6 : 10));
 								ec_create_glow_level_up_eng_left(me, (poor_man ? 6 : 10));
 								ec_create_glow_level_up_eng_right(me, (poor_man ? 6 : 10));
-								release_locked_actors_list(actors_list);
+								release_locked_actors_list_and_invalidate(actors_list, &me);
 							}
 						}
                         your_info.engineering_skill.base=value;break;
@@ -531,7 +531,7 @@ void get_partial_stat(Uint8 name,Sint32 value)
 								ec_create_glow_level_up_default(me, (poor_man ? 6 : 10));
 								ec_create_glow_level_up_tai_left(me, (poor_man ? 6 : 10));
 								ec_create_glow_level_up_tai_right(me, (poor_man ? 6 : 10));
-								release_locked_actors_list(actors_list);
+								release_locked_actors_list_and_invalidate(actors_list, &me);
 							}
 						}
                         your_info.tailoring_skill.base=value;break;
@@ -554,7 +554,7 @@ void get_partial_stat(Uint8 name,Sint32 value)
 							{
 								ec_create_glow_level_up_default(me, (poor_man ? 6 : 10));
 								ec_create_glow_level_up_ran(me, (poor_man ? 6 : 10));
-								release_locked_actors_list(actors_list);
+								release_locked_actors_list_and_invalidate(actors_list, &me);
 							}
 						}
                         your_info.ranging_skill.base=value;break;

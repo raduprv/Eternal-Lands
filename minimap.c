@@ -505,7 +505,7 @@ static int display_minimap_handler(window_info *win)
 	}
 	px = me->x_tile_pos * size_x;
 	py = float_minimap_size - (me->y_tile_pos * size_y);
-	release_locked_actors_list(actors_list);
+	release_locked_actors_list_and_invalidate(actors_list, &me);
 
 	glTranslatef(0.0f, win->title_height, 0.0f);
 
@@ -555,7 +555,7 @@ static int minimap_walkto(int mx, int my)
 	/* Do path finding */
 	res = pf_find_path(me, fmx, fmy);
 
-	release_locked_actors_list(actors_list);
+	release_locked_actors_list_and_invalidate(actors_list, &me);
 
 	return res;
 }

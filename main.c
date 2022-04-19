@@ -214,9 +214,9 @@ int start_rendering()
 			my_tcp_flush();    // make sure the tcp output buffer is set
 
 			if (have_a_map && cur_time > last_frame_and_command_update + 60) {
-				locked_list_ptr list = get_locked_actors_list();
-				next_command(list);
-				release_locked_actors_list(list);
+				locked_list_ptr actors_list = get_locked_actors_list();
+				next_command(actors_list);
+				release_locked_actors_list(actors_list);
 
 				move_to_next_frame();
 				last_frame_and_command_update = cur_time;

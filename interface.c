@@ -998,7 +998,7 @@ void draw_game_map (int map, int mouse_mini)
 			x = me->x_tile_pos;
 			y = me->y_tile_pos;
 		}
-		release_locked_actors_list(actors_list);
+		release_locked_actors_list_and_invalidate(actors_list, &me);
 	}
 
 	if (!map)
@@ -1198,7 +1198,7 @@ int put_mark_on_current_position(const char *name)
 		int map_x = me->x_tile_pos;
 		int map_y = me->y_tile_pos;
 
-		release_locked_actors_list(actors_list);
+		release_locked_actors_list_and_invalidate(actors_list, &me);
 
 		if (put_mark_on_position(map_x, map_y, name))
 			return 1;

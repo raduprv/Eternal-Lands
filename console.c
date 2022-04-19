@@ -512,7 +512,7 @@ int add_emote(char *text, int len){
 	add_emote_to_actor(act->actor_id,atoi(id));
 	printf("message added %s\n",id);
 
-	release_locked_actors_list(actors_list);
+	release_locked_actors_list_and_invalidate(actors_list, &me);
 
 	*(id-1)=' ';
 	return 1;
@@ -551,7 +551,7 @@ static int send_cmd(char *text, int len){
 	}
 	printf("command added %s\n",id);
 
-	release_locked_actors_list(actors_list);
+	release_locked_actors_list_and_invalidate2(actors_list, &act, &attached);
 
 	text[x-1]=' ';
 	return 1;
@@ -600,7 +600,7 @@ static int set_idle(char *text, int len){
 	}
 	printf("command added %s\n",id);
 
-	release_locked_actors_list(actors_list);
+	release_locked_actors_list_and_invalidate(actors_list, &act);
 
 	text[x-1]=' ';
 	return 1;
@@ -648,7 +648,7 @@ static int set_action(char *text, int len){
 	}
 	printf("command added %s\n",id);
 
-	release_locked_actors_list(actors_list);
+	release_locked_actors_list_and_invalidate(actors_list, &act);
 
 	text[x-1]=' ';
 	return 1;
@@ -695,7 +695,7 @@ static int horse_cmd(char* text, int len){
 		LOG_TO_CONSOLE(c_orange1,"Horsified");
 	}
 
-	release_locked_actors_list(actors_list);
+	release_locked_actors_list_and_invalidate(actors_list, &act);
 
 	return 1;
 
@@ -735,7 +735,7 @@ static int set_neck(char *text, int len){
 
 	}
 
-	release_locked_actors_list(actors_list);
+	release_locked_actors_list_and_invalidate(actors_list, &act);
 
 	*(id-1)=' ';
 	return 1;

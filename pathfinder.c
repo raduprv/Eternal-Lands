@@ -226,7 +226,7 @@ static Uint32 pf_movement_timer_callback(Uint32 interval, void* UNUSED(param))
 	locked_list_ptr actors_list = lock_and_get_self(&me);
 	Uint32 res = pf_movement_timer_callback_locked(me, interval);
 	if(actors_list)
-		release_locked_actors_list(actors_list);
+		release_locked_actors_list_and_invalidate(actors_list, &me);
 
 	return res;
 }
@@ -379,7 +379,7 @@ void pf_move()
 	x = me->x_tile_pos;
 	y = me->y_tile_pos;
 
-	release_locked_actors_list(actors_list);
+	release_locked_actors_list_and_invalidate(actors_list, &me);
 
 	if (PF_DIFF(x, pf_dst_tile->x) < 2 && PF_DIFF(y, pf_dst_tile->y) < 2) {
 		pf_destroy_path();
@@ -490,5 +490,5 @@ void pf_move_to_mouse_position()
 	}
 
 path_found:
-	release_locked_actors_list(actors_list);
+	release_locked_actors_list_and_invalidate(actors_list, &me);
 }

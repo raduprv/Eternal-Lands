@@ -175,7 +175,7 @@ void revalidate_ground_bag_window(void)
 					return;
 				}
 			}
-			release_locked_actors_list(actors_list);
+			release_locked_actors_list_and_invalidate(actors_list, &me);
 		}
 	}
 
@@ -237,7 +237,7 @@ void put_bag_on_ground(int bag_x,int bag_y,int bag_id)
 				add_sound_object (snd, bag_x, bag_y, 0);
 			}
 		}
-		release_locked_actors_list(actors_list);
+		release_locked_actors_list_and_invalidate(actors_list, &me);
 	}
 #endif // NEW_SOUND
 
@@ -365,7 +365,7 @@ void remove_bag(int bag_id)
 				add_sound_object (snd, bag_list[bag_id].x, bag_list[bag_id].y, 0);
 			}
 		}
-		release_locked_actors_list(actors_list);
+		release_locked_actors_list_and_invalidate(actors_list, &me);
 	}
 #endif // NEW_SOUND
 

@@ -481,7 +481,8 @@ void release_locked_actors_list(locked_list_ptr list);
  * Lock the actors list, and return the player's own actor. If the player's actor cannot be
  * found, \c nullptr is returned and the actors list is unlocked.
  * \note On succesful return, the caller is responsible for unlocking the actors list by calling
- *       release_locked_actors_list().
+ *       release_locked_actors_list(), or better yet, release_locked_actors_list_and_invalidate()
+ *       to also invalidate \a self.
  * \note On an error return (result is \c nullptr), the actors list is already unlocked
  * \param self Place t store the player's own actor
  * \return Pointer to the actors list
@@ -493,7 +494,8 @@ locked_list_ptr lock_and_get_self(actor **self);
  * Lock the actors list, and return the actor identified by the server with ID \a actor_id. If
  * no actor with ID \a actor_id can be found, \c nullptr is returned and the list is unlocked.
  * \note On succesful return, the caller is responsible for unlocking the actors list by calling
- *       release_locked_actors_list().
+ *       release_locked_actors_list(), or better yet, release_locked_actors_list_and_invalidate()
+ *       to also invalidate \a act.
  * \note On an error return (result is \c nullptr), the actors list is already unlocked
  * \param actor_id The ID of the actor to look for
  * \param act      Place to store the pointer to the actor
@@ -508,7 +510,8 @@ locked_list_ptr lock_and_get_actor_from_id(int actor_id, actor **act);
  * If no actor with ID \a actor_id can be found, the function will return \a nullptr,
  * and the actors list is unlocked.
  * \note On succesful return, the caller is responsible for unlocking the actors list by calling
- *       release_locked_actors_list().
+ *       release_locked_actors_list(), or better yet, release_locked_actors_list_and_invalidate2()
+ *       to also invalidate \a act and \a attached.
  * \note On an error return (result is \c nullptr), the actors list is already unlocked
  * \param actor_id The ID of the actor to look for
  * \param act      Place to store pointer to the actor itself
@@ -525,13 +528,42 @@ locked_list_ptr lock_and_get_actor_and_attached_from_id(int actor_id, actor **ac
  * actor. Ifno actor with name \a name can be found, \c nullptr is returned and the actors list is
  * unlocked.
  * \note On succesful return, the caller is responsible for unlocking the actors list by calling
- *       release_locked_actors_list().
+ *       release_locked_actors_list(), or better yet, release_locked_actors_list_and_invalidate()
+ *       to also invalidate \a act.
  * \note On an error return (result is \c nullptr), the actors list is already unlocked
  * \param name The name of the actor to look for
  * \param act  Place to store the pointer to the actor
  * \return Pointer to the actors list
  */
 locked_list_ptr lock_and_get_actor_from_name(const char* name, actor **act);
+/*!
+ * \brief Release the actors list mutex and invalidate an actor pointer
+ *
+ * Release the mutex on the actors list by calling release_locked_actors_list(). Doing so
+ * invalidates any pointers to actors the caller might still have, so this function can be used
+ * to set \a actor to \c NULL as well to detect any uses of \a actor after the list mutex has been
+ * released.
+ */
+static inline void release_locked_actors_list_and_invalidate(locked_list_ptr list, actor **actor)
+{
+	*actor = NULL;
+	release_locked_actors_list(list);
+}
+/*!
+ * \brief Release the actors list mutex and invalidate a pair of actor pointers
+ *
+ * Release the mutex on the actors list by calling release_locked_actors_list(). Doing so
+ * invalidates any pointers to actors the caller might still have, so this function can be used
+ * to set both \a actor0 and \a actor1 to \c NULL as well to detect any uses of them after the
+ * list mutex has been released.
+ */
+static inline void release_locked_actors_list_and_invalidate2(locked_list_ptr list,
+	actor **actor0, actor **actor1)
+{
+	*actor0 = *actor1 = NULL;
+	release_locked_actors_list(list);
+}
+
 /*!
  * \brief Find actor nearest to a position
  *

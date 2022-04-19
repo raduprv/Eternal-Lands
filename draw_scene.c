@@ -237,7 +237,7 @@ void move_camera ()
 		z = get_tile_height(me->x_tile_pos, me->y_tile_pos) + sitting;
 	}
 
-	release_locked_actors_list(actors_list);
+	release_locked_actors_list_and_invalidate(actors_list, &me);
 
 	if(first_person||ext_cam){
 		follow_speed = 150.0f;
@@ -346,7 +346,7 @@ void update_camera()
 	static float old_camera_z = 0;
 	float adjust;
 	actor *me;
-	locked_list_ptr actors_list = lock_and_get_self(&me);
+	locked_list_ptr actors_list;
 
 	old_rx=rx;
 	old_rz=rz;
@@ -356,8 +356,6 @@ void update_camera()
 
 	if (fol_cam && !fol_cam_behind)
 		rz = hold_camera;
-	if (actors_list)
-		camera_kludge = -me->z_rot;
 
 	/* This is a BIG hack to not polluate the code but if this feature
 	 * is accepted and the flag is removed, all the code that
@@ -458,6 +456,10 @@ void update_camera()
 
 	clamp_camera();
 
+	actors_list = lock_and_get_self(&me);
+	if (actors_list)
+		camera_kludge = -me->z_rot;
+
 	if (ext_cam && !first_person && actors_list && rx <= -min_tilt_angle && rx >= -max_tilt_angle)
 	{
 		float rot_x[9], rot_z[9], rot[9], dir[3];
@@ -528,7 +530,6 @@ void update_camera()
 		old_camera_z= camera_z;
 	}
 
-
 	hold_camera = rz;
 	if (fol_cam) {
 		static int fol_cam_stop = 0;
@@ -587,11 +588,13 @@ void update_camera()
 			my_tcp_send(&cmd, 1);
 		}
 	}
+
+	if (actors_list)
+		release_locked_actors_list_and_invalidate(actors_list, &me);
+
 	adjust_view = 0;
 	last_update = cur_time;
 
-	if (actors_list)
-		release_locked_actors_list(actors_list);
 }
 
 #if !defined(MAP_EDITOR)

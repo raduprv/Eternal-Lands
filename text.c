@@ -474,7 +474,7 @@ int parse_text_for_emote_commands(const char *text, int len)
 	} while(text[i++]);
 	//printf("ef=%i, wf=%i, filter=>%i\n",ef,wf,emote_filter);
 
-	release_locked_actors_list(actors_list);
+	release_locked_actors_list_and_invalidate(actors_list, &act);
 
 	return  ((ef==wf) ? (emote_filter):(0));
 
@@ -709,7 +709,7 @@ int filter_or_ignore_text (char *text_to_add, int len, int size, Uint8 channel)
 				if (actors_list)
 				{
 					add_highlight(me->x_tile_pos, me->y_tile_pos, HIGHLIGHT_SOFT_FAIL);
-					release_locked_actors_list(actors_list);
+					release_locked_actors_list_and_invalidate(actors_list, &me);
 				}
 				/* suppress further messages within for 5 seconds of last */
 				if (rate_limit_done_one[match_index] && new_time - rate_limit_last_time[match_index] < 5000)

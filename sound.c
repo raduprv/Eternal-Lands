@@ -1432,7 +1432,7 @@ static int update_streams(void * dummy)
 		{
 			tx = me->x_pos * 2;
 			ty = me->y_pos * 2;
-			release_locked_actors_list(actors_list);
+			release_locked_actors_list_and_invalidate(actors_list, &me);
 		}
 		else
 		{
@@ -2409,7 +2409,7 @@ unsigned int add_sound_object_gain(int type, int x, int y, int is_me, float init
 	{
 		my_x = me->x_pos * 2;
 		my_y = me->y_pos * 2;
-		release_locked_actors_list(actors_list);
+		release_locked_actors_list_and_invalidate(actors_list, &me);
 	}
 
 #ifdef _EXTRA_SOUND_DEBUG
@@ -3030,7 +3030,7 @@ void update_sound(int ms)
 	if (!inited)
 	{
 		UNLOCK_SOUND_LIST();
-		release_locked_actors_list(actors_list);
+		release_locked_actors_list_and_invalidate(actors_list, &me);
 		return;
 	}
 
@@ -3043,12 +3043,12 @@ void update_sound(int ms)
 	if (!used_sources)
 	{
 		UNLOCK_SOUND_LIST();
-		release_locked_actors_list(actors_list);
+		release_locked_actors_list_and_invalidate(actors_list, &me);
 		return;
 	}
 
 	for_each_actor(actors_list, update_actor_sound_position, my_pos);
-	release_locked_actors_list(actors_list);
+	release_locked_actors_list_and_invalidate(actors_list, &me);
 	
 	// Finally, update all the sources
 	i = 0;

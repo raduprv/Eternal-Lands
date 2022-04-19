@@ -209,7 +209,7 @@ static cell AMX_NATIVE_CALL n_get_position (AMX *amx, const cell *params)
 	*x_addr = (cell) me->x_tile_pos;
 	*y_addr = (cell) me->y_tile_pos;
 
-	release_locked_actors_list(actors_list);
+	release_locked_actors_list_and_invalidate(actors_list, &me);
 	
 	return 0;
 }
@@ -235,7 +235,7 @@ static cell AMX_NATIVE_CALL n_get_actor_from_name (AMX *amx, const cell* params)
 		return -1;
 
 	actor_id = act->actor_id;
-	release_locked_actors_list(actors_list);
+	release_locked_actors_list_and_invalidate(actors_list, &act);
 
 	return (cell) actor_id;
 }

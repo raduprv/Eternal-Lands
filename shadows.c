@@ -566,7 +566,7 @@ void setup_shadow_mapping()
 		if (actors_list)
 		{
 			cal_get_actor_bone_local_position(me, get_actor_bone_id(me, head_bone), NULL, head_pos);
-			release_locked_actors_list(actors_list);
+			release_locked_actors_list_and_invalidate(actors_list, &me);
 			glTranslatef(head_pos[0], head_pos[1], 0.0);
 		}
 	}

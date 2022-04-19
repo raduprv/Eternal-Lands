@@ -118,7 +118,7 @@ static void add_sfx(special_effect_enum effect, Uint16 playerid, int caster)
 			break;
 	}
 
-	release_locked_actors_list(actors_list);
+	release_locked_actors_list_and_invalidate(actors_list, &act);
 
 	m->type = effect;
 	m->last_time = cur_time;					//global cur_time
@@ -407,7 +407,7 @@ static void display_special_effect(special_effect *marker) {
 				return;
 			x = act->x_pos + (TILESIZE_X / 2);	// movable effects need current position
 			y = act->y_pos + (TILESIZE_X / 2);
-			release_locked_actors_list(actors_list);
+			release_locked_actors_list_and_invalidate(actors_list, &act);
 			break;
 		}
 	}
@@ -680,7 +680,7 @@ void parse_special_effect(special_effect_enum sfx, const Uint16 *data)
 		target = get_actor_from_id(actors_list, var_b);
 		if (!target)
 		{
-			release_locked_actors_list(actors_list);
+			release_locked_actors_list_and_invalidate(actors_list, &caster);
 			return;
 		}
 	}
@@ -943,7 +943,7 @@ void parse_special_effect(special_effect_enum sfx, const Uint16 *data)
 //			ec_create_targetmagic_life_drain(caster, target, (poor_man ? 6 : 10));
 	} /* if (use_eye_candy) */
 
-	release_locked_actors_list(actors_list);
+	release_locked_actors_list_and_invalidate2(actors_list, &caster, &target);
 
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();

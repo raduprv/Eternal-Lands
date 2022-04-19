@@ -157,7 +157,7 @@ short get_actor_cluster ()
 	if (actors_list)
 	{
 		cluster = me->cluster;
-		release_locked_actors_list(actors_list);
+		release_locked_actors_list_and_invalidate(actors_list, &me);
 	}
 	return cluster;
 }

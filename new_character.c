@@ -891,7 +891,7 @@ static void create_character(void)
 	locked_list_ptr actors_list = lock_and_get_self(&act);
 	int bad_password = strncasecmp(inputs[1].str, act->actor_name, strlen(act->actor_name)) == 0;
 
-	release_locked_actors_list(actors_list);
+	release_locked_actors_list_and_invalidate(actors_list, &act);
 
 	if(inputs[0].pos<3){
 		add_text_to_buffer(c_red2, error_username_length, DEF_MESSAGE_TIMEOUT);
@@ -1145,7 +1145,7 @@ static int keypress_namepass_handler (window_info *win, int mx, int my, SDL_Keyc
 		} else {
 			safe_strncpy(act->actor_name, inputs[0].str, sizeof(act->actor_name));
 		}
-		release_locked_actors_list(actors_list);
+		release_locked_actors_list_and_invalidate(actors_list, &act);
 	}
 
 	return ret;

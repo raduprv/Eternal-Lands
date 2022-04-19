@@ -207,7 +207,7 @@ void update_session_distance(void)
 		last_y = me->y_tile_pos;
 		distance_moved++;
 	}
-	release_locked_actors_list(actors_list);
+	release_locked_actors_list_and_invalidate(actors_list, &me);
 }
 
 static void draw_session_line(window_info *win, int x, int y, const unsigned char* skill,

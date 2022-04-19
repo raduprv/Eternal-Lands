@@ -1267,7 +1267,7 @@ void display_actors(int banner, int render_pass)
 
 				draw_actor_without_banner(cur_actor, use_lightning, use_textures, 1);
 
-				release_locked_actors_list(actors_list);
+				release_locked_actors_list_and_invalidate(actors_list, &cur_actor);
 				if (near_actors[i].select)
 				{
 					if (kind_of_actor == NPC)
@@ -1313,7 +1313,7 @@ void display_actors(int banner, int render_pass)
 
 					draw_actor_without_banner(cur_actor, use_lightning, 1, 1);
 
-					release_locked_actors_list(actors_list);
+					release_locked_actors_list_and_invalidate(actors_list, &cur_actor);
 					if (near_actors[i].select)
 					{
 						if (kind_of_actor == NPC)
@@ -1380,7 +1380,7 @@ void display_actors(int banner, int render_pass)
 
 					draw_actor_without_banner(cur_actor, use_lightning, use_textures, 1);
 
-					release_locked_actors_list(actors_list);
+					release_locked_actors_list_and_invalidate(actors_list, &cur_actor);
 					if (near_actors[i].select)
 					{
 						if (kind_of_actor == NPC)
@@ -1448,7 +1448,7 @@ void display_actors(int banner, int render_pass)
 				actor *act = get_actor_from_id(actors_list, near_actors[i].actor_id);
 				if (act && !is_horse(act))
 					draw_actor_banner_new(act, me);
-				release_locked_actors_list(actors_list);
+				release_locked_actors_list_and_invalidate2(actors_list, &me, &act);
 			}
 		}
 
@@ -1715,7 +1715,7 @@ void add_displayed_text_to_actor_id(int actor_id, const char* text)
 	if (actors_list)
 	{
 		add_displayed_text_to_actor(act, text);
-		release_locked_actors_list(actors_list);
+		release_locked_actors_list_and_invalidate(actors_list, &act);
 	}
 }
 
@@ -1726,7 +1726,7 @@ void add_displayed_text_to_actor_name(const char* name, const char* text)
 	if (list)
 	{
 		add_displayed_text_to_actor(act, text);
-		release_locked_actors_list(list);
+		release_locked_actors_list_and_invalidate(list, &act);
 	}
 }
 
@@ -1845,7 +1845,7 @@ void check_if_new_actor_last_summoned(const actor *new_actor)
 			split_name_and_guild(me->actor_name, me_name_part, me_guild_part, MAX_ACTOR_NAME);
 			split_name_and_guild(new_actor->actor_name, summoned_name_part, summoned_guild_part, ACTOR_DEF_NAME_SIZE);
 
-			release_locked_actors_list(actors_list);
+			release_locked_actors_list_and_invalidate(actors_list, &me);
 
 			if ((strcmp(last_summoned_var.summoned_name, summoned_name_part) == 0) &&
 					(strcmp(summoned_guild_part, me_guild_part) == 0))
@@ -1872,7 +1872,7 @@ int get_id_last_summoned(void)
 	if (actors_list)
 	{
 		// Yup, still exists
-		release_locked_actors_list(actors_list);
+		release_locked_actors_list_and_invalidate(actors_list, &act);
 	}
 	else
 	{

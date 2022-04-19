@@ -2340,7 +2340,7 @@ void add_command_to_actor(int actor_id, unsigned char command)
 	else
 	{
 		add_command_to_actor_locked(act, horse, command);
-		release_locked_actors_list(actors_list);
+		release_locked_actors_list_and_invalidate2(actors_list, &act, &horse);
 	}
 }
 
@@ -2399,14 +2399,14 @@ void add_emote_to_actor(int actor_id, int emote_id)
 	{
 		//printf("emote message to be added %p\n",emote);
 		queue_emote(act,emote);
-		release_locked_actors_list(actors_list);
+		release_locked_actors_list_and_invalidate(actors_list, &act);
 	}
 }
 
 
 void get_actor_damage(int actor_id, int damage)
 {
-	actor *self, *act;
+	actor *act;
 	float blood_level;
 	float bone_list[1024][3];
 	int total_bones;
@@ -2418,8 +2418,7 @@ void get_actor_damage(int actor_id, int damage)
 	ERR();
 #endif
 
-	self = get_self(actors_list);
-	if (!self)
+	if (!get_self(actors_list))
 	{
 		release_locked_actors_list(actors_list);
 		return;
@@ -2470,7 +2469,7 @@ void get_actor_damage(int actor_id, int damage)
 		}
 	}
 
-	release_locked_actors_list(actors_list);
+	release_locked_actors_list_and_invalidate(actors_list, &act);
 }
 
 void get_actor_heal(int actor_id, int quantity)
@@ -2496,7 +2495,7 @@ void get_actor_heal(int actor_id, int quantity)
 
 	act->cur_health+=quantity;
 
-	release_locked_actors_list(actors_list);
+	release_locked_actors_list_and_invalidate(actors_list, &act);
 }
 
 void get_actor_health(int actor_id, int quantity)
@@ -2520,7 +2519,7 @@ void get_actor_health(int actor_id, int quantity)
 
 	act->max_health=quantity;
 
-	release_locked_actors_list(actors_list);
+	release_locked_actors_list_and_invalidate(actors_list, &act);
 }
 
 void move_self_forward()
@@ -2536,7 +2535,7 @@ void move_self_forward()
 	y=me->y_tile_pos;
 	rot=(int)rint(me->z_rot/45.0f);
 
-	release_locked_actors_list(actors_list);
+	release_locked_actors_list_and_invalidate(actors_list, &me);
 
 	if (rot < 0) rot += 8;
 	switch(rot) {

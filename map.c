@@ -691,7 +691,7 @@ static void display_map_marks(void)
 		return;
 	ax = me->x_pos;
 	ay = me->y_pos;
-	release_locked_actors_list(actors_list);
+	release_locked_actors_list_and_invalidate(actors_list, &me);
 
 	glDisable(GL_TEXTURE_2D);
 	glDisable(GL_LIGHTING);
@@ -748,7 +748,7 @@ static void display_map_markers(void)
 		return;
 	ax = me->x_pos;
 	ay = me->y_pos;
-	release_locked_actors_list(actors_list);
+	release_locked_actors_list_and_invalidate(actors_list, &me);
 
 	glGetDoublev(GL_MODELVIEW_MATRIX, model);
 	glGetDoublev(GL_PROJECTION_MATRIX, proj);
