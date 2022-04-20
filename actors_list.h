@@ -642,6 +642,16 @@ void set_self(void);
  */
 int self_is_fighting(void);
 /*!
+ * \brief Get the player's own tile position
+ *
+ * Return the player actor's own tile position in (\a x, \a y). When the player actor is not (yet)
+ * in the actors list, 0 is returned an \a x and \a y are left unchanged. On success, 1 is returned.
+ * \note Use with caution: because the actors list mutex is dropped when leaving the function,
+ *       the actor's position may be changed by another thread at any time, or the actor might even
+ *       be deleted. Use this function only when the result does not strictly need to be correct.
+ */
+int self_tile_position(int *x, int *y);
+/*!
  * \brief Check if the actor under the mouse is alive
  *
  * Check if there is currently an actor under the mouse cursor, and if so, whether it is still

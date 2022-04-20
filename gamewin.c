@@ -1082,13 +1082,9 @@ static int click_game_handler(window_info *win, int mx, int my, Uint32 flags)
 				return 1;
 			if (you_sit && sit_lock && !flag_ctrl)
 			{
-				actor *me;
-				locked_list_ptr actors_list = lock_and_get_self(&me);
-				if (actors_list)
-				{
-					add_highlight(me->x_tile_pos, me->y_tile_pos, HIGHLIGHT_TYPE_LOCK);
-					release_locked_actors_list_and_invalidate(actors_list, &me);
-				}
+				int x, y;
+				if (self_tile_position(&x, &y))
+					add_highlight(x, y, HIGHLIGHT_TYPE_LOCK);
 				return 1;
 			}
 			if (thing_under_the_mouse == UNDER_MOUSE_PLAYER || thing_under_the_mouse == UNDER_MOUSE_NPC || thing_under_the_mouse == UNDER_MOUSE_ANIMAL)
@@ -1253,13 +1249,9 @@ static int click_game_handler(window_info *win, int mx, int my, Uint32 flags)
 
 			if (is_ranging_locked || is_sit_locked)
 			{
-				actor *me;
-				locked_list_ptr actors_list = lock_and_get_self(&me);
-				if (actors_list)
-				{
-					add_highlight(me->x_tile_pos, me->y_tile_pos, HIGHLIGHT_TYPE_LOCK);
-					release_locked_actors_list_and_invalidate(actors_list, &me);
-				}
+				int x, y;
+				if (self_tile_position(&x, &y))
+					add_highlight(x, y, HIGHLIGHT_TYPE_LOCK);
 				return 1;
 			}
 

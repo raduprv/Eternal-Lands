@@ -197,17 +197,13 @@ void set_session_exp_to_current(void)
 void update_session_distance(void)
 {
 	static int last_x = -1, last_y = -1;
-	actor *me;
-	locked_list_ptr actors_list = lock_and_get_self(&me);
-	if (!actors_list)
-		return;
-	if ((me->x_tile_pos != last_x) || (me->y_tile_pos != last_y))
+	int x, y;
+	if (self_tile_position(&x, &y) && (x != last_x || y != last_y) )
 	{
-		last_x = me->x_tile_pos;
-		last_y = me->y_tile_pos;
+		last_x = x;
+		last_y = y;
 		distance_moved++;
 	}
-	release_locked_actors_list_and_invalidate(actors_list, &me);
 }
 
 static void draw_session_line(window_info *win, int x, int y, const unsigned char* skill,

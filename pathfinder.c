@@ -366,20 +366,12 @@ static inline int pf_is_tile_occupied(int x, int y)
 void pf_move()
 {
 	int x, y;
-	locked_list_ptr actors_list;
-	actor *me;
 
 	if (!pf_follow_path)
 		return;
 
-	actors_list = lock_and_get_self(&me);
-	if (!actors_list)
+	if (!self_tile_position(&x, &y))
 		return;
-
-	x = me->x_tile_pos;
-	y = me->y_tile_pos;
-
-	release_locked_actors_list_and_invalidate(actors_list, &me);
 
 	if (PF_DIFF(x, pf_dst_tile->x) < 2 && PF_DIFF(y, pf_dst_tile->y) < 2) {
 		pf_destroy_path();

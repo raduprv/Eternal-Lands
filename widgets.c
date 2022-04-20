@@ -2679,13 +2679,11 @@ static int context_edit_handler(window_info *win, int widget_id, int mx, int my,
 			break;
 		case 6:
 			{
-				actor *me;
-				locked_list_ptr actors_list = lock_and_get_self(&me);
-				if (actors_list)
+				int x, y;
+				if (self_tile_position(&x, &y))
 				{
 					char str[20];
-					safe_snprintf(str, sizeof(str), "%d,%d", me->x_tile_pos, me->y_tile_pos);
-					release_locked_actors_list_and_invalidate(actors_list, &me);
+					safe_snprintf(str, sizeof(str), "%d,%d", x, y);
 					widget_unset_flags(win->window_id, widget_id, WIDGET_DISABLED);
 					text_field_paste(w, str);
 				}

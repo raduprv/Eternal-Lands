@@ -386,6 +386,17 @@ extern "C" int self_is_fighting()
 	return self && self->fighting;
 }
 
+extern "C" int self_tile_position(int *x, int *y)
+{
+	LockedActorsList list;
+	actor *self = list.self();
+	if (!self)
+		return 0;
+	*x = self->x_tile_pos;
+	*y = self->y_tile_pos;
+	return 1;
+}
+
 extern "C" int actor_under_mouse_alive()
 {
 	LockedActorsList list;

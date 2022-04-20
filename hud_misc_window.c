@@ -328,14 +328,10 @@ CHECK_GL_ERRORS();
 	if (mouse_over_compass)
 	{
 		char str[12];
-		actor *me;
-		locked_list_ptr actors_list = lock_and_get_self(&me);
-		if (actors_list)
+		int x, y;
+		if (self_tile_position(&x, &y))
 		{
-			safe_snprintf(str, sizeof(str), "%d,%d", me->x_tile_pos, me->y_tile_pos);
-
-			release_locked_actors_list_and_invalidate(actors_list, &me);
-
+			safe_snprintf(str, sizeof(str), "%d,%d", x, y);
 			draw_string_small_shadowed_zoomed_right(-tooltip_sep, win->len_y-compass_size,
 				(unsigned char*)str, 1, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f,
 				win->current_scale);

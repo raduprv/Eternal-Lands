@@ -700,17 +700,13 @@ int filter_or_ignore_text (char *text_to_add, int len, int size, Uint8 channel)
 			}
 			if (match_index < rate_limit_count)
 			{
-				locked_list_ptr actors_list;
-				actor *me;
+				int x, y;
 				Uint32 new_time = SDL_GetTicks();
 				clear_now_harvesting();
 
-				actors_list = lock_and_get_self(&me);
-				if (actors_list)
-				{
-					add_highlight(me->x_tile_pos, me->y_tile_pos, HIGHLIGHT_SOFT_FAIL);
-					release_locked_actors_list_and_invalidate(actors_list, &me);
-				}
+				if (self_tile_position(&x, &y))
+					add_highlight(x, y, HIGHLIGHT_SOFT_FAIL);
+
 				/* suppress further messages within for 5 seconds of last */
 				if (rate_limit_done_one[match_index] && new_time - rate_limit_last_time[match_index] < 5000)
 					return 0;

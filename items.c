@@ -1455,16 +1455,13 @@ static int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 	}
 
 	// Get All button
-	else if(over_button(win, mx, my)==BUT_GET){
-		int x,y;
-		actor *me;
-		locked_list_ptr actors_list = lock_and_get_self(&me);
-		if (!actors_list)
-			return(1);
-		x=me->x_tile_pos;
-		y=me->y_tile_pos;
-		release_locked_actors_list_and_invalidate(actors_list, &me);
-		items_get_bag(x,y);
+	else if (over_button(win, mx, my) == BUT_GET)
+	{
+		int x, y;
+		// GV: should we lock the actor here until after items_get_bag()?
+		if (!self_tile_position(&x, &y))
+			return 1;
+		items_get_bag(x, y);
 	}
 
 	// Sto All button

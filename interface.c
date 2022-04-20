@@ -778,8 +778,6 @@ void draw_game_map (int map, int mouse_mini)
 	int x=-1,y=-1;
 	float x_size=0,y_size=0;
 	GLuint map_small, map_large;
-	locked_list_ptr actors_list;
-	actor *me;
 	static int fallback_text = -1;
 	int win_width, win_height;
 	int main_l = main_map_screen_x_left, main_r = main_map_screen_x_right,
@@ -990,16 +988,8 @@ void draw_game_map (int map, int mouse_mini)
 
 	//ok, now let's draw our position...
 	x = y = -1;
-	actors_list = lock_and_get_self(&me);
-	if (actors_list)
-	{
-		if (inspect_map_text == 0)
-		{
-			x = me->x_tile_pos;
-			y = me->y_tile_pos;
-		}
-		release_locked_actors_list_and_invalidate(actors_list, &me);
-	}
+	if (inspect_map_text == 0)
+		self_tile_position(&x, &y);
 
 	if (!map)
 	{
@@ -1189,21 +1179,11 @@ void put_mark_on_map_on_mouse_position(void)
 		adding_mark = 1;
 #endif
 }
+
 int put_mark_on_current_position(const char *name)
 {
-	actor *me;
-	locked_list_ptr actors_list = lock_and_get_self(&me);
-	if (actors_list)
-	{
-		int map_x = me->x_tile_pos;
-		int map_y = me->y_tile_pos;
-
-		release_locked_actors_list_and_invalidate(actors_list, &me);
-
-		if (put_mark_on_position(map_x, map_y, name))
-			return 1;
-	}
-	return 0;
+	int map_x, map_y;
+	return self_tile_position(&map_x, &map_y) && put_mark_on_position(map_x, map_y, name);
 }
 
 void delete_mark_on_map_on_mouse_position(void)

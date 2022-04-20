@@ -523,8 +523,8 @@ typedef struct
 	double z_pos;		/*!< Specifies the z position of the actor */
 	float   scale;      /*!< Specidies the custom scaling for the actor model */
 
-	int x_tile_pos;		/*!< Specifies the x tile position - updated in the timer thread*/
-	int y_tile_pos;		/*!< Specifies the y tile position - updated in the timer thread \n*/
+	int x_tile_pos;		/*!< Specifies the x tile position - updated in the timer thread */
+	int y_tile_pos;		/*!< Specifies the y tile position - updated in the timer thread */
 	/*! \} */
 
 	/*! \name Actor rotation*/

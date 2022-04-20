@@ -452,8 +452,7 @@ static int display_minimap_handler(window_info *win)
 	float size_x = float_minimap_size / (tile_map_size_x * 6);
 	float size_y = float_minimap_size / (tile_map_size_y * 6);
 	float px = 0.0f, py = 0.0f;
-	locked_list_ptr actors_list;
-	actor *me;
+	int tile_x, tile_y;
 	float x,y;
 	int i;
 
@@ -498,14 +497,13 @@ static int display_minimap_handler(window_info *win)
 	//draw minimap
 
 	//get player position in window coordinates
-	if( (actors_list = lock_and_get_self(&me)) == NULL)
+	if (!self_tile_position(&tile_x, &tile_y))
 	{
 		//Don't know who we are? can't draw then
 		return 0;
 	}
-	px = me->x_tile_pos * size_x;
-	py = float_minimap_size - (me->y_tile_pos * size_y);
-	release_locked_actors_list_and_invalidate(actors_list, &me);
+	px = tile_x * size_x;
+	py = float_minimap_size - (tile_y * size_y);
 
 	glTranslatef(0.0f, win->title_height, 0.0f);
 
