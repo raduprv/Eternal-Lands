@@ -376,75 +376,84 @@ static int only_call_from_open_web_link__go_to_url(void * url)
 }
 #endif
 
-void open_web_link(const char * url)
+#if defined(ANDROID)
+void open_web_link(const char* url)
 {
-#ifdef ANDROID
 #if SDL_VERSION_ATLEAST(2, 0, 14)
 	SDL_OpenURL(url);
 #endif
-	return;
-#endif
-#ifdef OSX
-	CFURLRef newurl = CFURLCreateWithString(kCFAllocatorDefault,CFStringCreateWithCStringNoCopy(NULL,url,kCFStringEncodingMacRoman, NULL),NULL);
-	LSOpenCFURLRef(newurl,NULL);
+}
+#elif defined(OSX)
+void open_web_link(const char* url)
+{
+	CFURLRef newurl = CFURLCreateWithString(kCFAllocatorDefault, CFStringCreateWithCStringNoCopy(NULL, url, kCFStringEncodingMacRoman, NULL), NULL);
+	LSOpenCFURLRef(newurl, NULL);
 	CFRelease(newurl);
-#else
-	// browser name can override the windows default, and if not defined in Linux, don't error
-	if(*browser_name){
-#ifndef WINDOWS
-		static int have_set_signal = 0;
-#ifdef SOUND_FORK_BUGFIX
-		int sound_on_copy = sound_on;
-		int music_on_copy = music_on;
-#endif
-
-		/* we're not interested in the exit status of the child so
-		   set SA_NOCLDWAIT to stop it becoming a zombie if we don't wait() */
-		if (!have_set_signal)
-		{
-			struct sigaction act;
-			memset(&act, 0, sizeof(act));
-			act.sa_handler = SIG_DFL;
-			act.sa_flags = SA_NOCLDWAIT;
-			sigaction(SIGCHLD, &act, NULL);
-			have_set_signal = 1;
-		}
-
-#ifdef SOUND_FORK_BUGFIX
-		if (sound_on_copy)
-			toggle_sounds(&sound_on);
-		if (music_on_copy)
-			toggle_music(&music_on);
-#endif
-
-		if (fork() == 0){
-			execlp(browser_name, browser_name, url, NULL);
-			// in case the exec errors
-			_exit(1);
-		}
-
-#ifdef SOUND_FORK_BUGFIX
-		if (sound_on_copy)
-			toggle_sounds(&sound_on);
-		if (music_on_copy)
-			toggle_music(&music_on);
-#endif
-
-#else
+}
+#elif defined(WINDOWS)
+void open_web_link(const char* url)
+{
+	// browser name can override the windows default
+	if (*browser_name)
+	{
 		// make a copy of the url string as it may be freed by the caller
 		// will be freed as the only_call_from_open_web_link__go_to_url() exits
-		char *cp_url = malloc(strlen(url)+1);
-		safe_strncpy(cp_url, url, strlen(url)+1);
+		char *cp_url = strdup(url);
 
 		// windows needs to spawn it in its own thread
 		SDL_CreateThread(only_call_from_open_web_link__go_to_url, "BrowserThread", cp_url);
-	} else {
-		ShellExecute(NULL, "open", url, NULL, NULL, SW_SHOWNOACTIVATE); //this returns an int we could check for errors, but that's mainly when you use shellexecute for local files
-#endif  //_WIN32
 	}
-#endif // OSX
+	else
+	{
+		ShellExecute(NULL, "open", url, NULL, NULL, SW_SHOWNOACTIVATE); //this returns an int we could check for errors, but that's mainly when you use shellexecute for local files
+	}
 }
+#else // ANDROID/OSX/WINDOWS
+void open_web_link(const char* url)
+{
+	static int have_set_signal = 0;
 
+	// When no browser name is set, try xdg-open to use the user's preferred browser.
+	const char* exe = *browser_name ? browser_name : "xdg-open";
+#ifdef SOUND_FORK_BUGFIX
+	int sound_on_copy = sound_on;
+	int music_on_copy = music_on;
+#endif // SOUND_FORK_BUGFIX
+
+	/* we're not interested in the exit status of the child so set SA_NOCLDWAIT to stop it becoming
+	 * a zombie if we don't wait() */
+	if (!have_set_signal)
+	{
+		struct sigaction act;
+		memset(&act, 0, sizeof(act));
+		act.sa_handler = SIG_DFL;
+		act.sa_flags = SA_NOCLDWAIT;
+		sigaction(SIGCHLD, &act, NULL);
+		have_set_signal = 1;
+	}
+
+#ifdef SOUND_FORK_BUGFIX
+	if (sound_on_copy)
+		toggle_sounds(&sound_on);
+	if (music_on_copy)
+		toggle_music(&music_on);
+#endif // SOUND_FORK_BUGFIX
+
+	if (fork() == 0)
+	{
+		execlp(exe, exe, url, NULL);
+		// in case the exec errors
+		_exit(1);
+	}
+
+#ifdef SOUND_FORK_BUGFIX
+	if (sound_on_copy)
+		toggle_sounds(&sound_on);
+	if (music_on_copy)
+		toggle_music(&music_on);
+#endif // SOUND_FORK_BUGFIX
+}
+#endif // ANDROID/OSX/WINDOWS
 
 /*  Access the caught url list and display in a scrollable window. */
 static int display_url_handler(window_info *win)
