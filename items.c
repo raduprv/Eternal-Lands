@@ -1458,7 +1458,6 @@ static int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 	else if (over_button(win, mx, my) == BUT_GET)
 	{
 		int x, y;
-		// GV: should we lock the actor here until after items_get_bag()?
 		if (!self_tile_position(&x, &y))
 			return 1;
 		items_get_bag(x, y);
