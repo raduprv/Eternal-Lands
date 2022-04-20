@@ -2,7 +2,7 @@
 #include <ctype.h>
 #include "counters.h"
 #include "context_menu.h"
-#include "actors.h"
+#include "actors_list.h"
 #include "asc.h"
 #include "elconfig.h"
 #include "elwindows.h"
@@ -1011,7 +1011,7 @@ const char *strip_actor_name (const char *actor_name)
 /*
  * Called by increment_death_counter if it wasn't our character that died.
  */
-static void increment_kill_counter(actor *me, actor *them)
+static void increment_kill_counter(const actor *me, const actor *them)
 {
 	int x1, y1, x2, y2;
 	static int face_offsets[8][2] = {{0,1},{1,1},{1,0},{1,-1},{0,-1},{-1,-1},{-1,0},{-1,1}};
@@ -1038,25 +1038,53 @@ static void increment_kill_counter(actor *me, actor *them)
 	increment_counter(KILLS, strip_actor_name(them->actor_name), 1,	0);
 }
 
-void increment_range_kill_counter(actor *me, actor *them)
+static void increment_range_kill_counter(const actor *me, const actor *them)
 {
 	if (them->last_range_attacker_id == me->actor_id)
 		increment_counter(KILLS, strip_actor_name(them->actor_name), 1,	0);
 }
 
-/*
- * Called whenever an actor dies.
- */
-void increment_death_counter(actor *a)
+static void count_actor_death(actor* them, void* data, locked_list_ptr actors_list)
 {
-	int found_death_reason = 0;
-	actor *me = get_actor_ptr_from_id(yourself);
+	static const int face_offsets[8][2] = {{0,1},{1,1},{1,0},{1,-1},{0,-1},{-1,-1},{-1,0},{-1,1}};
 
-	if (!me) {
+	int x1, y1, x2, y2;
+	int *found_death_reason = data;
+	const actor *me = get_self(actors_list);
+
+	if (!them->async_fighting ||
+		// PK deaths are handled with text messages from the server now
+		(them->is_enhanced_model && (them->kind_of_actor == HUMAN ||
+										them->kind_of_actor == PKABLE_HUMAN))) {
 		return;
 	}
 
-	if (a == me) {
+	/* get the coords of the tile they're facing */
+	x1 = them->async_x_tile_pos + face_offsets[((int)them->async_z_rot)/45][0];
+	y1 = them->async_y_tile_pos + face_offsets[((int)them->async_z_rot)/45][1];
+
+	/* get the coords of the next tile they're facing (necessary for Chimerans) */
+	x2 = x1 + face_offsets[((int)them->async_z_rot)/45][0];
+	y2 = y1 + face_offsets[((int)them->async_z_rot)/45][1];
+
+	if ((me->async_x_tile_pos == x1 && me->async_y_tile_pos == y1)
+		|| (me->async_x_tile_pos == x2 && me->async_y_tile_pos == y2))
+	{
+		increment_counter(DEATHS, strip_actor_name(them->actor_name), 1, 0);
+		*found_death_reason = 1;
+	}
+}
+
+/*
+ * Called whenever an actor dies.
+ */
+void increment_death_counter(const actor *act, locked_list_ptr actors_list)
+{
+	int found_death_reason = 0;
+	const actor *me = get_self(actors_list);
+
+	if (act == me)
+	{
 		/* If we have intercepted a message from the server that telling us that
 		 * we have been killed by someone, the counter has already been incremented */
 		if (killed_by_player) {
@@ -1077,39 +1105,8 @@ void increment_death_counter(actor *a)
 			clear_now_harvesting();
 		}
 
-		if (!found_death_reason && me->async_fighting) {
-			int x1, y1, x2, y2;
-			int i;
-			actor *them;
-			static int face_offsets[8][2] = {{0,1},{1,1},{1,0},{1,-1},{0,-1},{-1,-1},{-1,0},{-1,1}};
-
-			for (i = 0; i < max_actors; i++) {
-				them = actors_list[i];
-
-				if (!them->async_fighting ||
-					// PK deaths are handled with text messages from the server now
-					(them->is_enhanced_model && (them->kind_of_actor == HUMAN ||
-												 them->kind_of_actor == PKABLE_HUMAN))) {
-					continue;
-				}
-
-				/* get the coords of the tile they're facing */
-				x1 = them->async_x_tile_pos + face_offsets[((int)them->async_z_rot)/45][0];
-				y1 = them->async_y_tile_pos + face_offsets[((int)them->async_z_rot)/45][1];
-
-				/* get the coords of the next tile they're facing (necessary for Chimerans) */
-				x2 = x1 + face_offsets[((int)them->async_z_rot)/45][0];
-				y2 = y1 + face_offsets[((int)them->async_z_rot)/45][1];
-
-				/* continue if our actor is not on one of these tiles */
-				if ((me->async_x_tile_pos != x1 || me->async_y_tile_pos != y1) && (me->async_x_tile_pos != x2 || me->async_y_tile_pos != y2)) {
-					continue;
-				}
-
-				increment_counter(DEATHS, strip_actor_name(them->actor_name), 1, 0);
-				found_death_reason = 1;
-			}
-		}
+		if (!found_death_reason && me->async_fighting)
+			for_each_actor(actors_list, count_actor_death, &found_death_reason);
 
 		if (!found_death_reason) {
 			/* count deaths while we were poisoned - possibily in adition to another possible reason */
@@ -1126,16 +1123,19 @@ void increment_death_counter(actor *a)
 			}
 		}
 	}
-	else { // a != me
+	else { // act != me
 		/* if the dead actor is a player, we don't have to check it because if
 		 * we've killed him, we already catched it from a server message */
-		if (a->is_enhanced_model && (a->kind_of_actor == HUMAN ||
-									 a->kind_of_actor == PKABLE_HUMAN)) return;
+		if (act->is_enhanced_model
+			&& (act->kind_of_actor == HUMAN || act->kind_of_actor == PKABLE_HUMAN))
+		{
+			return;
+		}
 
-		if (a->last_range_attacker_id < 0)
-			increment_kill_counter(me, a);
+		if (act->last_range_attacker_id < 0)
+			increment_kill_counter(me, act);
 		else
-			increment_range_kill_counter(me, a);
+			increment_range_kill_counter(me, act);
 	}
 }
 

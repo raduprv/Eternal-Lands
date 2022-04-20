@@ -2,6 +2,7 @@
 #include <math.h>
 #include <string.h>
 #include "draw_scene.h"
+#include "actors_list.h"
 #include "bbox_tree.h"
 #include "cal.h"
 #include "console.h"
@@ -205,11 +206,11 @@ void move_camera ()
 	float x, y, z;
 	// float head_pos[3];
 	float follow_speed;
-	actor *me = get_our_actor ();
 
-    if(!me){
+	actor *me;
+	locked_list_ptr actors_list = lock_and_get_self(&me);
+	if (!actors_list)
 		return;
-	}
 
 	x = (float)me->x_pos+0.25f;
 	y = (float)me->y_pos+0.25f;
@@ -229,11 +230,14 @@ void move_camera ()
 
 		//attachment_props *att_props = get_attachment_props_if_held(me);
 		//z += (me->sitting ? 0.7 : 1.5) * get_actor_scale(me);
-		if (me->attached_actor>=0) z+=me->z_pos + me->attachment_shift[Z]+2.0*get_actor_scale(me);
+		if (has_attachment(me))
+			z+=me->z_pos + me->attachment_shift[Z]+2.0*get_actor_scale(me);
 		else z += (me->sitting ? 0.7 : 1.5) * get_actor_scale(me);
 	} else {
 		z = get_tile_height(me->x_tile_pos, me->y_tile_pos) + sitting;
 	}
+
+	release_locked_actors_list_and_invalidate(actors_list, &me);
 
 	if(first_person||ext_cam){
 		follow_speed = 150.0f;
@@ -341,7 +345,8 @@ void update_camera()
 	static float old_camera_y = 0;
 	static float old_camera_z = 0;
 	float adjust;
-	actor *me = get_our_actor();
+	actor *me;
+	locked_list_ptr actors_list;
 
 	old_rx=rx;
 	old_rz=rz;
@@ -351,8 +356,6 @@ void update_camera()
 
 	if (fol_cam && !fol_cam_behind)
 		rz = hold_camera;
-	if (me)
-		camera_kludge = -me->z_rot;
 
 	/* This is a BIG hack to not polluate the code but if this feature
 	 * is accepted and the flag is removed, all the code that
@@ -453,8 +456,11 @@ void update_camera()
 
 	clamp_camera();
 
-	if (ext_cam && !first_person && me &&
-		rx <= -min_tilt_angle && rx >= -max_tilt_angle)
+	actors_list = lock_and_get_self(&me);
+	if (actors_list)
+		camera_kludge = -me->z_rot;
+
+	if (ext_cam && !first_person && actors_list && rx <= -min_tilt_angle && rx >= -max_tilt_angle)
 	{
 		float rot_x[9], rot_z[9], rot[9], dir[3];
 		float vect[3] = {0.0, 0.0, new_zoom_level*camera_distance};
@@ -478,7 +484,7 @@ void update_camera()
 		else
 		{
 			// if the tile is outside the map, we take the height at the actor position
-			tz = get_tile_height(me->x_tile_pos, me->y_tile_pos);
+			tz = get_actor_z(me);
 		}
 		// here we use a shift of 0.2 to avoid to be too close to the ground
 		if (tz + 0.2 > dir[2] - camera_z)
@@ -524,14 +530,13 @@ void update_camera()
 		old_camera_z= camera_z;
 	}
 
-
 	hold_camera = rz;
 	if (fol_cam) {
 		static int fol_cam_stop = 0;
 
 		if ((SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(2)) || camera_rotation_speed != 0)
 			fol_cam_stop = 1;
-		else if (me && me->moving && fol_cam_stop)
+		else if (actors_list && me->moving && fol_cam_stop)
 			fol_cam_stop = 0;
 
 		if (last_kludge != camera_kludge && !fol_cam_stop) {
@@ -565,7 +570,7 @@ void update_camera()
 	}
 
 	//Make Character Turn with Camera
-	if (have_mouse && !on_the_move (get_our_actor ()))
+	if (have_mouse && !(actors_list && on_the_move(me)))
 	{
 		adjust = rz;
 		//without this the character will turn the wrong way when camera_kludge
@@ -583,8 +588,13 @@ void update_camera()
 			my_tcp_send(&cmd, 1);
 		}
 	}
+
+	if (actors_list)
+		release_locked_actors_list_and_invalidate(actors_list, &me);
+
 	adjust_view = 0;
 	last_update = cur_time;
+
 }
 
 #if !defined(MAP_EDITOR)

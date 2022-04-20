@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include "weather.h"
-#include "actors.h"
 #include "asc.h"
 #include "client_serv.h"
 #include "draw_scene.h"

@@ -1,8 +1,7 @@
 #ifndef __SHOW_ACHIEVEMENTS_H__
 #define __SHOW_ACHIEVEMENTS_H__
 
-
-#include "actors.h"
+#include <SDL_types.h>
 
 #ifdef __cplusplus
 extern "C" {

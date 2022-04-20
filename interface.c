@@ -4,6 +4,7 @@
 #include <SDL.h>
 #include <errno.h>
 #include "interface.h"
+#include "actors_list.h"
 #include "asc.h"
 #include "bbox_tree.h"
 #include "chat.h"
@@ -777,7 +778,6 @@ void draw_game_map (int map, int mouse_mini)
 	int x=-1,y=-1;
 	float x_size=0,y_size=0;
 	GLuint map_small, map_large;
-	actor *me;
 	static int fallback_text = -1;
 	int win_width, win_height;
 	int main_l = main_map_screen_x_left, main_r = main_map_screen_x_right,
@@ -987,17 +987,9 @@ void draw_game_map (int map, int mouse_mini)
 	}
 
 	//ok, now let's draw our position...
-	if ( (me = get_our_actor ()) != NULL && inspect_map_text == 0)
-	{
-		x = me->x_tile_pos;
-		y = me->y_tile_pos;
-	}
-	else
-	{
-		//We don't exist (usually happens when teleporting)
-		x = -1;
-		y = -1;
-	}
+	x = y = -1;
+	if (inspect_map_text == 0)
+		self_tile_position(&x, &y);
 
 	if (!map)
 	{
@@ -1187,16 +1179,11 @@ void put_mark_on_map_on_mouse_position(void)
 		adding_mark = 1;
 #endif
 }
+
 int put_mark_on_current_position(const char *name)
 {
-	actor *me = get_our_actor ();
-
-	if (me != NULL)
-	{
-		if (put_mark_on_position(me->x_tile_pos, me->y_tile_pos, name))
-			return 1;
-	}
-	return 0;
+	int map_x, map_y;
+	return self_tile_position(&map_x, &map_y) && put_mark_on_position(map_x, map_y, name);
 }
 
 void delete_mark_on_map_on_mouse_position(void)

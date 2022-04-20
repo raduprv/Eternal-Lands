@@ -27,6 +27,7 @@
 #include "2d_objects.h"
 #include "3d_objects.h"
 #include "actor_scripts.h"
+#include "actors_list.h"
 #include "asc.h"
 #include "astrology.h"
 #include "bbox_tree.h"
@@ -120,8 +121,7 @@ void cleanup_mem(void)
 	cleanup_text_buffers();
 	LOG_INFO("destroy_all_actors()");
 	destroy_all_actors();
-	LOG_INFO("end_actors_lists()");
-	end_actors_lists();
+	free_near_actors();
 	LOG_INFO("cleanup_lights()");
 	cleanup_lights();
 	/* 2d objects */
@@ -214,9 +214,10 @@ int start_rendering()
 			my_tcp_flush();    // make sure the tcp output buffer is set
 
 			if (have_a_map && cur_time > last_frame_and_command_update + 60) {
-				LOCK_ACTORS_LISTS();
-				next_command();
-				UNLOCK_ACTORS_LISTS();
+				locked_list_ptr actors_list = get_locked_actors_list();
+				next_command(actors_list);
+				release_locked_actors_list(actors_list);
+
 				move_to_next_frame();
 				last_frame_and_command_update = cur_time;
 			}

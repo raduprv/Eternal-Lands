@@ -4,6 +4,7 @@
 #include "gamewin.h"
 #include "actor_init.h"
 #include "actor_scripts.h"
+#include "actors_list.h"
 #include "achievements.h"
 #include "asc.h"
 #include "buddy.h"
@@ -519,9 +520,13 @@ static void toggle_first_person(void)
 {
 	if (first_person == 0){
 		//rotate camera where actor is looking at
-		actor *me = get_our_actor();
-		if (me)
+		actor *me;
+		locked_list_ptr actors_list = lock_and_get_self(&me);
+		if (actors_list)
+		{
 			rz=me->z_rot;
+			release_locked_actors_list_and_invalidate(actors_list, &me);
+		}
 		rx=-90;
 		first_person = 1;
 		fol_cam = 0;
@@ -554,11 +559,19 @@ static int mouseover_game_handler (window_info *win, int mx, int my)
 	else if (thing_under_the_mouse==UNDER_MOUSE_3D_OBJ && objects_list[object_under_mouse])
 	{
 		int range_weapon_equipped;
-		LOCK_ACTORS_LISTS();
-		range_weapon_equipped = (your_actor &&
-								 your_actor->cur_weapon >= BOW_LONG &&
-								 your_actor->cur_weapon <= BOW_CROSS);
-		UNLOCK_ACTORS_LISTS();
+		actor *me;
+		locked_list_ptr actors_list = lock_and_get_self(&me);
+		if (actors_list)
+		{
+			range_weapon_equipped = me->cur_weapon >= BOW_LONG &&
+									me->cur_weapon <= BOW_CROSS;
+			release_locked_actors_list_and_invalidate(actors_list, &me);
+		}
+		else
+		{
+			range_weapon_equipped = 0;
+		}
+
 		if(action_mode==ACTION_LOOK)
 		{
 			elwin_mouse = CURSOR_EYE;
@@ -658,7 +671,7 @@ static int mouseover_game_handler (window_info *win, int mx, int my)
 		{
 			elwin_mouse = CURSOR_WAND;
 		}
-		else if((mod_key_status & KMOD_ALT) || action_mode==ACTION_ATTACK || (actor_under_mouse && !actor_under_mouse->dead))
+		else if((mod_key_status & KMOD_ALT) || action_mode==ACTION_ATTACK || actor_under_mouse_alive())
 		{
 			elwin_mouse = CURSOR_ATTACK;
 		}
@@ -716,6 +729,8 @@ static int click_game_handler(window_info *win, int mx, int my, Uint32 flags)
 	int force_walk = (flag_ctrl && flag_right && !flag_alt);
 	int shift_on = flags & KMOD_SHIFT;
 	int range_weapon_equipped;
+	locked_list_ptr actors_list;
+	actor *me;
 
 #ifdef ANDROID
 	int cur_timestamp;
@@ -786,11 +801,17 @@ static int click_game_handler(window_info *win, int mx, int my, Uint32 flags)
 	if (hud_click(win, mx, my, flags))
 		return 1;
 
-	LOCK_ACTORS_LISTS();
-	range_weapon_equipped = (your_actor &&
-							 your_actor->cur_weapon >= BOW_LONG &&
-							 your_actor->cur_weapon <= BOW_CROSS);
-	UNLOCK_ACTORS_LISTS();
+	actors_list = lock_and_get_self(&me);
+	if (actors_list)
+	{
+		range_weapon_equipped = me->cur_weapon >= BOW_LONG &&
+								me->cur_weapon <= BOW_CROSS;
+		release_locked_actors_list_and_invalidate(actors_list, &me);
+	}
+	else
+	{
+		range_weapon_equipped = 0;
+	}
 
 	if (!force_walk)
 	{
@@ -1024,11 +1045,14 @@ static int click_game_handler(window_info *win, int mx, int my, Uint32 flags)
 					(thing_under_the_mouse == UNDER_MOUSE_ANIMAL ||
 					 thing_under_the_mouse == UNDER_MOUSE_PLAYER))
 				{
-					actor *this_actor = get_actor_ptr_from_id(object_under_mouse);
-					if(this_actor != NULL)
+					actor *this_actor;
+					locked_list_ptr actors_list = lock_and_get_actor_from_id(object_under_mouse,
+						&this_actor);
+					if (actors_list)
 					{
 						add_highlight(this_actor->x_tile_pos,this_actor->y_tile_pos, HIGHLIGHT_TYPE_SPELL_TARGET);
-						touch_player((int)object_under_mouse);
+						release_locked_actors_list_and_invalidate(actors_list, &this_actor);
+						touch_player(object_under_mouse);
 					}
 				}
 			}
@@ -1056,17 +1080,26 @@ static int click_game_handler(window_info *win, int mx, int my, Uint32 flags)
 		{
 			if (object_under_mouse == -1)
 				return 1;
-			if (you_sit && sit_lock && !flag_ctrl){
-				if(your_actor != NULL)
-					add_highlight(your_actor->x_tile_pos,your_actor->y_tile_pos, HIGHLIGHT_TYPE_LOCK);
+			if (you_sit && sit_lock && !flag_ctrl)
+			{
+				int x, y;
+				if (self_tile_position(&x, &y))
+					add_highlight(x, y, HIGHLIGHT_TYPE_LOCK);
 				return 1;
 			}
 			if (thing_under_the_mouse == UNDER_MOUSE_PLAYER || thing_under_the_mouse == UNDER_MOUSE_NPC || thing_under_the_mouse == UNDER_MOUSE_ANIMAL)
 			{
-				if (object_under_mouse>=0){
-					actor *this_actor = get_actor_ptr_from_id(object_under_mouse);
-					if(this_actor != NULL)
-						add_highlight(this_actor->x_tile_pos,this_actor->y_tile_pos, HIGHLIGHT_TYPE_ATTACK_TARGET);
+				if (object_under_mouse>=0)
+				{
+					actor *this_actor;
+					locked_list_ptr actors_list = lock_and_get_actor_from_id(object_under_mouse,
+						&this_actor);
+					if (actors_list)
+					{
+						add_highlight(this_actor->x_tile_pos,this_actor->y_tile_pos,
+							HIGHLIGHT_TYPE_ATTACK_TARGET);
+						release_locked_actors_list_and_invalidate(actors_list, &me);
+					}
 				}
 				attack_someone((int)object_under_mouse);
 				return 1;
@@ -1196,32 +1229,29 @@ static int click_game_handler(window_info *win, int mx, int my, Uint32 flags)
 
 			if (target_close_clicked_creature)
 			{
-				int closest_actor = get_closest_actor(x, y, 0.8f);
-				if (closest_actor != -1)
+				int actor_id = get_nearest_actor_id(&x, &y, 0.8f);
+				if (actor_id >= 0)
 				{
-					actor *this_actor = get_actor_ptr_from_id(closest_actor);
-					if (this_actor != NULL)
+					if (spell_result == 3)
 					{
-						if (spell_result == 3)
-						{
-							add_highlight(this_actor->x_tile_pos,this_actor->y_tile_pos, HIGHLIGHT_TYPE_SPELL_TARGET);
-							touch_player(closest_actor);
-							return 1;
-						}
-						else if (!is_ranging_locked && !is_sit_locked)
-						{
-							add_highlight(this_actor->x_tile_pos, this_actor->y_tile_pos, HIGHLIGHT_TYPE_ATTACK_TARGET);
-							attack_someone(closest_actor);
-							return 1;
-						}
+						add_highlight(x, y, HIGHLIGHT_TYPE_SPELL_TARGET);
+						touch_player(actor_id);
+						return 1;
+					}
+					else if (!is_ranging_locked && !is_sit_locked)
+					{
+						add_highlight(x, y, HIGHLIGHT_TYPE_ATTACK_TARGET);
+						attack_someone(actor_id);
+						return 1;
 					}
 				}
 			}
 
 			if (is_ranging_locked || is_sit_locked)
 			{
-				if(your_actor != NULL)
-					add_highlight(your_actor->x_tile_pos,your_actor->y_tile_pos, HIGHLIGHT_TYPE_LOCK);
+				int x, y;
+				if (self_tile_position(&x, &y))
+					add_highlight(x, y, HIGHLIGHT_TYPE_LOCK);
 				return 1;
 			}
 
@@ -1243,11 +1273,14 @@ static int click_game_handler(window_info *win, int mx, int my, Uint32 flags)
 					add_highlight(x, y, HIGHLIGHT_TYPE_WALKING_DESTINATION);
 				}
 				else {
-					char in_aim_mode;
-					actor *cur_actor = get_actor_ptr_from_id(yourself);
-					LOCK_ACTORS_LISTS();
-					in_aim_mode = cur_actor->in_aim_mode;
-					UNLOCK_ACTORS_LISTS();
+					char in_aim_mode = 0;
+					actor *me;
+					locked_list_ptr actors_list = lock_and_get_self(&me);
+					if (actors_list)
+					{
+						in_aim_mode = me->in_aim_mode;
+						release_locked_actors_list_and_invalidate(actors_list, &me);
+					}
 					if (in_aim_mode == 1)
 						add_command_to_actor(yourself, leave_aim_mode);
 					if (move_to(&x, &y, 1))
@@ -1332,19 +1365,13 @@ static int display_game_handler (window_info *win)
 	static int shadows_were_disabled=0;
 	static int eye_candy_was_disabled=0;
 	unsigned char str[180];
-	int i;
+// 	int i;
 	int any_reflection = 0;
 	int mouse_rate;
 
 	if (!have_a_map) return 1;
 	if (yourself==-1) return 1; //we don't have ourselves
-
-	for(i=0; i<max_actors; i++)
-	{
-        	if(actors_list[i] && actors_list[i]->actor_id == yourself)
-			break;
-	}
-	if(i > max_actors) return 1;//we still don't have ourselves
+	if (!have_self()) return 1;
 
 #ifdef CLUSTER_INSIDES
 	current_cluster = get_actor_cluster();
@@ -1620,10 +1647,12 @@ static int display_game_handler (window_info *win)
 		int fps_y;
 #ifdef	DEBUG
 		int y_cnt = 10;
-		actor *me = get_our_actor ();
+		actor *me;
+		locked_list_ptr actors_list = lock_and_get_self(&me);
 
 		glColor3f (1.0f, 1.0f, 1.0f);
-		if(me){
+		if (actors_list)
+		{
  			safe_snprintf((char*)str,sizeof(str),"Busy: %i",me->busy);
 	 		draw_string_zoomed (0, win->len_y - hud_y - (y_cnt--) * win->default_font_len_y, str, 1, win->current_scale);
 			safe_snprintf((char*)str,sizeof(str),"Command: %i",me->last_command);
@@ -1632,6 +1661,8 @@ static int display_game_handler (window_info *win)
  			draw_string_zoomed (0, win->len_y - hud_y - (y_cnt--) * win->default_font_len_y, str, 1, win->current_scale);
 			safe_snprintf((char*)str,sizeof(str),"Coords: %.3g %.3g",me->x_pos, me->y_pos);
  			draw_string_zoomed (0, win->len_y - hud_y - (y_cnt--) * win->default_font_len_y, str, 1, win->current_scale);
+
+			release_locked_actors_list_and_invalidate(actors_list, &me);
 		}
 
 		safe_snprintf((char*)str, sizeof(str), "lights: ambient=(%.2f,%.2f,%.2f,%.2f) diffuse=(%.2f,%.2f,%.2f,%.2f)",
@@ -1970,63 +2001,96 @@ int keypress_root_common (SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_m
 	}
 	else if((key_code == SDLK_z) && shift_on && ctrl_on && !alt_on)
 	{
-		ec_create_mine_detonate(your_actor->x_pos + 0.25f, your_actor->y_pos + 0.25f, 0, MINE_TYPE_SMALL_MINE, (poor_man ? 6 : 10));
+		float x, y;
+		if (self_position(&x, &y))
+			ec_create_mine_detonate(x + 0.25f, y + 0.25f, 0, MINE_TYPE_SMALL_MINE, (poor_man ? 6 : 10));
 	}
 	else if((key_code == SDLK_x) && shift_on && ctrl_on && !alt_on)
 	{
-		ec_create_mine_detonate(your_actor->x_pos + 0.25f, your_actor->y_pos + 0.25f, 0, MINE_TYPE_MEDIUM_MINE, (poor_man ? 6 : 10));
+		float x, y;
+		if (self_position(&x, &y))
+			ec_create_mine_detonate(x + 0.25f, y + 0.25f, 0, MINE_TYPE_MEDIUM_MINE, (poor_man ? 6 : 10));
 	}
 	else if((key_code == SDLK_c) && shift_on && ctrl_on && !alt_on)
 	{
-		ec_create_mine_detonate(your_actor->x_pos + 0.25f, your_actor->y_pos + 0.25f, 0, MINE_TYPE_HIGH_EXPLOSIVE_MINE, (poor_man ? 6 : 10));
+		float x, y;
+		if (self_position(&x, &y))
+			ec_create_mine_detonate(x + 0.25f, y + 0.25f, 0, MINE_TYPE_HIGH_EXPLOSIVE_MINE, (poor_man ? 6 : 10));
 	}
 	else if((key_code == SDLK_v) && shift_on && ctrl_on && !alt_on)
 	{
-		ec_create_mine_detonate(your_actor->x_pos + 0.25f, your_actor->y_pos + 0.25f, 0, MINE_TYPE_TRAP, (poor_man ? 6 : 10));
+		float x, y;
+		if (self_position(&x, &y))
+			ec_create_mine_detonate(x + 0.25f, y + 0.25f, 0, MINE_TYPE_TRAP, (poor_man ? 6 : 10));
 	}
 	else if((key_code == SDLK_b) && shift_on && ctrl_on && !alt_on)
 	{
-		ec_create_mine_detonate(your_actor->x_pos + 0.25f, your_actor->y_pos + 0.25f, 0, MINE_TYPE_CALTROP, (poor_man ? 6 : 10));
+		float x, y;
+		if (self_position(&x, &y))
+			ec_create_mine_detonate(x + 0.25f, y + 0.25f, 0, MINE_TYPE_CALTROP, (poor_man ? 6 : 10));
 	}
 	else if((key_code == SDLK_n) && shift_on && ctrl_on && !alt_on)
 	{
-		ec_create_mine_detonate(your_actor->x_pos + 0.25f, your_actor->y_pos + 0.25f, 0, MINE_TYPE_POISONED_CALTROP, (poor_man ? 6 : 10));
+		float x, y;
+		if (self_position(&x, &y))
+			ec_create_mine_detonate(x + 0.25f, y + 0.25f, 0, MINE_TYPE_POISONED_CALTROP, (poor_man ? 6 : 10));
 	}
 	else if((key_code == SDLK_m) && shift_on && ctrl_on && !alt_on)
 	{
-		ec_create_mine_detonate(your_actor->x_pos + 0.25f, your_actor->y_pos + 0.25f, 0, MINE_TYPE_MANA_BURNER, (poor_man ? 6 : 10));
+		float x, y;
+		if (self_position(&x, &y))
+			ec_create_mine_detonate(x + 0.25f, y + 0.25f, 0, MINE_TYPE_MANA_BURNER, (poor_man ? 6 : 10));
 	}
 	else if((key_code == SDLK_j) && shift_on && ctrl_on && !alt_on)
 	{
-		ec_create_mine_detonate(your_actor->x_pos + 0.25f, your_actor->y_pos + 0.25f, 0, MINE_TYPE_MANA_DRAINER, (poor_man ? 6 : 10));
+		float x, y;
+		if (self_position(&x, &y))
+			ec_create_mine_detonate(x + 0.25f, y + 0.25f, 0, MINE_TYPE_MANA_DRAINER, (poor_man ? 6 : 10));
 	}
 	else if((key_code == SDLK_k) && shift_on && ctrl_on && !alt_on)
 	{
-		ec_create_mine_detonate(your_actor->x_pos + 0.25f, your_actor->y_pos + 0.25f, 0, MINE_TYPE_UNINVIZIBILIZER, (poor_man ? 6 : 10));
+		float x, y;
+		if (self_position(&x, &y))
+			ec_create_mine_detonate(x + 0.25f, y + 0.25f, 0, MINE_TYPE_UNINVIZIBILIZER, (poor_man ? 6 : 10));
 	}
 	else if((key_code == SDLK_l) && shift_on && ctrl_on && !alt_on)
 	{
-		ec_create_mine_detonate(your_actor->x_pos + 0.25f, your_actor->y_pos + 0.25f, 0, MINE_TYPE_MAGIC_IMMUNITY_REMOVAL, (poor_man ? 6 : 10));
+		float x, y;
+		if (self_position(&x, &y))
+			ec_create_mine_detonate(x + 0.25f, y + 0.25f, 0, MINE_TYPE_MAGIC_IMMUNITY_REMOVAL, (poor_man ? 6 : 10));
 	}
-#endif
-#ifdef DEBUG
     // scale the current actor
 	else if((key_code == SDLK_p) && shift_on && ctrl_on && !alt_on)
 	{
-		get_our_actor()->scale *= 1.05;
+		actor *me;
+		locked_list_ptr actors_list = lock_and_get_self(&me);
+		if (actors_list)
+		{
+			me->scale *= 1.05;
+			release_locked_actors_list_and_invalidate(actors_list, &me);
+		}
 	}
 	else if((key_code == SDLK_o) && shift_on && ctrl_on && !alt_on)
 	{
-		get_our_actor()->scale /= 1.05;
+		actor *me;
+		locked_list_ptr actors_list = lock_and_get_self(&me);
+		if (actors_list)
+		{
+			me->scale /= 1.05;
+			release_locked_actors_list_and_invalidate(actors_list, &me);
+		}
 	}
 	else if((key_code == SDLK_h) && shift_on && ctrl_on && !alt_on)
 	{
-		if (get_our_actor())
+		actor *me;
+		locked_list_ptr actors_list = lock_and_get_self(&me);
+		if (actors_list)
 		{
-			if (get_our_actor()->attached_actor < 0)
-				add_actor_attachment(get_our_actor()->actor_id, 200);
+			if (!has_attachment(me))
+				add_actor_attachment(actors_list, me, 200);
 			else
-				remove_actor_attachment(get_our_actor()->actor_id);
+				remove_and_destroy_attachment(actors_list, me->actor_id);
+			release_locked_actors_list_and_invalidate(actors_list, &me);
 		}
 	}
 #endif // DEBUG
@@ -2513,11 +2577,21 @@ static int keypress_game_handler (window_info *win, int mx, int my, SDL_Keycode 
 
 	else if (key_code == SDLK_F9)
 	{
-		actor *me = get_actor_ptr_from_id (yourself);
-		if (key_mod & KMOD_SHIFT)
-			remove_fire_at_tile(me->x_pos * 2, me->y_pos * 2);
-		else
-			add_fire_at_tile(1, me->x_pos * 2, me->y_pos * 2, get_tile_height(me->x_tile_pos, me->y_tile_pos));
+		actor *me;
+		locked_list_ptr actors_list = lock_and_get_self(&me);
+		if (actors_list)
+		{
+			if (key_mod & KMOD_SHIFT)
+			{
+				remove_fire_at_tile(me->x_pos * 2, me->y_pos * 2);
+			}
+			else
+			{
+				add_fire_at_tile(1, me->x_pos * 2, me->y_pos * 2,
+					get_tile_height(me->x_tile_pos, me->y_tile_pos));
+			}
+			release_locked_actors_list_and_invalidate(actors_list, &me);
+		}
 	}
 #ifdef DEBUG
 	else if (key_code == SDLK_F10)

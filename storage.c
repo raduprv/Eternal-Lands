@@ -3,6 +3,7 @@
 #include <string.h>
 #include <ctype.h>
 #include "storage.h"
+#include "actors_list.h"
 #include "asc.h"
 #include "context_menu.h"
 #include "dialogues.h"
@@ -948,21 +949,16 @@ static int keypress_storage_handler(window_info *win, int mx, int my, SDL_Keycod
 
 void print_items(void)
 {
-	int i;
-	actor *me;
-
-	me = get_our_actor();
-	if (me)
-		if(me->fighting)
-		{
-			LOG_TO_CONSOLE(c_red1, "You can't do this during combat!");
-			return;
-		}
+	if (self_is_fighting())
+	{
+		LOG_TO_CONSOLE(c_red1, "You can't do this during combat!");
+		return;
+	}
 
 	/* request the description for each item */
 	number_to_print = next_item_to_print = 0;
 	printing_category = selected_category;
-	for (i = 0; i < no_storage && i < STORAGE_ITEMS_SIZE; i++)
+	for (int i = 0; i < no_storage && i < STORAGE_ITEMS_SIZE; i++)
 	{
 		if (storage_items[i].quantity)
 		{

@@ -59,10 +59,11 @@ FEATURES += PACKET_COMPRESSION  # Add support for compressed data packets from t
 #FEATURES += EXTRA_DEBUG		# (undocumented)
 #FEATURES += MEMORY_DEBUG		# gather information about memory allocation and freeing
 #FEATURES += MISSILES_DEBUG		# Enables debug for missiles feature. It will create a file missiles_log.txt file in your settings directory.
-#FEATURES += MUTEX_DEBUG		# (undocumented)
 #FEATURES += OPENGL_TRACE		# make far more frequent checks for OpenGL errors (requires -DDEBUG to be of any use). Will make error_log.txt a lot larger.
 #FEATURES += TIMER_CHECK		# (undocumented)
 #FEATURES += _EXTRA_SOUND_DEBUG		# Enable debug for sound effects
+#FEATURES += ACTORS_LIST_MUTEX_DEBUG        # Add deadlock detection for the actors list mutex
+#FEATURES += ACTORS_LIST_NO_RECURSIVE_MUTEX # Use a regular mutex in the actors list instead of a recursive mutex. NOTE: only for development, this *will* deadlock with the current code.
 
 ### Other options (Experimental, unfinished, defunct or otherwise unknown) ###
 #FEATURES += PAWN			# Experimental, not for release, will need server support to function properly. This *will* eat your cat. You've been warned. Enables the Pawn abstract machine.

@@ -2,6 +2,7 @@
 #include <string.h>
 #include <SDL.h>
 #include "minimap.h"
+#include "actors_list.h"
 #include "asc.h"
 #include "buddy.h"
 #include "colors.h"
@@ -112,13 +113,66 @@ static __inline__ int is_within_radius(float mx, float my,float px,float py,floa
 		return 0;
 }
 
-static __inline__ void draw_actor_points(window_info *win, float zoom_multip, float px, float py)
+static void draw_actor_point(actor* act, void* data, locked_list_ptr list)
 {
+	float x, y;
 	float size_x = float_minimap_size / (tile_map_size_x * 6);
 	float size_y = float_minimap_size / (tile_map_size_y * 6);
-	actor *a;
-	int i;
+	float zoom_multip = *((const float*)data);
+
+	if (is_horse(act))
+		// Don't draw horses
+		return;
+
+	x = act->x_tile_pos * size_x;
+	y = float_minimap_size - (act->y_tile_pos * size_y);
+
+	glColor4f(0.0f,0.0f,0.0f,1.0f);
+	glVertex2f(x+2*zoom_multip, y+2*zoom_multip);
+
+	if (act->kind_of_actor == NPC)
+		elglColourN("minimap.npc");
+	else if (act->actor_id == yourself)
+		elglColourN("minimap.yourself");
+	else if (act->is_enhanced_model && (act->kind_of_actor ==  PKABLE_HUMAN || act->kind_of_actor == PKABLE_COMPUTER_CONTROLLED))
+		elglColourN("minimap.pkable");
+	else if (act->is_enhanced_model && is_in_buddylist(act->actor_name))
+		elglColourN("minimap.buddy");
+	else if (is_color ((unsigned char)act->actor_name[0]))
+	{
+		if (act->is_enhanced_model && is_in_buddylist(act->actor_name))
+			elglColourN("minimap.buddy");
+		else
+		{	// Use the colour of their name. This gives purple bots, green demigods, etc.
+			int color = from_color_char (act->actor_name[0]);
+			glColor4ub (colors_list[color].r1,
+				colors_list[color].g1,
+				colors_list[color].b1, 255);
+		}
+	}
+	else if (!act->is_enhanced_model)
+	{
+		if (act->dead)
+			elglColourN("minimap.deadcreature");
+		else // alive
+			elglColourN("minimap.creature");
+	}
+	else
+	{
+		elglColourN("minimap.otherplayer");
+	}
+
+	// Draw it!
+	glVertex2f(x, y);
+}
+
+static void draw_actor_points(window_info *win, float zoom_multip, float px, float py)
+{
 	float x, y;
+	float size_x = float_minimap_size / (tile_map_size_x * 6);
+	float size_y = float_minimap_size / (tile_map_size_y * 6);
+	int i;
+	locked_list_ptr actors_list;
 
 	glPushMatrix();
 	glDisable(GL_TEXTURE_2D);
@@ -136,52 +190,9 @@ static __inline__ void draw_actor_points(window_info *win, float zoom_multip, fl
 
 	glBegin(GL_POINTS);
 
-	for (i = 0; i < max_actors; i++)
-	{
-		if (actors_list[i])
-		{
-			a = actors_list[i];
-			if (a->attached_actor != -1 && a->actor_id == -1)
-				continue;
-			x = a->x_tile_pos * size_x;
-			y = float_minimap_size - (a->y_tile_pos * size_y);
-
-			glColor4f(0.0f,0.0f,0.0f,1.0f);
-			glVertex2f(x+2*zoom_multip, y+2*zoom_multip);
-
-			if (a->kind_of_actor == NPC)
-				elglColourN("minimap.npc");
-			else if(a->actor_id == yourself)
-				elglColourN("minimap.yourself");
-			else if(a->is_enhanced_model && (a->kind_of_actor ==  PKABLE_HUMAN || a->kind_of_actor == PKABLE_COMPUTER_CONTROLLED))
-				elglColourN("minimap.pkable");
-			else if(a->is_enhanced_model && is_in_buddylist(a->actor_name))
-				elglColourN("minimap.buddy");
-			else if (is_color ((unsigned char)a->actor_name[0]))
-			{
-				if(a->is_enhanced_model && is_in_buddylist(a->actor_name))
-					elglColourN("minimap.buddy");
-				else
-				{	// Use the colour of their name. This gives purple bots, green demigods, etc.
-					int color = from_color_char (a->actor_name[0]);
-					glColor4ub (colors_list[color].r1,
-						colors_list[color].g1,
-						colors_list[color].b1, 255);
-				}
-			}
-			else if(!a->is_enhanced_model)
-			{
-				if (a->dead) 
-					elglColourN("minimap.deadcreature");
-				else // alive
-					elglColourN("minimap.creature");
-			}
-			else
-				elglColourN("minimap.otherplayer");
-			// Draw it!
-			glVertex2f(x, y);
-		}
-	}
+	actors_list = get_locked_actors_list();
+	for_each_actor(actors_list, draw_actor_point, &zoom_multip);
+	release_locked_actors_list(actors_list);
 	
 	// mines
 	for (i = 0; i < NUM_MINES; i++)
@@ -441,7 +452,7 @@ static int display_minimap_handler(window_info *win)
 	float size_x = float_minimap_size / (tile_map_size_x * 6);
 	float size_y = float_minimap_size / (tile_map_size_y * 6);
 	float px = 0.0f, py = 0.0f;
-	actor *me;
+	int tile_x, tile_y;
 	float x,y;
 	int i;
 
@@ -486,13 +497,13 @@ static int display_minimap_handler(window_info *win)
 	//draw minimap
 
 	//get player position in window coordinates
-	if( (me = get_our_actor ()) == NULL)
+	if (!self_tile_position(&tile_x, &tile_y))
 	{
 		//Don't know who we are? can't draw then
 		return 0;
 	}
-	px = me->x_tile_pos * size_x;
-	py = float_minimap_size - (me->y_tile_pos * size_y);
+	px = tile_x * size_x;
+	py = float_minimap_size - (tile_y * size_y);
 
 	glTranslatef(0.0f, win->title_height, 0.0f);
 
@@ -525,9 +536,11 @@ CHECK_GL_ERRORS();
 static int minimap_walkto(int mx, int my)
 {
 	float fmx = mx, fmy = my;
+	int res;
+	locked_list_ptr actors_list;
 	actor *me;
 
-	if ( (me = get_our_actor ()) == NULL)
+	if ( (actors_list = lock_and_get_self(&me)) == NULL)
 		return 0;
 
 	rotate_click_coords(&fmx,&fmy);
@@ -538,12 +551,11 @@ static int minimap_walkto(int mx, int my)
 		+ minimap_tiles_distance * 2 * fmy/float_minimap_size;
 
 	/* Do path finding */
-	if (pf_find_path(fmx, fmy))
-	{
-		return 1;
-	}
+	res = pf_find_path(me, fmx, fmy);
 
-	return 0;
+	release_locked_actors_list_and_invalidate(actors_list, &me);
+
+	return res;
 }
 
 static void increase_zoom()

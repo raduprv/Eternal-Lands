@@ -9,7 +9,7 @@
 #include <vector>
 #include <list>
 
-#include "actors.h"
+#include "actors_list.h"
 #include "asc.h"
 #include "achievements.h"
 #include "context_menu.h"

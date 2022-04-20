@@ -4,10 +4,10 @@
 #include "multiplayer.h"
 #include "2d_objects.h"
 #include "3d_objects.h"
-#include "asc.h"
-#include "actors.h"
+#include "actors_list.h"
 #include "actor_scripts.h"
 #include "achievements.h"
+#include "asc.h"
 #include "books.h"
 #include "buddy.h"
 #include "buffs.h"
@@ -287,21 +287,30 @@ int move_to (short int *x, short int *y, int try_pathfinder)
 
 	if (try_pathfinder && always_pathfinding)
 	{
-		actor *me = get_our_actor();
-		/* check distance */
-		if (me && (abs(me->x_tile_pos-*x) + abs(me->y_tile_pos-*y)) > 2)
+		actor *me;
+		locked_list_ptr actors_list = lock_and_get_self(&me);
+		if (actors_list)
 		{
-			/* if path finder fails, try standard move */
-			if (pf_find_path(*x, *y))
+			int path_found = 0;
+
+			if (abs(me->x_tile_pos-*x) + abs(me->y_tile_pos-*y) > 2)
 			{
-				*x = pf_dst_tile->x;
-				*y = pf_dst_tile->y;
+				/* if path finder fails, try standard move */
+				if (pf_find_path(me, *x, *y))
+				{
+					*x = pf_dst_tile->x;
+					*y = pf_dst_tile->y;
+					path_found = 1;
+				}
+				else
+				{
+					pathfinder_failed = 1;
+				}
+			}
+
+			release_locked_actors_list_and_invalidate(actors_list, &me);
+			if (path_found)
 				return 1;
-			}
-			else
-			{
-				pathfinder_failed = 1;
-			}
 		}
 	}
 
@@ -367,7 +376,9 @@ static int my_locked_tcp_flush(TCPsocket my_socket)
 int my_tcp_send(const Uint8 *str, int len)
 {
 	Uint8 *new_str = NULL;
-	int ret_status = 0;
+	int ret_status = 0, moving = 0;
+	locked_list_ptr actors_list;
+	actor *me;
 
 	CHECK_AND_LOCK_MUTEX(tcp_out_data_mutex);
 
@@ -390,9 +401,13 @@ int my_tcp_send(const Uint8 *str, int len)
 	// Grum: Adapted. Converting every movement to a path caused too much
 	// trouble. Instead we now check the current actor animation for
 	// movement.
-	if ((str[0] == TURN_LEFT || str[0] == TURN_RIGHT) && on_the_move (get_our_actor ()))
+	actors_list = lock_and_get_self(&me);
+	moving = actors_list && on_the_move(me);
+	release_locked_actors_list_and_invalidate(actors_list, &me);
+
+	if ((str[0] == TURN_LEFT || str[0] == TURN_RIGHT) && moving)
 		return 0;
-	if (str[0] == DROP_ITEM  && on_the_move (get_our_actor ()))
+	if (str[0] == DROP_ITEM  && moving)
 	{
 		// I thought about having a bit of code here that counts attempts, and after say 5,
 		// announces on #abuse something like "#abuse I attempted to bagspam, but was thwarted,
@@ -839,7 +854,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 #endif
 				// allow for multiple packets in a row
 				while(data_length >= 5){
-					destroy_actor(SDL_SwapLE16(*((short *)(in_data+3))));
+					remove_and_destroy_actor_from_list(SDL_SwapLE16(*((short *)(in_data+3))));
 					in_data+= 2;
 					data_length-= 2;
 				}
@@ -1303,10 +1318,8 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 				  LOG_WARNING("CAUTION: Possibly forged YOU_ARE packet received.\n");
 				  break;
 				}
-				LOCK_ACTORS_LISTS();
 				yourself= SDL_SwapLE16(*((short *)(in_data+3)));
-				set_our_actor (get_actor_ptr_from_id (yourself));
-				UNLOCK_ACTORS_LISTS();
+				set_self();
 			}
 			break;
 
@@ -1869,8 +1882,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 				  break;
 				}
 				safe_strncpy2(buf, (char*)in_data + 5, sizeof(buf), data_length - 5);
-				add_displayed_text_to_actor(
-					get_actor_ptr_from_id( SDL_SwapLE16(*((Uint16 *)(in_data+3))) ), buf);
+				add_displayed_text_to_actor_id(SDL_SwapLE16(*((Uint16 *)(in_data+3))), buf);
 			}
 			break;
 
@@ -2111,9 +2123,11 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 #ifdef BUFF_DEBUG
 			{
 				int actor_id = SDL_SwapLE16(*((short *)(in_data+3)));
-				actor *act = get_actor_ptr_from_id(actor_id);
-				if(act){
+				actor *act;
+				locked_list_ptr actors_list = lock_and_get_actor_from_id(actor_id, &act);
+				if(actors_list){
 					printf("SEND_BUFFS received for actor %s\n", act->actor_name);
+					release_locked_actors_list_and_invalidate(actors_list, &act);
 				}
 				else {
 					printf("SEND_BUFFS received for actor ID %i\n", actor_id);

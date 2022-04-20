@@ -92,10 +92,11 @@ add_definitions(
 #	-DEXTRA_DEBUG					# (undocumented)
 #	-DMEMORY_DEBUG					# gather information about memory allocation and freeing
 #	-DMISSILES_DEBUG				# Enables debug for missiles feature. It will create a file missiles_log.txt file in your settings directory.
-#	-DMUTEX_DEBUG					# (undocumented)
 #	-DOPENGL_TRACE					# make far more frequent checks for OpenGL errors (requires -DDEBUG to be of any use). Will make error_log.txt a lot larger.
 #	-DTIMER_CHECK					# (undocumented)
 #	-D_EXTRA_SOUND_DEBUG			# Enable debug for sound effects
+#	-DACTORS_LIST_MUTEX_DEBUG		# Add deadlock detection for the actors list mutex
+#	-DACTORS_LIST_NO_RECURSIVE_MUTEX	# Use a regular mutex in the actors list instead of a recursive mutex. NOTE: only for development, this *will* deadlock with the current code.
 )
 
 # Other options (Experimental, unfinished, defunct or otherwise unknown)
@@ -179,7 +180,8 @@ set(SOURCES
 
 # list the C++ source files
 set(SOURCES ${SOURCES}
-	${SD}achievements.cpp ${SD}actor_init.cpp  ${SD}books.cpp ${SD}cal3d_wrapper.cpp ${SD}command_queue.cpp ${SD}context_menu.cpp
+	${SD}achievements.cpp ${SD}actor_init.cpp ${SD}actors_list.cpp ${SD}books.cpp
+	${SD}cal3d_wrapper.cpp ${SD}command_queue.cpp ${SD}context_menu.cpp
 	${SD}cppwindows.cpp ${SD}elloggingwrapper.cpp  ${SD}font.cpp ${SD}hud_indicators.cpp ${SD}hud_timer.cpp ${SD}icon_window.cpp
 	${SD}io/cal3d_io_wrapper.cpp ${SD}item_info.cpp ${SD}item_lists.cpp ${SD}named_colours.cpp
 	${SD}optimizer.cpp ${SD}password_manager.cpp ${SD}quest_log.cpp ${SD}select.cpp ${SD}sendvideoinfo.cpp

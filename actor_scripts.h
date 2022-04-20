@@ -8,7 +8,7 @@
 
 #include <SDL_types.h>
 
-#include "actors.h"			// Should we just move the function that needs this include away?
+#include "actors_list.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -49,11 +49,13 @@ void animate_actors();
 
 /*!
  * \ingroup	move_actors
- * \brief	This function sets the good idle animation for an actor according to its current state.
- * \param actor_idx the index of the actor in the actors_list array. It doesn't corresponds to the actor id!
+ * \brief	This function sets the correct idle animation for actor `actor` according to its
+ * 	current state.
+ * \param actor    Pointer to the actor for which to set the animation.
+ * \param attached Pointer to the actor attached to \a actor (horse or rider), if any. NULL otherwise.
  * \callgraph
  */
-void set_on_idle(int actor_idx);
+void set_on_idle(actor *act, actor *attached);
 
 /*!
  * \ingroup	move_actors
@@ -61,38 +63,20 @@ void set_on_idle(int actor_idx);
  *
  * 		The function is called from the timer thread and parses through the command queue. If no new commands have been found or the actor is idle, it will copy that frame to the actor. Furthermore it changes the x, y, z movement speed and rotation speeds.
  *
+ * 		This function needs to be passed the actors list (and its size), which should be obtained
+ * 		under lock.
+ *
+ * \param actors_list The list of current actors
+ * \param max_actors  The number of actors in \a actors_list
  * \callgraph
  */
-void next_command();
+void next_command(locked_list_ptr list);
 
 /*!
  * \brief Free all the data that is contained in an actor
- * \param actor_index the index of the actor in the actors_list array
+ * \param actor Pointer to the actor
  */
-void free_actor_data(int actor_index);
-
-/*!
- * \ingroup	network_actors
- * \brief	The function destroys the actor with the given actor_id (server-side actor ID).
- *
- * 		The function parses through the actors_list and destroys the actor with the matching actor_id.
- *
- * \param	actor_id The server-side actor ID
- *
- * \sa		destroy_all_actors
- * \sa		actors_list
- */
-void destroy_actor(int actor_id);
-
-/*!
- * \ingroup	network_actors
- * \brief	The function destroys all actors.
- *
- * 		The function destroys all actors, free()s the memory/textures and sets the *actors_list=NULL
- *
- * \sa		destroy_actor
- */
-void destroy_all_actors();
+void free_actor_data(actor *act);
 
 /*!
  * \ingroup	network_actors
@@ -118,6 +102,20 @@ void update_all_actors(int log_the_update);
  * \callgraph
  */
 void add_command_to_actor(int actor_id, unsigned char command);
+/*!
+ * \ingroup	network_actors
+ * \brief	Add a command to the actor.
+ *
+ * 		Add the command \a command to the command queue of actor \a act. If the actor has a
+ * 		horse, it should be given \a horse, otherwise this parameter is \c NULL.
+ *
+ * \param	act     Pointer to the actor receiving a command
+ * \param	horse   If not \c NULL, the horse attached to \a act
+ * \param	command The command that should be added to the actor
+ *
+ * \callgraph
+ */
+void add_command_to_actor_locked(actor *act, actor *horse, unsigned char command);
 
 void add_emote_command_to_actor(actor * act, emote_data *emote);
 void add_emote_to_actor(int actor_id, int emote_id);
@@ -198,6 +196,12 @@ int checkvisitedlist(int x, int y);
 int read_emotes_defs();
 
 void free_emotes();
+
+#define HORSE_FIGHT_ROTATION 60
+#define HORSE_RANGE_ROTATION 45
+#define HORSE_FIGHT_TIME 180
+
+void rotate_actor_and_horse_locked(actor* act, actor *horse, int mul);
 
 #ifdef __cplusplus
 } // extern "C"

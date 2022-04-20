@@ -12,7 +12,9 @@
 #ifdef OPENGL_TRACE
 #include "gl_init.h"
 #endif
+#ifndef MAP_EDITOR
 #include "pathfinder.h"
+#endif // !MAP_EDITOR
 #include "string.h"
 #include "sound.h"
 #include "textures.h"

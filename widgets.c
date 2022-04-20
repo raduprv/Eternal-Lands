@@ -5,6 +5,7 @@
 #include <SDL.h>
 #include <SDL_keycode.h>
 #include "widgets.h"
+#include "actors_list.h"
 #include "asc.h"
 #include "chat.h"
 #include "context_menu.h"
@@ -2678,11 +2679,11 @@ static int context_edit_handler(window_info *win, int widget_id, int mx, int my,
 			break;
 		case 6:
 			{
-				actor *me = get_our_actor ();
-				if (me != NULL)
+				int x, y;
+				if (self_tile_position(&x, &y))
 				{
 					char str[20];
-					safe_snprintf(str, sizeof(str), "%d,%d", me->x_tile_pos, me->y_tile_pos);
+					safe_snprintf(str, sizeof(str), "%d,%d", x, y);
 					widget_unset_flags(win->window_id, widget_id, WIDGET_DISABLED);
 					text_field_paste(w, str);
 				}

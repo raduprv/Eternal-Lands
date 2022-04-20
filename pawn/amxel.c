@@ -2,7 +2,7 @@
 
 #include <string.h>
 #include <math.h>
-#include "../actors.h"
+#include "../actors_list.h"
 #include "../actor_scripts.h"
 #include "../asc.h"
 #include "../bbox_tree.h"
@@ -196,9 +196,10 @@ static cell AMX_NATIVE_CALL n_clear_timers (AMX *amx, const cell *params)
 static cell AMX_NATIVE_CALL n_get_position (AMX *amx, const cell *params)
 {
 	cell *x_addr, *y_addr;
-	actor *me = get_our_actor ();
+	actor *me;
+	locked_list_ptr actors_list = lock_and_get_self(&me);
 	
-	if (!me)
+	if (!actors_list)
 		// Uh oh, we don't exist!
 		return 1;
 	
@@ -207,6 +208,8 @@ static cell AMX_NATIVE_CALL n_get_position (AMX *amx, const cell *params)
 	
 	*x_addr = (cell) me->x_tile_pos;
 	*y_addr = (cell) me->y_tile_pos;
+
+	release_locked_actors_list_and_invalidate(actors_list, &me);
 	
 	return 0;
 }
@@ -215,7 +218,9 @@ static cell AMX_NATIVE_CALL n_get_actor_from_name (AMX *amx, const cell* params)
 {
 	char name[256];
 	cell *pstr;
-	int i, size, max_size;
+	int actor_id, max_size, size;
+	locked_list_ptr actors_list;
+	actor *act;
 
 	amx_GetAddr (amx, params[1], &pstr);
 	amx_GetString (name, pstr, 0, sizeof (name));
@@ -225,31 +230,21 @@ static cell AMX_NATIVE_CALL n_get_actor_from_name (AMX *amx, const cell* params)
 	if (size > max_size)
 		size = max_size;
 
-	LOCK_ACTORS_LISTS ();
-	for (i = 0; i < max_actors; i++)
-	{
-		if (actors_list[i] 
-		    && strncasecmp (actors_list[i]->actor_name, name, size) == 0 
-		    && (size == max_size || !is_printable (actors_list[i]->actor_name[size]))
-		   )
-			break;
-	}
-	if (i >= max_actors)
-		i = -1;
-	UNLOCK_ACTORS_LISTS ();
+	actors_list = lock_and_get_actor_from_name(name, &act);
+	if (!list)
+		return -1;
 
-	return (cell) i;
+	actor_id = act->actor_id;
+	release_locked_actors_list_and_invalidate(actors_list, &act);
+
+	return (cell) actor_id;
 }
 
 static cell AMX_NATIVE_CALL n_add_local_actor_command (AMX *amx, const cell* params)
 {
-	int idx = params[1];
+	int actor_id = params[1];
 	unsigned char cmd = params[2];
-
-	if (idx < 0 || idx >= max_actors || !actors_list[idx])
-		return -1;
-
-	add_command_to_actor (actors_list[idx]->actor_id, cmd);
+	add_command_to_actor(actor_id, cmd);
 	return 0;
 }
 

@@ -1,6 +1,6 @@
 #include <stdlib.h>
 #include "pathfinder.h"
-#include "actors.h"
+#include "actors_list.h"
 #include "events.h"
 #include "gl_init.h"
 #include "hud.h"
@@ -164,7 +164,7 @@ static void pf_add_tile_to_open_list(PF_TILE *current, PF_TILE *neighbour)
 	neighbour->state = PF_STATE_OPEN;
 }
 
-static Uint32 pf_movement_timer_callback(Uint32 interval, void* UNUSED(param))
+static Uint32 pf_movement_timer_callback_locked(const actor* me, Uint32 interval)
 {
 	SDL_Event e;
 
@@ -172,10 +172,7 @@ static Uint32 pf_movement_timer_callback(Uint32 interval, void* UNUSED(param))
 	e.user.code = EVENT_MOVEMENT_TIMER;
 	SDL_PushEvent(&e);
 
-	if (get_our_actor())
-		return get_our_actor()->step_duration * 10;
-	else
-		return interval;
+	return me ? me->step_duration * 10 : interval;
 }
 
 // Find the maximum deviation from the destination position (dst_x, dst_y), i.e. the minimum
@@ -223,9 +220,19 @@ static int find_max_deviation(int src_x, int src_y, int dst_x, int dst_y)
 	return -1;
 }
 
-int pf_find_path(int x, int y)
+static Uint32 pf_movement_timer_callback(Uint32 interval, void* UNUSED(param))
 {
 	actor *me;
+	locked_list_ptr actors_list = lock_and_get_self(&me);
+	Uint32 res = pf_movement_timer_callback_locked(me, interval);
+	if(actors_list)
+		release_locked_actors_list_and_invalidate(actors_list, &me);
+
+	return res;
+}
+
+int pf_find_path(const actor* me, int x, int y)
+{
 	int i;
 	int attempts= 0;
 	int max_dev;
@@ -233,20 +240,17 @@ int pf_find_path(int x, int y)
 
 	pf_destroy_path();
 
-	me = get_our_actor();
-	if (!me)
-		return -1;
-
-	pf_src_tile = pf_get_tile(me->x_tile_pos, me->y_tile_pos);
 	pf_dst_tile = pf_get_tile(x, y);
 	if (!pf_dst_tile)
 		// Destination is outside the map
 		return 0;
 
+	pf_src_tile = pf_get_tile(me->x_tile_pos, me->y_tile_pos);
 	max_dev = find_max_deviation(pf_src_tile->x, pf_src_tile->y, x, y);
 	if (max_dev < 0)
 		// Unable to get even near the destination tile
 		return 0;
+
 	max_cost = max_dev > 0 ? 3 * pf_heuristic(x - pf_src_tile->x, y - pf_src_tile->y) : 0xffff;
 
 	for (i = 0; i < tile_map_size_x*tile_map_size_y*6*6; i++)
@@ -267,7 +271,7 @@ int pf_find_path(int x, int y)
 			pf_dst_tile = pf_cur_tile;
 			pf_follow_path = 1;
 
-			pf_movement_timer_callback(0, NULL);
+			pf_movement_timer_callback_locked(me, 0);
 			pf_movement_timer = SDL_AddTimer(me->step_duration * 10,
 				pf_movement_timer_callback, NULL);
 			break;
@@ -354,32 +358,20 @@ int checkvisitedlist(int x, int y)
 	return visited;
 }
 
-static int pf_is_tile_occupied(int x, int y)
+static inline int pf_is_tile_occupied(int x, int y)
 {
-	int i;
-
-	for (i = 0; i < max_actors; i++) {
-		if(actors_list[i]) {
-			if (actors_list[i]->x_tile_pos == x && actors_list[i]->y_tile_pos == y) {
-				return 1;
-			}
-		}
-	}
-
-	return 0;
+	return actor_occupies_tile(x, y);
 }
 
 void pf_move()
 {
 	int x, y;
-	actor *me;
 
-	if (!pf_follow_path || !(me = get_our_actor())) {
+	if (!pf_follow_path)
 		return;
-	}
 
-	x = me->x_tile_pos;
-	y = me->y_tile_pos;
+	if (!self_tile_position(&x, &y))
+		return;
 
 	if (PF_DIFF(x, pf_dst_tile->x) < 2 && PF_DIFF(y, pf_dst_tile->y) < 2) {
 		pf_destroy_path();
@@ -459,27 +451,36 @@ void pf_move_to_mouse_position()
 {
 	int x, y, clicked_x, clicked_y;
 	int tries;
+	locked_list_ptr actors_list;
+	actor *me;
 
 	if (!pf_get_mouse_position(mouse_x, mouse_y, &clicked_x, &clicked_y)) return;
 	x = clicked_x; y = clicked_y;
 
-	if (pf_find_path(x, y))
+	actors_list = lock_and_get_self(&me);
+	if (!actors_list)
 		return;
 
-	for (x= clicked_x-3, tries= 0; x <= clicked_x+3 && tries < 4 ; x++)
+	if (!pf_find_path(me, x, y))
 	{
-		for (y= clicked_y-3; y <= clicked_y+3 && tries < 4; y++)
+		for (x= clicked_x-3, tries= 0; x <= clicked_x+3 && tries < 4 ; x++)
 		{
-			if (x == clicked_x && y == clicked_y)
-				continue;
-
-			pf_dst_tile = pf_get_tile(x, y);
-			if (pf_dst_tile && pf_dst_tile->z > 0)
+			for (y= clicked_y-3; y <= clicked_y+3 && tries < 4; y++)
 			{
-				if (pf_find_path(x, y))
-					return;
-				tries++;
+				if (x == clicked_x && y == clicked_y)
+					continue;
+
+				pf_dst_tile = pf_get_tile(x, y);
+				if (pf_dst_tile && pf_dst_tile->z > 0)
+				{
+					if (pf_find_path(me, x, y))
+						goto path_found;
+					tries++;
+				}
 			}
 		}
 	}
+
+path_found:
+	release_locked_actors_list_and_invalidate(actors_list, &me);
 }

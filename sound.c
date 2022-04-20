@@ -5,6 +5,7 @@
 #include <SDL_thread.h>
 #include <math.h>
 #include "sound.h"
+#include "actors_list.h"
 #include "asc.h"
 #include "draw_scene.h"
 #include "elconfig.h"
@@ -1405,10 +1406,12 @@ int check_stream(stream_data * stream, int day_time, int tx, int ty)
 	return 1;		// Stream is continuing (but may be fading down)
 }
 
-int update_streams(void * dummy)
+static int update_streams(void * dummy)
 {
     int sleep, day_time, i, tx, ty;
 	ALfloat gain = 0.0;
+	locked_list_ptr actors_list;
+	actor *me;
 
    	sleep = SLEEP_TIME;
 
@@ -1423,18 +1426,20 @@ int update_streams(void * dummy)
 		
 		day_time = (game_minute >= 30 && game_minute < 60 * 3 + 30);
 
-		LOCK_ACTORS_LISTS();
 		// Get our position
-		if (your_actor)
+		actors_list = lock_and_get_self(&me);
+		if (actors_list)
 		{
-			tx = your_actor->x_pos * 2;
-			ty = your_actor->y_pos * 2;
+			tx = me->x_pos * 2;
+			ty = me->y_pos * 2;
+			release_locked_actors_list_and_invalidate(actors_list, &me);
 		}
 		else
 		{
 			tx = 0;
 			ty = 0;
 		}
+
 		if (have_a_map && (tx > 0 || ty > 0))
 		{
 			// Check if we need to start or stop any streams
@@ -1482,7 +1487,6 @@ int update_streams(void * dummy)
 			}
 			UNLOCK_SOUND_LIST();
 		}
-		UNLOCK_ACTORS_LISTS();
 	}
 #ifdef _EXTRA_SOUND_DEBUG
 	printf("Exiting streams thread. have_music: %d, music_on: %d, have_sound: %d, sound_on: %d, exit_now: %d\n", have_music, music_on, have_sound, sound_on, exit_now);
@@ -2290,9 +2294,9 @@ unsigned int add_server_sound(int type, int x, int y, int gain)
 }
 
 // Wrapper function for adding walking sounds.
-unsigned int add_walking_sound(int type, int x, int y, int me, float scale)
+unsigned int add_walking_sound(int type, int x, int y, int is_me, float scale)
 {
-	return add_sound_object_gain(type, x, y, me, scale);
+	return add_sound_object_gain(type, x, y, is_me, scale);
 }
 
 /* Wrapper function for adding map based particle sounds
@@ -2351,7 +2355,8 @@ unsigned int add_death_sound(actor * act)
 	snd = actors_defs[act->actor_type].cal_frames[cal_actor_die1_frame].sound;
 	if (snd > -1)
 	{
-		return add_sound_object_gain(snd, act->x_pos, act->y_pos, act == your_actor ? 1 : 0, 1.0f);
+		int is_me = act->actor_id == yourself;
+		return add_sound_object_gain(snd, act->x_pos, act->y_pos, is_me, 1.0f);
 	}
 	return 0;
 }
@@ -2361,24 +2366,28 @@ unsigned int add_battlecry_sound(actor * act)
 	// Maybe play a battlecry sound
 	if (act && rand() % 3 == 2)			// 1 chance in 3 to play
 	{
+		int is_me = act->actor_id == yourself;
 		return add_sound_object_gain(actors_defs[act->actor_type].battlecry.sound,
 										act->x_pos * 2,
-										act->x_pos * 2,
-										act == your_actor ? 1 : 0,
+										act->y_pos * 2,
+										is_me,
 										actors_defs[act->actor_type].battlecry.scale
 									);
 	}
 	return 0;
 }
 
-unsigned int add_sound_object(int type, int x, int y, int me)
+unsigned int add_sound_object(int type, int x, int y, int is_me)
 {
-	return add_sound_object_gain(type, x, y, me, 1.0f);
+	return add_sound_object_gain(type, x, y, is_me, 1.0f);
 }
 
-unsigned int add_sound_object_gain(int type, int x, int y, int me, float initial_gain)
+unsigned int add_sound_object_gain(int type, int x, int y, int is_me, float initial_gain)
 {
-	int tx, ty, distanceSq, sound_num, cookie;
+	int my_x = 0, my_y = 0;
+	locked_list_ptr actors_list;
+	actor *me;
+	int distanceSq, sound_num, cookie;
 	sound_type *pNewType;
 	float maxDistanceSq = 0.0f;
 
@@ -2392,27 +2401,28 @@ unsigned int add_sound_object_gain(int type, int x, int y, int me, float initial
 		return 0;
 
 	// Get our position
-	if (your_actor)
+	// NOTE: unfortunately, this requires a recursive mutex, as the actors list may already be
+	// locked by the same thread. The alternative, passing me down the call chain, is
+	// impractical because of the many code paths that can reach this point.
+	actors_list = lock_and_get_self(&me);
+	if (actors_list)
 	{
-		tx = your_actor->x_pos * 2;
-		ty = your_actor->y_pos * 2;
+		my_x = me->x_pos * 2;
+		my_y = me->y_pos * 2;
+		release_locked_actors_list_and_invalidate(actors_list, &me);
 	}
-	else
-	{
-		tx = 0;
-		ty = 0;
-	}
+
 #ifdef _EXTRA_SOUND_DEBUG
 	printf("Trying to add sound: %d (%s) at %d, %d. Position: %d, %d, Gain: %f\n", type, type > -1 ? sound_type_data[type].name : "not defined", x, y, tx, ty, initial_gain);
 #endif //_EXTRA_SOUND_DEBUG
 	if (type == -1)			// Invalid sound, ignore
 		return 0;
 
-	if (me)
+	if (is_me)
 	{
 		// Override the x & y values to use the camera (listener) position because its me
-		x = tx;
-		y = ty;
+		x = my_x;
+		y = my_y;
 	}
 
 	// Check it's a valid type, get pType as a pointer to the type data
@@ -2487,7 +2497,7 @@ unsigned int add_sound_object_gain(int type, int x, int y, int me, float initial
 		sounds_list[sound_num].loaded = 1;
 	
 		// Check if we are playing this sound now (and need to load it into a source)
-		distanceSq = (tx - x) * (tx - x) + (ty - y) * (ty - y);
+		distanceSq = (my_x - x) * (my_x - x) + (my_y - y) * (my_y - y);
 		maxDistanceSq = pNewType->distance * pNewType->distance;
 
 		if (!pNewType->positional || (distanceSq <= maxDistanceSq))
@@ -2861,6 +2871,43 @@ void unload_sound(int index)
 	num_sounds--;
 }
 
+static void update_actor_sound_position(actor *act, void* data, locked_list_ptr UNUSED(actors_list))
+{
+	int *my_pos = data;
+	int source;
+	ALfloat sourcePos[3];
+
+	if (!act->cur_anim_sound_cookie)
+		return;
+
+	source = find_sound_source_from_cookie(act->cur_anim_sound_cookie);
+	if (source < 0)
+		return;
+
+	// Check if this is the correct tile type, or if we need to play another sound
+	if (act->moving && !act->fighting)
+	{
+		UNLOCK_SOUND_LIST();
+		handle_walking_sound(act, act->cur_anim.sound);
+		LOCK_SOUND_LIST();
+	}
+	// Grum: FIXME? Is this branch necessary? If act is your own actor, then its position should
+	// be the same as my_pos.
+	if (act->actor_id == yourself)
+	{
+		// If this is you, use the same position as the listener
+		sourcePos[0] = my_pos[0];
+		sourcePos[1] = my_pos[1];
+	}
+	else
+	{
+		sourcePos[0] = act->x_pos * 2;
+		sourcePos[1] = act->y_pos * 2;
+	}
+	sourcePos[2] = 0.0f;
+	alSourcefv(sound_source_data[source].source, AL_POSITION, sourcePos);
+}
+
 // -- Update the sound system --
 // We update our listener position and any sounds being played, as well as
 // rebuilding the list of active sources, as some may have become inactive
@@ -2879,10 +2926,11 @@ void update_sound(int ms)
 	sound_variants *pVariant;
 	ALint state;
 
-	int source;
+	locked_list_ptr actors_list;
+	actor *me;
 	int x, y, distanceSq, maxDistSq;
 	int relative;
-	int tx = 0, ty = 0;
+	int my_pos[2] = { 0, 0 };
 	ALfloat sourcePos[3] = {0.0f, 0.0f, 0.0f};
 	ALfloat listenerPos[3] = {0.0f, 0.0f, 0.0f};
 	ALfloat listenerVel[3] = {0.0f, 0.0f, 0.0f};
@@ -2896,25 +2944,27 @@ void update_sound(int ms)
 	if (num_types < 1 || no_sound)
 		return;
 
-	LOCK_ACTORS_LISTS();
+	actors_list = get_locked_actors_list();
+
 	// Check if we have our actor
-	if (your_actor)
+	me = get_self(actors_list);
+	if (me)
 	{
 		// Set our position and the listener variables
-		tx = your_actor->x_pos * 2;
-		ty = your_actor->y_pos * 2;
-		listenerPos[0] = tx;
-		listenerPos[1] = ty;
-		if (your_actor->z_rot > 0 && your_actor->z_rot < 180) {
+		my_pos[0] = me->x_pos * 2;
+		my_pos[1] = me->y_pos * 2;
+		listenerPos[0] = my_pos[0];
+		listenerPos[1] = my_pos[1];
+		if (me->z_rot > 0 && me->z_rot < 180) {
 			listenerOri[0] = 1;
-		} else if (your_actor->z_rot > 180 && your_actor->z_rot < 360) {
+		} else if (me->z_rot > 180 && me->z_rot < 360) {
 			listenerOri[0] = -1;
 		} else {
 			listenerOri[0] = 0;
 		}
-		if (your_actor->z_rot > 315 || your_actor->z_rot < 90) {
+		if (me->z_rot > 315 || me->z_rot < 90) {
 			listenerOri[1] = 1;
-		} else if (your_actor->z_rot > 135 && your_actor->z_rot < 225) {
+		} else if (me->z_rot > 135 && me->z_rot < 225) {
 			listenerOri[1] = -1;
 		} else {
 			listenerOri[1] = 0;
@@ -2955,7 +3005,8 @@ void update_sound(int ms)
 			y = sounds_list[i].y;
 			if (inited && !sounds_list[i].playing && x > -1 && y > -1 && sounds_list[i].sound > -1)
 			{
-				distanceSq = (tx - x) * (tx - x) + (ty - y) * (ty - y);
+				distanceSq = (my_pos[0] - x) * (my_pos[0] - x)
+					+ (my_pos[1] - y) * (my_pos[1] - y);
 				maxDistSq = pSoundType->distance * pSoundType->distance;
 				if (sound_on && (distanceSq < maxDistSq))
 				{
@@ -2979,7 +3030,7 @@ void update_sound(int ms)
 	if (!inited)
 	{
 		UNLOCK_SOUND_LIST();
-		UNLOCK_ACTORS_LISTS();
+		release_locked_actors_list_and_invalidate(actors_list, &me);
 		return;
 	}
 
@@ -2992,46 +3043,12 @@ void update_sound(int ms)
 	if (!used_sources)
 	{
 		UNLOCK_SOUND_LIST();
-		UNLOCK_ACTORS_LISTS();
+		release_locked_actors_list_and_invalidate(actors_list, &me);
 		return;
 	}
 
-#ifdef _EXTRA_SOUND_DEBUG
-	j = 0;
-#endif // _EXTRA_SOUND_DEBUG
-	// Now, update the position of actor (animation) sounds
-	for (i = 0; i < max_actors; i++)
-	{
-		if (!actors_list[i] || !actors_list[i]->cur_anim_sound_cookie)
-			continue;
-		
-		source = find_sound_source_from_cookie(actors_list[i]->cur_anim_sound_cookie);
-		if (source < 0)
-			continue;
-		
-		// Check if this is the correct tile type, or if we need to play another sound
-		if (actors_list[i]->moving && !actors_list[i]->fighting)
-		{
-			UNLOCK_SOUND_LIST();
-			handle_walking_sound(actors_list[i], actors_list[i]->cur_anim.sound);
-			LOCK_SOUND_LIST();
-		}
-		if (actors_list[i]->actor_id == yourself)
-		{
-			// If this is you, use the same position as the listener
-			sourcePos[0] = tx;
-			sourcePos[1] = ty;
-		}
-		else
-		{
-			sourcePos[0] = actors_list[i]->x_pos * 2;
-			sourcePos[1] = actors_list[i]->y_pos * 2;
-		}
-		sourcePos[2] = 0.0f;
-		alSourcefv(sound_source_data[source].source, AL_POSITION, sourcePos);
-	}
-
-	UNLOCK_ACTORS_LISTS();
+	for_each_actor(actors_list, update_actor_sound_position, my_pos);
+	release_locked_actors_list_and_invalidate(actors_list, &me);
 	
 	// Finally, update all the sources
 	i = 0;
@@ -3221,7 +3238,8 @@ void update_sound(int ms)
 			alGetSourcei(pSource->source, AL_SOURCE_STATE, &state);
 			alGetSourcefv(pSource->source, AL_POSITION, sourcePos);
 			x = sourcePos[0]; y = sourcePos[1];
-			distanceSq = (tx - x) * (tx - x) + (ty - y) * (ty - y);
+			distanceSq = (my_pos[0] - x) * (my_pos[0] - x)
+				+ (my_pos[1] - y) * (my_pos[1] - y);
 			maxDistSq = pSoundType->distance * pSoundType->distance;
 
 			if ((state == AL_PLAYING) && (distanceSq > maxDistSq))

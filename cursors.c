@@ -16,7 +16,6 @@
 #define MAX_HARVESTABLE_OBJECTS 300
 #define MAX_ENTRABLE_OBJECTS    300
 
-actor *actor_under_mouse;
 int object_under_mouse;
 int thing_under_the_mouse;
 int current_cursor = -1;
