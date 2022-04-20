@@ -209,6 +209,7 @@ LOCAL_SRC_FILES := \
 	\
 	achievements.cpp \
 	actor_init.cpp \
+	actors_list.cpp \
 	books.cpp \
 	cal3d_wrapper.cpp \
 	command_queue.cpp \
