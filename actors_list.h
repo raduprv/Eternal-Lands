@@ -642,6 +642,17 @@ void set_self(void);
  */
 int self_is_fighting(void);
 /*!
+ * \brief Get the player's own horizontal position
+ *
+ * Return the player actor's own horizontal position in world coordinates through (\a x, \a y).
+ * When the player actor is not (yet) in the actors list, 0 is returned an \a x and \a y are left
+ * unchanged. On success, 1 is returned.
+ * \note Use with caution: because the actors list mutex is dropped when leaving the function,
+ *       the actor's position may be changed by another thread at any time, or the actor might even
+ *       be deleted. Use this function only when the result does not strictly need to be correct.
+ */
+int self_position(float *x, float *y);
+/*!
  * \brief Get the player's own tile position
  *
  * Return the player actor's own tile position in (\a x, \a y). When the player actor is not (yet)

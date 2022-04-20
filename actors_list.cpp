@@ -386,6 +386,17 @@ extern "C" int self_is_fighting()
 	return self && self->fighting;
 }
 
+extern "C" int self_position(float *x, float *y)
+{
+	LockedActorsList list;
+	actor *self = list.self();
+	if (!self)
+		return 0;
+	*x = self->x_pos;
+	*y = self->y_pos;
+	return 1;
+}
+
 extern "C" int self_tile_position(int *x, int *y)
 {
 	LockedActorsList list;
