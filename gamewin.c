@@ -2020,7 +2020,7 @@ int keypress_root_common (SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_m
 	else if((key_code == SDLK_v) && shift_on && ctrl_on && !alt_on)
 	{
 		float x, y;
-		if (self_position(&x, &y)){
+		if (self_position(&x, &y))
 			ec_create_mine_detonate(x + 0.25f, y + 0.25f, 0, MINE_TYPE_TRAP, (poor_man ? 6 : 10));
 	}
 	else if((key_code == SDLK_b) && shift_on && ctrl_on && !alt_on)
