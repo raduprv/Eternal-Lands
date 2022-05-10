@@ -214,12 +214,14 @@ static const char *strmrchr(const char *s, const char *begin, int c)
 
 	*cbegin = '\0';
 	result = strrchr(copy, c);
-	free(copy);
 
 	if(result == NULL) {
+		free(copy);
 		return NULL;
 	} else {
-		return s+(result-copy);
+		const char *ret = s+(result-copy);
+		free(copy);
+		return ret;
 	}
 }
 
