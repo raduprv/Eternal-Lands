@@ -33,7 +33,7 @@ void check_flip_fbo_texture(void);
 /**
  * The following macro tests if a _water tile_ is reflecting
  */
-#define IS_REFLECTING(i) (i<240)
+#define IS_REFLECTING(i) (i<233)
 
 /**
  * @ingroup reflections
