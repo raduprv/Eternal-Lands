@@ -114,61 +114,68 @@ void init_gl()
 	SDL_SetWindowIcon(el_gl_window, SDL_LoadBMP("mapeditor.ico"));
 
 #else
-    int rgb_size[3];
+	int rgb_size[3];
+	SDL_Surface *icon_bmp = NULL;
+
 #ifdef DEBUG
-    if( SDL_Init(SDL_INIT_VIDEO|SDL_INIT_NOPARACHUTE) == -1 )
+	if( SDL_Init(SDL_INIT_VIDEO|SDL_INIT_NOPARACHUTE) == -1 )
 #else
-    if( SDL_Init(SDL_INIT_VIDEO) == -1 )
+	if( SDL_Init(SDL_INIT_VIDEO) == -1 )
 #endif
-        {
-            log_error(__FILE__, __LINE__, "Couldn't initialize SDL: %s\n", SDL_GetError());
-            SDL_Quit();
-            exit(1);
-        }
-    if ( SDL_GetVideoInfo()->vfmt->BitsPerPixel <= 8 ){
-        bpp=8;
-    } else {
-        bpp=16;
-    }
-    
-    switch(bpp)
-        {
-            case 8:
-                 rgb_size[0] = 2;
-                 rgb_size[1] = 3;
-                 rgb_size[2] = 3;
-                 break;
-            case 15:
-            case 16:
-            	 rgb_size[0] = 5;
-            	 rgb_size[1] = 5;
-            	 rgb_size[2] = 5;
-            	 break;
-      	    default:
-      	   		 rgb_size[0] = 8;
-		      	 rgb_size[1] = 8;
-		      	 rgb_size[2] = 8;
-		      	 break;
-       }
-      	 
-  	SDL_GL_SetAttribute( SDL_GL_RED_SIZE, rgb_size[0] );
+	{
+		log_error(__FILE__, __LINE__, "Couldn't initialize SDL: %s\n", SDL_GetError());
+		SDL_Quit();
+		exit(1);
+	}
+	if ( SDL_GetVideoInfo()->vfmt->BitsPerPixel <= 8 ){
+		bpp=8;
+	} else {
+		bpp=16;
+	}
+
+	switch(bpp)
+	{
+		case 8:
+			rgb_size[0] = 2;
+			rgb_size[1] = 3;
+			rgb_size[2] = 3;
+			break;
+		case 15:
+		case 16:
+			rgb_size[0] = 5;
+			rgb_size[1] = 5;
+			rgb_size[2] = 5;
+			break;
+		default:
+			rgb_size[0] = 8;
+			rgb_size[1] = 8;
+			rgb_size[2] = 8;
+			break;
+	}
+
+	SDL_GL_SetAttribute( SDL_GL_RED_SIZE, rgb_size[0] );
 	SDL_GL_SetAttribute( SDL_GL_GREEN_SIZE, rgb_size[1] );
 	SDL_GL_SetAttribute( SDL_GL_BLUE_SIZE, rgb_size[2] );
 //	SDL_GL_SetAttribute( SDL_GL_ALPHA_SIZE, 1 );
 	SDL_GL_SetAttribute( SDL_GL_DEPTH_SIZE, 16 );
 	SDL_GL_SetAttribute( SDL_GL_STENCIL_SIZE, 8 );
 	SDL_GL_SetAttribute( SDL_GL_DOUBLEBUFFER, 1 );
-	
-    if ( SDL_SetVideoMode( window_width, window_height, bpp, SDL_OPENGL|SDL_RESIZABLE) == NULL )
-	    {
-			log_error(__FILE__, __LINE__, "Couldn't set GL mode: %s\n", SDL_GetError());
-			SDL_Quit();
-			exit(1);
-        }
-    
+
+	icon_bmp = SDL_LoadBMP("mapeditor.bmp");
+	if (icon_bmp != NULL)
+		SDL_WM_SetIcon(icon_bmp, NULL);
+	else
+		log_error(__FILE__, __LINE__, "Fail to set icon [%s]\n", SDL_GetError());
+
+	if ( SDL_SetVideoMode( window_width, window_height, bpp, SDL_OPENGL|SDL_RESIZABLE) == NULL )
+	{
+		log_error(__FILE__, __LINE__, "Couldn't set GL mode: %s\n", SDL_GetError());
+		SDL_Quit();
+		exit(1);
+	}
+
 	/* Set the window manager title bar */
 	SDL_WM_SetCaption( "Eternal Lands Editor", "testgl" );
-	SDL_WM_SetIcon(SDL_LoadBMP("mapeditor.ico"), NULL);
 #endif
 }
 
