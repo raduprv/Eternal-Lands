@@ -1,3 +1,7 @@
+#ifdef LINUX
+#include <X11/Xlib.h>
+#endif
+
 #include "tiles.h"
 #include "global.h"
 
@@ -53,9 +57,8 @@ int start_rendering()
 
 int Main(int argc, char *argv[])
 {
-  
-        //int i
-  	//int logo = 1;
+	//int i
+	//int logo = 1;
 	//int numtests = 1;
 	//int bpp = 0;
 	//int slowly = 1;
@@ -63,11 +66,12 @@ int Main(int argc, char *argv[])
 	//int noframe = 1;
 
 #ifdef	LINUX
+	XInitThreads();
 	gtk_set_locale ();
 	gtk_init (&argc, &argv);
 #endif	//LINUX
+
 	init_stuff();
-	
 	start_rendering();
 
 	return 0;
