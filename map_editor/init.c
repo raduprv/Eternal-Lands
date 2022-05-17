@@ -68,12 +68,6 @@ void init_stuff()
 	int i;
 	int seed;
 
-	if (chdir(DATA_DIR) != 0)
-	{
-		LOG_ERROR("Failed to set directory [%s]", DATA_DIR);
-		exit (1);
-	}
-
 #ifndef WINDOWS
 	setlocale(LC_NUMERIC,"en_US");
 #endif
@@ -89,6 +83,12 @@ void init_stuff()
 	init_vars();
 
 	read_config();
+
+	if (chdir(datadir) != 0)
+	{
+		LOG_ERROR("Failed to set directory [%s]", datadir);
+		exit (1);
+	}
 
 	file_check_datadir();
 
