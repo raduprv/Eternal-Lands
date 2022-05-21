@@ -91,7 +91,7 @@ void set_emission(object3d * object_id)
 {
 	if(object_id->self_lit && (night_shadows_on || dungeon))
 	{
-		glDisable(GL_LIGHTING);
+		glEnable(GL_LIGHTING);
 		glMaterialfv(GL_FRONT, GL_EMISSION, object_id->color);
 	}
 	else
