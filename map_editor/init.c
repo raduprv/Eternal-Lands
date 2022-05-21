@@ -86,8 +86,12 @@ void init_stuff()
 
 	if (chdir(datadir) != 0)
 	{
-		LOG_ERROR("Failed to set directory [%s]", datadir);
-		exit (1);
+		char *failed = "Failed to change to data directory:";
+		char cwd[PATH_MAX];
+		if (getcwd(cwd, sizeof(cwd)) != NULL)
+			LOG_ERROR("%s [%s], using [%s]", failed, datadir, cwd);
+		else
+			LOG_ERROR("%s [%s]", failed, datadir);
 	}
 
 	file_check_datadir();
