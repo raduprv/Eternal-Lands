@@ -71,6 +71,7 @@ int Main(int argc, char *argv[])
 	gtk_init (&argc, &argv);
 #endif	//LINUX
 
+	init_logging("log");
 	init_stuff();
 	start_rendering();
 
