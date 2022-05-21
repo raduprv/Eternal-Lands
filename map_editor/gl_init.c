@@ -24,6 +24,18 @@ int have_texture_non_power_of_two = 0;
 int gl_extensions_loaded = 0;
 float anisotropic_filter = 1.0f;
 
+int print_gl_errors(const char *file, int line)
+{
+	GLenum	glErr, anyErr=GL_NO_ERROR;
+
+	while ((glErr=glGetError()) != GL_NO_ERROR )
+	 {
+		anyErr=glErr;
+		log_error(file, line, "OpenGL %s", gluErrorString(glErr));
+	}
+	return anyErr;
+}
+
 void Emul_glDrawRangeElements(GLenum mode, GLuint start, GLuint end, GLsizei count, GLenum type, const GLvoid *indices)
 {
 	glDrawElements(mode, count, type, indices);
