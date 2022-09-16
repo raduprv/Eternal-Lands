@@ -85,7 +85,7 @@ const actor* LockedActorsList::get_nearest_actor(int tile_x, int tile_y, float m
 	for (const auto& id_act: _list)
 	{
 		const actor* act = id_act.second.unwrap();
-		if (act->dead || act->kind_of_actor == NPC || act->kind_of_actor == HUMAN
+		if (act->actor_id >= HORSE_ID_OFFSET || act->dead || act->kind_of_actor == NPC || act->kind_of_actor == HUMAN
 			|| act->kind_of_actor == COMPUTER_CONTROLLED_HUMAN)
 		{
 			continue;

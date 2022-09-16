@@ -139,7 +139,7 @@ static inline void update_selection(Uint8 *color)
 			{
 				eternal_lands::LockedActorsList list;
 				list.set_actor_under_mouse(selections[index].id);
-				object_under_mouse = selections[index].id;
+				object_under_mouse = (selections[index].id >= HORSE_ID_OFFSET) ?-1 : selections[index].id;
 				break;
 			}
 			default:
