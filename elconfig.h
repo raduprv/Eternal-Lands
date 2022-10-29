@@ -18,6 +18,7 @@ extern float water_tiles_extension;
 extern int show_game_seconds;
 extern int skybox_update_delay;
 extern int skybox_local_weather;
+extern int force_elconfig_win_ontop;
 #ifdef NEW_CURSOR
 extern int big_cursors;
 extern int sdl_cursors;

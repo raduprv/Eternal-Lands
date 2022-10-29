@@ -486,8 +486,6 @@ static int mouseover_login_handler (window_info *win, int mx, int my)
 static int click_login_handler (window_info *win, int mx, int my, Uint32 flags)
 {
 	int left_click = flags & ELW_LEFT_MOUSE;
-	extern int force_elconfig_win_ontop;
-	force_elconfig_win_ontop = 0;
 
 	if (left_click == 0) return 0;
 
@@ -562,6 +560,7 @@ static int click_login_handler (window_info *win, int mx, int my, Uint32 flags)
 		do_click_sound();
 		force_elconfig_win_ontop = 1;
 		view_window(MW_CONFIG);
+		force_elconfig_win_ontop = 0;
 	}
 	return 1;
 }
