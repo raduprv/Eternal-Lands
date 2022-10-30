@@ -26,6 +26,7 @@
 #include "translate.h"
 
 int always_pathfinding = 0;
+int server_connect_timeout_s = 10;
 
 namespace eternal_lands
 {
@@ -53,19 +54,24 @@ void Connection::connect_to_server()
 	_awaiting_encrypt_response = false;
 	try
 	{
-		_socket.connect(_server_name, _server_port);
+		_socket.connect(_server_name, _server_port, server_connect_timeout_s);
 	}
 	catch (const ResolutionFailure&)
 	{
 		LOG_TO_CONSOLE(c_red2, failed_resolve);
+		error_messages_to_console(c_red2, 1, 1, 1);
 		do_disconnect_sound();
 		return;
 	}
 	catch (const ConnectionFailure&)
 	{
 		LOG_TO_CONSOLE(c_red1, failed_connect);
-		LOG_TO_CONSOLE(c_red1, reconnect_str);
-		LOG_TO_CONSOLE(c_red1, alt_x_quit);
+		if (_socket.connect_timed_out())
+		{
+			std::string tmp = std::string(server_connect_timeout_str) + ": " + std::string(_server_name);
+			LOG_TO_CONSOLE(c_red1, tmp.c_str());
+		}
+		error_messages_to_console(c_red1, 1, 1, 1);
 		do_disconnect_sound();
 		return;
 	}
@@ -215,7 +221,7 @@ void Connection::finish_connect_to_server()
 void Connection::close_after_invalid_certificate()
 {
 	LOG_TO_CONSOLE(c_red1, cert_verification_err_str);
-	LOG_TO_CONSOLE(c_red1, alt_x_quit);
+	error_messages_to_console(c_red1, 1, 1, 1);
 	_socket.close();
 	do_disconnect_sound();
 }
@@ -230,7 +236,7 @@ void Connection::disconnect_from_server_locked(const std::string& message)
 	safe_snprintf(str, sizeof(str), "<%1d:%02d>: %s [%s]", tgm/60, tgm%60,
 		disconnected_from_server, message.c_str());
 	LOG_TO_CONSOLE(c_red2, str);
-	LOG_TO_CONSOLE(c_red2, alt_x_quit);
+	error_messages_to_console(c_red2, 0, 1, 1);
 #ifdef NEW_SOUND
 	stop_all_sounds();
 	do_disconnect_sound();

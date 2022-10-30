@@ -287,6 +287,8 @@ int my_tcp_flush(void);
 void cleanup_tcp(void);
 int get_message_from_server(void *thread_args);
 
+extern int server_connect_timeout_s;  /*! Config option.  The timeout in seconds to wait when connecting to a server. */
+
 #ifdef __cplusplus
 } // extern "C"
 #endif

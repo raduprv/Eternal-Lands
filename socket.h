@@ -112,7 +112,7 @@ public:
 	 * Create a new, unconnected, client socket
 	 */
 	TCPSocket(): _fd(INVALID_SOCKET), _peer(), _ssl_ctx(nullptr), _ssl(nullptr), _ssl_mutex(),
-		_state(State::NOT_CONNECTED), _ssl_fatal_error(false)
+		_state(State::NOT_CONNECTED), _ssl_fatal_error(false), _connect_timed_out(false)
 	{
 		initialize();
 	}
@@ -131,6 +131,8 @@ public:
 	bool in_tls_handshake() const { return _state == State::CONNECTED_INITIALIZING_ENCRYPTION; }
 	//! Return the IP address of the server this socket is connected to
 	const IPAddress& peer_address() const { return _peer; }
+	//! Return true if the last connection attempt timed out
+	bool connect_timed_out() const { return _connect_timed_out; }
 
 	/*!
 	 * \brief Connect to the server
@@ -138,8 +140,9 @@ public:
 	 * Connect to the server with host name \a hostname on port \a port.
 	 * \param hostanem   The host name or IP address of the server
 	 * \param port       The port number to connect to
+	 * \param timeout_s  The time out in seconds when connecting to the server
 	 */
-	void connect(const std::string& hostname, std::uint16_t port);
+	void connect(const std::string& hostname, std::uint16_t port, int timeout_s);
 	/*!
 	 * \brief Close the connection
 	 *
@@ -286,6 +289,8 @@ private:
 	State _state;
 	//! Whether a fatal error in the TLS protocol occurred
 	bool _ssl_fatal_error;
+	//! Whether the last connection attempt timed out
+	bool _connect_timed_out;
 
 	//! Do any global initialization required for networking
 	static void initialize();

@@ -742,6 +742,9 @@ static int click_game_handler(window_info *win, int mx, int my, Uint32 flags)
 	if (back_on)
 		return 0;
 
+	if (is_disconnected())
+		connect_to_server();
+
 	// ignore clicks in touch window for now
 	if (!window_camera_controls &&
 		(((mx > horiz_touch_x_start) && (mx < horiz_touch_x_start + horiz_touch_x_size) &&

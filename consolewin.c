@@ -18,6 +18,9 @@
 #include "interface.h"
 #include "mapwin.h"
 #include "missiles.h"
+#ifdef ANDROID
+#include "multiplayer.h"
+#endif
 #include "new_character.h"
 #if !defined OSX && !defined WINDOWS
 #ifdef MIDDLE_MOUSE_PASTE
@@ -337,6 +340,10 @@ static int click_console_handler(window_info *win, int mx, int my, Uint32 flags)
 		scroll_up_lines--;
 		console_text_changed = 1;
 	}
+#ifdef ANDROID
+	if (is_disconnected())
+		connect_to_server();
+#endif
 	else
 	{
 		return 0; // we didn't handle it

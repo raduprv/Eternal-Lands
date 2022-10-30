@@ -243,6 +243,23 @@ static void invalidate_date(void)
 
 /*	End date handling code */
 
+void error_messages_to_console(Uint8 color, int show_option, int show_quit, int show_retry)
+{
+#ifdef ANDROID
+		if (show_option)
+			LOG_TO_CONSOLE(color, long_touch_cm_options_str);
+		if (show_retry)
+			LOG_TO_CONSOLE(color, touch_to_retry_str);
+#else
+		if (show_option)
+			LOG_TO_CONSOLE(color, ctrl_o_options);
+		if (show_quit)
+			LOG_TO_CONSOLE(color, alt_x_quit);
+		if (show_retry)
+			LOG_TO_CONSOLE(color, reconnect_str);
+#endif
+}
+
 #ifndef USE_SSL
 void create_tcp_out_mutex()
 {
@@ -590,17 +607,18 @@ void connect_to_server()
 	draw_scene();	// update the screen
 	set= SDLNet_AllocSocketSet(1);
 	if(!set)
-        {
-            LOG_ERROR("SDLNet_AllocSocketSet: %s\n", SDLNet_GetError());
-            do_error_sound();
+		{
+			LOG_ERROR("SDLNet_AllocSocketSet: %s\n", SDLNet_GetError());
+			do_error_sound();
 			SDLNet_Quit();
 			SDL_Quit();
 			exit(4); //most of the time this is a major error, but do what you want.
-        }
+		}
 
 	if(SDLNet_ResolveHost(&ip,(char*)server_address,port)==-1)
 		{
 			LOG_TO_CONSOLE(c_red2,failed_resolve);
+			error_messages_to_console(c_red2, 1, 1, 1);
 			do_disconnect_sound();
 			return;
 		}
@@ -609,8 +627,7 @@ void connect_to_server()
 	if(!my_socket)
 		{
 			LOG_TO_CONSOLE(c_red1,failed_connect);
-			LOG_TO_CONSOLE(c_red1,reconnect_str);
-			LOG_TO_CONSOLE(c_red1,alt_x_quit);
+			error_messages_to_console(c_red1, 1, 1, 1);
 			do_disconnect_sound();
 			return;
 		}
@@ -2395,7 +2412,7 @@ static void enter_disconnected_state(const char *message)
 	safe_snprintf(str, sizeof(str), "<%1d:%02d>: %s [%s]", tgm/60, tgm%60,
 		disconnected_from_server, (message != NULL) ?message : "Grue?");
 	LOG_TO_CONSOLE(c_red2, str);
-	LOG_TO_CONSOLE(c_red2, alt_x_quit);
+	error_messages_to_console(c_red2, 0, 1, 1);
 #ifdef NEW_SOUND
 	stop_all_sounds();
 	do_disconnect_sound();

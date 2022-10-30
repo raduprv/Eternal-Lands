@@ -303,10 +303,18 @@ char
 	manu_remove_str[60],
 	/*multiplayer.c*/
 	connect_to_server_str[50],
+#ifdef ANDROID
+	touch_to_retry_str[40],
+#else
 	reconnect_str[50],
+#endif
 	test_server_connect_str[40],
 	server_connect_test_failed_str[40],
+	server_connect_timeout_str[40],
+#ifndef ANDROID
 	alt_x_quit[50],
+	ctrl_o_options[50],
+#endif
 	license_check[150],
 	/*new_character.c*/
 	skin_str[15],
@@ -1571,10 +1579,18 @@ void init_help()
 	add_xml_identifier(misc,"cast",cast_str,"Cast",sizeof(cast_str));
 	add_xml_identifier (misc, "invalid_spell", invalid_spell_str, "Invalid spell", sizeof (invalid_spell_str));
 	add_xml_identifier(misc,"connect",connect_to_server_str,"Connecting to Server...",sizeof(connect_to_server_str));
+#ifdef ANDROID
+	add_xml_identifier(misc,"touch_to_retry",touch_to_retry_str,"Touch to reconnect.",sizeof(touch_to_retry_str));
+#else
 	add_xml_identifier(misc,"reconnect",reconnect_str,"Press any key to try again.",sizeof(reconnect_str));
+#endif
 	add_xml_identifier(misc,"test_server_connect",test_server_connect_str,"Testing server connection...",sizeof(test_server_connect_str));
 	add_xml_identifier(misc,"server_connect_test_failed",server_connect_test_failed_str,"server connection test failed",sizeof(server_connect_test_failed_str));
+	add_xml_identifier(misc,"server_connect_timeout",server_connect_timeout_str,"Server connection timed out",sizeof(server_connect_timeout_str));
+#ifndef ANDROID
 	add_xml_identifier (misc, "x_quit", alt_x_quit, "Press Alt-x to close the game", sizeof (alt_x_quit));
+	add_xml_identifier(misc, "o_options", ctrl_o_options, "Press Ctrl-o for options window", sizeof (ctrl_o_options));
+#endif
 	add_xml_identifier(misc,"license",license_check,"Entropy says: U R 2 g00d 2 r34d +h3 license.txt?\nBTW, that license.txt file is actually there for a reason.",sizeof(license_check));
 	add_xml_identifier(misc,"session_reset_help",session_reset_help,"Double-click to reset session information",sizeof(session_reset_help));
 	add_xml_identifier(misc,"quantity",quantity_str,"Quantity",sizeof(quantity_str));

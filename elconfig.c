@@ -26,6 +26,9 @@
  #include "buddy.h"
  #include "buffs.h"
  #include "chat.h"
+#if defined(USE_SSL) && (defined(LINUX) || defined(ANDROID))
+ #include "connection.h"
+#endif
  #include "console.h"
  #include "context_menu.h"
  #include "counters.h"
@@ -3159,6 +3162,9 @@ static void init_ELC_vars(void)
 #ifdef JSON_FILES
 	add_var(OPT_BOOL_INI, "use_json_user_files_v1", "usejsonuserfiles_v1", &use_json_user_files, change_use_json_user_files, 0, "Use New Format To Save User Files (.json)",
 		"NOTE: Use this option to enable the new format for saving user data.  If you change this option, data is automatically saved using the chosen format.  Disable this option before switching back to 1.9.5p8 or older clients.", SERVER);
+#endif
+#if defined(USE_SSL) && (defined(LINUX) || defined(ANDROID))
+	add_var(OPT_INT,"server_connect_timeout_s","scts",&server_connect_timeout_s,change_int,server_connect_timeout_s,"Server Connect Timeout","The time in seconds to wait when connecting to the server before timing out.",SERVER, 1, 30);
 #endif
 	// SERVER TAB
 

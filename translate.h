@@ -447,10 +447,18 @@ extern char
 		manu_remove_str[60],
 		/*multiplayer.c*/
 		connect_to_server_str[50],
+#ifdef ANDROID
+		touch_to_retry_str[40],
+#else
 		reconnect_str[50],
+#endif
 		test_server_connect_str[40],
 		server_connect_test_failed_str[40],
+		server_connect_timeout_str[40],
+#ifndef ANDROID
 		alt_x_quit[50],
+		ctrl_o_options[50],
+#endif
 		license_check[150], 
 		/*new_character.c*/
 		skin_str[15],
