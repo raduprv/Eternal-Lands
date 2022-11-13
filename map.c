@@ -113,6 +113,7 @@ void destroy_map(void)
 	destroy_clusters_array ();
 #endif
 
+	inspect_map_text = 0;
 	adding_mark = 0;
 }
 
