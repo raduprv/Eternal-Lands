@@ -2995,7 +2995,7 @@ static void init_ELC_vars(void)
 
 	add_var(OPT_BOOL,"show_poison_count", "poison_count", &show_poison_count, change_var, 0, "Show Food Poison Count", "Displays on the poison drop icon, the number of times you have been food poisoned since last being free of poison.",HUD);
 
-	add_var(OPT_BOOL,"your_dynamic_banner_colour", "ydbc", &dynamic_banner_colour.yourself, change_var, 1, "Dynamic Health and Mana Banner Colours", "Dynamically change the colour of your health and mana banner. For example, the health banner changes from green to red as you loose health.",HUD);
+	add_var(OPT_BOOL,"your_dynamic_banner_colour", "ydbc", &dynamic_banner_colour.yourself, change_var, 1, "Dynamic Health, Mana and Food Banner Colours", "Dynamically change the colour of your health, mana and food banner. For example, the health banner changes from green to red as you loose health.",HUD);
 	add_var(OPT_BOOL,"player_dynamic_banner_colour", "pdbc", &dynamic_banner_colour.other_players, change_var, 1, "Dynamic Other Players Health Banner Colour", "Dynamically change the colour of the health banner for other players. It changes from green to red as they loose health.",HUD);
 	add_var(OPT_BOOL,"creature_dynamic_banner_colour", "cdbc", &dynamic_banner_colour.creatures, change_var, 1, "Dynamic Creatures Health Banner Colour", "Dynamically change the colour of the health banner for creatures. It changes from green to red as they loose health.",HUD);
 

@@ -841,12 +841,14 @@ static int click_game_handler(window_info *win, int mx, int my, Uint32 flags)
 						cm_bool_line(cm_id, 2, &view_hp, NULL);
 						cm_bool_line(cm_id, 3, &view_ether_bar, NULL);
 						cm_bool_line(cm_id, 4, &view_ether, NULL);
-						cm_bool_line(cm_id, 5, &view_mode_instance, "use_view_mode_instance");
-						cm_bool_line(cm_id, 6, &view_chat_text_as_overtext, NULL);
-						cm_bool_line(cm_id, 7, &use_alpha_banner, "use_alpha_banner");
-						cm_bool_line(cm_id, 8, &sit_lock, "sit_lock");
-						cm_bool_line(cm_id, 9, &ranging_lock, NULL);
-						cm_bool_line(cm_id, 11, &cm_banner_disabled, "cm_banner_disabled");
+						cm_bool_line(cm_id, 5, &view_food_bar, NULL);
+						cm_bool_line(cm_id, 6, &view_food, NULL);
+						cm_bool_line(cm_id, 7, &view_mode_instance, "use_view_mode_instance");
+						cm_bool_line(cm_id, 8, &view_chat_text_as_overtext, NULL);
+						cm_bool_line(cm_id, 9, &use_alpha_banner, "use_alpha_banner");
+						cm_bool_line(cm_id, 10, &sit_lock, "sit_lock");
+						cm_bool_line(cm_id, 11, &ranging_lock, NULL);
+						cm_bool_line(cm_id, 13, &cm_banner_disabled, "cm_banner_disabled");
 					}
 					cm_show_direct(cm_id, -1, -1);
 					reset_cursor_time = SDL_GetTicks();
@@ -2127,6 +2129,14 @@ int keypress_root_common (SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_m
 	else if (KEY_DEF_CMP(K_ETHERBARS, key_code, key_mod))
 	{
 		view_ether_bar = !view_ether_bar;
+	}
+	else if (KEY_DEF_CMP(K_VIEWFOOD, key_code, key_mod))
+	{
+		view_food = !view_food;
+	}
+	else if (KEY_DEF_CMP(K_FOODBAR, key_code, key_mod))
+	{
+		view_food_bar = !view_food_bar;
 	}
 	else if (KEY_DEF_CMP(K_VIEWTEXTASOVERTEXT, key_code, key_mod))
 	{

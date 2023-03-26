@@ -548,7 +548,7 @@ extern char
 		cm_textedit_menu_str[100],
 		cm_quickbar_menu_str[150],
 		cm_hud_menu_str[270],
-		cm_banner_menu_str[240],
+		cm_banner_menu_str[300],
 		cm_title_menu_str[150],
 		cm_title_help_str[50],
 		cm_items_menu_str[190],

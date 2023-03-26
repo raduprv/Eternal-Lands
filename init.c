@@ -229,9 +229,11 @@ static void load_cstate(void)
 
 	view_health_bar = json_cstate_get_bool("overhead", "view_health_bar", 0);
 	view_ether_bar = json_cstate_get_bool("overhead", "view_ether_bar", 0);
+	view_food_bar = json_cstate_get_bool("overhead", "view_food_bar", 0);
 	view_names = json_cstate_get_bool("overhead", "view_names", 0);
 	view_hp = json_cstate_get_bool("overhead", "view_hp", 0);
 	view_ether = json_cstate_get_bool("overhead", "view_ether", 0);
+	view_food = json_cstate_get_bool("overhead", "view_food", 0);
 
 	{
 		size_t i;
@@ -549,9 +551,11 @@ static void save_cstate(void)
 
 	json_cstate_set_bool("overhead", "view_health_bar", view_health_bar);
 	json_cstate_set_bool("overhead", "view_ether_bar", view_ether_bar);
+	json_cstate_set_bool("overhead", "view_food_bar", view_food_bar);
 	json_cstate_set_bool("overhead", "view_names", view_names);
 	json_cstate_set_bool("overhead", "view_hp", view_hp);
 	json_cstate_set_bool("overhead", "view_ether", view_ether);
+	json_cstate_set_bool("overhead", "view_food", view_food);
 
 	{
 		size_t i;
