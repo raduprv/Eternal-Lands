@@ -378,6 +378,28 @@ static void set_food_color(float percent, float multiplier, float a)
 	set_banner_colour_general(zero_food, full_food, percent, multiplier, a);
 }
 
+static void check_for_banner_now_off(void)
+{
+	static int banner_was_on = -1;
+	int banner_is_on = view_names||view_hp||view_health_bar||view_ether_bar||view_ether||view_food_bar||view_food;
+	if (banner_was_on == -1)
+		banner_was_on = banner_is_on;
+	else
+	{
+		if ((banner_was_on != banner_is_on) && (banner_is_on == 0))
+		{
+			char str[200];
+			char key_str[20];
+			str[0] = '\0';
+			safe_strcat(str, banner_off_help_str, sizeof(str));
+			safe_strcat(str, get_key_string(K_VIEWNAMES, key_str, sizeof(key_str)), sizeof(str));
+			safe_strcat(str, "].", sizeof(str));
+			LOG_TO_CONSOLE(c_red1, str);
+		}
+		banner_was_on = banner_is_on;
+	}
+}
+
 static void draw_actor_banner(actor *actor_id, const actor *me, float offset_z)
 {
 	unsigned char str[60];
@@ -426,6 +448,8 @@ static void draw_actor_banner(actor *actor_id, const actor *me, float offset_z)
 	int display_health_line = 0;
 	int display_ether_line = 0;
 	int display_food_line = 0;
+
+	check_for_banner_now_off();
 
 	if (displaying_me && first_person) return;
 

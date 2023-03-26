@@ -280,6 +280,7 @@ extern char
 		commands_help_not_recognsed_str[40],
 		commands_help_description_help_str[100],
 		commands_help_search_help_str[100],
+		banner_off_help_str[100],
 		cmd_ignores[20],
 		cmd_ignore[20],
 		cmd_unignore[20],

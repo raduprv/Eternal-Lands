@@ -536,6 +536,7 @@ char	name_too_long[75],
 	commands_help_not_recognsed_str[40],
 	commands_help_description_help_str[100],
 	commands_help_search_help_str[100],
+	banner_off_help_str[100],
 	cmd_ignores[20],
 	cmd_ignore[20],
 	cmd_unignore[20],
@@ -1180,6 +1181,7 @@ void init_console()
 	add_xml_identifier(misc, "commands_help_not_recognsed", commands_help_not_recognsed_str, "Unrecognised command", sizeof(commands_help_not_recognsed_str));
 	add_xml_identifier(misc, "commands_help_description_help", commands_help_description_help_str, "For help on a particular command, use ## <command>.", sizeof(commands_help_description_help_str));
 	add_xml_identifier(misc, "commands_help_search_help", commands_help_search_help_str, "To search command name and description, use #? <search text>.", sizeof(commands_help_search_help_str));
+	add_xml_identifier(misc, "banner_off_help", banner_off_help_str, "Player banner off. To restore enable an option, e.g. names [", sizeof(banner_off_help_str));
 
 	add_xml_identifier(loading_msg,"init_opengl",init_opengl_str,"Initializing OpenGL extensions",sizeof(init_opengl_str));
 	add_xml_identifier(loading_msg,"init_random",init_random_str,"Generating random seed",sizeof(init_random_str));
