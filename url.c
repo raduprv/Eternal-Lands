@@ -223,17 +223,18 @@ int is_url_end_delim(unsigned char chr)
 	// from rfc1738, updated in rfc3986 to allow "~"
 	unsigned char non_url_printable_chars[] = {' ','<','>','"','{','}','|','\\','^','[',']','`',};
 	int i;
-	
-	// character is not ascii graphic
-	if (!(isascii(chr) && isprint(chr)))
+
+	// allow only non-control characters from supported sets - basic Latin and Latin-1 supplement
+	i = (unsigned int)chr;
+	if (!(((i >= 0x21) && (i <= 0x7e)) || ((i >= 0xa1) && (i <= 0xff))))
 		return 1;
-		
+
+	// exclude the rfc defined delimiters
 	for (i=0; i < sizeof(non_url_printable_chars); i++)
 		if(non_url_printable_chars[i] == chr)
 			return 1;
-			
+
 	return 0;
-	
 }
 
 /* find and store all urls in the provided string */
