@@ -379,7 +379,7 @@ void load_recipes (){
 	FILE *fp;
 	size_t i;
 	int logged = 0;
-	off_t file_size;
+	off_t file_size = 0;
 	const size_t recipe_size = sizeof(item)*NUM_MIX_SLOTS;
 	int num_recipes_in_file = -1;
 #ifdef JSON_FILES
