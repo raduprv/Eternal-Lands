@@ -2,50 +2,58 @@
 
 -include make.conf
 
-TTF_CFLAGS = $(shell pkg-config SDL2_ttf --cflags)
-USE_SSL_CFLAGS = $(shell pkg-config openssl --cflags)
 JSON_FILES_CFLAGS = -I nlohmann_json/single_include/
 ADDRSANITISER_CFLAGS=-fsanitize=address
 
-PNG_SCREENSHOT_LIBS = $(shell pkg-config libpng --libs)
-TTF_LIBS = $(shell pkg-config SDL2_ttf --libs)
-USE_SSL_LIBS = $(shell pkg-config openssl --libs)
 ADDRSANITISER_LIBS=-fsanitize=address
 PAWN_LIBS = -ldl
 
+PKG_CHECK = .pkg_check
+TTF_PKG = SDL2_ttf
+USE_SSL_PKG = openssl
+PNG_SCREENSHOT_PKG = libpng
+
+CFLAGS_PKG = \
+	sdl2 \
+	SDL2_net \
+	SDL2_image \
+	libxml-2.0 \
+	cal3d \
+	gl \
+	glu \
+	openal \
+	vorbis \
+	vorbisfile \
+	zlib \
+	x11 \
+	xrandr \
+	$(foreach FEATURE, $(FEATURES), $($(FEATURE)_PKG))
+
+# define a new line, leave the blank line!
+define \n
+
+
+endef
+
 PAWN_DEPS_DIR = .deps/pawn
 
+$(PKG_CHECK): Makefile.linux make.conf
+	@echo "Checking package dependancies..."
+	@$(foreach PKG, $(CFLAGS_PKG), pkg-config --exists --print-errors --short-errors $(PKG)${\n})
+	@touch $(PKG_CHECK)
+
 OPTIONS = -DLINUX -DELC $(foreach FEATURE, $(FEATURES), -D$(FEATURE)) -D_7ZIP_ST $(GIT_VERSION) \
-	$(shell pkg-config sdl2 --cflags) \
-	$(shell pkg-config SDL2_net --cflags) \
-	$(shell pkg-config SDL2_image --cflags) \
-	$(shell pkg-config libxml-2.0 --cflags) \
-	$(shell pkg-config cal3d --cflags) \
-	$(shell pkg-config gl --cflags) \
-	$(shell pkg-config glu --cflags) \
-	$(shell pkg-config openal --cflags) \
-	$(shell pkg-config vorbis --cflags) \
-	$(shell pkg-config vorbisfile --cflags) \
-	$(shell pkg-config zlib --cflags) \
+	$(foreach PKG, $(CFLAGS_PKG), $(shell pkg-config  --cflags $(PKG))) \
 	$(foreach FEATURE, $(FEATURES), $($(FEATURE)_CFLAGS))
 
 CFLAGS=$(PLATFORM) $(CWARN) -O1 -ggdb -pipe $(OPTIONS) -fno-strict-aliasing $(EXTRA_INCLUDES)
 
 CXXFLAGS=$(PLATFORM) $(CXXWARN) -O1 -ggdb -pipe $(OPTIONS) -fno-strict-aliasing $(EXTRA_INCLUDES)
 
-LDFLAGS=$(shell pkg-config sdl2 --libs) \
-	$(shell pkg-config libxml-2.0 --libs) \
-	$(shell pkg-config SDL2_net --libs) \
-	$(shell pkg-config SDL2_image --libs) \
-	$(shell pkg-config cal3d --libs) \
-	$(shell pkg-config gl --libs) \
-	$(shell pkg-config glu --libs) \
-	$(shell pkg-config openal --libs) \
-	$(shell pkg-config vorbis --libs) \
-	$(shell pkg-config vorbisfile --libs) \
-	$(shell pkg-config zlib --libs) \
+LDFLAGS= \
+	$(foreach PKG, $(CFLAGS_PKG), $(shell pkg-config --libs $(PKG))) \
 	$(foreach FEATURE, $(FEATURES), $($(FEATURE)_LIBS)) \
-	$(shell pkg-config x11 --libs) -lm -lstdc++
+	-lm -lstdc++
 
 _CFLAGS=$(PLATFORM) -O2 -fomit-frame-pointer -ffast-math -pipe $(OPTIONS) -fno-strict-aliasing $(EXTRA_INCLUDES)
 _LDFLAGS=$(XDIR) -lGL -lpthread -lstdc++
@@ -136,7 +144,7 @@ ifndef LINK
 LINK=gcc
 endif
 
-all: $(EXE)
+all: $(PKG_CHECK) $(EXE)
 
 # the compile targets
 $(EXE): $(OBJS)
@@ -172,7 +180,7 @@ static:
 	@$(MAKE) -f Makefile.linux 'CFLAGS=$(_CFLAGS)' 'CXXFLAGS=$(_CXXFLAGS)' 'LDFLAGS=$(_LDFLAGS)' 'OBJS=$(OBJS) $(STATICLIBS)'
 
 clean:
-	rm -f $(OBJS) $(EXE)
+	rm -f $(OBJS) $(EXE) $(PKG_CHECK)
 
 docs:
 	cd docs && doxygen Doxyfile
