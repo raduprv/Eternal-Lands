@@ -232,6 +232,7 @@ cpp_src = [
     'hud_indicators.cpp',
     'hud_timer.cpp',
     'icon_window.cpp',
+    'invasion_window.cpp',
     'io/cal3d_io_wrapper.cpp',
     'ipaddress.cpp',
     'item_info.cpp',

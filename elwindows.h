@@ -293,6 +293,7 @@ enum managed_window_enum
 	MW_STATS,
 	MW_HELP,
 	MW_RANGING,
+	MW_INVASION,
 	MW_ACHIEVE,
 	MW_DIALOGUE,
 	MW_QUICKBAR,

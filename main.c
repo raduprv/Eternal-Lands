@@ -52,6 +52,7 @@
 #include "init.h"
 #include "item_lists.h"
 #include "interface.h"
+#include "invasion_window.h"
 #include "lights.h"
 #include "manufacture.h"
 #include "map.h"
@@ -321,6 +322,8 @@ int start_rendering()
 	cleanup_hud();
 	LOG_INFO("destroy_trade_log()");
 	destroy_trade_log();
+	LOG_INFO("destroy_invasion_window()");
+	destroy_invasion_window();
 	LOG_INFO("destroy_user_menus()");
 	destroy_user_menus();
 	LOG_INFO("destroy_all_root_windows()");

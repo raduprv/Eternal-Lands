@@ -183,7 +183,7 @@ set(SOURCES ${SOURCES}
 	${SD}achievements.cpp ${SD}actor_init.cpp ${SD}actors_list.cpp ${SD}books.cpp
 	${SD}cal3d_wrapper.cpp ${SD}command_queue.cpp ${SD}context_menu.cpp
 	${SD}cppwindows.cpp ${SD}elloggingwrapper.cpp  ${SD}font.cpp ${SD}hud_indicators.cpp ${SD}hud_timer.cpp ${SD}icon_window.cpp
-	${SD}io/cal3d_io_wrapper.cpp ${SD}item_info.cpp ${SD}item_lists.cpp ${SD}named_colours.cpp
+	${SD}invasion_window.cpp ${SD}io/cal3d_io_wrapper.cpp ${SD}item_info.cpp ${SD}item_lists.cpp ${SD}named_colours.cpp
 	${SD}optimizer.cpp ${SD}password_manager.cpp ${SD}quest_log.cpp ${SD}select.cpp ${SD}sendvideoinfo.cpp
 	${SD}trade_log.cpp ${SD}user_menus.cpp ${SD}xor_cipher.cpp ${SD}engine/hardwarebuffer.cpp ${SD}engine/logging.cpp
 	${SD}exceptions/extendedexception.cpp ${SD}eye_candy/effect_bag.cpp ${SD}eye_candy/effect_breath.cpp

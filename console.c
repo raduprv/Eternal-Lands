@@ -24,6 +24,7 @@
 #include "init.h"
 #include "item_lists.h"
 #include "interface.h"
+#include "invasion_window.h"
 #include "knowledge.h"
 #include "list.h"
 #include "mapwin.h"
@@ -2239,6 +2240,8 @@ void init_commands(const char *filename)
 	add_command("set_default_fonts", &command_set_default_fonts);
 	add_command(cmd_summon_attack, &command_summon_attack);
 	add_command(cmd_summon_attack_short, &command_summon_attack);
+
+	add_command("invasion_win", &command_invasion_window);
 
 #ifdef ANDROID
 	add_command("kbd", &toggle_keyboard_debug);

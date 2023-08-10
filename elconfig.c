@@ -785,6 +785,11 @@ void reset_win_scale_factor(int set_default, float *changed_window_custom_scale)
 		update_windows_custom_scale(changed_window_custom_scale);
 		var->saved = 0;
 	}
+	else if (changed_window_custom_scale != NULL)
+	{
+		*changed_window_custom_scale = 1.0;
+		update_windows_custom_scale(changed_window_custom_scale);
+	}
 }
 
 /*

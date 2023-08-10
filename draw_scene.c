@@ -19,6 +19,7 @@
 #include "hud_timer.h"
 #include "interface.h"
 #include "items.h"
+#include "invasion_window.h"
 #include "main.h"
 #include "map.h"
 #include "multiplayer.h"
@@ -189,6 +190,8 @@ void draw_scene()
 			check_for_windows_autoscale();
 			/* check if we need to action a scale change for the config window */
 			check_for_config_window_scale();
+			/* update and invasion window play in progress */
+			update_play_invasion_window();
 			/* until next time */
 			last_half_second_timer = current_time;
 		}
