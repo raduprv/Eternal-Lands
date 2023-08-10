@@ -10,6 +10,7 @@
 #ifdef NEW_SOUND
 
 #include "platform.h"
+#include "actors_list.h"
 #include "actors.h"
 
 #include <ogg/ogg.h>
