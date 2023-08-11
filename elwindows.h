@@ -328,6 +328,7 @@ void display_buddy(void);
 void display_tab_stats(void);
 void display_tab_help(void);
 void display_range_win(void);
+void display_invasion_win(void);
 void display_elconfig_win(void);
 void display_minimap(void);
 #ifdef ECDEBUGWIN

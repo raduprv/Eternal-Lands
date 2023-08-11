@@ -7,10 +7,12 @@
 	config. For example, $HOME/.elc/invasion_lists/ on Linux systems.
 	Any file in that directory with a ".txt" extension will be loaded.
 
-	Each file must contain the list name as the first line, which must
-	not start with a "#".  All remaining lines are interpreted as
-	invasion commands with the form:
+	Each file must contain the list name as the first line, which must 
+	not start with a "#".  Of the remaining line, only those starting 
+	with "#invasion" are interpreted as commands, anything else is 
+	ignored.
 
+	The invasion commands take the form:
 	#invasion <x> <y> <map> <monster> <number of mobs>
 
 	These commands should be formatted as valid to send to the server.
@@ -23,6 +25,10 @@
 	clicking a line immediately sends that command to the server.
 	Sending commands can be automated using the play/stop controls.
 
+	To include as an icon, add this to main_icon_window.xml:
+	<icon type="window" image_id="30" alt_image_id="31"
+	  help_name="invasion" param_name="invasion"></icon>
+	
 	To Do:
 		- Make window resizable
 		- Handle #command errors
@@ -123,12 +129,12 @@ namespace invasion_window
 		ss >> first_word >> x >> y >> map >> name >> count;
 		if (ss.fail())
 			log_parse_error(text, "Reading values");
-		else if (first_word != "#invasion")
-			log_parse_error(text, "Not invasion command");
 		else
+		{
 			construct();
-		if (!valid)
-			log_parse_error(text, "Command validation");
+			if (!valid)
+				log_parse_error(text, "Command validation");
+		}
 	}
 
 	//	Run the command.
@@ -187,6 +193,8 @@ namespace invasion_window
 		std::string line;
 		while (getline(in, line))
 		{
+			if (line.rfind("#invasion", 0) != 0)
+				continue;
 			Command *command = new Command(line);
 			if (command->is_valid())
 				commands.push_back(command);
@@ -697,7 +705,8 @@ namespace invasion_window
 	//
 	void Container::load_file_list(void)
 	{
-		std::string glob_path = std::string(get_path_config_base()) + "invasion_lists/*.txt";
+		std::string path = std::string(get_path_config_base()) + "invasion_lists/";
+		std::string glob_path = path + "*.txt";
 		std::vector<std::string> file_list;
 #ifdef WINDOWS
 		struct _finddata_t c_file;
@@ -705,7 +714,7 @@ namespace invasion_window
 		if ((hFile = _findfirst(glob_path.c_str(), &c_file)) != static_cast<intptr_t>(-1))
 		{
 			do
-				file_list.push_back(search_paths[i] + std::string(c_file.name));
+				file_list.push_back(path + std::string(c_file.name));
 			while (_findnext(hFile, &c_file) == 0);
 			_findclose(hFile);
 		}
@@ -744,6 +753,11 @@ extern "C"
 	{
 		invasion_window::container.init();
 		return 1;
+	}
+
+	void display_invasion_win(void)
+	{
+		invasion_window::container.init();
 	}
 
 	void destroy_invasion_window(void)

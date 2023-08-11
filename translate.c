@@ -58,6 +58,7 @@ char	tt_walk[30],
 	tt_buddy[30],
 	tt_options[30],
 	tt_help[30],
+	tt_invasion[30],
 	tt_customize[60],
 	newchar_warning[50],
 	newchar_cust_help[100],
@@ -1763,6 +1764,7 @@ void init_help()
 	add_xml_identifier(tooltips,"buddy",tt_buddy,"View buddy",sizeof(tt_buddy));
 	add_xml_identifier(tooltips,"opts",tt_options,"View options",sizeof(tt_options));
 	add_xml_identifier(tooltips,"help",tt_help,"View help",sizeof(tt_help));
+	add_xml_identifier(tooltips,"invasion",tt_invasion,"View invasion window",sizeof(tt_invasion));
 	add_xml_identifier(tooltips,"customize",tt_customize,"Customize your character",sizeof(tt_customize));
 	add_xml_identifier(tooltips,"name_pass",tt_name,"Choose name and password",sizeof(tt_name));
 	add_xml_identifier (tooltips, "info", tt_info, "View notepad/URL window", sizeof (tt_info));
