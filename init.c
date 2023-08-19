@@ -47,6 +47,9 @@
 #include "hud_timer.h"
 #include "items.h"
 #include "item_lists.h"
+#ifdef JSON_FILES
+#include "invasion_window.h"
+#endif
 #include "keys.h"
 #ifdef JSON_FILES
 #include "json_io.h"
@@ -326,6 +329,8 @@ static void load_cstate(void)
 	sort_storage_items = json_cstate_get_bool(window_dict_name, "sort_items", 0);
 
 	read_options_user_menus("user_menus_window");
+
+	load_invasion_window();
 
 	resize_root_window();
 
@@ -634,6 +639,8 @@ static void save_cstate(void)
 	json_cstate_set_bool(window_dict_name, "sort_items", sort_storage_items);
 
 	write_options_user_menus("user_menus_window");
+
+	save_invasion_window();
 }
 #endif
 

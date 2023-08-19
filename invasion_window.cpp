@@ -30,7 +30,6 @@
 	  help_name="invasion" param_name="invasion"></icon>
 	
 	To Do:
-		- Make window resizable
 		- Handle #command errors
 		- Add edit/save
 */
@@ -56,6 +55,9 @@
 #include "errors.h"
 #include "font.h"
 #include "gamewin.h"
+#ifdef JSON_FILES
+#include "json_io.h"
+#endif
 #include "questlog.h" // for draw_highlight()
 #include "text.h"
 #include "sound.h"
@@ -370,7 +372,8 @@ namespace invasion_window
 		public:
 			Container(void) :
 				reload_button_id(-1), play_button_id(-1), stop_button_id(-1), delay_label_id(-1), delay_input_id(-1),
-				delay_input_buf("5"), play_delay_seconds(5), is_playing(false), last_play_execute(0) {}
+				delay_input_buf(""), play_delay_seconds(def_delay), is_playing(false), last_play_execute(0),
+				char_width(def_char_width), num_lines(def_num_lines) {}
 			void init(void);
 			void destroy(void);
 			int display_window(window_info *win);
@@ -378,6 +381,10 @@ namespace invasion_window
 			int click(window_info *win, int mx, int my, Uint32 flags);
 			int ui_scale(window_info *win);
 			void reload(void) { stop_play(); load_file_list(); }
+#ifdef JSON_FILES
+			void save_win_state(void) const;
+			void load_win_state(void);
+#endif
 			void start_play(void);
 			void stop_play(void);
 			void play_next(void);
@@ -407,10 +414,22 @@ namespace invasion_window
 			List_Widget files_widget;
 			List_Widget commands_widget;
 			std::string help_text;
+			int char_width;
+			float num_lines;
+			static float min_num_lines, max_num_lines, def_num_lines;
+			static int min_char_width, max_char_width, def_char_width;
+			static int min_delay, max_delay, def_delay;
+			static float min_scale, max_scale, def_scale;
 	};
 
 	//	The invasion window instance.
 	static Container container;
+
+	//	Limits and default for saved parameters
+	float Container::min_num_lines = 5.0f, Container::max_num_lines = 40.0f, Container::def_num_lines = 10.0f;
+	int Container::min_char_width = 60, Container::max_char_width = 180, Container::def_char_width = 60;
+	int Container::min_delay = 1, Container::max_delay = 999, Container::def_delay = 10;
+	float Container::min_scale = 0.25f, Container::max_scale = 3.0f, Container::def_scale = 1.0f;
 
 	//	Window callback functions.
 	//
@@ -440,7 +459,7 @@ namespace invasion_window
 		{
 			win_id = create_window("Invasion", (not_on_top_now(MW_INVASION) ?game_root_win : -1), 0,
 				get_pos_x_MW(MW_INVASION), get_pos_y_MW(MW_INVASION), 0, 0,
-				ELW_USE_UISCALE|ELW_WIN_DEFAULT);
+				ELW_RESIZEABLE|ELW_USE_UISCALE|ELW_WIN_DEFAULT);
 			if (win_id < 0 || win_id >= windows_list.num_windows)
 			{
 				LOG_ERROR("%s: Failed to create invasion window\n", __FILE__ );
@@ -550,6 +569,17 @@ namespace invasion_window
 	//
 	int Container::display_window(window_info *win)
 	{
+		if (win->resized)
+		{
+			static int last_x = -1, last_y = -1;
+			if ((last_x != win->len_x) || (last_y != win->len_y))
+			{
+				last_x = win->len_x;
+				last_y = win->len_y;
+				ui_scale(win);
+			}
+		}
+
 		files_widget.draw(commands_lists, false);
 
 		if (valid_file_selected())
@@ -630,13 +660,27 @@ namespace invasion_window
 
 		float margin = win->small_font_len_y / 4;
 
-		float name_list_width = 20 * get_avg_char_width_zoom(win->font_category, win->current_scale_small);
+		float avg_char_width = get_avg_char_width_zoom(win->font_category, win->current_scale_small);
+
+		// either use the last width of the two lists, or calculate new if the window is resizing
+		if (win->resized)
+			char_width = std::min(static_cast<float>(max_char_width), std::max(static_cast<float>(min_char_width),
+				(win->len_x - 4 * margin - 2 * win->box_size) / avg_char_width));
+
+		float name_list_width = avg_char_width * char_width / 3;
 		float command_list_width = 2 * name_list_width;
 		float win_x = 4 * margin + name_list_width + command_list_width + 2 * win->box_size;
 
-		float list_height = 10 * static_cast<int>(win->small_font_len_y * 1.1);
-		int button_height = widget_get_height(win->window_id, reload_button_id);
-		float win_y = 3 * margin + list_height + button_height;
+		float button_height = widget_get_height(win->window_id, reload_button_id);
+
+		// either use the last height of the two lists, or calculate new if the window is resizing
+		if (win->resized)
+			num_lines = std::min(max_num_lines, std::max(min_num_lines,
+				(win->len_y - 3 * margin - button_height) / static_cast<int>(win->small_font_len_y * 1.1)));
+
+		// keep the base of the lists aligned with the text, obsorbing any extra in the space to the buttons
+		float list_height = static_cast<int>(num_lines) * static_cast<int>(win->small_font_len_y * 1.1);
+		float win_y = 3 * margin + num_lines * static_cast<int>(win->small_font_len_y * 1.1) + button_height;
 
 		files_widget.update(margin, name_list_width, margin, list_height, win->small_font_len_y * 1.1, 0, margin);
 		files_widget.set_bar_len(commands_lists.size());
@@ -645,31 +689,35 @@ namespace invasion_window
 			command_list_width, margin, list_height, win->small_font_len_y * 1.1, win->box_size, margin);
 		commands_widget.set_bar_len((valid_file_selected()) ?get_selected_command_list()->size(): 0);
 
+		// all the buttons and the input field align at the top
+		float button_y = win_y - button_height - margin;
+
 		float width = widget_get_width(win->window_id, reload_button_id);
-		widget_move(win->window_id, reload_button_id,
-			win_x / 6 - width / 2, 2 * margin + list_height);
+		widget_move(win->window_id, reload_button_id, win_x / 6 - width / 2, button_y);
 
 		float button_x = 4 * margin + name_list_width + win->box_size;
-		widget_move(win->window_id, play_button_id, button_x, 2 * margin + list_height);
+		widget_move(win->window_id, play_button_id, button_x, button_y);
 
 		button_x += 4 * margin + widget_get_width(win->window_id, play_button_id);
-		widget_move(win->window_id, stop_button_id, button_x, 2 * margin + list_height);
+		widget_move(win->window_id, stop_button_id, button_x, button_y);
 
 		if (delay_label_id >= 0)
 			widget_destroy(win->window_id, delay_label_id);
 		if (delay_label_id >= 0)
 			widget_destroy(win->window_id, delay_input_id);
 
-		float delay_y = 3 * margin + list_height;
-
 		button_x += 4 * margin + widget_get_width(win->window_id, stop_button_id);
 		delay_label_id = label_add_extended(win->window_id, 101, NULL,
-			button_x, delay_y, 0, win->current_scale, "Delay:");
+			button_x, button_y, 0, win->current_scale, "Delay:");
 		widget_set_OnMouseover(win->window_id, delay_label_id, (int (*)())&input_mouseover_handler);
+
+		std::string temp = std::to_string(play_delay_seconds);
+		safe_strncpy2(reinterpret_cast<char *>(delay_input_buf),
+			temp.c_str(), sizeof(delay_input_buf), temp.size());
 
 		button_x += margin + widget_get_width(win->window_id, delay_label_id);
 		delay_input_id = pword_field_add_extended(win->window_id, 102, NULL,
-			button_x, delay_y, 6 * get_avg_char_width_zoom(UI_FONT, win->current_scale),
+			button_x, button_y, 6 * get_avg_char_width_zoom(UI_FONT, win->current_scale),
 			win->default_font_len_y + margin, P_TEXT, win->current_scale, delay_input_buf, 4);
 		widget_set_OnKey(win->window_id, delay_input_id, (int (*)())delay_input_keypress_handler);
 		widget_set_OnMouseover(win->window_id, delay_input_id, (int (*)())&input_mouseover_handler);
@@ -689,7 +737,7 @@ namespace invasion_window
 			std::string current = reinterpret_cast<char *>(delay_input_buf);
 			std::istringstream ss(current);
 			ss >> num_seconds;
-			if (!ss.fail() && num_seconds > 0)
+			if (!ss.fail() && (num_seconds >= min_delay) && (num_seconds < max_delay))
 			{
 				do_drag_item_sound();
 				play_delay_seconds = num_seconds;
@@ -744,6 +792,36 @@ namespace invasion_window
 		commands_widget.set_bar_len((valid_file_selected()) ?get_selected_command_list()->size(): 0);
 	}
 
+#ifdef JSON_FILES
+	//	Load the parameter from the client state file
+	//
+	void Container::load_win_state(void)
+	{
+		char window_dict_name[ELW_TITLE_SIZE];
+		get_dict_name_WM(MW_INVASION, window_dict_name, sizeof(window_dict_name));
+		*get_scale_WM(MW_INVASION) = std::min(max_scale, std::max(min_scale,
+			json_cstate_get_float(window_dict_name, "scale", def_scale)));
+		char_width = std::min(max_char_width, std::max(min_char_width,
+			json_cstate_get_int(window_dict_name, "char_width", def_char_width)));
+		num_lines = std::min(max_num_lines, std::max(min_num_lines,
+			json_cstate_get_float(window_dict_name, "num_lines",def_num_lines)));
+		play_delay_seconds = std::min(max_delay, std::max(min_delay,
+			json_cstate_get_int(window_dict_name, "delay_seconds", def_delay)));
+	}
+
+	//	Save the parameter to the client state file
+	//
+	void Container::save_win_state(void) const
+	{
+		char window_dict_name[ELW_TITLE_SIZE];
+		get_dict_name_WM(MW_INVASION, window_dict_name, sizeof(window_dict_name));
+		json_cstate_set_float(window_dict_name, "scale", *get_scale_WM(MW_INVASION));
+		json_cstate_set_int(window_dict_name, "char_width", char_width);
+		json_cstate_set_float(window_dict_name, "num_lines", static_cast<int>(num_lines));
+		json_cstate_set_int(window_dict_name, "delay_seconds", play_delay_seconds);
+	}
+#endif
+
 } // end namespace invasion_window
 
 
@@ -769,4 +847,17 @@ extern "C"
 	{
 		invasion_window::container.update_play();
 	}
+
+#ifdef JSON_FILES
+	void save_invasion_window(void)
+	{
+		invasion_window::container.save_win_state();
+	}
+
+	void load_invasion_window(void)
+	{
+		invasion_window::container.load_win_state();
+	}
+#endif
+
 }
