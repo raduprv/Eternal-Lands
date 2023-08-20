@@ -4928,7 +4928,7 @@ void init_actor_defs()
 		char *message = "This is likely the libxml2 > v2.10 issue\nSee https://www.eternal-lands.com/forum/index.php?/topic/61996-cant-log-in-the-rulesxml-file-was-not-found\n";
 		LOG_ERROR(message);
 		fprintf(stderr, message);
-		FATAL_ERROR_WINDOW("Failed to read actor defs. See Going to exit.");
+		FATAL_ERROR_WINDOW("Failed to read actor defs. See logs, going to exit.");
 		exit(1);
 	}
 }
