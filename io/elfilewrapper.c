@@ -1046,6 +1046,18 @@ Sint64 el_read(el_file_ptr file, Sint64 size, void* buffer)
 	count = file->size - file->position;
 #endif
 
+	/* The latest libxml (2.11) looks to function differently,
+	 * calling the read operation even though there is nothing
+	 * more to read.
+	 * Return 0 rather than an error (-1) if count is 0.
+	 * This is what the examples do too and looks to load the file correctly.
+	 * Return now to avoid unnessarily doing the memcopy bit.
+	 */
+	if (count == 0)
+	{
+		return 0;
+	}
+
 	if (count > size)
 	{
 		count = size;

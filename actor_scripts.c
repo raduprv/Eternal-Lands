@@ -11,6 +11,7 @@
 #include "draw_scene.h"
 #include "elconfig.h"
 #include "errors.h"
+#include "elloggingwrapper.h"
 #include "gamewin.h"
 #include "hud_statsbar_window.h"
 #include "interface.h"
@@ -4922,7 +4923,14 @@ void init_actor_defs()
 	memset (actors_defs, 0, sizeof (actors_defs));
 	memset (attached_actors_defs, 0, sizeof (attached_actors_defs));
 	set_invert_v_coord();
-	read_actor_defs ("actor_defs", "actor_defs.xml");
+	if (read_actor_defs ("actor_defs", "actor_defs.xml") != 1)
+	{
+		char *message = "This is likely the libxml2 > v2.10 issue\nSee https://www.eternal-lands.com/forum/index.php?/topic/61996-cant-log-in-the-rulesxml-file-was-not-found\n";
+		LOG_ERROR(message);
+		fprintf(stderr, message);
+		FATAL_ERROR_WINDOW("Failed to read actor defs. See Going to exit.");
+		exit(1);
+	}
 }
 
 void free_actor_defs()
