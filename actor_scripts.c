@@ -4884,12 +4884,26 @@ int read_actor_defs (const char *dir, const char *index)
 	xmlDoc *doc;
 	char fname[120];
 	int ok = 1;
+	xmlParserCtxtPtr ctxt;
 
 	safe_snprintf (fname, sizeof(fname), "%s/%s", dir, index);
 
-	doc = xmlReadFile (fname, NULL, XML_PARSE_NOENT);
+	// Version v2.11 of libxml introduced "Protection against entity expansion attacks"
+	// Loading the actor defs, trips this protection and so v2.11 will not load the defs.
+	// v2.12 adds the ability to set a high limit for the checks.
+	// See https://gitlab.gnome.org/GNOME/libxml2/-/issues/581
+	// Thanks to @nwellnhof
+#if (LIBXML_VERSION >= 21100) && (LIBXML_VERSION < 21200)
+	#error Version 2.11 of libxml will not load actor defs.
+#endif
+	ctxt = xmlNewParserCtxt();
+#if LIBXML_VERSION >= 21200
+	xmlCtxtSetMaxAmplification (ctxt, 100);
+#endif
+	doc = xmlCtxtReadFile (ctxt, fname, NULL, XML_PARSE_NOENT);
 	if (doc == NULL) {
 		LOG_ERROR("Unable to read actor definition file %s", fname);
+		xmlFreeParserCtxt(ctxt);
 		return 0;
 	}
 
@@ -4914,6 +4928,7 @@ int read_actor_defs (const char *dir, const char *index)
 	}
 
 	xmlFreeDoc (doc);
+	xmlFreeParserCtxt (ctxt);
 	return ok;
 }
 
@@ -4925,9 +4940,6 @@ void init_actor_defs()
 	set_invert_v_coord();
 	if (read_actor_defs ("actor_defs", "actor_defs.xml") != 1)
 	{
-		char *message = "This is likely the libxml2 > v2.10 issue\nSee https://www.eternal-lands.com/forum/index.php?/topic/61996-cant-log-in-the-rulesxml-file-was-not-found\n";
-		LOG_ERROR(message);
-		fprintf(stderr, message);
 		FATAL_ERROR_WINDOW("Failed to read actor defs. See logs, going to exit.");
 		exit(1);
 	}
