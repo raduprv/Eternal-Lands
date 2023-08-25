@@ -3616,7 +3616,7 @@ int parse_actor_sounds(actor_types *act, const xmlNode *cfg)
 	int i;
 
 	if (cfg == NULL) return 0;
-	if (!have_sound_config) return 0;
+	if (!have_sound_config) return 1;  // not a fatal error for loading actor_defs.
 
 	ok = 1;
 	for (item = cfg; item; item = item->next) {
