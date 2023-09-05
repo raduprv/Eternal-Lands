@@ -189,7 +189,7 @@ void close_last_window(void)
 		size_t i;
 		enum managed_window_enum hide_list[] = {
 			MW_ASTRO, MW_BUDDY, MW_CONFIG, MW_DIALOGUE, MW_EMOTE, MW_HELP, MW_INFO,
-			MW_ITEMS, MW_MANU, MW_QUESTLOG, MW_RANGING, , MW_INVASIONMW_SPELLS, MW_STATS, MW_STORAGE };
+			MW_ITEMS, MW_MANU, MW_QUESTLOG, MW_RANGING, MW_INVASION, MW_SPELLS, MW_STATS, MW_STORAGE };
 		for (i = 0; i < sizeof(hide_list)/sizeof(enum managed_window_enum); i++)
 			if (get_show_window(get_id_MW(hide_list[i])))
 			{
