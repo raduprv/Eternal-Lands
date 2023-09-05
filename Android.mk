@@ -252,6 +252,7 @@ LOCAL_SRC_FILES := \
 	io/cal3d_io_wrapper.cpp \
 	item_info.cpp \
 	item_lists.cpp \
+	invasion_window.cpp \
 	json_io.cpp \
 	named_colours.cpp \
 	optimizer.cpp \
