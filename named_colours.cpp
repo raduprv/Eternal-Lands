@@ -15,6 +15,7 @@
 #include <string>
 #include <cstring>
 #include <sstream>
+#include <libxml/parser.h>
 
 #include "asc.h"
 #include "elloggingwrapper.h"
