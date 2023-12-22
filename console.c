@@ -1814,27 +1814,6 @@ static int command_show_res(char *text, int len)
 	return 1;
 }
 
-static int command_invasion(char *text, int len)
-{
-	if (*text)
-	{
-		char str[128];
-		safe_snprintf(str, sizeof(str), "#invasion %s", text);
-		LOG_TO_CONSOLE(c_green1, str);
-	}
-	return 1;
-}
-
-static int command_invasion_cap(char *text, int len)
-{
-	if (*text)
-	{
-		char str[128];
-		safe_snprintf(str, sizeof(str), "#invasion_cap %s", text);
-		LOG_TO_CONSOLE(c_green1, str);
-	}
-	return 1;
-}
 
 // Summoning attack state for the hud indicator, -1, 0 not "attack at will", 1 is "attack at will".
 static int summon_attack_mode_state = -1;
@@ -2263,8 +2242,6 @@ void init_commands(const char *filename)
 	add_command(cmd_summon_attack_short, &command_summon_attack);
 
 	add_command("invasion_win", &command_invasion_window);
-	add_command("invasion", &command_invasion);
-	add_command("invasion_cap", &command_invasion_cap);
 
 #ifdef ANDROID
 	add_command("kbd", &toggle_keyboard_debug);
