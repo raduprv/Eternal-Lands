@@ -1,7 +1,7 @@
 /*
 	Implement the invasion window.
 
-	Author bluap/pjbroad August 2023
+	Author bluap/pjbroad August/December 2023
 
 	Files are stored in the "invasion_lists" sub-directory of the users
 	config. For example, $HOME/.elc/invasion_lists/ on Linux systems.
@@ -12,8 +12,9 @@
 	with "#invasion" are interpreted as commands, anything else is 
 	ignored.
 
-	The invasion commands take the form:
+	The invasion commands take these forms:
 	#invasion <x> <y> <map> <monster> <number of mobs>
+	#invasion_cap <x> <y> <map> <monster> <number of mobs> <cap>
 
 	These commands should be formatted as valid to send to the server.
 
@@ -71,6 +72,7 @@ namespace invasion_window
 	{
 		public:
 			Command(unsigned int _x, unsigned int _y, unsigned int _map, std::string &_name, unsigned int _count);
+			Command(unsigned int _x, unsigned int _y, unsigned int _map, std::string &_name, unsigned int _count, unsigned int _cap);
 			Command(std::string &text);
 			bool is_valid(void) const { return valid; };
 			const std::string & get_text(void) const { return command_text; }
@@ -78,11 +80,14 @@ namespace invasion_window
 			static void log_parse_error(const std::string &text, const std::string &reason);
 		private:
 			void construct(void);
+			std::string hash_command;
 			unsigned int x;
 			unsigned int y;
 			unsigned int map;
 			std::string name;
 			unsigned int count;
+			unsigned int cap;
+			bool capped;
 			bool valid;
 			std::string command_text;
 	};
@@ -107,15 +112,25 @@ namespace invasion_window
 			return;
 		if (count > 50)
 			return;
-		command_text = "#invasion " + std::to_string(x) + " " + std::to_string(y) + " " +
+		if (capped && (cap > 200))
+			return;
+		command_text = hash_command + " " + std::to_string(x) + " " + std::to_string(y) + " " +
 			std::to_string(map) + " " + name + " " + std::to_string(count);
+		if (capped)
+			command_text += " " + std::to_string(cap);
 		valid = true;
 	}
 
 	// Create an invasion command from parameters.
 	//
 	Command::Command(unsigned int _x, unsigned int _y, unsigned int _map, std::string &_name, unsigned int _count)
-		: x(_x), y(_y), map(_map), name(_name), count(_count), valid(false)
+		: hash_command("#invasion"), x(_x), y(_y), map(_map), name(_name), count(_count), cap(0), capped(false), valid(false)
+	{
+		construct();
+	}
+
+	Command::Command(unsigned int _x, unsigned int _y, unsigned int _map, std::string &_name, unsigned int _count, unsigned int _cap)
+		: hash_command("#invasion_cap"), x(_x), y(_y), map(_map), name(_name), count(_count), cap(_cap), capped(true), valid(false)
 	{
 		construct();
 	}
@@ -124,11 +139,24 @@ namespace invasion_window
 	// #invasion <x> <y> <map> <monster> <number of mobs>
 	//
 	Command::Command(std::string &text)
-		: x(0), y(0), map(0), name(""), count(0), valid(false)
+		: x(0), y(0), map(0), name(""), count(0), cap(0), capped(false), valid(false)
 	{
 		std::istringstream ss(text);
-		std::string first_word;
-		ss >> first_word >> x >> y >> map >> name >> count;
+
+		ss >> hash_command;
+		if (hash_command == "#invasion")
+			ss >> x >> y >> map >> name >> count;
+		else if (hash_command == "#invasion_cap")
+		{
+			ss >> x >> y >> map >> name >> count >> cap;
+			capped = true;
+		}
+		else
+		{
+			log_parse_error(text, "Not an #invasion(_cap) command");
+			return;
+		}
+
 		if (ss.fail())
 			log_parse_error(text, "Reading values");
 		else
