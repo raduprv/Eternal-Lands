@@ -32,7 +32,12 @@
 	
 	To Do:
 		- Handle #command errors
-		- Add edit/save
+		- Add/edit/detete commands
+		- Add/delete files
+		- Use map names
+		- Use monster names
+		- Monster count greater then 50
+		- Replete command list option
 */
 
 #include <algorithm>
@@ -71,13 +76,19 @@ namespace invasion_window
 	class Command
 	{
 		public:
-			Command(unsigned int _x, unsigned int _y, unsigned int _map, std::string &_name, unsigned int _count);
-			Command(unsigned int _x, unsigned int _y, unsigned int _map, std::string &_name, unsigned int _count, unsigned int _cap);
+			Command(unsigned int _x, unsigned int _y, unsigned int _map, std::string _name, unsigned int _count);
+			Command(unsigned int _x, unsigned int _y, unsigned int _map, std::string _name, unsigned int _count, unsigned int _cap);
 			Command(std::string &text);
 			bool is_valid(void) const { return valid; };
 			const std::string & get_text(void) const { return command_text; }
 			void execute(void) const;
 			static void log_parse_error(const std::string &text, const std::string &reason);
+			static bool valid_x(unsigned int x) { return (x < 768); }
+			static bool valid_y(unsigned int y) { return (y < 768); }
+			static bool valid_map(unsigned int map) { return (map < 141); }
+			static bool valid_name(std::string &name) { return !name.empty(); }
+			static bool valid_count(unsigned int count) { return ((count > 0) && (count < 51)); }
+			static bool valid_cap(unsigned int cap) { return ((cap > 0) && (cap < 180)); }
 		private:
 			void construct(void);
 			std::string hash_command;
@@ -104,15 +115,17 @@ namespace invasion_window
 	//
 	void Command::construct(void)
 	{
-		if (x > 1000)
+		if (!valid_x(x))
 			return;
-		if (y > 1000)
+		if (!valid_x(y))
 			return;
-		if (map > 200)
+		if (!valid_map(map))
 			return;
-		if (count > 50)
+		if (!valid_name(name))
 			return;
-		if (capped && (cap > 200))
+		if (!valid_count(count))
+			return;
+		if (capped && !valid_cap(cap))
 			return;
 		command_text = hash_command + " " + std::to_string(x) + " " + std::to_string(y) + " " +
 			std::to_string(map) + " " + name + " " + std::to_string(count);
@@ -123,13 +136,13 @@ namespace invasion_window
 
 	// Create an invasion command from parameters.
 	//
-	Command::Command(unsigned int _x, unsigned int _y, unsigned int _map, std::string &_name, unsigned int _count)
+	Command::Command(unsigned int _x, unsigned int _y, unsigned int _map, std::string _name, unsigned int _count)
 		: hash_command("#invasion"), x(_x), y(_y), map(_map), name(_name), count(_count), cap(0), capped(false), valid(false)
 	{
 		construct();
 	}
 
-	Command::Command(unsigned int _x, unsigned int _y, unsigned int _map, std::string &_name, unsigned int _count, unsigned int _cap)
+	Command::Command(unsigned int _x, unsigned int _y, unsigned int _map, std::string _name, unsigned int _count, unsigned int _cap)
 		: hash_command("#invasion_cap"), x(_x), y(_y), map(_map), name(_name), count(_count), cap(_cap), capped(true), valid(false)
 	{
 		construct();
@@ -391,6 +404,222 @@ namespace invasion_window
 		vscrollbar_set_pos(win->window_id, scroll_id, new_pos);
 	}
 
+	//
+	//	A class to implement a labelled input widget.
+	//
+	class Labelled_Input_Widget
+	{
+		public:
+			Labelled_Input_Widget(std::string _label, std::string _mouseover,
+				unsigned int init_value, bool (*_validate_func)(unsigned int), size_t _buf_size, bool _have_checkbox) :
+					label(_label), mouseover(_mouseover), validate_number(_validate_func), validate_string(0),
+					last_input_number(init_value), is_string(false),
+					label_id(-1), input_id(-1), checkbox_id(-1), window_id(-1),
+					have_checkbox(_have_checkbox), checkbox_enabled(0),
+					buf_size(_buf_size), last_input_buf(0), width(0), state(STATE_START) {}
+			Labelled_Input_Widget(std::string _label, std::string _mouseover, std::string init_value,
+				bool (*_validate_string)(std::string &), size_t _buf_size, bool _have_checkbox) :
+					label(_label), mouseover(_mouseover), validate_number(0), validate_string(_validate_string),
+					last_input_number(0), last_input_string(init_value),
+					is_string(true), label_id(-1), input_id(-1),  checkbox_id(-1), window_id(-1),
+					have_checkbox(_have_checkbox), checkbox_enabled(0),
+					buf_size(_buf_size), last_input_buf(0), width(0), state(STATE_START) {}
+			void destroy(int window_id);
+			void create(window_info *win, int *new_widget_id, float space);
+			void move(int window_id, int x, int y);
+			void keypress(SDL_Keycode key_code);
+			int get_input_id(void) const { return input_id; }
+			float get_width(void) const { return width; }
+			void set_init_value(unsigned int value) { last_input_number = value; }
+			void set_init_value(std::string value) { last_input_string = value; }
+			unsigned int get_number_value(void) const { return last_input_number; }
+			bool get_checked(void) const { return checkbox_enabled == 1; }
+			const std::string & get_string_value(void) const { return last_input_string; }
+			std::string get_mouseover(void) const;
+			bool is_valid(void) const { return (state == STATE_VALID); }
+			void revalidate(void);
+		private:
+			std::string label;
+			std::string mouseover;
+			bool (*validate_number)(unsigned int);
+			bool (*validate_string)(std::string &);
+			unsigned int last_input_number;
+			std::string last_input_string;
+			bool is_string;
+			int label_id;
+			int input_id;
+			int checkbox_id;
+			int window_id;
+			bool have_checkbox;
+			int checkbox_enabled;
+			size_t buf_size;
+			unsigned char *last_input_buf;
+			float width;
+			enum WIDGET_STATE { STATE_START=0, STATE_VALID, STATE_INVALID, STATE_EDIT };
+			void set_state(enum WIDGET_STATE new_state);
+			enum WIDGET_STATE state;
+	};
+
+	// Destroy the label and input widgets, and free the buffer.
+	//
+	void Labelled_Input_Widget::destroy(int window_id)
+	{
+		if (label_id >= 0)
+			widget_destroy(window_id, label_id);
+		if (input_id >= 0)
+			widget_destroy(window_id, input_id);
+		if (checkbox_id >= 0)
+			widget_destroy(window_id, checkbox_id);
+		if (last_input_buf)
+			delete [] last_input_buf;
+		label_id = input_id = checkbox_id = window_id = -1;
+		last_input_buf = 0;
+	}
+
+	// Pre-declare the keypress and mouseover functions
+	static int common_input_keypress_handler(widget_list *widget, int mx, int my,
+		SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_mod);
+	static int common_input_mouseover_handler(widget_list *widget, int mx, int my);
+
+	// Destroy (if needed) and create the widgets.
+	//
+	void Labelled_Input_Widget::create(window_info *win, int *new_widget_id, float space)
+	{
+		destroy(win->window_id);
+
+		window_id = win->window_id;
+
+		label_id = label_add_extended(win->window_id, (*new_widget_id)++, NULL, 0, 0, 0, win->current_scale, label.c_str());
+		widget_set_OnMouseover(win->window_id, label_id, (int (*)())&common_input_mouseover_handler);
+
+		last_input_buf = new unsigned char[buf_size];
+		std::string temp;
+		if (is_string)
+			temp = last_input_string;
+		else
+			temp = std::to_string(last_input_number);
+		safe_strncpy2(reinterpret_cast<char *>(last_input_buf),
+			temp.c_str(), sizeof(last_input_buf), temp.size());
+		float input_chars = (buf_size < 10) ?buf_size + 1 : 10;
+		input_id = pword_field_add_extended(win->window_id, (*new_widget_id)++, NULL,
+			0, 0, input_chars * get_max_digit_width_zoom(UI_FONT, win->current_scale),
+			1.5 * win->default_font_len_y, P_TEXT, win->current_scale, last_input_buf, buf_size);
+		widget_set_OnKey(win->window_id, input_id, (int (*)())common_input_keypress_handler);
+		widget_set_OnMouseover(win->window_id, input_id, (int (*)())&common_input_mouseover_handler);
+
+		width = widget_get_width(win->window_id, label_id) + space + widget_get_width(win->window_id, input_id);
+
+		if (have_checkbox)
+		{
+			checkbox_id = checkbox_add_extended(win->window_id, (*new_widget_id)++, NULL,
+				0, 0, win->box_size, win->box_size, 0, win->current_scale, &checkbox_enabled);
+			width += widget_get_width(win->window_id, checkbox_id) + 4 * space;
+		}
+	}
+
+	// Move the label and input wigets as one, presurving the seperation space.
+	//
+	void Labelled_Input_Widget::move(int window_id, int x, int y)
+	{
+		float y_label_offset = (widget_get_height(window_id, input_id) - widget_get_height(window_id, label_id)) / 2;
+		float checkbox_width = 0;
+		float input_width = widget_get_width(window_id, input_id);
+		float label_width = widget_get_width(window_id, label_id);
+		float space = 0;
+		if (have_checkbox)
+		{
+			checkbox_width = widget_get_width(window_id, checkbox_id);
+			widget_move(window_id, checkbox_id, x, y + y_label_offset);
+			space = (width - input_width - label_width - checkbox_width) / 5;
+			x += checkbox_width + space * 4;
+		}
+		else
+			space = width - input_width - label_width;
+		widget_move(window_id, label_id, x, y + y_label_offset);
+		widget_move(window_id, input_id, x + label_width + space, y);
+	}
+
+	// Callback from the common keypress handler.
+	// When Return/Enter pressed, validate and update the value.
+	//
+	void Labelled_Input_Widget::keypress(SDL_Keycode key_code)
+	{
+		if ((key_code == SDLK_RETURN || key_code == SDLK_KP_ENTER))
+		{
+			std::string current = reinterpret_cast<char *>(last_input_buf);
+			if (current.size())
+			{
+				if (is_string)
+				{
+					if (validate_string(current))
+					{
+						last_input_string = current;
+						do_drag_item_sound();
+						set_state(STATE_VALID);
+						return;
+					}
+				}
+				else
+				{
+					std::istringstream ss(current);
+					unsigned int new_value = 0;
+					ss >> new_value;
+					if (!ss.fail() && validate_number(new_value))
+					{
+						last_input_number = new_value;
+						do_drag_item_sound();
+						set_state(STATE_VALID);
+						return;
+					}
+				}
+			}
+			do_alert1_sound();
+			set_state(STATE_INVALID);
+		}
+		else
+			set_state(STATE_EDIT);
+	}
+
+	// Revalidate widget state.
+	//
+	void Labelled_Input_Widget::revalidate(void)
+	{
+		if (have_checkbox && !checkbox_enabled)
+		{
+			set_state(STATE_START);
+			return;
+		}
+		if ((state == STATE_EDIT) || (state == STATE_INVALID))
+			return;
+		if ((is_string) ?validate_string(last_input_string) :validate_number(last_input_number))
+			set_state(STATE_VALID);
+		else
+			set_state(STATE_INVALID);
+	}
+
+	// Set the colour of the wiget input field.
+	//
+	void Labelled_Input_Widget::set_state(enum WIDGET_STATE new_state)
+	{
+		state = new_state;
+		if ((state == STATE_START) || (state == STATE_VALID))
+			widget_set_color(window_id, input_id, gui_color[0], gui_color[1], gui_color[2]);
+		else if (state == STATE_INVALID)
+			widget_set_color(window_id, input_id, 255.0, 0.0, 0.0);
+		else if (state == STATE_EDIT)
+			widget_set_color(window_id, input_id, 255.0, 255.0, 0.0);
+	}
+
+	// Display a state aware mouseover message.
+	//
+	std::string Labelled_Input_Widget::get_mouseover(void) const
+	{
+		return mouseover + std::string(": ") +
+			((state == STATE_VALID)
+				? ((is_string) ?last_input_string :std::to_string(last_input_number))
+				: std::string(": not validated"));
+	}
+
 
 	//
 	//	Main class for invasion UI.
@@ -399,9 +628,19 @@ namespace invasion_window
 	{
 		public:
 			Container(void) :
-				reload_button_id(-1), play_button_id(-1), stop_button_id(-1), delay_label_id(-1), delay_input_id(-1),
-				delay_input_buf(""), play_delay_seconds(def_delay), is_playing(false), last_play_execute(0),
-				char_width(def_char_width), num_lines(def_num_lines) {}
+				reload_button_id(-1), play_button_id(-1), stop_button_id(-1),
+				launch_button_id(-1), add_button_id(-1), replace_button_id(-1),
+				is_playing(false), last_play_execute(0),
+				delay_input_widget(std::string("Delay:"), "Enter delay in seconds", def_delay, &Container::valid_delay, 4, false),
+				x_coord_widget(std::string("X:"), "Enter X coord", 0, &Command::valid_x, 4, false),
+				y_coord_widget(std::string("Y:"), "Enter Y coord", 0, &Command::valid_y, 4, false),
+				map_widget(std::string("Map:"), "Enter map id", 0, &Command::valid_map, 4, false),
+				monster_widget(std::string("Monster:"), "Enter monsters name", "", &Command::valid_name, 21, false),
+				count_widget(std::string("Count:"), "Enter number of monsters", 0, &Command::valid_count, 4, false),
+				cap_widget(std::string("Cap:"), "Enter player cap", 0, &Command::valid_cap, 4, true),
+				input_widgets({ &delay_input_widget, &x_coord_widget, &y_coord_widget, &map_widget,
+					&monster_widget, &count_widget, &cap_widget }),
+				char_width(def_char_width), num_lines(def_num_lines), launch_command_valid(true) {}
 			void init(void);
 			void destroy(void);
 			int display_window(window_info *win);
@@ -409,6 +648,7 @@ namespace invasion_window
 			int click(window_info *win, int mx, int my, Uint32 flags);
 			int ui_scale(window_info *win);
 			void reload(void) { stop_play(); load_file_list(); }
+			static bool valid_delay(unsigned int delay) { return ((delay >= min_delay) && (delay <= max_delay)); }
 #ifdef JSON_FILES
 			void save_win_state(void) const;
 			void load_win_state(void);
@@ -416,8 +656,11 @@ namespace invasion_window
 			void start_play(void);
 			void stop_play(void);
 			void play_next(void);
+			void launch(void);
+			void launch_mouseover(void) { set_help((launch_command_valid) ?"Launch invasion" :"Last invasion command invalid"); }
 			void update_play(void);
-			void delay_input(SDL_Keycode key_code);
+			void common_input_keypress(SDL_Keycode key_code, widget_list *widget);
+			void common_input_mouseover(widget_list *widget);
 			void set_help(const char *message) { help_text = message; }
 			bool valid_file_selected(void) const
 				{ return files_widget.get_selected() < commands_lists.size(); }
@@ -433,17 +676,26 @@ namespace invasion_window
 			int reload_button_id;
 			int play_button_id;
 			int stop_button_id;
-			int delay_label_id;
-			int delay_input_id;
-			unsigned char delay_input_buf[4];
-			int play_delay_seconds;
+			int launch_button_id;
+			int add_button_id;
+			int replace_button_id;
+			std::vector <int> button_ids;
 			bool is_playing;
 			Uint32 last_play_execute;
 			List_Widget files_widget;
 			List_Widget commands_widget;
+			Labelled_Input_Widget delay_input_widget;
+			Labelled_Input_Widget x_coord_widget;
+			Labelled_Input_Widget y_coord_widget;
+			Labelled_Input_Widget map_widget;
+			Labelled_Input_Widget monster_widget;
+			Labelled_Input_Widget count_widget;
+			Labelled_Input_Widget cap_widget;
+			std::vector <Labelled_Input_Widget *> input_widgets;
 			std::string help_text;
 			int char_width;
 			float num_lines;
+			bool launch_command_valid;
 			static float min_num_lines, max_num_lines, def_num_lines;
 			static int min_char_width, max_char_width, def_char_width;
 			static int min_delay, max_delay, def_delay;
@@ -468,12 +720,51 @@ namespace invasion_window
 	static int list_name_reload_handler(widget_list *widget, int mx, int my) { container.reload(); return 0; }
 	static int play_button_handler(widget_list *widget, int mx, int my) { container.start_play(); return 0; }
 	static int stop_button_handler(widget_list *widget, int mx, int my) { container.stop_play(); return 0; }
-	static int delay_input_keypress_handler(widget_list *widget, int mx, int my, SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_mod)
-		{ container.delay_input(key_code); return 0; }
+	static int launch_button_handler(widget_list *widget, int mx, int my) { container.launch(); return 0; }
+	static int add_button_handler(widget_list *widget, int mx, int my) { return 0; }
+	static int replace_button_handler(widget_list *widget, int mx, int my) { return 0; }
 	static int reload_mouseover_handler(widget_list *widget, int mx, int my) { container.set_help("Reload command files"); return 1; }
-	static int input_mouseover_handler(widget_list *widget, int mx, int my) { container.set_help("Set command delay in seconds"); return 1; }
 	static int play_mouseover_handler(widget_list *widget, int mx, int my) { container.set_help("Start command sequence"); return 1; }
 	static int stop_mouseover_handler(widget_list *widget, int mx, int my) { container.set_help("Stop command sequence"); return 1; }
+	static int launch_mouseover_handler(widget_list *widget, int mx, int my) { container.launch_mouseover(); return 1; }
+	static int add_mouseover_handler(widget_list *widget, int mx, int my) { container.set_help("TBD: Append to current list"); return 1; }
+	static int replace_mouseover_handler(widget_list *widget, int mx, int my) { container.set_help("TBD: Replace current list line"); return 1; }
+
+	// Common keypress handler for labelled input widget.
+	static int common_input_keypress_handler(widget_list *widget, int mx, int my, SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_mod)
+		{ container.common_input_keypress(key_code, widget); return 0; }
+
+	// For a key press in a labelled input widget, find the objecting matching the widget id and call its handler.
+	//
+	void Container::common_input_keypress(SDL_Keycode key_code, widget_list *widget)
+	{
+		for (auto &i : input_widgets)
+		{
+			if (widget->id == i->get_input_id())
+			{
+				i->keypress(key_code);
+				break;
+			}
+		}
+	}
+
+	// Common mouseover handler for labelled input widget.
+	static int common_input_mouseover_handler(widget_list *widget, int mx, int my)
+		{ container.common_input_mouseover(widget); return 1; }
+
+	// When the mouse is over a labelled input widget, find the objecting matching the widget id and call its handler.
+	//
+	void Container::common_input_mouseover(widget_list *widget)
+	{
+		for (auto &i : input_widgets)
+		{
+			if (widget->id == i->get_input_id())
+			{
+				container.set_help(i->get_mouseover().c_str());
+				break;
+			}
+		}
+	}
 
 	//	Init the invasion container, create or re-initialise the window.
 	//
@@ -518,6 +809,21 @@ namespace invasion_window
 			stop_button_id = button_add_extended(win_id, widget_id++, NULL, 0, 0, 0, 0, 0, 1.0f, "X");
 			widget_set_OnClick(win_id, stop_button_id, (int (*)())&stop_button_handler);
 			widget_set_OnMouseover(win_id, stop_button_id, (int (*)())&stop_mouseover_handler);
+
+			launch_button_id = button_add_extended(win_id, widget_id++, NULL, 0, 0, 0, 0, 0, 1.0f, ">");
+			widget_set_OnClick(win_id, launch_button_id, (int (*)())&launch_button_handler);
+			widget_set_OnMouseover(win_id, launch_button_id, (int (*)())&launch_mouseover_handler);
+
+			add_button_id = button_add_extended(win_id, widget_id++, NULL, 0, 0, 0, 0, 0, 1.0f, "+");
+			widget_set_OnClick(win_id, add_button_id, (int (*)())&add_button_handler);
+			widget_set_OnMouseover(win_id, add_button_id, (int (*)())&add_mouseover_handler);
+
+			replace_button_id = button_add_extended(win_id, widget_id++, NULL, 0, 0, 0, 0, 0, 1.0f, "><");
+			widget_set_OnClick(win_id, replace_button_id, (int (*)())&replace_button_handler);
+			widget_set_OnMouseover(win_id, replace_button_id, (int (*)())&replace_mouseover_handler);
+
+			button_ids = {reload_button_id, play_button_id, stop_button_id,
+				launch_button_id, add_button_id, replace_button_id};
 
 			ui_scale(&windows_list.window[win_id]);
 			check_proportional_move(MW_INVASION);
@@ -575,6 +881,47 @@ namespace invasion_window
 		LOG_TO_CONSOLE(c_green1, "Stopped invasion sequence");
 	}
 
+	//	Launch the current generator panel invasion.
+	//
+	void Container::launch(void)
+	{
+		std::vector <Labelled_Input_Widget *> widgets = { &x_coord_widget, &y_coord_widget,
+			&map_widget, &monster_widget, &count_widget };
+		if (cap_widget.get_checked())
+			widgets.push_back(&cap_widget);
+
+		for (auto &i : widgets)
+			i->revalidate();
+
+		for (auto &i : widgets)
+			if (!i->is_valid())
+			{
+				launch_command_valid = false;
+				do_alert1_sound();
+				return;
+			}
+
+		Command *generated_command;
+		if (cap_widget.get_checked())
+			generated_command = new Command(x_coord_widget.get_number_value(), y_coord_widget.get_number_value(),
+				map_widget.get_number_value(), monster_widget.get_string_value(), count_widget.get_number_value(),
+				cap_widget.get_number_value());
+		else
+			generated_command = new Command(x_coord_widget.get_number_value(), y_coord_widget.get_number_value(),
+				map_widget.get_number_value(), monster_widget.get_string_value(), count_widget.get_number_value());
+		if (generated_command->is_valid())
+		{
+			launch_command_valid = true;
+			generated_command->execute();
+		}
+		else
+		{
+			launch_command_valid = false;
+			do_alert1_sound();
+		}
+		delete generated_command;
+	}
+
 	//	Clear the lists of invasion commands.
 	//
 	void Container::clear_commands_lists(void)
@@ -588,6 +935,8 @@ namespace invasion_window
 	//
 	void Container::destroy(void)
 	{
+		for (auto &i : input_widgets)
+			i->destroy(get_id_MW(MW_INVASION));
 		destroy_window(get_id_MW(MW_INVASION));
 		set_id_MW(MW_INVASION, -1);
 		clear_commands_lists();
@@ -626,7 +975,7 @@ namespace invasion_window
 	//
 	void Container::update_play(void)
 	{
-		if ((is_playing) && ((last_play_execute + play_delay_seconds * 1000) < SDL_GetTicks()))
+		if ((is_playing) && ((last_play_execute + delay_input_widget.get_number_value() * 1000) < SDL_GetTicks()))
 			play_next();
 	}
 
@@ -635,9 +984,9 @@ namespace invasion_window
 	int Container::mouseover(window_info *win, int mx, int my)
 	{
 		if (files_widget.mouse_over(mx, my))
-			set_help("Click to load command list");
+			set_help("Click to load command list, TBD: right-click for new/delete file.");
 		if (commands_widget.mouse_over(mx, my))
-			set_help("Double-click to execute command");
+			set_help("Double-click to execute command, TBD: right-click for edit/delete command.");
 		return 0;
 	}
 
@@ -682,22 +1031,39 @@ namespace invasion_window
 	//
 	int Container::ui_scale(window_info *win)
 	{
-		button_resize(win->window_id, reload_button_id, 0, 0, win->current_scale);
-		button_resize(win->window_id, play_button_id, 0, 0, win->current_scale);
-		button_resize(win->window_id, stop_button_id, 0, 0, win->current_scale);
-
 		float margin = win->small_font_len_y / 4;
+		int new_widget_id = 101;
+
+		// resize all the buttons
+		for (auto i : button_ids)
+			button_resize(win->window_id, i, 0, 0, win->current_scale);
+
+		// recreate all the input widgets
+		for (auto &i : input_widgets)
+			i->create(win, &new_widget_id, margin / 2);
 
 		float avg_char_width = get_avg_char_width_zoom(win->font_category, win->current_scale_small);
+
+		float launch_width = widget_get_width(win->window_id, launch_button_id);
+		float add_width = widget_get_width(win->window_id, add_button_id);
+		float replace_width = widget_get_width(win->window_id, replace_button_id);
+
+		float max_generate_input_width = 0;
+		for (auto &i : input_widgets)
+			if (i->get_input_id() != delay_input_widget.get_input_id())
+				if (i->get_width() > max_generate_input_width)
+					max_generate_input_width = i->get_width();
+		float generator_panel_width = std::max(4 * margin + launch_width + add_width + replace_width,
+			2 * margin + max_generate_input_width);
 
 		// either use the last width of the two lists, or calculate new if the window is resizing
 		if (win->resized)
 			char_width = std::min(static_cast<float>(max_char_width), std::max(static_cast<float>(min_char_width),
-				(win->len_x - 4 * margin - 2 * win->box_size) / avg_char_width));
+				(win->len_x - generator_panel_width - 6 * margin - 3 * win->box_size) / avg_char_width));
 
 		float name_list_width = avg_char_width * char_width / 3;
 		float command_list_width = 2 * name_list_width;
-		float win_x = 4 * margin + name_list_width + command_list_width + 2 * win->box_size;
+		float win_x = 6 * margin + name_list_width + command_list_width + 3 * win->box_size + generator_panel_width;
 
 		float button_height = widget_get_height(win->window_id, reload_button_id);
 
@@ -708,73 +1074,58 @@ namespace invasion_window
 
 		// keep the base of the lists aligned with the text, obsorbing any extra in the space to the buttons
 		float list_height = static_cast<int>(num_lines) * static_cast<int>(win->small_font_len_y * 1.1);
-		float win_y = 3 * margin + num_lines * static_cast<int>(win->small_font_len_y * 1.1) + button_height;
+		float win_y = std::max(num_lines * static_cast<int>(win->small_font_len_y * 1.1),
+			(input_widgets.size() -1) * (button_height + margin) + margin);
+		win_y += 3 * margin + button_height;
 
+		// update the list of files
 		files_widget.update(margin, name_list_width, margin, list_height, win->small_font_len_y * 1.1, 0, margin);
 		files_widget.set_bar_len(commands_lists.size());
 
+		// update the list of commands
 		commands_widget.update(3 * margin + name_list_width + win->box_size,
-			command_list_width, margin, list_height, win->small_font_len_y * 1.1, win->box_size, margin);
+			command_list_width, margin, list_height, win->small_font_len_y * 1.1, 0, margin);
 		commands_widget.set_bar_len((valid_file_selected()) ?get_selected_command_list()->size(): 0);
 
 		// all the buttons and the input field align at the top
 		float button_y = win_y - button_height - margin;
 
+		// reload button, x centred on names text
 		float width = widget_get_width(win->window_id, reload_button_id);
-		widget_move(win->window_id, reload_button_id, win_x / 6 - width / 2, button_y);
+		widget_move(win->window_id, reload_button_id, (name_list_width + 2 * margin - width) / 2, button_y);
 
-		float button_x = 4 * margin + name_list_width + win->box_size;
+		// recreate the delay widget
+		delay_input_widget.create(win, &new_widget_id, margin / 2);
+
+		// get the widths of the play, stop and delay widgets
+		float play_width = widget_get_width(win->window_id, play_button_id);
+		float stop_width = widget_get_width(win->window_id, stop_button_id);
+
+		// play, stop and delay, x centred on the list text
+		float total_with = 4 * margin + play_width + stop_width + delay_input_widget.get_width();
+		float button_x = 2 * margin + name_list_width + win->box_size + (command_list_width + 2 * margin - total_with) / 2;
 		widget_move(win->window_id, play_button_id, button_x, button_y);
+		widget_move(win->window_id, stop_button_id, button_x + 2 * margin + play_width, button_y);
+		delay_input_widget.move(win->window_id, button_x + 4 * margin + play_width + stop_width, button_y);
 
-		button_x += 4 * margin + widget_get_width(win->window_id, play_button_id);
-		widget_move(win->window_id, stop_button_id, button_x, button_y);
+		// launch, add and replace, x centred on the generate panel, with gap for resize button
+		float launch_x = 4 * margin + 2 * win->box_size + name_list_width + command_list_width +
+			margin + (generator_panel_width - (margin * 4 + launch_width + add_width + replace_width)) / 2;
+		widget_move(win->window_id, launch_button_id, launch_x, button_y);
+		widget_move(win->window_id, add_button_id, launch_x + 2 * margin + launch_width, button_y);
+		widget_move(win->window_id, replace_button_id, launch_x + 4 * margin + launch_width + add_width, button_y);
 
-		if (delay_label_id >= 0)
-			widget_destroy(win->window_id, delay_label_id);
-		if (delay_label_id >= 0)
-			widget_destroy(win->window_id, delay_input_id);
-
-		button_x += 4 * margin + widget_get_width(win->window_id, stop_button_id);
-		delay_label_id = label_add_extended(win->window_id, 101, NULL,
-			button_x, button_y, 0, win->current_scale, "Delay:");
-		widget_set_OnMouseover(win->window_id, delay_label_id, (int (*)())&input_mouseover_handler);
-
-		std::string temp = std::to_string(play_delay_seconds);
-		safe_strncpy2(reinterpret_cast<char *>(delay_input_buf),
-			temp.c_str(), sizeof(delay_input_buf), temp.size());
-
-		button_x += margin + widget_get_width(win->window_id, delay_label_id);
-		delay_input_id = pword_field_add_extended(win->window_id, 102, NULL,
-			button_x, button_y, 6 * get_avg_char_width_zoom(UI_FONT, win->current_scale),
-			win->default_font_len_y + margin, P_TEXT, win->current_scale, delay_input_buf, 4);
-		widget_set_OnKey(win->window_id, delay_input_id, (int (*)())delay_input_keypress_handler);
-		widget_set_OnMouseover(win->window_id, delay_input_id, (int (*)())&input_mouseover_handler);
+		// centre and right allign the generator panel input wigets in a column
+		float right_offset = win_x - win->box_size - (generator_panel_width - max_generate_input_width) / 2 - margin;
+		int y_line = 0;
+		float y_space = button_height + margin;
+		for (auto &i : input_widgets)
+			if (i->get_input_id() != delay_input_widget.get_input_id())
+				i->move(win->window_id, right_offset - i->get_width(), margin + y_line++ * y_space);
 
 		resize_window(win->window_id, static_cast<int>(win_x + 0.5), static_cast<int>(win_y + 0.5));
 
 		return 1;
-	}
-
-	//	Update the command delay
-	//
-	void Container::delay_input(SDL_Keycode key_code)
-	{
-		if ((key_code == SDLK_RETURN || key_code == SDLK_KP_ENTER) && (strlen((char*)delay_input_buf) > 0))
-		{
-			int num_seconds = 0;
-			std::string current = reinterpret_cast<char *>(delay_input_buf);
-			std::istringstream ss(current);
-			ss >> num_seconds;
-			if (!ss.fail() && (num_seconds >= min_delay) && (num_seconds < max_delay))
-			{
-				do_drag_item_sound();
-				play_delay_seconds = num_seconds;
-				std::string message = "Set invasion command delay to: " + std::to_string(num_seconds);
-				LOG_TO_CONSOLE(c_green1, message.c_str());
-			}
-			else
-				do_alert1_sound();
-		}
 	}
 
 	//	Load the file list, all files in folder.
@@ -833,8 +1184,8 @@ namespace invasion_window
 			json_cstate_get_int(window_dict_name, "char_width", def_char_width)));
 		num_lines = std::min(max_num_lines, std::max(min_num_lines,
 			json_cstate_get_float(window_dict_name, "num_lines",def_num_lines)));
-		play_delay_seconds = std::min(max_delay, std::max(min_delay,
-			json_cstate_get_int(window_dict_name, "delay_seconds", def_delay)));
+		delay_input_widget.set_init_value(std::min(max_delay, std::max(min_delay,
+			json_cstate_get_int(window_dict_name, "delay_seconds", def_delay))));
 	}
 
 	//	Save the parameter to the client state file
@@ -846,7 +1197,7 @@ namespace invasion_window
 		json_cstate_set_float(window_dict_name, "scale", *get_scale_WM(MW_INVASION));
 		json_cstate_set_int(window_dict_name, "char_width", char_width);
 		json_cstate_set_float(window_dict_name, "num_lines", static_cast<int>(num_lines));
-		json_cstate_set_int(window_dict_name, "delay_seconds", play_delay_seconds);
+		json_cstate_set_int(window_dict_name, "delay_seconds", delay_input_widget.get_number_value());
 	}
 #endif
 
