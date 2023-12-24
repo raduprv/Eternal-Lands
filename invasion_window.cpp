@@ -424,7 +424,7 @@ namespace invasion_window
 					is_string(true), label_id(-1), input_id(-1),  checkbox_id(-1), window_id(-1),
 					have_checkbox(_have_checkbox), checkbox_enabled(0),
 					buf_size(_buf_size), last_input_buf(0), width(0), state(STATE_START) {}
-			void destroy(int window_id);
+			void destroy(int window_id, bool keep_buf = false);
 			void create(window_info *win, int *new_widget_id, float space);
 			void move(int window_id, int x, int y);
 			void keypress(SDL_Keycode key_code);
@@ -462,7 +462,7 @@ namespace invasion_window
 
 	// Destroy the label and input widgets, and free the buffer.
 	//
-	void Labelled_Input_Widget::destroy(int window_id)
+	void Labelled_Input_Widget::destroy(int window_id, bool keep_buf)
 	{
 		if (label_id >= 0)
 			widget_destroy(window_id, label_id);
@@ -470,9 +470,11 @@ namespace invasion_window
 			widget_destroy(window_id, input_id);
 		if (checkbox_id >= 0)
 			widget_destroy(window_id, checkbox_id);
+		label_id = input_id = checkbox_id = window_id = -1;
+		if (keep_buf)
+			return;
 		if (last_input_buf)
 			delete [] last_input_buf;
-		label_id = input_id = checkbox_id = window_id = -1;
 		last_input_buf = 0;
 	}
 
@@ -485,21 +487,27 @@ namespace invasion_window
 	//
 	void Labelled_Input_Widget::create(window_info *win, int *new_widget_id, float space)
 	{
-		destroy(win->window_id);
+		destroy(win->window_id, true);
 
 		window_id = win->window_id;
 
 		label_id = label_add_extended(win->window_id, (*new_widget_id)++, NULL, 0, 0, 0, win->current_scale, label.c_str());
 		widget_set_OnMouseover(win->window_id, label_id, (int (*)())&common_input_mouseover_handler);
 
-		last_input_buf = new unsigned char[buf_size];
-		std::string temp;
-		if (is_string)
-			temp = last_input_string;
-		else
-			temp = std::to_string(last_input_number);
-		safe_strncpy2(reinterpret_cast<char *>(last_input_buf),
-			temp.c_str(), sizeof(last_input_buf), temp.size());
+		// the buffer if created once and populated by the initial value
+		// this preserves any current edits
+		if (!last_input_buf)
+		{
+			last_input_buf = new unsigned char[buf_size];
+			std::string temp;
+			if (is_string)
+				temp = last_input_string;
+			else
+				temp = std::to_string(last_input_number);
+			safe_strncpy2(reinterpret_cast<char *>(last_input_buf),
+				temp.c_str(), sizeof(last_input_buf), temp.size());
+		}
+
 		float input_chars = (buf_size < 10) ?buf_size + 1 : 10;
 		input_id = pword_field_add_extended(win->window_id, (*new_widget_id)++, NULL,
 			0, 0, input_chars * get_max_digit_width_zoom(UI_FONT, win->current_scale),
@@ -515,6 +523,9 @@ namespace invasion_window
 				0, 0, win->box_size, win->box_size, 0, win->current_scale, &checkbox_enabled);
 			width += widget_get_width(win->window_id, checkbox_id) + 4 * space;
 		}
+
+		// preserve any colour setting
+		set_state(state);
 	}
 
 	// Move the label and input wigets as one, presurving the seperation space.
