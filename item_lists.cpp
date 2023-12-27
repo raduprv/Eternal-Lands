@@ -126,7 +126,7 @@ namespace ItemLists
 			void rename_active(const char * name);
 			void select_by_name(const char *name);
 			void find_next_matching(const char *filter);
-			size_t get_active(void) const { return active_list; }
+			size_t get_active(void) const { return ((loaded) ?active_list :initial_active_list); }
 			size_t size(void) const { return saved_item_lists.size(); }
 			bool valid_active_list(void) const { return active_list < size(); }
 			void active_next_list(void) { if (active_list + 1 < size()) active_list++; }
