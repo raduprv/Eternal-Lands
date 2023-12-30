@@ -626,9 +626,7 @@ namespace invasion_window
 	void Labelled_Input_Widget::set_content(std::string text)
 	{
 		if (last_input_buf && (input_id != -1))
-			safe_strncpy2(reinterpret_cast<char *>(last_input_buf),
-					text.c_str(), buf_size, text.size());
-		pword_field_set_content(window_id, input_id, last_input_buf, buf_size);
+			pword_field_set_content(window_id, input_id, reinterpret_cast<const unsigned char*>(text.c_str()), text.size());
 		last_input_string = text;
 		set_state(STATE_START);
 		revalidate();
@@ -641,9 +639,7 @@ namespace invasion_window
 		if (last_input_buf && (input_id != -1))
 		{
 			std::string text = std::to_string(value);
-			safe_strncpy2(reinterpret_cast<char *>(last_input_buf),
-				text.c_str(), buf_size, text.size());
-			pword_field_set_content(window_id, input_id, last_input_buf, buf_size);
+			pword_field_set_content(window_id, input_id, reinterpret_cast<const unsigned char*>(text.c_str()), text.size());
 		}
 		last_input_number = value;
 		set_state(STATE_START);
