@@ -35,7 +35,6 @@
 		- Use map names (search)
 		- Use monster names (search)
 		- Monster count greater then 50
-		- Repeat command list option
 */
 
 #include <algorithm>
@@ -90,7 +89,7 @@ namespace invasion_window
 			Command(std::string &text);
 			bool is_valid(void) const { return valid; };
 			const std::string & get_text(void) const { return command_text; }
-			void execute(void) const;
+			void execute(bool safe_mode) const;
 			unsigned int get_x(void) const { return x; }
 			unsigned int get_y(void) const { return y; }
 			unsigned int get_map(void) const { return map; }
@@ -102,7 +101,8 @@ namespace invasion_window
 			static bool valid_x(unsigned int x) { return (x < 768); }
 			static bool valid_y(unsigned int y) { return (y < 768); }
 			static bool valid_map(unsigned int map) { return (map < 141); }
-			static bool valid_name(std::string &name) { return (!name.empty() && (name.size() <= max_name_len())); }
+			static bool valid_name(std::string &name)
+				{ return (!name.empty() && (name.size() <= max_name_len()) && (name.find(" ") == std::string::npos)); }
 			static bool valid_count(unsigned int count) { return ((count > 0) && (count < 51)); }
 			static bool valid_cap(unsigned int cap) { return ((cap > 0) && (cap < 180)); }
 		private:
@@ -190,10 +190,15 @@ namespace invasion_window
 
 	//	Run the command.
 	//
-	void Command::execute(void) const
+	void Command::execute(bool safe_mode) const
 	{
 		if (is_valid())
 		{
+			if (safe_mode)
+			{
+				console_info("Invasion safe mode: " + command_text);
+				return;
+			}
 			size_t command_len = command_text.size() + 1;
 			char temp[command_len];
 			safe_strncpy(temp, command_text.c_str(), command_len);
@@ -210,7 +215,7 @@ namespace invasion_window
 		public:
 			Command_List(const char * file_name);
 			~Command_List(void);
-			void execute_command(size_t index) const { if (index < commands.size()) commands[index]->execute(); }
+			void execute_command(size_t index, bool safe_mode) const { if (index < commands.size()) commands[index]->execute(safe_mode); }
 			const std::string & get_text(void) const { return list_name; }
 			size_t size(void) const { return commands.size(); }
 			const std::vector<Command *> & get_commands(void) const { return commands; }
@@ -525,6 +530,7 @@ namespace invasion_window
 			unsigned int get_number_value(void) const { return last_input_number; }
 			void set_checked(bool is_checked) { checkbox_enabled = (is_checked) ?1 :0; }
 			bool get_checked(void) const { return checkbox_enabled == 1; }
+			bool get_have_checkbox(void) const { return have_checkbox; }
 			const std::string & get_string_value(void) const { return last_input_string; }
 			std::string get_mouseover(void) const;
 			bool is_valid(void) const { return (state == STATE_VALID); }
@@ -760,17 +766,19 @@ namespace invasion_window
 				add_list_button_id(-1), reload_button_id(-1), play_button_id(-1), stop_button_id(-1),
 				launch_button_id(-1), add_command_button_id(-1), replace_button_id(-1),
 				is_playing(false), last_play_execute(0),
-				delay_input_widget(std::string("Delay:"), "Enter delay in seconds", def_delay, &Container::valid_delay, 4, false),
+				delay_input_widget(std::string("D:"), "Enter delay in seconds", def_delay, &Container::valid_delay, 4, false),
+				repeat_widget(std::string("R:"), "Enter number of times to repeat list", def_repeat, &Container::valid_repeat, 3, false),
 				x_coord_widget(std::string("X:"), "Enter X coord", 0, &Command::valid_x, 4, false),
 				y_coord_widget(std::string("Y:"), "Enter Y coord", 0, &Command::valid_y, 4, false),
 				map_widget(std::string("Map:"), "Enter map id", 0, &Command::valid_map, 4, false),
 				monster_widget(std::string("Monster:"), "Enter monsters name", "", &Command::valid_name, Command::max_name_len() + 1, false),
 				count_widget(std::string("Count:"), "Enter number of monsters", 0, &Command::valid_count, 4, false),
 				cap_widget(std::string("Cap:"), "Enter player cap", 0, &Command::valid_cap, 4, true),
-				input_widgets({ &delay_input_widget, &x_coord_widget, &y_coord_widget, &map_widget,
+				all_input_widgets({ &delay_input_widget, &repeat_widget, &x_coord_widget, &y_coord_widget, &map_widget,
 					&monster_widget, &count_widget, &cap_widget }),
+				generator_input_widgets({ &x_coord_widget, &y_coord_widget, &map_widget, &monster_widget, &count_widget, &cap_widget }),
 				char_width(def_char_width), num_lines(def_num_lines), generated_command_valid(true),
-				add_list_prompt("Enter Command List Name") {}
+				add_list_prompt("Enter Command List Name"), safe_mode(1), repeats_done(0) {}
 			void init(void);
 			void destroy(void);
 			int display_window(window_info *win);
@@ -779,9 +787,12 @@ namespace invasion_window
 			int ui_scale(window_info *win);
 			void create_list(const char *input_text);
 			int commands_list_context(int option);
+			int title_cm(window_info *win, int widget_id, int mx, int my, int option);
+			void set_title(void);
 			int add_list_button(void);
 			void reload(void) { stop_play(); load_file_list(); }
 			static bool valid_delay(unsigned int delay) { return ((delay >= min_delay) && (delay <= max_delay)); }
+			static bool valid_repeat(unsigned int repeat) { return ((repeat > 0) && (repeat < 100)); }
 #ifdef JSON_FILES
 			void save_win_state(void) const;
 			void load_win_state(void);
@@ -822,23 +833,27 @@ namespace invasion_window
 			List_Widget files_widget;
 			List_Widget commands_widget;
 			Labelled_Input_Widget delay_input_widget;
+			Labelled_Input_Widget repeat_widget;
 			Labelled_Input_Widget x_coord_widget;
 			Labelled_Input_Widget y_coord_widget;
 			Labelled_Input_Widget map_widget;
 			Labelled_Input_Widget monster_widget;
 			Labelled_Input_Widget count_widget;
 			Labelled_Input_Widget cap_widget;
-			std::vector <Labelled_Input_Widget *> input_widgets;
+			std::vector <Labelled_Input_Widget *> all_input_widgets;
+			std::vector <Labelled_Input_Widget *> generator_input_widgets;
 			std::string help_text;
 			int char_width;
 			float num_lines;
 			bool generated_command_valid;
 			static float min_num_lines, max_num_lines, def_num_lines;
 			static int min_char_width, max_char_width, def_char_width;
-			static int min_delay, max_delay, def_delay;
+			static int min_delay, max_delay, def_delay, def_repeat;
 			static float min_scale, max_scale, def_scale;
 			INPUT_POPUP ipu_add_list;
 			std::string add_list_prompt;
+			int safe_mode;
+			int repeats_done;
 	};
 
 	//	The invasion window instance.
@@ -848,6 +863,7 @@ namespace invasion_window
 	float Container::min_num_lines = 5.0f, Container::max_num_lines = 40.0f, Container::def_num_lines = 10.0f;
 	int Container::min_char_width = 60, Container::max_char_width = 180, Container::def_char_width = 60;
 	int Container::min_delay = 1, Container::max_delay = 999, Container::def_delay = 10;
+	int Container::def_repeat = 1;
 	float Container::min_scale = 0.25f, Container::max_scale = 3.0f, Container::def_scale = 1.0f;
 
 	//	Window callback functions.
@@ -872,6 +888,7 @@ namespace invasion_window
 	static int add_list_button_handler(widget_list *widget, int mx, int my) { return container.add_list_button(); }
 	static void create_list_handler(const char *input_text, void *data) { container.create_list(input_text); }
 	static int commands_cm_handler(window_info *win, int widget_id, int mx, int my, int option) { return container.commands_list_context(option); }
+	static int title_cm_handler(window_info *win, int widget_id, int mx, int my, int option) { return container.title_cm(win, widget_id, mx, my, option); }
 
 	// Common keypress handler for labelled input widget.
 	static int common_input_keypress_handler(widget_list *widget, int mx, int my, SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_mod)
@@ -881,7 +898,7 @@ namespace invasion_window
 	//
 	void Container::common_input_keypress(SDL_Keycode key_code, widget_list *widget)
 	{
-		for (auto &i : input_widgets)
+		for (auto &i : all_input_widgets)
 		{
 			if (widget->id == i->get_input_id())
 			{
@@ -899,7 +916,7 @@ namespace invasion_window
 	//
 	void Container::common_input_mouseover(widget_list *widget)
 	{
-		for (auto &i : input_widgets)
+		for (auto &i : all_input_widgets)
 		{
 			if (widget->id == i->get_input_id())
 			{
@@ -1033,7 +1050,7 @@ namespace invasion_window
 		Command *generated_command = get_validated_generated_command();
 		if (generated_command)
 		{
-			generated_command->execute();
+			generated_command->execute(safe_mode != 0);
 			delete generated_command;
 		}
 	}
@@ -1137,6 +1154,13 @@ namespace invasion_window
 			button_ids = {add_list_button_id, reload_button_id, play_button_id, stop_button_id,
 				launch_button_id, add_command_button_id, replace_button_id};
 
+			// start with validated repeat value
+			repeat_widget.set_content(def_repeat);
+
+			cm_add(windows_list.window[win_id].cm_id, "--\nEnable Safe Mode", title_cm_handler);
+			cm_bool_line(windows_list.window[win_id].cm_id, ELW_CM_MENU_LEN+1, &safe_mode, NULL);
+			set_title();
+
 			ui_scale(&windows_list.window[win_id]);
 			check_proportional_move(MW_INVASION);
 		}
@@ -1157,6 +1181,7 @@ namespace invasion_window
 		{
 			console_info("Started invasion sequence from " + get_selected_command_list()->get_text());
 			is_playing = true;
+			repeats_done = 0;
 			play_next();
 		}
 	}
@@ -1167,8 +1192,13 @@ namespace invasion_window
 	{
 		if (valid_command_selected())
 		{
-			get_selected_command_list()->execute_command(commands_widget.get_selected());
+			get_selected_command_list()->execute_command(commands_widget.get_selected(), safe_mode != 0);
 			size_t next = commands_widget.get_selected() + 1;
+			if 	((next >= get_selected_command_list()->size()) && (++repeats_done < repeat_widget.get_number_value()))
+			{
+				next = 0;
+				console_info(std::string("Repeats remaining ") + std::to_string(repeat_widget.get_number_value() - repeats_done));
+			}
 			if 	(next < get_selected_command_list()->size())
 			{
 				commands_widget.set_selected(next);
@@ -1195,21 +1225,18 @@ namespace invasion_window
 	//
 	Command * Container::get_validated_generated_command(void)
 	{
-		std::vector <Labelled_Input_Widget *> widgets = { &x_coord_widget, &y_coord_widget,
-			&map_widget, &monster_widget, &count_widget };
-		if (cap_widget.get_checked())
-			widgets.push_back(&cap_widget);
+		for (auto &i : generator_input_widgets)
+			if (!i->get_have_checkbox() || (i->get_have_checkbox() && i->get_checked()))
+				i->revalidate();
 
-		for (auto &i : widgets)
-			i->revalidate();
-
-		for (auto &i : widgets)
-			if (!i->is_valid())
-			{
-				generated_command_valid = false;
-				do_alert1_sound();
-				return 0;
-			}
+		for (auto &i : generator_input_widgets)
+			if (!i->get_have_checkbox() || (i->get_have_checkbox() && i->get_checked()))
+				if (!i->is_valid())
+				{
+					generated_command_valid = false;
+					do_alert1_sound();
+					return 0;
+				}
 
 		Command *generated_command;
 		if (cap_widget.get_checked())
@@ -1243,7 +1270,7 @@ namespace invasion_window
 	//
 	void Container::destroy(void)
 	{
-		for (auto &i : input_widgets)
+		for (auto &i : all_input_widgets)
 			i->destroy(get_id_MW(MW_INVASION));
 		destroy_window(get_id_MW(MW_INVASION));
 		set_id_MW(MW_INVASION, -1);
@@ -1328,13 +1355,35 @@ namespace invasion_window
 				if (!safe_button_click(&last_click))
 					return 1;
 				if (!is_playing)
-					get_selected_command_list()->execute_command(commands_widget.get_under_mouse());
+					get_selected_command_list()->execute_command(commands_widget.get_under_mouse(), safe_mode != 0);
 			}
 			commands_widget.wheel_scroll(flags);
 			return 1;
 		}
 
 		return 1;
+	}
+
+	//	The callback for the window title bar right-click.
+	//
+	int Container::title_cm(window_info *win, int widget_id, int mx, int my, int option)
+	{
+		if (option<ELW_CM_MENU_LEN)
+			return cm_title_handler(win, widget_id, mx, my, option);
+		switch (option)
+		{
+			case ELW_CM_MENU_LEN+1: set_title(); break;
+		}
+		return 1;
+	}
+
+	//	Set the window title bar text.
+	//
+	void Container::set_title(void)
+	{
+		std::string window_name = std::string("Invasion - ") + std::string((safe_mode != 0) ?"Safe Mode" : "Live");
+		safe_strncpy2(windows_list.window[get_id_MW(MW_INVASION)].window_name, window_name.c_str(),
+			sizeof(windows_list.window[get_id_MW(MW_INVASION)].window_name), window_name.size());
 	}
 
 	//	The UI scale callback for the window.
@@ -1349,7 +1398,7 @@ namespace invasion_window
 			button_resize(win->window_id, i, 0, 0, win->current_scale);
 
 		// recreate all the input widgets
-		for (auto &i : input_widgets)
+		for (auto &i : all_input_widgets)
 			i->create(win, &new_widget_id, margin / 2);
 
 		float avg_char_width = get_avg_char_width_zoom(win->font_category, win->current_scale_small);
@@ -1359,10 +1408,9 @@ namespace invasion_window
 		float replace_width = widget_get_width(win->window_id, replace_button_id);
 
 		float max_generate_input_width = 0;
-		for (auto &i : input_widgets)
-			if (i->get_input_id() != delay_input_widget.get_input_id())
-				if (i->get_width() > max_generate_input_width)
-					max_generate_input_width = i->get_width();
+		for (auto &i : generator_input_widgets)
+			if (i->get_width() > max_generate_input_width)
+				max_generate_input_width = i->get_width();
 		float generator_panel_width = std::max(4 * margin + launch_width + add_command_width + replace_width,
 			2 * margin + max_generate_input_width);
 
@@ -1385,7 +1433,7 @@ namespace invasion_window
 		// keep the base of the lists aligned with the text, obsorbing any extra in the space to the buttons
 		float list_height = static_cast<int>(num_lines) * static_cast<int>(win->small_font_len_y * 1.1);
 		float win_y = std::max(num_lines * static_cast<int>(win->small_font_len_y * 1.1),
-			(input_widgets.size() -1) * (button_height + margin) + margin);
+			generator_input_widgets.size() * (button_height + margin) + margin);
 		win_y += 3 * margin + button_height;
 
 		// list widget can have context regions, but we have to remove them all from the window.
@@ -1410,19 +1458,21 @@ namespace invasion_window
 		widget_move(win->window_id, add_list_button_id, (name_list_width + 2 * margin - width) / 2, button_y);
 		widget_move(win->window_id, reload_button_id, 2 * margin + add_list_width + (name_list_width + 2 * margin - width) / 2, button_y);
 
-		// recreate the delay widget
+		// recreate the delay and repeat widgets
 		delay_input_widget.create(win, &new_widget_id, margin / 2);
+		repeat_widget.create(win, &new_widget_id, margin / 2);
 
 		// get the widths of the play and stop widgets
 		float play_width = widget_get_width(win->window_id, play_button_id);
 		float stop_width = widget_get_width(win->window_id, stop_button_id);
 
 		// play, stop and delay, x centred on the list text
-		float total_with = 4 * margin + play_width + stop_width + delay_input_widget.get_width();
+		float total_with = 6 * margin + play_width + stop_width + delay_input_widget.get_width() + repeat_widget.get_width();
 		float button_x = 2 * margin + name_list_width + win->box_size + (command_list_width + 2 * margin - total_with) / 2;
 		widget_move(win->window_id, play_button_id, button_x, button_y);
 		widget_move(win->window_id, stop_button_id, button_x + 2 * margin + play_width, button_y);
 		delay_input_widget.move(win->window_id, button_x + 4 * margin + play_width + stop_width, button_y);
+		repeat_widget.move(win->window_id, button_x + 6 * margin + play_width + stop_width + delay_input_widget.get_width() , button_y);
 
 		// launch, add and replace, x centred on the generate panel, with gap for resize button
 		float launch_x = 4 * margin + 2 * win->box_size + name_list_width + command_list_width +
@@ -1435,9 +1485,8 @@ namespace invasion_window
 		float right_offset = win_x - win->box_size - (generator_panel_width - max_generate_input_width) / 2 - margin;
 		int y_line = 0;
 		float y_space = button_height + margin;
-		for (auto &i : input_widgets)
-			if (i->get_input_id() != delay_input_widget.get_input_id())
-				i->move(win->window_id, right_offset - i->get_width(), margin + y_line++ * y_space);
+		for (auto &i : generator_input_widgets)
+			i->move(win->window_id, right_offset - i->get_width(), margin + y_line++ * y_space);
 
 		// finally, resize the window
 		resize_window(win->window_id, static_cast<int>(win_x + 0.5), static_cast<int>(win_y + 0.5));
@@ -1503,6 +1552,7 @@ namespace invasion_window
 			json_cstate_get_float(window_dict_name, "num_lines",def_num_lines)));
 		delay_input_widget.set_content(std::min(max_delay, std::max(min_delay,
 			json_cstate_get_int(window_dict_name, "delay_seconds", def_delay))));
+		safe_mode = json_cstate_get_int(window_dict_name, "safe_mode", 1);
 	}
 
 	//	Save the parameter to the client state file
@@ -1515,6 +1565,7 @@ namespace invasion_window
 		json_cstate_set_int(window_dict_name, "char_width", char_width);
 		json_cstate_set_float(window_dict_name, "num_lines", static_cast<int>(num_lines));
 		json_cstate_set_int(window_dict_name, "delay_seconds", delay_input_widget.get_number_value());
+		json_cstate_set_int(window_dict_name, "safe_mode", safe_mode);
 	}
 #endif
 
