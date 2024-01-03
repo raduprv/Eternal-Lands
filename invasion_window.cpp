@@ -7,9 +7,9 @@
 	config. For example, $HOME/.elc/invasion_lists/ on Linux systems.
 	Any file in that directory with a ".txt" extension will be loaded.
 
-	Each file must contain the list name as the first line, which must 
-	not start with a "#".  Of the remaining line, only those starting 
-	with "#invasion" are interpreted as commands, anything else is 
+	Each file must contain the list name as the first line, which must
+	not start with a "#".  Of the remaining line, only those starting
+	with "#invasion" are interpreted as commands, anything else is
 	ignored.
 
 	The invasion commands take these forms:
@@ -26,10 +26,17 @@
 	clicking a line immediately sends that command to the server.
 	Sending commands can be automated using the play/stop controls.
 
-	To include as an icon, add this to main_icon_window.xml:
+	To include as an icon, with suggested #commands, add this to
+	main_icon_window.xml:
 	<icon type="window" image_id="30" alt_image_id="31"
-	  help_name="invasion" param_name="invasion"></icon>
-	
+	  help_name="invasion" param_name="invasion">
+	Clear Invasion||#clear_invasion
+	||
+	Stop any invasion sequence||#stop_invasion_seq
+	||
+	Show invasion numbers||#il
+	</icon>
+
 	To Do:
 		- Handle #command errors
 		- Use map names (search)
@@ -65,6 +72,7 @@
 #include "errors.h"
 #include "font.h"
 #include "gamewin.h"
+#include "gl_init.h"  // for SDL_Window *el_gl_window
 #ifdef JSON_FILES
 #include "json_io.h"
 #endif
@@ -513,18 +521,18 @@ namespace invasion_window
 					last_input_number(init_value), is_string(false),
 					label_id(-1), input_id(-1), checkbox_id(-1), window_id(-1),
 					have_checkbox(_have_checkbox), checkbox_enabled(0),
-					buf_size(_buf_size), last_input_buf(0), width(0), state(STATE_START) {}
+					buf_size(_buf_size), last_input_buf(0), width(0), state(STATE_START), enter_needed(false) {}
 			Labelled_Input_Widget(std::string _label, std::string _mouseover, std::string init_value,
 				bool (*_validate_string)(std::string &), size_t _buf_size, bool _have_checkbox) :
 					label(_label), mouseover(_mouseover), validate_number(0), validate_string(_validate_string),
 					last_input_number(0), last_input_string(init_value),
 					is_string(true), label_id(-1), input_id(-1),  checkbox_id(-1), window_id(-1),
 					have_checkbox(_have_checkbox), checkbox_enabled(0),
-					buf_size(_buf_size), last_input_buf(0), width(0), state(STATE_START) {}
+					buf_size(_buf_size), last_input_buf(0), width(0), state(STATE_START), enter_needed(false) {}
 			void destroy(int window_id, bool keep_buf = false);
 			void create(window_info *win, int *new_widget_id, float space);
 			void move(int window_id, int x, int y);
-			void keypress(SDL_Keycode key_code);
+			bool keypress(SDL_Keycode key_code);
 			int get_input_id(void) const { return input_id; }
 			float get_width(void) const { return width; }
 			unsigned int get_number_value(void) const { return last_input_number; }
@@ -537,6 +545,8 @@ namespace invasion_window
 			void revalidate(void);
 			void set_content(std::string text);
 			void set_content(unsigned int value);
+			void enter_to_set(void) { enter_needed = true; }
+			void move_mouse_to_input(void) const;
 		private:
 			std::string label;
 			std::string mouseover;
@@ -557,6 +567,7 @@ namespace invasion_window
 			enum WIDGET_STATE { STATE_START=0, STATE_VALID, STATE_INVALID, STATE_EDIT };
 			void set_state(enum WIDGET_STATE new_state);
 			enum WIDGET_STATE state;
+			bool enter_needed;
 	};
 
 	// Destroy the label and input widgets, and free the buffer.
@@ -605,6 +616,7 @@ namespace invasion_window
 				temp = std::to_string(last_input_number);
 			safe_strncpy2(reinterpret_cast<char *>(last_input_buf),
 				temp.c_str(), buf_size, temp.size());
+			revalidate();
 		}
 
 		float input_chars = (buf_size < 10) ?buf_size + 1 : 10;
@@ -677,9 +689,10 @@ namespace invasion_window
 	// Callback from the common keypress handler.
 	// When Return/Enter pressed, validate and update the value.
 	//
-	void Labelled_Input_Widget::keypress(SDL_Keycode key_code)
+	bool Labelled_Input_Widget::keypress(SDL_Keycode key_code)
 	{
-		if ((key_code == SDLK_RETURN || key_code == SDLK_KP_ENTER))
+		bool enter_pressed = (key_code == SDLK_RETURN || key_code == SDLK_KP_ENTER);
+		if (!enter_needed || enter_pressed)
 		{
 			std::string current = reinterpret_cast<char *>(last_input_buf);
 			if (current.size())
@@ -689,9 +702,8 @@ namespace invasion_window
 					if (validate_string(current))
 					{
 						last_input_string = current;
-						do_drag_item_sound();
 						set_state(STATE_VALID);
-						return;
+						return enter_pressed;
 					}
 				}
 				else
@@ -702,17 +714,18 @@ namespace invasion_window
 					if (!ss.fail() && validate_number(new_value))
 					{
 						last_input_number = new_value;
-						do_drag_item_sound();
 						set_state(STATE_VALID);
-						return;
+						return enter_pressed;
 					}
 				}
 			}
-			do_alert1_sound();
+			if (enter_pressed)
+				do_alert1_sound();
 			set_state(STATE_INVALID);
 		}
 		else
 			set_state(STATE_EDIT);
+		return false;
 	}
 
 	// Revalidate widget state.
@@ -749,10 +762,28 @@ namespace invasion_window
 	//
 	std::string Labelled_Input_Widget::get_mouseover(void) const
 	{
-		return mouseover + std::string(": ") +
-			((state == STATE_VALID)
-				? ((is_string) ?last_input_string :std::to_string(last_input_number))
-				: std::string(": not validated"));
+		std::string outstr = mouseover + std::string(": ");
+		if (state == STATE_VALID)
+			outstr += ((is_string) ?last_input_string :std::to_string(last_input_number));
+		else if (state == STATE_EDIT)
+			outstr += "press Enter/Return to validate";
+		else
+			outstr += "invalid value";
+		return outstr;
+	}
+
+	//	Move the mouse to teh bottom right of the input widget
+	//
+	void Labelled_Input_Widget::move_mouse_to_input(void) const
+	{
+		if ((window_id < 0) || (window_id >= windows_list.num_windows))
+			return;
+		window_info *win = &windows_list.window[window_id];
+		widget_list *widget = widget_find(window_id, input_id);
+		if (widget)
+			SDL_WarpMouseInWindow(el_gl_window,
+				win->pos_x + widget->pos_x + widget->len_x - win->default_font_max_len_x / 4 - 1,
+				win->pos_y + widget->pos_y + widget->len_y - win->default_font_len_y / 4 - 1);
 	}
 
 
@@ -902,7 +933,22 @@ namespace invasion_window
 		{
 			if (widget->id == i->get_input_id())
 			{
-				i->keypress(key_code);
+				if (i->keypress(key_code))
+				{
+					// if return pressed for a generator input, and the input is valid, move mouse to next input field
+					auto item = std::find(generator_input_widgets.begin(), generator_input_widgets.end(), i);
+					if (item != generator_input_widgets.end())
+					{
+						for (size_t j = 0; j < generator_input_widgets.size(); j++)
+						{
+							if (++item == generator_input_widgets.end())
+								item = generator_input_widgets.begin();
+							if (!(*item)->get_have_checkbox() || (*item)->get_checked())
+								break;
+						}
+						(*item)->move_mouse_to_input();
+					}
+				}
 				break;
 			}
 		}
@@ -1154,8 +1200,9 @@ namespace invasion_window
 			button_ids = {add_list_button_id, reload_button_id, play_button_id, stop_button_id,
 				launch_button_id, add_command_button_id, replace_button_id};
 
-			// start with validated repeat value
-			repeat_widget.set_content(def_repeat);
+			// delay and repeat need enter/return key to set
+			delay_input_widget.enter_to_set();
+			repeat_widget.enter_to_set();
 
 			cm_add(windows_list.window[win_id].cm_id, "--\nEnable Safe Mode", title_cm_handler);
 			cm_bool_line(windows_list.window[win_id].cm_id, ELW_CM_MENU_LEN+1, &safe_mode, NULL);
@@ -1577,6 +1624,12 @@ extern "C"
 	int command_invasion_window(char *text, int len)
 	{
 		invasion_window::container.init();
+		return 1;
+	}
+
+	int stop_invasion_sequence(char *text, int len)
+	{
+		invasion_window::container.stop_play();
 		return 1;
 	}
 

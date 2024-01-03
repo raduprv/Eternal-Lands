@@ -84,6 +84,11 @@ static list_node_t *command_buffer_offset = NULL;
 /* The input line before we started moving around in the buffer. */
 static char first_input[256] = {0};
 
+// invasion window command strings
+static const char * invasion_win_long_cmd_str = "invasion_win";
+static const char * invasion_win_short_cmd_str = "iwin";
+static const char * invasion_seq_stop_long_cmd_str = "stop_invasion_seq";
+static const char * invasion_seq_stop_short_cmd_str = "istop";
 
 void add_line_to_history(const char *line, int len)
 {
@@ -1919,8 +1924,11 @@ int cm_test_window(char *text, int len);
 // list the #commands available
 static void commands_summary(void)
 {
+	const char * const exclude_commands[] = {invasion_win_long_cmd_str, invasion_win_short_cmd_str,
+		invasion_seq_stop_long_cmd_str, invasion_seq_stop_short_cmd_str};
+	const size_t num_exclude = sizeof(exclude_commands) / sizeof(char *);
 	char *str = NULL;
-	const char *delim = "  .  ";
+	const char * const delim = "  .  ";
 	const size_t str_len = 1 + (MAX_COMMAND_NAME_LEN + strlen(delim)) * command_count;
 	size_t i;
 
@@ -1932,6 +1940,12 @@ static void commands_summary(void)
 	str[0] = '\0';
 	for(i = 0; i < command_count; i++)
 	{
+		int j, exclude = 0;
+		for (j = 0; (j < num_exclude) && !exclude; j++)
+			if (strcmp(commands[i].command, exclude_commands[j]) == 0)
+				exclude = 1;
+		if (exclude)
+			continue;
 		if (str[0] != '\0')
 			safe_strcat(str, delim, str_len);
 		safe_strcat(str, commands[i].command, str_len);
@@ -2241,7 +2255,10 @@ void init_commands(const char *filename)
 	add_command(cmd_summon_attack, &command_summon_attack);
 	add_command(cmd_summon_attack_short, &command_summon_attack);
 
-	add_command("invasion_win", &command_invasion_window);
+	add_command(invasion_win_long_cmd_str, &command_invasion_window);
+	add_command(invasion_win_short_cmd_str, &command_invasion_window);
+	add_command(invasion_seq_stop_long_cmd_str, &stop_invasion_sequence);
+	add_command(invasion_seq_stop_short_cmd_str, &stop_invasion_sequence);
 
 #ifdef ANDROID
 	add_command("kbd", &toggle_keyboard_debug);
