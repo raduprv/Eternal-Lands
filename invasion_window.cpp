@@ -1,7 +1,7 @@
 /*
 	Implement the invasion window.
 
-	Author bluap/pjbroad August/December 2023
+	Author bluap/pjbroad August 2023 - January 2024
 
 	Files are stored in the "invasion_lists" sub-directory of the users
 	config. For example, $HOME/.elc/invasion_lists/ on Linux systems.
@@ -39,9 +39,11 @@
 
 	To Do:
 		- Handle #command errors
-		- Use map names (search)
-		- Use monster names (search)
 		- Monster count greater then 50
+		- Bulk edit feature
+		- Get confirmation of start if #il == 0
+		- Only open if #mod channel open
+		- validate entered map and monster name in filter lists - lists need to be complete
 */
 
 #include <algorithm>
@@ -87,7 +89,7 @@ namespace invasion_window
 	void console_info(const std::string &text) { LOG_TO_CONSOLE(c_green1, text.c_str()); }
 
 	//
-	// Class for a single invasion command.
+	//	Class for a single invasion command.
 	//
 	class Command
 	{
@@ -105,14 +107,14 @@ namespace invasion_window
 			unsigned int get_count(void) const { return count; }
 			bool is_capped(void) const { return capped; }
 			unsigned int get_cap(void) const { return cap; }
-			static int max_name_len(void) { return 20; }
 			static bool valid_x(unsigned int x) { return (x < 768); }
 			static bool valid_y(unsigned int y) { return (y < 768); }
-			static bool valid_map(unsigned int map) { return (map < 141); }
+			static bool valid_map(unsigned int map) { return ((map > 0) && (map < 141)); }
 			static bool valid_name(std::string &name)
-				{ return (!name.empty() && (name.size() <= max_name_len()) && (name.find(" ") == std::string::npos)); }
+				{ return (!name.empty() && (name.size() <= max_name_len) && (name.find(" ") == std::string::npos)); }
 			static bool valid_count(unsigned int count) { return ((count > 0) && (count < 51)); }
 			static bool valid_cap(unsigned int cap) { return ((cap > 0) && (cap < 180)); }
+			static size_t max_name_len;
 		private:
 			void construct(void);
 			std::string hash_command;
@@ -127,7 +129,11 @@ namespace invasion_window
 			std::string command_text;
 	};
 
-	//	Commmon to all constructors, do some validity checking.
+	//	Currently, the maximum size length is 18 characters but give some headroom.
+	//	If the monsters.list file contains a longer name, the max is increased.
+	size_t Command::max_name_len = 20;
+
+	//	Common to all constructors, do some validity checking.
 	//
 	void Command::construct(void)
 	{
@@ -150,7 +156,7 @@ namespace invasion_window
 		valid = true;
 	}
 
-	// Create an invasion command from parameters.
+	//	Create an #invasion command from parameters.
 	//
 	Command::Command(unsigned int _x, unsigned int _y, unsigned int _map, std::string _name, unsigned int _count)
 		: hash_command("#invasion"), x(_x), y(_y), map(_map), name(_name), count(_count), cap(0), capped(false), valid(false)
@@ -158,14 +164,16 @@ namespace invasion_window
 		construct();
 	}
 
+	//	Create an #invasion_cap command from parameters.
+	//
 	Command::Command(unsigned int _x, unsigned int _y, unsigned int _map, std::string _name, unsigned int _count, unsigned int _cap)
 		: hash_command("#invasion_cap"), x(_x), y(_y), map(_map), name(_name), count(_count), cap(_cap), capped(true), valid(false)
 	{
 		construct();
 	}
 
-	// Create an invasion command from a text string.
-	// #invasion <x> <y> <map> <monster> <number of mobs>
+	//	Create an invasion command from a text string.
+	//	#invasion <x> <y> <map> <monster> <number of mobs>
 	//
 	Command::Command(std::string &text)
 		: x(0), y(0), map(0), name(""), count(0), cap(0), capped(false), valid(false)
@@ -510,51 +518,218 @@ namespace invasion_window
 
 
 	//
+	//	Class for an Input Value filter
+	//
+	class Input_Value_Filter
+	{
+		public:
+			Input_Value_Filter(void) : valid(false), cm_id(CM_INIT_VALUE), max_value_len(0) {}
+			void init(std::string file_name);
+			void set_filter(std::string filter);
+			const std::vector<std::string> & get_filtered_lines(void) const { return filtered_lines; }
+			bool is_valid(void) const { return valid; }
+			const std::string & get_filtered_value(size_t index) const;
+			void display(widget_list *widget, int (*handler)(window_info *, int, int, int, int));
+			size_t get_max_value_len(void) const { return max_value_len; }
+			const std::string & get_text_from_value(std::string & value) const;
+		private:
+			bool valid;
+			size_t cm_id;
+			size_t max_value_len;
+			std::vector<std::pair<std::string, std::string>> full_list;
+			std::vector<std::string> filtered_lines;
+			std::vector<std::string> filtered_values;
+			std::string empty_string;
+	};
+
+	// Initialise the filter, loading the list from the specified file.
+	//
+	void Input_Value_Filter::init(std::string file_name)
+	{
+		full_list.clear();
+		filtered_lines.clear();
+		filtered_values.clear();
+
+		if (access(file_name.c_str(), F_OK) != 0)
+		{
+			console_error("Missing values filter [" + file_name + "]");
+			return;
+		}
+
+		std::ifstream in(file_name);
+		if (!in)
+		{
+			console_error("Failed to open [" + file_name + "]");
+			return;
+		}
+
+		int error_count = 0;
+		std::string line;
+		std::string delimiter = "||";
+		size_t pos = 0;
+		max_value_len = 0;
+		while (getline(in, line))
+		{
+			if (line.rfind("#", 0) == 0)
+				continue;
+			std::pair<std::string, std::string> tokens;
+			if ((pos = line.find(delimiter)) != std::string::npos)
+			{
+				tokens.first = line.substr(0, pos);
+				line.erase(0, pos + delimiter.length());
+				tokens.second = line;
+			}
+			if (!tokens.first.empty() && !tokens.second.empty())
+			{
+				full_list.push_back(tokens);
+				if (tokens.second.size() > max_value_len)
+					max_value_len = tokens.second.size();
+			}
+			else
+				error_count++;
+		}
+		in.close();
+
+		if (error_count)
+			console_error("File [" + file_name + "] has errors: " +
+				std::to_string(error_count) + " , good records: " + std::to_string(full_list.size()));
+
+		valid = true;
+	}
+
+	//	Generate the filtered lists that contain the specified string.
+	//
+	void Input_Value_Filter::set_filter(std::string filter)
+	{
+		filtered_lines.clear();
+		filtered_values.clear();
+		std::transform(filter.begin(), filter.end(), filter.begin(), [](unsigned char c){ return std::tolower(c); });
+		for (auto &i : full_list)
+		{
+			std::string lfirst = i.first;
+			std::string lsecond = i.second;
+			std::transform(lfirst.begin(), lfirst.end(), lfirst.begin(), [](unsigned char c){ return std::tolower(c); });
+			std::transform(lsecond.begin(), lsecond.end(), lsecond.begin(), [](unsigned char c){ return std::tolower(c); });
+			if ((lfirst.find(filter) != std::string::npos) || (lsecond.find(filter) != std::string::npos))
+			{
+				filtered_lines.push_back(i.first + " :: " + i.second);
+				filtered_values.push_back(i.second);
+			}
+		}
+	}
+
+	//	Return a copy of the indexed value from the filtered list.
+	//
+	const std::string & Input_Value_Filter::get_filtered_value(size_t index) const
+	{
+		if (index < filtered_values.size())
+			return filtered_values[index];
+		else
+			return empty_string;
+	}
+
+	//	Search the full list for the specified value and return the text.
+	//
+	const std::string & Input_Value_Filter::get_text_from_value(std::string & value) const
+	{
+		for (auto &i : full_list)
+			if (i.second == value)
+				return i.first;
+		return empty_string;
+	}
+
+	//	Display the list of values matching the input widget text, using a context menu.
+	//	The line clicked, will set the input text from the callback.
+	//
+	void Input_Value_Filter::display(widget_list *widget, int (*handler)(window_info *, int, int, int, int))
+	{
+		if (!widget || !handler)
+			return;
+		const size_t max_lines = 10;
+		const size_t num_lines = (filtered_lines.size() <= max_lines)
+			?filtered_lines.size() : max_lines - 1;
+		const bool have_more = (num_lines < filtered_lines.size());
+		size_t num_added = 0;
+
+		// construct the context menu lines
+		std::string cm_text;
+		for (auto j : filtered_lines)
+			if (num_added++ < num_lines)
+				cm_text += j + "\n";
+			else
+				break;
+		if (have_more)
+			cm_text += "  -v- -v- -v-  ";
+
+		// display the context menu if not already shown
+		if (!cm_valid(cm_id))
+			cm_id = cm_create(cm_text.c_str(), handler);
+		else
+			cm_set(cm_id, cm_text.c_str(), handler);
+		if (have_more)
+			cm_grey_line(cm_id, max_lines - 1, 1);
+		if (cm_window_shown() != cm_id)
+			cm_show_direct(cm_id, widget->window_id, widget->id);
+
+		// move the context menu to the right, or left of the window, depending on space
+		if (widget->window_id >= 0 && widget->window_id < windows_list.num_windows)
+		{
+			int gap = 5;
+			window_info *win = &windows_list.window[widget->window_id];
+			int cm_len_x, cm_len_y;
+			cm_get_size(&cm_len_x, &cm_len_y);
+			int pos_x = win->pos_x + win->len_x + gap;
+			int pos_y = (win->pos_y + widget->pos_y + widget->len_y / 2) - cm_len_y / 2;
+			if (pos_x + cm_len_x > window_width)
+			{
+				pos_x = win->pos_x + (win->len_x - cm_len_x) / 2;
+				pos_y = win->pos_y + win->len_y + 2 * gap;
+				if (pos_y + cm_len_y > window_height)
+					pos_y = win->pos_y - cm_len_y - win->title_height - gap;
+			}
+			cm_move(pos_x, pos_y);
+		}
+	}
+
+
+	//
 	//	A class to implement a labelled input widget.
 	//
 	class Labelled_Input_Widget
 	{
 		public:
-			Labelled_Input_Widget(std::string _label, std::string _mouseover,
-				unsigned int init_value, bool (*_validate_func)(unsigned int), size_t _buf_size, bool _have_checkbox) :
-					label(_label), mouseover(_mouseover), validate_number(_validate_func), validate_string(0),
-					last_input_number(init_value), is_string(false),
-					label_id(-1), input_id(-1), checkbox_id(-1), window_id(-1),
-					have_checkbox(_have_checkbox), checkbox_enabled(0),
-					buf_size(_buf_size), last_input_buf(0), width(0), state(STATE_START), enter_needed(false) {}
-			Labelled_Input_Widget(std::string _label, std::string _mouseover, std::string init_value,
-				bool (*_validate_string)(std::string &), size_t _buf_size, bool _have_checkbox) :
-					label(_label), mouseover(_mouseover), validate_number(0), validate_string(_validate_string),
-					last_input_number(0), last_input_string(init_value),
-					is_string(true), label_id(-1), input_id(-1),  checkbox_id(-1), window_id(-1),
-					have_checkbox(_have_checkbox), checkbox_enabled(0),
-					buf_size(_buf_size), last_input_buf(0), width(0), state(STATE_START), enter_needed(false) {}
+			Labelled_Input_Widget(void) : validate_number(0), validate_string(0), label_id(-1),
+				input_id(-1), checkbox_id(-1), window_id(-1), have_checkbox(false),
+				checkbox_enabled(0), buf_size(0), input_chars(0), last_input_buf(0), width(0),
+				state(STATE_START), enter_needed(false) {}
+			void init(std::string _label, std::string _mouseover, bool (*_validate_string)(std::string &),
+				bool (*_validate_number)(unsigned int), size_t _buf_size, size_t _input_chars, bool _have_checkbox);
 			void destroy(int window_id, bool keep_buf = false);
 			void create(window_info *win, int *new_widget_id, float space);
 			void move(int window_id, int x, int y);
 			bool keypress(SDL_Keycode key_code);
 			int get_input_id(void) const { return input_id; }
 			float get_width(void) const { return width; }
-			unsigned int get_number_value(void) const { return last_input_number; }
+			unsigned int get_number_value(void) const { return atoi(get_string_value().c_str()); }
 			void set_checked(bool is_checked) { checkbox_enabled = (is_checked) ?1 :0; }
 			bool get_checked(void) const { return checkbox_enabled == 1; }
 			bool get_have_checkbox(void) const { return have_checkbox; }
-			const std::string & get_string_value(void) const { return last_input_string; }
+			const std::string get_string_value(void) const
+				{ if (last_input_buf) return std::string(reinterpret_cast<char *>(last_input_buf)); else return ""; }
 			std::string get_mouseover(void) const;
 			bool is_valid(void) const { return (state == STATE_VALID); }
 			void revalidate(void);
 			void set_content(std::string text);
-			void set_content(unsigned int value);
+			void set_content(unsigned int value) { set_content(std::to_string(value)); }
 			void enter_to_set(void) { enter_needed = true; }
 			void move_mouse_to_input(void) const;
+			Input_Value_Filter value_filter;
 		private:
 			std::string label;
 			std::string mouseover;
 			bool (*validate_number)(unsigned int);
 			bool (*validate_string)(std::string &);
-			unsigned int last_input_number;
-			std::string last_input_string;
-			bool is_string;
+			bool validate_value(std::string &str) const;
 			int label_id;
 			int input_id;
 			int checkbox_id;
@@ -562,6 +737,7 @@ namespace invasion_window
 			bool have_checkbox;
 			int checkbox_enabled;
 			size_t buf_size;
+			size_t input_chars;
 			unsigned char *last_input_buf;
 			float width;
 			enum WIDGET_STATE { STATE_START=0, STATE_VALID, STATE_INVALID, STATE_EDIT };
@@ -569,6 +745,27 @@ namespace invasion_window
 			enum WIDGET_STATE state;
 			bool enter_needed;
 	};
+
+	//	Initialise the input widget
+	//	Can be called again to reinitialise.
+	//	The create() function must be called afterward.
+	//
+	void Labelled_Input_Widget::init(std::string _label, std::string _mouseover, bool (*_validate_string)(std::string &),
+		bool (*_validate_number)(unsigned int), size_t _buf_size, size_t _input_chars, bool _have_checkbox)
+	{
+		std::string temp = get_string_value();
+		destroy(window_id, false);
+		label = _label;
+		mouseover = _mouseover;
+		validate_number = _validate_number;
+		validate_string = _validate_string;
+		buf_size = _buf_size;
+		input_chars = _input_chars;
+		have_checkbox = _have_checkbox;
+		last_input_buf = new unsigned char[buf_size]();
+		safe_strncpy2(reinterpret_cast<char *>(last_input_buf),
+			temp.c_str(), buf_size, temp.size());
+	}
 
 	// Destroy the label and input widgets, and free the buffer.
 	//
@@ -604,22 +801,6 @@ namespace invasion_window
 		label_id = label_add_extended(win->window_id, (*new_widget_id)++, NULL, 0, 0, 0, win->current_scale, label.c_str());
 		widget_set_OnMouseover(win->window_id, label_id, (int (*)())&common_input_mouseover_handler);
 
-		// the buffer if created once and populated by the initial value
-		// this preserves any current edits
-		if (!last_input_buf)
-		{
-			last_input_buf = new unsigned char[buf_size];
-			std::string temp;
-			if (is_string)
-				temp = last_input_string;
-			else
-				temp = std::to_string(last_input_number);
-			safe_strncpy2(reinterpret_cast<char *>(last_input_buf),
-				temp.c_str(), buf_size, temp.size());
-			revalidate();
-		}
-
-		float input_chars = (buf_size < 10) ?buf_size + 1 : 10;
 		input_id = pword_field_add_extended(win->window_id, (*new_widget_id)++, NULL,
 			0, 0, input_chars * get_max_digit_width_zoom(UI_FONT, win->current_scale),
 			1.5 * win->default_font_len_y, P_TEXT, win->current_scale, last_input_buf, buf_size);
@@ -645,26 +826,11 @@ namespace invasion_window
 	{
 		if (last_input_buf && (input_id != -1))
 			pword_field_set_content(window_id, input_id, reinterpret_cast<const unsigned char*>(text.c_str()), text.size());
-		last_input_string = text;
 		set_state(STATE_START);
 		revalidate();
 	}
 
-	//	Set the widget content and revalidate.
-	//
-	void Labelled_Input_Widget::set_content(unsigned int value)
-	{
-		if (last_input_buf && (input_id != -1))
-		{
-			std::string text = std::to_string(value);
-			pword_field_set_content(window_id, input_id, reinterpret_cast<const unsigned char*>(text.c_str()), text.size());
-		}
-		last_input_number = value;
-		set_state(STATE_START);
-		revalidate();
-	}
-
-	// Move the label and input wigets as one, presurving the seperation space.
+	// Move the label and input widgets as one, preserving the separation space.
 	//
 	void Labelled_Input_Widget::move(int window_id, int x, int y)
 	{
@@ -686,6 +852,25 @@ namespace invasion_window
 		widget_move(window_id, input_id, x + label_width + space, y);
 	}
 
+	//	Validate the given string, as a string or a number.
+	//	Ultimately calling the external validation function.
+	//
+	bool Labelled_Input_Widget::validate_value(std::string &str) const
+	{
+		if (str.empty())
+			return false;
+		if (validate_string)
+			return validate_string(str);
+		if (!validate_number)
+			return false;
+		std::istringstream ss(str);
+		unsigned int new_value = 0;
+		ss >> new_value;
+		if (ss.fail() || (str != std::to_string(new_value)))
+			return false;
+		return validate_number(new_value);
+	}
+
 	// Callback from the common keypress handler.
 	// When Return/Enter pressed, validate and update the value.
 	//
@@ -694,29 +879,22 @@ namespace invasion_window
 		bool enter_pressed = (key_code == SDLK_RETURN || key_code == SDLK_KP_ENTER);
 		if (!enter_needed || enter_pressed)
 		{
-			std::string current = reinterpret_cast<char *>(last_input_buf);
-			if (current.size())
+			std::string temp = get_string_value();
+			if (temp.size())
 			{
-				if (is_string)
+				if (value_filter.is_valid())
 				{
-					if (validate_string(current))
+					value_filter.set_filter(temp);
+					if (enter_pressed && (value_filter.get_filtered_lines().size() == 1))
 					{
-						last_input_string = current;
-						set_state(STATE_VALID);
-						return enter_pressed;
+						temp = value_filter.get_filtered_value(0);
+						set_content(temp);
 					}
 				}
-				else
+				if (validate_value(temp))
 				{
-					std::istringstream ss(current);
-					unsigned int new_value = 0;
-					ss >> new_value;
-					if (!ss.fail() && validate_number(new_value))
-					{
-						last_input_number = new_value;
-						set_state(STATE_VALID);
-						return enter_pressed;
-					}
+					set_state(STATE_VALID);
+					return enter_pressed;
 				}
 			}
 			if (enter_pressed)
@@ -739,13 +917,14 @@ namespace invasion_window
 		}
 		if ((state == STATE_EDIT) || (state == STATE_INVALID))
 			return;
-		if ((is_string) ?validate_string(last_input_string) :validate_number(last_input_number))
+		std::string temp = get_string_value();
+		if (validate_value(temp))
 			set_state(STATE_VALID);
 		else
 			set_state(STATE_INVALID);
 	}
 
-	// Set the colour of the wiget input field.
+	// Set the colour of the widget input field.
 	//
 	void Labelled_Input_Widget::set_state(enum WIDGET_STATE new_state)
 	{
@@ -764,7 +943,12 @@ namespace invasion_window
 	{
 		std::string outstr = mouseover + std::string(": ");
 		if (state == STATE_VALID)
-			outstr += ((is_string) ?last_input_string :std::to_string(last_input_number));
+		{
+			std::string temp = get_string_value();
+			if (value_filter.is_valid())
+				outstr += value_filter.get_text_from_value(temp) + " - ";
+			outstr += temp;
+		}
 		else if (state == STATE_EDIT)
 			outstr += "press Enter/Return to validate";
 		else
@@ -772,7 +956,7 @@ namespace invasion_window
 		return outstr;
 	}
 
-	//	Move the mouse to teh bottom right of the input widget
+	//	Move the mouse to the bottom right of the input widget
 	//
 	void Labelled_Input_Widget::move_mouse_to_input(void) const
 	{
@@ -786,7 +970,6 @@ namespace invasion_window
 				win->pos_y + widget->pos_y + widget->len_y - win->default_font_len_y / 4 - 1);
 	}
 
-
 	//
 	//	Main class for invasion UI.
 	//
@@ -797,19 +980,14 @@ namespace invasion_window
 				add_list_button_id(-1), reload_button_id(-1), play_button_id(-1), stop_button_id(-1),
 				launch_button_id(-1), add_command_button_id(-1), replace_button_id(-1),
 				is_playing(false), last_play_execute(0),
-				delay_input_widget(std::string("D:"), "Enter delay in seconds", def_delay, &Container::valid_delay, 4, false),
-				repeat_widget(std::string("R:"), "Enter number of times to repeat list", def_repeat, &Container::valid_repeat, 3, false),
-				x_coord_widget(std::string("X:"), "Enter X coord", 0, &Command::valid_x, 4, false),
-				y_coord_widget(std::string("Y:"), "Enter Y coord", 0, &Command::valid_y, 4, false),
-				map_widget(std::string("Map:"), "Enter map id", 0, &Command::valid_map, 4, false),
-				monster_widget(std::string("Monster:"), "Enter monsters name", "", &Command::valid_name, Command::max_name_len() + 1, false),
-				count_widget(std::string("Count:"), "Enter number of monsters", 0, &Command::valid_count, 4, false),
-				cap_widget(std::string("Cap:"), "Enter player cap", 0, &Command::valid_cap, 4, true),
-				all_input_widgets({ &delay_input_widget, &repeat_widget, &x_coord_widget, &y_coord_widget, &map_widget,
+				all_input_widgets({ &delay_input_widget, &repeat_widget, &x_coord_widget,
+					&y_coord_widget, &map_widget, &monster_widget, &count_widget, &cap_widget }),
+				generator_input_widgets({ &x_coord_widget, &y_coord_widget, &map_widget,
 					&monster_widget, &count_widget, &cap_widget }),
-				generator_input_widgets({ &x_coord_widget, &y_coord_widget, &map_widget, &monster_widget, &count_widget, &cap_widget }),
-				char_width(def_char_width), num_lines(def_num_lines), generated_command_valid(true),
-				add_list_prompt("Enter Command List Name"), safe_mode(1), repeats_done(0) {}
+				char_width(def_char_width), num_lines(def_num_lines), initial_delay(def_delay),
+				initialised(false), generated_command_valid(true),
+				add_list_prompt("Enter Command List Name"), safe_mode(1), repeats_done(0),
+				dir_path(std::string(get_path_config_base()) + "invasion_lists/") {}
 			void init(void);
 			void destroy(void);
 			int display_window(window_info *win);
@@ -821,7 +999,7 @@ namespace invasion_window
 			int title_cm(window_info *win, int widget_id, int mx, int my, int option);
 			void set_title(void);
 			int add_list_button(void);
-			void reload(void) { stop_play(); load_file_list(); }
+			void reload(void);
 			static bool valid_delay(unsigned int delay) { return ((delay >= min_delay) && (delay <= max_delay)); }
 			static bool valid_repeat(unsigned int repeat) { return ((repeat > 0) && (repeat < 100)); }
 #ifdef JSON_FILES
@@ -847,8 +1025,9 @@ namespace invasion_window
 					(commands_widget.get_selected() < commands_lists[files_widget.get_selected()]->size()); }
 			Command_List *get_selected_command_list(void)
 				{ assert(valid_file_selected()); return commands_lists[files_widget.get_selected()]; }
+			int filter_selected(int option, int widget_id);
 		private:
-			void load_file_list(void);
+			void load_file_list(std::string glob_path);
 			void clear_commands_lists(void);
 			std::vector<Command_List *> commands_lists;
 			int add_list_button_id;
@@ -876,6 +1055,8 @@ namespace invasion_window
 			std::string help_text;
 			int char_width;
 			float num_lines;
+			int initial_delay;
+			bool initialised;
 			bool generated_command_valid;
 			static float min_num_lines, max_num_lines, def_num_lines;
 			static int min_char_width, max_char_width, def_char_width;
@@ -885,6 +1066,7 @@ namespace invasion_window
 			std::string add_list_prompt;
 			int safe_mode;
 			int repeats_done;
+			std::string dir_path;
 	};
 
 	//	The invasion window instance.
@@ -925,6 +1107,27 @@ namespace invasion_window
 	static int common_input_keypress_handler(widget_list *widget, int mx, int my, SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_mod)
 		{ container.common_input_keypress(key_code, widget); return 0; }
 
+	// Common callback handler for selecting a value from a input widget's filtered input list.
+	static int filter_cm_handler(window_info *win, int widget_id, int mx, int my, int option)
+		{ return container.filter_selected(option, widget_id); }
+
+	//	Find the current widget and set the value form the selected filter line.
+	//
+	int Container::filter_selected(int option, int widget_id)
+	{
+		for (auto &i : all_input_widgets)
+			if (widget_id == i->get_input_id())
+			{
+				if (i->value_filter.is_valid())
+				{
+					i->set_content(i->value_filter.get_filtered_value(option));
+					return 1;
+				}
+				return 0;
+			}
+		return 0;
+	}
+
 	// For a key press in a labelled input widget, find the objecting matching the widget id and call its handler.
 	//
 	void Container::common_input_keypress(SDL_Keycode key_code, widget_list *widget)
@@ -933,9 +1136,10 @@ namespace invasion_window
 		{
 			if (widget->id == i->get_input_id())
 			{
+				// process the key code, the function return true if return/enter was pressed
 				if (i->keypress(key_code))
 				{
-					// if return pressed for a generator input, and the input is valid, move mouse to next input field
+					// for a generator input with a valid value, move mouse to next input field
 					auto item = std::find(generator_input_widgets.begin(), generator_input_widgets.end(), i);
 					if (item != generator_input_widgets.end())
 					{
@@ -949,6 +1153,9 @@ namespace invasion_window
 						(*item)->move_mouse_to_input();
 					}
 				}
+				// for any other keypress, display lines from any active input filter
+				else if (i->value_filter.is_valid() && !i->value_filter.get_filtered_lines().empty())
+					i->value_filter.display(widget, filter_cm_handler);
 				break;
 			}
 		}
@@ -988,31 +1195,13 @@ namespace invasion_window
 	//
 	void Container::create_list(const char *input_text)
 	{
-		std::string path = std::string(get_path_config_base()) + "invasion_lists/";
-		std::string file_name = std::string(input_text) + ".txt";
-		std::string full_file_name = path + std::string(input_text) + ".txt";
+		std::string full_file_name = dir_path + std::string(input_text) + ".txt";
 
 		stop_play();
 
-		if (access(path.c_str(), F_OK) != 0)
-		{
-#ifdef WINDOWS
-			int mkdir_status = mkdir(path.c_str());
-#else
-			int mkdir_status = mkdir(path.c_str(), S_IRWXU | S_IRWXG);
-#endif
-			if (mkdir_status == 0)
-				console_info("Created: " + path);
-			else
-			{
-				console_error("Failed to create direcotry [" + path  + "]: " + std::string(std::strerror(errno)));
-				return;
-			}
-		}
-
 		if (access(full_file_name.c_str(), F_OK) == 0)
 		{
-			console_error("Files exists [" + file_name + "]");
+			console_error("Files exists [" + full_file_name + "]");
 			return;
 		}
 
@@ -1024,7 +1213,7 @@ namespace invasion_window
 		}
 		else
 		{
-			console_error("Write failed [" + file_name + "]: " + std::string(std::strerror(errno)));
+			console_error("Write failed [" + full_file_name + "]: " + std::string(std::strerror(errno)));
 			return;
 		}
 
@@ -1036,7 +1225,7 @@ namespace invasion_window
 		}
 		else
 		{
-			console_error("Create list failed [" + file_name + "]");
+			console_error("Create list failed [" + full_file_name + "]");
 			std::remove(full_file_name.c_str());
 			delete new_list;
 		}
@@ -1139,8 +1328,6 @@ namespace invasion_window
 	//
 	void Container::init(void)
 	{
-		load_file_list();
-
 		int win_id = get_id_MW(MW_INVASION);
 
 		if (win_id < 0)
@@ -1200,22 +1387,78 @@ namespace invasion_window
 			button_ids = {add_list_button_id, reload_button_id, play_button_id, stop_button_id,
 				launch_button_id, add_command_button_id, replace_button_id};
 
-			// delay and repeat need enter/return key to set
-			delay_input_widget.enter_to_set();
-			repeat_widget.enter_to_set();
-
 			cm_add(windows_list.window[win_id].cm_id, "--\nEnable Safe Mode", title_cm_handler);
 			cm_bool_line(windows_list.window[win_id].cm_id, ELW_CM_MENU_LEN+1, &safe_mode, NULL);
 			set_title();
 
+			// load files and initialise input widgets, this can be repeated
+			reload();
+
+			// delay and repeat need enter/return key to set
+			delay_input_widget.enter_to_set();
+			repeat_widget.enter_to_set();
+
+			// set initial validated values
+			delay_input_widget.set_content(initial_delay);
+			repeat_widget.set_content(def_repeat);
+
 			ui_scale(&windows_list.window[win_id]);
 			check_proportional_move(MW_INVASION);
+
+			initialised = true;
 		}
 		else
 		{
 			show_window(win_id);
 			select_window(win_id);
 		}
+	}
+
+	//	Initial or repeat of loading files and initialise inut widgets
+	//	Both are done here are the input filter vales can change validation.
+	//
+	void Container::reload(void)
+	{
+		stop_play();
+
+		// create the invasion config directory if required
+		if (access(dir_path.c_str(), F_OK) != 0)
+		{
+#ifdef WINDOWS
+			int mkdir_status = mkdir(dir_path.c_str());
+#else
+			int mkdir_status = mkdir(dir_path.c_str(), S_IRWXU | S_IRWXG);
+#endif
+			if (mkdir_status == 0)
+				console_info("Created: " + dir_path);
+			else
+				console_error("Failed to create directory [" + dir_path  + "]: " + std::string(std::strerror(errno)));
+		}
+
+		// reload the input value filters
+		map_widget.value_filter.init(dir_path + "maps.list");
+		monster_widget.value_filter.init(dir_path + "monsters.list");
+
+		// update the monster name value buffer size if needed
+		if (monster_widget.value_filter.get_max_value_len() > Command::max_name_len)
+			Command::max_name_len = monster_widget.value_filter.get_max_value_len();
+
+		// reload the command lists
+		load_file_list(dir_path + "*.txt");
+
+		// reinitialise the input widgets, they may have changes buffer size
+		delay_input_widget.init(std::string("D:"), "Enter delay in seconds", 0, &Container::valid_delay, 4, 5, false);
+		repeat_widget.init(std::string("R:"), "Enter number of times to repeat list", 0, &Container::valid_repeat, 3, 4, false);
+		x_coord_widget.init(std::string("X:"), "Enter X coord", 0, &Command::valid_x, 4, 5, false);
+		y_coord_widget.init(std::string("Y:"), "Enter Y coord", 0, &Command::valid_y, 4, 5, false);
+		map_widget.init(std::string("Map:"), "Enter map id", 0, &Command::valid_map, 20, 5, false); // give room for seach my name
+		monster_widget.init(std::string("Name:"), "Enter monsters name", &Command::valid_name, 0, Command::max_name_len + 1, 10, false);
+		count_widget.init(std::string("Count:"), "Enter number of monsters", 0, &Command::valid_count, 4, 5, false);
+		cap_widget.init(std::string("Cap:"), "Enter player cap", 0, &Command::valid_cap, 4, 5, true);
+
+		// make sure the widgets are created and sized appropriately
+		if (get_id_MW(MW_INVASION) >= 0)
+			ui_scale(&windows_list.window[get_id_MW(MW_INVASION) ]);
 	}
 
 	//	Start auto execution of invasion commands.
@@ -1477,7 +1720,7 @@ namespace invasion_window
 			num_lines = std::min(max_num_lines, std::max(min_num_lines,
 				(win->len_y - 3 * margin - button_height) / static_cast<int>(win->small_font_len_y * 1.1)));
 
-		// keep the base of the lists aligned with the text, obsorbing any extra in the space to the buttons
+		// keep the base of the lists aligned with the text, absorbing any extra in the space to the buttons
 		float list_height = static_cast<int>(num_lines) * static_cast<int>(win->small_font_len_y * 1.1);
 		float win_y = std::max(num_lines * static_cast<int>(win->small_font_len_y * 1.1),
 			generator_input_widgets.size() * (button_height + margin) + margin);
@@ -1528,7 +1771,7 @@ namespace invasion_window
 		widget_move(win->window_id, add_command_button_id, launch_x + 2 * margin + launch_width, button_y);
 		widget_move(win->window_id, replace_button_id, launch_x + 4 * margin + launch_width + add_command_width, button_y);
 
-		// centre and right allign the generator panel input wigets in a column
+		// centre and right align the generator panel input widgets in a column
 		float right_offset = win_x - win->box_size - (generator_panel_width - max_generate_input_width) / 2 - margin;
 		int y_line = 0;
 		float y_space = button_height + margin;
@@ -1543,10 +1786,8 @@ namespace invasion_window
 
 	//	Load the file list, all files in folder.
 	//
-	void Container::load_file_list(void)
+	void Container::load_file_list(std::string glob_path)
 	{
-		std::string path = std::string(get_path_config_base()) + "invasion_lists/";
-		std::string glob_path = path + "*.txt";
 		std::vector<std::string> file_list;
 #ifdef WINDOWS
 		struct _finddata_t c_file;
@@ -1597,8 +1838,8 @@ namespace invasion_window
 			json_cstate_get_int(window_dict_name, "char_width", def_char_width)));
 		num_lines = std::min(max_num_lines, std::max(min_num_lines,
 			json_cstate_get_float(window_dict_name, "num_lines",def_num_lines)));
-		delay_input_widget.set_content(std::min(max_delay, std::max(min_delay,
-			json_cstate_get_int(window_dict_name, "delay_seconds", def_delay))));
+		initial_delay = std::min(max_delay, std::max(min_delay,
+			json_cstate_get_int(window_dict_name, "delay_seconds", def_delay)));
 		safe_mode = json_cstate_get_int(window_dict_name, "safe_mode", 1);
 	}
 
@@ -1611,7 +1852,8 @@ namespace invasion_window
 		json_cstate_set_float(window_dict_name, "scale", *get_scale_WM(MW_INVASION));
 		json_cstate_set_int(window_dict_name, "char_width", char_width);
 		json_cstate_set_float(window_dict_name, "num_lines", static_cast<int>(num_lines));
-		json_cstate_set_int(window_dict_name, "delay_seconds", delay_input_widget.get_number_value());
+		json_cstate_set_int(window_dict_name, "delay_seconds",
+			(initialised) ?delay_input_widget.get_number_value() :initial_delay);
 		json_cstate_set_int(window_dict_name, "safe_mode", safe_mode);
 	}
 #endif
