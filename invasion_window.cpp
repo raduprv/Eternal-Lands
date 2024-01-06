@@ -1795,7 +1795,7 @@ namespace invasion_window
 		if ((hFile = _findfirst(glob_path.c_str(), &c_file)) != static_cast<intptr_t>(-1))
 		{
 			do
-				file_list.push_back(path + std::string(c_file.name));
+				file_list.push_back(dir_path + std::string(c_file.name));
 			while (_findnext(hFile, &c_file) == 0);
 			_findclose(hFile);
 		}
