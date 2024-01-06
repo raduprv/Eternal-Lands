@@ -268,6 +268,26 @@ int cm_remove_widget(int window_id, int widget_id);
 
 /*!
  * \ingroup context_menu
+ * \brief move the open context window to the new position
+ * \param  pos_x		x coord for new window position
+ * \param  pos_y		y coord for new window position
+ * \retval int 			1 for success, 0 for failure (invalid window)
+ */
+int cm_move(int pos_x, int pos_y);
+
+
+/*!
+ * \ingroup context_menu
+ * \brief return the size of the open context window
+ * \param  len_x		a pointer to where to store the width
+ * \param  len_y		a pointer to where to store the height
+ * \retval int 			1 for success, 0 for failure (invalid window)
+ */
+int cm_get_size(int *len_x, int *len_y);
+
+
+/*!
+ * \ingroup context_menu
  * \brief Show information about the context menu system state
  */
 void cm_showinfo(void);

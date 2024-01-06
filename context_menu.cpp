@@ -134,6 +134,8 @@ namespace cm
 			int get_active_widget_id(void) const { return active_widget_id; }
 			bool valid(size_t cm_id) const { return cm_id<menus.size() && menus[cm_id]; }
 			size_t window_shown(void) const;
+			int move(int pos_x, int pos_y) const;
+			int get_size(int *len_x, int *len_y) const;
 			void showinfo(void);
 			void *get_data(size_t cm_id) const { if (!valid(cm_id)) return 0; return menus[cm_id]->get_data(); }
 			void set_data(size_t cm_id, void *data) { if (valid(cm_id)) menus[cm_id]->set_data(data); }
@@ -434,6 +436,35 @@ namespace cm
 			if (current_menu == menus[i])
 				return i;
 		return CM_INIT_VALUE;
+	}
+
+
+	// move the open context window to the new position
+	int Container::move(int pos_x, int pos_y) const
+	{
+		if (menu_opened)
+		{
+			move_window(cm_window_id, -1, 0, pos_x, pos_y);
+			return 1;
+		}
+		return 0;
+	}
+
+
+	// return the size of the open context window
+	int Container::get_size(int *len_x, int *len_y) const
+	{
+		if (menu_opened && len_x && len_y)
+		{
+			window_info * win = window_info_from_id(cm_window_id);
+			if (win != NULL)
+			{
+				*len_x = win->len_x;
+				*len_y = win->len_y;
+				return 1;
+			}
+		}
+		return 0;
 	}
 
 
@@ -888,6 +919,8 @@ extern "C" int cm_add_widget(size_t cm_id, int window_id, int widget_id) { retur
 extern "C" int cm_remove_window(int window_id) { return cm::Container::get_instance().remove_window(window_id); }
 extern "C" int cm_remove_regions(int window_id) { return cm::Container::get_instance().remove_regions(window_id); }
 extern "C" int cm_remove_widget(int window_id, int widget_id) { return cm::Container::get_instance().remove_widget(window_id, widget_id); }
+extern "C" int cm_move(int pos_x, int pos_y) { return cm::Container::get_instance().move(pos_x, pos_y); }
+extern "C" int cm_get_size(int *len_x, int *len_y) { return cm::Container::get_instance().get_size(len_x, len_y); }
 extern "C" void cm_showinfo(void) { cm::Container::get_instance().showinfo(); }
 extern "C" int cm_valid(size_t cm_id) { if (cm::Container::get_instance().valid(cm_id)) return 1; else return 0; }
 extern "C" size_t cm_window_shown(void) { return cm::Container::get_instance().window_shown(); }
