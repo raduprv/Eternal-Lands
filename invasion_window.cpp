@@ -109,12 +109,13 @@ namespace invasion_window
 			unsigned int get_cap(void) const { return cap; }
 			static bool valid_x(unsigned int x) { return (x < 768); }
 			static bool valid_y(unsigned int y) { return (y < 768); }
-			static bool valid_map(unsigned int map) { return ((map > 0) && (map < 141)); }
+			static bool valid_map(unsigned int map) { return ((map > 0) && (map <= max_map_id)); }
 			static bool valid_name(std::string &name)
 				{ return (!name.empty() && (name.size() <= max_name_len) && (name.find(" ") == std::string::npos)); }
 			static bool valid_count(unsigned int count) { return ((count > 0) && (count < 51)); }
 			static bool valid_cap(unsigned int cap) { return ((cap > 0) && (cap < 180)); }
 			static size_t max_name_len;
+			static size_t max_map_id;
 		private:
 			void construct(void);
 			std::string hash_command;
@@ -132,6 +133,7 @@ namespace invasion_window
 	//	Currently, the maximum size length is 18 characters but give some headroom.
 	//	If the monsters.list file contains a longer name, the max is increased.
 	size_t Command::max_name_len = 20;
+	size_t Command::max_map_id = 165;
 
 	//	Common to all constructors, do some validity checking.
 	//
@@ -532,6 +534,7 @@ namespace invasion_window
 			void display(widget_list *widget, int (*handler)(window_info *, int, int, int, int));
 			size_t get_max_value_len(void) const { return max_value_len; }
 			const std::string & get_text_from_value(std::string & value) const;
+			const std::vector<std::pair<std::string, std::string>> & get_full_list(void) const { return full_list; }
 		private:
 			bool valid;
 			size_t cm_id;
@@ -1442,6 +1445,14 @@ namespace invasion_window
 		// update the monster name value buffer size if needed
 		if (monster_widget.value_filter.get_max_value_len() > Command::max_name_len)
 			Command::max_name_len = monster_widget.value_filter.get_max_value_len();
+
+		// update the upper map id limit if the maps list contains a high one
+		for (auto &i : map_widget.value_filter.get_full_list())
+		{
+			unsigned int value = atoi(i.second.c_str());
+			if (value > Command::max_map_id)
+				Command::max_map_id = value;
+		}
 
 		// reload the command lists
 		load_file_list(dir_path + "*.txt");
