@@ -13,3 +13,7 @@ pawn_scripts/features.inc
 .DS_Store
 .DS_Store?
 xcuserdata/
+
+# CLion workspace files
+.idea/
+cmake-build-*/
