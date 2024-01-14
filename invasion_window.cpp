@@ -41,7 +41,6 @@
 		- Handle #command errors
 		- Monster count greater then 50
 		- Bulk edit feature
-		- Get confirmation of start if #il == 0
 		- Only open if #mod channel open
 		- validate entered map and monster name in filter lists - lists need to be complete
 */
@@ -53,6 +52,7 @@
 #include <cstring>
 #include <fstream>
 #include <iostream>
+#include <memory>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -82,11 +82,80 @@
 #include "questlog.h" // for draw_highlight()
 #include "text.h"
 #include "sound.h"
+#include "textpopup.h"
 
 namespace invasion_window
 {
 	void console_error(const std::string &text) { LOG_TO_CONSOLE(c_red1, text.c_str()); }
 	void console_info(const std::string &text) { LOG_TO_CONSOLE(c_green1, text.c_str()); }
+
+
+	//	Class for invasion window state, maintaining:
+	//	* a count of total monsters
+	//	* the list of maps enabled for invasions
+	//	* the safe/live mode
+	//
+	class Session_State
+	{
+		public:
+			Session_State(void) : total_monsters(0), last_map_id(0), safe_mode(1) {}
+			void init(void) { total_monsters = 0; confirmed_maps.clear(); confirm_popup.reset(); }
+			bool map_confirmed(unsigned int map_id);
+			void add_monsters(unsigned int additional_monsters) { total_monsters += additional_monsters; }
+			unsigned int get_total_monsters(void) const { return total_monsters; }
+			bool is_safe_mode(void) const { return (safe_mode != 0); }
+			void set_safe_mode(int mode) { safe_mode = mode; }
+			int *safe_mode_ptr(void) { return &safe_mode; }
+			const std::string get_safe_mode_title(void) const { return ((is_safe_mode()) ?"Safe Mode" : "Live"); }
+		private:
+			unsigned int total_monsters;
+			unsigned int last_map_id;
+			int safe_mode;
+			std::vector<unsigned int> confirmed_maps;
+			std::unique_ptr<eternal_lands::TextPopup> confirm_popup;
+	};
+
+	//	The invasion window state instance.
+	static Session_State sess_state;
+
+	//	Return true if map already confirmed.
+	//	Otherwise prompt to add to the enabled list, adding if confimed.
+	//
+	bool Session_State::map_confirmed(unsigned int map_id)
+	{
+		if (std::find(confirmed_maps.begin(), confirmed_maps.end(), map_id) != confirmed_maps.end())
+			return true;
+
+		// popup a window to ask if the map should be enabled
+		last_map_id = map_id;
+		std::string prompt = "Add map #" + std::to_string(map_id) + " to those enabled for invasions?";
+		confirm_popup.reset(new eternal_lands::TextPopup("Add Map", reinterpret_cast<const std::uint8_t*>(prompt.c_str())));
+		confirm_popup->add_button("Yes", [this] {
+				confirmed_maps.push_back(last_map_id);
+				confirm_popup->hide();
+				return 1;
+			})
+			.add_button("No", [this] {
+				confirm_popup->hide();
+				return 1;
+			});
+
+		// if triggered by pressing a main window button, the popup could go behind the main window
+		// so move the popup to below the window or above if not enough space.
+		int win_id = get_id_MW(MW_INVASION);
+		if ((win_id >= 0) && (win_id < windows_list.num_windows))
+		{
+			window_info *win = &windows_list.window[win_id];
+			float width = confirm_popup->width(), height = confirm_popup->Window::height(), margin = 10;
+			float pos_x = win->pos_x + (win->len_x - width) / 2, pos_y = win->pos_y + win->len_y + margin;
+			if ((pos_y + height + margin) > window_height)
+				pos_y = win->pos_y - win->title_height - height - margin;
+			confirm_popup->move(pos_x, pos_y);
+		}
+
+		return false;
+	}
+
 
 	//
 	//	Class for a single invasion command.
@@ -99,7 +168,7 @@ namespace invasion_window
 			Command(std::string &text);
 			bool is_valid(void) const { return valid; };
 			const std::string & get_text(void) const { return command_text; }
-			void execute(bool safe_mode) const;
+			bool execute(void) const;
 			unsigned int get_x(void) const { return x; }
 			unsigned int get_y(void) const { return y; }
 			unsigned int get_map(void) const { return map; }
@@ -208,20 +277,23 @@ namespace invasion_window
 
 	//	Run the command.
 	//
-	void Command::execute(bool safe_mode) const
+	bool Command::execute(void) const
 	{
-		if (is_valid())
+		if (!is_valid())
+			return false;
+		if (!sess_state.map_confirmed(map))
+			return false;
+		sess_state.add_monsters(count);
+		if (sess_state.is_safe_mode())
 		{
-			if (safe_mode)
-			{
-				console_info("Invasion safe mode: " + command_text);
-				return;
-			}
-			size_t command_len = command_text.size() + 1;
-			char temp[command_len];
-			safe_strncpy(temp, command_text.c_str(), command_len);
-			parse_input(temp, strlen(temp));
+			console_info("Invasion safe mode: " + command_text);
+			return true;
 		}
+		size_t command_len = command_text.size() + 1;
+		char temp[command_len];
+		safe_strncpy(temp, command_text.c_str(), command_len);
+		parse_input(temp, strlen(temp));
+		return true;
 	}
 
 
@@ -233,7 +305,7 @@ namespace invasion_window
 		public:
 			Command_List(const char * file_name);
 			~Command_List(void);
-			void execute_command(size_t index, bool safe_mode) const { if (index < commands.size()) commands[index]->execute(safe_mode); }
+			bool execute_command(size_t index) const { if (index >= commands.size()) return false; return commands[index]->execute(); }
 			const std::string & get_text(void) const { return list_name; }
 			size_t size(void) const { return commands.size(); }
 			const std::vector<Command *> & get_commands(void) const { return commands; }
@@ -973,6 +1045,7 @@ namespace invasion_window
 				win->pos_y + widget->pos_y + widget->len_y - win->default_font_len_y / 4 - 1);
 	}
 
+
 	//
 	//	Main class for invasion UI.
 	//
@@ -989,7 +1062,7 @@ namespace invasion_window
 					&monster_widget, &count_widget, &cap_widget }),
 				char_width(def_char_width), num_lines(def_num_lines), initial_delay(def_delay),
 				initialised(false), generated_command_valid(true),
-				add_list_prompt("Enter Command List Name"), safe_mode(1), repeats_done(0),
+				add_list_prompt("Enter Command List Name"), monster_total_text({0, 0, 0}), repeats_done(0),
 				dir_path(std::string(get_path_config_base()) + "invasion_lists/") {}
 			void init(void);
 			void destroy(void);
@@ -1067,7 +1140,7 @@ namespace invasion_window
 			static float min_scale, max_scale, def_scale;
 			INPUT_POPUP ipu_add_list;
 			std::string add_list_prompt;
-			int safe_mode;
+			struct { float pos_x, pos_y, width; } monster_total_text;
 			int repeats_done;
 			std::string dir_path;
 	};
@@ -1288,7 +1361,7 @@ namespace invasion_window
 		Command *generated_command = get_validated_generated_command();
 		if (generated_command)
 		{
-			generated_command->execute(safe_mode != 0);
+			generated_command->execute();
 			delete generated_command;
 		}
 	}
@@ -1390,8 +1463,8 @@ namespace invasion_window
 			button_ids = {add_list_button_id, reload_button_id, play_button_id, stop_button_id,
 				launch_button_id, add_command_button_id, replace_button_id};
 
-			cm_add(windows_list.window[win_id].cm_id, "--\nEnable Safe Mode", title_cm_handler);
-			cm_bool_line(windows_list.window[win_id].cm_id, ELW_CM_MENU_LEN+1, &safe_mode, NULL);
+			cm_add(windows_list.window[win_id].cm_id, "--\nEnable Safe Mode\nReset Session", title_cm_handler);
+			cm_bool_line(windows_list.window[win_id].cm_id, ELW_CM_MENU_LEN+1, sess_state.safe_mode_ptr(), NULL);
 			set_title();
 
 			// load files and initialise input widgets, this can be repeated
@@ -1493,7 +1566,11 @@ namespace invasion_window
 	{
 		if (valid_command_selected())
 		{
-			get_selected_command_list()->execute_command(commands_widget.get_selected(), safe_mode != 0);
+			if (!get_selected_command_list()->execute_command(commands_widget.get_selected()))
+			{
+				stop_play();
+				return;
+			}
 			size_t next = commands_widget.get_selected() + 1;
 			if 	((next >= get_selected_command_list()->size()) && (++repeats_done < repeat_widget.get_number_value()))
 			{
@@ -1577,6 +1654,7 @@ namespace invasion_window
 		set_id_MW(MW_INVASION, -1);
 		clear_commands_lists();
 		close_ipu(&ipu_add_list);
+		sess_state.init();
 	}
 
 	//	Display the invasion window.
@@ -1598,6 +1676,15 @@ namespace invasion_window
 
 		if (valid_file_selected())
 			commands_widget.draw(get_selected_command_list()->get_commands(), is_playing);
+
+		std::string temp = "Session Total: " + std::to_string(sess_state.get_total_monsters());
+		float str_width = get_string_width_zoom(reinterpret_cast<const unsigned char*>(temp.c_str()),
+			win->font_category, win->current_scale_small);
+		glColor3f(0.5f, 0.5f, 1.0f);
+		draw_string_zoomed_width_font(monster_total_text.pos_x + (monster_total_text.width - str_width) / 2,
+			monster_total_text.pos_y, reinterpret_cast<const unsigned char*>(temp.c_str()),
+			monster_total_text.width, 1, win->font_category, win->current_scale_small);
+		glColor3f(1.0f, 1.0f, 1.0f);
 
 		if (!help_text.empty())
 		{
@@ -1656,7 +1743,7 @@ namespace invasion_window
 				if (!safe_button_click(&last_click))
 					return 1;
 				if (!is_playing)
-					get_selected_command_list()->execute_command(commands_widget.get_under_mouse(), safe_mode != 0);
+					get_selected_command_list()->execute_command(commands_widget.get_under_mouse());
 			}
 			commands_widget.wheel_scroll(flags);
 			return 1;
@@ -1673,7 +1760,8 @@ namespace invasion_window
 			return cm_title_handler(win, widget_id, mx, my, option);
 		switch (option)
 		{
-			case ELW_CM_MENU_LEN+1: set_title(); break;
+			case ELW_CM_MENU_LEN + 1: set_title(); break;
+			case ELW_CM_MENU_LEN + 2: sess_state.init(); break;
 		}
 		return 1;
 	}
@@ -1682,7 +1770,7 @@ namespace invasion_window
 	//
 	void Container::set_title(void)
 	{
-		std::string window_name = std::string("Invasion - ") + std::string((safe_mode != 0) ?"Safe Mode" : "Live");
+		std::string window_name = std::string("Invasion - ") + sess_state.get_safe_mode_title();
 		safe_strncpy2(windows_list.window[get_id_MW(MW_INVASION)].window_name, window_name.c_str(),
 			sizeof(windows_list.window[get_id_MW(MW_INVASION)].window_name), window_name.size());
 	}
@@ -1732,7 +1820,8 @@ namespace invasion_window
 				(win->len_y - 3 * margin - button_height) / static_cast<int>(win->small_font_len_y * 1.1)));
 
 		// keep the base of the lists aligned with the text, absorbing any extra in the space to the buttons
-		float list_height = static_cast<int>(num_lines) * static_cast<int>(win->small_font_len_y * 1.1);
+		float files_list_height = static_cast<int>(num_lines) * static_cast<int>(win->small_font_len_y * 1.1);
+		float commands_list_height = static_cast<int>(num_lines - 1) * static_cast<int>(win->small_font_len_y * 1.1);
 		float win_y = std::max(num_lines * static_cast<int>(win->small_font_len_y * 1.1),
 			generator_input_widgets.size() * (button_height + margin) + margin);
 		win_y += 3 * margin + button_height;
@@ -1741,13 +1830,16 @@ namespace invasion_window
 		cm_remove_regions(win->window_id);
 
 		// update the list of files
-		files_widget.update(margin, name_list_width, margin, list_height, win->small_font_len_y * 1.1, 0, margin);
+		files_widget.update(margin, name_list_width, margin, files_list_height, win->small_font_len_y * 1.1, 0, margin);
 		files_widget.set_bar_len(commands_lists.size());
 
 		// update the list of commands
 		commands_widget.update(3 * margin + name_list_width + win->box_size,
-			command_list_width, margin, list_height, win->small_font_len_y * 1.1, 0, margin);
+			command_list_width, margin, commands_list_height, win->small_font_len_y * 1.1, 0, margin);
 		commands_widget.set_bar_len((valid_file_selected()) ?get_selected_command_list()->size(): 0);
+
+		// set the position and available width for the text of the total monster count
+		monster_total_text = { 3 * margin + name_list_width + win->box_size, commands_list_height + margin, command_list_width };
 
 		// all the buttons and the baseline input fields align at the top
 		float button_y = win_y - button_height - margin;
@@ -1851,7 +1943,7 @@ namespace invasion_window
 			json_cstate_get_float(window_dict_name, "num_lines",def_num_lines)));
 		initial_delay = std::min(max_delay, std::max(min_delay,
 			json_cstate_get_int(window_dict_name, "delay_seconds", def_delay)));
-		safe_mode = json_cstate_get_int(window_dict_name, "safe_mode", 1);
+		sess_state.set_safe_mode(json_cstate_get_int(window_dict_name, "safe_mode", 1));
 	}
 
 	//	Save the parameter to the client state file
@@ -1865,7 +1957,7 @@ namespace invasion_window
 		json_cstate_set_float(window_dict_name, "num_lines", static_cast<int>(num_lines));
 		json_cstate_set_int(window_dict_name, "delay_seconds",
 			(initialised) ?delay_input_widget.get_number_value() :initial_delay);
-		json_cstate_set_int(window_dict_name, "safe_mode", safe_mode);
+		json_cstate_set_int(window_dict_name, "safe_mode", (sess_state.is_safe_mode()) ?1 :0);
 	}
 #endif
 
