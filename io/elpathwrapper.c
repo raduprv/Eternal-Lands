@@ -448,6 +448,11 @@ int normalize_path (const char* path, char* norm_path, int size, int relative_on
 	return 1;
 }
 
+int mkdir_single (const char *path)
+{
+	return MKDIR(path);
+}
+
 int mkdir_tree (const char *path, int relative_only)
 {
 	// First, check directory exists
