@@ -23,6 +23,7 @@
 #include <sys/stat.h>
 #include <SDL_thread.h>
 #include "../elc_private.h"
+#include "../io/elpathwrapper.h"
 
 namespace eternal_lands
 {
@@ -340,11 +341,7 @@ namespace eternal_lands
 		log_dir = dir + "/";
 
 		clear_dir(dir);
-#ifdef	WINDOWS
-		mkdir(dir.c_str());
-#else	/* WINDOWS */
-		mkdir(dir.c_str(), S_IRWXU | S_IRWXG);
-#endif	/* WINDOWS */
+		mkdir_single(dir.c_str());
 
 		init_thread_log("main");
 	}
