@@ -1,0 +1,108 @@
+name: Build check
+on: 
+  pull_request:
+    types:
+      - opened
+      - synchronize
+      - reopened
+  push:
+    branches:
+      - master
+
+jobs:
+  build-ubuntu:
+    runs-on: ubuntu-22.04
+    steps:
+    - name: "Checkout repo"
+      uses: actions/checkout@v3
+      with:
+        submodules: "recursive"
+        fetch-depth: 0
+
+    - name: "Install dependencies"
+      run: |
+        sudo apt update -qq
+        sudo apt install -y cmake libsdl2-dev libsdl2-net-dev libsdl2-image-dev libssl-dev libopenal-dev libcal3d12-dev libvorbis-dev libsdl2-ttf-dev
+    
+    - name: "cmake"
+      run: |
+        cmake -S . -B build -DCMAKE_BUILD_TYPE=release -DLOCAL_NLOHMANN_JSON=ON
+        
+    - name: "compile"
+      run: |
+        cmake --build build
+
+  build-ubuntu-mapeditor:
+    runs-on: ubuntu-22.04
+    steps:
+    - name: "Checkout repo"
+      uses: actions/checkout@v3
+      with:
+        submodules: "recursive"
+        fetch-depth: 0
+
+    - name: "Install dependencies"
+      run: |
+        sudo apt update -qq
+        sudo apt install -y cmake libsdl1.2-dev libsdl-image1.2-dev libopenal-dev libcal3d12-dev nlohmann-json3-dev libx11-dev libgtk2.0-dev
+    
+    - name: "cmake"
+      working-directory: ./map_editor
+      run: |
+        cmake -S . -B build -DCMAKE_BUILD_TYPE=release -DLOCAL_NLOHMANN_JSON=ON
+        
+    - name: "compile"
+      working-directory: ./map_editor
+      run: |
+        cmake --build build
+
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - name: "Checkout repo"
+        uses: actions/checkout@v3
+        with:
+          submodules: "recursive"
+          fetch-depth: 0
+
+      - name: "Setup MSYS2 environment"
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: MINGW64
+          update: true
+          install: >-
+            base-devel
+            mingw-w64-x86_64-toolchain
+            mingw-w64-x86_64-cmake
+            mingw-w64-x86_64-SDL2
+            mingw-w64-x86_64-SDL2_net
+            mingw-w64-x86_64-SDL2_image
+            mingw-w64-x86_64-openssl
+            mingw-w64-x86_64-openal
+            mingw-w64-x86_64-libvorbis
+            mingw-w64-x86_64-SDL2_ttf
+            mingw-w64-x86_64-libxml2
+
+      - name: "Download and install cal3d from source"
+        shell: msys2 {0}
+        run: |
+          wget https://github.com/raduprv/Eternal-Lands/releases/download/1.9.5.2/cal3d-0.11.0.tar.gz
+          wget https://github.com/raduprv/Eternal-Lands/releases/download/1.9.5.2/cal3d-0.11.0-patch
+          tar xfz cal3d-0.11.0.tar.gz
+          cd cal3d-0.11.0/
+          patch -p1 < ../cal3d-0.11.0-patch
+          export "CFLAGS=-I${PACKAGELOCAL}/include -O3"
+          export "CPPFLAGS=-I${PACKAGELOCAL}/include -O3"
+          export "LDFLAGS=-L${PACKAGELOCAL}/lib"
+          export "PKG_CONFIG_PATH=${PACKAGELOCAL}/lib/pkgconfig"
+          ./configure --prefix=${PACKAGELOCAL} && make && make install-strip
+
+      - name: "cmake"
+        shell: msys2 {0}
+        run: |
+          cmake -G "MinGW Makefiles" -S . -B build -DCMAKE_BUILD_TYPE=release -DLOCAL_NLOHMANN_JSON=ON
+        
+      - name: "compile"
+        shell: msys2 {0}
+        run: |
+          cmake --build build
