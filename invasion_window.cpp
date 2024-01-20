@@ -864,6 +864,11 @@ namespace invasion_window
 	static int common_input_keypress_handler(widget_list *widget, int mx, int my,
 		SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_mod);
 	static int common_input_mouseover_handler(widget_list *widget, int mx, int my);
+#ifdef ANDROID
+	// Click handler for Android that opens the on-screen keyboard
+	static int input_onclick_handler(widget_list *widget, int mx, int my, Uint32 flags)
+		{ SDL_StartTextInput(); return 1; }
+#endif
 
 	// Destroy (if needed) and create the widgets.
 	//
@@ -881,6 +886,9 @@ namespace invasion_window
 			1.5 * win->default_font_len_y, P_TEXT, win->current_scale, last_input_buf, buf_size);
 		widget_set_OnKey(win->window_id, input_id, (int (*)())common_input_keypress_handler);
 		widget_set_OnMouseover(win->window_id, input_id, (int (*)())&common_input_mouseover_handler);
+#ifdef ANDROID
+		widget_set_OnClick(win->window_id, input_id, (int (*)())&input_onclick_handler);
+#endif
 
 		width = widget_get_width(win->window_id, label_id) + space + widget_get_width(win->window_id, input_id);
 
@@ -1062,8 +1070,7 @@ namespace invasion_window
 					&monster_widget, &count_widget, &cap_widget }),
 				char_width(def_char_width), num_lines(def_num_lines), initial_delay(def_delay),
 				initialised(false), generated_command_valid(true),
-				add_list_prompt("Enter Command List Name"), monster_total_text({0, 0, 0}), repeats_done(0),
-				dir_path(std::string(get_path_config_base()) + "invasion_lists/") {}
+				add_list_prompt("Enter Command List Name"), monster_total_text({0, 0, 0}), repeats_done(0) {}
 			void init(void);
 			void destroy(void);
 			int display_window(window_info *win);
@@ -1496,6 +1503,8 @@ namespace invasion_window
 	void Container::reload(void)
 	{
 		stop_play();
+
+		dir_path = std::string(get_path_config_base()) + "invasion_lists/";
 
 		// create the invasion config directory if required
 		if (access(dir_path.c_str(), F_OK) != 0)
