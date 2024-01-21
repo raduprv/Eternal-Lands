@@ -98,7 +98,7 @@ namespace invasion_window
 	class Session_State
 	{
 		public:
-			Session_State(void) : total_monsters(0), last_map_id(0), safe_mode(1) {}
+			Session_State(void) : total_monsters(0), last_map_id(0), safe_mode(1), feature_enabled(false) {}
 			void init(void) { total_monsters = 0; confirmed_maps.clear(); confirm_popup.reset(); }
 			bool map_confirmed(unsigned int map_id);
 			void add_monsters(unsigned int additional_monsters) { total_monsters += additional_monsters; }
@@ -107,10 +107,13 @@ namespace invasion_window
 			void set_safe_mode(int mode) { safe_mode = mode; }
 			int *safe_mode_ptr(void) { return &safe_mode; }
 			const std::string get_safe_mode_title(void) const { return ((is_safe_mode()) ?"Safe Mode" : "Live"); }
+			void enable(void) { feature_enabled = true; }
+			bool is_enabled(void) const { return feature_enabled; }
 		private:
 			unsigned int total_monsters;
 			unsigned int last_map_id;
 			int safe_mode;
+			bool feature_enabled;
 			std::vector<unsigned int> confirmed_maps;
 			std::unique_ptr<eternal_lands::TextPopup> confirm_popup;
 	};
@@ -1977,18 +1980,24 @@ extern "C"
 {
 	int command_invasion_window(char *text, int len)
 	{
+		if (!invasion_window::sess_state.is_enabled())
+			return 0;
 		invasion_window::container.init();
 		return 1;
 	}
 
 	int stop_invasion_sequence(char *text, int len)
 	{
+		if (!invasion_window::sess_state.is_enabled())
+			return 0;
 		invasion_window::container.stop_play();
 		return 1;
 	}
 
 	void display_invasion_win(void)
 	{
+		if (!invasion_window::sess_state.is_enabled())
+			return;
 		invasion_window::container.init();
 	}
 
@@ -2000,6 +2009,16 @@ extern "C"
 	void update_play_invasion_window(void)
 	{
 		invasion_window::container.update_play();
+	}
+
+	void enable_invasion_window(void)
+	{
+		invasion_window::sess_state.enable();
+	}
+
+	int invasion_window_enabled(void)
+	{
+		return (invasion_window::sess_state.is_enabled() ?1 :0);
 	}
 
 #ifdef JSON_FILES

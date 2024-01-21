@@ -244,6 +244,24 @@ struct compl_str {
 	enum compl_type type;
 };
 
+
+// return true if the command is in the exclude list
+static int exclude_command(const char * command)
+{
+	const char * const exclude_commands[] = {invasion_win_long_cmd_str, invasion_win_short_cmd_str,
+		invasion_seq_stop_long_cmd_str, invasion_seq_stop_short_cmd_str};
+	const size_t num_exclude = sizeof(exclude_commands) / sizeof(char *);
+	int j;
+	// if we want to exclude non invasion window commands, we will need to change this ...
+	if (invasion_window_enabled())
+		return 0;
+	for (j = 0; j < num_exclude; j++)
+		if (strcasecmp(command, exclude_commands[j]) == 0)
+			return 1;
+	return 0;
+}
+
+
 static struct compl_str tab_complete(const text_message *input, unsigned int cursor_pos)
 {
 	static char last_complete[48] = {0};
@@ -351,6 +369,8 @@ static struct compl_str tab_complete(const text_message *input, unsigned int cur
 				case COMMAND:
 				default:
 					for(i = 0, count = 0; i < command_count; i++) {
+						if (exclude_command(commands[i].command))
+							continue;
 						if(strncasecmp(commands[i].command, last_complete, strlen(last_complete)) == 0) {
 							/* Yay! The command begins with the string we're searching for. */
 							if(count > last_str_count) {
@@ -1924,9 +1944,6 @@ int cm_test_window(char *text, int len);
 // list the #commands available
 static void commands_summary(void)
 {
-	const char * const exclude_commands[] = {invasion_win_long_cmd_str, invasion_win_short_cmd_str,
-		invasion_seq_stop_long_cmd_str, invasion_seq_stop_short_cmd_str};
-	const size_t num_exclude = sizeof(exclude_commands) / sizeof(char *);
 	char *str = NULL;
 	const char * const delim = "  .  ";
 	const size_t str_len = 1 + (MAX_COMMAND_NAME_LEN + strlen(delim)) * command_count;
@@ -1940,11 +1957,7 @@ static void commands_summary(void)
 	str[0] = '\0';
 	for(i = 0; i < command_count; i++)
 	{
-		int j, exclude = 0;
-		for (j = 0; (j < num_exclude) && !exclude; j++)
-			if (strcmp(commands[i].command, exclude_commands[j]) == 0)
-				exclude = 1;
-		if (exclude)
+		if (exclude_command(commands[i].command))
 			continue;
 		if (str[0] != '\0')
 			safe_strcat(str, delim, str_len);

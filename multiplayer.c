@@ -29,6 +29,7 @@
 #include "hud.h"
 #include "hud_quickspells_window.h"
 #include "interface.h"
+#include "invasion_window.h"
 #include "knowledge.h"
 #include "lights.h"
 #include "loginwin.h"
@@ -780,6 +781,9 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 
 				safe_strncpy2((char*)text_buf, (char*)&in_data[4], sizeof(text_buf), data_length - 4);
 				len = strlen((char*)text_buf);
+
+				if (in_data[3] == CHAT_MOD)
+					enable_invasion_window();
 
 				// if from the server popup channel
 				if (in_data[3] == server_pop_chan)
