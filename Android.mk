@@ -34,6 +34,9 @@ $(LOCAL_PATH)/$(MYGLOB_PATH)/include/ \
 $(LOCAL_PATH)/nlohmann_json/single_include/ \
 $(LOCAL_PATH)/$(OPENSSL_PATH)/include/
 
+LOCAL_CPPFLAGS := \
+	-std=c++11
+
 LOCAL_CFLAGS := \
 	-O3 -fsigned-char -frtti \
 	-DANDROID \
