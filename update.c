@@ -33,17 +33,17 @@
 
 void create_update_root_window (int width, int height, int time);
 static void do_updates(void);
-static void http_threaded_get_file(char *server, char *path, FILE *fp, Uint8 *md5, Uint32 event);
+static void http_threaded_get_file(struct update_server_struct *server, char *path, FILE *fp, Uint8 *md5, Uint32 event);
 static int do_threaded_update(void *ptr);
 static int http_get_file_thread_handler(void *specs);
-static int http_get_file(char *server, char *path, FILE *fp);
+static int http_get_file(struct update_server_struct *update_server, char *path, FILE *fp);
 
 static int update_attempt_count;   // count how many update attempts have been tried (hopefully diff servers)
 static int temp_counter;           // collision prevention during downloads just incase more then one ever starts
 static int update_busy;            // state & lockout control to prevent two updates running at the same time
-static char    update_server[128]; // the current server we are getting updates from
+static struct update_server_struct update_server; // the current server we are getting updates from
 static unsigned int num_update_servers;
-static char *update_servers[32];	// we cant handle more then 32 different servers
+static struct update_server_struct update_servers[32];	// we cant handle more then 32 different servers
 static int is_this_files_lst= 0;	// files.lst changes its name if it is a custom update
 static char files_lst[256]= {0};
 static int allow_restart=1;
@@ -90,7 +90,7 @@ void init_update()
 
 	// load the server list
 	num_update_servers= 0;
-	update_server[0]= '\0';
+	update_server.host[0]= '\0';
 	fp = open_file_data("mirrors.lst", "r");
 	if(fp == NULL){
 		LOG_ERROR("%s: %s \"mirrors.lst\": %s\n", reg_error_str, cant_open_file, strerror(errno));
@@ -109,7 +109,7 @@ void init_update()
 					len--;
 				}
 				if(len > 6){
-					update_servers[num_update_servers++]= strdup(buffer);
+					fill_update_server_struct(&update_servers[num_update_servers], buffer);
 				}
 			}
 			// read the next line
@@ -120,8 +120,9 @@ void init_update()
 		}
 	}
 	if(!num_update_servers) {
+		LOG_DEBUG("No mirrors, skipping download...");
 		// oops, no mirror file, no downloading
-		update_servers[0]= "";
+		update_servers[0].host[0] = '\0';
 		return;
 	}
 
@@ -133,6 +134,38 @@ void init_update()
 	}
 }
 
+void fill_update_server_struct(struct update_server_struct *update_server, const char *buf)
+{
+	char *ptr;
+	char server_without_port[128];
+	int index;
+	char port_buf[6];
+	int port;
+
+	// check if format is host:port and parse it
+	ptr = strchr(buf, ':');
+	if (ptr == NULL) {
+		LOG_DEBUG("Using port 80 as default...");
+		port = 80; // default HTTP port
+		safe_strncpy(server_without_port,buf,128);
+	} else {
+		index = ptr - buf;
+		safe_strncpy2(port_buf,ptr+1,6,strlen(buf)-index+1);
+		port = atoi(port_buf);
+		if ( port == 0) {
+			LOG_ERROR("Cannot parse port! Using port 80 as default...");
+			port = 80; // default HTTP port
+		}
+		safe_strncpy2(server_without_port,buf,128,index);
+	}
+
+	update_server->port = port;
+	safe_strncpy(update_server->host, server_without_port, 128);
+	LOG_DEBUG("Adding update server mirror - host: %s | port: %d", update_server->host, update_server->port);
+
+	num_update_servers++;
+}
+
 // clean up the auto update system
 void clean_update()
 {
@@ -141,10 +174,16 @@ void clean_update()
 	SDL_DestroyMutex(download_mutex);
 	for(i=0; i< num_update_servers; i++)
 	{
-		if(update_servers[i])
-			free(update_servers[i]);
+		if(update_servers[i].host)
+			update_servers[i].host[0] = '\0';
 	}
+	num_update_servers = 0;
+}
 
+// compare two update_server_structs
+int cmp_update_server(struct update_server_struct *server1, struct update_server_struct *server2)
+{
+	return strcmp(server1->host, server2->host) && !(server1->port == server2->port);
 }
 
 // handle the update file event
@@ -192,6 +231,7 @@ static void do_handle_update_download(struct http_get_struct *get)
 		free(get);
 	}
 
+	LOG_DEBUG("Downloading the update file");
 	// we need to download the update file if we get here
 	if(update_attempt_count++ < 3){
 		char	filename[1024];
@@ -203,23 +243,24 @@ static void do_handle_update_download(struct http_get_struct *get)
 
 			srand( (unsigned)time( NULL ) );
 			num= rand()%num_update_servers;
-			if(!strcmp(update_server, update_servers[num])){
+			if(!cmp_update_server(&update_server, &update_servers[num])){
 				// oops, the same server twice in a row, try to avoid
 				num= rand()%num_update_servers;
-				if(!strcmp(update_server, update_servers[num])){
+				if(!cmp_update_server(&update_server, &update_servers[num])){
 					// oops, the same server twice in a row, try to avoid
 					num= rand()%num_update_servers;
-					if(!strcmp(update_server, update_servers[num])){
+					if(!cmp_update_server(&update_server, &update_servers[num])){
 						// oops, the same server twice in a row, try to avoid
 						num= rand()%num_update_servers;
 					}
 				}
 			}
-			safe_strncpy(update_server, update_servers[num], sizeof(update_server));
-			update_server[127]= '\0';
-			LOG_DEBUG("downloading from mirror %d of %d %s", num+1, num_update_servers, update_server);
+			safe_strncpy(update_server.host, update_servers[num].host, sizeof(update_server.host));
+			update_server.port = update_servers[num].port;
+			LOG_DEBUG("downloading from mirror %d of %d %s", num+1, num_update_servers, update_server.host);
 		} else {
-			safe_strncpy(update_server, update_servers[0], sizeof(update_server));
+			safe_strncpy(update_server.host, update_servers[0].host, sizeof(update_server));
+			update_server.port = update_servers[0].port;
 		}
 		++temp_counter;
 		fp = open_file_config("tmp/temp000.dat", "wb+");
@@ -228,19 +269,19 @@ static void do_handle_update_download(struct http_get_struct *get)
 		} else {
 			if(is_this_files_lst)	//files.lst
 			{
-			     safe_snprintf(filename, sizeof(filename), "http://%s/updates%d%d%d/%s", update_server, VER_MAJOR, VER_MINOR, VER_RELEASE, files_lst);
+				safe_snprintf(filename, sizeof(filename), "http://%s:%d/updates%d%d%d/%s", update_server.host, update_server.port, VER_MAJOR, VER_MINOR, VER_RELEASE, files_lst);
 			} else {	//custom_files.lst
-			     safe_snprintf(filename, sizeof(filename), "http://%s/updates/%s", update_server, files_lst);
+				safe_snprintf(filename, sizeof(filename), "http://%s:%d/updates/%s", update_server.host, update_server.port, files_lst);
 			}
-			LOG_DEBUG("* server %s filename %s", update_server, filename);
-			http_threaded_get_file(update_server, filename, fp, NULL, EVENT_UPDATES_DOWNLOADED);
+			LOG_DEBUG("* server %s filename %s", update_server.host, filename);
+			http_threaded_get_file(&update_server, filename, fp, NULL, EVENT_UPDATES_DOWNLOADED);
 		}
 		// and keep running until we get a response
 		return;
 	}
 
 	// total failure, error and clear the busy flag
-	LOG_DEBUG("Failed to download (%s) 3 times. Giving up.", files_lst);
+	LOG_INFO("Failed to download (%s) 3 times. Giving up.", files_lst);
 	update_busy= 0;
 }
 
@@ -364,13 +405,13 @@ void add_to_download(const char *filename, const Uint8 *md5)
 				download_cur_file= download_queue[--download_queue_size];
 				download_cur_md5= download_MD5s[download_queue_size];
 				if(is_this_files_lst){
-					safe_snprintf(buffer, sizeof(buffer), "http://%s/updates%d%d%d/%s", update_server, VER_MAJOR, VER_MINOR, VER_RELEASE, download_cur_file);
+					safe_snprintf(buffer, sizeof(buffer), "http://%s:%d/updates%d%d%d/%s", update_server.host, update_server.port, VER_MAJOR, VER_MINOR, VER_RELEASE, download_cur_file);
 				} else {
-					safe_snprintf(buffer, sizeof(buffer), "http://%s/updates/%s", update_server, download_cur_file);
+					safe_snprintf(buffer, sizeof(buffer), "http://%s:%d/updates/%s", update_server.host, update_server.port, download_cur_file);
 				}
 				buffer[sizeof(buffer)-1]= '\0';
-				LOG_DEBUG("@@ %s %s",update_server,buffer);
-				http_threaded_get_file(update_server, buffer, fp, download_cur_md5, EVENT_DOWNLOAD_COMPLETE);
+				LOG_DEBUG("@@ %s %d %s",update_server.host, update_server.port, buffer);
+				http_threaded_get_file(&update_server, buffer, fp, download_cur_md5, EVENT_DOWNLOAD_COMPLETE);
 			}
 		}
 	}
@@ -443,12 +484,12 @@ void handle_file_download(struct http_get_struct *get)
 			download_cur_file= download_queue[--download_queue_size];
 			download_cur_md5= download_MD5s[download_queue_size];
 			if(is_this_files_lst) {
-				safe_snprintf(buffer, sizeof(buffer), "http://%s/updates%d%d%d/%s", update_server, VER_MAJOR, VER_MINOR, VER_RELEASE, download_cur_file);
+				safe_snprintf(buffer, sizeof(buffer), "http://%s:%d/updates%d%d%d/%s", update_server.host, update_server.port, VER_MAJOR, VER_MINOR, VER_RELEASE, download_cur_file);
 			} else {
-				safe_snprintf(buffer, sizeof(buffer), "http://%s/updates/%s", update_server, download_cur_file);
+				safe_snprintf(buffer, sizeof(buffer), "http://%s:%d/updates/%s", update_server.host, update_server.port, download_cur_file);
 			}
 			buffer[sizeof(buffer)-1]= '\0';
-			http_threaded_get_file(update_server, buffer, fp, download_cur_md5, EVENT_DOWNLOAD_COMPLETE);
+			http_threaded_get_file(&update_server, buffer, fp, download_cur_md5, EVENT_DOWNLOAD_COMPLETE);
 		}
 	}
 
@@ -467,14 +508,14 @@ void handle_file_download(struct http_get_struct *get)
 
 
 // start a download in another thread, return an even when complete
-static void http_threaded_get_file(char *server, char *path, FILE *fp, Uint8 *md5, Uint32 event)
+static void http_threaded_get_file(struct update_server_struct *server, char *path, FILE *fp, Uint8 *md5, Uint32 event)
 {
 	struct http_get_struct  *spec;
-
-	LOG_DEBUG("Downloading %s from %s", path, server);
+	LOG_DEBUG("Downloading %s from %s:%d", path, server->host, server->port);
 	// allocate & fill the spec structure
 	spec= (struct http_get_struct  *)calloc(1, sizeof(struct http_get_struct));
-	safe_strncpy(spec->server, server, sizeof(spec->server));
+	safe_strncpy(spec->server.host, server->host, sizeof(spec->server.host));
+	spec->server.port = server->port;
 	safe_strncpy(spec->path, path, sizeof(spec->path));
 	download_cur_md5= spec->md5= md5;
 	spec->fp= fp;
@@ -509,7 +550,7 @@ static int http_get_file_thread_handler(void *specs){
 	init_thread_log("get_file");
 
 	// load the file
-	spec->status= http_get_file(spec->server, spec->path, spec->fp);
+	spec->status= http_get_file(&spec->server, spec->path, spec->fp);
 	fclose(spec->fp);
 	spec->fp= NULL;
 
@@ -544,7 +585,7 @@ static int http_get_file_thread_handler(void *specs){
 
 
 // the http downloader that can be used in the foreground or background
-static int http_get_file(char *server, char *path, FILE *fp)
+static int http_get_file(struct update_server_struct *update_server, char *path, FILE *fp)
 {
 	IPaddress http_ip;
 	TCPsocket http_sock;
@@ -553,24 +594,30 @@ static int http_get_file(char *server, char *path, FILE *fp)
 	int got_header= 0;
 	int http_status= 0;
 
+	LOG_DEBUG("update_server - host: %s, port: %d", update_server->host, update_server->port);
+	LOG_DEBUG("path: %s", path);
+
 	// resolve the hostname
-	if(SDLNet_ResolveHost(&http_ip, server, 80) < 0){   // caution, always port 80!
+	if(SDLNet_ResolveHost(&http_ip, update_server->host, update_server->port) < 0){
+		LOG_ERROR("Can't resolve the hostname!");
 		return(1);  // can't resolve the hostname
 	}
 	// open the socket
 	http_sock= SDLNet_TCP_Open(&http_ip);
 	if(!http_sock){
+		LOG_ERROR("Failed to open the socket!");
 		return(2);  // failed to open the socket
 	}
 
 	// send the GET request, try to avoid ISP caching
 
-	safe_snprintf(message, sizeof(message), "GET %s HTTP/1.1\r\nHost: %s\r\nCONNECTION:CLOSE\r\nCACHE-CONTROL:NO-CACHE\r\nREFERER:%s\r\nUSER-AGENT:AUTOUPDATE %s\r\n\r\n", path, server, "autoupdate", FILE_VERSION);
+	safe_snprintf(message, sizeof(message), "GET %s HTTP/1.1\r\nHost: %s\r\nCONNECTION:CLOSE\r\nCACHE-CONTROL:NO-CACHE\r\nREFERER:%s\r\nUSER-AGENT:AUTOUPDATE %s\r\n\r\n", path, update_server->host, "autoupdate", FILE_VERSION);
 	//printf("%s",message);
 	len= strlen(message);
 	if(SDLNet_TCP_Send(http_sock,message,len) < len){
 		// close the socket to prevent memory leaks
 		SDLNet_TCP_Close(http_sock);
+		LOG_ERROR("Error in sending the get request!");
 		return(3);  // error in sending the get request
 	}
 
@@ -617,10 +664,12 @@ static int http_get_file(char *server, char *path, FILE *fp)
 	SDLNet_TCP_Close(http_sock);
 
 	if(http_status != 200) {
-		if(http_status != 0){
-			return(http_status);
+		if (http_status != 0) {
+			LOG_ERROR("HTTP Status: %d", http_status);
+			return (http_status);
 		} else {
-			return(5);
+			LOG_ERROR("No HTTP status!");
+			return (5);
 		}
 	}
 
