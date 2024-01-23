@@ -89,6 +89,14 @@ FILE * open_file_data(const char* filename, const char* mode);
 FILE * open_file_lang(const char* filename, const char* mode);
 
 /**
+ * @brief Creates the given directory
+ *
+ * @param path The path to the directory. The parent directory must already exist
+ * @return Returns 0 on success
+ */
+int mkdir_single (const char *path);
+
+/**
  * @brief Creates the given path
  *
  * Attempts to create the given path, stepping through the given directory names
