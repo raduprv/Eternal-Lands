@@ -90,7 +90,7 @@ namespace eternal_lands
 			memset(buffer, 0, sizeof(buffer));
 			size_t time_len = std::strftime(buffer, sizeof(buffer), "%Y-%m-%d %X", std::localtime(&raw_time));
 			if(log_levels >= llt_debug_verbose)
-				sprintf(buffer+time_len, ".%03d", (int)now_ms.count()); // add milliseconds if log level is debug_verbose
+				snprintf(buffer+time_len, sizeof(buffer)-time_len, ".%03d", (int)now_ms.count()); // add milliseconds if log level is debug_verbose
 
 			str << ", " << file << ":" << line << "] " << type;
 			str << ": " << message;
