@@ -113,6 +113,9 @@ void destroy_map(void)
 #ifdef CLUSTER_INSIDES
 	destroy_clusters_array ();
 #endif
+
+	inspect_map_text = 0;
+	adding_mark = 0;
 }
 
 #ifndef MAP_EDITOR2

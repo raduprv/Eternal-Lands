@@ -58,11 +58,13 @@ static int click_map_handler (window_info *win, int mx, int my, Uint32 flags)
 	if (hud_click(win, mx, my, flags))
 		return 1;
 
+	// Was the small map clicked?
 	if (left_click && mx > small_map_screen_x_left && mx < small_map_screen_x_right
 		&& my > small_map_screen_y_top && my < small_map_screen_y_bottom)
 	{
 		showing_continent = !showing_continent;
 		inspect_map_text = 0;
+		adding_mark = 0;
 	}
 #ifdef ANDROID
 	else if (left_click && (mx > small_map_screen_x_left) && (mx < small_map_screen_x_right) &&
