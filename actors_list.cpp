@@ -183,6 +183,8 @@ void LockedActorsList::remove_and_destroy(Storage::const_iterator iter)
 	const actor *act = iter->second.unwrap();
 	if (has_attachment(act))
 		_list.erase(act->attached_actor_id);
+	if (act && act->actor_id == yourself)
+		_self = nullptr;
 	_list.erase(iter);
 }
 
