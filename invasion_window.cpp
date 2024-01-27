@@ -648,7 +648,7 @@ namespace invasion_window
 		max_value_len = 0;
 		while (getline(in, line))
 		{
-			if (line.rfind("#", 0) == 0)
+			if (line.empty() || (line.rfind("#", 0) == 0))
 				continue;
 			std::pair<std::string, std::string> tokens;
 			if ((pos = line.find(delimiter)) != std::string::npos)
