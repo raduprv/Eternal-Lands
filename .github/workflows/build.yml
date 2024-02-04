@@ -107,6 +107,27 @@ jobs:
         run: |
           cmake --build build
 
+  build-macos:
+    runs-on: macos-latest
+    steps:
+    - name: "Checkout repo"
+      uses: actions/checkout@v4
+
+    - name: "Install dependencies"
+      run: |
+        mkdir -p ~/Library/Frameworks
+        curl -LO https://github.com/raduprv/Eternal-Lands/releases/download/1.9.6.1/el_1.9.6_macOS_frameworks_R2.zip
+        unzip el_1.9.6_macOS_frameworks_R2.zip
+        mv el_1.9.6_macOS_frameworks_R2/*.framework ~/Library/Frameworks
+
+    - name: "Set up data directory"
+      run: |
+        mkdir -p "../EL Development Assets/EL Data Files/data"
+
+    - name: "Compile with Xcode"
+      run: |
+        xcodebuild -project "macosx/Eternal Lands.xcodeproj" CODE_SIGNING_ALLOWED="NO"
+
   build-android:
     runs-on: ubuntu-latest
 
