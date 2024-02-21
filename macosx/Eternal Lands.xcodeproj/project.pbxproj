@@ -218,6 +218,8 @@
 		D791C71C25F9321900EB3011 /* json_io.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D791C71B25F9321900EB3011 /* json_io.cpp */; };
 		D791C72325F9336F00EB3011 /* SDL2_ttf.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D791C72225F9336F00EB3011 /* SDL2_ttf.framework */; };
 		D791C72425F9336F00EB3011 /* SDL2_ttf.framework in Copy Frameworks into .app bundle */ = {isa = PBXBuildFile; fileRef = D791C72225F9336F00EB3011 /* SDL2_ttf.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		D7A653702B861224003E0B91 /* actors_list.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D7A6536F2B861224003E0B91 /* actors_list.cpp */; };
+		D7A653732B861240003E0B91 /* invasion_window.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D7A653712B86123F003E0B91 /* invasion_window.cpp */; };
 		D7F7BF9A26E8D7860077BE9C /* 3d_objects.c in Sources */ = {isa = PBXBuildFile; fileRef = D7F7BF8426E8D7850077BE9C /* 3d_objects.c */; };
 		D7F7BF9B26E8D7860077BE9C /* alphamap.c in Sources */ = {isa = PBXBuildFile; fileRef = D7F7BF8526E8D7850077BE9C /* alphamap.c */; };
 		D7F7BF9C26E8D7860077BE9C /* actor_init.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D7F7BF8726E8D7850077BE9C /* actor_init.cpp */; };
@@ -695,6 +697,10 @@
 		D791C72125F932ED00EB3011 /* trade_log.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = trade_log.h; path = ../trade_log.h; sourceTree = "<group>"; };
 		D791C72225F9336F00EB3011 /* SDL2_ttf.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL2_ttf.framework; path = ../../../Library/Frameworks/SDL2_ttf.framework; sourceTree = "<group>"; };
 		D791C74425F938F400EB3011 /* json.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = json.hpp; sourceTree = "<group>"; };
+		D7A6536E2B861224003E0B91 /* actors_list.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = actors_list.h; path = ../actors_list.h; sourceTree = "<group>"; };
+		D7A6536F2B861224003E0B91 /* actors_list.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = actors_list.cpp; path = ../actors_list.cpp; sourceTree = "<group>"; };
+		D7A653712B86123F003E0B91 /* invasion_window.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = invasion_window.cpp; path = ../invasion_window.cpp; sourceTree = "<group>"; };
+		D7A653722B86123F003E0B91 /* invasion_window.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = invasion_window.h; path = ../invasion_window.h; sourceTree = "<group>"; };
 		D7F7BF8426E8D7850077BE9C /* 3d_objects.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = 3d_objects.c; path = ../3d_objects.c; sourceTree = "<group>"; };
 		D7F7BF8526E8D7850077BE9C /* alphamap.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = alphamap.c; path = ../alphamap.c; sourceTree = "<group>"; };
 		D7F7BF8626E8D7850077BE9C /* astrology.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = astrology.h; path = ../astrology.h; sourceTree = "<group>"; };
@@ -821,6 +827,8 @@
 				D7F7BF9826E8D7860077BE9C /* actor_init.h */,
 				D7F7BF9226E8D7860077BE9C /* actor_scripts.c */,
 				D7F7BF8B26E8D7850077BE9C /* actor_scripts.h */,
+				D7A6536F2B861224003E0B91 /* actors_list.cpp */,
+				D7A6536E2B861224003E0B91 /* actors_list.h */,
 				D7F7BF9926E8D7860077BE9C /* actors.c */,
 				D7F7BF8F26E8D7850077BE9C /* actors.h */,
 				D7F7BF8526E8D7850077BE9C /* alphamap.c */,
@@ -958,6 +966,8 @@
 				1F812A5A0D033551008792A7 /* init.h */,
 				1F812A5B0D033551008792A7 /* interface.c */,
 				1F812A5C0D033551008792A7 /* interface.h */,
+				D7A653712B86123F003E0B91 /* invasion_window.cpp */,
+				D7A653722B86123F003E0B91 /* invasion_window.h */,
 				1F812A5D0D033551008792A7 /* io */,
 				D7F7BFAC26E8D8930077BE9C /* ipaddress.cpp */,
 				D7F7BFAD26E8D8930077BE9C /* ipaddress.h */,
@@ -1528,6 +1538,7 @@
 				1F812C2B0D033551008792A7 /* effect_summon.cpp in Sources */,
 				1F812C2C0D033551008792A7 /* effect_sword.cpp in Sources */,
 				1F812C2D0D033551008792A7 /* effect_targetmagic.cpp in Sources */,
+				D7A653732B861240003E0B91 /* invasion_window.cpp in Sources */,
 				1F812C2E0D033551008792A7 /* effect_teleporter.cpp in Sources */,
 				1F812C2F0D033551008792A7 /* effect_wind.cpp in Sources */,
 				1F812C300D033551008792A7 /* eye_candy.cpp in Sources */,
@@ -1574,6 +1585,7 @@
 				1F812D470D033551008792A7 /* minimap.c in Sources */,
 				1F812D480D033551008792A7 /* misc.c in Sources */,
 				1F812D4A0D033551008792A7 /* new_actors.c in Sources */,
+				D7A653702B861224003E0B91 /* actors_list.cpp in Sources */,
 				1F812D4B0D033551008792A7 /* new_character.c in Sources */,
 				1F812D4C0D033551008792A7 /* notepad.c in Sources */,
 				1F812D4D0D033551008792A7 /* openingwin.c in Sources */,
@@ -1714,9 +1726,9 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
 				CODE_SIGN_ENTITLEMENTS = "Eternal Lands.entitlements";
-				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Manual;
-				DEVELOPMENT_TEAM = 58CZVHK7KH;
+				DEVELOPMENT_TEAM = "";
 				ENABLE_HARDENED_RUNTIME = YES;
 				FRAMEWORK_SEARCH_PATHS = $inherited;
 				HEADER_SEARCH_PATHS = $inherited;
@@ -1740,9 +1752,9 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
 				CODE_SIGN_ENTITLEMENTS = "Eternal Lands.entitlements";
-				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Manual;
-				DEVELOPMENT_TEAM = 58CZVHK7KH;
+				DEVELOPMENT_TEAM = "";
 				ENABLE_HARDENED_RUNTIME = YES;
 				FRAMEWORK_SEARCH_PATHS = $inherited;
 				HEADER_SEARCH_PATHS = $inherited;
