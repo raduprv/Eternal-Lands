@@ -126,7 +126,7 @@ jobs:
 
     - name: "Compile with Xcode"
       run: |
-        xcodebuild -project "macosx/Eternal Lands.xcodeproj" CODE_SIGNING_ALLOWED="NO"
+        xcodebuild -project "macosx/Eternal Lands.xcodeproj"
 
   build-android:
     runs-on: ubuntu-latest
