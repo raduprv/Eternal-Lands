@@ -253,7 +253,7 @@ static void png_user_error(png_structp ctx, png_const_charp str)
 static int IMG_SavePNG_RW (SDL_Surface *face, SDL_RWops *src)
 {
 	png_structp png_ptr = 0;
-	png_infop info_ptr = NULL;
+	volatile png_infop info_ptr = NULL;
 	//png_colorp palette = 0;
 	png_bytep * volatile row_pointers = NULL;
 	int i;
