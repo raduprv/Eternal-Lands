@@ -681,7 +681,7 @@ static Uint32 check_server_digest_files(const char* file, FILE* tmp_file,
 	const size_t file_name_size = 1024;
 	Uint32 i, result;
 
-	if ((file_name = calloc(sizeof(char), file_name_size)) == NULL)
+	if ((file_name = calloc(file_name_size, sizeof(char))) == NULL)
 		return 0;
 
 	for (i = 0; i < 2; i++)
@@ -769,7 +769,7 @@ static Uint32 build_update_list(const char* server, const char* file,
 		char *file_name = NULL;
 		const size_t file_name_size = 1024;
 
-		file_name = (char *)calloc(sizeof(char), file_name_size);
+		file_name = (char *)calloc(file_name_size, sizeof(char));
 
 		safe_strncpy(file_name, file, file_name_size);
 		safe_strcat(file_name, ".xz", file_name_size);
@@ -800,7 +800,7 @@ static Uint32 build_update_list(const char* server, const char* file,
 
 		fclose(tmp_file);
 
-		error_str = (char *)calloc(sizeof(char), error_str_size);
+		error_str = (char *)calloc(error_str_size, sizeof(char));
 
 		safe_snprintf(error_str, error_str_size, "Can't get update list"
 			" file '%s' from server '%s' using path '%s', error %d.",
@@ -830,7 +830,7 @@ static Uint32 build_update_list(const char* server, const char* file,
 
 		free(file_buffer);
 
-		error_str = (char *)calloc(sizeof(char), error_str_size);
+		error_str = (char *)calloc(error_str_size, sizeof(char));
 
 		safe_snprintf(error_str, error_str_size, "Update list"
 			" file '%s' from server '%s' using path '%s' has wrong"
@@ -930,16 +930,16 @@ Uint32 update(const char* server, const char* file, const char* dir,
 		return 0;
 	}
 
-	path = (char*)calloc(sizeof(char), path_size);
+	path = (char*)calloc(path_size, sizeof(char));
 	safe_snprintf(path, path_size, "http://%s/%s/", server, dir);
 
-	str = (char *)calloc(sizeof(char), str_size);
+	str = (char *)calloc(str_size, sizeof(char));
 	safe_snprintf(str, str_size, "Downloading from server %s", path);
 	update_progress_function(str, 0, 0, user_data);
 
 	for (i = 0; i < MAX_OLD_UPDATE_FILES; i++)
 	{
-		tmp[i] = (char *)calloc(sizeof(char), tmp_size);
+		tmp[i] = (char *)calloc(tmp_size, sizeof(char));
 
 		safe_snprintf(tmp[i], tmp_size, "%s.t%i", zip, i);
 	}
@@ -956,7 +956,7 @@ Uint32 update(const char* server, const char* file, const char* dir,
 	infos = 0;
 	count = 0;
 
-	etag = (char *)calloc(sizeof(char), etag_size);
+	etag = (char *)calloc(etag_size, sizeof(char));
 	memset(md5, 0, sizeof(md5));
 	sscanf(str, "ETag: %s MD5: %32s", etag, md5);
 

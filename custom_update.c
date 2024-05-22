@@ -84,9 +84,9 @@ static Uint32 custom_update_threaded(const char* dir, const char* zip_file,
 	Uint32 count, index, idx, len, result;
 	const char* file_name = "custom_mirrors.lst";
 
-	if ((buffer = (char *)calloc(sizeof(char), buffer_size)) == NULL)
+	if ((buffer = (char *)calloc(buffer_size, sizeof(char))) == NULL)
 		return 1;
-	if ((str = (char *)calloc(sizeof(char), str_size)) == NULL)
+	if ((str = (char *)calloc(str_size, sizeof(char))) == NULL)
 	{
 		free(buffer);
 		return 1;
@@ -275,7 +275,7 @@ void init_custom_update()
 	update_thread_data[0].dir = datadir;
 	update_thread_data[1].dir = get_path_config_base();
 
-	if ((str = (char *)calloc(sizeof(char), str_size)) == NULL)
+	if ((str = (char *)calloc(str_size, sizeof(char))) == NULL)
 		return;
 
 #ifdef ANDROID
