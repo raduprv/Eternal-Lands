@@ -8,7 +8,7 @@
 	Any file in that directory with a ".txt" extension will be loaded.
 
 	Each file must contain the list name as the first line, which must
-	not start with a "#".  Of the remaining line, only those starting
+	not start with a "#".  Of the remaining lines, only those starting
 	with "#invasion" are interpreted as commands, anything else is
 	ignored.
 
@@ -22,9 +22,14 @@
 	each line showing the list name from the first line of the file.
 	The "reload" button is use to re-scan for and load files.
 
-	The right pane shows the contents of the selected list file. Double
+	The middle pane shows the contents of the selected list file. Double
 	clicking a line immediately sends that command to the server.
 	Sending commands can be automated using the play/stop controls.
+
+	The right pane is used to enter and edit commands, or to generate a
+	one-off invasion command.  The map name and monster name fields
+	provide search-as-you-type look-up assuming you have the required list
+	files.  Each field is check for validity.
 
 	To include as an icon, with suggested #commands, add this to
 	main_icon_window.xml:
@@ -41,7 +46,6 @@
 		- Handle #command errors
 		- Monster count greater then 50
 		- Bulk edit feature
-		- Only open if #mod channel open
 		- validate entered map and monster name in filter lists - lists need to be complete
 */
 
@@ -489,7 +493,7 @@ namespace invasion_window
 			cm_add_region(cm_id, win->window_id, start_x, start_y, width, height);
 	}
 
-	//	Set the scroll bar using the specified ist size, and update the selection as needed.
+	//	Set the scroll bar using the specified list size, and update the selection as needed.
 	//
 	void List_Widget::list_updated(size_t list_size, bool select_last_command)
 	{
