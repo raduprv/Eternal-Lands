@@ -1828,6 +1828,7 @@
 					"-lc",
 					"-lstdc++",
 					"-liconv",
+					"-ld_classic",
 				);
 				SDKROOT = macosx;
 				VALIDATE_WORKSPACE_SKIPPED_SDK_FRAMEWORKS = OpenGL;
@@ -1889,6 +1890,7 @@
 					"-lc",
 					"-lstdc++",
 					"-liconv",
+					"-ld_classic",
 				);
 				SDKROOT = macosx;
 				VALIDATE_WORKSPACE_SKIPPED_SDK_FRAMEWORKS = OpenGL;
