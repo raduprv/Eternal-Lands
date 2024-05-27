@@ -519,14 +519,17 @@ static int mouseover_dialogue_handler(window_info *win, int mx, int my)
 			show_keypress_letters = 1;
 	}
 
-	if(mx >= close_pos_x && mx < (close_pos_x + close_str_width) && my >= (win->len_y - bot_line_height))
-		highlight_close = 1;
-	if(mx > copy_pos_x && mx < (copy_pos_x + copy_str_width) && my >= (win->len_y - bot_line_height))
-		highlight_copy = 1;
-	if(mx > repeat_pos_x && mx < (repeat_pos_x + repeat_str_width) &&  my >= (win->len_y - bot_line_height))
-		highlight_repeat = 1;
-	if (mx > npc_name_x_start && mx < (npc_name_x_start + npc_name_width) && my >= (win->len_y - bot_line_height))
-		mouse_over_name = 1;
+	if (my >= (win->len_y - bot_line_height) && my < (win->len_y - bot_line_height + win->small_font_len_y))
+	{
+		if(mx >= close_pos_x && mx < (close_pos_x + close_str_width))
+			highlight_close = 1;
+		if(mx > copy_pos_x && mx < (copy_pos_x + copy_str_width))
+			highlight_copy = 1;
+		if(mx > repeat_pos_x && mx < (repeat_pos_x + repeat_str_width))
+			highlight_repeat = 1;
+		if (mx > npc_name_x_start && mx < (npc_name_x_start + npc_name_width))
+			mouse_over_name = 1;
+	}
 
 	//first, clear the mouse overs
 	for(i=0;i<MAX_RESPONSES;i++)
@@ -716,22 +719,25 @@ static int click_dialogue_handler(window_info *win, int mx, int my, Uint32 flags
 				}
 		}
 #endif
-	if(mx >= close_pos_x && mx < (close_pos_x + close_str_width) && my >= (win->len_y - bot_line_height))
+	if (my >= (win->len_y - bot_line_height) && my < (win->len_y - bot_line_height + win->small_font_len_y))
+	{
+		if(mx >= close_pos_x && mx < (close_pos_x + close_str_width))
 		{
 			do_window_close_sound();
 			hide_window(win->window_id);
 			return 1;
 		}
-	if((flags & ELW_LEFT_MOUSE) && mx > copy_pos_x && mx < (copy_pos_x + copy_str_width) && my >= (win->len_y - bot_line_height))
+		if((flags & ELW_LEFT_MOUSE) && mx > copy_pos_x && mx < (copy_pos_x + copy_str_width))
 		{
 			do_copy();
 			return 1;
 		}
-	if((flags & ELW_LEFT_MOUSE) && mx > repeat_pos_x && mx < (repeat_pos_x + repeat_str_width) && my >= (win->len_y - bot_line_height))
+		if((flags & ELW_LEFT_MOUSE) && mx > repeat_pos_x && mx < (repeat_pos_x + repeat_str_width))
 		{
 			send_repeat(win);
 			return 1;
 		}
+	}
 
 	return 0;
 }
