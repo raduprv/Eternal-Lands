@@ -884,7 +884,7 @@ int ui_scale_dialogue_handler(window_info *win)
 	border_y_space = (int)(0.5 + win->current_scale * 5);
 	dialogue_menu_x_len += 2 * border_x_space + char_frame_size;
 	response_y_offset = 2 * border_y_space + MAX_MESS_LINES * win->small_font_len_y;
-	bot_line_height = win->small_font_len_y + 1;
+	bot_line_height = win->small_font_len_y + border_y_space;
 
 	copy_pos_x = border_x_space;
 	copy_str_width = get_string_width_zoom((unsigned char*)dialogue_copy_str,
