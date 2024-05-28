@@ -332,7 +332,8 @@ CHECK_GL_ERRORS();
 		if (self_tile_position(&x, &y))
 		{
 			safe_snprintf(str, sizeof(str), "%d,%d", x, y);
-			draw_string_small_shadowed_zoomed_right(-tooltip_sep, win->len_y-compass_size,
+			draw_string_small_shadowed_zoomed_right(-tooltip_sep,
+				win->len_y - HUD_MARGIN_Y - win->small_font_len_y - hud_margin,
 				(unsigned char*)str, 1, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f,
 				win->current_scale);
 		}
