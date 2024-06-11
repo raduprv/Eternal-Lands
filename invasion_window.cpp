@@ -98,26 +98,33 @@ namespace invasion_window
 	//	* a count of total monsters
 	//	* the list of maps enabled for invasions
 	//	* the safe/live mode
+	//	* the title bar state and context menu
 	//
 	class Session_State
 	{
 		public:
-			Session_State(void) : total_monsters(0), last_map_id(0), safe_mode(1), feature_enabled(false) {}
+			Session_State(void) : total_monsters(0), last_map_id(0), safe_mode(1), feature_enabled(false), map_confirmation(1) {}
 			void init(void) { total_monsters = 0; confirmed_maps.clear(); confirm_popup.reset(); }
 			bool map_confirmed(unsigned int map_id);
 			void add_monsters(unsigned int additional_monsters) { total_monsters += additional_monsters; }
 			unsigned int get_total_monsters(void) const { return total_monsters; }
 			bool is_safe_mode(void) const { return (safe_mode != 0); }
-			void set_safe_mode(int mode) { safe_mode = mode; }
-			int *safe_mode_ptr(void) { return &safe_mode; }
-			const std::string get_safe_mode_title(void) const { return ((is_safe_mode()) ?"Safe Mode" : "Live"); }
 			void enable(void) { feature_enabled = true; }
 			bool is_enabled(void) const { return feature_enabled; }
+			void setup_titlebar(void) { create_cm(); set_title(); }
+			int cm_handler(window_info *win, int widget_id, int mx, int my, int option);
+#ifdef JSON_FILES
+			void load_state(const char *window_dict_name);
+			void save_state(const char *window_dict_name) const;
+#endif
 		private:
+			void set_title(void) const;
+			void create_cm(void);
 			unsigned int total_monsters;
 			unsigned int last_map_id;
 			int safe_mode;
 			bool feature_enabled;
+			int map_confirmation;
 			std::vector<unsigned int> confirmed_maps;
 			std::unique_ptr<eternal_lands::TextPopup> confirm_popup;
 	};
@@ -125,11 +132,78 @@ namespace invasion_window
 	//	The invasion window state instance.
 	static Session_State sess_state;
 
+	//	Callback for window title bar context menu
+	static int title_cm_handler(window_info *win, int widget_id, int mx, int my, int option) { return sess_state.cm_handler(win, widget_id, mx, my, option); }
+
+
+	//	Set the window title bar text.
+	//
+	void Session_State::set_title(void) const
+	{
+		int win_id = get_id_MW(MW_INVASION);
+		if (win_id < 0)
+			return;
+		std::string window_name = std::string("Invasion - ") + ((safe_mode) ? "Safe Mode" : "Live");
+		safe_strncpy2(windows_list.window[win_id].window_name, window_name.c_str(),
+			sizeof(windows_list.window[win_id].window_name), window_name.size());
+	}
+
+
+	//	Create the title bar context menu.
+	//
+	void Session_State::create_cm(void)
+	{
+		int win_id = get_id_MW(MW_INVASION);
+		if (win_id < 0)
+			return;
+		cm_add(windows_list.window[win_id].cm_id, "--\nEnable Safe Mode\nEnable Map Confirmation\nReset Session", title_cm_handler);
+		cm_bool_line(windows_list.window[win_id].cm_id, ELW_CM_MENU_LEN+1, &safe_mode, NULL);
+		cm_bool_line(windows_list.window[win_id].cm_id, ELW_CM_MENU_LEN+2, &map_confirmation, NULL);
+	}
+
+
+	//	The callback for the window title bar context menu.
+	//
+	int Session_State::cm_handler(window_info *win, int widget_id, int mx, int my, int option)
+	{
+		if (option<ELW_CM_MENU_LEN)
+			return cm_title_handler(win, widget_id, mx, my, option);
+		switch (option)
+		{
+			case ELW_CM_MENU_LEN + 1: set_title(); break;
+			case ELW_CM_MENU_LEN + 3: init(); break;
+		}
+		return 1;
+	}
+
+
+#ifdef JSON_FILES
+	//	Load state variable from client state.
+	//
+	void Session_State::load_state(const char *window_dict_name)
+	{
+		safe_mode = json_cstate_get_int(window_dict_name, "safe_mode", 1);
+		map_confirmation = json_cstate_get_int(window_dict_name, "map_confirmation", 1);
+	}
+
+
+	//	Save state variable to client state.
+	//
+	void Session_State::save_state(const char *window_dict_name) const
+	{
+		json_cstate_set_int(window_dict_name, "safe_mode", safe_mode);
+		json_cstate_set_int(window_dict_name, "map_confirmation", map_confirmation);
+	}
+#endif
+
+
 	//	Return true if map already confirmed.
 	//	Otherwise prompt to add to the enabled list, adding if confimed.
 	//
 	bool Session_State::map_confirmed(unsigned int map_id)
 	{
+		if (!map_confirmation)
+			return true;
 		if (std::find(confirmed_maps.begin(), confirmed_maps.end(), map_id) != confirmed_maps.end())
 			return true;
 
@@ -1086,8 +1160,6 @@ namespace invasion_window
 			int ui_scale(window_info *win);
 			void create_list(const char *input_text);
 			int commands_list_context(int option);
-			int title_cm(window_info *win, int widget_id, int mx, int my, int option);
-			void set_title(void);
 			int add_list_button(void);
 			void reload(void);
 			static bool valid_delay(unsigned int delay) { return ((delay >= min_delay) && (delay <= max_delay)); }
@@ -1191,7 +1263,6 @@ namespace invasion_window
 	static int add_list_button_handler(widget_list *widget, int mx, int my) { return container.add_list_button(); }
 	static void create_list_handler(const char *input_text, void *data) { container.create_list(input_text); }
 	static int commands_cm_handler(window_info *win, int widget_id, int mx, int my, int option) { return container.commands_list_context(option); }
-	static int title_cm_handler(window_info *win, int widget_id, int mx, int my, int option) { return container.title_cm(win, widget_id, mx, my, option); }
 
 	// Common keypress handler for labelled input widget.
 	static int common_input_keypress_handler(widget_list *widget, int mx, int my, SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_mod)
@@ -1477,9 +1548,8 @@ namespace invasion_window
 			button_ids = {add_list_button_id, reload_button_id, play_button_id, stop_button_id,
 				launch_button_id, add_command_button_id, replace_button_id};
 
-			cm_add(windows_list.window[win_id].cm_id, "--\nEnable Safe Mode\nReset Session", title_cm_handler);
-			cm_bool_line(windows_list.window[win_id].cm_id, ELW_CM_MENU_LEN+1, sess_state.safe_mode_ptr(), NULL);
-			set_title();
+			// set the window title bar and create the title bar context menu
+			sess_state.setup_titlebar();
 
 			// load files and initialise input widgets, this can be repeated
 			reload();
@@ -1768,29 +1838,6 @@ namespace invasion_window
 		return 1;
 	}
 
-	//	The callback for the window title bar right-click.
-	//
-	int Container::title_cm(window_info *win, int widget_id, int mx, int my, int option)
-	{
-		if (option<ELW_CM_MENU_LEN)
-			return cm_title_handler(win, widget_id, mx, my, option);
-		switch (option)
-		{
-			case ELW_CM_MENU_LEN + 1: set_title(); break;
-			case ELW_CM_MENU_LEN + 2: sess_state.init(); break;
-		}
-		return 1;
-	}
-
-	//	Set the window title bar text.
-	//
-	void Container::set_title(void)
-	{
-		std::string window_name = std::string("Invasion - ") + sess_state.get_safe_mode_title();
-		safe_strncpy2(windows_list.window[get_id_MW(MW_INVASION)].window_name, window_name.c_str(),
-			sizeof(windows_list.window[get_id_MW(MW_INVASION)].window_name), window_name.size());
-	}
-
 	//	The UI scale callback for the window.
 	//
 	int Container::ui_scale(window_info *win)
@@ -1959,7 +2006,7 @@ namespace invasion_window
 			json_cstate_get_float(window_dict_name, "num_lines",def_num_lines)));
 		initial_delay = std::min(max_delay, std::max(min_delay,
 			json_cstate_get_int(window_dict_name, "delay_seconds", def_delay)));
-		sess_state.set_safe_mode(json_cstate_get_int(window_dict_name, "safe_mode", 1));
+		sess_state.load_state(window_dict_name);
 	}
 
 	//	Save the parameter to the client state file
@@ -1973,7 +2020,7 @@ namespace invasion_window
 		json_cstate_set_float(window_dict_name, "num_lines", static_cast<int>(num_lines));
 		json_cstate_set_int(window_dict_name, "delay_seconds",
 			(initialised) ?delay_input_widget.get_number_value() :initial_delay);
-		json_cstate_set_int(window_dict_name, "safe_mode", (sess_state.is_safe_mode()) ?1 :0);
+		sess_state.save_state(window_dict_name);
 	}
 #endif
 
