@@ -867,6 +867,9 @@ void init_stuff(void)
 
 	// Here you can add zip files, like
 	// add_zip_archive(datadir + "data.zip");
+
+	// initialise the XML parser and setup the callbacks
+	xmlInitParser();
 	xml_register_el_input_callbacks();
 
 #ifdef WRITE_XML
