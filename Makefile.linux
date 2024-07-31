@@ -2,7 +2,7 @@
 
 -include make.conf
 
-JSON_FILES_CFLAGS = -I nlohmann_json/single_include/
+JSON_FILES_CFLAGS = -I nlohmann_json/include/
 ADDRSANITISER_CFLAGS=-fsanitize=address
 
 ADDRSANITISER_LIBS=-fsanitize=address

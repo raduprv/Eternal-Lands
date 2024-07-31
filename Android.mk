@@ -31,7 +31,7 @@ $(LOCAL_PATH)/$(GL4ES_PATH)/include/ \
 $(LOCAL_PATH)/$(GLU_PATH)/include/ \
 $(LOCAL_PATH)/$(ZLIB_PATH)/ \
 $(LOCAL_PATH)/$(MYGLOB_PATH)/include/ \
-$(LOCAL_PATH)/nlohmann_json/single_include/ \
+$(LOCAL_PATH)/nlohmann_json/include/ \
 $(LOCAL_PATH)/$(OPENSSL_PATH)/include/
 
 LOCAL_CPPFLAGS := \

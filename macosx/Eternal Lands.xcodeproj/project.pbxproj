@@ -1809,7 +1809,7 @@
 					"$(USER_LIBRARY_DIR)/Frameworks/SDL2_net.framework/Headers",
 					"$(USER_LIBRARY_DIR)/Frameworks/SDL2_ttf.framework/Headers",
 					"$(USER_LIBRARY_DIR)/Frameworks/SDL2_image.framework/Headers",
-					"$(SRCROOT)/../nlohmann_json/single_include/",
+					"$(SRCROOT)/../nlohmann_json/include/",
 					"$(SRCROOT)/include/",
 				);
 				MARKETING_VERSION = 1.9.6p1;
@@ -1871,7 +1871,7 @@
 					"$(USER_LIBRARY_DIR)/Frameworks/SDL2_net.framework/Headers",
 					"$(USER_LIBRARY_DIR)/Frameworks/SDL2_ttf.framework/Headers",
 					"$(USER_LIBRARY_DIR)/Frameworks/SDL2_image.framework/Headers",
-					"$(SRCROOT)/../nlohmann_json/single_include/",
+					"$(SRCROOT)/../nlohmann_json/include/",
 					"$(SRCROOT)/include/",
 				);
 				MARKETING_VERSION = 1.9.6p1;
