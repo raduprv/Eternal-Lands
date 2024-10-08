@@ -307,8 +307,8 @@ void load_ignores_list(char * file_name)
 		ch = ignore_list_mem[i];
 		if (ch == '\n' || ch == '\r')
 		{
-			if (j > 0 && add_to_ignore_list(name, 0) == -2)
-				// cannot add more as list is full
+			if (j > 0 && add_to_ignore_list(name, 0) == -1)
+				// ignore list full
 				break;
 			j = 0;
 			i++;
