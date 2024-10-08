@@ -1,3 +1,6 @@
+#ifdef LINUX
+#include <X11/Xlib.h>
+#endif
 #ifdef OSX
 #include <libgen.h>
 #endif
@@ -558,6 +561,9 @@ int Main(int argc, char **argv)
 int main(int argc, char **argv)
 #endif
 {
+#ifdef LINUX
+	XInitThreads();
+#endif
 #ifdef ANDROID
 	initialize_gl4es();
 #endif
