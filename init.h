@@ -251,6 +251,7 @@ typedef struct
 
 extern char configdir[256]; /*!< the default directory where we look for configuration files */
 extern char datadir[256]; /*!< the default directory where we look for data files (aka installation dir) */
+extern char alt_updates_dir[256]; /*!< an alternative updates directory for data files, if blank, default is <config base>/updates/<version> */
 
 /*!
  * \ingroup loadsave

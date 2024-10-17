@@ -192,7 +192,10 @@ const char * get_path_updates(void)
 		return locbuffer;
 	}
 
-	safe_snprintf(locbuffer, sizeof(locbuffer), "%supdates/%d_%d_%d/", get_path_config_base(), VER_MAJOR, VER_MINOR, VER_RELEASE);
+	if (alt_updates_dir[0] != '\0')
+		safe_snprintf(locbuffer, sizeof(locbuffer), "%s", alt_updates_dir);
+	else
+		safe_snprintf(locbuffer, sizeof(locbuffer), "%supdates/%d_%d_%d/", get_path_config_base(), VER_MAJOR, VER_MINOR, VER_RELEASE);
 
 	return locbuffer;
 }
