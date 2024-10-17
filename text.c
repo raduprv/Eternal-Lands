@@ -14,6 +14,7 @@
 #include "elconfig.h"
 #include "errors.h"
 #include "filter.h"
+#include "gamewin.h"
 #include "gl_init.h"
 #include "hud_misc_window.h"
 #include "highlight.h"
@@ -689,6 +690,10 @@ int filter_or_ignore_text (char *text_to_add, int len, int size, Uint8 channel)
 		}
 		else if (!strncasecmp(text_to_add+1, "Your buddy list is now empty.", 29)) {
 			clear_buddy();
+		}
+		else if (!strncasecmp(text_to_add+1, "You are too far away! Get closer!", 33)) {
+			if (check_move_to_attacked())
+				return 0;
 		}
 		else {
 			int match_index;

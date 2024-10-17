@@ -44,9 +44,22 @@ extern int include_use_cursor_on_animals;
 extern int cm_banner_disabled;
 extern int auto_disable_ranging_lock;
 extern int target_close_clicked_creature;
+extern int move_to_attacked_far_away_creature;
 extern int open_close_clicked_bag;
 extern int show_fps; /*!< flag that indicates whether to display FPS or not */
 /*! @} */
+
+/*!
+ * \brief Return true if moving to the attacked creature.
+ *
+ *	If we have the coordinates of the last clicked
+ *	creature, and the option is enabled, move there
+ *	and highlight the spot.
+ *
+ * \callgraph
+ * \retval int 0 not moving, 1 for moving
+ */
+int check_move_to_attacked(void);
 
 /*!
  * \brief Return the true if the ranging lock is on.

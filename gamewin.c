@@ -69,6 +69,7 @@ int include_use_cursor_on_animals = 0;
 int cm_banner_disabled = 0;
 int auto_disable_ranging_lock = 1;
 int target_close_clicked_creature = 1;
+int move_to_attacked_far_away_creature = 1;
 int open_close_clicked_bag = 1;
 int show_fps = 0;
 
@@ -87,6 +88,8 @@ static int fps_center_x = 0;
 static int fps_default_width = 0;
 static int action_mode = ACTION_WALK;
 static int last_action_mode = ACTION_WALK;
+static short last_attack_actor_coord_x = -1;
+static short last_attack_actor_coord_y = 1;
 
 // Set the game root window action mode
 void set_gamewin_action_mode(int new_mode)
@@ -268,6 +271,25 @@ static void toggle_target_close_clicked_creature(void)
 		LOG_TO_CONSOLE(c_green1, close_click_targetting_on_str);
 	else
 		LOG_TO_CONSOLE(c_green1, close_click_targetting_off_str);
+}
+
+//
+// Called when we see the "You are too far away! Get closer!" message.
+// Using the tile coordinates of the creature last attacked, move
+// to the location and highlight the spot.  If we don't move, the message
+// will get displayed.
+//
+int check_move_to_attacked(void)
+{
+	if (move_to_attacked_far_away_creature && (last_attack_actor_coord_x >= 0) && (last_attack_actor_coord_y >= 0))
+	{
+		move_to(&last_attack_actor_coord_x, &last_attack_actor_coord_y, 1);
+		add_highlight(last_attack_actor_coord_x, last_attack_actor_coord_y, HIGHLIGHT_SOFT_FAIL);
+		last_attack_actor_coord_x = last_attack_actor_coord_y = -1;
+		return 1;
+	}
+	else
+		return 0;
 }
 
 void draw_special_cursors(void)
@@ -1103,6 +1125,8 @@ static int click_game_handler(window_info *win, int mx, int my, Uint32 flags)
 					{
 						add_highlight(this_actor->x_tile_pos,this_actor->y_tile_pos,
 							HIGHLIGHT_TYPE_ATTACK_TARGET);
+						last_attack_actor_coord_x = (short)this_actor->x_tile_pos;
+						last_attack_actor_coord_y = (short)this_actor->y_tile_pos;
 						release_locked_actors_list_and_invalidate(actors_list, &me);
 					}
 				}
@@ -1246,6 +1270,8 @@ static int click_game_handler(window_info *win, int mx, int my, Uint32 flags)
 					else if (!is_ranging_locked && !is_sit_locked)
 					{
 						add_highlight(x, y, HIGHLIGHT_TYPE_ATTACK_TARGET);
+						last_attack_actor_coord_x = (short)x;
+						last_attack_actor_coord_y = (short)y;
 						attack_someone(actor_id);
 						return 1;
 					}
