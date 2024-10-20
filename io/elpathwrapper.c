@@ -193,8 +193,8 @@ const char * get_path_updates(void)
 	}
 
 #ifndef MAP_EDITOR
-	if (alt_updates_dir[0] != '\0')
-		safe_snprintf(locbuffer, sizeof(locbuffer), "%s", alt_updates_dir);
+	if (use_perserver_updates_dir)
+		safe_snprintf(locbuffer, sizeof(locbuffer), "%supdates/%s/", get_path_config_base(), get_server_name());
 	else
 #endif
 		safe_snprintf(locbuffer, sizeof(locbuffer), "%supdates/%d_%d_%d/", get_path_config_base(), VER_MAJOR, VER_MINOR, VER_RELEASE);

@@ -3157,7 +3157,7 @@ static void init_ELC_vars(void)
 		SERVER);
 	add_var(OPT_BOOL,"write_ini_on_exit", "wini", &write_ini_on_exit, change_var, 1,"Save INI","Save options when you quit",SERVER);
 	add_var(OPT_STRING,"data_dir","dir",datadir,change_dir_name,90,"Data Directory","Place were we keep our data. Can only be changed with a Client restart.",SERVER);
-	add_var(OPT_STRING,"alt_updates_dir","aupdir",alt_updates_dir,change_dir_name,90,"Alt Updates Directory","Full path to an alternative updates directory for data files.  Normally blank.",SERVER);
+	add_var(OPT_BOOL,"use_perserver_updates_dir", "uaupdir", &use_perserver_updates_dir, change_var, 0,"Use Per-Server Updates Directory","If enabled a per-server-ID updates directory is used rather than the default that uses the client version.  A change only takes effect after a client restart.",SERVER);
 #endif // ANDROID
 	add_var(OPT_BOOL,"serverpopup","spu",&use_server_pop_win,change_var,1,"Use Special Text Window","Toggles whether server messages from channel 255 are displayed in a pop up window.",SERVER);
 	/* Note: We don't take any action on the already-running thread, as that wouldn't necessarily be good. */

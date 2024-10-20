@@ -113,7 +113,7 @@ char datadir[256]=DATA_DIR;
 char datadir[256]="./";
 #endif //DATA_DIR
 
-char alt_updates_dir[256]="";
+int use_perserver_updates_dir = 0;
 
 static const char *cfg_filename = "el.cfg";
 #ifdef JSON_FILES
