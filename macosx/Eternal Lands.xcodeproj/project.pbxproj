@@ -1779,7 +1779,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 1.9.6p1;
+				CURRENT_PROJECT_VERSION = 1.9.7;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(USER_LIBRARY_DIR)/Frameworks",
@@ -1814,7 +1814,7 @@
 					"$(SRCROOT)/../nlohmann_json/include/",
 					"$(SRCROOT)/include/",
 				);
-				MARKETING_VERSION = 1.9.6p1;
+				MARKETING_VERSION = 1.9.7;
 				OTHER_CFLAGS = (
 					"-Wno-deprecated-declarations",
 					"-Wno-pointer-sign",
@@ -1842,7 +1842,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 1.9.6p1;
+				CURRENT_PROJECT_VERSION = 1.9.7;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(USER_LIBRARY_DIR)/Frameworks",
@@ -1876,7 +1876,7 @@
 					"$(SRCROOT)/../nlohmann_json/include/",
 					"$(SRCROOT)/include/",
 				);
-				MARKETING_VERSION = 1.9.6p1;
+				MARKETING_VERSION = 1.9.7;
 				OTHER_CFLAGS = (
 					"-Wno-deprecated-declarations",
 					"-Wno-pointer-sign",
