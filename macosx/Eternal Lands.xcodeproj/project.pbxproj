@@ -681,6 +681,8 @@
 		D730266C244F639200A6C002 /* cal3d.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = cal3d.framework; path = "$(USER_LIBRARY_DIR)/Frameworks/cal3d.framework"; sourceTree = "<group>"; };
 		D730266D244F639300A6C002 /* libpng.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = libpng.framework; path = "$(USER_LIBRARY_DIR)/Frameworks/libpng.framework"; sourceTree = "<group>"; };
 		D730266E244F639300A6C002 /* SDL2_image.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL2_image.framework; path = "$(USER_LIBRARY_DIR)/Frameworks/SDL2_image.framework"; sourceTree = "<group>"; };
+		D73C7C762CCD8D740054FD88 /* json.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = json.hpp; sourceTree = "<group>"; };
+		D73C7C772CCD8D740054FD88 /* json_fwd.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = json_fwd.hpp; sourceTree = "<group>"; };
 		D7436E7B2459829500875ABE /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = "Eternal Lands/Images.xcassets"; sourceTree = "<group>"; };
 		D7437F0C245AB82B00875ABE /* Vorbis.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Vorbis.framework; path = "$(USER_LIBRARY_DIR)/Frameworks/Vorbis.framework"; sourceTree = "<group>"; };
 		D7437F0F245ABAD100875ABE /* vorbis.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = vorbis.framework; path = "$(USER_LIBRARY_DIR)/Frameworks/vorbis.framework"; sourceTree = "<group>"; };
@@ -696,7 +698,6 @@
 		D791C72025F9327D00EB3011 /* password_manager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = password_manager.h; path = ../password_manager.h; sourceTree = "<group>"; };
 		D791C72125F932ED00EB3011 /* trade_log.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = trade_log.h; path = ../trade_log.h; sourceTree = "<group>"; };
 		D791C72225F9336F00EB3011 /* SDL2_ttf.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL2_ttf.framework; path = "$(USER_LIBRARY_DIR)/Frameworks/SDL2_ttf.framework"; sourceTree = "<group>"; };
-		D791C74425F938F400EB3011 /* json.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = json.hpp; sourceTree = "<group>"; };
 		D7A6536E2B861224003E0B91 /* actors_list.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = actors_list.h; path = ../actors_list.h; sourceTree = "<group>"; };
 		D7A6536F2B861224003E0B91 /* actors_list.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = actors_list.cpp; path = ../actors_list.cpp; sourceTree = "<group>"; };
 		D7A653712B86123F003E0B91 /* invasion_window.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = invasion_window.cpp; path = ../invasion_window.cpp; sourceTree = "<group>"; };
@@ -1405,29 +1406,30 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		D73C7C782CCD8D740054FD88 /* nlohmann */ = {
+			isa = PBXGroup;
+			children = (
+				D73C7C762CCD8D740054FD88 /* json.hpp */,
+				D73C7C772CCD8D740054FD88 /* json_fwd.hpp */,
+			);
+			path = nlohmann;
+			sourceTree = "<group>";
+		};
+		D73C7C792CCD8D740054FD88 /* include */ = {
+			isa = PBXGroup;
+			children = (
+				D73C7C782CCD8D740054FD88 /* nlohmann */,
+			);
+			path = include;
+			sourceTree = "<group>";
+		};
 		D791C73A25F938F300EB3011 /* nlohmann_json */ = {
 			isa = PBXGroup;
 			children = (
-				D791C74225F938F400EB3011 /* single_include */,
+				D73C7C792CCD8D740054FD88 /* include */,
 			);
 			name = nlohmann_json;
 			path = ../nlohmann_json;
-			sourceTree = "<group>";
-		};
-		D791C74225F938F400EB3011 /* single_include */ = {
-			isa = PBXGroup;
-			children = (
-				D791C74325F938F400EB3011 /* nlohmann */,
-			);
-			path = single_include;
-			sourceTree = "<group>";
-		};
-		D791C74325F938F400EB3011 /* nlohmann */ = {
-			isa = PBXGroup;
-			children = (
-				D791C74425F938F400EB3011 /* json.hpp */,
-			);
-			path = nlohmann;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
