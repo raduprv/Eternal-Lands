@@ -1,3 +1,35 @@
+2024-Oct-26: Prep for Release 1.9.7
+	New Client Features:
+		Move to attacked creature if too far away. Issue #199.  
+		Yellow Food Bar option for player banner. Forum Topic 61841.
+		New feature to help moderators.
+		Option to use a per-server-ID updates directory.
+		Added configurable timeout for connection to server.
+		Enable https links for encyclopedia.
+	Client Fixes:
+		Show message when last player banner option disabled. Issue #201.
+		Fix loading of the ignore files stopping, if there is a duplicate name.
+		Fix forgetting active item list.
+		Minor fixes for the map window (#198).
+		Fix url catcher for Latin-1 supplement, in addition to Basic Latin. Forum #61935.
+		Fix for #alias crash.
+		Fix indicator window keep-on-screen function. Issue #187.
+		Various minor UI improvements.
+		Lots of fixes highlighted by compiler improvements, some that may have caused crashes.
+		Fixes for building with newer versions of libXML2.
+		Various code clean-ups.
+	Map Editor:
+		Fixes greenish watery stuff so it doesn't turn into regular water when reflections are on. Issue #193
+		Enable self-lit items to actually self-light in the map editor under correct circumstances (dungeon/internal maps). Issue 188.
+		Lots of fixes for various compiler warnings and crashes.
+	Other:
+		Major improvements to the way the client handles actor access throughout the code base.
+		The Android client is now built from the same source code as the desktop client.
+		Logging improvements (#205)
+		Do github test builds when code committed: Initial github CI (#206)
+	Credits
+		Client code contributors: Ben, bluap, Burn, Exzap, Grum and Luke
+
 2022-Mar-12: Release 1.9.6.1
 	Client:
 		Re-enable "~" as a valid URL character.
