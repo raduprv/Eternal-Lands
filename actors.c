@@ -1274,7 +1274,11 @@ static void check_actor_in_range(actor *act, actor *attached, void* data,
 
 		act->max_z = act->bbox.bbmax[Z];
 
+#ifdef ANDROID
+		if ((get_cur_intersect_type(main_bbox_tree) == INTERSECTION_TYPE_DEFAULT))
+#else
 		if (read_mouse_now && (get_cur_intersect_type(main_bbox_tree) == INTERSECTION_TYPE_DEFAULT))
+#endif
 		{
 			near_actors[no_near_actors].select = 1;
 		}
