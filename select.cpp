@@ -197,7 +197,7 @@ static inline int old_anything_under_the_mouse(int object_id, int object_type)
 		{
 			list.clear_actor_under_mouse();
 		}
-		object_under_mouse = object_id;
+		object_under_mouse = (object_id >= HORSE_ID_OFFSET) ?-1 :object_id;
 
 		thing_under_the_mouse = object_type;
 		return 1;//there is something
