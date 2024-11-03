@@ -20,6 +20,7 @@
 #include "missiles.h"
 #include "named_colours.h"
 #include "new_actors.h"
+#include "new_character.h"
 #include "platform.h"
 #include "shadows.h"
 #include "special_effects.h"
@@ -576,7 +577,7 @@ static void draw_actor_banner(actor *actor_id, const actor *me, float offset_z)
 	//figure out which lines should we display
 	display_health_line = (actor_id->kind_of_actor != NPC && (display_hp || display_health_bar) && actor_id->cur_health > 0 && actor_id->max_health > 0);
 	display_ether_line = ((display_ether || display_ether_bar) && displaying_me && your_info.ethereal_points.base > 0 );
-	display_food_line = ((display_food || display_food_bar) && displaying_me);
+	display_food_line = ((display_food || display_food_bar) && displaying_me && (newchar_root_win < 0));
 	if (view_mode_instance && displaying_me) {
 		//make your bar a bit more above everything else so you can see it good enough
 		//and got no problems with attacking mobs
