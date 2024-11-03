@@ -2002,17 +2002,6 @@ static int set_var_OPT_MULTI(const char *str, size_t new_value)
 	return 0;
 }
 
-static float get_option_initial_value(const char *longname)
-{
-	int var_index = find_var(longname, COMMAND_LINE_LONG_VAR);
-	if (var_index == -1)
-	{
-		LOG_ERROR("Can't find longname var '%s'", longname);
-		return -1;
-	}
-	return our_vars.var[var_index]->config_file_val;
-}
-
 static void action_poor_man(int *poor_man)
 {
 	unload_texture_cache();
@@ -2043,25 +2032,42 @@ static void action_poor_man(int *poor_man)
 	}
 	else
 	{
-		show_reflection = get_option_initial_value("show_reflection");
-		shadows_on= get_option_initial_value("shadows_on");
-		clouds_shadows= get_option_initial_value("clouds_shadows");
-		use_shadow_mapping= get_option_initial_value("use_shadow_mapping");
+		int var_index = 0;
+		if ((var_index = find_var("show_reflection", COMMAND_LINE_LONG_VAR)) != -1)
+			show_reflection = our_vars.var[var_index]->config_file_val;
+		if ((var_index = find_var("shadows_on", COMMAND_LINE_LONG_VAR)) != -1)
+			shadows_on = our_vars.var[var_index]->config_file_val;
+		if ((var_index = find_var("clouds_shadows", COMMAND_LINE_LONG_VAR)) != -1)
+			clouds_shadows = our_vars.var[var_index]->config_file_val;
+		if ((var_index = find_var("use_shadow_mapping", COMMAND_LINE_LONG_VAR)) != -1)
+			use_shadow_mapping = our_vars.var[var_index]->config_file_val;
 #ifndef MAP_EDITOR2
-		special_effects= get_option_initial_value("special_effects");
-		use_eye_candy = get_option_initial_value("use_eye_candy");
-		use_fog= get_option_initial_value("render_fog");
-		show_weather = get_option_initial_value("show_weather");
+		if ((var_index = find_var("special_effects", COMMAND_LINE_LONG_VAR)) != -1)
+			special_effects = our_vars.var[var_index]->config_file_val;
+		if ((var_index = find_var("use_eye_candy", COMMAND_LINE_LONG_VAR)) != -1)
+			use_eye_candy = our_vars.var[var_index]->config_file_val;
+		if ((var_index = find_var("render_fog", COMMAND_LINE_LONG_VAR)) != -1)
+			use_fog = our_vars.var[var_index]->config_file_val;
+		if ((var_index = find_var("show_weather", COMMAND_LINE_LONG_VAR)) != -1)
+			show_weather = our_vars.var[var_index]->config_file_val;
 #endif
 #ifndef MAP_EDITOR
-		use_frame_buffer= get_option_initial_value("use_frame_buffer");
+		if ((var_index = find_var("use_frame_buffer", COMMAND_LINE_LONG_VAR)) != -1)
+			use_frame_buffer = our_vars.var[var_index]->config_file_val;
 #endif
-		skybox_show_clouds = get_option_initial_value("skybox_show_clouds");
-		skybox_show_sun = get_option_initial_value("skybox_show_sun");
-		skybox_show_moons = get_option_initial_value("skybox_show_moons");
-		skybox_show_stars = get_option_initial_value("skybox_show_stars");
-		far_plane = get_option_initial_value("far_plane");
-		change_projection_float(&far_plane, &far_plane);
+		if ((var_index = find_var("skybox_show_clouds", COMMAND_LINE_LONG_VAR)) != -1)
+			skybox_show_clouds = our_vars.var[var_index]->config_file_val;
+		if ((var_index = find_var("skybox_show_sun", COMMAND_LINE_LONG_VAR)) != -1)
+			skybox_show_sun = our_vars.var[var_index]->config_file_val;
+		if ((var_index = find_var("skybox_show_moons", COMMAND_LINE_LONG_VAR)) != -1)
+			skybox_show_moons = our_vars.var[var_index]->config_file_val;
+		if ((var_index = find_var("skybox_show_stars", COMMAND_LINE_LONG_VAR)) != -1)
+			skybox_show_stars = our_vars.var[var_index]->config_file_val;
+		if ((var_index = find_var("far_plane", COMMAND_LINE_LONG_VAR)) != -1)
+		{
+			far_plane = our_vars.var[var_index]->config_file_val;
+			change_projection_float(&far_plane, &far_plane);
+		}
 	}
 	update_fbos();
 }
