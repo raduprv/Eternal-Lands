@@ -8,8 +8,8 @@ Homepage: http://www.eternal-lands.com
 
 Package: eternallands
 Architecture: any
-Depends: ${misc:Depends}, ${shlibs:Depends}, eternallands-data (>=1.9.6), zenity
-Recommends: eternallands-sound (>=1.9.5)
+Depends: ${misc:Depends}, ${shlibs:Depends}, eternallands-data (>=1.9.7), zenity
+Recommends: eternallands-sound (>=1.9.6)
 Suggests: eternallands-music (>=1.9.5)
 Description: client package for Eternal Lands, a free MMORPG 
  Eternal Lands is a free to play, graphical MMORPG (massively-multi-player
