@@ -23,11 +23,8 @@ FEATURES += FASTER_STARTUP		# An attempt to reduce the startup time of EL somewh
 FEATURES += MIDDLE_MOUSE_PASTE	# Paste using the middle mouse button from the primary buffer on X systems
 # new for 1.9.4 release
 FEATURES += NEW_EYES			# Support for different eye colors, needs new data files
-# proposed for next release
+# new for 1.9.6 release
 FEATURES += NEW_CURSOR			# New coloured cursors made by Emajekral (Experimental).  An old unused feature. Derive cursor2.dss from http://users.on.net/~gingerman/sky_cursor-textures.zip (cursor2.bmp + alpha).
-
-
-# Development options targetting at most 1.9.6
 FEATURES += JSON_FILES			# switch existing binary user config files to JSON format
 FEATURES += TTF                 # Add ability to use True Type system fonts
 FEATURES += USE_SSL             # Encrypt the traffic with the server.

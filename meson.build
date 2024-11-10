@@ -11,7 +11,7 @@
 # clean up:
 # rm -rf subprojects/ mesonbuilddir/
 
-project('Eternal-Lands', ['c', 'cpp'], version: '1.9.6.1-git')
+project('Eternal-Lands', ['c', 'cpp'], version: '1.9.7-git')
 
 build_defs = [
 	'-DCUSTOM_UPDATE',

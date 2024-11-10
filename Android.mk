@@ -4,7 +4,7 @@ include $(CLEAR_VARS)
 
 LOCAL_MODULE := main
 
-ELVERSION=1.9.6.1
+ELVERSION=1.9.7
 
 SDL_PATH := ../SDL2
 SDL_IMAGE_PATH := ../SDL2_image
