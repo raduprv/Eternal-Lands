@@ -32,7 +32,7 @@ parts:
     build-packages: [build-essential, libcal3d12-dev, libsdl2-image-dev, libsdl2-net-dev, libsdl2-ttf-dev, libxml2-dev, libopenal-dev, libvorbis-dev, libpng-dev, libssl-dev]
     plugin: cmake
     # Add -DVERSION_PREFIX=x.y.z for dev build, remove for release
-    cmake-parameters:  ["-DCMAKE_BUILD_TYPE=release", "-DEXEC=el.linux.bin", "-DLOCAL_NLOHMANN_JSON=On", "-DCMAKE_INSTALL_PREFIX=/", "-DVERSION_PREFIX=1.9.7" ]
+    cmake-parameters:  ["-DCMAKE_BUILD_TYPE=release", "-DEXEC=el.linux.bin", "-DLOCAL_NLOHMANN_JSON=On", "-DCMAKE_INSTALL_PREFIX=/" ]
     stage-packages:
       - libglib2.0-0
       - libsdl2-net-2.0-0
@@ -63,7 +63,7 @@ parts:
 
   data:
     source: https://twinmoons.org.uk/el/rel/197/eternallands-data_1.9.7.zip
-    source-checksum: sha256/9594ed8749201e55183b6141d52dd79d78bc75592a6a9ee119f6ee033dd00ed9
+    source-checksum: sha256/2ab4d5549ee66da6bdb10bc86d9dd4ac7ca578aafb291111b330fae8d4c77f98
     plugin: dump
     organize:
       el_data/ : data/

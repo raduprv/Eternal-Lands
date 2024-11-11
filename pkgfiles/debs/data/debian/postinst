@@ -25,7 +25,7 @@ case "$1" in
 	CACHEDIR="/var/cache/eternallands"
 	DOWNLOADURL="http://twinmoons.org.uk/el/rel/197"
 	DOWNLOADMAIN="eternallands-data_1.9.7.zip"
-	MD5SUMMAIN="ddb250cf503f0b453eff60f60e536536"
+	MD5SUMMAIN="fb57fcca852b2d649762f87db316e5ec"
 	# post release updates
 	#DOWNLOADUPDATE1=""
 	#MD5SUMUPDATE1=""
