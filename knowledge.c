@@ -416,6 +416,8 @@ int mouseover_knowledge_handler(window_info *win, int mx, int my)
 	if(my>booklist_y_len)
 		return 0;
 	mx = (mx < (win->len_x-win->box_size)/2) ?0 :1;
+	if ((my -= text_border) < 0)
+		return 0;
 	my/=booklist_y_step;
 	knowledge_list[mx+2*(my+vscrollbar_get_pos (win->window_id, knowledge_scroll_id))].mouse_over=1;
 	return 0;
@@ -444,6 +446,8 @@ int click_knowledge_handler(window_info *win, int mx, int my, Uint32 flags)
 
 		selected_book = -1;
 		x = (x < (win->len_x-win->box_size)/2) ?0 :1;
+		if ((y -= text_border) < 0)
+			return 0;
 		y/=booklist_y_step;
 		idx = x + 2 *(y + vscrollbar_get_pos (win->window_id, knowledge_scroll_id));
 		if(idx < knowledge_count)
