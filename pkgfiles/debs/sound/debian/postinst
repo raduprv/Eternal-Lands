@@ -23,7 +23,7 @@ case "$1" in
 
 	TARGETDIR="/usr/share/games/EternalLands/sound"
 	CACHEDIR="/var/cache/eternallands"
-	DOWNLOADURL="http://twinmoons.org.uk/el/rel/196"
+	DOWNLOADURL="http://twinmoons.org.uk/el/rel/197"
 	DOWNLOADMAIN="eternallands-sound_1.9.6.1.zip"
 	MD5SUMMAIN="59e055a191fc58163ddab81ba5615d2a"
 

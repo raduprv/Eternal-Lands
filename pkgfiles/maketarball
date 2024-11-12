@@ -32,8 +32,8 @@ rm ../temp.${version}.tar.gz
 echo "Removing unwanted files from copy..."
 make -f Makefile.linux clean
 rm -rf books map_editor pawn pawn_scripts shaders skybox \
-		eye_candy/textures .deps macosx .git dev-data-files
-rm -f *.pl *.res *.dsp *.dsw .git*
+		eye_candy/textures .deps macosx .git* dev-data-files
+rm -f *.pl *.res *.dsp *.dsw
 rm -f Makefile.bsd* Makefile.osx Makefile.win make.conf
 chmod -R -x *.{c,cpp,h,hpp}
 
