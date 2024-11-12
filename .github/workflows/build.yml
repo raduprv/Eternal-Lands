@@ -153,7 +153,7 @@ jobs:
           mkdir $ANDROID_HOME
           wget https://dl.google.com/android/repository/tools_r25.2.5-linux.zip -P $ANDROID_HOME
           unzip $ANDROID_HOME/tools_r25.2.5-linux.zip -d $ANDROID_HOME
-          echo y | $ANDROID_HOME/tools/bin/sdkmanager "platform-tools" "build-tools;30.0.3" "ndk-bundle" "platforms;android-19" "platforms;android-30"
+          echo y | $ANDROID_HOME/tools/bin/sdkmanager "platform-tools" "build-tools;30.0.3" "ndk-bundle" "platforms;android-21" "platforms;android-30"
           mkdir ${{ github.workspace }}/el
           git clone https://github.com/pjbroad/el-build-methods.git ${{ github.workspace }}/el/el-build-methods
           git clone https://github.com/raduprv/Eternal-Lands.git ${{ github.workspace }}/el/el-build-methods/android/jni/src
