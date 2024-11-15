@@ -24,7 +24,7 @@
 #	cmake -DLOCAL_NLOHMANN_JSON=On ../Eternal-Lands/ -DIconv_LIBRARIES="-L/usr/local/lib -liconv"
 #
 
-cmake_minimum_required(VERSION 3.5.0)
+cmake_minimum_required(VERSION 3.18)
 
 project (Eternal-Lands)
 
