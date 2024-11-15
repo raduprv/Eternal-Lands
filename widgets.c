@@ -4154,6 +4154,7 @@ int pword_clear(int window_id, Uint32 widget_id)
 		entry->password[0] = '\0';
 	entry->cursor_pos = 0;
 	entry->drag_begin = 0;
+	entry->draw_begin = 0;
 	entry->draw_end = 0;
 	entry->sel_begin = 0;
 	entry->sel_end = 0;
