@@ -325,6 +325,8 @@ namespace IconWindow
 			{
 				if(icons_win < 0)
 					return;
+				while ((display_icon_size > def_icon_size / 2) && (get_icons_win_width() > (window_width - HUD_MARGIN_X)))
+					display_icon_size -= 1;
 				resize_window(icons_win, get_icons_win_width(), get_icon_size());
 				move_window(icons_win, -1, 0, 0, window_height-get_icon_size());
 			}
