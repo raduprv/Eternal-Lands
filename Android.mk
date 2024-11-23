@@ -4,7 +4,7 @@ include $(CLEAR_VARS)
 
 LOCAL_MODULE := main
 
-ELVERSION=1.9.7
+LOCAL_VERSION := $(if $(ELVERSION),-DGIT_VERSION=\"$(ELVERSION)\",)
 
 SDL_PATH := ../SDL2
 SDL_IMAGE_PATH := ../SDL2_image
@@ -58,7 +58,7 @@ LOCAL_CFLAGS := \
 	-DFASTER_STARTUP \
 	-DNEW_EYES \
 	\
-	-DGIT_VERSION=\"$(ELVERSION)\"
+	$(LOCAL_VERSION)
 
 # Add your application source files here...
 LOCAL_SRC_FILES := \
