@@ -754,6 +754,9 @@ static int click_game_handler(window_info *win, int mx, int my, Uint32 flags)
 	locked_list_ptr actors_list;
 	actor *me;
 
+	// clear any previously stored destination to prevent unexpects walk-to
+	last_attack_actor_coord_x = last_attack_actor_coord_y = -1;
+
 #ifdef ANDROID
 	int cur_timestamp;
 	int time_now = SDL_GetTicks();
@@ -1125,8 +1128,11 @@ static int click_game_handler(window_info *win, int mx, int my, Uint32 flags)
 					{
 						add_highlight(this_actor->x_tile_pos,this_actor->y_tile_pos,
 							HIGHLIGHT_TYPE_ATTACK_TARGET);
-						last_attack_actor_coord_x = (short)this_actor->x_tile_pos;
-						last_attack_actor_coord_y = (short)this_actor->y_tile_pos;
+						if (thing_under_the_mouse == UNDER_MOUSE_ANIMAL)
+						{
+							last_attack_actor_coord_x = (short)this_actor->x_tile_pos;
+							last_attack_actor_coord_y = (short)this_actor->y_tile_pos;
+						}
 						release_locked_actors_list_and_invalidate(actors_list, &me);
 					}
 				}
