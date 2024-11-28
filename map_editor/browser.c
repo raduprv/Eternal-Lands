@@ -147,6 +147,54 @@ void display_browser()
 	display_window(browser_win);
 }
 
+
+void draw_browser_item(window_info *win, int index)
+{
+    int i=cp,valid_object=0;
+    char fn[80];
+    float scale;
+    int pos_x_increment;
+    int pos_y_increment;
+
+    if(i+index<Dir[cd].nf) {
+
+        if (index % 2 == 0) {
+            pos_x_increment = 0;
+        } else {
+            pos_x_increment = 200;
+        }
+
+        pos_y_increment = ((int) index / 2) * 180 + 180;
+
+        glViewport(win->pos_x + pos_x_increment, window_height - win->pos_y - pos_y_increment, 200, 180);
+        glClearStencil(0);
+        glClear(GL_DEPTH_BUFFER_BIT);
+#ifdef LINUX
+        safe_strncpy(fn, exec_path, sizeof(fn));
+#else
+        //Fedora: don't ask me why, if you use exec_path, e3d files are not found
+            safe_strncpy(fn, "."/*exec_path*/, sizeof(fn));
+#endif
+        safe_strcat(fn, Dir[cd].Files[i + index], sizeof(fn));
+        valid_object = setobject(index, fn, Dir[cd].xrot[i + index], Dir[cd].yrot[i + index], Dir[cd].zrot[i + index]);
+        if (valid_object) {
+            glPushMatrix();
+            fprintf(stderr, "zoom_level: %f\n", zoom_level);
+            fprintf(stderr, "max_size: %f\n", o3d[index].e3d_data->max_size);
+            scale = zoom_level / o3d[index].e3d_data->max_size;
+            fprintf(stderr, "scale: %f\n", scale);
+            o3d[index].x_pos -= zoom_level / scale + 1 / scale;
+            o3d[index].y_pos -= zoom_level / scale + 1 / scale;
+            fprintf(stderr, "x_pos: %f\n", o3d[index].x_pos);
+            fprintf(stderr, "y_pos: %f\n", o3d[index].y_pos);
+            glScalef(scale, scale, scale);
+            //glScalef(Dir[cd].size[i],Dir[cd].size[i],Dir[cd].size[i]);
+            draw_3d_object(&o3d[index]);
+            glPopMatrix();
+        }
+    }
+}
+
 int display_browser_handler(window_info *win)
 {
    //title bar
@@ -216,10 +264,9 @@ int display_browser_handler(window_info *win)
 			}
 	   }
    }else{ // display specified dir
-		int i=cp,valid_object=0;
+		int i=cp;
 		float tz=zoom_level;
-		char fn[80];
-		
+
 		// Prepare to render
 		Leave2DMode();
 		glEnable(GL_CULL_FACE);
@@ -243,83 +290,10 @@ int display_browser_handler(window_info *win)
 
 		glColor4f(1.0, 1.0, 1.0, 1.0);
 
-		glViewport(win->pos_x,window_height-win->pos_y-150,200,150);
-		glClearStencil(0);
-		glClear (GL_DEPTH_BUFFER_BIT);
-#ifdef LINUX
-		safe_strncpy(fn, exec_path, sizeof(fn));
-#else
-		//Fedora: don't ask me why, if you use exec_path, e3d files are not found
-		safe_strncpy(fn, "."/*exec_path*/, sizeof(fn));
-#endif
-		safe_strcat(fn, Dir[cd].Files[i], sizeof(fn));
-		valid_object=setobject(0,fn,Dir[cd].xrot[i],Dir[cd].yrot[i],Dir[cd].zrot[i]);
-		if(valid_object){
-			glPushMatrix();
-			glScalef(Dir[cd].size[i],Dir[cd].size[i],Dir[cd].size[i]);
-			draw_3d_object(&o3d[0]);
-			glPopMatrix();
-		}
-		
-		if(i+1<Dir[cd].nf){
-			glViewport(win->pos_x+200,window_height-win->pos_y-150,200,150);	
-			glClearStencil(0);
-			glClear (GL_DEPTH_BUFFER_BIT);
-#ifdef LINUX
-			safe_strncpy(fn, exec_path, sizeof(fn));
-#else
-			//Fedora: don't ask me why, if you use exec_path, e3d files are not found
-			safe_strncpy(fn, "."/*exec_path*/, sizeof(fn));
-#endif
-			safe_strcat(fn, Dir[cd].Files[i+1], sizeof(fn));
-			valid_object=setobject(1,fn,Dir[cd].xrot[i+1],Dir[cd].yrot[i+1],Dir[cd].zrot[i+1]);
-			if(valid_object){
-				glPushMatrix();
-				glScalef(Dir[cd].size[i+1],Dir[cd].size[i+1],Dir[cd].size[i+1]);
-				draw_3d_object(&o3d[1]);
-				glPopMatrix();
-			}
-		}
-
-		if(i+2<Dir[cd].nf){
-			glViewport(win->pos_x,window_height-win->pos_y-350,200,150);	
-			glClearStencil(0);
-			glClear (GL_DEPTH_BUFFER_BIT);
-#ifdef LINUX
-			safe_strncpy(fn, exec_path, sizeof(fn));
-#else
-			//Fedora: don't ask me why, if you use exec_path, e3d files are not found
-			safe_strncpy(fn, "."/*exec_path*/, sizeof(fn));
-#endif
-			safe_strcat(fn, Dir[cd].Files[i+2], sizeof(fn));
-			valid_object=setobject(2,fn,Dir[cd].xrot[i+2],Dir[cd].yrot[i+2],Dir[cd].zrot[i+2]);
-			if(valid_object){
-				glPushMatrix();
-				glScalef(Dir[cd].size[i+2],Dir[cd].size[i+2],Dir[cd].size[i+2]);
-				draw_3d_object(&o3d[2]);
-				glPopMatrix();
-			}
-		}
-
-		if(i+3<Dir[cd].nf){
-			glViewport(win->pos_x+200,window_height-win->pos_y-350,200,150);	
-			glClearStencil(0);
-			glClear (GL_DEPTH_BUFFER_BIT);
-#ifdef LINUX
-			safe_strncpy(fn, exec_path, sizeof(fn));
-#else
-			//Fedora: don't ask me why, if you use exec_path, e3d files are not found
-			safe_strncpy(fn, "."/*exec_path*/, sizeof(fn));
-#endif
-			safe_strcat(fn, Dir[cd].Files[i+3], sizeof(fn));
-			valid_object=setobject(3,fn,Dir[cd].xrot[i+3],Dir[cd].yrot[i+3],Dir[cd].zrot[i+3]);
-			if(valid_object){
-				glPushMatrix();
-				glScalef(Dir[cd].size[i+3],Dir[cd].size[i+3],Dir[cd].size[i+3]);
-				draw_3d_object(&o3d[3]);
-				glPopMatrix();
-			}
-		}
+       draw_browser_item(win,0);
+       draw_browser_item(win,1);
+       draw_browser_item(win,2);
+       draw_browser_item(win,3);
 
 		zoom_level=tz;
 		window_resize();
