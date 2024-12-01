@@ -1273,7 +1273,6 @@ static int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 			// Edit the given quantity
 			SDL_StartTextInput();
 			edit_quantity = pos;
-			quantities.quantity[edit_quantity].len = 0;
 #endif
 		} else if(flags & ELW_LEFT_MOUSE){
 			if(edit_quantity!=-1){
