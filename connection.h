@@ -164,7 +164,7 @@ public:
 
 private:
 	static const std::uint16_t protocol_version_first_digit = 10; // protocol/game version sent to server
-	static const std::uint16_t protocol_version_second_digit = 30;
+	static const std::uint16_t protocol_version_second_digit = 31;
 	static const size_t max_out_buffer_size = 8192;
 	static const size_t max_in_buffer_size = 8192;
 	static const size_t max_cache_size = 256;
