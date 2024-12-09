@@ -1,7 +1,8 @@
 #include <stdlib.h>
 #include "emotes.h"
-#include "client_serv.h"
+#include "actors_list.h"
 #include "asc.h"
+#include "client_serv.h"
 #include "elwindows.h"
 #include "gamewin.h"
 #include "hud.h"
@@ -25,7 +26,11 @@
 // TO ENABLE POSES, follow comments for EMOTES_CATEGORIES, emote_cats and emote_sel
 
 #define EMOTES_CATEGORIES 1 //Set EMOTE_CATEGORIES to 5 for poses
+#ifdef ANDROID
+#define EMOTES_SHOWN 6
+#else
 #define EMOTES_SHOWN 9
+#endif
 
 #define EMOTE_SPAM_TIME 1000
 
@@ -129,10 +134,10 @@ static void update_selectables(void)
 
 static int display_emotes_handler(window_info *win)
 {
+	static int last_pos=0;
 
 	int i,pos;
-	actor *act = get_actor_ptr_from_id(yourself);
-	static int last_pos=0;
+	emote_data *pose = NULL;
 
 	//check if vbar has been moved
 	pos=vscrollbar_get_pos(win->window_id, EMOTES_SCROLLBAR_ITEMS);
@@ -154,13 +159,30 @@ static int display_emotes_handler(window_info *win)
 		draw_string_small_zoomed(border_space + inbox_space, top_border + inbox_space + category_y_step * i, (unsigned char*)emote_cats[i],1, win->current_scale);
 	}
 
-	for(i=0;i<EMOTES_SHOWN;i++){
-		if(emote_sel[cur_cat]==selectables[i]) SET_COLOR(c_blue2);
-		else glColor3f(1.0f, 1.0f, 1.0f);
-		if(cur_cat&&act&&selectables[i]==act->poses[cur_cat-1]) SET_COLOR(c_green1);
-		if(selectables[i])
+	if (cur_cat)
+	{
+		actor *act;
+		locked_list_ptr actors_list = lock_and_get_self(&act);
+		if (actors_list)
+		{
+			pose = act->poses[cur_cat-1];
+			release_locked_actors_list_and_invalidate(actors_list, &act);
+		}
+	}
+
+	for (i=0; i<EMOTES_SHOWN; i++)
+	{
+		if (emote_sel[cur_cat]==selectables[i])
+			SET_COLOR(c_blue2);
+		else if (cur_cat && selectables[i] == pose)
+			SET_COLOR(c_green1);
+		else
+			glColor3f(1.0f, 1.0f, 1.0f);
+
+		if (selectables[i])
 			draw_string_small_zoomed(border_space + inbox_space, top_border + emotes_rect_y + box_sep + inbox_space + category_y_step * i, (unsigned char*)selectables[i]->name,1, win->current_scale);
 	}
+
 	glColor3fv(gui_color);
 	//do grids
 	glDisable(GL_TEXTURE_2D);
@@ -261,7 +283,11 @@ static int ui_scale_emotes_handler(window_info *win)
 	border_space = (int)(0.5 + win->current_scale * 5);
 	top_border = border_space + win->small_font_len_y;
 	box_sep = 2 * border_space + win->small_font_len_y;
+#ifdef ANDROID
+	category_extra_y_step = win->small_font_len_y / 2;
+#else
 	category_extra_y_step = 0;
+#endif
 	category_y_step = win->small_font_len_y + category_extra_y_step;
 
 	emotes_rect_x = 2 * inbox_space + box_width;

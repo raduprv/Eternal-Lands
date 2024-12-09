@@ -1,5 +1,8 @@
 #include "../platform.h"
 #include "elpathwrapper.h"
+#ifdef ANDROID
+#include "elfilewrapper.h"
+#endif
 #include "../asc.h"
 #include "../elconfig.h"
 #include "../elc_private.h"
@@ -18,6 +21,10 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <errno.h>
+#ifdef ANDROID
+#include <SDL_log.h>
+#include <SDL_system.h>
+#endif
 
 #ifndef S_ISDIR
 #define S_ISDIR(x) (((x) & S_IFMT) == S_IFDIR)
@@ -59,6 +66,8 @@ static const char* cfgdirname = CONFIGDIR;
 static const char* cfgdirname = "Library/Application Support/Eternal Lands";
 #elif defined(WINDOWS)
 static const char* cfgdirname = "Eternal Lands";
+#elif defined(ANDROID)
+static const char* cfgdirname = "user";
 #else /* *nix */
 static const char* cfgdirname = ".elc";
 #endif // platform check
@@ -131,7 +140,24 @@ const char * get_path_config_base(void)
 		strcpy(locbuffer, cfgdirname);
 	}
 	strcat(locbuffer, "/");
-#else /* !WINDOWS */
+#elif defined(ANDROID)
+	{
+		static int state = -1;
+		if (state == -1)
+			state = SDL_AndroidGetExternalStorageState();
+		if (state == (SDL_ANDROID_EXTERNAL_STORAGE_READ|SDL_ANDROID_EXTERNAL_STORAGE_WRITE))
+			safe_snprintf (locbuffer, sizeof(locbuffer), "%s/%s/", SDL_AndroidGetExternalStoragePath(), cfgdirname);
+		else
+			safe_snprintf (locbuffer, sizeof(locbuffer), "%s/%s/", SDL_AndroidGetInternalStoragePath(), cfgdirname);
+		if (!mkdir_tree (locbuffer, 0))
+		{
+			// Failed to create a configuration direction in the home directory,
+			// try in the current directory and hope that succeeds.
+			safe_snprintf (locbuffer, sizeof (locbuffer), "%s/", cfgdirname);
+			mkdir_tree (locbuffer, 1);
+		}
+	}
+#else /* !WINDOWS !ANDROID*/
 	safe_snprintf (locbuffer, sizeof(locbuffer), "%s/%s/", getenv("HOME"), cfgdirname);
 	if (!mkdir_tree (locbuffer, 0))
 	{
@@ -166,7 +192,12 @@ const char * get_path_updates(void)
 		return locbuffer;
 	}
 
-	safe_snprintf(locbuffer, sizeof(locbuffer), "%supdates/%d_%d_%d/", get_path_config_base(), VER_MAJOR, VER_MINOR, VER_RELEASE);
+#ifndef MAP_EDITOR
+	if (use_perserver_updates_dir)
+		safe_snprintf(locbuffer, sizeof(locbuffer), "%supdates/%s/", get_path_config_base(), get_server_name());
+	else
+#endif
+		safe_snprintf(locbuffer, sizeof(locbuffer), "%supdates/%d_%d_%d/", get_path_config_base(), VER_MAJOR, VER_MINOR, VER_RELEASE);
 
 	return locbuffer;
 }
@@ -198,9 +229,17 @@ char * check_custom_dir(char * in_file)
 
 FILE *open_file_config (const char* filename, const char* mode)
 {
+#ifdef ANDROID
+	char str[1024];
+#endif
 	FILE *fp = open_file_config_no_local(filename, mode);
 	if (fp != NULL)
 		return fp;
+#ifdef ANDROID
+	// try to extract the file from the data dir
+	if (do_file_exists(filename, datadir, sizeof(str), str) != 1)
+		return NULL;
+#endif
 	//Not there? okay, try the current directory
 	return fopen(filename, mode);
 }
@@ -262,6 +301,9 @@ FILE * open_file_data_updates(char* filename, const char* mode, int custom){
 FILE * open_file_data_datadir(const char* filename, const char* mode) {
 	char locbuffer[MAX_PATH];
 	if (strlen(datadir) + strlen(filename) + 2 < MAX_PATH) {
+#ifdef ANDROID
+		do_file_exists(filename, datadir, sizeof(locbuffer), locbuffer); //extract it if needed
+#endif
 		safe_snprintf(locbuffer, sizeof(locbuffer), "%s/%s", datadir, filename);
 		if (!strcmp(mode, "r") || !strcmp(mode, "rb")) {
 			return fopen(locbuffer, mode);					// Don't try to create all the directories if we are only trying to read the file!
@@ -278,8 +320,14 @@ FILE * open_file_data_datadir(const char* filename, const char* mode) {
 FILE * open_file_data(const char* in_filename, const char* mode){
 	char filename[MAX_PATH];
 	FILE* fp = NULL;
+#ifdef ANDROID
+	char str[1024];
+#endif
 
 	safe_strncpy(filename, in_filename, sizeof(filename));
+#ifdef ANDROID
+	do_file_exists(filename, datadir, sizeof(str), str); //extract it if needed
+#endif
 	if(strchr(mode, 'w') == NULL){
 		//Reading? okay, we check updates first
 		if((fp = open_file_data_updates(filename, mode, 0)) != NULL){
@@ -405,6 +453,11 @@ int normalize_path (const char* path, char* norm_path, int size, int relative_on
 	return 1;
 }
 
+int mkdir_single (const char *path)
+{
+	return MKDIR(path);
+}
+
 int mkdir_tree (const char *path, int relative_only)
 {
 	// First, check directory exists
@@ -418,7 +471,11 @@ int mkdir_tree (const char *path, int relative_only)
 		return 0;
 	}
 
+#ifdef ANDROID
+	if (dir_exists (dir))
+#else
 	if (dir_exists (dir) || file_exists(dir))
+#endif
 	{
 		// directory is there, don't bother
 		return 1;

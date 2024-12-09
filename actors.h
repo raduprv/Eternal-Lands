@@ -6,19 +6,12 @@
 #ifndef __ACTORS_H__
 #define __ACTORS_H__
 
-#ifdef MUTEX_DEBUG
-#include <assert.h>
-#include <stdlib.h>
-#include <SDL.h>
-#endif
-#include <SDL_mutex.h>
 #include "bbox_tree.h"
 #include "cal_types.h"
 #include "chat.h"
 #include "client_serv.h"
 #include "platform.h"
 #include "tiles.h"
-#include "buffs.h"
 #include "eye_candy_types.h"
 #include "hash.h"
 
@@ -26,9 +19,11 @@
 extern "C" {
 #endif
 
+//! The offset for actor IDs for horses. Actual ID is HORSE_ID_OFFSET + ID of the rider.
+#define HORSE_ID_OFFSET 0x10000
+
 #define	MAX_FILE_PATH	128	// the max chars allowed int a path/filename for actor textures/masks
 #define MAX_ACTOR_DEFS  256
-#define MAX_ACTORS      1000    /*!< The maximum number of actors the client can hold */
 #define ACTOR_DEF_NAME_SIZE 256
 
 extern int yourself; 	/*!< This variable holds the actor_id (as the server sees it, not the position in the actors_list) of your character.*/
@@ -78,24 +73,13 @@ typedef struct
 extern glow_color glow_colors[10]; /*!< Holds the glow colours defined in GLOW_**/
 /*! \} */
 
-/*!
- * The near_actor structure holds information about the actors within range. It is filled once every frame.
- */
-typedef struct {
-	int actor;//offset in the actors_list
-	int select;
-	int buffs;	// The buffs on this actor
-	int type;
-	int alpha;
-	int ghost;//If it's a ghost or not
-} near_actor;
+// keep in sync with client_serv.h !!!
+#define NUM_BUFFS 11
 
-extern int no_near_actors;
 #ifdef NEW_SOUND
 extern int no_near_enhanced_actors;
 extern float distanceSq_to_near_enhanced_actors;
 #endif // NEW_SOUND
-extern near_actor near_actors[MAX_ACTORS];
 
 /*!
  * The enhanced actor structure holds information about the actors extensions such as if the actor is wearing any armour, weapons etc.
@@ -391,20 +375,6 @@ typedef struct
 	char state; /*!< The state of the action (0: aim needed, 1: aim done, 2: fire needed, 3: fire done) */
 } range_action;
 
-#define MY_HORSE(a) (actors_list[actors_list[a]->attached_actor])
-#define MY_HORSE_ID(a) (actors_list[a]->attached_actor)
-#define HAS_HORSE(a) ((MY_HORSE_ID(a)>=0)&&(MY_HORSE(a)->actor_id<0))
-#define IS_HORSE(a) (actors_list[a]->attached_actor>=0&&actors_list[a]->actor_id<0)
-#define ACTOR(a) (actors_list[a])
-#define ACTOR_WEAPON(a) (&(actors_defs[ACTOR(a)->actor_type].weapon[ACTOR(a)->cur_weapon]))
-
-#define HORSE_FIGHT_ROTATION 60
-#define HORSE_RANGE_ROTATION 45
-#define HORSE_FIGHT_TIME 180
-void rotate_actor_and_horse(int id, int mul);
-
-
-
 #define MAX_EMOTE_LEN 20
 #define MAX_EMOTE_FRAME 8
 
@@ -553,8 +523,8 @@ typedef struct
 	double z_pos;		/*!< Specifies the z position of the actor */
 	float   scale;      /*!< Specidies the custom scaling for the actor model */
 
-	int x_tile_pos;		/*!< Specifies the x tile position - updated in the timer thread*/
-	int y_tile_pos;		/*!< Specifies the y tile position - updated in the timer thread \n*/
+	int x_tile_pos;		/*!< Specifies the x tile position - updated in the timer thread */
+	int y_tile_pos;		/*!< Specifies the y tile position - updated in the timer thread */
 	/*! \} */
 
 	/*! \name Actor rotation*/
@@ -658,7 +628,7 @@ typedef struct
 
 	int step_duration;
 
-	int attached_actor;
+	int attached_actor_id;
 	float attachment_shift[3];
 
 #ifdef CLUSTER_INSIDES
@@ -667,28 +637,37 @@ typedef struct
 	ec_reference ec_buff_reference[NUM_BUFFS];
 }actor;
 
+#ifndef __cplusplus
+typedef struct LockedList *locked_list_ptr;
+#endif
+
 #define	DEFAULT_RENDER_PASS	0
 #define	REFLECTION_RENDER_PASS	1
 #define	DEPTH_RENDER_PASS	2
 #define	SHADOW_RENDER_PASS	3
 #define	SELECTION_RENDER_PASS	4
 
-extern SDL_mutex *actors_lists_mutex;	/*!< Used for locking between the timer and main threads*/
-extern actor *actors_list[MAX_ACTORS];	/*!< A list holding all of the actors*/
-extern actor *your_actor; /*!< A pointer to your own character, if available. Shares a mutex with \see actors_list */
-extern int	max_actors;		/*!< The current number of actors in the actors_list + 1*/
 extern actor_types actors_defs[MAX_ACTOR_DEFS];	/*!< The actor definitions*/
 
 extern attached_actors_types attached_actors_defs[MAX_ACTOR_DEFS]; /*!< The definitions for the attached actors */
 
-
-static __inline__ int is_actor_barehanded(actor *act, int hand){
-	if(hand==EMOTE_BARE_L)
-		return (act->cur_shield==SHIELD_NONE||act->cur_shield==QUIVER_ARROWS||act->cur_shield==QUIVER_BOLTS);
-	else
-		return (act->cur_weapon==WEAPON_NONE||act->cur_weapon==GLOVE_FUR||act->cur_weapon==GLOVE_LEATHER);
+//! Check whether actor \a act has an attachment (horse or rider)
+static inline int has_attachment(const actor *act)
+{
+	return act->attached_actor_id >= 0;
 }
 
+//! Return whether actor \a act is a horse
+static inline int is_horse(const actor *act)
+{
+	return act->attached_actor_id >= 0 && act->actor_id >= HORSE_ID_OFFSET;
+}
+
+//! Return \a act's current weapon
+static inline weapon_part *actor_weapon(const actor *act)
+{
+	return &(actors_defs[act->actor_type].weapon[act->cur_weapon]);
+}
 
 /*!
  * \ingroup	display_actors
@@ -700,9 +679,8 @@ static __inline__ int is_actor_barehanded(actor *act, int hand){
  */
 void display_actors(int banner, int render_pass);
 
-void add_actor_attachment (int actor_id, int attachment_type);
-
-void remove_actor_attachment (int actor_id);
+actor* create_actor_attachment(actor* parent, int attachment_type);
+void add_actor_attachment(locked_list_ptr actors_list, actor *act, int attachment_type);
 
 /*!
  * \ingroup	network_actors
@@ -718,121 +696,34 @@ void remove_actor_attachment (int actor_id);
 void add_actor_from_server (const char * in_data, int len);
 
 /*!
- * \ingroup	display_actors
- * \brief	Inititates the actors_list (sets all pointers to NULL).
- *
- * 		Sets all actor pointers in the actors_list to NULL and creates the actors_list mutex.
- *
- * \sa		actors_list
- * \sa		LOCK_ACTORS_LISTS
- */
-extern void	init_actors_lists();
-
-#ifdef MUTEX_DEBUG
-extern SDL_threadID have_actors_lock;
-/*!
- * \ingroup mutex
- * \name Actor list thread synchronization
- */
-/*! @{ */
-#define	LOCK_ACTORS_LISTS() 	\
-	{\
-		fprintf(stderr,"Last locked by: %s %s %d\n",__FILE__,__FUNCTION__,__LINE__);\
-		if(SDL_LockMutex(actors_lists_mutex)==-1) {fprintf(stderr,"The mutex on %s %s %d was not locked even though we asked it to!\n",__FILE__,__FUNCTION__,__LINE__); abort(); }\
-		assert(have_actors_lock==0); have_actors_lock=SDL_ThreadID(); \
-	}
-#define	UNLOCK_ACTORS_LISTS() 	\
-	{\
-		fprintf(stderr,"Last unlocked by: %s %s %d\n",__FILE__,__FUNCTION__,__LINE__);\
-		assert(have_actors_lock); assert(have_actors_lock==SDL_ThreadID()); have_actors_lock=0; \
-		if(SDL_UnlockMutex(actors_lists_mutex)==-1)  {fprintf(stderr,"The mutex on %s %s %d was not unlocked even though we asked it to!\n",__FILE__,__FUNCTION__,__LINE__); abort(); }\
-	}
-/*! @} */
-#else
-/*!
- * \ingroup mutex
- * \name Actor list thread synchronization
- */
-/*! @{ */
-#define LOCK_ACTORS_LISTS()	SDL_LockMutex(actors_lists_mutex)
-#define UNLOCK_ACTORS_LISTS()	SDL_UnlockMutex(actors_lists_mutex)
-/*! @} */
-#endif
-
-/*!
  * \ingroup	network_text
- * \brief	Adds the text to the actor given by actor_ptr
+ * \brief	Adds the text to the actor
  *
- * 		Adds text from the actor to overhead text.
+ * 		Adds text from the actor identified by its server ID \a actor_id, to overhead text.
  *
- * \param	actor_ptr A pointer to the actor
+ * \param	actor_id The server ID of the actor
  * \param	text The text we wish to add to the current_displayed_text buffer in the actors structure.
  */
-void	add_displayed_text_to_actor( actor * actor_ptr, const char* text);
-
+void add_displayed_text_to_actor_id(int actor_id, const char* text);
 /*!
- * \ingroup	misc_utils
- * \brief	Gets a pointer to the actor given by the actor_id
+ * \ingroup	network_text
+ * \brief	Adds the text to the actor
  *
- * 		The function is used for getting a pointer to the actor with the given actor_id (the server-side actor id).
+ * 		Adds text from the actor identified by name \a name, to overhead text.
  *
- * \param	actor_id The server-side actor_id - NOT the position in the actors_list
- * \retval actor*	A pointer to the actor with the given ID. If the actor is not found it returns NULL
- * \sa		get_our_actor
+ * \param	name The name of the actor
+ * \param	text The text we wish to add to the current_displayed_text buffer in the actors structure.
  */
-actor *	get_actor_ptr_from_id( int actor_id );
-
-void end_actors_lists(void);
+void add_displayed_text_to_actor_name(const char* name, const char* text);
 
 int on_the_move (const actor *act);
-
-/*!
- * \ingroup display_actors
- * \brief   Return actor close clicked coords.
- *
- * \param tile_x the x coord of the clicked tile
- * \param tile_y the y coord of the clicked tile
- * \param max_distance the maximum distance between the clicked coord and the actor
- *
- * \callgraph
- * \retval the actor id or -1 for no actor
- *
- */
-int get_closest_actor(int tile_x, int tile_y, float max_distance);
-
-/*!
- * \ingroup	display_actors
- * \brief	Return a pointer to your own character, if available
- *
- *	Return a pointer to your own character, if available. This inline
- *	function simply returns \ref your_actor.
- *
- * \return A pointer to your character, or NULL if that is not available.
- */
-static __inline__ actor *get_our_actor ()
-{
-	return your_actor;
-}
-
-/*!
- * \ingroup	display_actors
- * \brief	Set the pointer to your own character
- *
- *	Set the pointer to your own character to \a act.
- *
- * \param act New pointer to your character.
- */
-static __inline__ void set_our_actor (actor *act)
-{
-	your_actor = act;
-}
 
 /*!
  * \brief Get the Z position of an actor according to its position on the height map
  * \param a the actor
  * \return the Z position of the actor
  */
-static __inline__ float get_actor_z(actor *a)
+static __inline__ float get_actor_z(const actor *a)
 {
 	return get_tile_height(a->x_tile_pos, a->y_tile_pos);
 }
@@ -842,7 +733,7 @@ static __inline__ float get_actor_z(actor *a)
  * \param a the actor
  * \return the scale factor of the actor
  */
-static __inline__ float get_actor_scale(actor *a)
+static __inline__ float get_actor_scale(const actor *a)
 {
 	float scale = a->scale;
 	scale *= actors_defs[a->actor_type].actor_scale;
@@ -854,7 +745,7 @@ static __inline__ float get_actor_scale(actor *a)
  * \param in_act the actor
  * \param out_rot the resulting matrix (3x3 matrix: 9 floats)
  */
-void get_actor_rotation_matrix(actor *in_act, float *out_rot);
+void get_actor_rotation_matrix(const actor *in_act, float *out_rot);
 
 /*!
  * \brief Transforms a local position on a char to an absolute position
@@ -863,7 +754,8 @@ void get_actor_rotation_matrix(actor *in_act, float *out_rot);
  * \param in_act_rot the rotation matrix of the actor (computed inside if NULL)
  * \param out_pos the resulting position
  */
-void transform_actor_local_position_to_absolute(actor *in_act, float *in_local_pos, float *in_act_rot, float *out_pos);
+void transform_actor_local_position_to_absolute(const actor *in_act, float *in_local_pos,
+	float *in_act_rot, float *out_pos);
 
 void draw_actor_without_banner(actor * actor_id, Uint32 use_lightning, Uint32 use_textures, Uint32 use_glow);
 
@@ -879,7 +771,7 @@ void remember_new_summoned(const char *summoned_name);
  *
  * \param new_actor Pointer to the new actor
  */
-void check_if_new_actor_last_summoned(actor *new_actor);
+void check_if_new_actor_last_summoned(const actor *new_actor);
 
 /*!
  * \brief Get the actor ID of the last summoned creature
@@ -888,37 +780,25 @@ void check_if_new_actor_last_summoned(actor *new_actor);
  */
 int get_id_last_summoned(void);
 
-static __inline__ int is_actor_held(actor *act)
-{
-    return ((act->attached_actor >= 0) &&
-		((act->actor_id < 0 && // the actor is the attachment
-              !attached_actors_defs[act->actor_type].actor_type[actors_list[act->attached_actor]->actor_type].is_holder) ||
-             (act->actor_id >= 0 && // the actor is the parent of the attachment
-              attached_actors_defs[actors_list[act->attached_actor]->actor_type].actor_type[act->actor_type].is_holder)));
-}
+/*!
+ * \brief Free the list of near actors
+ *
+ * Free the memory allocated for the information on which actors are to be drawn.
+ */
+void free_near_actors(void);
 
-static __inline__ attachment_props* get_attachment_props_if_held(actor *act)
+static __inline__ attachment_props* get_attachment_props_if_held(actor *act, actor *attached)
 {
-	if (act->attached_actor < 0)
+	if (!attached)
 		return NULL;
 	else if (act->actor_id < 0 && // the actor is the attachment
-			 !attached_actors_defs[act->actor_type].actor_type[actors_list[act->attached_actor]->actor_type].is_holder)
-		return &attached_actors_defs[act->actor_type].actor_type[actors_list[act->attached_actor]->actor_type];
+			 !attached_actors_defs[act->actor_type].actor_type[attached->actor_type].is_holder)
+		return &attached_actors_defs[act->actor_type].actor_type[attached->actor_type];
     else if (act->actor_id >= 0 && // the actor is the parent of the attachment
-			 attached_actors_defs[actors_list[act->attached_actor]->actor_type].actor_type[act->actor_type].is_holder)
-		return &attached_actors_defs[actors_list[act->attached_actor]->actor_type].actor_type[act->actor_type];
+			 attached_actors_defs[attached->actor_type].actor_type[act->actor_type].is_holder)
+		return &attached_actors_defs[attached->actor_type].actor_type[act->actor_type];
 	else
 		return NULL;
-}
-
-static __inline__ int get_held_actor_motion_frame(actor *act)
-{
-	if (act->attached_actor < 0)
-		return cal_attached_walk_frame;
-	else if (actors_list[act->attached_actor]->buffs & BUFF_DOUBLE_SPEED)
-		return cal_attached_run_frame;
-	else
-		return cal_attached_walk_frame;
 }
 
 static __inline__ int get_actor_motion_frame(actor *act)

@@ -239,6 +239,8 @@ const char *get_date(void (*callback)(const char *));
 
 int is_disconnected();
 
+void error_messages_to_console(Uint8 color, int show_option, int show_quit, int show_retry);
+
 #ifdef __cplusplus
 } // extern "C"
 #endif

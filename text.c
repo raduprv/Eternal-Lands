@@ -4,7 +4,7 @@
 #include <time.h>
 #include "text.h"
 #include "achievements.h"
-#include "actors.h"
+#include "actors_list.h"
 #include "asc.h"
 #include "books.h"
 #include "buddy.h"
@@ -14,6 +14,7 @@
 #include "elconfig.h"
 #include "errors.h"
 #include "filter.h"
+#include "gamewin.h"
 #include "gl_init.h"
 #include "hud_misc_window.h"
 #include "highlight.h"
@@ -422,6 +423,7 @@ int parse_text_for_emote_commands(const char *text, int len)
 	int i=0, j = 0, wf=0,ef=0, itsme=0;
 	char name[20];	// Yeah, this should be done correctly
 	emote_dict emote_text;
+	locked_list_ptr actors_list;
 	actor *act;
 
 
@@ -441,22 +443,18 @@ int parse_text_for_emote_commands(const char *text, int len)
 	if(j>=20||name[j]) return 0; 		//out of bound or not terminated
 
 	//check if we are saying text
-	LOCK_ACTORS_LISTS();
-
-	act = get_actor_ptr_from_id(yourself);
-	if (!act){
-		UNLOCK_ACTORS_LISTS();
+	actors_list = lock_and_get_self(&act);
+	if (!actors_list)
+	{
 		LOG_ERROR("Unable to find actor who just said local text?? name: %s", name);
 		return 1;		// Eek! We don't have an actor match... o.O
 	}
 
 	if (!(!strncasecmp(act->actor_name, name, strlen(name)) &&
 			(act->actor_name[strlen(name)] == ' ' ||
-			act->actor_name[strlen(name)] == '\0'))){
-		//we are not saying this text, return
-		//UNLOCK_ACTORS_LISTS();
-		//return 0;
-			itsme=0;
+			act->actor_name[strlen(name)] == '\0')))
+	{
+		itsme=0;
 	} else itsme=1;
 
 	j=0;
@@ -476,7 +474,8 @@ int parse_text_for_emote_commands(const char *text, int len)
 		}
 	} while(text[i++]);
 	//printf("ef=%i, wf=%i, filter=>%i\n",ef,wf,emote_filter);
-	UNLOCK_ACTORS_LISTS();
+
+	release_locked_actors_list_and_invalidate(actors_list, &act);
 
 	return  ((ef==wf) ? (emote_filter):(0));
 
@@ -656,6 +655,9 @@ int filter_or_ignore_text (char *text_to_add, int len, int size, Uint8 channel)
 			return 0;
 		}
 		else if (!strncasecmp(text_to_add+1, "You see: ", 9)) {
+#ifdef ANDROID
+			achievements_close_all(); // allow only one window
+#endif
 			achievements_player_name(text_to_add+10, len-10);
 		}
 		else if ((!strncasecmp(text_to_add+1, "You just got food poisoned!", 27)) ||
@@ -689,6 +691,10 @@ int filter_or_ignore_text (char *text_to_add, int len, int size, Uint8 channel)
 		else if (!strncasecmp(text_to_add+1, "Your buddy list is now empty.", 29)) {
 			clear_buddy();
 		}
+		else if (!strncasecmp(text_to_add+1, "You are too far away! Get closer!", 33)) {
+			if (check_move_to_attacked())
+				return 0;
+		}
 		else {
 			int match_index;
 			for (match_index = 0; match_index < rate_limit_count; ++match_index)
@@ -699,10 +705,13 @@ int filter_or_ignore_text (char *text_to_add, int len, int size, Uint8 channel)
 			}
 			if (match_index < rate_limit_count)
 			{
+				int x, y;
 				Uint32 new_time = SDL_GetTicks();
 				clear_now_harvesting();
-				if(your_actor != NULL)
-					add_highlight(your_actor->x_tile_pos,your_actor->y_tile_pos, HIGHLIGHT_SOFT_FAIL);
+
+				if (self_tile_position(&x, &y))
+					add_highlight(x, y, HIGHLIGHT_SOFT_FAIL);
+
 				/* suppress further messages within for 5 seconds of last */
 				if (rate_limit_done_one[match_index] && new_time - rate_limit_last_time[match_index] < 5000)
 					return 0;
@@ -894,25 +903,8 @@ void check_chat_text_to_overtext (const Uint8 *text_to_add, int len, Uint8 chann
 				i++; j++;
 			}
 			textbuffer[j] = '\0';
-			for (i = 0; i < max_actors; i++)
-			{
-				char actorName[128];
-				j = 0;
-				// Strip clan info
-				while ( ALLOWED_CHAR_IN_NAME (actors_list[i]->actor_name[j]) )
-				{
-					actorName[j] = actors_list[i]->actor_name[j];
-					j++;
-					if ( j >= sizeof (actorName) )
-						return;	// over buffer
-				}
-				actorName[j] = '\0';
-				if (strcmp (actorName, playerName) == 0)
-				{
-					add_displayed_text_to_actor (actors_list[i], textbuffer);
-					break;
-				}
-			}
+
+			add_displayed_text_to_actor_name(playerName, textbuffer);
 		}
 	}
 }

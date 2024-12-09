@@ -98,7 +98,7 @@ static __inline__ UNUSED_RESULT_DECL dbuffer_t *dbuffer_append_data( dbuffer_t *
 	if (NULL != dbuf) {
 		next_alloc_size = DBUFFER_ALIGN(dbuf->current_size + datalen);
 		if (next_alloc_size > dbuf->alloc_size) {
-			dbuf->data = (unsigned char *)realloc((void*)dbuf, next_alloc_size);
+			dbuf->data = (unsigned char *)realloc((void*)dbuf->data, next_alloc_size);
 			if (NULL == dbuf->data) {
 				dbuf->alloc_size = dbuf->current_size = 0;
 				return dbuf;

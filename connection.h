@@ -164,7 +164,7 @@ public:
 
 private:
 	static const std::uint16_t protocol_version_first_digit = 10; // protocol/game version sent to server
-	static const std::uint16_t protocol_version_second_digit = 29;
+	static const std::uint16_t protocol_version_second_digit = 31;
 	static const size_t max_out_buffer_size = 8192;
 	static const size_t max_in_buffer_size = 8192;
 	static const size_t max_cache_size = 256;
@@ -286,6 +286,8 @@ int my_tcp_send(const Uint8* str, int len);
 int my_tcp_flush(void);
 void cleanup_tcp(void);
 int get_message_from_server(void *thread_args);
+
+extern int server_connect_timeout_s;  /*! Config option.  The timeout in seconds to wait when connecting to a server. */
 
 #ifdef __cplusplus
 } // extern "C"

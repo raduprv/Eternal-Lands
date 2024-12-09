@@ -606,28 +606,33 @@ int load_map (const char* file_name)
 
 void new_map(int m_x_size,int m_y_size)
 {
-	int i;
+	size_t map_size = m_x_size * m_y_size;
+	size_t heights_size = m_x_size * m_y_size * 6 * 6;
+	size_t i;
+
 	//destroy the previous map, if any
 	destroy_map();
 
 	//allocate memory for the tile map (it was destroyed)
-	tile_map=(unsigned char *)calloc(m_x_size*m_y_size, 1);
+	tile_map = (unsigned char *)calloc(map_size, 1);
 	//now, fill the map
-	for(i=0;i<m_x_size*m_y_size;i++)tile_map[i]=1;
-	tile_map_size_x=m_x_size;
-	tile_map_size_y=m_y_size;
+	for(i = 0; i < map_size; i++)
+		tile_map[i] = 1;
+	tile_map_size_x = m_x_size;
+	tile_map_size_y = m_y_size;
 
 	//allocates the memory for the heights now
-	height_map=(unsigned char *)calloc(m_x_size*m_y_size*6*6, 1);
+	height_map = (unsigned char *)calloc(heights_size, 1);
 	//now, fill the map
-	for(i=0;i<m_x_size*m_y_size*6*6;i++)height_map[i]=11;
+	for(i = 0; i < heights_size; i++)
+		height_map[i] = 11;
 
 	load_map_tiles();
 	//reset the camera coordinates
-	mx=0;
-	my=0;
+	mx = 0;
+	my = 0;
 	
-	dungeon=0;
+	dungeon = 0;
 }
 
 

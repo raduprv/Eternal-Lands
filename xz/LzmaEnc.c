@@ -2145,6 +2145,8 @@ SRes LzmaEnc_CodeOneMemBlock(CLzmaEncHandle pp, Bool reInit,
 
   res = LzmaEnc_CodeOneBlock(p, True, desiredPackSize, *unpackSize);
   
+  p->rc.outStream = NULL;
+
   *unpackSize = (UInt32)(p->nowPos64 - nowPos64);
   *destLen -= outStream.rem;
   if (outStream.overflow)

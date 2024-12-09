@@ -7,6 +7,7 @@
 #define __PATHFINDER_H__
 
 #include <SDL_types.h>
+#include "actors.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -67,14 +68,16 @@ extern int pf_search_destination_area; /*!< If set, try to walk to the immediate
  * \ingroup move_actors
  * \brief Finds a path to the given position
  *
- *      Finds a path from the current position to the given target position (x,y).
+ *      Finds a path from the current position to the given target position (x,y). This function is
+ *      called with the actors list locked, and passes a pointer to your own actor.
  *
+ * \param me    pointer to your own actor
  * \param x     x coordinate of the target position
  * \param y     y coordinate of the target position
  * \retval int
  * \callgraph
  */
-int pf_find_path(int x, int y);
+int pf_find_path(const actor *me, int x, int y);
 
 /*!
  * \ingroup move_actors

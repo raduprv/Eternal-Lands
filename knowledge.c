@@ -317,7 +317,11 @@ int display_knowledge_handler(window_info *win)
 		draw_string_small_zoomed_centered((progress_left_x + progress_right_x) / 2,
 			progress_top_y + progress_text_y_offset, (const unsigned char*)points_string,
 			1, win->current_scale);
+#ifndef ANDROID
 	if (is_researching && mouse_over_progress_bar)
+#else
+	if(is_researching)
+#endif
 	{
 		char eta_string[20];
 		get_research_eta_str(eta_string, sizeof(eta_string));
@@ -374,7 +378,11 @@ int display_knowledge_handler(window_info *win)
 	}
 	if (know_show_win_help)
 	{
+#ifdef ANDROID
+		show_help(long_touch_cm_options_str, -TAB_MARGIN, win->len_y+10+TAB_MARGIN, win->current_scale);
+#else
 		show_help(cm_help_options_str, -TAB_MARGIN, win->len_y+10+TAB_MARGIN, win->current_scale);
+#endif
 		know_show_win_help = 0;
 	}
 #ifdef OPENGL_TRACE
@@ -408,6 +416,8 @@ int mouseover_knowledge_handler(window_info *win, int mx, int my)
 	if(my>booklist_y_len)
 		return 0;
 	mx = (mx < (win->len_x-win->box_size)/2) ?0 :1;
+	if ((my -= text_border) < 0)
+		return 0;
 	my/=booklist_y_step;
 	knowledge_list[mx+2*(my+vscrollbar_get_pos (win->window_id, knowledge_scroll_id))].mouse_over=1;
 	return 0;
@@ -436,6 +446,8 @@ int click_knowledge_handler(window_info *win, int mx, int my, Uint32 flags)
 
 		selected_book = -1;
 		x = (x < (win->len_x-win->box_size)/2) ?0 :1;
+		if ((y -= text_border) < 0)
+			return 0;
 		y/=booklist_y_step;
 		idx = x + 2 *(y + vscrollbar_get_pos (win->window_id, knowledge_scroll_id));
 		if(idx < knowledge_count)
@@ -643,7 +655,9 @@ void fill_knowledge_win(int window_id)
 	set_window_custom_scale(window_id, MW_STATS);
 	set_window_handler(window_id, ELW_HANDLER_DISPLAY, &display_knowledge_handler );
 	set_window_handler(window_id, ELW_HANDLER_CLICK, &click_knowledge_handler );
+#ifndef ANDROID
 	set_window_handler(window_id, ELW_HANDLER_MOUSEOVER, &mouseover_knowledge_handler );
+#endif
 	set_window_handler(window_id, ELW_HANDLER_RESIZE, &resize_knowledge_handler );
 	set_window_handler(window_id, ELW_HANDLER_UI_SCALE, &ui_scale_knowledge_handler);
 	set_window_handler(window_id, ELW_HANDLER_FONT_CHANGE, &change_knowledge_font_handler);

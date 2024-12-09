@@ -1,6 +1,6 @@
 #include "platform.h"
 #include "load_gl_extensions.h"
-#include "actors.h"
+#include "actors_list.h"
 #include "gl_init.h"
 #include "misc.h"
 #include "cursors.h"
@@ -15,8 +15,9 @@
 
 #include "2d_objects.h"
 #include "3d_objects.h"
-#include "e3d.h"
+#include "actors_list.h"
 #include "actor_init.h"
+#include "e3d.h"
 
 struct SelectionData
 {
@@ -126,18 +127,21 @@ static inline void update_selection(Uint8 *color)
 				LOG_ERROR("Invalid selection type!");
 				break;
 			case UNDER_MOUSE_3D_OBJ:
-				actor_under_mouse = 0;
+			{
+				eternal_lands::LockedActorsList list;
+				list.clear_actor_under_mouse();
 				object_under_mouse = selections[index].id;
 				break;
+			}
 			case UNDER_MOUSE_PLAYER:
 			case UNDER_MOUSE_NPC:
 			case UNDER_MOUSE_ANIMAL:
-				if (actors_list[selections[index].id])
-				{
-					actor_under_mouse = actors_list[selections[index].id];
-					object_under_mouse = actors_list[selections[index].id]->actor_id;
-				}
+			{
+				eternal_lands::LockedActorsList list;
+				list.set_actor_under_mouse(selections[index].id);
+				object_under_mouse = (selections[index].id >= HORSE_ID_OFFSET) ?-1 : selections[index].id;
 				break;
+			}
 			default:
 				LOG_ERROR("Invalid selection type!");
 				break;
@@ -183,17 +187,17 @@ static inline int old_anything_under_the_mouse(int object_id, int object_type)
 			return 0;
 		}
 
+		eternal_lands::LockedActorsList list;
 		if ((object_type == UNDER_MOUSE_PLAYER) || (object_type==UNDER_MOUSE_NPC) ||
 			(object_type==UNDER_MOUSE_ANIMAL))
 		{
-			actor_under_mouse = actors_list[object_id];
-			object_id = actors_list[object_id]->actor_id;
+			list.set_actor_under_mouse(object_id);
 		}
 		else
 		{
-			actor_under_mouse = NULL;
+			list.clear_actor_under_mouse();
 		}
-		object_under_mouse = object_id;
+		object_under_mouse = (object_id >= HORSE_ID_OFFSET) ?-1 :object_id;
 
 		thing_under_the_mouse = object_type;
 		return 1;//there is something
@@ -223,7 +227,10 @@ extern "C" void reset_under_the_mouse()
 		{
 			object_under_mouse = -1;
 			thing_under_the_mouse = UNDER_MOUSE_NOTHING;
-			actor_under_mouse = 0;
+			{
+				eternal_lands::LockedActorsList list;
+				list.clear_actor_under_mouse();
+			}
 
 			glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 			draw_tile_map();
@@ -307,6 +314,7 @@ extern "C" void reset_under_the_mouse()
 			{
 				set_actor_animation_program(SELECTION_RENDER_PASS, 0);
 			}
+
 			for (i = 0; i < selections.size(); i++)
 			{
 				switch (selections[i].type)
@@ -314,6 +322,7 @@ extern "C" void reset_under_the_mouse()
 					case UNDER_MOUSE_PLAYER:
 					case UNDER_MOUSE_NPC:
 					case UNDER_MOUSE_ANIMAL:
+					{
 						update_color(color, colorf, i, true);
 						if (use_animation_program)
 						{
@@ -323,9 +332,12 @@ extern "C" void reset_under_the_mouse()
 						{
 							glColor4ubv(color);
 						}
-						if (actors_list[selections[i].id])
+
+						eternal_lands::LockedActorsList actors_list;
+						actor* actor = actors_list.get_actor_from_id(selections[i].id);
+						if (actor)
 						{
-							if (actors_list[selections[i].id]->has_alpha)
+							if (actor->has_alpha)
 							{
 								glEnable(GL_ALPHA_TEST);
 							  	glEnable(GL_TEXTURE_2D);
@@ -340,14 +352,15 @@ extern "C" void reset_under_the_mouse()
 							// Fedora's patch to fix NEW_SELECTION on PPC Macs
 							glPushAttrib(GL_ALL_ATTRIB_BITS);
 							glPushClientAttrib(GL_CLIENT_ALL_ATTRIB_BITS);
-							draw_actor_without_banner(actors_list[selections[i].id], 0, actors_list[selections[i].id]->has_alpha, 0);
+							draw_actor_without_banner(actor, 0, actor->has_alpha, 0);
 							glPopClientAttrib();
 							glPopAttrib();
 #else
-							draw_actor_without_banner(actors_list[selections[i].id], 0, actors_list[selections[i].id]->has_alpha, 0);
+							draw_actor_without_banner(actor, 0, actor->has_alpha, 0);
 #endif
 						}
 						break;
+					}
 					case UNDER_MOUSE_3D_OBJ:
 						break;
 					default:
@@ -411,3 +424,10 @@ extern "C" int anything_under_the_mouse(int object_id, int object_type)
 		return old_anything_under_the_mouse(object_id, object_type);
 	}
 }
+
+#ifdef ANDROID
+extern "C" void clear_selections(void)
+{
+	selections.clear();
+}
+#endif

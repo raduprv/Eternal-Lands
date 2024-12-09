@@ -12,6 +12,10 @@
 extern "C" {
 #endif
 
+#ifdef ANDROID
+#define ITEM_INVENTORY 1
+#endif
+
 extern int trade_you_accepted; /*!< flag, indicating whether you have accepted the trade or not */
 extern int trade_other_accepted; /*!< flag, indicating whether the trade partner has accepted the trade or not */
 

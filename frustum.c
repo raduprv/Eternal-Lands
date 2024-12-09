@@ -24,12 +24,12 @@
 // This way it makes it more understandable and readable when dealing with frustum sides.
 enum FrustumSide
 {
-	RIGHT	= 0,		// The RIGHT side of the frustum
-	LEFT	= 1,		// The LEFT	 side of the frustum
-	BOTTOM	= 2,		// The BOTTOM side of the frustum
-	TOP		= 3,		// The TOP side of the frustum
-	BACK	= 4,		// The BACK	side of the frustum
-	FRONT	= 5			// The FRONT side of the frustum
+	FS_RIGHT  = 0,		// The RIGHT side of the frustum
+	FS_LEFT   = 1,		// The LEFT	 side of the frustum
+	FS_BOTTOM = 2,		// The BOTTOM side of the frustum
+	FS_TOP    = 3,		// The TOP side of the frustum
+	FS_BACK   = 4,		// The BACK	side of the frustum
+	FS_FRONT  = 5 		// The FRONT side of the frustum
 };
 
 float m_Frustum[8][4];	// only use 6, but mult by 8 is faster
@@ -153,68 +153,68 @@ static __inline__ void VMInvert(MATRIX4x4 r, MATRIX4x4 m)
 
 static __inline__ void calculate_frustum_from_clip_matrix(FRUSTUM frustum, MATRIX4x4 clip)
 {
-	frustum[RIGHT].plane[A] = clip[ 3] - clip[ 0];
-	frustum[RIGHT].plane[B] = clip[ 7] - clip[ 4];
-	frustum[RIGHT].plane[C] = clip[11] - clip[ 8];
-	frustum[RIGHT].plane[D] = clip[15] - clip[12];
+	frustum[FS_RIGHT].plane[A] = clip[ 3] - clip[ 0];
+	frustum[FS_RIGHT].plane[B] = clip[ 7] - clip[ 4];
+	frustum[FS_RIGHT].plane[C] = clip[11] - clip[ 8];
+	frustum[FS_RIGHT].plane[D] = clip[15] - clip[12];
 
 	// This will extract the LEFT side of the frustum
-	frustum[LEFT].plane[A] = clip[ 3] + clip[ 0];
-	frustum[LEFT].plane[B] = clip[ 7] + clip[ 4];
-	frustum[LEFT].plane[C] = clip[11] + clip[ 8];
-	frustum[LEFT].plane[D] = clip[15] + clip[12];
+	frustum[FS_LEFT].plane[A] = clip[ 3] + clip[ 0];
+	frustum[FS_LEFT].plane[B] = clip[ 7] + clip[ 4];
+	frustum[FS_LEFT].plane[C] = clip[11] + clip[ 8];
+	frustum[FS_LEFT].plane[D] = clip[15] + clip[12];
 
 	// This will extract the BOTTOM side of the frustum
-	frustum[BOTTOM].plane[A] = clip[ 3] + clip[ 1];
-	frustum[BOTTOM].plane[B] = clip[ 7] + clip[ 5];
-	frustum[BOTTOM].plane[C] = clip[11] + clip[ 9];
-	frustum[BOTTOM].plane[D] = clip[15] + clip[13];
+	frustum[FS_BOTTOM].plane[A] = clip[ 3] + clip[ 1];
+	frustum[FS_BOTTOM].plane[B] = clip[ 7] + clip[ 5];
+	frustum[FS_BOTTOM].plane[C] = clip[11] + clip[ 9];
+	frustum[FS_BOTTOM].plane[D] = clip[15] + clip[13];
 
 	// This will extract the TOP side of the frustum
-	frustum[TOP].plane[A] = clip[ 3] - clip[ 1];
-	frustum[TOP].plane[B] = clip[ 7] - clip[ 5];
-	frustum[TOP].plane[C] = clip[11] - clip[ 9];
-	frustum[TOP].plane[D] = clip[15] - clip[13];
+	frustum[FS_TOP].plane[A] = clip[ 3] - clip[ 1];
+	frustum[FS_TOP].plane[B] = clip[ 7] - clip[ 5];
+	frustum[FS_TOP].plane[C] = clip[11] - clip[ 9];
+	frustum[FS_TOP].plane[D] = clip[15] - clip[13];
 
 	// This will extract the BACK side of the frustum
-	frustum[BACK].plane[A] = clip[ 3] - clip[ 2];
-	frustum[BACK].plane[B] = clip[ 7] - clip[ 6];
-	frustum[BACK].plane[C] = clip[11] - clip[10];
-	frustum[BACK].plane[D] = clip[15] - clip[14];
+	frustum[FS_BACK].plane[A] = clip[ 3] - clip[ 2];
+	frustum[FS_BACK].plane[B] = clip[ 7] - clip[ 6];
+	frustum[FS_BACK].plane[C] = clip[11] - clip[10];
+	frustum[FS_BACK].plane[D] = clip[15] - clip[14];
 
 	// This will extract the FRONT side of the frustum
-	frustum[FRONT].plane[A] = clip[ 3] + clip[ 2];
-	frustum[FRONT].plane[B] = clip[ 7] + clip[ 6];
-	frustum[FRONT].plane[C] = clip[11] + clip[10];
-	frustum[FRONT].plane[D] = clip[15] + clip[14];
+	frustum[FS_FRONT].plane[A] = clip[ 3] + clip[ 2];
+	frustum[FS_FRONT].plane[B] = clip[ 7] + clip[ 6];
+	frustum[FS_FRONT].plane[C] = clip[11] + clip[10];
+	frustum[FS_FRONT].plane[D] = clip[15] + clip[14];
 
 	// Now that we have a normal (A,B,C) and a distance (D) to the plane,
 	// we want to normalize that normal and distance.
 
 	// Normalize the RIGHT side
-	normalize_plane(frustum[RIGHT].plane);
+	normalize_plane(frustum[FS_RIGHT].plane);
 
 	// Normalize the LEFT side
-	normalize_plane(frustum[LEFT].plane);
+	normalize_plane(frustum[FS_LEFT].plane);
  
  	// Normalize the BOTTOM side
-	normalize_plane(frustum[BOTTOM].plane);
+	normalize_plane(frustum[FS_BOTTOM].plane);
  
  	// Normalize the TOP side
-	normalize_plane(frustum[TOP].plane);
+	normalize_plane(frustum[FS_TOP].plane);
 
 	// Normalize the BACK side
-	normalize_plane(frustum[BACK].plane);
+	normalize_plane(frustum[FS_BACK].plane);
 
  	// Normalize the FRONT side
-	normalize_plane(frustum[FRONT].plane);
+	normalize_plane(frustum[FS_FRONT].plane);
 	
-	calc_plane_mask(&frustum[RIGHT]);
-	calc_plane_mask(&frustum[LEFT]);
-	calc_plane_mask(&frustum[BOTTOM]);
-	calc_plane_mask(&frustum[TOP]);
-	calc_plane_mask(&frustum[BACK]);
-	calc_plane_mask(&frustum[FRONT]);
+	calc_plane_mask(&frustum[FS_RIGHT]);
+	calc_plane_mask(&frustum[FS_LEFT]);
+	calc_plane_mask(&frustum[FS_BOTTOM]);
+	calc_plane_mask(&frustum[FS_TOP]);
+	calc_plane_mask(&frustum[FS_BACK]);
+	calc_plane_mask(&frustum[FS_FRONT]);
 }
 
 static __inline__ void calc_plane(VECTOR4 plane, const VECTOR3 p1, const VECTOR3 p2, const VECTOR3 p3)
@@ -449,9 +449,9 @@ void calculate_reflection_frustum(float water_height)
 	reflection_frustum[6].plane[B] = 0.0;
 	reflection_frustum[6].plane[C] = 1.0;
 	reflection_frustum[6].plane[D] = -water_height;
-	reflection_frustum[BACK].plane[D] -= (reflection_frustum[BACK].plane[A]*reflection_frustum[BACK].plane[A]*(far_plane-far_reflection_plane) +
-										  reflection_frustum[BACK].plane[B]*reflection_frustum[BACK].plane[B]*(far_plane-far_reflection_plane) +
-										  reflection_frustum[BACK].plane[C]*reflection_frustum[BACK].plane[C]*(far_plane-far_reflection_plane));
+	reflection_frustum[FS_BACK].plane[D] -= (reflection_frustum[FS_BACK].plane[A]*reflection_frustum[FS_BACK].plane[A]*(far_plane-far_reflection_plane) +
+										  reflection_frustum[FS_BACK].plane[B]*reflection_frustum[FS_BACK].plane[B]*(far_plane-far_reflection_plane) +
+										  reflection_frustum[FS_BACK].plane[C]*reflection_frustum[FS_BACK].plane[C]*(far_plane-far_reflection_plane));
 	calc_plane_mask(&reflection_frustum[6]);
 	reflection_clip_planes[0][A] = reflection_frustum[6].plane[A];
 	reflection_clip_planes[0][B] = reflection_frustum[6].plane[B];

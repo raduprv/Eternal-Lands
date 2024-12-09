@@ -15,6 +15,9 @@
 #include "io/ziputil.h"
 #include "io/fileutil.h"
 #include "io/elfilewrapper.h"
+#ifdef ANDROID
+#include "io/elpathwrapper.h"
+#endif
 #include "new_update.h"
 #include "errors.h"
 #include "threads.h"
@@ -46,6 +49,33 @@ typedef struct
 	char file_name[256];
 	MD5_DIGEST digest;
 } update_info_t;
+
+#ifdef ANDROID
+// Android does not appear to have the functions to produce temporary
+// files (tmpfile() does work) so we have to do it ourselves.
+
+static _Atomic int tmp_file_num = -1;
+#define LOCAL_MAX_PATH 1024
+
+static FILE *android_tmpfile(void)
+{
+	char str[LOCAL_MAX_PATH];
+	safe_snprintf(str, LOCAL_MAX_PATH, "%s/tmp/el_tmp_file_%d", get_path_config(), ++tmp_file_num);
+	return fopen(str, "wb+");
+}
+
+void remove_android_tmpfiles(void)
+{
+	char str[LOCAL_MAX_PATH];
+	int i;
+	int max_tag = max2i(tmp_file_num, UPDATE_DOWNLOAD_THREAD_COUNT * 2);
+	for (i = 0; i <= max_tag; i++)
+	{
+		safe_snprintf(str, LOCAL_MAX_PATH, "%s/tmp/el_tmp_file_%d", get_path_config(), i);
+		remove(str);
+	}
+}
+#endif
 
 static Uint32 download_file(const char* file_name, FILE* file,
 	const char* server, const char* path, Uint64* file_size,
@@ -228,6 +258,8 @@ static int download_files_thread(void* _data)
 
 #ifdef WINDOWS
 	file = my_tmpfile();
+#elif ANDROID
+	file = android_tmpfile();
 #else
 	file = tmpfile();
 #endif
@@ -649,7 +681,7 @@ static Uint32 check_server_digest_files(const char* file, FILE* tmp_file,
 	const size_t file_name_size = 1024;
 	Uint32 i, result;
 
-	if ((file_name = calloc(sizeof(char), file_name_size)) == NULL)
+	if ((file_name = calloc(file_name_size, sizeof(char))) == NULL)
 		return 0;
 
 	for (i = 0; i < 2; i++)
@@ -685,6 +717,8 @@ static Uint32 build_update_list(const char* server, const char* file,
 
 #ifdef WINDOWS
 	tmp_file = my_tmpfile();
+#elif ANDROID
+	tmp_file = android_tmpfile();
 #else
 	tmp_file = tmpfile();
 #endif
@@ -735,7 +769,7 @@ static Uint32 build_update_list(const char* server, const char* file,
 		char *file_name = NULL;
 		const size_t file_name_size = 1024;
 
-		file_name = (char *)calloc(sizeof(char), file_name_size);
+		file_name = (char *)calloc(file_name_size, sizeof(char));
 
 		safe_strncpy(file_name, file, file_name_size);
 		safe_strcat(file_name, ".xz", file_name_size);
@@ -766,7 +800,7 @@ static Uint32 build_update_list(const char* server, const char* file,
 
 		fclose(tmp_file);
 
-		error_str = (char *)calloc(sizeof(char), error_str_size);
+		error_str = (char *)calloc(error_str_size, sizeof(char));
 
 		safe_snprintf(error_str, error_str_size, "Can't get update list"
 			" file '%s' from server '%s' using path '%s', error %d.",
@@ -796,7 +830,7 @@ static Uint32 build_update_list(const char* server, const char* file,
 
 		free(file_buffer);
 
-		error_str = (char *)calloc(sizeof(char), error_str_size);
+		error_str = (char *)calloc(error_str_size, sizeof(char));
 
 		safe_snprintf(error_str, error_str_size, "Update list"
 			" file '%s' from server '%s' using path '%s' has wrong"
@@ -896,16 +930,16 @@ Uint32 update(const char* server, const char* file, const char* dir,
 		return 0;
 	}
 
-	path = (char*)calloc(sizeof(char), path_size);
+	path = (char*)calloc(path_size, sizeof(char));
 	safe_snprintf(path, path_size, "http://%s/%s/", server, dir);
 
-	str = (char *)calloc(sizeof(char), str_size);
+	str = (char *)calloc(str_size, sizeof(char));
 	safe_snprintf(str, str_size, "Downloading from server %s", path);
 	update_progress_function(str, 0, 0, user_data);
 
 	for (i = 0; i < MAX_OLD_UPDATE_FILES; i++)
 	{
-		tmp[i] = (char *)calloc(sizeof(char), tmp_size);
+		tmp[i] = (char *)calloc(tmp_size, sizeof(char));
 
 		safe_snprintf(tmp[i], tmp_size, "%s.t%i", zip, i);
 	}
@@ -922,7 +956,7 @@ Uint32 update(const char* server, const char* file, const char* dir,
 	infos = 0;
 	count = 0;
 
-	etag = (char *)calloc(sizeof(char), etag_size);
+	etag = (char *)calloc(etag_size, sizeof(char));
 	memset(md5, 0, sizeof(md5));
 	sscanf(str, "ETag: %s MD5: %32s", etag, md5);
 

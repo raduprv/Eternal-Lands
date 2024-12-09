@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include "special_effects.h"
+#include "actors_list.h"
 #include "asc.h"
 #include "elconfig.h"
 #include "highlight.h"
@@ -32,7 +33,7 @@ static const float Y_OFFSET = 0.25;
 typedef struct {
 	short x;		// used to store x_tile_pos and y_tile_pos
 	short y;		// will probably need a z too eventually
-	actor *owner;	// will be NULL for stationary effects
+	int owner_id;	// will be NULL for stationary effects
 	int timeleft;
 	int lifespan;	// total lifespan of effect
 	int type;		// type of effect / spell that was cast
@@ -45,11 +46,6 @@ static special_effect sfx_markers[NUMBER_OF_SPECIAL_EFFECTS];
 static int initialsed = 0;
 
 int sfx_enabled = 1;
-
-/* TODO not used any more
-const static float dx = (TILESIZE_X / 6);
-const static float dy = (TILESIZE_Y / 6);
-*/
 
 static void initialise(void)
 {
@@ -66,10 +62,10 @@ void free_actor_special_effect(int actor_id)
 		initialise();
 	for(i=0; i<NUMBER_OF_SPECIAL_EFFECTS; i++)
 	{
-		if (sfx_markers[i].active && sfx_markers[i].owner != NULL && sfx_markers[i].owner->actor_id == actor_id)
+		if (sfx_markers[i].active && sfx_markers[i].owner_id == actor_id)
 		{
 			sfx_markers[i].active = 0;
-			sfx_markers[i].owner = NULL;
+			sfx_markers[i].owner_id = -1;
 		}
 	}
 }
@@ -90,7 +86,8 @@ static special_effect *get_free_special_effect() {
 static void add_sfx(special_effect_enum effect, Uint16 playerid, int caster)
 {
 	Uint8 str[70];
-	actor *this_actor = get_actor_ptr_from_id(playerid);
+	locked_list_ptr actors_list;
+	actor *act;
 	special_effect *m = get_free_special_effect();
 	if (m == NULL) 
 	{
@@ -98,7 +95,10 @@ static void add_sfx(special_effect_enum effect, Uint16 playerid, int caster)
 		LOG_TO_CONSOLE (c_purple2, str);
 		return;
 	}
-	if (this_actor == NULL ) return;
+
+	actors_list = lock_and_get_actor_from_id(playerid, &act);
+	if (!actors_list)
+		return;
 		
 	// this switch is for differentiating static vs mobile effects
 	switch (effect)
@@ -107,16 +107,18 @@ static void add_sfx(special_effect_enum effect, Uint16 playerid, int caster)
 		case SPECIAL_EFFECT_HEAL_SUMMONED:
 		case SPECIAL_EFFECT_INVASION_BEAMING:
 		case SPECIAL_EFFECT_TELEPORT_TO_RANGE:
-			m->owner = NULL;
-			m->x = this_actor->x_tile_pos;		//static effects will not store a actor by convention
-			m->y = this_actor->y_tile_pos;		// but we need to know where they were cast
+			m->owner_id = -1;
+			m->x = act->x_tile_pos;		//static effects will not store a actor by convention
+			m->y = act->y_tile_pos;		// but we need to know where they were cast
 			break;						
-		default:								// all others are movable effects
-			m->owner = this_actor;				//let sfx_marker know who is target of effect
-			m->x = m->owner->x_tile_pos;		// NOTE: x_tile_pos is 2x x_pos (and same for y)
-			m->y = m->owner->y_tile_pos;
+		default:						// all others are movable effects
+			m->owner_id = playerid;		// let sfx_marker know who is target of effect
+			m->x = act->x_tile_pos;		// NOTE: x_tile_pos is 2x x_pos (and same for y)
+			m->y = act->y_tile_pos;
 			break;
 	}
+
+	release_locked_actors_list_and_invalidate(actors_list, &act);
 
 	m->type = effect;
 	m->last_time = cur_time;					//global cur_time
@@ -145,77 +147,6 @@ static void add_sfx(special_effect_enum effect, Uint16 playerid, int caster)
 	m->active = 1;
 	m->caster = caster;							// should = 1 if caster of spell, 0 otherwise
 }
-
-/* TODO not used any more
-//basic shape template that allows for rotation and duplication
-static void do_shape_spikes(float x, float y, float z, float center_offset_x, float center_offset_y, float base_offset_z, float a)
-{
-	int i;
-	
-	//save the world
-	glPushMatrix();
-		glTranslatef(x,y,z);
-
-		glRotatef(270.0f*a, 0.0f, 0.0f, 1.0f);
-
-		//now create eight copies of the object, each separated by 45 degrees
-		for (i = 0; i < 8; i++)
-		{
-			glRotatef(45.f, 0.0f, 0.0f, 1.0f);
-			glBegin(GL_POLYGON);
-			glVertex3f( - 2.0f*dx - center_offset_x,  - 2.0f*dy - center_offset_y, base_offset_z);
-			glVertex3f( - 1.0f*dx - center_offset_x,  - 2.0f*dy - center_offset_y, base_offset_z);
-			glVertex3f( - 0.0f*dx - center_offset_x,  - 0.0f*dy - center_offset_y, base_offset_z);
-			glVertex3f( - 2.0f*dx - center_offset_x,  - 1.0f*dy - center_offset_y, base_offset_z);
-			glVertex3f( - 2.0f*dx - center_offset_x,  - 2.0f*dy - center_offset_y, base_offset_z);
-			glEnd();
-		}
-	//return to the world
-	glPopMatrix();
-#ifdef OPENGL_TRACE
-CHECK_GL_ERRORS();
-#endif //OPENGL_TRACE
-}
-*/
-
-/* TODO not used any more
-//example halos moving in opposite directions, not yet optimized, and still just an example
-static void do_double_spikes(float x, float y, float z, float center_offset_x, float center_offset_y, float base_offset_z, float a)
-{
-	int i;
-	
-	//save the world
-	glPushMatrix();
-		glTranslatef(x,y,z);
-
-		glRotatef(270.0f*a, 0.0f, 0.0f, 1.0f);
-
-		//now create eight copies of the object, each separated by 45 degrees
-		for (i = 0; i < 8; i++)
-		{
-			glRotatef(45.f, 0.0f, 0.0f, 1.0f);
-			glBegin(GL_POLYGON);
-			glVertex3f( - 2.0f*dx - center_offset_x,  - 2.0f*dy - center_offset_y, 0.5+base_offset_z);
-			glVertex3f( - 1.0f*dx - center_offset_x,  - 2.0f*dy - center_offset_y, 0.5+base_offset_z);
-			glVertex3f( - 0.0f*dx - center_offset_x,  - 0.0f*dy - center_offset_y, 0.5+base_offset_z);
-			glVertex3f( - 2.0f*dx - center_offset_x,  - 1.0f*dy - center_offset_y, 0.5+base_offset_z);
-			glVertex3f( - 2.0f*dx - center_offset_x,  - 2.0f*dy - center_offset_y, 0.5+base_offset_z);
-			glEnd();
-			glBegin(GL_POLYGON);
-			glVertex3f( - 2.0f*dx - center_offset_x,  - 2.0f*dy - center_offset_y, 0.5-base_offset_z);
-			glVertex3f( - 1.0f*dx - center_offset_x,  - 2.0f*dy - center_offset_y, 0.5-base_offset_z);
-			glVertex3f( - 0.0f*dx - center_offset_x,  - 0.0f*dy - center_offset_y, 0.5-base_offset_z);
-			glVertex3f( - 2.0f*dx - center_offset_x,  - 1.0f*dy - center_offset_y, 0.5-base_offset_z);
-			glVertex3f( - 2.0f*dx - center_offset_x,  - 2.0f*dy - center_offset_y, 0.5-base_offset_z);
-			glEnd();
-		}
-	//return to the world
-	glPopMatrix();
-#ifdef OPENGL_TRACE
-CHECK_GL_ERRORS();
-#endif //OPENGL_TRACE
-}
-*/
 
 static void draw_heal_effect(float x, float y, float z, float age)
 {
@@ -469,9 +400,16 @@ static void display_special_effect(special_effect *marker) {
 			y= (float)marker->y/2 + (TILESIZE_Y / 2);	// "static" tile based effects
 			break;						
 		default:										// all others are movable effects
-			x = marker->owner->x_pos + (TILESIZE_X / 2);	// movable effects need current position
-			y = marker->owner->y_pos + (TILESIZE_X / 2);
+		{
+			actor *act;
+			locked_list_ptr actors_list = lock_and_get_actor_from_id(marker->owner_id, &act);
+			if (!actors_list)
+				return;
+			x = act->x_pos + (TILESIZE_X / 2);	// movable effects need current position
+			y = act->y_pos + (TILESIZE_X / 2);
+			release_locked_actors_list_and_invalidate(actors_list, &act);
 			break;
+		}
 	}
 		
 	switch (marker->type) {
@@ -581,6 +519,7 @@ void parse_special_effect(special_effect_enum sfx, const Uint16 *data)
 	int sfx_sound = -1;
 #endif // NEW_SOUND
 	Uint16 var_a = 0, var_b = 0;
+	locked_list_ptr actors_list;
 	actor* caster = NULL;
 	actor* target = NULL;
 	float x = 0.0f, y = 0.0f;
@@ -715,7 +654,7 @@ void parse_special_effect(special_effect_enum sfx, const Uint16 *data)
 			break;
 	}
 
-	caster = get_actor_ptr_from_id(var_a);
+	actors_list = lock_and_get_actor_from_id(var_a, &caster);
 	if (caster == NULL)
 		return;
 
@@ -736,10 +675,14 @@ void parse_special_effect(special_effect_enum sfx, const Uint16 *data)
 // 	x = caster->x_pos;
 // 	y = caster->y_pos;
 
-	if (need_target) {	
-		target = get_actor_ptr_from_id(var_b);
-		if (target == NULL)
+	if (need_target)
+	{
+		target = get_actor_from_id(actors_list, var_b);
+		if (!target)
+		{
+			release_locked_actors_list_and_invalidate(actors_list, &caster);
 			return;
+		}
 	}
 
 	if (use_eye_candy) {
@@ -999,6 +942,9 @@ void parse_special_effect(special_effect_enum sfx, const Uint16 *data)
 //			ec_launch_targetmagic_smite_summoned(ref, caster, (poor_man ? 6 : 10));
 //			ec_create_targetmagic_life_drain(caster, target, (poor_man ? 6 : 10));
 	} /* if (use_eye_candy) */
+
+	release_locked_actors_list_and_invalidate2(actors_list, &caster, &target);
+
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE

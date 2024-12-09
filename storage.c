@@ -3,6 +3,7 @@
 #include <string.h>
 #include <ctype.h>
 #include "storage.h"
+#include "actors_list.h"
 #include "asc.h"
 #include "context_menu.h"
 #include "dialogues.h"
@@ -20,6 +21,9 @@
 #include "named_colours.h"
 #include "sound.h"
 #include "textures.h"
+#ifdef ANDROID
+#include "trade.h"
+#endif
 #include "translate.h"
 #include "widgets.h"
 #ifdef OPENGL_TRACE
@@ -103,6 +107,19 @@ static void select_item(int image_id, Uint16 item_id)
 		if (!view_only_storage)
 		{
 			storage_item_dragged=found_at;
+#ifdef ANDROID
+			// For Android, we just withdraw the item rather than drag it
+			if ((storage_item_dragged >=0) && (storage_item_dragged < STORAGE_ITEMS_SIZE) && (storage_items[storage_item_dragged].quantity > 0))
+			{
+				Uint8 str[10];
+				str[0] = WITHDRAW_ITEM;
+				*((Uint16*)(str+1)) = SDL_SwapLE16(storage_items[storage_item_dragged].pos);
+				*((Uint32*)(str+3)) = SDL_SwapLE32(item_quantity);
+				my_tcp_send(str, 6);
+				do_drop_item_sound();
+				storage_item_dragged = -1;
+			}
+#endif
 			do_drag_item_sound();
 		}
 		else
@@ -481,7 +498,11 @@ static int ui_scale_storage_handler(window_info *win)
 
 	cat_string_left_offset = (int)(0.5 + 2 * border_size);
 	cat_string_top_offset = (int)(0.5 + 2 * border_size);
+#ifdef ANDROID
+	storage_categories_display = (scrollbar_len - 2*border_size) / (win->small_font_len_y * 1.25);
+#else
 	storage_categories_display = (scrollbar_len - 2*border_size) / win->small_font_len_y;
+#endif
 	cat_name_separation = (int)(0.5 + (scrollbar_len - 2*border_size) / storage_categories_display);
 	cat_right_offset = (int)(0.5 + 3 * border_size + max_cat_width);
 
@@ -490,7 +511,11 @@ static int ui_scale_storage_handler(window_info *win)
 	item_right_offset = (int)(0.5 + item_grid_left_offset + item_grid_size * item_box_size);
 
 	desc_box_top_offset = (int)(0.5 + 2 * border_size + item_grid_size * item_box_size);
+#ifdef ANDROID
+	desc_box_bottom_offset = desc_box_top_offset;
+#else
 	desc_box_bottom_offset = (int)(0.5 + desc_box_top_offset + 2 * border_size + 2 * win->small_font_len_y);
+#endif
 	desc_string_left_offset = (int)(0.5 + 2 * border_size);
 	desc_string_top_offset = (int)(0.5 + desc_box_top_offset + border_size);
 
@@ -658,12 +683,14 @@ int display_storage_handler(window_info * win)
 		glVertex2i(cat_right_offset, border_size);
 	glEnd();
 
+#ifndef ANDROID
 	glBegin(GL_LINE_LOOP);
 		glVertex2i(border_size, desc_box_top_offset);
 		glVertex2i(border_size, desc_box_bottom_offset);
 		glVertex2i(desc_box_right_offset, desc_box_bottom_offset);
 		glVertex2i(desc_box_right_offset, desc_box_top_offset);
 	glEnd();
+#endif
 
 	if (view_only_storage)
 	{
@@ -680,6 +707,7 @@ int display_storage_handler(window_info * win)
 	glEnable(GL_TEXTURE_2D);
 
 	glColor3f(1.0f,1.0f,1.0f);
+#ifndef ANDROID
 	if (!disable_storage_filter && !mouse_over_titlebar)
 	{
 		if(filter_item_text_size > 0)
@@ -691,6 +719,7 @@ int display_storage_handler(window_info * win)
 		else if (show_help_text && mouse_over_storage)
 			show_help(storage_filter_help_str, 0, win->len_y + 10 + (help_text_line++) * win->small_font_len_y, win->current_scale);
 	}
+#endif
 
 	mouse_over_storage = mouse_over_titlebar = 0;
 
@@ -701,6 +730,7 @@ CHECK_GL_ERRORS();
 	return 1;
 }
 
+#ifndef ANDROID
 int click_storage_handler(window_info * win, int mx, int my, Uint32 flags)
 {
 	if(flags&ELW_WHEEL_UP) {
@@ -770,6 +800,87 @@ int click_storage_handler(window_info * win, int mx, int my, Uint32 flags)
 	return 1;
 }
 
+#else
+// Android/touch version
+#define ITEM_BANK 2
+int click_storage_handler(window_info * win, int mx, int my, Uint32 flags)
+{
+	// As the mouse jumps for touch, cur_item_over becomes invalid so always recalculate
+	cur_item_over = -1;
+
+	if((my > cat_string_top_offset) && (my < (cat_string_top_offset + storage_categories_display * cat_name_separation)))
+	{
+		if(mx>border_size && mx<cat_right_offset){
+			int cat=-1;
+			cat=(my - cat_string_left_offset) / cat_name_separation + vscrollbar_get_pos(get_id_MW(MW_STORAGE), STORAGE_SCROLLBAR_CATEGORIES);
+			move_to_category(cat);
+			do_click_sound();
+			return 1;
+		}
+	}
+
+	if ((my > border_size) && (my<bottom_offset) && (mx > item_grid_left_offset) && (mx < item_right_offset))
+	{
+		int item_quantity=quantities.quantity[quantities.selected].val;
+		Uint8 str[10];
+
+		cur_item_over = get_mouse_pos_in_grid(mx, my, item_grid_size, item_grid_size, item_grid_left_offset, border_size, item_box_size, item_box_size)+vscrollbar_get_pos(get_id_MW(MW_STORAGE), STORAGE_SCROLLBAR_ITEMS)*item_grid_size;
+
+		if(cur_item_over>=no_storage||cur_item_over<0||storage_items[cur_item_over].quantity<1)
+				return 1;
+
+		if(is_gamewin_look_action())
+		{
+			if ((show_item_desc_text && item_info_available() &&
+				(get_item_count(storage_items[cur_item_over].id, storage_items[cur_item_over].image_id) == 1)))
+				return 1;
+			else
+			{
+				str[0]=LOOK_AT_STORAGE_ITEM;
+				*((Uint16*)(str+1))=SDL_SwapLE16(storage_items[cur_item_over].pos);
+
+				my_tcp_send(str, 3);
+
+				active_storage_item=storage_items[cur_item_over].pos;
+				do_click_sound();
+				return 1;
+			}
+		}
+
+		if (view_only_storage)
+			return 1;
+
+		if (get_show_window(get_id_MW(MW_TRADE)))
+		{
+			int trade_quantity_storage_offset = 3; /* Offset of trade quantity in packet. Can be 3 or 4 */
+			str[0]=PUT_OBJECT_ON_TRADE;
+			str[1]=ITEM_BANK;
+			if (storage_items[cur_item_over].pos > 255)
+			{
+				*((Uint16 *)(str + 2)) = SDL_SwapLE16(storage_items[cur_item_over].pos);
+				trade_quantity_storage_offset++; /* Offset is 1 byte ahead now */
+			}
+			else
+				str[2] = storage_items[cur_item_over].pos;
+			*((Uint32 *)(str + trade_quantity_storage_offset)) = SDL_SwapLE32(item_quantity);
+			my_tcp_send(str, 4 + trade_quantity_storage_offset);
+			do_drop_item_sound();
+
+			return 1;
+		}
+
+		//to do: check if trade window is open
+		str[0]=WITHDRAW_ITEM;
+		*((Uint16*)(str+1))=SDL_SwapLE16(storage_items[cur_item_over].pos);
+		*((Uint32*)(str+3))=SDL_SwapLE32(item_quantity);
+		my_tcp_send(str, 6);
+		do_drop_item_sound();
+	}
+
+	return 1;
+}
+#endif
+
 int mouseover_storage_handler(window_info *win, int mx, int my)
 {
 	static int last_pos;
@@ -838,21 +949,16 @@ static int keypress_storage_handler(window_info *win, int mx, int my, SDL_Keycod
 
 void print_items(void)
 {
-	int i;
-	actor *me;
-
-	me = get_our_actor();
-	if (me)
-		if(me->fighting)
-		{
-			LOG_TO_CONSOLE(c_red1, "You can't do this during combat!");
-			return;
-		}
+	if (self_is_fighting())
+	{
+		LOG_TO_CONSOLE(c_red1, "You can't do this during combat!");
+		return;
+	}
 
 	/* request the description for each item */
 	number_to_print = next_item_to_print = 0;
 	printing_category = selected_category;
-	for (i = 0; i < no_storage && i < STORAGE_ITEMS_SIZE; i++)
+	for (int i = 0; i < no_storage && i < STORAGE_ITEMS_SIZE; i++)
 	{
 		if (storage_items[i].quantity)
 		{
@@ -905,8 +1011,10 @@ void display_storage_menu()
 		set_window_handler(storage_win, ELW_HANDLER_DISPLAY, &display_storage_handler);
 		set_window_handler(storage_win, ELW_HANDLER_POST_DISPLAY, &post_display_storage_handler);
 		set_window_handler(storage_win, ELW_HANDLER_CLICK, &click_storage_handler);
+#ifndef ANDROID
 		set_window_handler(storage_win, ELW_HANDLER_MOUSEOVER, &mouseover_storage_handler);
 		set_window_handler(storage_win, ELW_HANDLER_KEYPRESS, (int (*)())&keypress_storage_handler );
+#endif
 		set_window_handler(storage_win, ELW_HANDLER_UI_SCALE, &ui_scale_storage_handler );
 		set_window_handler(storage_win, ELW_HANDLER_FONT_CHANGE, &change_storage_font_handler);
 

@@ -5,6 +5,8 @@
 #include <ctype.h>
 #include <iconv.h>
 #include <errno.h>
+#include <libxml/encoding.h>
+
 #include "asc.h"
 #include "errors.h"
 #include "md5.h"

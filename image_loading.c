@@ -16,11 +16,11 @@
 #define IMAGE_EXTENSIONS_MAX 5
 static const char* image_extensions[IMAGE_EXTENSIONS_MAX] =
 {
-	".dds",
-	".jpeg",
 	".jpg",
+	".dds",
 	".png",
-	".bmp"
+	".bmp",
+	".jpeg"
 };
 
 Uint32 get_file_name_len(const char* file_name)

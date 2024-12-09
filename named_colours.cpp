@@ -15,6 +15,7 @@
 #include <string>
 #include <cstring>
 #include <sstream>
+#include <libxml/parser.h>
 
 #include "asc.h"
 #include "elloggingwrapper.h"
@@ -189,6 +190,8 @@ namespace ELGL_Colour
 		add("popup.optiontextmouseover", Colour_Tuple(1.0f, 1.0f, 1.0f, 1.0f));
 		add("banner.mana.full", Colour_Tuple(0.4f, 0.4f, 1.0f, 0.0f));
 		add("banner.mana.zero", Colour_Tuple(0.7f, 0.7f, 1.0f, 0.0f));
+		add("banner.food.full", Colour_Tuple(1.0f, 1.0f, 0.0f, 0.0f));
+		add("banner.food.zero", Colour_Tuple(1.0f, 0.5f, 0.0f, 0.0f));
 	}
 
 } // end namespace

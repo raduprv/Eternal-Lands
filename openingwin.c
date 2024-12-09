@@ -3,12 +3,16 @@
 #include "openingwin.h"
 #include "books.h"
 #include "consolewin.h"
+#ifdef ANDROID
+#include "context_menu.h"
+#endif
 #include "draw_scene.h"
 #include "elconfig.h"
 #include "events.h"
 #include "font.h"
 #include "gamewin.h"
 #include "gl_init.h"
+#include "hud.h"
 #include "init.h"
 #include "interface.h"
 #include "loginwin.h"
@@ -57,9 +61,23 @@ void switch_to_login ()
 	opening_root_win = -1;
 }
 
-int click_opening_handler ()
+static void force_open_options(void)
 {
-	if (!is_disconnected()) switch_to_login ();
+	force_elconfig_win_ontop = 1;
+	view_window(MW_CONFIG);
+	force_elconfig_win_ontop = 0;
+}
+
+int click_opening_handler(window_info *win, int mx, int my, Uint32 flags)
+{
+	if (!is_disconnected())
+		switch_to_login ();
+#ifdef ANDROID
+	else if (flags & ELW_RIGHT_MOUSE)
+		force_open_options();
+#endif
+	else
+		connect_to_server();
 	return 1;
 }
 
@@ -78,8 +96,10 @@ int keypress_opening_handler (window_info *win, int mx, int my, SDL_Keycode key_
 	{
 		switch_to_login();
 	}
+	else if (KEY_DEF_CMP(K_OPTIONS, key_code, key_mod))
+		force_open_options();
 #ifndef MAP_EDITOR2
-	else if (!alt_on && !ctrl_on)
+	else if (!alt_on && !ctrl_on && !(get_show_window_MW(MW_CONFIG) && (key_code != SDLK_RETURN)))
 	{
 		connect_to_server();
 	}
@@ -122,6 +142,9 @@ void create_opening_root_window (int width, int height)
 			NULL, 0, 0, width, height, 0, CHAT_FONT, 1.0,
 			display_text_buffer, DISPLAY_TEXT_BUFFER_SIZE, FILTER_ALL, 0, 0);
 		widget_unset_color(opening_root_win, opening_out_id);
+#ifdef ANDROID
+		cm_remove_widget(opening_root_win, opening_out_id);
+#endif
 
 		nr_opening_lines = get_max_nr_lines(height, CHAT_FONT, 1.0);
 		opening_win_text_width = width;

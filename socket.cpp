@@ -1,10 +1,15 @@
 #ifdef USE_SSL
 
 #include <cstring>
+#ifdef ANDROID
+#include <fstream>
+#endif
 #ifdef WINDOWS
 #define SHUT_RDWR SD_BOTH
 #else // WINDOWS
 #include <fcntl.h>
+#include <poll.h>
+#include <time.h>
 #include <netinet/tcp.h>
 #endif // WINDOWS
 #include <openssl/err.h>
@@ -16,6 +21,9 @@
 #include "init.h"
 #include "io/elpathwrapper.h"
 #include "ipaddress.h"
+#ifdef ANDROID
+#include "io/elfilewrapper.h"
+#endif
 
 namespace eternal_lands
 {
@@ -58,7 +66,7 @@ void TCPSocket::clean_up()
 	}
 }
 
-void TCPSocket::connect(const std::string& hostname, std::uint16_t port)
+void TCPSocket::connect(const std::string& hostname, std::uint16_t port, int timeout_s)
 {
 	if (_fd != INVALID_SOCKET)
 		close();
@@ -82,7 +90,62 @@ void TCPSocket::connect(const std::string& hostname, std::uint16_t port)
 		_fd = socket(info->ai_family, info->ai_socktype, info->ai_protocol);
 		if (_fd != INVALID_SOCKET)
 		{
+#if defined(LINUX) || defined(ANDROID)
+			// timeout code based on poll() answer
+			// https://stackoverflow.com/questions/2597608/c-socket-connection-timeout
+			//
+			_connect_timed_out = false;
+
+			// Set to non-blocking so can do time out for connect().
+			set_blocking(false);
+#endif
 			int res = ::connect(_fd, info->ai_addr, info->ai_addrlen);
+#if defined(LINUX) || defined(ANDROID)
+			if ((res < 0) && ((errno == EWOULDBLOCK) || (errno == EINPROGRESS)))
+			{
+				// Set a deadline timestamp 'timeout' ms from now (needed b/c poll can be interrupted).
+				struct timespec now;
+				if (clock_gettime(CLOCK_MONOTONIC, &now) == 0)
+				{
+					int poll_rc = 0;
+					unsigned int timeout_ms = timeout_s * 1000;
+
+					// Wait for the connection to complete.
+					struct timespec deadline = { .tv_sec = now.tv_sec,
+						.tv_nsec = static_cast<long>(now.tv_nsec + timeout_ms * 1000000l) };
+					do
+					{
+						// Calculate how long until the deadline
+						if (clock_gettime(CLOCK_MONOTONIC, &now) < 0)
+							break;
+						int ms_until_deadline = (int)((deadline.tv_sec  - now.tv_sec) * 1000l
+							+ (deadline.tv_nsec - now.tv_nsec) / 1000000l);
+						if (ms_until_deadline < 0)
+						{
+							_connect_timed_out = true;
+							break;
+						}
+
+						// Wait for connect to complete (or for the timeout deadline)
+						// If poll 'succeeded', make sure it *really* succeeded
+						struct pollfd pfds[] = { { .fd = _fd, .events = POLLOUT, .revents = POLLRDNORM } };
+						poll_rc = poll(pfds, 1, ms_until_deadline);
+						if (poll_rc > 0)
+						{
+							int error = -1; socklen_t len = sizeof(error);
+							int retval = getsockopt(_fd, SOL_SOCKET, SO_ERROR, &error, &len);
+							if ((retval == 0) && (error == 0))
+								res = 0; // a successful connection
+						}
+						else if (poll_rc == 0)
+							_connect_timed_out = true;
+					}
+					// If poll was interrupted, try again.
+					while (poll_rc == -1 && errno == EINTR);
+				}
+			}
+#endif
+
 			if (res == 0)
 			{
 				if (info->ai_family == AF_INET)
@@ -364,6 +427,22 @@ void TCPSocket::encrypt(const std::string& hostname)
 			unsigned long err = ERR_get_error();
 			throw EncryptError(ERR_reason_error_string(err));
 		}
+
+#ifdef ANDROID
+		{
+			// Make sure to unpack the certificates from the assest file by calling do_file_exists()
+			char tmp_str[256];
+			std::string list_filename("certs.txt");
+			std::string full_path = std::string(datadir) + list_filename;
+			if (do_file_exists(list_filename.c_str(), datadir, sizeof(tmp_str), tmp_str))
+			{
+				std::string line;
+				std::ifstream file(full_path.c_str());
+				while (std::getline(file, line))
+					do_file_exists(line.c_str(), datadir, sizeof(tmp_str), tmp_str);
+			}
+		}
+#endif
 
 		// Load certificates from the game data directory, as well as the user's configuration directory
 		std::string dir_names[] = {

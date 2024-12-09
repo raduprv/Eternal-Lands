@@ -3,6 +3,7 @@
 #include <cstring>
 #include <thread>
 #include "connection.h"
+#include "actors_list.h"
 #include "actor_scripts.h"
 #include "asc.h"
 #include "console.h"
@@ -25,6 +26,7 @@
 #include "translate.h"
 
 int always_pathfinding = 0;
+int server_connect_timeout_s = 10;
 
 namespace eternal_lands
 {
@@ -52,19 +54,24 @@ void Connection::connect_to_server()
 	_awaiting_encrypt_response = false;
 	try
 	{
-		_socket.connect(_server_name, _server_port);
+		_socket.connect(_server_name, _server_port, server_connect_timeout_s);
 	}
 	catch (const ResolutionFailure&)
 	{
 		LOG_TO_CONSOLE(c_red2, failed_resolve);
+		error_messages_to_console(c_red2, 1, 1, 1);
 		do_disconnect_sound();
 		return;
 	}
 	catch (const ConnectionFailure&)
 	{
 		LOG_TO_CONSOLE(c_red1, failed_connect);
-		LOG_TO_CONSOLE(c_red1, reconnect_str);
-		LOG_TO_CONSOLE(c_red1, alt_x_quit);
+		if (_socket.connect_timed_out())
+		{
+			std::string tmp = std::string(server_connect_timeout_str) + ": " + std::string(_server_name);
+			LOG_TO_CONSOLE(c_red1, tmp.c_str());
+		}
+		error_messages_to_console(c_red1, 1, 1, 1);
 		do_disconnect_sound();
 		return;
 	}
@@ -214,7 +221,7 @@ void Connection::finish_connect_to_server()
 void Connection::close_after_invalid_certificate()
 {
 	LOG_TO_CONSOLE(c_red1, cert_verification_err_str);
-	LOG_TO_CONSOLE(c_red1, alt_x_quit);
+	error_messages_to_console(c_red1, 1, 1, 1);
 	_socket.close();
 	do_disconnect_sound();
 }
@@ -229,7 +236,7 @@ void Connection::disconnect_from_server_locked(const std::string& message)
 	safe_snprintf(str, sizeof(str), "<%1d:%02d>: %s [%s]", tgm/60, tgm%60,
 		disconnected_from_server, message.c_str());
 	LOG_TO_CONSOLE(c_red2, str);
-	LOG_TO_CONSOLE(c_red2, alt_x_quit);
+	error_messages_to_console(c_red2, 0, 1, 1);
 #ifdef NEW_SOUND
 	stop_all_sounds();
 	do_disconnect_sound();
@@ -263,24 +270,29 @@ void Connection::check_connection_test()
 
 std::size_t Connection::send(std::uint8_t cmd, const std::uint8_t *data, std::size_t data_len)
 {
-	if ((cmd == TURN_LEFT || cmd == TURN_RIGHT) && on_the_move(get_our_actor()))
-		// Ignore turn commands while walking
-		return 0;
-
-	// LabRat's anti-bagspam code
-	// Grum: Adapted. Converting every movement to a path caused too much
-	// trouble. Instead we now check the current actor animation for
-	// movement.
-	if (cmd == DROP_ITEM  && on_the_move(get_our_actor()))
 	{
-		// The anti bagspam code in all its glory - don't allow us to drop a bag if following
-		// a path - I tried coding every DROP_ALL part of the code, but it was longwinded and
-		// this way, after a couple of hours break, seemed the more logical and straightforward
-		// solution.
-		// 1% of the produce from manufacturers may be donated to Labrat for this patch,
-		// or for the bagspammers, sell the items you were going to spam and give the proceeds
-		// to a noob on IP :)
-		return 0;
+		LockedActorsList list;
+		actor *me = list.self();
+		if ((cmd == TURN_LEFT || cmd == TURN_RIGHT) && on_the_move(me))
+			// Ignore turn commands while walking
+			return 0;
+
+		// LabRat's anti-bagspam code
+		// Grum: Adapted. Converting every movement to a path caused too much
+		// trouble. Instead we now check the current actor animation for
+		// movement.
+		if (cmd == DROP_ITEM  && on_the_move(me))
+		{
+			// The anti bagspam code in all its glory - don't allow us to drop a bag if following
+			// a path - I tried coding every DROP_ALL part of the code, but it was longwinded and
+			// this way, after a couple of hours break, seemed the more logical and straightforward
+			// solution.
+			// 1% of the produce from manufacturers may be donated to Labrat for this patch,
+			// or for the bagspammers, sell the items you were going to spam and give the proceeds
+			// to a noob on IP :)
+			return 0;
+		}
+		// drop guard on me
 	}
 
 	std::lock_guard<std::mutex> guard(_out_mutex);
@@ -402,6 +414,10 @@ void Connection::send_login_info()
 	if (!valid_username_password())
 		return;
 
+#ifdef ANDROID
+	SDL_StopTextInput();
+#endif
+
 	if (is_disconnected())
 		connect_to_server();
 
@@ -428,12 +444,13 @@ bool Connection::send_move_to(std::int16_t *x, std::int16_t *y, bool try_pathfin
 	bool pathfinder_failed = false;
 	if (try_pathfinder && always_pathfinding)
 	{
-		actor *me = get_our_actor();
+		LockedActorsList list;
+		actor *me = list.self();
 		// Check distance
 		if (me && (abs(me->x_tile_pos - *x) + abs(me->y_tile_pos - *y)) > 2)
 		{
 			// If path finder fails, try standard move
-			if (pf_find_path(*x, *y))
+			if (pf_find_path(me, *x, *y))
 			{
 				*x = pf_dst_tile->x;
 				*y = pf_dst_tile->y;
@@ -497,8 +514,8 @@ void Connection::send_version()
 		host[1],
 		host[2],
 		host[3],
-		std::uint8_t(port & 0xff),
-		std::uint8_t(port >> 8)
+		std::uint8_t(port >> 8),
+		std::uint8_t(port & 0xff)
 	};
 
 	std::size_t len = 14;

@@ -9,6 +9,9 @@
 #include <errno.h>
 #include <ctype.h>
 #include <time.h>
+#ifdef ANDROID
+#include <gl4eshint.h>
+#endif
 #ifdef TTF
 #include <SDL_ttf.h>
 #endif
@@ -44,6 +47,9 @@
 #include "hud_timer.h"
 #include "items.h"
 #include "item_lists.h"
+#ifdef JSON_FILES
+#include "invasion_window.h"
+#endif
 #include "keys.h"
 #ifdef JSON_FILES
 #include "json_io.h"
@@ -107,11 +113,17 @@ char datadir[256]=DATA_DIR;
 char datadir[256]="./";
 #endif //DATA_DIR
 
+int use_perserver_updates_dir = 0;
+
 static const char *cfg_filename = "el.cfg";
 #ifdef JSON_FILES
 static const char *client_state_filename = "client_state.json";
 #endif
 static int no_lang_in_config = 0;
+
+#ifdef ANDROID
+int first_time_setup = 0;
+#endif
 
 #ifndef FASTER_MAP_LOAD
 static void load_harvestable_list(void)
@@ -222,9 +234,11 @@ static void load_cstate(void)
 
 	view_health_bar = json_cstate_get_bool("overhead", "view_health_bar", 0);
 	view_ether_bar = json_cstate_get_bool("overhead", "view_ether_bar", 0);
+	view_food_bar = json_cstate_get_bool("overhead", "view_food_bar", 0);
 	view_names = json_cstate_get_bool("overhead", "view_names", 0);
 	view_hp = json_cstate_get_bool("overhead", "view_hp", 0);
 	view_ether = json_cstate_get_bool("overhead", "view_ether", 0);
+	view_food = json_cstate_get_bool("overhead", "view_food", 0);
 
 	{
 		size_t i;
@@ -318,7 +332,14 @@ static void load_cstate(void)
 
 	read_options_user_menus("user_menus_window");
 
+	load_invasion_window();
+
 	resize_root_window();
+
+#ifdef ANDROID
+	if (first_time_setup)
+		set_default_mangaged_windows();
+#endif
 }
 #endif
 
@@ -338,7 +359,12 @@ static void read_bin_cfg(void)
 		USE_JSON_DEBUG("Loading json file");
 		// if neither the json or the old cfg exist, try the data dir
 		if (!file_exists_config(client_state_filename) && !file_exists_config(cfg_filename))
+		{
+#ifdef ANDROID
+			do_file_exists(client_state_filename, datadir, sizeof(fname), fname);
+#endif
 			safe_snprintf(fname, sizeof(fname), "%s%s", datadir, client_state_filename);
+		}
 		// else use the config json, it may still fail but will fall through to the non json code
 		else
 			safe_snprintf(fname, sizeof(fname), "%s%s", get_path_config(), client_state_filename);
@@ -532,9 +558,11 @@ static void save_cstate(void)
 
 	json_cstate_set_bool("overhead", "view_health_bar", view_health_bar);
 	json_cstate_set_bool("overhead", "view_ether_bar", view_ether_bar);
+	json_cstate_set_bool("overhead", "view_food_bar", view_food_bar);
 	json_cstate_set_bool("overhead", "view_names", view_names);
 	json_cstate_set_bool("overhead", "view_hp", view_hp);
 	json_cstate_set_bool("overhead", "view_ether", view_ether);
+	json_cstate_set_bool("overhead", "view_food", view_food);
 
 	{
 		size_t i;
@@ -613,6 +641,8 @@ static void save_cstate(void)
 	json_cstate_set_bool(window_dict_name, "sort_items", sort_storage_items);
 
 	write_options_user_menus("user_menus_window");
+
+	save_invasion_window();
 }
 #endif
 
@@ -785,10 +815,17 @@ void init_stuff(void)
 	char config_location[300];
 	const char * cfgdir;
 
+#ifdef ANDROID
+	strcpy(datadir,SDL_AndroidGetInternalStoragePath());
+	strcat(datadir,"/");
+	chdir(datadir);
+#else
+
 	if (chdir(datadir) != 0)
 	{
 		LOG_ERROR("%s() chdir(\"%s\") failed: %s\n", __FUNCTION__, datadir, strerror(errno));
 	}
+#endif
 
 	last_save_time = time(NULL);
 
@@ -808,6 +845,16 @@ void init_stuff(void)
 	// Read the config file
 	read_config();
 
+#ifdef ANDROID
+	// ANDROID_TODO fix repeated setting of this path
+	strcpy(datadir,SDL_AndroidGetInternalStoragePath());//issue with cfg
+	strcat(datadir,"/");
+
+	// ANDROID_TODO does this belong elsewhere?
+	if (textures_32bpp)
+		glHint(GL_NODOWNSAMPLING_HINT_GL4ES, 1);
+#endif
+
 	// Parse command line options
 	read_command_line();
 
@@ -822,6 +869,9 @@ void init_stuff(void)
 
 	// Here you can add zip files, like
 	// add_zip_archive(datadir + "data.zip");
+
+	// initialise the XML parser and setup the callbacks
+	xmlInitParser();
 	xml_register_el_input_callbacks();
 
 #ifdef WRITE_XML
@@ -911,16 +961,18 @@ void init_stuff(void)
 	load_entrable_list();
 	load_knowledge_list();
 	load_mines_config();
+#ifndef ANDROID
+	// ANDROID_TODO do we need these if we have a mouse?
 	update_loading_win(load_cursors_str, 5);
 	load_cursors();
 	build_cursors();
 	change_cursor(CURSOR_ARROW);
+#endif
 	update_loading_win(bld_glow_str, 3);
 	build_glow_color_table();
 
 
 	update_loading_win(init_lists_str, 2);
-	init_actors_lists();
 	update_loading_win("init particles", 4);
 	memset(tile_list, 0, sizeof(tile_list));
 	memset(lights_list, 0, sizeof(lights_list));

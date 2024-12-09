@@ -95,6 +95,7 @@ static void load_window_icon(void)
 	free(str_buf);
 }
 
+#ifndef ANDROID
 // check if the window fits within the available space and resize if not
 // check if the window is on-screen and move it if not
 enum size_and_position_enum { DO_SIZE = 0, DO_POSITION, DO_SIZE_AND_POSITION };
@@ -151,6 +152,7 @@ static void fix_window_size_and_position(enum size_and_position_enum mode)
 	}
 #endif
 }
+#endif
 
 void update_SDL_HINT_MOUSE_FOCUS_CLICKTHROUGH(void)
 {
@@ -213,6 +215,10 @@ void init_video(void)
 		else
 			bpp = 32;
 	}
+#ifdef ANDROID
+	// force otherwise selection does not work on android // ANDROID_TODO
+	bpp = 32;
+#endif
 
 	// adjust the video mode depending on the BITSPERPIXEL available
 	if (video_mode == 0)
@@ -287,6 +293,10 @@ void init_video(void)
 	}
 #endif	/* FSAA */
 
+#ifdef ANDROID
+	set_screen_orientation_hint();
+#endif
+
 	//try to find a stencil buffer
 	if (el_gl_window == NULL)
 	{
@@ -314,6 +324,9 @@ void init_video(void)
 		}
 	}
 
+#ifdef ANDROID
+	el_gl_context = SDL_GL_CreateContext(el_gl_window);
+#else
 	for (int i = 0; i < nr_versions_to_try; ++i)
 	{
 		SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, versions_to_try[i][0]);
@@ -335,6 +348,8 @@ void init_video(void)
 				break;
 		}
 	}
+#endif
+
 	if (el_gl_context == NULL)
 	{
 		LOG_ERROR("%s: %s\n", "SDL_GL_CreateContext() Failed", SDL_GetError());
@@ -394,14 +409,20 @@ void init_video(void)
 		}
 	}
 
+#ifndef ANDROID
 	if (!full_screen)
 		fix_window_size_and_position(DO_SIZE_AND_POSITION);
+#endif
 
 	// get the windos size, these variables are used globaly
 	update_window_size_and_scale();
 	// even though no windows have been created, their starting position need to be adjusted
 	if (!full_screen)
 		move_windows_proportionally((float)window_width / (float)target_width, (float)window_height / (float)target_height);
+
+#ifdef ANDROID
+	set_scale_from_window_size();
+#endif
 
 	// enable V-SYNC, choosing active as a preference
 	if (SDL_GL_SetSwapInterval(-1) < 0)
@@ -451,7 +472,7 @@ void init_video(void)
 	last_texture = -1;		//no active texture
 	video_mode_set = 1;		//now you may set the video mode using the %<foo> in-game
 
-#if !defined OSX && !defined WINDOWS
+#if !defined OSX && !defined WINDOWS && !defined ANDROID
 	init_x11_copy_paste();
 #endif
 
@@ -1036,8 +1057,10 @@ void set_client_window_size(int width, int height)
 	log_next_window_resize = 1;
 	SDL_RestoreWindow(el_gl_window);
 	SDL_SetWindowFullscreen(el_gl_window, 0);
+#ifndef ANDROID
 	SDL_SetWindowSize(el_gl_window, width, height);
 	fix_window_size_and_position(DO_POSITION);
+#endif
 }
 
 //	Get a single value for highhdpi scaling.

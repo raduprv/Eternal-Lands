@@ -2,7 +2,7 @@
 #include <math.h>
 #include <string.h>
 #include <SDL.h>
-#include "actors.h"
+#include "actors_list.h"
 #include "actor_scripts.h"
 #include "asc.h"
 #include "bbox_tree.h"
@@ -13,12 +13,14 @@
 #include "errors.h"
 #include "events.h"
 #include "gl_init.h"
+#include "hud_statsbar_window.h"
 #include "interface.h"
 #include "load_gl_extensions.h"
 #include "map.h"
 #include "missiles.h"
 #include "named_colours.h"
 #include "new_actors.h"
+#include "new_character.h"
 #include "platform.h"
 #include "shadows.h"
 #include "special_effects.h"
@@ -35,79 +37,39 @@
 #include "fsaa/fsaa.h"
 #endif	/* FSAA */
 
-actor *actors_list[MAX_ACTORS];
-int max_actors=0;
-SDL_mutex *actors_lists_mutex = NULL;	//used for locking between the timer and main threads
-actor *your_actor = NULL;
+//! The initial size of the near_actors array
+#define INITIAL_NEAR_ACTORS_SIZE 10
+
+/*!
+ * The near_actor structure holds information about the actors within range. It is filled once every frame.
+ */
+typedef struct {
+	int actor_id;
+	int select;
+	int buffs;	// The buffs on this actor
+	int type;
+	int alpha;
+	int ghost;//If it's a ghost or not
+} near_actor;
 
 actor_types actors_defs[MAX_ACTOR_DEFS];
 
 attached_actors_types attached_actors_defs[MAX_ACTOR_DEFS];
 
-static void draw_actor_overtext(actor* actor_ptr, double x, double y, double z); /* forward declaration */
+static void draw_actor_overtext(actor* actor_ptr, const actor *me, double x, double y, double z); /* forward declaration */
 
-int no_near_actors=0;
 #ifdef NEW_SOUND
 int no_near_enhanced_actors = 0;
 float distanceSq_to_near_enhanced_actors;
 #endif // NEW_SOUND
-near_actor near_actors[MAX_ACTORS];
-
-#ifdef MUTEX_DEBUG
-SDL_threadID have_actors_lock = 0;
-#endif
+static size_t near_actors_size = 0;
+static size_t no_near_actors = 0;
+static near_actor *near_actors = NULL;
 
 int cm_mouse_over_banner = 0;		/* use to trigger banner context menu */
 
-int get_closest_actor(int tile_x, int tile_y, float max_distance)
-{
-	int i;
-	int found_actor = -1;
-	float x=tile_x / 2.0f;
-	float y=tile_y / 2.0f;
-	float distance;
-	float min_distance_found = 50;
-
-	// check if too far
-	actor *me = get_our_actor();
-	if (me)
-	{
-		distance = sqrt((me->x_pos - x) * (me->x_pos - x) + (me->y_pos - y) * (me->y_pos - y));
-		if (distance > 6)
-			return -1;
-	}
-
-	for (i=0; i<max_actors; i++)
-		if (actors_list[i])
-			if (!actors_list[i]->dead)
-				if (actors_list[i]->kind_of_actor != NPC && actors_list[i]->kind_of_actor != HUMAN && actors_list[i]->kind_of_actor != COMPUTER_CONTROLLED_HUMAN)
-				{
-					distance = sqrt((actors_list[i]->x_pos - x) * (actors_list[i]->x_pos - x) + (actors_list[i]->y_pos - y ) * (actors_list[i]->y_pos - y));
-					if (distance < max_distance)
-						if (distance < min_distance_found)
-						{
-							found_actor = actors_list[i]->actor_id;
-							min_distance_found = distance;
-						}
-				}
-
-	return found_actor;
-}
-
-//Threading support for actors_lists
-void init_actors_lists()
-{
-	int	i;
-
-	actors_lists_mutex=SDL_CreateMutex();
-	LOCK_ACTORS_LISTS();	//lock it to avoid timing issues
-	for (i=0; i < MAX_ACTORS; i++)
-		actors_list[i] = NULL;
-	UNLOCK_ACTORS_LISTS();	// release now that we are done
-}
-
-//return the ID (number in the actors_list[]) of the new allocated actor
-int add_actor (int actor_type, char * skin_name, float x_pos, float y_pos, float z_pos, float z_rot, float scale, char remappable, short skin_color, short hair_color, short eyes_color, short shirt_color, short pants_color, short boots_color, int actor_id)
+//return the newly allocated actor
+static actor* create_actor (int actor_type, char * skin_name, float x_pos, float y_pos, float z_pos, float z_rot, float scale, char remappable, short skin_color, short hair_color, short eyes_color, short shirt_color, short pants_color, short boots_color, int actor_id)
 {
 	int texture_id;
 	int i;
@@ -139,6 +101,8 @@ int add_actor (int actor_type, char * skin_name, float x_pos, float y_pos, float
 	}
 
 	our_actor = calloc(1, sizeof(actor));
+	if (!our_actor)
+		return NULL;
 
 	memset(our_actor->current_displayed_text, 0, sizeof(our_actor->current_displayed_text));
 	our_actor->current_displayed_text_lines = 0;
@@ -222,7 +186,7 @@ int add_actor (int actor_type, char * skin_name, float x_pos, float y_pos, float
 	our_actor->stand_idle=0;
 	our_actor->sit_idle=0;
 
-	our_actor->attached_actor = -1;
+	our_actor->attached_actor_id = -1;
 	our_actor->attachment_shift[0] = our_actor->attachment_shift[1] = our_actor->attachment_shift[2] = 0.0;
 
 	for (i = 0; i < NUM_BUFFS; i++)
@@ -236,134 +200,93 @@ int add_actor (int actor_type, char * skin_name, float x_pos, float y_pos, float
 	our_actor->cluster = get_cluster (x, y);
 #endif
 
-	//find a free spot, in the actors_list
-	LOCK_ACTORS_LISTS();
-
-	for(i=0;i<max_actors;i++)
-		{
-			if(!actors_list[i])break;
-		}
-
-	if(actor_id == yourself)
-		set_our_actor (our_actor);
-
-	actors_list[i]=our_actor;
-	if(i>=max_actors)max_actors=i+1;
-
-	//It's unlocked later
-
 	ec_add_actor_obstruction(our_actor, 3.0);
-	return i;
+
+	return our_actor;
 }
 
-void add_actor_attachment(int actor_id, int attachment_type)
+actor* create_actor_attachment(actor* parent, int attachment_type)
 {
-	int i;
-	actor *parent = NULL;
+	actor *attached;
+	int attachment_id;
 
-	for (i = 0; i < max_actors; ++i)
-		if (actors_list[i]->actor_id == actor_id)
-		{
-			parent = actors_list[i];
-			break;
-		}
-
-	if (!parent)
-		LOG_ERROR("unable to add an attached actor: actor with id %d doesn't exist!", actor_id);
-	else if(attachment_type < 0 || attachment_type >= MAX_ACTOR_DEFS || (attachment_type > 0 && actors_defs[attachment_type].actor_type != attachment_type) )
-		LOG_ERROR("unable to add an attached actor: illegal/missing actor definition %d", attachment_type);
-	else
+	if (attachment_type < 0 || attachment_type >= MAX_ACTOR_DEFS
+		|| (attachment_type > 0 && actors_defs[attachment_type].actor_type != attachment_type) )
 	{
-		int id = add_actor(attachment_type, actors_defs[attachment_type].skin_name,
-						   parent->x_pos, parent->y_pos, parent->z_pos, parent->z_rot, get_actor_scale(parent),
-						   0, 0, 0, 0, 0, 0, 0, -1);
-		actors_list[id]->attached_actor = i;
-		parent->attached_actor = id;
-
-		actors_list[id]->async_fighting = 0;
-		actors_list[id]->async_x_tile_pos = parent->async_x_tile_pos;
-		actors_list[id]->async_y_tile_pos = parent->async_y_tile_pos;
-		actors_list[id]->async_z_rot = parent->async_z_rot;
-
-		actors_list[id]->x_tile_pos=parent->x_tile_pos;
-		actors_list[id]->y_tile_pos=parent->y_tile_pos;
-		actors_list[id]->buffs=parent->buffs & BUFF_DOUBLE_SPEED; // the attachment can only have this buff
-		actors_list[id]->actor_type=attachment_type;
-		actors_list[id]->damage=0;
-		actors_list[id]->damage_ms=0;
-		actors_list[id]->sitting=0;
-		actors_list[id]->fighting=0;
-		//test only
-		actors_list[id]->max_health=0;
-		actors_list[id]->cur_health=0;
-		actors_list[id]->ghost=actors_defs[attachment_type].ghost;
-		actors_list[id]->dead=0;
-		actors_list[id]->stop_animation=1;//helps when the actor is dead...
-		actors_list[id]->kind_of_actor=0;
-
-		if (attached_actors_defs[attachment_type].actor_type[parent->actor_type].is_holder)
-			actors_list[id]->step_duration = actors_defs[attachment_type].step_duration;
-		else
-			actors_list[id]->step_duration = parent->step_duration;
-
-		if (actors_list[id]->buffs & BUFF_DOUBLE_SPEED)
-			actors_list[id]->step_duration /= 2;
-
-		actors_list[id]->z_pos = get_actor_z(actors_list[id]);
-
-		//printf("attached actor n°%d of type %d to actor n°%d with id %d\n", id, attachment_type, i, actor_id);
-
-		if (actors_defs[attachment_type].coremodel!=NULL) {
-			//Setup cal3d model
-			actors_list[id]->calmodel = model_new(actors_defs[attachment_type].coremodel);
-			//Attach meshes
-			if(actors_list[id]->calmodel) {
-				model_attach_mesh(actors_list[id], actors_defs[attachment_type].shirt[0].mesh_index);
-				set_on_idle(id);
-
-				build_actor_bounding_box(actors_list[id]);
-				if (use_animation_program)
-					set_transformation_buffers(actors_list[id]);
-			}
-		}
-		else
-			actors_list[id]->calmodel=NULL;
-
-		UNLOCK_ACTORS_LISTS();
+		LOG_ERROR("unable to add an attached actor: illegal/missing actor definition %d", attachment_type);
+		return NULL;
 	}
+
+	attachment_id = HORSE_ID_OFFSET + parent->actor_id;
+	attached = create_actor(attachment_type, actors_defs[attachment_type].skin_name,
+		parent->x_pos, parent->y_pos, parent->z_pos, parent->z_rot, get_actor_scale(parent),
+		0, 0, 0, 0, 0, 0, 0, attachment_id);
+	if (!attached)
+		return NULL;
+
+	attached->async_fighting = 0;
+	attached->async_x_tile_pos = parent->async_x_tile_pos;
+	attached->async_y_tile_pos = parent->async_y_tile_pos;
+	attached->async_z_rot = parent->async_z_rot;
+
+	attached->x_tile_pos=parent->x_tile_pos;
+	attached->y_tile_pos=parent->y_tile_pos;
+	attached->buffs=parent->buffs & BUFF_DOUBLE_SPEED; // the attachment can only have this buff
+	attached->actor_type=attachment_type;
+	attached->damage=0;
+	attached->damage_ms=0;
+	attached->sitting=0;
+	attached->fighting=0;
+	//test only
+	attached->max_health=0;
+	attached->cur_health=0;
+	attached->ghost=actors_defs[attachment_type].ghost;
+	attached->dead=0;
+	attached->stop_animation=1;//helps when the actor is dead...
+	attached->kind_of_actor=0;
+
+	if (attached_actors_defs[attachment_type].actor_type[parent->actor_type].is_holder)
+		attached->step_duration = actors_defs[attachment_type].step_duration;
+	else
+		attached->step_duration = parent->step_duration;
+
+	if (attached->buffs & BUFF_DOUBLE_SPEED)
+		attached->step_duration /= 2;
+
+	attached->z_pos = get_actor_z(attached);
+
+	//printf("attached actor n°%d of type %d to actor n°%d with id %d\n", id, attachment_type, i, actor_id);
+
+	if (actors_defs[attachment_type].coremodel!=NULL) {
+		//Setup cal3d model
+		attached->calmodel = model_new(actors_defs[attachment_type].coremodel);
+		//Attach meshes
+		if(attached->calmodel) {
+			model_attach_mesh(attached, actors_defs[attachment_type].shirt[0].mesh_index);
+			set_on_idle(attached, parent);
+
+			build_actor_bounding_box(attached);
+			if (use_animation_program)
+				set_transformation_buffers(attached);
+		}
+	}
+	else
+		attached->calmodel=NULL;
+
+	return attached;
 }
 
-void remove_actor_attachment(int actor_id)
+void add_actor_attachment(locked_list_ptr actors_list, actor *act, int attachment_type)
 {
-	int i;
-
-	LOCK_ACTORS_LISTS();
-
-	for (i = 0; i < max_actors; ++i)
-		if (actors_list[i]->actor_id == actor_id)
+	actor *attached = create_actor_attachment(act, attachment_type);
+	if (attached)
+	{
+		if (!add_attachment(actors_list, act->actor_id, attached))
 		{
-			int att = actors_list[i]->attached_actor;
-			actors_list[i]->attached_actor = -1;
-			actors_list[i]->attachment_shift[0] = 0.0;
-			actors_list[i]->attachment_shift[1] = 0.0;
-			actors_list[i]->attachment_shift[2] = 0.0;
-			free_actor_special_effect(actors_list[att]->actor_id);
-			free_actor_data(att);
-			free(actors_list[att]);
-			actors_list[att]=NULL;
-			if(att==max_actors-1)max_actors--;
-			else {
-				//copy the last one down and fill in the hole
-				max_actors--;
-				actors_list[att]=actors_list[max_actors];
-				actors_list[max_actors]=NULL;
-				if (actors_list[att] && actors_list[att]->attached_actor >= 0)
-					actors_list[actors_list[att]->attached_actor]->attached_actor = att;
-			}
-			break;
+			free_actor_data(attached);
+			free(attached);
 		}
-
-	UNLOCK_ACTORS_LISTS();
+	}
 }
 
 static void set_health_color(actor * actor_id, float percent, float multiplier, float a)
@@ -399,12 +322,35 @@ static void set_health_color(actor * actor_id, float percent, float multiplier, 
 	glColor4f(r*multiplier,g*multiplier,0.0f, a);
 }
 
+static void set_banner_colour_general(GLfloat zero_colours[3], GLfloat full_colours[3], float percent, float multiplier, float alpha)
+{
+	GLfloat use_colours[3];
+	size_t i;
+
+	// not dynamic so just to full colour
+	if (!dynamic_banner_colour.yourself)
+	{
+		glColor4f(multiplier * full_colours[0], multiplier * full_colours[1], full_colours[2], alpha);
+		return;
+	}
+
+	// dynamic so find step between full and zero for each colour
+	for (i = 0; i < 3; i++)
+	{
+		use_colours[i] = full_colours[i] + (zero_colours[i] - full_colours[i]) * (1.0f - percent);
+		if (use_colours[i] < 0.0f)
+			use_colours[i] = 0.0f;
+		else if (use_colours[i] > 1.0f)
+			use_colours[i] = 1.0f;
+	}
+
+	glColor4f(multiplier * use_colours[0], multiplier * use_colours[1], use_colours[2], alpha);
+}
+
 static void set_mana_color(float percent, float multiplier, float a)
 {
 	static int have_colours = 0;
 	static GLfloat full_mana[3], zero_mana[3];
-	GLfloat use_colours[3];
-	size_t i;
 
 	// get the mana colour range
 	if (!have_colours)
@@ -414,28 +360,48 @@ static void set_mana_color(float percent, float multiplier, float a)
 		have_colours = 1;
 	}
 
-	// not dynamic so just to full mana colour
-	if (!dynamic_banner_colour.yourself)
-	{
-		glColor4f(multiplier * full_mana[0], multiplier * full_mana[1], full_mana[2], a);
-		return;
-	}
-
-	// dynamic so find step between full and zero mana for each colour
-	for (i = 0; i < 3; i++)
-	{
-		use_colours[i] = full_mana[i] + (zero_mana[i] - full_mana[i]) * (1.0f - percent);
-		if (use_colours[i] < 0.0f)
-			use_colours[i] = 0.0f;
-		else if (use_colours[i] > 1.0f)
-			use_colours[i] = 1.0f;
-	}
-
-	glColor4f(multiplier * use_colours[0], multiplier * use_colours[1], use_colours[2], a);
+	set_banner_colour_general(zero_mana, full_mana, percent, multiplier, a);
 }
 
+static void set_food_color(float percent, float multiplier, float a)
+{
+	static int have_colours = 0;
+	static GLfloat full_food[3], zero_food[3];
 
-static void draw_actor_banner(actor * actor_id, float offset_z)
+	// get the food colour range
+	if (!have_colours)
+	{
+		elglGetColour3v("banner.food.full", full_food);
+		elglGetColour3v("banner.food.zero", zero_food);
+		have_colours = 1;
+	}
+
+	set_banner_colour_general(zero_food, full_food, percent, multiplier, a);
+}
+
+static void check_for_banner_now_off(void)
+{
+	static int banner_was_on = -1;
+	int banner_is_on = view_names||view_hp||view_health_bar||view_ether_bar||view_ether||view_food_bar||view_food;
+	if (banner_was_on == -1)
+		banner_was_on = banner_is_on;
+	else
+	{
+		if ((banner_was_on != banner_is_on) && (banner_is_on == 0))
+		{
+			char str[200];
+			char key_str[20];
+			str[0] = '\0';
+			safe_strcat(str, banner_off_help_str, sizeof(str));
+			safe_strcat(str, get_key_string(K_VIEWNAMES, key_str, sizeof(key_str)), sizeof(str));
+			safe_strcat(str, "].", sizeof(str));
+			LOG_TO_CONSOLE(c_red1, str);
+		}
+		banner_was_on = banner_is_on;
+	}
+}
+
+static void draw_actor_banner(actor *actor_id, const actor *me, float offset_z)
 {
 	unsigned char str[60];
 	GLdouble model[16],proj[16];
@@ -457,7 +423,9 @@ static void draw_actor_banner(actor * actor_id, float offset_z)
 	//we use health bar variables if possible, all the extras we need for ether bar are:
 	double ether_str_x_len = 0;
 	double etherbar_x_len_converted=0;
-	GLdouble name_bot_y, health_bot_y, ether_bot_y;
+	double food_str_x_len = 0;
+	double foodbar_x_len_converted=0;
+	GLdouble name_bot_y, health_bot_y, ether_bot_y, food_bot_y;
 
 	//some general values valid for whole banner
 	double bar_x_len = 0;
@@ -471,25 +439,27 @@ static void draw_actor_banner(actor * actor_id, float offset_z)
 	int display_health_bar = view_health_bar;
 	int display_ether_bar = view_ether_bar;
 	int display_ether = view_ether;
+	int display_food_bar = view_food_bar;
+	int display_food = view_food;
 	int display_banner_alpha = use_alpha_banner;
 
 	//some general info about "what's going on" - allows not to repeat complex conditions later
-	int displaying_me = 0;
+	int displaying_me = me && me->actor_id == actor_id->actor_id;
 	int displaying_other_player = 0;
 	int display_health_line = 0;
 	int display_ether_line = 0;
+	int display_food_line = 0;
 
-	//if first person, dont draw banner
-	actor *me = get_our_actor();
-	if (me && me->actor_id==actor_id->actor_id) {
-		displaying_me = 1;
-	};
+	check_for_banner_now_off();
+
 	if (displaying_me && first_person) return;
 
-	//if not drawing me, can't display ether and ether bar
+	//if not drawing me, can't display ether/food or ether/food bar
 	if (!displaying_me) {
 		display_ether_bar = 0;
 		display_ether = 0;
+		display_food_bar = 0;
+		display_food = 0;
 	}
 
 	//if instance mode enabled, overwrite default view banner view options according to it
@@ -533,7 +503,12 @@ static void draw_actor_banner(actor * actor_id, float offset_z)
 
 	glColor3f (1.0f, 0.0f, 0.0f);
 
+#ifdef ANDROID
+	// ANDROID_TODO why do we need this?
+	glDepthFunc(GL_LESS);
+#else
 	glDepthFunc(GL_ALWAYS);
+#endif
 	if(actor_id->damage_ms){
 		if(floatingmessages_enabled){
 			float a=(float)(cur_time-actor_id->last_health_loss)/2000.0f;
@@ -574,7 +549,7 @@ static void draw_actor_banner(actor * actor_id, float offset_z)
 			{
 				float font_scale2 = font_scale*powf(1.0f+((float)abs(actor_id->damage)/2.0f)/1000.0f, 4.0);
 				int extra_y = (view_mode_instance && displaying_me) ?view_mode_instance_damage_height * bar_y_len : 0;
-				int lines = (!(view_mode_instance && displaying_me) && (display_hp || display_health_bar) && (display_ether || display_ether_bar)) ? 3 : 2;
+				int lines = (!(view_mode_instance && displaying_me) && (display_hp || display_health_bar) && (display_ether || display_ether_bar) && (display_food || display_food_bar)) ? 3 : 2;
 				draw_ortho_ingame_string(hx - 0.5f * (float)get_string_width_zoom(str, NAME_FONT, font_scale2*0.17),
 					a_bounce + hy + extra_y + get_text_height(lines, NAME_FONT, name_zoom), 0, str, 1,
 					NAME_FONT, font_scale2*.14, font_scale2*.14);
@@ -594,11 +569,15 @@ static void draw_actor_banner(actor * actor_id, float offset_z)
 		}
 	}
 
+#ifndef ANDROID
+	// ANDROID_TODO see previous?
 	glDepthFunc(GL_LESS);
+#endif
 
 	//figure out which lines should we display
 	display_health_line = (actor_id->kind_of_actor != NPC && (display_hp || display_health_bar) && actor_id->cur_health > 0 && actor_id->max_health > 0);
 	display_ether_line = ((display_ether || display_ether_bar) && displaying_me && your_info.ethereal_points.base > 0 );
+	display_food_line = ((display_food || display_food_bar) && displaying_me && (newchar_root_win < 0));
 	if (view_mode_instance && displaying_me) {
 		//make your bar a bit more above everything else so you can see it good enough
 		//and got no problems with attacking mobs
@@ -607,15 +586,16 @@ static void draw_actor_banner(actor * actor_id, float offset_z)
 
 	// calculate the bottom y coord for the displayed info lines, keep centred around a the same point whether 3, 2 or 1 line being displays
 	hy += bar_y_len;
-	name_bot_y = (display_names) ?hy + (display_health_line * bar_y_len / 2) + (display_ether_line * bar_y_len / 2) :0.0;
-	health_bot_y = (display_health_line) ?hy - (display_names * bar_y_len / 2) + (display_ether_line * bar_y_len / 2) :0.0;
-	ether_bot_y = (display_ether_line) ?hy -(display_names * bar_y_len / 2) - (display_health_line * bar_y_len / 2) : 0.0;
-	// printf("hy=%.1lf name=%.1lf health=%.1lf ether=%.1lf\n", hy, name_bot_y, health_bot_y, ether_bot_y);
+	name_bot_y = (display_names) ?hy + (display_health_line * bar_y_len / 2) + (display_ether_line * bar_y_len / 2) + (display_food_line * bar_y_len / 2) :0.0;
+	health_bot_y = (display_health_line) ?hy - (display_names * bar_y_len / 2) + (display_ether_line * bar_y_len / 2) + (display_food_line * bar_y_len / 2) :0.0;
+	ether_bot_y = (display_ether_line) ?hy -(display_names * bar_y_len / 2) - (display_health_line * bar_y_len / 2) + (display_food_line * bar_y_len / 2) : 0.0;
+	food_bot_y = (display_food_line) ?hy -(display_names * bar_y_len / 2) - (display_health_line * bar_y_len / 2) - (display_ether_line * bar_y_len / 2) : 0.0;
+	// printf("hy=%.1lf name=%.1lf health=%.1lf ether=%.1lf\n", hy, name_bot_y, health_bot_y, ether_bot_y, food_bot_y);
 
 	// main block that draws the name, health and ether text
 	if (!((first_person)&&(actor_id->actor_id==yourself)))
 	{
-		if(actor_id->actor_name[0] && (display_names || display_health_line || display_ether_line))
+		if(actor_id->actor_name[0] && (display_names || display_health_line || display_ether_line || display_food_line))
 		{
 			if (display_names)
 			{
@@ -638,12 +618,13 @@ static void draw_actor_banner(actor * actor_id, float offset_z)
 			}
 			if (view_buffs)
 			{
-				draw_buffs(actor_id->actor_id, hx, hy, hz);
+				draw_buffs(actor_id, hx, hy, hz);
 			}
 
-			if(  (!actor_id->dead) && (actor_id->kind_of_actor != NPC) && (display_health_line || display_ether_line)){
+			if(  (!actor_id->dead) && (actor_id->kind_of_actor != NPC) && (display_health_line || display_ether_line || display_food_line)){
 				unsigned char hp[200];
 				unsigned char mana[200];
+				unsigned char food[200];
 				double health_str_x_len = 0.0;
 
 				// make the heath bar the same length as the the health text so they are balanced
@@ -655,18 +636,22 @@ static void draw_actor_banner(actor * actor_id, float offset_z)
 					sprintf((char*)mana,"%d/%d", your_info.ethereal_points.cur, your_info.ethereal_points.base);
 					ether_str_x_len=(float)get_string_width_zoom(mana, NAME_FONT, stat_font_size);
 				}
-				//set bar length to longer one (mana or health) - not really clean solution
-				if (ether_str_x_len > health_str_x_len) {
-					bar_x_len = ether_str_x_len;
-				} else {
-					bar_x_len = health_str_x_len;
+				if (display_food || display_food_bar) {
+					sprintf((char*)food,"%d/%d", your_info.food_level, max_food_level);
+					food_str_x_len=(float)get_string_width_zoom(food, NAME_FONT, stat_font_size);
 				}
+				//set bar length to longer one (mana, food or health) - not really clean solution
+				bar_x_len = health_str_x_len;
+				if (ether_str_x_len > bar_x_len)
+					bar_x_len = ether_str_x_len;
+				if (food_str_x_len > bar_x_len)
+					bar_x_len = food_str_x_len;
 
-				if (display_hp || display_ether) {
+				if (display_hp || display_ether || display_food) {
 					float hp_off=(bar_x_len - health_str_x_len)/2.0;
 					float eth_off=(bar_x_len - ether_str_x_len)/2.0;
-					float disp;
-					disp=(bar_x_len/2.0);
+					float food_off=(bar_x_len - food_str_x_len)/2.0;
+					float disp=(bar_x_len/2.0);
 
 					if(display_health_bar){
 						hp_off+=5.0+disp;
@@ -674,11 +659,18 @@ static void draw_actor_banner(actor * actor_id, float offset_z)
 					if(display_ether_bar){
 						eth_off+=5.0+disp;
 					}
-					if (display_hp && (disp+hp_off > banner_width)) {
-						banner_width = disp + hp_off;
+					if(display_food_bar){
+						food_off+=5.0+disp;
 					}
-					if (display_ether && (disp+eth_off > banner_width)) {
-						banner_width = disp + eth_off;
+
+					if (display_hp && ((health_str_x_len/2 + hp_off) > banner_width)) {
+						banner_width = health_str_x_len/2 + hp_off;
+					}
+					if (display_ether && ((ether_str_x_len/2 + eth_off) > banner_width)) {
+						banner_width = ether_str_x_len/2 + eth_off;
+					}
+					if (display_food && ((food_str_x_len/2 + food_off) > banner_width)) {
+						banner_width = food_str_x_len/2 + food_off;
 					}
 
 					if (display_hp) {
@@ -692,6 +684,12 @@ static void draw_actor_banner(actor * actor_id, float offset_z)
 						set_mana_color((float)your_info.ethereal_points.cur / (float)your_info.ethereal_points.base, 1.0f, 1.0f);
 						draw_ortho_ingame_string(hx - disp + eth_off, ether_bot_y,
 							hz, mana, 1, NAME_FONT, stat_font_size, stat_font_size);
+					}
+
+					if (display_food) {
+						set_food_color((float)your_info.food_level / (float)max_food_level, 1.0f, 1.0f);
+						draw_ortho_ingame_string(hx - disp + food_off, food_bot_y,
+							hz, food, 1, NAME_FONT, stat_font_size, stat_font_size);
 					}
 				}
 			}
@@ -820,9 +818,49 @@ static void draw_actor_banner(actor * actor_id, float offset_z)
 		hx+=off;
 	}
 
+	if (display_food_bar && display_food_line) {
+		float percentage = (float)your_info.food_level / (float)max_food_level;
+		float off;
+		float top_y = food_bot_y + bar_y_len / 3.0;
+		float bot_y = food_bot_y + 2 * bar_y_len / 3.0;
+		if(percentage>1.0f) // limit bar length
+			percentage = 1.0f;
+		if (display_food){
+			off = bar_x_len + 5.0f;
+		} else {
+			off = bar_x_len / 2.0f;
+		}
+		if (bar_x_len / 2.0f > banner_width) {
+			banner_width = bar_x_len / 2.0f;
+		}
+		hx-=off;
+
+		set_food_color(percentage, 0.5f, 1.0f);
+		foodbar_x_len_converted = percentage * bar_x_len;
+		glBegin(GL_QUADS);
+			glVertex3d(hx, top_y, hz);
+			glVertex3d(hx + foodbar_x_len_converted, top_y, hz);
+
+		set_food_color(percentage, 1.0f, 1.0f);
+
+			glVertex3d(hx + foodbar_x_len_converted, bot_y, hz);
+			glVertex3d(hx, bot_y, hz);
+		glEnd();
+		set_health_color(actor_id, percentage, 1.0f, 1.0f);
+		glDepthFunc(GL_LEQUAL);
+		glColor3f (0.0f, 0.0f, 0.0f);
+		glBegin(GL_LINE_LOOP);
+			glVertex3f (hx - 1.0, top_y - 1.0 , hz);
+			glVertex3f (hx + bar_x_len + 1.0, top_y - 1.0, hz);
+			glVertex3f (hx + bar_x_len + 1.0, bot_y + 1.0, hz);
+			glVertex3f (hx - 1.0, bot_y + 1.0, hz);
+		glEnd();
+		hx+=off;
+	}
+
 	// draw the alpha background (if ness)
-	y_bottom = ((ether_bot_y > 0) ?ether_bot_y :((health_bot_y > 0) ?health_bot_y : name_bot_y)) - 0.2 * bar_y_len;
-	y_top = ((name_bot_y > 0) ?name_bot_y :((health_bot_y > 0) ?health_bot_y : ether_bot_y)) + 1.2 * bar_y_len;
+	y_bottom = ((food_bot_y > 0) ?food_bot_y :((ether_bot_y > 0) ?ether_bot_y :((health_bot_y > 0) ?health_bot_y : name_bot_y))) - 0.2 * bar_y_len;
+	y_top = ((name_bot_y > 0) ?name_bot_y :((health_bot_y > 0) ?health_bot_y : ((ether_bot_y > 0) ? ether_bot_y : food_bot_y))) + 1.2 * bar_y_len;
 	if (display_banner_alpha && banner_width > 0) {
 		//if banner width > 0 there MUST be something displayed in the banner
 		banner_width += name_zoom * 3;
@@ -841,7 +879,7 @@ static void draw_actor_banner(actor * actor_id, float offset_z)
 	glEnable(GL_TEXTURE_2D);
 
 	if ((actor_id->current_displayed_text_time_left>0)&&(actor_id->current_displayed_text[0] != 0)){
-		draw_actor_overtext(actor_id, hx, y_top, hz);
+		draw_actor_overtext(actor_id, me, hx, y_top, hz);
 	}
 
 	glMatrixMode(GL_PROJECTION);
@@ -849,7 +887,7 @@ static void draw_actor_banner(actor * actor_id, float offset_z)
 	glMatrixMode(GL_MODELVIEW);
 	glPopMatrix();
 
-	if(floatingmessages_enabled)drawactor_floatingmessages(actor_id->actor_id, healthbar_z);
+	if(floatingmessages_enabled)drawactor_floatingmessages(actor_id->actor_id, me, healthbar_z);
 
 	/* set cm_mouse_over_banner true if the mouse is over your banner, or a box where it might be */
 	if (actor_id->actor_id == yourself)
@@ -857,6 +895,8 @@ static void draw_actor_banner(actor * actor_id, float offset_z)
 		/* use the same calculation as for the alpha background but have a fallback if no banner shown */
 		int xoff = (banner_width > 0) ?banner_width: 60;
 		int yoff = (banner_width > 0) ?y_top - y_bottom: bar_y_len;
+		if (y_bottom < 0)
+			y_bottom = hy;
 		if ((mouse_x > hx-xoff) && (mouse_x < hx+xoff) &&
 			((window_height - mouse_y) > y_bottom) && ((window_height - mouse_y) < (y_bottom + yoff)))
 			cm_mouse_over_banner = 1;
@@ -924,7 +964,8 @@ CHECK_GL_ERRORS();
 }
 
 //-- Logan Dugenoux [5/26/2004]
-static void draw_actor_overtext(actor* actor_ptr, double x, double y, double z)
+static void draw_actor_overtext(actor* actor_ptr, const actor *me,
+	double x, double y, double z)
 {
 	int lines = min2i(actor_ptr->current_displayed_text_lines, MAX_CURRENT_DISPLAYED_TEXT_LINES);
 	float font_scale = 0.14f / ALT_INGAME_FONT_X_LEN;
@@ -932,7 +973,6 @@ static void draw_actor_overtext(actor* actor_ptr, double x, double y, double z)
 	int text_width, line_height, text_height;
 	float margin;
 
-	actor *me = get_our_actor();
 	if (me && me != actor_ptr)
 	{
 		const float s_rx = sin(rx * M_PI / 180);
@@ -995,8 +1035,7 @@ void draw_actor_without_banner(actor * actor_id, Uint32 use_lightning, Uint32 us
 	double x_pos,y_pos,z_pos;
 	float x_rot,y_rot,z_rot;
 	//if first person, dont draw actor
-	actor *me = get_our_actor();
-	if (me&&me->actor_id==actor_id->actor_id&&first_person) return;
+	if (actor_id->actor_id == yourself && first_person) return;
 	if (use_textures)
 	{
 		if (actor_id->is_enhanced_model)
@@ -1044,7 +1083,7 @@ void draw_actor_without_banner(actor * actor_id, Uint32 use_lightning, Uint32 us
 	glRotatef(x_rot, 1.0f, 0.0f, 0.0f);
 	glRotatef(y_rot, 0.0f, 1.0f, 0.0f);
 
-	if (actor_id->attached_actor >= 0)
+	if (has_attachment(actor_id))
 		glTranslatef(actor_id->attachment_shift[0], actor_id->attachment_shift[1], actor_id->attachment_shift[2]);
 
 	if (use_animation_program)
@@ -1064,7 +1103,7 @@ CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
 }
 
-static void draw_actor_banner_new(actor * actor_id)
+static void draw_actor_banner_new(actor *actor_id, const actor *me)
 {
 	float x_pos, y_pos, z_pos;
 	float healthbar_z;
@@ -1085,7 +1124,7 @@ static void draw_actor_banner_new(actor * actor_id)
 
 	glTranslatef(x_pos + 0.25f, y_pos + 0.25f, z_pos);
 
-	if (actor_id->attached_actor >= 0)
+	if (has_attachment(actor_id))
 	{
 		glRotatef(180 - actor_id->z_rot, 0.0f, 0.0f, 1.0f);
 		glTranslatef(actor_id->attachment_shift[0], actor_id->attachment_shift[1], actor_id->attachment_shift[2]);
@@ -1094,7 +1133,7 @@ static void draw_actor_banner_new(actor * actor_id)
 
 	glRotatef(-rz, 0.0f, 0.0f, 1.0f);
 
-	draw_actor_banner(actor_id, healthbar_z);
+	draw_actor_banner(actor_id, me, healthbar_z);
 
 	glPopMatrix();	//we don't want to affect the rest of the scene
 #ifdef OPENGL_TRACE
@@ -1130,132 +1169,157 @@ static int comp_actors(const void *in_a, const void *in_b)
 	}
 }
 
-void get_actors_in_range()
+struct distance_info
+{
+	int nr_enhanced_actors;
+	float distance_sq_sum;
+};
+
+static void check_actor_in_range(actor *act, actor *attached, void* data,
+	locked_list_ptr actors_list)
 {
 	VECTOR3 pos;
-	unsigned int i;
-#ifdef NEW_SOUND
-	unsigned int tmp_nr_enh_act;		// Use temp variables to stop crowd sound interference during count
-	float tmp_dist_to_nr_enh_act;
-#endif // NEW_SOUND
-	actor *me;
 	AABBOX bbox;
-
-	me = get_our_actor ();
-
-	if (!me) return;
-
-	no_near_actors = 0;
 #ifdef NEW_SOUND
-	tmp_nr_enh_act = 0;
-	tmp_dist_to_nr_enh_act = 0;
+	struct distance_info *info = data;
 #endif // NEW_SOUND
+#if defined(NEW_SOUND) || defined(CLUSTER_INSIDES)
+	actor *me = get_self(actors_list);
+#endif // NEW_SOUND || CLUSTER_INSIDES
 
-	set_current_frustum(get_cur_intersect_type(main_bbox_tree));
-
-	for (i = 0; i < max_actors; i++)
-	{
-		if(actors_list[i]
 #ifdef CLUSTER_INSIDES
-		   && (actors_list[i]->cluster == me->cluster || actors_list[i]->cluster == 0)
+	if (act->cluster != me->cluster && act->cluster != 0)
+		return;
 #endif
-		)
+
+	// if we have an attached actor, we maybe have to modify the position of the current actor
+	if (attached)
+	{
+		attachment_props *att_props;
+		float loc_pos[3];
+		float att_pos[3];
+		float loc_scale = get_actor_scale(act);
+		float att_scale = get_actor_scale(attached);
+		if (is_horse(act)) // we are on a attached actor
 		{
-			// if we have an attached actor, we maybe have to modify the position of the current actor
-			if (actors_list[i]->attached_actor >= 0)
+			att_props = &attached_actors_defs[act->actor_type].actor_type[attached->actor_type];
+			if (!att_props->is_holder) // the attachment is not a holder so we have to move it
 			{
-				actor *att = actors_list[actors_list[i]->attached_actor];
-				attachment_props *att_props;
-				float loc_pos[3];
-				float att_pos[3];
-				float loc_scale = get_actor_scale(actors_list[i]);
-				float att_scale = get_actor_scale(att);
-				if (actors_list[i]->actor_id < 0) // we are on a attached actor
-				{
-					att_props = &attached_actors_defs[actors_list[i]->actor_type].actor_type[att->actor_type];
-					if (!att_props->is_holder) // the attachment is not a holder so we have to move it
-					{
-						cal_get_actor_bone_local_position(att, att_props->parent_bone_id, NULL, att_pos);
-						cal_get_actor_bone_local_position(actors_list[i], att_props->local_bone_id, NULL, loc_pos);
-						actors_list[i]->attachment_shift[0] = att_pos[0] * att_scale - (loc_pos[0] - att_props->shift[0]) * loc_scale;
-						actors_list[i]->attachment_shift[1] = att_pos[1] * att_scale - (loc_pos[1] - att_props->shift[1]) * loc_scale;
-						actors_list[i]->attachment_shift[2] = att_pos[2] * att_scale - (loc_pos[2] - att_props->shift[2]) * loc_scale;
-					}
-				}
-				else if (actors_list[i]->actor_id >= 0) // we are on a standard actor
-				{
-					att_props = &attached_actors_defs[att->actor_type].actor_type[actors_list[i]->actor_type];
-					if (att_props->is_holder) // the attachment is an holder, we have to move the current actor
-					{
-						cal_get_actor_bone_local_position(att, att_props->local_bone_id, NULL, att_pos);
-						cal_get_actor_bone_local_position(actors_list[i], att_props->parent_bone_id, NULL, loc_pos);
-						actors_list[i]->attachment_shift[0] = att_pos[0] * att_scale - (loc_pos[0] - att_props->shift[0]) * loc_scale;
-						actors_list[i]->attachment_shift[1] = att_pos[1] * att_scale - (loc_pos[1] - att_props->shift[1]) * loc_scale;
-						actors_list[i]->attachment_shift[2] = att_pos[2] * att_scale - (loc_pos[2] - att_props->shift[2]) * loc_scale;
-					}
-				}
+				cal_get_actor_bone_local_position(attached, att_props->parent_bone_id, NULL, att_pos);
+				cal_get_actor_bone_local_position(act, att_props->local_bone_id, NULL, loc_pos);
+				act->attachment_shift[0] = att_pos[0] * att_scale - (loc_pos[0] - att_props->shift[0]) * loc_scale;
+				act->attachment_shift[1] = att_pos[1] * att_scale - (loc_pos[1] - att_props->shift[1]) * loc_scale;
+				act->attachment_shift[2] = att_pos[2] * att_scale - (loc_pos[2] - att_props->shift[2]) * loc_scale;
 			}
-			pos[X] = actors_list[i]->x_pos + actors_list[i]->attachment_shift[X];
-			pos[Y] = actors_list[i]->y_pos + actors_list[i]->attachment_shift[Y];
-			pos[Z] = actors_list[i]->z_pos + actors_list[i]->attachment_shift[Z];
-
-			if (pos[Z] == 0.0f)
+		}
+		else // we are on a standard actor
+		{
+			att_props = &attached_actors_defs[attached->actor_type].actor_type[act->actor_type];
+			if (att_props->is_holder) // the attachment is an holder, we have to move the current actor
 			{
-				//actor is walking, as opposed to flying, get the height underneath
-				pos[Z] = get_tile_height(actors_list[i]->x_tile_pos, actors_list[i]->y_tile_pos);
-			}
-
-			if (actors_list[i]->calmodel == NULL) continue;
-
-			memcpy(&bbox, &actors_list[i]->bbox, sizeof(AABBOX));
-			rotate_aabb(&bbox, actors_list[i]->x_rot, actors_list[i]->y_rot, 180.0f-actors_list[i]->z_rot);
-
-			VAddEq(bbox.bbmin, pos);
-			VAddEq(bbox.bbmax, pos);
-
-			if (aabb_in_frustum(bbox))
-			{
-				near_actors[no_near_actors].actor = i;
-				near_actors[no_near_actors].ghost = actors_list[i]->ghost;
-				near_actors[no_near_actors].buffs = actors_list[i]->buffs;
-				near_actors[no_near_actors].select = 0;
-				near_actors[no_near_actors].type = actors_list[i]->actor_type;
-				if (actors_list[i]->ghost)
-				{
-					near_actors[no_near_actors].alpha = 0;
-				}
-				else
-				{
-					near_actors[no_near_actors].alpha =
-						actors_list[i]->has_alpha;
-				}
-
-				actors_list[i]->max_z = actors_list[i]->bbox.bbmax[Z];
-
-				if (read_mouse_now && (get_cur_intersect_type(main_bbox_tree) == INTERSECTION_TYPE_DEFAULT))
-				{
-					near_actors[no_near_actors].select = 1;
-				}
-				no_near_actors++;
-#ifdef NEW_SOUND
-				if (actors_list[i]->is_enhanced_model && actors_list[i]->actor_id != me->actor_id)
-				{
-					tmp_nr_enh_act++;
-					tmp_dist_to_nr_enh_act += ((me->x_pos - actors_list[i]->x_pos) *
-														(me->x_pos - actors_list[i]->x_pos)) +
-														((me->y_pos - actors_list[i]->y_pos) *
-														(me->y_pos - actors_list[i]->y_pos));
-				}
-#endif // NEW_SOUND
+				cal_get_actor_bone_local_position(attached, att_props->local_bone_id, NULL, att_pos);
+				cal_get_actor_bone_local_position(act, att_props->parent_bone_id, NULL, loc_pos);
+				act->attachment_shift[0] = att_pos[0] * att_scale - (loc_pos[0] - att_props->shift[0]) * loc_scale;
+				act->attachment_shift[1] = att_pos[1] * att_scale - (loc_pos[1] - att_props->shift[1]) * loc_scale;
+				act->attachment_shift[2] = att_pos[2] * att_scale - (loc_pos[2] - att_props->shift[2]) * loc_scale;
 			}
 		}
 	}
+	pos[X] = act->x_pos + act->attachment_shift[X];
+	pos[Y] = act->y_pos + act->attachment_shift[Y];
+	pos[Z] = act->z_pos + act->attachment_shift[Z];
+
+	if (pos[Z] == 0.0f)
+	{
+		//actor is walking, as opposed to flying, get the height underneath
+		pos[Z] = get_actor_z(act);
+	}
+
+	if (act->calmodel == NULL)
+		return;
+
+	memcpy(&bbox, &act->bbox, sizeof(AABBOX));
+	rotate_aabb(&bbox, act->x_rot, act->y_rot, 180.0f-act->z_rot);
+
+	VAddEq(bbox.bbmin, pos);
+	VAddEq(bbox.bbmax, pos);
+
+	if (aabb_in_frustum(bbox))
+	{
+		if (no_near_actors >= near_actors_size)
+		{
+			size_t new_size = near_actors_size == 0 ? INITIAL_NEAR_ACTORS_SIZE : 2 * near_actors_size;
+			near_actor *new_near_actors = realloc(near_actors, new_size * sizeof(near_actor));
+			if (!new_near_actors)
+			{
+				LOG_ERROR("Failed to resize the list of near actors");
+				return;
+			}
+			near_actors = new_near_actors;
+			near_actors_size = new_size;
+		}
+
+		near_actors[no_near_actors].actor_id = act->actor_id;
+		near_actors[no_near_actors].ghost = act->ghost;
+		near_actors[no_near_actors].buffs = act->buffs;
+		near_actors[no_near_actors].select = 0;
+		near_actors[no_near_actors].type = act->actor_type;
+		if (act->ghost)
+		{
+			near_actors[no_near_actors].alpha = 0;
+		}
+		else
+		{
+			near_actors[no_near_actors].alpha = act->has_alpha;
+		}
+
+		act->max_z = act->bbox.bbmax[Z];
+
+#ifdef ANDROID
+		if ((get_cur_intersect_type(main_bbox_tree) == INTERSECTION_TYPE_DEFAULT))
+#else
+		if (read_mouse_now && (get_cur_intersect_type(main_bbox_tree) == INTERSECTION_TYPE_DEFAULT))
+#endif
+		{
+			near_actors[no_near_actors].select = 1;
+		}
+		no_near_actors++;
 #ifdef NEW_SOUND
-	if (tmp_nr_enh_act > 0)
-		tmp_dist_to_nr_enh_act = tmp_dist_to_nr_enh_act / tmp_nr_enh_act;
-	no_near_enhanced_actors = tmp_nr_enh_act;
-	distanceSq_to_near_enhanced_actors = tmp_dist_to_nr_enh_act;
+		if (act->is_enhanced_model && act->actor_id != me->actor_id)
+		{
+			++info->nr_enhanced_actors;
+			info->distance_sq_sum += ((me->x_pos - act->x_pos) * (me->x_pos - act->x_pos))
+				+ ((me->y_pos - act->y_pos) * (me->y_pos - act->y_pos));
+		}
 #endif // NEW_SOUND
+	}
+}
+
+static void get_actors_in_range()
+{
+	struct distance_info info = { .nr_enhanced_actors = 0, .distance_sq_sum = 0.0f };
+	locked_list_ptr actors_list;
+
+	no_near_actors = 0;
+
+	actors_list = get_locked_actors_list();
+	if (!get_self(actors_list))
+	{
+		release_locked_actors_list(actors_list);
+		return;
+	}
+
+	set_current_frustum(get_cur_intersect_type(main_bbox_tree));
+
+	for_each_actor_and_attached(actors_list, check_actor_in_range, &info);
+	release_locked_actors_list(actors_list);
+
+#ifdef NEW_SOUND
+	no_near_enhanced_actors = info.nr_enhanced_actors;
+	distanceSq_to_near_enhanced_actors = info.nr_enhanced_actors > 0
+		? info.distance_sq_sum / info.nr_enhanced_actors : 0.0;
+#endif // NEW_SOUND
+
 	qsort(near_actors, no_near_actors, sizeof(near_actor), comp_actors);
 }
 
@@ -1298,6 +1362,8 @@ void display_actors(int banner, int render_pass)
 #endif	/* FSAA */
 	for (i = 0; i < no_near_actors; i++)
 	{
+		int actor_id = near_actors[i].actor_id;
+
 		if (near_actors[i].ghost || (near_actors[i].buffs & BUFF_INVISIBILITY))
 		{
 			if ((render_pass == DEFAULT_RENDER_PASS) ||
@@ -1312,69 +1378,81 @@ void display_actors(int banner, int render_pass)
 		}
 		else
 		{
-			actor *cur_actor = actors_list[near_actors[i].actor];
-			if (cur_actor)
+			actor *cur_actor;
+			locked_list_ptr actors_list = lock_and_get_actor_from_id(actor_id, &cur_actor);
+			if (actors_list)
 			{
+				int kind_of_actor = cur_actor->kind_of_actor;
+				int is_enhanced_model = cur_actor->is_enhanced_model;
+
 				draw_actor_without_banner(cur_actor, use_lightning, use_textures, 1);
+
+				release_locked_actors_list_and_invalidate(actors_list, &cur_actor);
 				if (near_actors[i].select)
 				{
-					if (cur_actor->kind_of_actor == NPC)
+					if (kind_of_actor == NPC)
 					{
-						anything_under_the_mouse(near_actors[i].actor, UNDER_MOUSE_NPC);
+						anything_under_the_mouse(actor_id, UNDER_MOUSE_NPC);
 					}
 					else
 					{
-						if ((cur_actor->kind_of_actor == HUMAN) ||
-							(cur_actor->kind_of_actor == COMPUTER_CONTROLLED_HUMAN) ||
-							(cur_actor->is_enhanced_model &&
-							((cur_actor->kind_of_actor == PKABLE_HUMAN) ||
-							(cur_actor->kind_of_actor == PKABLE_COMPUTER_CONTROLLED))))
+						if (kind_of_actor == HUMAN ||
+							kind_of_actor == COMPUTER_CONTROLLED_HUMAN ||
+							(is_enhanced_model &&
+								(kind_of_actor == PKABLE_HUMAN ||
+								 kind_of_actor == PKABLE_COMPUTER_CONTROLLED)))
 						{
-							anything_under_the_mouse(near_actors[i].actor, UNDER_MOUSE_PLAYER);
+							anything_under_the_mouse(actor_id, UNDER_MOUSE_PLAYER);
 						}
 						else
 						{
-							anything_under_the_mouse(near_actors[i].actor, UNDER_MOUSE_ANIMAL);
+							anything_under_the_mouse(actor_id, UNDER_MOUSE_ANIMAL);
 						}
 					}
 				}
 			}
 		}
 	}
+
 	if (has_alpha)
 	{
 		glEnable(GL_ALPHA_TEST);
 		glAlphaFunc(GL_GREATER, 0.4f);
 		for (i = 0; i < no_near_actors; i++)
 		{
+			int actor_id = near_actors[i].actor_id;
 
 			if (near_actors[i].alpha && !(near_actors[i].ghost || (near_actors[i].buffs & BUFF_INVISIBILITY)))
 			{
-
-				actor *cur_actor = actors_list[near_actors[i].actor];
-				if (cur_actor)
+				actor *cur_actor;
+				locked_list_ptr actors_list = lock_and_get_actor_from_id(actor_id, &cur_actor);
+				if (actors_list)
 				{
+					int kind_of_actor = cur_actor->kind_of_actor;
+					int is_enhanced_model = cur_actor->is_enhanced_model;
+
 					draw_actor_without_banner(cur_actor, use_lightning, 1, 1);
 
+					release_locked_actors_list_and_invalidate(actors_list, &cur_actor);
 					if (near_actors[i].select)
 					{
-						if (cur_actor->kind_of_actor == NPC)
+						if (kind_of_actor == NPC)
 						{
-							anything_under_the_mouse(near_actors[i].actor, UNDER_MOUSE_NPC);
+							anything_under_the_mouse(actor_id, UNDER_MOUSE_NPC);
 						}
 						else
 						{
-							if ((cur_actor->kind_of_actor == HUMAN) ||
-								(cur_actor->kind_of_actor == COMPUTER_CONTROLLED_HUMAN) ||
-								(cur_actor->is_enhanced_model &&
-								 ((cur_actor->kind_of_actor == PKABLE_HUMAN) ||
-								 (cur_actor->kind_of_actor == PKABLE_COMPUTER_CONTROLLED))))
+							if (kind_of_actor == HUMAN ||
+								kind_of_actor == COMPUTER_CONTROLLED_HUMAN ||
+								(is_enhanced_model &&
+									(kind_of_actor == PKABLE_HUMAN ||
+									 kind_of_actor == PKABLE_COMPUTER_CONTROLLED)))
 							{
-								anything_under_the_mouse(near_actors[i].actor, UNDER_MOUSE_PLAYER);
+								anything_under_the_mouse(actor_id, UNDER_MOUSE_PLAYER);
 							}
 							else
 							{
-								anything_under_the_mouse(near_actors[i].actor, UNDER_MOUSE_ANIMAL);
+								anything_under_the_mouse(actor_id, UNDER_MOUSE_ANIMAL);
 							}
 						}
 					}
@@ -1394,13 +1472,17 @@ void display_actors(int banner, int render_pass)
 
 		for (i = 0; i < no_near_actors; i++)
 		{
+			int actor_id = near_actors[i].actor_id;
 
 			if (near_actors[i].ghost || (near_actors[i].buffs & BUFF_INVISIBILITY))
 			{
-
-				actor *cur_actor = actors_list[near_actors[i].actor];
-				if (cur_actor)
+				actor *cur_actor;
+				locked_list_ptr actors_list = lock_and_get_actor_from_id(actor_id, &cur_actor);
+				if (actors_list)
 				{
+					int kind_of_actor = cur_actor->kind_of_actor;
+					int is_enhanced_model = cur_actor->is_enhanced_model;
+
 					//if any ghost has a glowing weapon, we need to reset the blend function each ghost actor.
 					glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
@@ -1418,25 +1500,26 @@ void display_actors(int banner, int render_pass)
 
 					draw_actor_without_banner(cur_actor, use_lightning, use_textures, 1);
 
+					release_locked_actors_list_and_invalidate(actors_list, &cur_actor);
 					if (near_actors[i].select)
 					{
-						if (cur_actor->kind_of_actor == NPC)
+						if (kind_of_actor == NPC)
 						{
-							anything_under_the_mouse(near_actors[i].actor, UNDER_MOUSE_NPC);
+							anything_under_the_mouse(actor_id, UNDER_MOUSE_NPC);
 						}
 						else
 						{
-							if ((cur_actor->kind_of_actor == HUMAN) ||
-								(cur_actor->kind_of_actor == COMPUTER_CONTROLLED_HUMAN) ||
-								(cur_actor->is_enhanced_model &&
-								 ((cur_actor->kind_of_actor == PKABLE_HUMAN) ||
-								 (cur_actor->kind_of_actor == PKABLE_COMPUTER_CONTROLLED))))
+							if (kind_of_actor == HUMAN ||
+								kind_of_actor == COMPUTER_CONTROLLED_HUMAN ||
+								(is_enhanced_model &&
+									(kind_of_actor == PKABLE_HUMAN ||
+									 kind_of_actor == PKABLE_COMPUTER_CONTROLLED)))
 							{
-								anything_under_the_mouse(near_actors[i].actor, UNDER_MOUSE_PLAYER);
+								anything_under_the_mouse(actor_id, UNDER_MOUSE_PLAYER);
 							}
 							else
 							{
-								anything_under_the_mouse(near_actors[i].actor, UNDER_MOUSE_ANIMAL);
+								anything_under_the_mouse(actor_id, UNDER_MOUSE_ANIMAL);
 							}
 						}
 					}
@@ -1478,12 +1561,14 @@ void display_actors(int banner, int render_pass)
 
 		for (i = 0; i < no_near_actors; i++)
 		{
-			actor *cur_actor = actors_list[near_actors[i].actor];
-			if (cur_actor
-				&& cur_actor->actor_id >= 0
-				)
+			actor *me;
+			locked_list_ptr actors_list = lock_and_get_self(&me);
+			if (actors_list)
 			{
-				draw_actor_banner_new(cur_actor);
+				actor *act = get_actor_from_id(actors_list, near_actors[i].actor_id);
+				if (act && !is_horse(act))
+					draw_actor_banner_new(act, me);
+				release_locked_actors_list_and_invalidate2(actors_list, &me, &act);
 			}
 		}
 
@@ -1513,7 +1598,6 @@ void add_actor_from_server (const char *in_data, int len)
 	short cur_health;
 	short actor_type;
 	Uint8 frame;
-	int i;
 	int dead=0;
 	int kind_of_actor;
 
@@ -1521,6 +1605,8 @@ void add_actor_from_server (const char *in_data, int len)
 	float scale= 1.0f;
 	emote_data *pose=NULL;
 	int attachment_type = -1;
+
+	actor* actor, *attached;
 
 	actor_id=SDL_SwapLE16(*((short *)(in_data)));
 #ifndef EL_BIG_ENDIAN
@@ -1616,124 +1702,113 @@ void add_actor_from_server (const char *in_data, int len)
 
 	//find out if there is another actor with that ID
 	//ideally this shouldn't happen, but just in case
-
-	for(i=0;i<max_actors;i++)
-		{
-			if(actors_list[i])
-				if(actors_list[i]->actor_id==actor_id)
-					{
-						LOG_ERROR(duplicate_actors_str,actor_id, actors_list[i]->actor_name, &in_data[17]);
-						destroy_actor(actors_list[i]->actor_id);//we don't want two actors with the same ID
-						i--;// last actor was put here, he needs to be checked too
-					}
-		}
-
-	i= add_actor(actor_type, actors_defs[actor_type].skin_name, f_x_pos, f_y_pos, 0.0, f_z_rot, scale, 0, 0, 0, 0, 0, 0, 0, actor_id);
-
-	if(i==-1)
+	actor = create_actor(actor_type, actors_defs[actor_type].skin_name, f_x_pos, f_y_pos, 0.0,
+		f_z_rot, scale, 0, 0, 0, 0, 0, 0, 0, actor_id);
+	if (!actor)
 	{
-		UNLOCK_ACTORS_LISTS();
 		return;//A nasty error occured and we couldn't add the actor. Ignore it.
 	}
 
-	//The actors list is locked when we get here...
+	actor->async_fighting = 0;
+	actor->async_x_tile_pos = x_pos;
+	actor->async_y_tile_pos = y_pos;
+	actor->async_z_rot = z_rot;
 
-	actors_list[i]->async_fighting = 0;
-	actors_list[i]->async_x_tile_pos = x_pos;
-	actors_list[i]->async_y_tile_pos = y_pos;
-	actors_list[i]->async_z_rot = z_rot;
-
-	actors_list[i]->x_tile_pos=x_pos;
-	actors_list[i]->y_tile_pos=y_pos;
-	actors_list[i]->buffs=buffs;
-	actors_list[i]->actor_type=actor_type;
-	actors_list[i]->damage=0;
-	actors_list[i]->damage_ms=0;
-	actors_list[i]->sitting=0;
-	actors_list[i]->fighting=0;
+	actor->x_tile_pos=x_pos;
+	actor->y_tile_pos=y_pos;
+	actor->buffs=buffs;
+	actor->actor_type=actor_type;
+	actor->damage=0;
+	actor->damage_ms=0;
+	actor->sitting=0;
+	actor->fighting=0;
 	//test only
-	actors_list[i]->max_health=max_health;
-	actors_list[i]->cur_health=cur_health;
+	actor->max_health=max_health;
+	actor->cur_health=cur_health;
 
-    actors_list[i]->step_duration = actors_defs[actor_type].step_duration;
-	if (actors_list[i]->buffs & BUFF_DOUBLE_SPEED)
-		actors_list[i]->step_duration /= 2;
+    actor->step_duration = actors_defs[actor_type].step_duration;
+	if (actor->buffs & BUFF_DOUBLE_SPEED)
+		actor->step_duration /= 2;
 
-	actors_list[i]->z_pos = get_actor_z(actors_list[i]);
+	actor->z_pos = get_actor_z(actor);
 	if(frame==frame_sit_idle||(pose!=NULL&&pose->pose==EMOTE_SITTING)){ //sitting pose sent by the server
-			actors_list[i]->poses[EMOTE_SITTING]=pose;
-			actors_list[i]->sitting=1;
+			actor->poses[EMOTE_SITTING]=pose;
+			actor->sitting=1;
 		}
 	else if(frame==frame_stand||(pose!=NULL&&pose->pose==EMOTE_STANDING)){//standing pose sent by server
-			actors_list[i]->poses[EMOTE_STANDING]=pose;
-			actors_list[i]->sitting=0;
+			actor->poses[EMOTE_STANDING]=pose;
+			actor->sitting=0;
 		}
 	else if(frame==frame_walk||(pose!=NULL&&pose->pose==EMOTE_WALKING)){//walking pose sent by server
-			actors_list[i]->poses[EMOTE_WALKING]=pose;
+			actor->poses[EMOTE_WALKING]=pose;
 		}
 	else if(frame==frame_run||(pose!=NULL&&pose->pose==EMOTE_RUNNING)){//running pose sent by server
-			actors_list[i]->poses[EMOTE_RUNNING]=pose;
+			actor->poses[EMOTE_RUNNING]=pose;
 		}
 	else
 		{
 			if(frame==frame_combat_idle)
-				actors_list[i]->fighting=1;
+				actor->fighting=1;
 			else if (frame == frame_ranged)
-				actors_list[i]->in_aim_mode = 1;
+				actor->in_aim_mode = 1;
 		}
 	//ghost or not?
-	actors_list[i]->ghost=actors_defs[actor_type].ghost;
+	actor->ghost=actors_defs[actor_type].ghost;
 
-	actors_list[i]->dead=dead;
-	actors_list[i]->stop_animation=1;//helps when the actor is dead...
-	actors_list[i]->kind_of_actor=kind_of_actor;
+	actor->dead=dead;
+	actor->stop_animation=1;//helps when the actor is dead...
+	actor->kind_of_actor=kind_of_actor;
 	if(strlen(&in_data[17]) >= 30)
 		{
-			LOG_ERROR("%s (%d): %s/%d\n", bad_actor_name_length, actors_list[i]->actor_type,&in_data[17], (int)strlen(&in_data[17]));
+			LOG_ERROR("%s (%d): %s/%d\n", bad_actor_name_length, actor->actor_type,&in_data[17], (int)strlen(&in_data[17]));
 		}
-	else safe_strncpy(actors_list[i]->actor_name,&in_data[17],30);
+	safe_strncpy(actor->actor_name, &in_data[17], 30);
 
 	if (attachment_type >= 0)
-		add_actor_attachment(actor_id, attachment_type);
+		attached = create_actor_attachment(actor, attachment_type);
+	else
+		attached = NULL;
 
 	if (actors_defs[actor_type].coremodel!=NULL) {
 		//Setup cal3d model
-		actors_list[i]->calmodel = model_new(actors_defs[actor_type].coremodel);
+		actor->calmodel = model_new(actors_defs[actor_type].coremodel);
 		//Attach meshes
-		if(actors_list[i]->calmodel){
-			model_attach_mesh(actors_list[i], actors_defs[actor_type].shirt[0].mesh_index);
+		if(actor->calmodel){
+			model_attach_mesh(actor, actors_defs[actor_type].shirt[0].mesh_index);
 			if(dead){
-				cal_actor_set_anim(i, actors_defs[actors_list[i]->actor_type].cal_frames[cal_actor_die1_frame]);
-				actors_list[i]->stop_animation=1;
-				CalModel_Update(actors_list[i]->calmodel,1000);
+				cal_actor_set_anim(actor, attached,
+					actors_defs[actor->actor_type].cal_frames[cal_actor_die1_frame]);
+				actor->stop_animation=1;
+				CalModel_Update(actor->calmodel,1000);
 			}
             else {
                 /* Schmurk: we explicitly go on idle here to avoid weird
                  * flickering when actors appear */
-                set_on_idle(i);
-                /* CalModel_Update(actors_list[i]->calmodel,0); */
+                set_on_idle(actor, attached);
+                /* CalModel_Update(actor->calmodel,0); */
             }
-			build_actor_bounding_box(actors_list[i]);
+			build_actor_bounding_box(actor);
 			if (use_animation_program)
 			{
-				set_transformation_buffers(actors_list[i]);
+				set_transformation_buffers(actor);
 			}
             /* lines commented by Schmurk: we've set an animation just before
              * so we don't want do screw it up */
-			/* actors_list[i]->cur_anim.anim_index=-1; */
-			/* actors_list[i]->cur_anim_sound_cookie=0; */
-			/* actors_list[i]->IsOnIdle=0; */
+			/* actors->cur_anim.anim_index=-1; */
+			/* actors->cur_anim_sound_cookie=0; */
+			/* actors->IsOnIdle=0; */
 		}
 	}
 	else
 	{
-		actors_list[i]->calmodel=NULL;
+		actor->calmodel=NULL;
 	}
-	update_actor_buffs(actor_id, buffs);
+	update_actor_buffs_locked(actor, attached, buffs);
 
-	check_if_new_actor_last_summoned(actors_list[i]);
+	check_if_new_actor_last_summoned(actor);
 
-	UNLOCK_ACTORS_LISTS();	//unlock it
+	add_actor_to_list(actor, attached);
+
 #ifdef EXTRA_DEBUG
 	ERR();
 #endif
@@ -1743,7 +1818,7 @@ void add_actor_from_server (const char *in_data, int len)
 //--- LoganDugenoux [5/25/2004]
 #define MS_PER_CHAR	200
 #define MINI_BUBBLE_MS	500
-void add_displayed_text_to_actor(actor *actor_ptr, const char* text)
+static void add_displayed_text_to_actor(actor *actor_ptr, const char* text)
 {
 	char *dest = actor_ptr->current_displayed_text;
 	const size_t size = sizeof(actor_ptr->current_displayed_text);
@@ -1753,31 +1828,34 @@ void add_displayed_text_to_actor(actor *actor_ptr, const char* text)
 	actor_ptr->current_displayed_text_time_left = MINI_BUBBLE_MS + strlen(text) * MS_PER_CHAR;
 }
 
-//--- LoganDugenoux [5/25/2004]
-actor *	get_actor_ptr_from_id( int actor_id )
+void add_displayed_text_to_actor_id(int actor_id, const char* text)
 {
-	int i;
-	for (i = 0; i < max_actors; i++)
+	actor *act;
+	locked_list_ptr actors_list = lock_and_get_actor_from_id(actor_id, &act);
+	if (actors_list)
 	{
-		if (actors_list[i]->actor_id == actor_id)
-			return actors_list[i];
+		add_displayed_text_to_actor(act, text);
+		release_locked_actors_list_and_invalidate(actors_list, &act);
 	}
-	return NULL;
 }
 
-void end_actors_lists()
+void add_displayed_text_to_actor_name(const char* name, const char* text)
 {
-	SDL_DestroyMutex(actors_lists_mutex);
-	actors_lists_mutex=NULL;
+	actor *act;
+	locked_list_ptr list = lock_and_get_actor_from_name(name, &act);
+	if (list)
+	{
+		add_displayed_text_to_actor(act, text);
+		release_locked_actors_list_and_invalidate(list, &act);
+	}
 }
-
 
 int on_the_move (const actor *act){
 	if (act == NULL) return 0;
 	return act->moving || (act->que[0] >= move_n && act->que[0] <= move_nw);
 }
 
-void get_actor_rotation_matrix(actor *in_act, float *out_rot)
+void get_actor_rotation_matrix(const actor *in_act, float *out_rot)
 {
 	float tmp_rot1[9], tmp_rot2[9];
 
@@ -1788,7 +1866,7 @@ void get_actor_rotation_matrix(actor *in_act, float *out_rot)
 	MAT3_MULT(out_rot, tmp_rot2, tmp_rot1);
 }
 
-void transform_actor_local_position_to_absolute(actor *in_act, float *in_local_pos, float *in_act_rot, float *out_pos)
+void transform_actor_local_position_to_absolute(const actor *in_act, float *in_local_pos, float *in_act_rot, float *out_pos)
 {
 	float scale = get_actor_scale(in_act);
 	float rot[9];
@@ -1805,7 +1883,7 @@ void transform_actor_local_position_to_absolute(actor *in_act, float *in_local_p
 	out_pos[1] = out_pos[1] * scale + in_act->y_pos + 0.25;
 	out_pos[2] = out_pos[2] * scale + get_actor_z(in_act);
 
-	if (in_act->attached_actor >= 0)
+	if (has_attachment(in_act))
 	{
 		float shift[3];
 		MAT3_VECT3_MULT(shift, in_act_rot, in_act->attachment_shift);
@@ -1873,19 +1951,21 @@ void remember_new_summoned(const char *summoned_name)
 // 		has been created close in time to the last sucessful summons
 //		has the same name a the last sucessful summons
 //		has the same guild (if any) of the player
-// Must be called while we have the LOCK_ACTORS_LISTS() lock
-void check_if_new_actor_last_summoned(actor *new_actor)
+void check_if_new_actor_last_summoned(const actor *new_actor)
 {
 	if (SDL_GetTicks() < last_summoned_var.summoned_time + 250)
 	{
-		actor *me = get_our_actor();
-		if (me)
+		actor *me;
+		locked_list_ptr actors_list = lock_and_get_self(&me);
+		if (actors_list)
 		{
 			char me_name_part[MAX_ACTOR_NAME] = "", me_guild_part[MAX_ACTOR_NAME] = "";
 			char summoned_name_part[ACTOR_DEF_NAME_SIZE] = "", summoned_guild_part[ACTOR_DEF_NAME_SIZE] = "";
 
 			split_name_and_guild(me->actor_name, me_name_part, me_guild_part, MAX_ACTOR_NAME);
 			split_name_and_guild(new_actor->actor_name, summoned_name_part, summoned_guild_part, ACTOR_DEF_NAME_SIZE);
+
+			release_locked_actors_list_and_invalidate(actors_list, &me);
 
 			if ((strcmp(last_summoned_var.summoned_name, summoned_name_part) == 0) &&
 					(strcmp(summoned_guild_part, me_guild_part) == 0))
@@ -1901,18 +1981,30 @@ void check_if_new_actor_last_summoned(actor *new_actor)
 // Return the id of the last sucessful summoned creature, if its still present
 int get_id_last_summoned(void)
 {
-	size_t i;
+	locked_list_ptr actors_list;
+	actor *act;
+
 	if (last_summoned_var.actor_id < 0)
 		return -1;
 
 	// check if the actor is still present
-	LOCK_ACTORS_LISTS();
-	for (i=0; i<max_actors; i++)
-		if (actors_list[i]->actor_id == last_summoned_var.actor_id)
-			break;
-	UNLOCK_ACTORS_LISTS();
-
-	if (i == max_actors)
+	actors_list = lock_and_get_actor_from_id(last_summoned_var.actor_id, &act);
+	if (actors_list)
+	{
+		// Yup, still exists
+		release_locked_actors_list_and_invalidate(actors_list, &act);
+	}
+	else
+	{
 		last_summoned_var.actor_id = -1;
+	}
+
 	return last_summoned_var.actor_id;
+}
+
+void free_near_actors(void)
+{
+	no_near_actors = near_actors_size = 0;
+	free(near_actors);
+	near_actors = NULL;
 }

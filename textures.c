@@ -2313,6 +2313,7 @@ void unload_texture_cache()
 #endif	/* ELC */
 }
 
+#ifdef	ELC
 #ifdef	DEBUG
 void dump_texture_cache()
 {
@@ -2338,3 +2339,4 @@ void dump_texture_cache()
 	}
 }
 #endif	/* DEBUG */
+#endif	/* ELC */

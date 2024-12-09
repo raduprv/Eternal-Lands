@@ -9,7 +9,11 @@
 #include "cache.h"
 #include "platform.h"
 #ifndef MAP_EDITOR
- #include "actors.h"
+ #ifdef __cplusplus
+  #include "actors_list.h"
+ #else // __cplusplus
+  #include "actors.h"
+ #endif // __cplusplus
  #ifdef USE_INLINE
   #include "draw_scene.h"
  #endif

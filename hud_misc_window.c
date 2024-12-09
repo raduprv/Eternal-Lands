@@ -2,6 +2,7 @@
 #include <string.h>
 #include <math.h>
 
+#include "actors_list.h"
 #include "asc.h"
 #include "consolewin.h"
 #include "context_menu.h"
@@ -327,11 +328,12 @@ CHECK_GL_ERRORS();
 	if (mouse_over_compass)
 	{
 		char str[12];
-		actor *me = get_our_actor ();
-		if (me != NULL)
+		int x, y;
+		if (self_tile_position(&x, &y))
 		{
-			safe_snprintf(str, sizeof(str), "%d,%d", me->x_tile_pos, me->y_tile_pos);
-			draw_string_small_shadowed_zoomed_right(-tooltip_sep, win->len_y-compass_size,
+			safe_snprintf(str, sizeof(str), "%d,%d", x, y);
+			draw_string_small_shadowed_zoomed_right(-tooltip_sep,
+				win->len_y - HUD_MARGIN_Y - win->small_font_len_y - hud_margin,
 				(unsigned char*)str, 1, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f,
 				win->current_scale);
 		}

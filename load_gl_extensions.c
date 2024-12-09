@@ -10,6 +10,15 @@
 #include "errors.h"
 #include "gl_init.h"
 
+#ifdef ANDROID
+// replace all calls to SDL_GL_GetProcAddress with glXGetProcAddress
+// "This is necessary in environments where the OpenGL link library
+// exports a different set of functions than the runtime library."
+// https://www.khronos.org/registry/OpenGL-Refpages/gl2.1/xhtml/glXGetProcAddress.xml
+void *glXGetProcAddress(const char *name);
+#define SDL_GL_GetProcAddress glXGetProcAddress
+#endif
+
 const char* gl_versions_str[] = { "1.1", "1.2", "1.3", "1.4", "1.5", "2.0", "2.1", "3.0" };
 const Uint16 gl_versions[] = { 0x0101, 0x0102, 0x0103, 0x0104, 0x0105, 0x0200, 0x0201, 0x0300 };
 

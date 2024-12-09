@@ -18,6 +18,9 @@
 #include "interface.h"
 #include "mapwin.h"
 #include "missiles.h"
+#ifdef ANDROID
+#include "multiplayer.h"
+#endif
 #include "new_character.h"
 #if !defined OSX && !defined WINDOWS
 #ifdef MIDDLE_MOUSE_PASTE
@@ -57,6 +60,10 @@ static int console_text_changed = 0;
 static int console_text_width = -1;
 static int hud_init_on_resize = 1;
 
+#ifdef ANDROID
+static int num_to_scroll = 0;
+#endif
+
 static inline int get_console_sep_height(void)
 {
 	return get_line_height(CHAT_FONT, 1.0);
@@ -94,6 +101,33 @@ static int display_console_handler (window_info *win)
 		resize_window(win->window_id, win->len_x, win->len_y);
 		hud_init_on_resize = 1;
 	}
+
+#ifdef ANDROID
+	{
+		// Finger motion up/down triggers scrolling, this provides momentum for the scrolling.
+		// The value of num_to_scroll is set relative to the finger motion so big motions scroll further.
+		// The time between updates is used to keep consistent momentum for different FPS.
+		static Uint32 last_time = 0;
+		float time_delta = (float)(SDL_GetTicks() - last_time) / 1000.0f;
+		int scroll_this_time = (int)(20.0f * num_to_scroll * time_delta);
+		if ((scroll_this_time > 0) && (total_nr_lines > (nr_console_lines + scroll_up_lines)))
+		{
+			scroll_up_lines += scroll_this_time;
+			if (total_nr_lines < (nr_console_lines + scroll_up_lines))
+				scroll_up_lines = total_nr_lines - nr_console_lines;
+			console_text_changed = 1;
+		}
+		else if ((scroll_this_time < 0) && (scroll_up_lines > 0))
+		{
+			scroll_up_lines += scroll_this_time;
+			if (scroll_up_lines < 0)
+				scroll_up_lines = 0;
+			console_text_changed = 1;
+		}
+		num_to_scroll *= (time_delta > 1.0f) ?0 :(1.0f - time_delta);
+		last_time = SDL_GetTicks();
+	}
+#endif
 
 	if (console_text_changed)
 	{
@@ -306,6 +340,10 @@ static int click_console_handler(window_info *win, int mx, int my, Uint32 flags)
 		scroll_up_lines--;
 		console_text_changed = 1;
 	}
+#ifdef ANDROID
+	if (is_disconnected())
+		connect_to_server();
+#endif
 	else
 	{
 		return 0; // we didn't handle it
@@ -387,6 +425,53 @@ static int ui_scale_console_handler(window_info *win)
 	return 1;
 }
 
+#ifdef ANDROID
+int finger_motion_console_handler(window_info *win, Uint32 timestamp, float x, float y, float dx, float dy)
+{
+	if ((dx != dx) || (dy != dy))
+		return 0; // we got a nan....
+
+	if ((dx < -2) || (dx > 2) || (dy < -2) || (dy > 2))
+		return 0; // it's the multi gesture stupid bug
+
+	if (console_scrollbar_enabled)
+	{
+		// If we have a scroll bar, it cannot be updated by the drag() functions.  So, we simulate
+		// dragging using the motion position instead.
+		if (((int)(0.5 + x * window_width)) > (win->len_x - HUD_MARGIN_X - 2 * win->box_size))
+		{
+			widget_list *W = widget_find(win->window_id, console_scrollbar_id);
+			if (W != NULL)
+				vscrollbar_simulate_click(W, (int)(0.5 + y * window_height) - CONSOLE_Y_OFFSET);
+			return 1;
+		}
+	}
+
+	// if the motion is more in the x direction, check for keyboard control
+	if (fabsf(dx) > fabsf(dy))
+	{
+		if (dx < -0.02)
+		{
+			SDL_StartTextInput();
+			return 1;
+		}
+		else if (dx > 0.02)
+		{
+			SDL_StopTextInput();
+			return 1;
+		}
+	}
+	else
+	{
+		// Else start scrolling with momentum relative to the motion value.
+		num_to_scroll = (int)(dy * 1000.0f);
+		return 1;
+	}
+
+	return 0;
+}
+#endif
+
 static int change_console_font_handler(window_info *win, font_cat cat)
 {
 	if (cat != CHAT_FONT)
@@ -422,7 +507,11 @@ void create_console_root_window (int width, int height)
 		set_window_handler (console_root_win, ELW_HANDLER_KEYPRESS, (int (*)())&keypress_console_handler);
 		set_window_handler (console_root_win, ELW_HANDLER_RESIZE, &resize_console_handler);
 		set_window_handler (console_root_win, ELW_HANDLER_CLICK, &click_console_handler);
+#ifdef ANDROID
+		set_window_handler (console_root_win, ELW_HANDLER_FINGER_MOTION, (int (*)())&finger_motion_console_handler);
+#else
 		set_window_handler (console_root_win, ELW_HANDLER_MOUSEOVER, &mouseover_console_handler);
+#endif
 		set_window_handler (console_root_win, ELW_HANDLER_SHOW, &show_console_handler);
 		set_window_handler (console_root_win, ELW_HANDLER_UI_SCALE, &ui_scale_console_handler);
 		set_window_handler(console_root_win, ELW_HANDLER_FONT_CHANGE, &change_console_font_handler);

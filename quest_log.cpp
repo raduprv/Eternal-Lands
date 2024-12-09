@@ -509,9 +509,9 @@ static int mouseover_npc_filter_handler(window_info *win, int mx, int my)
 //
 void draw_highlight(int topleftx, int toplefty, int widthx, int widthy, size_t col)
 {
-	float colours[2][2][3] = { { {gui_invert_color[0], gui_invert_color[1], gui_invert_color[2]}, {gui_color[0], gui_color[1], gui_color[2]} },
-							  { {0.11, 0.11f, 0.11f}, {0.33, 0.42f, 0.70f} } };
-	if (col > 1)
+	float colours[3][2][3] = { { {gui_invert_color[0], gui_invert_color[1], gui_invert_color[2]}, {gui_color[0], gui_color[1], gui_color[2]} },
+							  { {0.11, 0.11f, 0.11f}, {0.33, 0.42f, 0.70f} }, { {0.05, 0.1f, 0.07f}, {0.4f, 0.7f, 0.5f} } };
+	if (col > 2)
 		col = 0;
 	glDisable(GL_TEXTURE_2D);
 	glBegin(GL_QUADS);

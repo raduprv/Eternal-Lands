@@ -4,6 +4,7 @@
 #include <SDL.h>
 #include <errno.h>
 #include "interface.h"
+#include "actors_list.h"
 #include "asc.h"
 #include "bbox_tree.h"
 #include "chat.h"
@@ -39,14 +40,19 @@
 #include "3d_objects.h"
 #include "image_loading.h"
 #include "weather.h"
+#ifdef ANDROID
+#include "elconfig.h"
+#endif
 
 #define DEFAULT_CONTMAPS_SIZE 20
 
 int mouse_x = 0;
 int mouse_y = 0;
+#ifndef ANDROID
 int right_click = 0;
 int middle_click = 0;
 int left_click = 0;
+#endif
 
 dynamic_banner_colour_def dynamic_banner_colour =
 {
@@ -58,9 +64,11 @@ dynamic_banner_colour_def dynamic_banner_colour =
 int have_a_map=0;
 int view_health_bar=1;
 int view_ether_bar=0;
+int view_food_bar=0;
 int view_names=1;
 int view_hp=0;
 int view_ether=0;
+int view_food=0;
 int view_chat_text_as_overtext=0;
 int view_mode_instance=0;
 float view_mode_instance_banner_height=5.0f;
@@ -685,7 +693,11 @@ static void draw_mark_filter(void)
 	else
 	{
 		char buf[20];
+#ifdef ANDROID
+		safe_snprintf(buf, sizeof(buf), "(%s)", touch_help_str);
+#else
 		get_key_string(K_MARKFILTER, buf, sizeof(buf));
+#endif
 		draw_text(x, (int)(y + (h + text_height) / 2), (const unsigned char *)buf, strlen(buf), UI_FONT,
 			TDO_ALIGNMENT, CENTER, TDO_ZOOM, map_font_scale_fac, TDO_END);
 	}
@@ -718,6 +730,9 @@ static void draw_marks(marking *the_marks, int the_max_mark, int the_tile_map_si
 			if(!the_marks[i].server_side) glColor3f((float)the_marks[i].r/255,(float)the_marks[i].g/255,(float)the_marks[i].b/255);//glColor3f(0.4f,1.0f,0.0f);
 			else glColor3f(0.33f,0.6f,1.0f);
 			glDisable(GL_TEXTURE_2D);
+#ifdef ANDROID
+			glLineWidth(3);
+#endif
 			glBegin(GL_LINES);
 				glVertex2i(screen_x-7*mapmark_zoom,screen_y-7*mapmark_zoom);
 				glVertex2i(screen_x+7*mapmark_zoom,screen_y+7*mapmark_zoom);
@@ -725,6 +740,9 @@ static void draw_marks(marking *the_marks, int the_max_mark, int the_tile_map_si
 				glVertex2i(screen_x+7*mapmark_zoom,screen_y-7*mapmark_zoom);
 				glVertex2i(screen_x-7*mapmark_zoom,screen_y+7*mapmark_zoom);
 			glEnd();
+#ifdef ANDROID
+			glLineWidth(1);
+#endif
 				glEnable(GL_TEXTURE_2D);
 				if(!the_marks[i].server_side) glColor3f((float)the_marks[i].r/255,(float)the_marks[i].g/255,(float)the_marks[i].b/255);//glColor3f(0.2f,1.0f,0.0f);
 				else glColor3f(0.33f,0.6f,1.0f);
@@ -762,7 +780,6 @@ void draw_game_map (int map, int mouse_mini)
 	int x=-1,y=-1;
 	float x_size=0,y_size=0;
 	GLuint map_small, map_large;
-	actor *me;
 	static int fallback_text = -1;
 	int win_width, win_height;
 	int main_l = main_map_screen_x_left, main_r = main_map_screen_x_right,
@@ -873,6 +890,7 @@ void draw_game_map (int map, int mouse_mini)
 // because of the coordinate display - Lachesis
 	if(map/*&&(adding_mark||max_mark>0)*/)
 	{
+#ifndef ANDROID
 		// Draw help for toggling the mini-map
 		{
 			char buf[80];
@@ -883,6 +901,7 @@ void draw_game_map (int map, int mouse_mini)
 			draw_text(small_l+small_w/2, (int)(main_t + main_h - 1.1 * get_line_height(UI_FONT, map_font_scale_fac)), (const unsigned char *)buf,
 				strlen(buf), UI_FONT, TDO_ALIGNMENT, CENTER, TDO_ZOOM, map_font_scale_fac, TDO_END);
 		}
+#endif
 
 		// draw a temporary mark until the text is entered
 		if (adding_mark)
@@ -895,6 +914,9 @@ void draw_game_map (int map, int mouse_mini)
 
 			glColor3f(1.0f,1.0f,0.0f);
 			glDisable(GL_TEXTURE_2D);
+#ifdef ANDROID
+			glLineWidth(3);
+#endif
 			glBegin(GL_LINES);
 				glVertex2i(screen_x-7*mapmark_zoom,screen_y-7*mapmark_zoom);
 				glVertex2i(screen_x+7*mapmark_zoom,screen_y+7*mapmark_zoom);
@@ -902,6 +924,9 @@ void draw_game_map (int map, int mouse_mini)
 				glVertex2i(screen_x+7*mapmark_zoom,screen_y-7*mapmark_zoom);
 				glVertex2i(screen_x-7*mapmark_zoom,screen_y+7*mapmark_zoom);
 			glEnd();
+#ifdef ANDROID
+			glLineWidth(1);
+#endif
 		        glEnable(GL_TEXTURE_2D);
 		        glColor3f(1.0f,1.0f,0.0f);
 			draw_text(screen_x, screen_y, (const unsigned char*)input_text_line.data,
@@ -946,6 +971,9 @@ void draw_game_map (int map, int mouse_mini)
 		glColor3f(1.0f,0.0f,0.0f);
 
 		glDisable(GL_TEXTURE_2D);
+#ifdef ANDROID
+		glLineWidth(3);
+#endif
 		glBegin(GL_LINES);
 
 		glVertex2i(screen_x-7*mapmark_zoom,screen_y-7*mapmark_zoom);
@@ -955,20 +983,15 @@ void draw_game_map (int map, int mouse_mini)
 		glVertex2i(screen_x-7*mapmark_zoom,screen_y+7*mapmark_zoom);
 
 		glEnd();
+#ifdef ANDROID
+		glLineWidth(1);
+#endif
 	}
 
 	//ok, now let's draw our position...
-	if ( (me = get_our_actor ()) != NULL && inspect_map_text == 0)
-	{
-		x = me->x_tile_pos;
-		y = me->y_tile_pos;
-	}
-	else
-	{
-		//We don't exist (usually happens when teleporting)
-		x = -1;
-		y = -1;
-	}
+	x = y = -1;
+	if (inspect_map_text == 0)
+		self_tile_position(&x, &y);
 
 	if (!map)
 	{
@@ -993,8 +1016,13 @@ void draw_game_map (int map, int mouse_mini)
 		glColor3f (0.0f, 0.0f, 1.0f);
 		glDisable (GL_TEXTURE_2D);
 		glPushAttrib(GL_LINE_BIT);
+#ifdef ANDROID
+		// ANDROID_TODO if we include the GL_LINE_SMOOTH, the line is not drawn thicker
+		glLineWidth(6.0);
+#else
 		glLineWidth(2.0);
 		glEnable(GL_LINE_SMOOTH);
+#endif
 		glBegin (GL_LINES);
 
 		glVertex2i(screen_x-7*mapmark_zoom,screen_y-7*mapmark_zoom);
@@ -1135,18 +1163,29 @@ int put_mark_on_position(int map_x, int map_y, const char * name)
 void put_mark_on_map_on_mouse_position(void)
 {
 	if (pf_get_mouse_position(mouse_x, mouse_y, &mark_x, &mark_y))
+#ifdef ANDROID
+	{
+		if (adding_mark)
+		{
+			SDL_StopTextInput();
+			adding_mark = 0;
+			clear_input_line();
+		}
+		else
+		{
+			SDL_StartTextInput();
+			adding_mark = 1;
+		}
+	}
+#else
 		adding_mark = 1;
+#endif
 }
+
 int put_mark_on_current_position(const char *name)
 {
-	actor *me = get_our_actor ();
-
-	if (me != NULL)
-	{
-		if (put_mark_on_position(me->x_tile_pos, me->y_tile_pos, name))
-			return 1;
-	}
-	return 0;
+	int map_x, map_y;
+	return self_tile_position(&map_x, &map_y) && put_mark_on_position(map_x, map_y, name);
 }
 
 void delete_mark_on_map_on_mouse_position(void)

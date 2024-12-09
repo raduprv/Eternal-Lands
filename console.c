@@ -3,6 +3,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <errno.h>
+#include "actors_list.h"
 #include "asc.h"
 #include "buddy.h"
 #include "cache.h"
@@ -10,6 +11,9 @@
 #include "chat.h"
 #include "consolewin.h"
 #include "elconfig.h"
+#ifdef ANDROID
+#include "events.h"
+#endif
 #include "filter.h"
 #include "gamewin.h"
 #include "gl_init.h"
@@ -20,6 +24,7 @@
 #include "init.h"
 #include "item_lists.h"
 #include "interface.h"
+#include "invasion_window.h"
 #include "knowledge.h"
 #include "list.h"
 #include "mapwin.h"
@@ -79,6 +84,11 @@ static list_node_t *command_buffer_offset = NULL;
 /* The input line before we started moving around in the buffer. */
 static char first_input[256] = {0};
 
+// invasion window command strings
+static const char * invasion_win_long_cmd_str = "invasion_win";
+static const char * invasion_win_short_cmd_str = "iwin";
+static const char * invasion_seq_stop_long_cmd_str = "stop_invasion_seq";
+static const char * invasion_seq_stop_short_cmd_str = "istop";
 
 void add_line_to_history(const char *line, int len)
 {
@@ -210,12 +220,14 @@ static const char *strmrchr(const char *s, const char *begin, int c)
 
 	*cbegin = '\0';
 	result = strrchr(copy, c);
-	free(copy);
 
 	if(result == NULL) {
+		free(copy);
 		return NULL;
 	} else {
-		return s+(result-copy);
+		const char *ret = s+(result-copy);
+		free(copy);
+		return ret;
 	}
 }
 
@@ -231,6 +243,24 @@ struct compl_str {
 	const char *str;
 	enum compl_type type;
 };
+
+
+// return true if the command is in the exclude list
+static int exclude_command(const char * command)
+{
+	const char * const exclude_commands[] = {invasion_win_long_cmd_str, invasion_win_short_cmd_str,
+		invasion_seq_stop_long_cmd_str, invasion_seq_stop_short_cmd_str};
+	const size_t num_exclude = sizeof(exclude_commands) / sizeof(char *);
+	int j;
+	// if we want to exclude non invasion window commands, we will need to change this ...
+	if (invasion_window_enabled())
+		return 0;
+	for (j = 0; j < num_exclude; j++)
+		if (strcasecmp(command, exclude_commands[j]) == 0)
+			return 1;
+	return 0;
+}
+
 
 static struct compl_str tab_complete(const text_message *input, unsigned int cursor_pos)
 {
@@ -339,6 +369,8 @@ static struct compl_str tab_complete(const text_message *input, unsigned int cur
 				case COMMAND:
 				default:
 					for(i = 0, count = 0; i < command_count; i++) {
+						if (exclude_command(commands[i].command))
+							continue;
 						if(strncasecmp(commands[i].command, last_complete, strlen(last_complete)) == 0) {
 							/* Yay! The command begins with the string we're searching for. */
 							if(count > last_str_count) {
@@ -486,33 +518,30 @@ static int print_emotes(char *text, int len){
 
 #ifdef EMOTES_DEBUG
 int add_emote(char *text, int len){
-
 	int j;
 	char *id;
-	actor *act=NULL;
+	locked_list_ptr actors_list;
+	actor *act;
 
 	for(j=1;j<len;j++) if(text[j]==' ') {text[j]=0; break;}
 	id=&text[j+1];
 	text++;
 	printf("Actor [%s] [%s]\n",text,id);
-	LOCK_ACTORS_LISTS();
-	for (j = 0; j < max_actors; j++){
-		if (!strncasecmp(actors_list[j]->actor_name, text, strlen(text)) &&
-	  	   (actors_list[j]->actor_name[strlen(text)] == ' ' ||
-	    	   actors_list[j]->actor_name[strlen(text)] == '\0')){
-			act = actors_list[j];
-			LOG_TO_CONSOLE(c_orange1, "actor found, adding emote");
-			printf("actor found\n");
-			add_emote_to_actor(act->actor_id,atoi(id));
-			printf("message added %s\n",id);
-		}
-	}
-	if (!act){
-		UNLOCK_ACTORS_LISTS();
+
+	actors_list = lock_and_get_actor_from_name(text, &act);
+	if (!actors_list)
+	{
 		LOG_TO_CONSOLE(c_orange1, "actor not found");
 		return 1;
 	}
-	UNLOCK_ACTORS_LISTS();
+
+	LOG_TO_CONSOLE(c_orange1, "actor found, adding emote");
+	printf("actor found\n");
+	add_emote_to_actor(act->actor_id,atoi(id));
+	printf("message added %s\n",id);
+
+	release_locked_actors_list_and_invalidate(actors_list, &me);
+
 	*(id-1)=' ';
 	return 1;
 
@@ -523,35 +552,35 @@ static int send_cmd(char *text, int len){
 
 	int j,x;
 	char *id;
-	actor *act=NULL;
+	locked_list_ptr actors_list;
+	actor *act, *attached;
 
 	for(j=1;j<len;j++) if(text[j]==' ') {text[j]=0; break;}
 	id=&text[j+1];
 	x=j;
 	text++;
 	printf("Actor [%s] [%s]\n",text,id);
-	LOCK_ACTORS_LISTS();
-	for (j = 0; j < max_actors; j++){
-		if (!strncasecmp(actors_list[j]->actor_name, text, strlen(text)) &&
-	  	   (actors_list[j]->actor_name[strlen(text)] == ' ' ||
-	    	   actors_list[j]->actor_name[strlen(text)] == '\0')){
-			act = actors_list[j];
-			LOG_TO_CONSOLE(c_orange1, "actor found, adding command");
-			printf("actor found\n");
-			while(*id){
-			add_command_to_actor(act->actor_id,atoi(id));
-			id++;
-				while(*id!=' '&&*id!=0) id++;
-			}
-			printf("command added %s\n",id);
-		}
-	}
-	if (!act){
-		UNLOCK_ACTORS_LISTS();
+
+	actors_list = lock_and_get_actor_from_name(text, &act);
+	if (!actors_list)
+	{
 		LOG_TO_CONSOLE(c_orange1, "actor not found");
 		return 1;
 	}
-	UNLOCK_ACTORS_LISTS();
+
+	LOG_TO_CONSOLE(c_orange1, "actor found, adding command");
+	printf("actor found\n");
+	attached = has_attachment(act) ? get_actor_from_id(actors_list, act->attached_actor_id) : NULL;
+	while(*id)
+	{
+		add_command_to_actor_locked(act, attached, atoi(id));
+		id++;
+		while(*id!=' '&&*id!=0) id++;
+	}
+	printf("command added %s\n",id);
+
+	release_locked_actors_list_and_invalidate2(actors_list, &act, &attached);
+
 	text[x-1]=' ';
 	return 1;
 }
@@ -561,47 +590,46 @@ static int set_idle(char *text, int len){
 
 	int j,x;
 	char *id;
-	actor *act=NULL;
+	locked_list_ptr actors_list;
+	actor *act;
+	struct CalMixer *mixer;
 
 	for(j=1;j<len;j++) if(text[j]==' ') {text[j]=0; break;}
 	id=&text[j+1];
 	x=j;
 	text++;
 	printf("Actor [%s] [%s]\n",text,id);
-	LOCK_ACTORS_LISTS();
-	for (j = 0; j < max_actors; j++){
-		if (!strncasecmp(actors_list[j]->actor_name, text, strlen(text)) &&
-	  	   (actors_list[j]->actor_name[strlen(text)] == ' ' ||
-	    	   actors_list[j]->actor_name[strlen(text)] == '\0')){
-				struct CalMixer *mixer;
-			act = actors_list[j];
-				mixer=CalModel_GetMixer(act->calmodel);
-			LOG_TO_CONSOLE(c_orange1, "actor found, adding anims");
-			printf("actor found\n");
-			CalMixer_ClearCycle(mixer,act->cur_anim.anim_index, 0.0f);
-			while(*id){
-				int anim_id;
-				double anim_wg;
 
-				anim_id=atoi(id);
-			id++;
-				while(*id!=' '&&*id!=0) id++;
-				anim_wg=atof(id);
-			id++;
-				while(*id!=' '&&*id!=0) id++;
-				printf("setting anim %i with weight %f\n",anim_id,anim_wg);
-				if(anim_wg<0) CalMixer_ClearCycle(mixer,actors_defs[act->actor_type].cal_frames[anim_id].anim_index, 0.0f);
-				else CalMixer_BlendCycle(mixer,actors_defs[act->actor_type].cal_frames[anim_id].anim_index,anim_wg, 0.1f);
-			}
-			printf("command added %s\n",id);
-		}
-	}
-	if (!act){
-		UNLOCK_ACTORS_LISTS();
+	actors_list = lock_and_get_actor_from_name(text, &act);
+	if (!actors_list)
+	{
 		LOG_TO_CONSOLE(c_orange1, "actor not found");
 		return 1;
 	}
-	UNLOCK_ACTORS_LISTS();
+
+	mixer=CalModel_GetMixer(act->calmodel);
+	LOG_TO_CONSOLE(c_orange1, "actor found, adding anims");
+	printf("actor found\n");
+	CalMixer_ClearCycle(mixer,act->cur_anim.anim_index, 0.0f);
+	while(*id)
+	{
+		int anim_id;
+		double anim_wg;
+
+		anim_id=atoi(id);
+		id++;
+		while(*id!=' '&&*id!=0) id++;
+		anim_wg=atof(id);
+		id++;
+		while(*id!=' '&&*id!=0) id++;
+		printf("setting anim %i with weight %f\n",anim_id,anim_wg);
+		if(anim_wg<0) CalMixer_ClearCycle(mixer,actors_defs[act->actor_type].cal_frames[anim_id].anim_index, 0.0f);
+		else CalMixer_BlendCycle(mixer,actors_defs[act->actor_type].cal_frames[anim_id].anim_index,anim_wg, 0.1f);
+	}
+	printf("command added %s\n",id);
+
+	release_locked_actors_list_and_invalidate(actors_list, &act);
+
 	text[x-1]=' ';
 	return 1;
 }
@@ -611,46 +639,45 @@ static int set_action(char *text, int len){
 
 	int j,x;
 	char *id;
-	actor *act=NULL;
+	locked_list_ptr actors_list;
+	actor *act;
+	struct CalMixer *mixer;
 
 	for(j=1;j<len;j++) if(text[j]==' ') {text[j]=0; break;}
 	id=&text[j+1];
 	x=j;
 	text++;
 	printf("Actor [%s] [%s]\n",text,id);
-	LOCK_ACTORS_LISTS();
-	for (j = 0; j < max_actors; j++){
-		if (!strncasecmp(actors_list[j]->actor_name, text, strlen(text)) &&
-	  	   (actors_list[j]->actor_name[strlen(text)] == ' ' ||
-	    	   actors_list[j]->actor_name[strlen(text)] == '\0')){
-				struct CalMixer *mixer;
-			act = actors_list[j];
-				mixer=CalModel_GetMixer(act->calmodel);
-			LOG_TO_CONSOLE(c_orange1, "actor found, adding anims");
-			printf("actor found\n");
-			while(*id){
-				int anim_id;
-				double anim_wg;
 
-				anim_id=atoi(id);
-			id++;
-				while(*id!=' '&&*id!=0) id++;
-				anim_wg=atof(id);
-			id++;
-				while(*id!=' '&&*id!=0) id++;
-				printf("setting action %i with weight %f\n",anim_id,anim_wg);
-				if(anim_wg<0) CalMixer_RemoveAction(mixer,actors_defs[act->actor_type].cal_frames[anim_id].anim_index);
-				else CalMixer_ExecuteActionExt(mixer,actors_defs[act->actor_type].cal_frames[anim_id].anim_index,0.0f,0.0f,anim_wg, 1);
-			}
-			printf("command added %s\n",id);
-		}
-	}
-	if (!act){
-		UNLOCK_ACTORS_LISTS();
+	actors_list = lock_and_get_actor_from_name(text, &act);
+	if (!actors_list)
+	{
 		LOG_TO_CONSOLE(c_orange1, "actor not found");
 		return 1;
 	}
-	UNLOCK_ACTORS_LISTS();
+
+	mixer=CalModel_GetMixer(act->calmodel);
+	LOG_TO_CONSOLE(c_orange1, "actor found, adding anims");
+	printf("actor found\n");
+	while(*id)
+	{
+		int anim_id;
+		double anim_wg;
+
+		anim_id=atoi(id);
+		id++;
+		while(*id!=' '&&*id!=0) id++;
+		anim_wg=atof(id);
+		id++;
+		while(*id!=' '&&*id!=0) id++;
+		printf("setting action %i with weight %f\n",anim_id,anim_wg);
+		if(anim_wg<0) CalMixer_RemoveAction(mixer,actors_defs[act->actor_type].cal_frames[anim_id].anim_index);
+		else CalMixer_ExecuteActionExt(mixer,actors_defs[act->actor_type].cal_frames[anim_id].anim_index,0.0f,0.0f,anim_wg, 1);
+	}
+	printf("command added %s\n",id);
+
+	release_locked_actors_list_and_invalidate(actors_list, &act);
+
 	text[x-1]=' ';
 	return 1;
 }
@@ -662,45 +689,41 @@ static int horse_cmd(char* text, int len){
 
 	int j,x;
 	char *id;
-	actor *act=NULL;
+	locked_list_ptr actors_list;
+	actor *act;
 
 	for(j=1;j<len;j++) if(text[j]==' ') {text[j]=0; break;}
 	id=&text[j+1];
 	x=j;
 	text++;
 	printf("Actor [%s] [%s] [%i]\n",text,id,atoi(id));
-	LOCK_ACTORS_LISTS();
-	for (j = 0; j < max_actors; j++){
-		if (!strncasecmp(actors_list[j]->actor_name, text, strlen(text)) &&
-	  	   (actors_list[j]->actor_name[strlen(text)] == ' ' ||
-	    	   actors_list[j]->actor_name[strlen(text)] == '\0')){
-			act = actors_list[j];
-			LOG_TO_CONSOLE(c_orange1, "actor found, adding horse");
-		}
-	}
-	text[x-1]=' ';
 
-	if (!act){
-		UNLOCK_ACTORS_LISTS();
+	actors_list = lock_and_get_actor_from_name(text, &act);
+	text[x-1]=' ';
+	if (!actors_list)
+	{
 		LOG_TO_CONSOLE(c_orange1,"Actor doesn't exist");
 		return 1;		// Eek! We don't have an actor match... o.O
 	}
 
+	LOG_TO_CONSOLE(c_orange1, "actor found, adding horse");
+
 	act->sit_idle=act->stand_idle=0;
 
-	if(act->attached_actor>=0){
+	if (has_attachment(act)){
 		//remove horse
-		remove_actor_attachment(act->actor_id);
+		remove_and_destroy_attachment(actors_list, act->actor_id);
 		LOG_TO_CONSOLE(c_orange1,"De-horsified");
 
 	} else {
 		//add horse
 		int hh=atoi(id);
 		if (hh<=0) hh=200;
-		add_actor_attachment(act->actor_id, hh);
+		add_actor_attachment(actors_list, act, hh);
 		LOG_TO_CONSOLE(c_orange1,"Horsified");
 	}
-	UNLOCK_ACTORS_LISTS();
+
+	release_locked_actors_list_and_invalidate(actors_list, &act);
 
 	return 1;
 
@@ -713,37 +736,35 @@ static int set_neck(char *text, int len){
 
 	int j;
 	char *id;
-	actor *act=NULL;
+	locked_list_ptr actors_list;
+	actor *act;
 
 	for(j=1;j<len;j++) if(text[j]==' ') {text[j]=0; break;}
 	id=&text[j+1];
 	text++;
 	printf("Actor [%s] [%s]\n",text,id);
-	LOCK_ACTORS_LISTS();
-	for (j = 0; j < max_actors; j++){
-		if (!strncasecmp(actors_list[j]->actor_name, text, strlen(text)) &&
-	  	   (actors_list[j]->actor_name[strlen(text)] == ' ' ||
-	    	   actors_list[j]->actor_name[strlen(text)] == '\0')){
-			act = actors_list[j];
-			LOG_TO_CONSOLE(c_orange1, "actor found, adding neck item");
-			printf("actor found\n");
-			if(atoi(id)) {
-				//wear
-				unwear_item_from_actor(act->actor_id,KIND_OF_NECK);
-				actor_wear_item(act->actor_id,KIND_OF_NECK, atoi(id));
-			} else {
-				//unwear
-				unwear_item_from_actor(act->actor_id,KIND_OF_NECK);
 
-			}
-		}
-	}
-	if (!act){
-		UNLOCK_ACTORS_LISTS();
+	actors_list = lock_and_get_actor_from_name(text, &act);
+	if (!actors_list)
+	{
 		LOG_TO_CONSOLE(c_orange1, "actor not found");
 		return 1;
 	}
-	UNLOCK_ACTORS_LISTS();
+
+	LOG_TO_CONSOLE(c_orange1, "actor found, adding neck item");
+	printf("actor found\n");
+	if(atoi(id)) {
+		//wear
+		unwear_item_from_actor(act->actor_id,KIND_OF_NECK);
+		actor_wear_item(act->actor_id,KIND_OF_NECK, atoi(id));
+	} else {
+		//unwear
+		unwear_item_from_actor(act->actor_id,KIND_OF_NECK);
+
+	}
+
+	release_locked_actors_list_and_invalidate(actors_list, &act);
+
 	*(id-1)=' ';
 	return 1;
 
@@ -1703,10 +1724,8 @@ void save_local_data(void)
 void auto_save_local_and_server(void)
 {
 	time_t time_delta = 60 * 90;
-	actor *me;
 
-	me = get_our_actor();
-	if(!is_disconnected() && me && !me->fighting && ((last_save_time + time_delta) <= time(NULL)))
+	if ((last_save_time + time_delta) <= time(NULL) && !is_disconnected() && !self_is_fighting())
 	{
 		last_save_time = time(NULL);
 		save_local_data();
@@ -1763,6 +1782,15 @@ static int command_change_pass(char *text, int len)
 	else
 		return 0;
 }
+
+
+#ifdef ANDROID
+static int toggle_keyboard_debug(char *text, int len)
+{
+	enable_keyboard_debug = (enable_keyboard_debug) ?0 :1;
+	return 1;
+}
+#endif
 
 
 static int command_reset_res(char *text, int len)
@@ -1917,7 +1945,7 @@ int cm_test_window(char *text, int len);
 static void commands_summary(void)
 {
 	char *str = NULL;
-	const char *delim = "  .  ";
+	const char * const delim = "  .  ";
 	const size_t str_len = 1 + (MAX_COMMAND_NAME_LEN + strlen(delim)) * command_count;
 	size_t i;
 
@@ -1927,8 +1955,10 @@ static void commands_summary(void)
 	LOG_TO_CONSOLE(c_green1, commands_help_description_help_str);
 	LOG_TO_CONSOLE(c_green1, commands_help_search_help_str);
 	str[0] = '\0';
-	for(i = 0; i < command_count; i++) 
+	for(i = 0; i < command_count; i++)
 	{
+		if (exclude_command(commands[i].command))
+			continue;
 		if (str[0] != '\0')
 			safe_strcat(str, delim, str_len);
 		safe_strcat(str, commands[i].command, str_len);
@@ -1963,11 +1993,11 @@ static void cleanup_commands_help(void)
 	for (i = 0; i < commands_help_size; i++)
 	{
 		if (commands_help[i].c_str != NULL)
-			free(commands_help[i].c_str); 
+			free(commands_help[i].c_str);
 		if (commands_help[i].p_str != NULL)
-			free(commands_help[i].p_str); 
+			free(commands_help[i].p_str);
 		if (commands_help[i].d_str != NULL)
-			free(commands_help[i].d_str); 
+			free(commands_help[i].d_str);
 	}
 	free(commands_help);
 	commands_help_size = 0;
@@ -2237,6 +2267,15 @@ void init_commands(const char *filename)
 	add_command("set_default_fonts", &command_set_default_fonts);
 	add_command(cmd_summon_attack, &command_summon_attack);
 	add_command(cmd_summon_attack_short, &command_summon_attack);
+
+	add_command(invasion_win_long_cmd_str, &command_invasion_window);
+	add_command(invasion_win_short_cmd_str, &command_invasion_window);
+	add_command(invasion_seq_stop_long_cmd_str, &stop_invasion_sequence);
+	add_command(invasion_seq_stop_short_cmd_str, &stop_invasion_sequence);
+
+#ifdef ANDROID
+	add_command("kbd", &toggle_keyboard_debug);
+#endif
 
 	// Sort the command list alphabetically so that the #command lists
 	// them sorted and the ctrl+SPACE cycles them sorted.  Assumes no

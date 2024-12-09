@@ -6,6 +6,9 @@
 #ifndef __TRANSLATE_H__
 #define __TRANSLATE_H__
 #include <libxml/parser.h>
+#ifdef ELC
+#include "stats.h"
+#endif
 
 #ifdef __cplusplus
 extern "C" {
@@ -27,10 +30,6 @@ typedef struct
 	int saved_desc;            /*!< saved_desc */
 #endif
 } dichar;
-
-#ifdef ELC
-#include "stats.h"
-#endif
 
 /*! 
  * Defines a normal xml-node and a pointer to the variable the content should be saved to.
@@ -200,6 +199,7 @@ extern char 	tt_walk[30],
 		tt_buddy[30],
 		tt_options[30],
 		tt_help[30],
+		tt_invasion[30],
 		tt_customize[60],
 		newchar_warning[50],
 		newchar_cust_help[100],
@@ -221,6 +221,13 @@ extern char 	tt_walk[30],
 extern char	
 		/*3d_objects.c*/
 		values_str[20],
+#ifdef ANDROID
+		/* misc android help */
+		touch_help_str[20],
+		long_touch_cm_title_str[40],
+		long_touch_cm_options_str[40],
+		keyboard_button_str[30],
+#endif
 		/*buddy.c*/
 		buddy_name_str[20],
 		buddy_long_name_str[100],
@@ -274,6 +281,7 @@ extern char
 		commands_help_not_recognsed_str[40],
 		commands_help_description_help_str[100],
 		commands_help_search_help_str[100],
+		banner_off_help_str[100],
 		cmd_ignores[20],
 		cmd_ignore[20],
 		cmd_unignore[20],
@@ -315,6 +323,9 @@ extern char
 		urlcmd_invalid_str[30],
 		urlcmd_afk_str[30],
 		urlcmd_clear_str[30],
+#ifdef ANDROID
+		urlwin_longtouch_str[50],
+#endif
 		urlwin_open_str[50],
 		urlwin_clear_str[30],
 		/*draw_scene.c*/
@@ -378,6 +389,9 @@ extern char
 		auto_get_all_str[30],
 		item_list_but_str[35],
 		inv_keeprow_str[30],
+#ifdef ANDROID
+		quantity_edit_touch_str[100],
+#endif
 		quantity_edit_str[100],
 		equip_here_str[100],
 		items_text_toggle_help_str[50],
@@ -435,10 +449,18 @@ extern char
 		manu_remove_str[60],
 		/*multiplayer.c*/
 		connect_to_server_str[50],
+#ifdef ANDROID
+		touch_to_retry_str[40],
+#else
 		reconnect_str[50],
+#endif
 		test_server_connect_str[40],
 		server_connect_test_failed_str[40],
+		server_connect_timeout_str[40],
+#ifndef ANDROID
 		alt_x_quit[50],
+		ctrl_o_options[50],
+#endif
 		license_check[150], 
 		/*new_character.c*/
 		skin_str[15],
@@ -528,7 +550,7 @@ extern char
 		cm_textedit_menu_str[100],
 		cm_quickbar_menu_str[150],
 		cm_hud_menu_str[270],
-		cm_banner_menu_str[240],
+		cm_banner_menu_str[300],
 		cm_title_menu_str[150],
 		cm_title_help_str[50],
 		cm_items_menu_str[190],

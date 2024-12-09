@@ -5,6 +5,10 @@
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
+#ifdef ANDROID
+#include <gl4esinit.h>
+#endif
+
 #include "platform.h"
 
 #ifdef	__GNUC__
@@ -23,6 +27,7 @@
 #include "2d_objects.h"
 #include "3d_objects.h"
 #include "actor_scripts.h"
+#include "actors_list.h"
 #include "asc.h"
 #include "astrology.h"
 #include "bbox_tree.h"
@@ -47,11 +52,15 @@
 #include "init.h"
 #include "item_lists.h"
 #include "interface.h"
+#include "invasion_window.h"
 #include "lights.h"
 #include "manufacture.h"
 #include "map.h"
 #include "minimap.h"
 #include "multiplayer.h"
+#ifdef ANDROID
+#include "new_update.h"
+#endif
 #include "particles.h"
 #include "password_manager.h"
 #include "pm_log.h"
@@ -113,8 +122,7 @@ void cleanup_mem(void)
 	cleanup_text_buffers();
 	LOG_INFO("destroy_all_actors()");
 	destroy_all_actors();
-	LOG_INFO("end_actors_lists()");
-	end_actors_lists();
+	free_near_actors();
 	LOG_INFO("cleanup_lights()");
 	cleanup_lights();
 	/* 2d objects */
@@ -207,9 +215,10 @@ int start_rendering()
 			my_tcp_flush();    // make sure the tcp output buffer is set
 
 			if (have_a_map && cur_time > last_frame_and_command_update + 60) {
-				LOCK_ACTORS_LISTS();
-				next_command();
-				UNLOCK_ACTORS_LISTS();
+				locked_list_ptr actors_list = get_locked_actors_list();
+				next_command(actors_list);
+				release_locked_actors_list(actors_list);
+
 				move_to_next_frame();
 				last_frame_and_command_update = cur_time;
 			}
@@ -313,6 +322,8 @@ int start_rendering()
 	cleanup_hud();
 	LOG_INFO("destroy_trade_log()");
 	destroy_trade_log();
+	LOG_INFO("destroy_invasion_window()");
+	destroy_invasion_window();
 	LOG_INFO("destroy_user_menus()");
 	destroy_user_menus();
 	LOG_INFO("destroy_all_root_windows()");
@@ -337,6 +348,10 @@ int start_rendering()
 	SDL_QuitSubSystem(SDL_INIT_AUDIO);
 	LOG_INFO("SDL_QuitSubSystem(SDL_INIT_TIMER)");
 	SDL_QuitSubSystem(SDL_INIT_TIMER);
+#ifdef ANDROID
+	LOG_INFO("SDL_QuitSubSystem(SDL_INIT_VIDEO)");
+	SDL_QuitSubSystem(SDL_INIT_VIDEO);
+#endif
 /*#ifdef WINDOWS
 	// attempt to restart if requested
 	if(restart_required > 0){
@@ -354,6 +369,10 @@ int start_rendering()
 	clear_zip_archives();
 	LOG_INFO("clean_update()");
 	clean_update();
+#ifdef ANDROID
+	LOG_INFO("remove_android_tmpfiles()");
+	remove_android_tmpfiles();
+#endif
 
 	LOG_INFO("cleanup_tcp()");
 	cleanup_tcp();
@@ -539,6 +558,9 @@ int Main(int argc, char **argv)
 int main(int argc, char **argv)
 #endif
 {
+#ifdef ANDROID
+	initialize_gl4es();
+#endif
 #ifdef OSX
 	if (argc > 0) // should always be true
 		setupWorkingDirectory(argv[0], strlen(argv[0]));
@@ -578,6 +600,11 @@ int main(int argc, char **argv)
 #ifdef	OLC
 	olc_shutdown();
 #endif	//OLC
+
+#ifdef ANDROID
+	// ANDROID_TODO - if restarted, static structures are not reinitialised so exit fully.
+	exit(0);
+#endif
 
 #ifndef WINDOWS
 	// attempt to restart if requested

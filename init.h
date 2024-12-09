@@ -12,6 +12,10 @@ extern "C" {
 
 #include "list.h"
 
+#ifdef ANDROID
+extern int first_time_setup;
+#endif
+
 /*!
  * Binary configuration data
  */
@@ -247,6 +251,7 @@ typedef struct
 
 extern char configdir[256]; /*!< the default directory where we look for configuration files */
 extern char datadir[256]; /*!< the default directory where we look for data files (aka installation dir) */
+extern int use_perserver_updates_dir; /*!< by default <config base>/updates/<version> is used for updates, if true <config base>/updates/server_ID will be used */
 
 /*!
  * \ingroup loadsave

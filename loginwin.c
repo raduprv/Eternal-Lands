@@ -136,12 +136,18 @@ static void toggle_selected_box(int which)
 
 static int select_username_box()
 {
+#ifdef ANDROID
+	SDL_StartTextInput();
+#endif
 	toggle_selected_box(username_field_id);
 	return 1;
 }
 
 static int select_password_box()
 {
+#ifdef ANDROID
+	SDL_StartTextInput();
+#endif
 	toggle_selected_box(password_field_id);
 	return 1;
 }
@@ -160,7 +166,11 @@ void init_login_screen (void)
 	passmngr_set_login();
 
 	if (strlen(get_username()) && !strlen(get_password()))
+#ifdef ANDROID
+		toggle_selected_box(password_field_id); // avoid opening the keyboard straight away
+#else
 		select_password_box();
+#endif
 
 	get_version_string (version_str, sizeof (version_str));
 }
@@ -228,7 +238,14 @@ static int resize_login_handler (window_info *win, Uint32 w, Uint32 h)
 		max_width, NULL, NULL);
 
 	height = username_bar_y_len + password_bar_y_len + button_y_len + (3 + num_rules_lines) * win->default_font_len_y;
+#ifdef ANDROID
+	if (SDL_IsScreenKeyboardShown(el_gl_window) && SDL_IsTextInputActive())
+		username_bar_y = passmngr_button_y = height / 5;
+	else
+		username_bar_y = passmngr_button_y = half_screen_y - height / 2;
+#else
 	username_bar_y = passmngr_button_y = half_screen_y - height / 2;
+#endif
 	username_text_y = username_bar_y + username_bar_y_len/4;
 	password_bar_y = username_bar_y + username_bar_y_len + win->default_font_len_y;
 	password_text_y = password_bar_y + password_bar_y_len/4;
@@ -323,6 +340,16 @@ static int display_login_handler (window_info *win)
 	float checkbox_u = 32.0 * (float)(52 % 8)/256.0;
 	float checkbox_v = 32.0 * (float)(52 >> 3)/256.0;
 
+#ifdef ANDROID
+	static SDL_bool last_KeyboardShown = 0;
+
+	if (SDL_IsScreenKeyboardShown(el_gl_window) != last_KeyboardShown)
+	{
+		resize_login_handler(win, win->len_x, win->len_y);
+		last_KeyboardShown = SDL_IsScreenKeyboardShown(el_gl_window);
+	}
+#endif
+
 	draw_console_pic(login_text);
 
 	// ok, start drawing the interface...
@@ -396,8 +423,11 @@ static int display_login_handler (window_info *win)
 		int num_lines = reset_soft_breaks((unsigned char*)log_in_error_str,
 			strlen(log_in_error_str), sizeof (log_in_error_str), UI_FONT,
 			win->current_scale, max_win_width, NULL, NULL);
+		int y_offset = username_bar_y - (num_lines + 2) * win->default_font_len_y;
+		if (y_offset < 0) // fixed on ANDROID but valid for main client too
+			y_offset = 0;
 		glColor3f (1.0f, 0.0f, 0.0f);
-		draw_string_zoomed_centered(window_width/2, username_bar_y - (num_lines + 2) * win->default_font_len_y, (const unsigned char*)log_in_error_str, num_lines, win->current_scale);
+		draw_string_zoomed_centered(window_width/2, y_offset, (const unsigned char*)log_in_error_str, num_lines, win->current_scale);
 		glColor3f (1.0f, 1.0f, 1.0f);
 	}
 
@@ -456,10 +486,14 @@ static int mouseover_login_handler (window_info *win, int mx, int my)
 static int click_login_handler (window_info *win, int mx, int my, Uint32 flags)
 {
 	int left_click = flags & ELW_LEFT_MOUSE;
-	extern int force_elconfig_win_ontop;
-	force_elconfig_win_ontop = 0;
 
 	if (left_click == 0) return 0;
+
+#ifdef ANDROID
+	// make sure the various flags are set
+	// ANDROID_TODO: simply enabing the handler does not work, requiring two clicks
+	mouseover_login_handler(win, mx, my);
+#endif
 
 	// check to see if we clicked on the username box
 	if (mx >= username_bar_x && mx <= username_bar_x + username_bar_x_len && my >= username_bar_y && my <= username_bar_y + username_bar_y_len)
@@ -526,6 +560,7 @@ static int click_login_handler (window_info *win, int mx, int my, Uint32 flags)
 		do_click_sound();
 		force_elconfig_win_ontop = 1;
 		view_window(MW_CONFIG);
+		force_elconfig_win_ontop = 0;
 	}
 	return 1;
 }
@@ -641,7 +676,9 @@ void create_login_root_window (int width, int height)
 		login_root_win = create_window ("Login", -1, -1, 0, 0, width, height, ELW_USE_UISCALE|ELW_TITLE_NONE|ELW_SHOW_LAST);
 
 		set_window_handler (login_root_win, ELW_HANDLER_DISPLAY, &display_login_handler);
+#ifndef ANDROID
 		set_window_handler (login_root_win, ELW_HANDLER_MOUSEOVER, &mouseover_login_handler);
+#endif
 		set_window_handler (login_root_win, ELW_HANDLER_CLICK, &click_login_handler);
 		set_window_handler (login_root_win, ELW_HANDLER_KEYPRESS, (int (*)())&keypress_login_handler);
 		set_window_handler (login_root_win, ELW_HANDLER_RESIZE, &resize_login_handler);

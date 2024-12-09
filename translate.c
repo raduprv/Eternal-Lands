@@ -58,6 +58,7 @@ char	tt_walk[30],
 	tt_buddy[30],
 	tt_options[30],
 	tt_help[30],
+	tt_invasion[30],
 	tt_customize[60],
 	newchar_warning[50],
 	newchar_cust_help[100],
@@ -135,6 +136,13 @@ dichar	sig_change,
 char
 	/*3d_objects.c*/
 	values_str[20],
+#ifdef ANDROID
+	/* misc android help */
+	touch_help_str[20],
+	long_touch_cm_title_str[40],
+	long_touch_cm_options_str[40],
+	keyboard_button_str[30],
+#endif
 	/*buddy.c*/
 	buddy_name_str[20],
 	buddy_long_name_str[100],
@@ -176,6 +184,9 @@ char
 	urlcmd_invalid_str[30],
 	urlcmd_afk_str[30],
 	urlcmd_clear_str[30],
+#ifdef ANDROID
+	urlwin_longtouch_str[50],
+#endif
 	urlwin_open_str[50],
 	urlwin_clear_str[30],
 	/*draw_scene.c*/
@@ -233,6 +244,9 @@ char
 	auto_get_all_str[30],
 	item_list_but_str[35],
 	inv_keeprow_str[30],
+#ifdef ANDROID
+	quantity_edit_touch_str[100],
+#endif
 	quantity_edit_str[100],
 	equip_here_str[100],
 	items_text_toggle_help_str[50],
@@ -290,10 +304,18 @@ char
 	manu_remove_str[60],
 	/*multiplayer.c*/
 	connect_to_server_str[50],
+#ifdef ANDROID
+	touch_to_retry_str[40],
+#else
 	reconnect_str[50],
+#endif
 	test_server_connect_str[40],
 	server_connect_test_failed_str[40],
+	server_connect_timeout_str[40],
+#ifndef ANDROID
 	alt_x_quit[50],
+	ctrl_o_options[50],
+#endif
 	license_check[150],
 	/*new_character.c*/
 	skin_str[15],
@@ -377,7 +399,7 @@ char
 	cm_textedit_menu_str[100],
 	cm_quickbar_menu_str[150],
 	cm_hud_menu_str[270],
-	cm_banner_menu_str[240],
+	cm_banner_menu_str[300],
 	cm_title_menu_str[150],
 	cm_title_help_str[50],
 	cm_items_menu_str[190],
@@ -515,6 +537,7 @@ char	name_too_long[75],
 	commands_help_not_recognsed_str[40],
 	commands_help_description_help_str[100],
 	commands_help_search_help_str[100],
+	banner_off_help_str[100],
 	cmd_ignores[20],
 	cmd_ignore[20],
 	cmd_unignore[20],
@@ -1159,6 +1182,7 @@ void init_console()
 	add_xml_identifier(misc, "commands_help_not_recognsed", commands_help_not_recognsed_str, "Unrecognised command", sizeof(commands_help_not_recognsed_str));
 	add_xml_identifier(misc, "commands_help_description_help", commands_help_description_help_str, "For help on a particular command, use ## <command>.", sizeof(commands_help_description_help_str));
 	add_xml_identifier(misc, "commands_help_search_help", commands_help_search_help_str, "To search command name and description, use #? <search text>.", sizeof(commands_help_search_help_str));
+	add_xml_identifier(misc, "banner_off_help", banner_off_help_str, "Player banner off. To restore enable an option, e.g. names [", sizeof(banner_off_help_str));
 
 	add_xml_identifier(loading_msg,"init_opengl",init_opengl_str,"Initializing OpenGL extensions",sizeof(init_opengl_str));
 	add_xml_identifier(loading_msg,"init_random",init_random_str,"Generating random seed",sizeof(init_random_str));
@@ -1486,6 +1510,13 @@ void init_help()
 	add_xml_identifier(afk,"names",afk_names,"Names",sizeof(afk_names));
 	add_xml_identifier(afk,"messages",afk_messages,"Messages",sizeof(afk_messages));
 	add_xml_identifier(afk,"help",afk_print_help,"To print the messages from the different people type #msg <number> or #msg all to view them all",sizeof(afk_print_help));
+#ifdef ANDROID
+	// Android-touch specific
+	add_xml_identifier(misc, "touch_help_str", touch_help_str, "Touch", sizeof(touch_help_str));
+	add_xml_identifier(misc, "long_touch_cm_title_str", long_touch_cm_title_str, "Long-touch for window menu", sizeof(long_touch_cm_title_str));
+	add_xml_identifier(misc, "long_touch_cm_options_str", long_touch_cm_options_str, "Long-touch for options", sizeof(long_touch_cm_options_str));
+	add_xml_identifier(misc, "keyboard_button_str", keyboard_button_str, "Keyboard", sizeof(keyboard_button_str));
+#endif
 	//Miscellaneous
 	add_xml_identifier(misc,"values",values_str,"values",sizeof(values_str));
 	add_xml_identifier(misc,"close",close_str,"[close]",sizeof(close_str));
@@ -1551,10 +1582,18 @@ void init_help()
 	add_xml_identifier(misc,"cast",cast_str,"Cast",sizeof(cast_str));
 	add_xml_identifier (misc, "invalid_spell", invalid_spell_str, "Invalid spell", sizeof (invalid_spell_str));
 	add_xml_identifier(misc,"connect",connect_to_server_str,"Connecting to Server...",sizeof(connect_to_server_str));
+#ifdef ANDROID
+	add_xml_identifier(misc,"touch_to_retry",touch_to_retry_str,"Touch to reconnect.",sizeof(touch_to_retry_str));
+#else
 	add_xml_identifier(misc,"reconnect",reconnect_str,"Press any key to try again.",sizeof(reconnect_str));
+#endif
 	add_xml_identifier(misc,"test_server_connect",test_server_connect_str,"Testing server connection...",sizeof(test_server_connect_str));
 	add_xml_identifier(misc,"server_connect_test_failed",server_connect_test_failed_str,"server connection test failed",sizeof(server_connect_test_failed_str));
+	add_xml_identifier(misc,"server_connect_timeout",server_connect_timeout_str,"Server connection timed out",sizeof(server_connect_timeout_str));
+#ifndef ANDROID
 	add_xml_identifier (misc, "x_quit", alt_x_quit, "Press Alt-x to close the game", sizeof (alt_x_quit));
+	add_xml_identifier(misc, "o_options", ctrl_o_options, "Press Ctrl-o for options window", sizeof (ctrl_o_options));
+#endif
 	add_xml_identifier(misc,"license",license_check,"Entropy says: U R 2 g00d 2 r34d +h3 license.txt?\nBTW, that license.txt file is actually there for a reason.",sizeof(license_check));
 	add_xml_identifier(misc,"session_reset_help",session_reset_help,"Double-click to reset session information",sizeof(session_reset_help));
 	add_xml_identifier(misc,"quantity",quantity_str,"Quantity",sizeof(quantity_str));
@@ -1564,6 +1603,9 @@ void init_help()
 	add_xml_identifier(misc,"cachei",cache_items_str,"items",sizeof(cache_items_str));
 	add_xml_identifier(misc,"caches",cache_size_str,"Cache size",sizeof(cache_size_str));
 	add_xml_identifier (misc, "appropr_name", use_appropriate_name, "Use an appropriate name:\nPlease do not create a name that is obscene or offensive, contains more than 2 digits, is senseless or stupid (i.e. djrtq47fa), or is made with the intent of impersonating another player.\nTake into consideration that the name you choose does affect the atmosphere of the game. Inappropriate names can and will be locked.", sizeof (use_appropriate_name) );
+#ifdef ANDROID
+	add_xml_identifier(misc,"edit_quantity_touch",quantity_edit_touch_str,"Long-touch a quantity to edit",sizeof(quantity_edit_touch_str));
+#endif
 	add_xml_identifier(misc,"edit_quantity",quantity_edit_str,"Right-click on the quantity you wish to edit",sizeof(quantity_edit_str));
 	add_xml_identifier(misc,"equip_here",equip_here_str,"Place an item in these boxes to equip it",sizeof(equip_here_str));
 	add_xml_identifier(misc,"items_text_toggle_help",items_text_toggle_help_str,"Show/hide the text message panel",sizeof(items_text_toggle_help_str));
@@ -1603,6 +1645,9 @@ void init_help()
 	add_xml_identifier(misc,"invalid_url",urlcmd_invalid_str,"Invalid URL number",sizeof(urlcmd_invalid_str));
 	add_xml_identifier(misc,"afk_url",urlcmd_afk_str,"URL seen while AFK:",sizeof(urlcmd_afk_str));
 	add_xml_identifier(misc,"clear_url",urlcmd_clear_str,"clear",sizeof(urlcmd_clear_str));
+#ifdef ANDROID
+	add_xml_identifier(misc,"urlwin_longtouch",urlwin_longtouch_str,"Long-touch for open and other options",sizeof(urlwin_longtouch_str));
+#endif
 	add_xml_identifier(misc,"open_urlwin",urlwin_open_str,"Click to open; right+click for options",sizeof(urlwin_open_str));
 	add_xml_identifier(misc,"clear_urlwin",urlwin_clear_str,"Clear the URL list",sizeof(urlwin_clear_str));
 	add_xml_identifier(misc,"reset",reset_str,"Reset",sizeof(reset_str));
@@ -1719,6 +1764,7 @@ void init_help()
 	add_xml_identifier(tooltips,"buddy",tt_buddy,"View buddy",sizeof(tt_buddy));
 	add_xml_identifier(tooltips,"opts",tt_options,"View options",sizeof(tt_options));
 	add_xml_identifier(tooltips,"help",tt_help,"View help",sizeof(tt_help));
+	add_xml_identifier(tooltips,"invasion",tt_invasion,"View invasion window",sizeof(tt_invasion));
 	add_xml_identifier(tooltips,"customize",tt_customize,"Customize your character",sizeof(tt_customize));
 	add_xml_identifier(tooltips,"name_pass",tt_name,"Choose name and password",sizeof(tt_name));
 	add_xml_identifier (tooltips, "info", tt_info, "View notepad/URL window", sizeof (tt_info));
@@ -1761,7 +1807,7 @@ void init_help()
 	add_xml_identifier(misc, "cm_textedit_menu", cm_textedit_menu_str, "Cut\nCopy\nPaste\n--\nDate\nTime\nCoords", sizeof(cm_textedit_menu_str));
 	add_xml_identifier(misc, "cm_quickbar_menu", cm_quickbar_menu_str, "Enable Quickbar Menu\n--\nRelocatable Window\nMoveable Window\nRotate Window\n--\nReset Position", sizeof(cm_quickbar_menu_str));
 	add_xml_identifier(misc, "cm_hud_menu", cm_hud_menu_str, "Show Stats\nShow Stats Bars\nShow Knowledge Bar\nShow Timer\nShow Digital Clock\nShow Analogue Clock\nShow Seconds\nShow FPS\nShow Indicators\nEnable Quickbar Menu\n--\nShow Minimap\nShow Ranging Stats\n--\nEnable Sound Effects\nEnable Music\n--\nCopy Location", sizeof(cm_hud_menu_str));
-	add_xml_identifier(misc, "cm_banner_menu", cm_banner_menu_str, "Show Names\nShow Health Bars\nShow Health Numbers\nShow Ether Bar\nShow Ether Numbers\nEnable Instance Mode\nShow Speech Bubbles\nEnable Banner Background\nSit Lock\nRanging Lock\n--\nDisable This Menu\n", sizeof(cm_banner_menu_str));
+	add_xml_identifier(misc, "cm_banner_menu", cm_banner_menu_str, "Show Names\nShow Health Bars\nShow Health Numbers\nShow Ether Bar\nShow Ether Numbers\nShow Food Bar\nShow Food Numbers\nEnable Instance Mode\nShow Speech Bubbles\nEnable Banner Background\nSit Lock\nRanging Lock\n--\nDisable This Menu\n", sizeof(cm_banner_menu_str));
 	add_xml_identifier(misc, "cm_title_menu", cm_title_menu_str, "Hide Windows\nOpaque Background\nWindows On Top\nDisable Scaling Controls\n--\nDefault Window Position\n", sizeof(cm_title_menu_str));
 	add_xml_identifier(misc, "cm_title_help", cm_title_help_str, "Right-click for window menu", sizeof(cm_title_help_str));
 	add_xml_identifier(misc, "cm_items_menu", cm_items_menu_str, "--\nUse Small Window\nManual Window Size\nItem Window On Drop\nAllow Equipment Swap\nAlt/Ctrl-click With Any Cursor\nButtons On Left\nEquipment Grid On Left\n--\nOpen Storage (View Only)", sizeof(cm_items_menu_str));

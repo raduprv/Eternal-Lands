@@ -12,6 +12,9 @@
 #include "elconfig.h"
 #include "elwindows.h"
 #include "gamewin.h"
+#ifdef ANDROID
+#include "gl_init.h"
+#endif
 #include "hud.h"
 #include "icon_window.h"
 #include "init.h"
@@ -40,7 +43,11 @@ static int buddy_menu_y_len=0;
 static int buddy_name_step_y = 0;
 static int request_box_start_x = 0;
 static int buddy_border_space = 0;
+#ifdef ANDROID
+static const int num_displayed_buddies = 9;
+#else
 static const int num_displayed_buddies = 16;
+#endif
 static int buddy_add_win = -1;
 static int max_buddy_name_width = 0;
 static int new_max_buddy_name_width = 0;
@@ -651,6 +658,9 @@ static int display_accept_buddy(char *name)
 
 static int click_buddy_button_handler(widget_list *w, int mx, int my, Uint32 flags)
 {
+#ifdef ANDROID
+	SDL_StartTextInput();
+#endif
 	buddy_add_win = display_buddy_add();
 	return 1;
 }
@@ -705,7 +715,11 @@ static int ui_scale_buddy_handler(window_info *win)
 	request_box_start_x = buddy_menu_x_len - request_box_width - win->box_size;
 
 	// get the required y step and overall window length
+#if ANDROID
+	buddy_name_step_y = 1.5 * get_line_height(win->font_category, win->current_scale_small);
+#else
 	buddy_name_step_y = get_line_height(win->font_category, win->current_scale_small);
+#endif
 	buddy_menu_y_len = button_len_y + 2* buddy_border_space + num_displayed_buddies * buddy_name_step_y;
 
 	resize_window(win->window_id, buddy_menu_x_len, buddy_menu_y_len);

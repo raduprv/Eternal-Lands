@@ -68,12 +68,6 @@ void init_stuff()
 	int i;
 	int seed;
 
-	if (chdir(DATA_DIR) != 0)
-	{
-		LOG_ERROR("Failed to set directory [%s]", DATA_DIR);
-		exit (1);
-	}
-
 #ifndef WINDOWS
 	setlocale(LC_NUMERIC,"en_US");
 #endif
@@ -89,6 +83,16 @@ void init_stuff()
 	init_vars();
 
 	read_config();
+
+	if (chdir(datadir) != 0)
+	{
+		char *failed = "Failed to change to data directory:";
+		char cwd[PATH_MAX];
+		if (getcwd(cwd, sizeof(cwd)) != NULL)
+			LOG_ERROR("%s [%s], using [%s]", failed, datadir, cwd);
+		else
+			LOG_ERROR("%s [%s]", failed, datadir);
+	}
 
 	file_check_datadir();
 

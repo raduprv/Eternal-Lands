@@ -7,6 +7,11 @@
 #define __STATS_H__
 
 #include <SDL_types.h>
+#ifdef __cplusplus
+#include "actors_list.h"
+#else
+#include "actors.h"
+#endif
 
 #ifdef __cplusplus
 extern "C" {
@@ -276,7 +281,7 @@ void init_attribf(void);
 void fill_stats_win (int window_id);
 
 extern int floatingmessages_enabled;
-void drawactor_floatingmessages(int actor_id, float healthbar_z);
+void drawactor_floatingmessages(int actor_id, const actor *me, float healthbar_z);
 void add_floating_message(int actor_id, char * str, int direction, float r, float g, float b, int active_time);
 void init_statsinfo_array(void);
 void init_floating_messages(void);

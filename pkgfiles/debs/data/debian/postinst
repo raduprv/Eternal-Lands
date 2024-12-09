@@ -23,9 +23,9 @@ case "$1" in
 
 	TARGETDIR="/usr/share/games/EternalLands"
 	CACHEDIR="/var/cache/eternallands"
-	DOWNLOADURL="http://twinmoons.org.uk/el/rel/196"
-	DOWNLOADMAIN="eternallands-data_1.9.6.1.zip"
-	MD5SUMMAIN="f55207a3bb74c444eac1d6c186117629"
+	DOWNLOADURL="http://twinmoons.org.uk/el/rel/197"
+	DOWNLOADMAIN="eternallands-data_1.9.7.zip"
+	MD5SUMMAIN="fb57fcca852b2d649762f87db316e5ec"
 	# post release updates
 	#DOWNLOADUPDATE1=""
 	#MD5SUMUPDATE1=""
@@ -36,7 +36,7 @@ case "$1" in
 	cd $CACHEDIR
 
 	# remove old downloads
-	rm -f el_195_*.zip  el_data_*.zip eternallands-data_1.9.5*.zip eternallands-data_1.9.6.0.zip eternallands-data-patch*.zip
+	rm -f el_195_*.zip  el_data_*.zip eternallands-data_1.9.6*.zip eternallands-data-patch*.zip
 
 	# if we already have an archive check the md5sum is ok and remove if not
 	[ ! -f "$DOWNLOADMAIN" ] || echo "$MD5SUMMAIN  $DOWNLOADMAIN" | md5sum -c - || rm -fv $DOWNLOADMAIN

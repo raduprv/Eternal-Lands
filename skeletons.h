@@ -76,7 +76,7 @@ int get_skeleton(struct CalCoreModel *cal_model, const char *skeleton_name);
  * same actor, prefer using directly the data structure to get a pointer
  * on the corresponding skeleton_types structure.
  */
-int get_actor_bone_id(actor *act, cal_bone_name name);
+int get_actor_bone_id(const actor *act, cal_bone_name name);
 
 #ifdef __cplusplus
 } // extern "C"

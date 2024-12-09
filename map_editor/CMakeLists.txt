@@ -168,6 +168,8 @@ add_definitions(-DMAP_EDITOR -D_7ZIP_ST -DGTK2 ${GTK2_DEFINITIONS})
 # default to building a release version
 if (NOT CMAKE_BUILD_TYPE)
 	set(CMAKE_BUILD_TYPE release)
+else()
+	add_definitions(-DDEBUG)
 endif()
 
 # clean up extra strings to avoid policy CMP0004

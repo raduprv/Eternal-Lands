@@ -95,6 +95,9 @@ BBC News||#open_url http://news.bbc.co.uk/
 #include "hud_indicators.h"
 #include "icon_window.h"
 #include "init.h"
+#ifdef ANDROID
+#include "io/elfilewrapper.h"
+#endif
 #include "io/elpathwrapper.h"
 #ifdef JSON_FILES
 #include "json_io.h"
@@ -631,6 +634,23 @@ namespace UserMenus
 		delete_menus();
 
 		std::vector<std::string> filelist;
+
+#ifdef ANDROID
+		{
+			// Some standard menus should be included in the assets, listed in user_menus.txt.
+			// Make sure to unpack them from the assest file by calling do_file_exists()
+			char tmp_str[256];
+			std::string list_filename("user_menus.txt");
+			std::string full_path = std::string(datadir) + list_filename;
+			if (do_file_exists(list_filename.c_str(), datadir, sizeof(tmp_str), tmp_str))
+			{
+				std::string line;
+				std::ifstream file(full_path.c_str());
+				while (std::getline(file, line))
+					do_file_exists(line.c_str(), datadir, sizeof(tmp_str), tmp_str);
+			}
+		}
+#endif
 
 		std::vector<std::string> search_paths;
 		if (include_datadir)

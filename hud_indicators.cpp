@@ -28,6 +28,7 @@
 #include "gamewin.h"
 #include "gl_init.h"
 #include "hud.h"
+#include "icon_window.h"
 #ifdef JSON_FILES
 #include "json_io.h"
 #endif
@@ -133,7 +134,8 @@ namespace Indicators
 				: indicators_win(-1), cm_menu_id(CM_INIT_VALUE),
 					cm_relocatable(0), x_len(0), y_len(0), default_location(true),
 					option_settings(0), position_settings(0), have_settings(false),
-					background_on(0), border_on(0), no_indicators_str_width(0) {}
+					background_on(0), border_on(0), no_indicators_str_width(0),
+					locally_hidden(false), force_width_change(false) {}
 			void init(void);
 			void destroy(void);
 			void show(void) { if (indicators_win >= 0) show_window (indicators_win); }
@@ -173,6 +175,8 @@ namespace Indicators
 			void change_width(int new_x_len);
 			enum {	CMHI_RELOC=ELW_CM_MENU_LEN+1, CMHI_BACKGROUND, CMHI_BORDER,
 					CMHI_SPACE1, CMHI_RESET, CMHI_SPACE2, CMHI_INDBASE};
+			bool locally_hidden;
+			bool force_width_change;
 	};
 
 
@@ -313,8 +317,6 @@ namespace Indicators
 		if (!FontManager::get_instance().is_initialized())
 			return;
 
-		std::pair<int,int> loc = get_default_location();
-
 		if (indicators.empty())
 		{
 			indicators.reserve(7);
@@ -328,9 +330,14 @@ namespace Indicators
 			indicators.push_back(new Parse_Action_Indicator(summon_attack_indicator_str, summon_attack_is_active, summon_attack_is_unknown, indicators.size(), summon_attach_command.c_str()));
 		}
 
-		x_len = static_cast<int>(Vars::font_x() * indicators.size() * Vars::zoom() +
-			2 * Vars::border() + 2 * Vars::space() * indicators.size() + 0.5);
+		x_len = 2 * Vars::border();
+		force_width_change = true;
+		for (const auto &i : indicators)
+			if (!i->not_active())
+				x_len += i->get_width() + 2 * Vars::space();
 		y_len = Vars::y_len();
+
+		std::pair<int,int> loc = get_default_location();
 
 		if (indicators_win < 0)
 		{
@@ -357,8 +364,14 @@ namespace Indicators
 			loc.second = windows_list.window[indicators_win].cur_y;
 		}
 
-		if ((loc.first > (window_width - x_len)) || (loc.second > (window_height - y_len)))
-			loc = get_default_location();
+		if (loc.first > (window_width - x_len))
+			loc.first = window_width - x_len;
+		if (loc.first < 0)
+			loc.first = 0;
+		if (loc.second > (window_height - y_len))
+			loc.second = window_height - y_len;
+		if (loc.second < 0)
+			loc.second = 0;
 
 		if (indicators_win < 0)
 		{
@@ -424,10 +437,8 @@ namespace Indicators
 	{
 		if (show)
 		{
-			if (indicators_win < 0)
-				init();
-			else
-				show_window(indicators_win);
+			init();
+			show_window(indicators_win);
 		}
 		else
 			hide_window(indicators_win);
@@ -446,14 +457,16 @@ namespace Indicators
 			if ((*i)->not_active())
 				continue;
 			pos_x += Vars::space();
-			(*i)->do_draw(pos_x);
+			if (!locally_hidden)
+				(*i)->do_draw(pos_x);
 			pos_x += (*i)->get_width() + Vars::space();
 			have_active = true;
 		}
 		if (!have_active)
 		{
 			glColor3fv(gui_dull_color);
-			draw_string_zoomed(pos_x, Vars::border(), (const unsigned char *)no_indicators_str, 1, Vars::zoom());
+			if (!locally_hidden)
+				draw_string_zoomed(pos_x, Vars::border(), (const unsigned char *)no_indicators_str, 1, Vars::zoom());
 			pos_x += no_indicators_str_width;
 		}
 		change_width(pos_x + Vars::border());
@@ -464,7 +477,30 @@ namespace Indicators
 	//
 	void Indicators_Container::change_width(int new_x_len)
 	{
-		if (new_x_len != x_len)
+		if (default_location)
+		{
+			if ((HUD_MARGIN_X + get_icons_win_active_len() + new_x_len) > window_width)
+			{
+				if (!locally_hidden)
+				{
+					std::string no_space_for_indicators("No space to show indicators");
+					LOG_TO_CONSOLE(c_red1, no_space_for_indicators.c_str());
+					locally_hidden = true;
+				}
+				new_x_len = 0;
+			}
+			else
+			{
+				if (locally_hidden)
+				{
+					std::string now_space_for_indicators("Now have space now to show indicators");
+					LOG_TO_CONSOLE(c_red1, now_space_for_indicators.c_str());
+					locally_hidden = false;
+				}
+			}
+		}
+
+		if (force_width_change || (new_x_len != x_len))
 		{
 			x_len = new_x_len;
 			y_len = Vars::y_len();
@@ -474,6 +510,7 @@ namespace Indicators
 				std::pair<int,int> loc = get_default_location();
 				move_window(indicators_win, -1, 0, loc.first, loc.second);
 			}
+			force_width_change = false;
 		}
 	}
 
@@ -603,6 +640,7 @@ namespace Indicators
 	void Indicators_Container::ui_scale_handler(window_info *win)
 	{
 		x_len = y_len = 0;
+		force_width_change = true;
 		Vars::set_scale(win->current_scale);
 		no_indicators_str_width = FontManager::get_instance().line_width(Vars::font_cat,
 			reinterpret_cast<const unsigned char*>(no_indicators_str), strlen(no_indicators_str), Vars::zoom());

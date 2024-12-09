@@ -266,7 +266,6 @@ static __inline__ void disable_terrain_texgen()
 void draw_tile_map()
 {
 	unsigned int start, stop;
-
 	glEnable(GL_CULL_FACE);
 
 	build_terrain_buffer();

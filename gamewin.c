@@ -4,6 +4,7 @@
 #include "gamewin.h"
 #include "actor_init.h"
 #include "actor_scripts.h"
+#include "actors_list.h"
 #include "achievements.h"
 #include "asc.h"
 #include "buddy.h"
@@ -68,6 +69,7 @@ int include_use_cursor_on_animals = 0;
 int cm_banner_disabled = 0;
 int auto_disable_ranging_lock = 1;
 int target_close_clicked_creature = 1;
+int move_to_attacked_far_away_creature = 1;
 int open_close_clicked_bag = 1;
 int show_fps = 0;
 
@@ -86,6 +88,8 @@ static int fps_center_x = 0;
 static int fps_default_width = 0;
 static int action_mode = ACTION_WALK;
 static int last_action_mode = ACTION_WALK;
+static short last_attack_actor_coord_x = -1;
+static short last_attack_actor_coord_y = 1;
 
 // Set the game root window action mode
 void set_gamewin_action_mode(int new_mode)
@@ -110,6 +114,130 @@ int get_gamewin_action_mode(void)
 {
 	return action_mode;
 }
+
+#ifdef ANDROID
+static int text_widget_already_setup = 0;
+Uint32 last_finger_motion_timestamp = 0;
+Uint32 last_finger_multi_gesture_timestamp = 0;
+Uint32 last_click_timestamp = 0;
+Uint32 cursor_check_ready = 0;
+Uint32 do_cursor_check = 0;
+
+Uint32 horiz_touch_x_size;
+Uint32 horiz_touch_y_size;
+Uint32 horiz_touch_x_start;
+Uint32 horiz_touch_y_start;
+
+Uint32 vert_touch_x_size;
+Uint32 vert_touch_y_size;
+Uint32 vert_touch_x_start;
+Uint32 vert_touch_y_start;
+
+float left_arrow_u_start = 0;
+float left_arrow_v_start = 0;
+float left_arrow_u_end = (float)39 / 256;
+float left_arrow_v_end = (float)19 / 256;
+
+float right_arrow_u_start = (float)1 / 256;
+float right_arrow_v_start = (float)20 / 256;
+float right_arrow_u_end = (float)40 / 256;
+float right_arrow_v_end = (float)39 / 256;
+
+float down_arrow_u_start = (float)1 / 256;
+float down_arrow_v_start = (float)39 / 256;
+float down_arrow_u_end = (float)20 / 256;
+float down_arrow_v_end = (float)79 / 256;
+
+float up_arrow_u_start = (float)21 / 256;
+float up_arrow_v_start = (float)39 / 256;
+float up_arrow_u_end = (float)40 / 256;
+float up_arrow_v_end = (float)79 / 256;
+
+void draw_touch_area(window_info *win)
+{
+	int horizontal_arrows_y;
+	int vertical_arrows_x;
+	int size_20 = (int)(0.5 + win->current_scale * 20);
+	int size_40 = (int)(0.5 + win->current_scale * 40);
+
+	horiz_touch_x_size = window_width / 6;
+	horiz_touch_y_size = (int)(0.5 + win->current_scale * 60);
+	horiz_touch_x_start = 0;
+	horiz_touch_y_start = window_height - (window_height / 8) * 2;
+
+	vert_touch_x_size = (int)(0.5 + win->current_scale * 50);
+	vert_touch_y_size = window_height / 5;
+	vert_touch_x_start = 0;
+	vert_touch_y_start = window_height - (window_height / 4) * 2;
+
+	horizontal_arrows_y = horiz_touch_y_start + (horiz_touch_y_size - size_20) / 2;
+	vertical_arrows_x = vert_touch_x_start + (vert_touch_x_size - size_20) / 2;
+
+	if (!full_camera_bars)
+	{
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_ONE, GL_SRC_ALPHA);
+		glColor4f(0.0f, 0.0f, 0.4f, 0.25f);
+
+		glBegin(GL_LINE_LOOP);
+		glVertex2f(horiz_touch_x_start + 1, horiz_touch_y_start);
+		glVertex2f(horiz_touch_x_start + horiz_touch_x_size, horiz_touch_y_start);
+		glVertex2f(horiz_touch_x_start + horiz_touch_x_size, horiz_touch_y_start + horiz_touch_y_size);
+		glVertex2f(horiz_touch_x_start + 1, horiz_touch_y_start + horiz_touch_y_size);
+		glEnd();
+
+		glBegin(GL_LINE_LOOP);
+		glVertex2f(vert_touch_x_start + 1, vert_touch_y_start);
+		glVertex2f(vert_touch_x_start + vert_touch_x_size, vert_touch_y_start);
+		glVertex2f(vert_touch_x_start + vert_touch_x_size, vert_touch_y_start + vert_touch_y_size);
+		glVertex2f(vert_touch_x_start + 1, vert_touch_y_start + vert_touch_y_size);
+		glEnd();
+		glDisable(GL_BLEND);
+
+		return;
+	}
+
+	glEnable(GL_TEXTURE_2D);
+	glColor4f(1.0f, 1.0f, 1.0f, 0.2f);
+	bind_texture(hud_text);
+
+	glEnable(GL_BLEND);
+	//glBlendFunc(GL_ONE, GL_SRC_ALPHA);
+	glBlendFunc(GL_ONE, GL_CONSTANT_COLOR);
+
+	glEnable(GL_ALPHA_TEST); // enable alpha filtering, so we have some alpha key
+	glAlphaFunc(GL_GREATER, 0.09f);
+
+	glBegin(GL_QUADS);
+	draw_2d_thing(left_arrow_u_start, left_arrow_v_start, left_arrow_u_end, left_arrow_v_end, horiz_touch_x_start, horizontal_arrows_y, horiz_touch_x_start + size_40, horizontal_arrows_y + size_20);
+	draw_2d_thing(right_arrow_u_start, right_arrow_v_start, right_arrow_u_end, right_arrow_v_end, horiz_touch_x_start+horiz_touch_x_size - size_40, horizontal_arrows_y, horiz_touch_x_start + horiz_touch_x_size, horizontal_arrows_y + size_20);
+	draw_2d_thing(up_arrow_u_start, up_arrow_v_start, up_arrow_u_end, up_arrow_v_end, vertical_arrows_x, vert_touch_y_start, vertical_arrows_x + size_20, vert_touch_y_start + size_40);
+	draw_2d_thing(down_arrow_u_start, down_arrow_v_start, down_arrow_u_end, down_arrow_v_end, vertical_arrows_x, vert_touch_y_start + vert_touch_y_size - size_40, vertical_arrows_x + size_20, vert_touch_y_start + vert_touch_y_size);
+	glEnd();
+
+	glDisable(GL_TEXTURE_2D);
+
+	//glEnable(GL_BLEND);
+	glBlendFunc(GL_ONE, GL_SRC_ALPHA);
+
+	glColor4f(0.0f, 0.0f, 0.2f, 0.75f);
+	glBegin(GL_QUADS);
+	glVertex3i(horiz_touch_x_start, horiz_touch_y_start + horiz_touch_y_size, 0);
+	glVertex3i(horiz_touch_x_start, horiz_touch_y_start, 0);
+	glVertex3i(horiz_touch_x_start + horiz_touch_x_size, horiz_touch_y_start, 0);
+	glVertex3i(horiz_touch_x_start + horiz_touch_x_size, horiz_touch_y_start + horiz_touch_y_size, 0);
+
+	glVertex3i(vert_touch_x_start, vert_touch_y_start + vert_touch_y_size, 0);
+	glVertex3i(vert_touch_x_start, vert_touch_y_start, 0);
+	glVertex3i(vert_touch_x_start + vert_touch_x_size, vert_touch_y_start, 0);
+	glVertex3i(vert_touch_x_start + vert_touch_x_size, vert_touch_y_start + vert_touch_y_size, 0);
+
+	glEnd();
+	glColor4f(1, 1, 1, 1);
+
+	glDisable(GL_BLEND);
+}
+#endif
 
 int get_fps_default_width(void)
 {
@@ -143,6 +271,25 @@ static void toggle_target_close_clicked_creature(void)
 		LOG_TO_CONSOLE(c_green1, close_click_targetting_on_str);
 	else
 		LOG_TO_CONSOLE(c_green1, close_click_targetting_off_str);
+}
+
+//
+// Called when we see the "You are too far away! Get closer!" message.
+// Using the tile coordinates of the creature last attacked, move
+// to the location and highlight the spot.  If we don't move, the message
+// will get displayed.
+//
+int check_move_to_attacked(void)
+{
+	if (move_to_attacked_far_away_creature && (last_attack_actor_coord_x >= 0) && (last_attack_actor_coord_y >= 0))
+	{
+		move_to(&last_attack_actor_coord_x, &last_attack_actor_coord_y, 1);
+		add_highlight(last_attack_actor_coord_x, last_attack_actor_coord_y, HIGHLIGHT_SOFT_FAIL);
+		last_attack_actor_coord_x = last_attack_actor_coord_y = -1;
+		return 1;
+	}
+	else
+		return 0;
 }
 
 void draw_special_cursors(void)
@@ -395,9 +542,13 @@ static void toggle_first_person(void)
 {
 	if (first_person == 0){
 		//rotate camera where actor is looking at
-		actor *me = get_our_actor();
-		if (me)
+		actor *me;
+		locked_list_ptr actors_list = lock_and_get_self(&me);
+		if (actors_list)
+		{
 			rz=me->z_rot;
+			release_locked_actors_list_and_invalidate(actors_list, &me);
+		}
 		rx=-90;
 		first_person = 1;
 		fol_cam = 0;
@@ -430,11 +581,19 @@ static int mouseover_game_handler (window_info *win, int mx, int my)
 	else if (thing_under_the_mouse==UNDER_MOUSE_3D_OBJ && objects_list[object_under_mouse])
 	{
 		int range_weapon_equipped;
-		LOCK_ACTORS_LISTS();
-		range_weapon_equipped = (your_actor &&
-								 your_actor->cur_weapon >= BOW_LONG &&
-								 your_actor->cur_weapon <= BOW_CROSS);
-		UNLOCK_ACTORS_LISTS();
+		actor *me;
+		locked_list_ptr actors_list = lock_and_get_self(&me);
+		if (actors_list)
+		{
+			range_weapon_equipped = me->cur_weapon >= BOW_LONG &&
+									me->cur_weapon <= BOW_CROSS;
+			release_locked_actors_list_and_invalidate(actors_list, &me);
+		}
+		else
+		{
+			range_weapon_equipped = 0;
+		}
+
 		if(action_mode==ACTION_LOOK)
 		{
 			elwin_mouse = CURSOR_EYE;
@@ -534,7 +693,7 @@ static int mouseover_game_handler (window_info *win, int mx, int my)
 		{
 			elwin_mouse = CURSOR_WAND;
 		}
-		else if((mod_key_status & KMOD_ALT) || action_mode==ACTION_ATTACK || (actor_under_mouse && !actor_under_mouse->dead))
+		else if((mod_key_status & KMOD_ALT) || action_mode==ACTION_ATTACK || actor_under_mouse_alive())
 		{
 			elwin_mouse = CURSOR_ATTACK;
 		}
@@ -549,6 +708,9 @@ static int mouseover_game_handler (window_info *win, int mx, int my)
 			elwin_mouse = CURSOR_WALK;
 		}
 	}
+#ifdef ANDROID
+	current_cursor = elwin_mouse;
+#endif
 
 	return 1;
 }
@@ -569,6 +731,17 @@ static void touch_player(int player_to_touch)
 	my_tcp_send(str, 5);
 }
 
+#ifdef ANDROID
+void toggle_active_input(void)
+{
+	if (SDL_IsTextInputActive())
+		SDL_StopTextInput();
+	else
+		SDL_StartTextInput();
+	input_widget_move_to_win(-1);
+}
+#endif
+
 // this is the main part of the old check_mouse_click ()
 static int click_game_handler(window_info *win, int mx, int my, Uint32 flags)
 {
@@ -578,6 +751,54 @@ static int click_game_handler(window_info *win, int mx, int my, Uint32 flags)
 	int force_walk = (flag_ctrl && flag_right && !flag_alt);
 	int shift_on = flags & KMOD_SHIFT;
 	int range_weapon_equipped;
+	locked_list_ptr actors_list;
+	actor *me;
+
+	// clear any previously stored destination to prevent unexpects walk-to
+	last_attack_actor_coord_x = last_attack_actor_coord_y = -1;
+
+#ifdef ANDROID
+	int cur_timestamp;
+	int time_now = SDL_GetTicks();
+	int closest_actor;
+	int size_20 = (int)(0.5 + win->current_scale * 20);
+	int kb_active_width = window_width - hud_x;
+
+	if (back_on)
+		return 0;
+
+	if (is_disconnected())
+		connect_to_server();
+
+	// ignore clicks in touch window for now
+	if (!window_camera_controls &&
+		(((mx > horiz_touch_x_start) && (mx < horiz_touch_x_start + horiz_touch_x_size) &&
+		(my > horiz_touch_y_start) && (my < horiz_touch_y_start + horiz_touch_y_size)) ||
+	    ((mx > vert_touch_x_start) && (mx < vert_touch_x_start + vert_touch_x_size) &&
+		(my > vert_touch_y_start) && (my < vert_touch_y_start + vert_touch_y_size))))
+	{
+		if(time_now-last_click_timestamp<300)
+			toggle_active_input();
+		last_click_timestamp=time_now;
+		return 0;
+	}
+
+	use_old_clicker=1;
+
+	if (!do_cursor_check)
+	{
+		do_cursor_check=1;
+		return 0;
+	}
+
+	if (!cursor_check_ready)
+		return 0;
+
+	// we have cursor, reset variables and go on
+	do_cursor_check=0;
+	cursor_check_ready=0;
+	mouseover_game_handler (win, mx, my);
+#endif
 
 	if ((flags & ELW_MOUSE_BUTTON_WHEEL) == ELW_MID_MOUSE)
 		// Don't handle middle button clicks
@@ -608,11 +829,17 @@ static int click_game_handler(window_info *win, int mx, int my, Uint32 flags)
 	if (hud_click(win, mx, my, flags))
 		return 1;
 
-	LOCK_ACTORS_LISTS();
-	range_weapon_equipped = (your_actor &&
-							 your_actor->cur_weapon >= BOW_LONG &&
-							 your_actor->cur_weapon <= BOW_CROSS);
-	UNLOCK_ACTORS_LISTS();
+	actors_list = lock_and_get_self(&me);
+	if (actors_list)
+	{
+		range_weapon_equipped = me->cur_weapon >= BOW_LONG &&
+								me->cur_weapon <= BOW_CROSS;
+		release_locked_actors_list_and_invalidate(actors_list, &me);
+	}
+	else
+	{
+		range_weapon_equipped = 0;
+	}
 
 	if (!force_walk)
 	{
@@ -639,17 +866,26 @@ static int click_game_handler(window_info *win, int mx, int my, Uint32 flags)
 						cm_bool_line(cm_id, 2, &view_hp, NULL);
 						cm_bool_line(cm_id, 3, &view_ether_bar, NULL);
 						cm_bool_line(cm_id, 4, &view_ether, NULL);
-						cm_bool_line(cm_id, 5, &view_mode_instance, "use_view_mode_instance");
-						cm_bool_line(cm_id, 6, &view_chat_text_as_overtext, NULL);
-						cm_bool_line(cm_id, 7, &use_alpha_banner, "use_alpha_banner");
-						cm_bool_line(cm_id, 8, &sit_lock, "sit_lock");
-						cm_bool_line(cm_id, 9, &ranging_lock, NULL);
-						cm_bool_line(cm_id, 11, &cm_banner_disabled, "cm_banner_disabled");
+						cm_bool_line(cm_id, 5, &view_food_bar, NULL);
+						cm_bool_line(cm_id, 6, &view_food, NULL);
+						cm_bool_line(cm_id, 7, &view_mode_instance, "use_view_mode_instance");
+						cm_bool_line(cm_id, 8, &view_chat_text_as_overtext, NULL);
+						cm_bool_line(cm_id, 9, &use_alpha_banner, "use_alpha_banner");
+						cm_bool_line(cm_id, 10, &sit_lock, "sit_lock");
+						cm_bool_line(cm_id, 11, &ranging_lock, NULL);
+						cm_bool_line(cm_id, 13, &cm_banner_disabled, "cm_banner_disabled");
 					}
 					cm_show_direct(cm_id, -1, -1);
 					reset_cursor_time = SDL_GetTicks();
+#ifdef ANDROID
+					return 1;
+#endif
 				}
 			}
+#ifdef ANDROID
+			// for touch, we don't use the action switching and dragging is done differently - so return now
+			return 1;
+#endif
 			if (item_dragged != -1 || use_item != -1 || object_under_mouse == -1
 					|| storage_item_dragged != -1
 					)
@@ -730,16 +966,21 @@ static int click_game_handler(window_info *win, int mx, int my, Uint32 flags)
 	{
 		Uint8 str[10];
 
+#ifndef ANDROID
 		if (flag_right)
 		{
 			item_dragged = -1;
 			return 1;
 		}
+#endif
 
 		str[0] = DROP_ITEM;
 		str[1] = item_list[item_dragged].pos;
 		*((Uint32 *) (str + 2)) = SDL_SwapLE32(item_quantity);
 		my_tcp_send(str, 6);
+#ifdef ANDROID
+		item_dragged = -1;
+#endif
 		return 1;
 	}
 
@@ -834,11 +1075,14 @@ static int click_game_handler(window_info *win, int mx, int my, Uint32 flags)
 					(thing_under_the_mouse == UNDER_MOUSE_ANIMAL ||
 					 thing_under_the_mouse == UNDER_MOUSE_PLAYER))
 				{
-					actor *this_actor = get_actor_ptr_from_id(object_under_mouse);
-					if(this_actor != NULL)
+					actor *this_actor;
+					locked_list_ptr actors_list = lock_and_get_actor_from_id(object_under_mouse,
+						&this_actor);
+					if (actors_list)
 					{
 						add_highlight(this_actor->x_tile_pos,this_actor->y_tile_pos, HIGHLIGHT_TYPE_SPELL_TARGET);
-						touch_player((int)object_under_mouse);
+						release_locked_actors_list_and_invalidate(actors_list, &this_actor);
+						touch_player(object_under_mouse);
 					}
 				}
 			}
@@ -866,17 +1110,31 @@ static int click_game_handler(window_info *win, int mx, int my, Uint32 flags)
 		{
 			if (object_under_mouse == -1)
 				return 1;
-			if (you_sit && sit_lock && !flag_ctrl){
-				if(your_actor != NULL)
-					add_highlight(your_actor->x_tile_pos,your_actor->y_tile_pos, HIGHLIGHT_TYPE_LOCK);
+			if (you_sit && sit_lock && !flag_ctrl)
+			{
+				int x, y;
+				if (self_tile_position(&x, &y))
+					add_highlight(x, y, HIGHLIGHT_TYPE_LOCK);
 				return 1;
 			}
 			if (thing_under_the_mouse == UNDER_MOUSE_PLAYER || thing_under_the_mouse == UNDER_MOUSE_NPC || thing_under_the_mouse == UNDER_MOUSE_ANIMAL)
 			{
-				if (object_under_mouse>=0){
-					actor *this_actor = get_actor_ptr_from_id(object_under_mouse);
-					if(this_actor != NULL)
-						add_highlight(this_actor->x_tile_pos,this_actor->y_tile_pos, HIGHLIGHT_TYPE_ATTACK_TARGET);
+				if (object_under_mouse>=0)
+				{
+					actor *this_actor;
+					locked_list_ptr actors_list = lock_and_get_actor_from_id(object_under_mouse,
+						&this_actor);
+					if (actors_list)
+					{
+						add_highlight(this_actor->x_tile_pos,this_actor->y_tile_pos,
+							HIGHLIGHT_TYPE_ATTACK_TARGET);
+						if (thing_under_the_mouse == UNDER_MOUSE_ANIMAL)
+						{
+							last_attack_actor_coord_x = (short)this_actor->x_tile_pos;
+							last_attack_actor_coord_y = (short)this_actor->y_tile_pos;
+						}
+						release_locked_actors_list_and_invalidate(actors_list, &me);
+					}
 				}
 				attack_someone((int)object_under_mouse);
 				return 1;
@@ -929,6 +1187,10 @@ static int click_game_handler(window_info *win, int mx, int my, Uint32 flags)
 			}
 
 			my_tcp_send(str, 9);
+#ifdef ANDROID
+			highlight_3d_object = object_under_mouse;
+			highlight_3d_object_timestamp = SDL_GetTicks();
+#endif
 			return 1;
 
 			break;
@@ -942,6 +1204,10 @@ static int click_game_handler(window_info *win, int mx, int my, Uint32 flags)
 				return 1;
 			if (thing_under_the_mouse == UNDER_MOUSE_3D_OBJ)
 			{
+#ifdef ANDROID
+				highlight_3d_object = object_under_mouse;
+				highlight_3d_object_timestamp = SDL_GetTicks();
+#endif
 				open_bag (object_under_mouse);
 				return 1;
 			}
@@ -959,6 +1225,10 @@ static int click_game_handler(window_info *win, int mx, int my, Uint32 flags)
 			str[0] = HARVEST;
 			*((Uint16 *)(str+1)) = SDL_SwapLE16((Uint16)object_under_mouse);
 			my_tcp_send(str, 3);
+#ifdef ANDROID
+			highlight_3d_object = object_under_mouse;
+			highlight_3d_object_timestamp = SDL_GetTicks();
+#endif
 			return 1;
 			break;
 		}
@@ -994,32 +1264,31 @@ static int click_game_handler(window_info *win, int mx, int my, Uint32 flags)
 
 			if (target_close_clicked_creature)
 			{
-				int closest_actor = get_closest_actor(x, y, 0.8f);
-				if (closest_actor != -1)
+				int actor_id = get_nearest_actor_id(&x, &y, 0.8f);
+				if (actor_id >= 0)
 				{
-					actor *this_actor = get_actor_ptr_from_id(closest_actor);
-					if (this_actor != NULL)
+					if (spell_result == 3)
 					{
-						if (spell_result == 3)
-						{
-							add_highlight(this_actor->x_tile_pos,this_actor->y_tile_pos, HIGHLIGHT_TYPE_SPELL_TARGET);
-							touch_player(closest_actor);
-							return 1;
-						}
-						else if (!is_ranging_locked && !is_sit_locked)
-						{
-							add_highlight(this_actor->x_tile_pos, this_actor->y_tile_pos, HIGHLIGHT_TYPE_ATTACK_TARGET);
-							attack_someone(closest_actor);
-							return 1;
-						}
+						add_highlight(x, y, HIGHLIGHT_TYPE_SPELL_TARGET);
+						touch_player(actor_id);
+						return 1;
+					}
+					else if (!is_ranging_locked && !is_sit_locked)
+					{
+						add_highlight(x, y, HIGHLIGHT_TYPE_ATTACK_TARGET);
+						last_attack_actor_coord_x = (short)x;
+						last_attack_actor_coord_y = (short)y;
+						attack_someone(actor_id);
+						return 1;
 					}
 				}
 			}
 
 			if (is_ranging_locked || is_sit_locked)
 			{
-				if(your_actor != NULL)
-					add_highlight(your_actor->x_tile_pos,your_actor->y_tile_pos, HIGHLIGHT_TYPE_LOCK);
+				int x, y;
+				if (self_tile_position(&x, &y))
+					add_highlight(x, y, HIGHLIGHT_TYPE_LOCK);
 				return 1;
 			}
 
@@ -1041,11 +1310,14 @@ static int click_game_handler(window_info *win, int mx, int my, Uint32 flags)
 					add_highlight(x, y, HIGHLIGHT_TYPE_WALKING_DESTINATION);
 				}
 				else {
-					char in_aim_mode;
-					actor *cur_actor = get_actor_ptr_from_id(yourself);
-					LOCK_ACTORS_LISTS();
-					in_aim_mode = cur_actor->in_aim_mode;
-					UNLOCK_ACTORS_LISTS();
+					char in_aim_mode = 0;
+					actor *me;
+					locked_list_ptr actors_list = lock_and_get_self(&me);
+					if (actors_list)
+					{
+						in_aim_mode = me->in_aim_mode;
+						release_locked_actors_list_and_invalidate(actors_list, &me);
+					}
 					if (in_aim_mode == 1)
 						add_command_to_actor(yourself, leave_aim_mode);
 					if (move_to(&x, &y, 1))
@@ -1065,8 +1337,11 @@ static int click_game_handler(window_info *win, int mx, int my, Uint32 flags)
 		}
 	}
 
+#ifndef ANDROID
+	// ANDROID_TODO investigate why do this - the events code compares to == 1, perhaps thats why
 	left_click = 2;
 	right_click = 2;
+#endif
 	return 1;
 }
 
@@ -1127,19 +1402,13 @@ static int display_game_handler (window_info *win)
 	static int shadows_were_disabled=0;
 	static int eye_candy_was_disabled=0;
 	unsigned char str[180];
-	int i;
+// 	int i;
 	int any_reflection = 0;
 	int mouse_rate;
 
 	if (!have_a_map) return 1;
 	if (yourself==-1) return 1; //we don't have ourselves
-
-	for(i=0; i<max_actors; i++)
-	{
-        	if(actors_list[i] && actors_list[i]->actor_id == yourself)
-			break;
-	}
-	if(i > max_actors) return 1;//we still don't have ourselves
+	if (!have_self()) return 1;
 
 #ifdef CLUSTER_INSIDES
 	current_cluster = get_actor_cluster();
@@ -1207,11 +1476,33 @@ static int display_game_handler (window_info *win)
 	save_scene_matrix ();
 
 	CalculateFrustum ();
+#ifndef ANDROID
 	set_click_line();
+#else
+	if (do_cursor_check)
+	{
+		read_mouse_now = 1;
+		set_click_line();
+	}
+#endif
 	any_reflection = find_reflection ();
 	CHECK_GL_ERRORS ();
 
+#ifndef ANDROID
 	reset_under_the_mouse();
+#else
+	if (do_cursor_check)
+	{
+		SDL_Event e;
+		reset_under_the_mouse();
+		cursor_check_ready = 1;
+		e.type = SDL_USEREVENT;
+		e.user.code = EVENT_CURSOR_CALCULATION_COMPLETE;
+		SDL_PushEvent(&e);
+	}
+	else
+		clear_selections(); // clear the selections even if we didn't do the cursor check
+#endif
 
 	if (!dungeon){
 		draw_global_light ();
@@ -1261,6 +1552,8 @@ static int display_game_handler (window_info *win)
 	if (!is_day)
 		weather_init_lightning_light();
 
+#ifndef ANDROID
+// ANDROID_TODO shadow_on should be zero so no need for this?
 	if (!dungeon && shadows_on && (is_day || lightning_falling))
 	{
 		glNormal3f(0.0f,0.0f,1.0f);
@@ -1268,6 +1561,7 @@ static int display_game_handler (window_info *win)
 		draw_sun_shadowed_scene (any_reflection);
 	}
 	else
+#endif
 	{
 		glNormal3f (0.0f,0.0f,1.0f);
 		if (any_reflection) {
@@ -1390,10 +1684,12 @@ static int display_game_handler (window_info *win)
 		int fps_y;
 #ifdef	DEBUG
 		int y_cnt = 10;
-		actor *me = get_our_actor ();
+		actor *me;
+		locked_list_ptr actors_list = lock_and_get_self(&me);
 
 		glColor3f (1.0f, 1.0f, 1.0f);
-		if(me){
+		if (actors_list)
+		{
  			safe_snprintf((char*)str,sizeof(str),"Busy: %i",me->busy);
 	 		draw_string_zoomed (0, win->len_y - hud_y - (y_cnt--) * win->default_font_len_y, str, 1, win->current_scale);
 			safe_snprintf((char*)str,sizeof(str),"Command: %i",me->last_command);
@@ -1402,6 +1698,8 @@ static int display_game_handler (window_info *win)
  			draw_string_zoomed (0, win->len_y - hud_y - (y_cnt--) * win->default_font_len_y, str, 1, win->current_scale);
 			safe_snprintf((char*)str,sizeof(str),"Coords: %.3g %.3g",me->x_pos, me->y_pos);
  			draw_string_zoomed (0, win->len_y - hud_y - (y_cnt--) * win->default_font_len_y, str, 1, win->current_scale);
+
+			release_locked_actors_list_and_invalidate(actors_list, &me);
 		}
 
 		safe_snprintf((char*)str, sizeof(str), "lights: ambient=(%.2f,%.2f,%.2f,%.2f) diffuse=(%.2f,%.2f,%.2f,%.2f)",
@@ -1446,6 +1744,7 @@ static int display_game_handler (window_info *win)
 			safe_snprintf ((char*)str, sizeof(str), "FPS: %i", fps[0]);
 		draw_string_zoomed_centered_around(fps_center_x, fps_y, str, 4, win->current_scale);
 
+#ifdef DEBUG
 		// Don't display UVP info if its off.  Either your system does not support it or you turned
 		// it off so why keep reminding you? Show only if enabled to help with fault diagnostics.
 		if (use_animation_program)
@@ -1454,6 +1753,7 @@ static int display_game_handler (window_info *win)
 			draw_string_zoomed_centered_around(fps_center_x, fps_y + win->default_font_len_y,
 				str, 4, win->current_scale);
 		}
+#endif
 	}
 	else
 		fps_default_width = 0;
@@ -1496,6 +1796,12 @@ static int display_game_handler (window_info *win)
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
+
+#ifdef ANDROID
+	//draw touch win
+	if (!window_camera_controls)
+		draw_touch_area(win);
+#endif
 
 	if (!get_show_window(get_id_MW(MW_CHAT)))
 		check_and_get_console_input(win->window_id);
@@ -1732,63 +2038,96 @@ int keypress_root_common (SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_m
 	}
 	else if((key_code == SDLK_z) && shift_on && ctrl_on && !alt_on)
 	{
-		ec_create_mine_detonate(your_actor->x_pos + 0.25f, your_actor->y_pos + 0.25f, 0, MINE_TYPE_SMALL_MINE, (poor_man ? 6 : 10));
+		float x, y;
+		if (self_position(&x, &y))
+			ec_create_mine_detonate(x + 0.25f, y + 0.25f, 0, MINE_TYPE_SMALL_MINE, (poor_man ? 6 : 10));
 	}
 	else if((key_code == SDLK_x) && shift_on && ctrl_on && !alt_on)
 	{
-		ec_create_mine_detonate(your_actor->x_pos + 0.25f, your_actor->y_pos + 0.25f, 0, MINE_TYPE_MEDIUM_MINE, (poor_man ? 6 : 10));
+		float x, y;
+		if (self_position(&x, &y))
+			ec_create_mine_detonate(x + 0.25f, y + 0.25f, 0, MINE_TYPE_MEDIUM_MINE, (poor_man ? 6 : 10));
 	}
 	else if((key_code == SDLK_c) && shift_on && ctrl_on && !alt_on)
 	{
-		ec_create_mine_detonate(your_actor->x_pos + 0.25f, your_actor->y_pos + 0.25f, 0, MINE_TYPE_HIGH_EXPLOSIVE_MINE, (poor_man ? 6 : 10));
+		float x, y;
+		if (self_position(&x, &y))
+			ec_create_mine_detonate(x + 0.25f, y + 0.25f, 0, MINE_TYPE_HIGH_EXPLOSIVE_MINE, (poor_man ? 6 : 10));
 	}
 	else if((key_code == SDLK_v) && shift_on && ctrl_on && !alt_on)
 	{
-		ec_create_mine_detonate(your_actor->x_pos + 0.25f, your_actor->y_pos + 0.25f, 0, MINE_TYPE_TRAP, (poor_man ? 6 : 10));
+		float x, y;
+		if (self_position(&x, &y))
+			ec_create_mine_detonate(x + 0.25f, y + 0.25f, 0, MINE_TYPE_TRAP, (poor_man ? 6 : 10));
 	}
 	else if((key_code == SDLK_b) && shift_on && ctrl_on && !alt_on)
 	{
-		ec_create_mine_detonate(your_actor->x_pos + 0.25f, your_actor->y_pos + 0.25f, 0, MINE_TYPE_CALTROP, (poor_man ? 6 : 10));
+		float x, y;
+		if (self_position(&x, &y))
+			ec_create_mine_detonate(x + 0.25f, y + 0.25f, 0, MINE_TYPE_CALTROP, (poor_man ? 6 : 10));
 	}
 	else if((key_code == SDLK_n) && shift_on && ctrl_on && !alt_on)
 	{
-		ec_create_mine_detonate(your_actor->x_pos + 0.25f, your_actor->y_pos + 0.25f, 0, MINE_TYPE_POISONED_CALTROP, (poor_man ? 6 : 10));
+		float x, y;
+		if (self_position(&x, &y))
+			ec_create_mine_detonate(x + 0.25f, y + 0.25f, 0, MINE_TYPE_POISONED_CALTROP, (poor_man ? 6 : 10));
 	}
 	else if((key_code == SDLK_m) && shift_on && ctrl_on && !alt_on)
 	{
-		ec_create_mine_detonate(your_actor->x_pos + 0.25f, your_actor->y_pos + 0.25f, 0, MINE_TYPE_MANA_BURNER, (poor_man ? 6 : 10));
+		float x, y;
+		if (self_position(&x, &y))
+			ec_create_mine_detonate(x + 0.25f, y + 0.25f, 0, MINE_TYPE_MANA_BURNER, (poor_man ? 6 : 10));
 	}
 	else if((key_code == SDLK_j) && shift_on && ctrl_on && !alt_on)
 	{
-		ec_create_mine_detonate(your_actor->x_pos + 0.25f, your_actor->y_pos + 0.25f, 0, MINE_TYPE_MANA_DRAINER, (poor_man ? 6 : 10));
+		float x, y;
+		if (self_position(&x, &y))
+			ec_create_mine_detonate(x + 0.25f, y + 0.25f, 0, MINE_TYPE_MANA_DRAINER, (poor_man ? 6 : 10));
 	}
 	else if((key_code == SDLK_k) && shift_on && ctrl_on && !alt_on)
 	{
-		ec_create_mine_detonate(your_actor->x_pos + 0.25f, your_actor->y_pos + 0.25f, 0, MINE_TYPE_UNINVIZIBILIZER, (poor_man ? 6 : 10));
+		float x, y;
+		if (self_position(&x, &y))
+			ec_create_mine_detonate(x + 0.25f, y + 0.25f, 0, MINE_TYPE_UNINVIZIBILIZER, (poor_man ? 6 : 10));
 	}
 	else if((key_code == SDLK_l) && shift_on && ctrl_on && !alt_on)
 	{
-		ec_create_mine_detonate(your_actor->x_pos + 0.25f, your_actor->y_pos + 0.25f, 0, MINE_TYPE_MAGIC_IMMUNITY_REMOVAL, (poor_man ? 6 : 10));
+		float x, y;
+		if (self_position(&x, &y))
+			ec_create_mine_detonate(x + 0.25f, y + 0.25f, 0, MINE_TYPE_MAGIC_IMMUNITY_REMOVAL, (poor_man ? 6 : 10));
 	}
-#endif
-#ifdef DEBUG
     // scale the current actor
 	else if((key_code == SDLK_p) && shift_on && ctrl_on && !alt_on)
 	{
-		get_our_actor()->scale *= 1.05;
+		actor *me;
+		locked_list_ptr actors_list = lock_and_get_self(&me);
+		if (actors_list)
+		{
+			me->scale *= 1.05;
+			release_locked_actors_list_and_invalidate(actors_list, &me);
+		}
 	}
 	else if((key_code == SDLK_o) && shift_on && ctrl_on && !alt_on)
 	{
-		get_our_actor()->scale /= 1.05;
+		actor *me;
+		locked_list_ptr actors_list = lock_and_get_self(&me);
+		if (actors_list)
+		{
+			me->scale /= 1.05;
+			release_locked_actors_list_and_invalidate(actors_list, &me);
+		}
 	}
 	else if((key_code == SDLK_h) && shift_on && ctrl_on && !alt_on)
 	{
-		if (get_our_actor())
+		actor *me;
+		locked_list_ptr actors_list = lock_and_get_self(&me);
+		if (actors_list)
 		{
-			if (get_our_actor()->attached_actor < 0)
-				add_actor_attachment(get_our_actor()->actor_id, 200);
+			if (!has_attachment(me))
+				add_actor_attachment(actors_list, me, 200);
 			else
-				remove_actor_attachment(get_our_actor()->actor_id);
+				remove_and_destroy_attachment(actors_list, me->actor_id);
+			release_locked_actors_list_and_invalidate(actors_list, &me);
 		}
 	}
 #endif // DEBUG
@@ -1822,6 +2161,14 @@ int keypress_root_common (SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_m
 	else if (KEY_DEF_CMP(K_ETHERBARS, key_code, key_mod))
 	{
 		view_ether_bar = !view_ether_bar;
+	}
+	else if (KEY_DEF_CMP(K_VIEWFOOD, key_code, key_mod))
+	{
+		view_food = !view_food;
+	}
+	else if (KEY_DEF_CMP(K_FOODBAR, key_code, key_mod))
+	{
+		view_food_bar = !view_food_bar;
 	}
 	else if (KEY_DEF_CMP(K_VIEWTEXTASOVERTEXT, key_code, key_mod))
 	{
@@ -1976,6 +2323,14 @@ int text_input_handler (SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_mod
 {
 	Uint8 ch = key_to_char (key_unicode);
 
+#ifdef ANDROID
+	if (!text_widget_already_setup)
+	{
+		text_widget_already_setup = 1;
+		input_widget_move_to_win(-1);
+	}
+#endif
+
 	if (root_key_to_input_field(key_code, key_unicode, key_mod))
 	{
 		return 1;
@@ -2014,6 +2369,88 @@ int text_input_handler (SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_mod
 	return 1;
 }
 
+#ifdef ANDROID
+int multi_gesture_game_handler(window_info *win, Uint32 timestamp, float x, float y, float distance, float rotation)
+{
+	if ((distance < -0.001f) || (distance > 0.001f))
+	{
+		if (distance < 0)
+			camera_zoom_dir = 1;
+		else
+			camera_zoom_dir = -1;
+	}
+	camera_zoom_duration += 10;
+	return 1;
+}
+
+int finger_motion_game_handler(window_info *win, Uint32 timestamp, float x, float y, float dx, float dy)
+{
+	int do_rotation = 0, do_tilt = 0;
+	int mx = window_width * x;
+	int my = window_height * y;
+
+	if ((dx != dx) || (dy != dy))
+		return 1; // we got a nan....
+
+	if ((dx < -2) || (dx > 2) || (dy < -2) || (dy > 2))
+		return 1; // it's the multi gesture bug
+
+	// do not use the original timestamp, let's use the current time
+	timestamp = SDL_GetTicks();
+
+	if(back_on)
+	{
+		camera_rotation_speed = camera_rotation_speed * 0.5 + normal_camera_rotation_speed * dx * -0.20;
+		camera_rotation_deceleration = normal_camera_deceleration * 1E-3;
+
+		camera_tilt_speed = camera_tilt_speed * 0.5 + normal_camera_rotation_speed * dy * -0.20;
+		camera_tilt_deceleration = normal_camera_deceleration * 1E-3;
+
+		return 1;
+	}
+
+	// If we are using the full window camer controls
+	if (window_camera_controls)
+	{
+		// only adjust one conrol at a time
+		if (fabsf(dx) > fabsf(dy))
+			do_rotation = 1;
+		else
+			do_tilt = 1;
+	}
+	// else we are using the original camera control bars
+	else
+	{
+		if ((mx > horiz_touch_x_start) && (mx < horiz_touch_x_start + horiz_touch_x_size) &&
+			(my > horiz_touch_y_start) && (my < horiz_touch_y_start + horiz_touch_y_size))
+			do_rotation = 1;
+		else if ((mx > vert_touch_x_start) && (mx < vert_touch_x_start + vert_touch_x_size) &&
+			(my > vert_touch_y_start) && (my < vert_touch_y_start + vert_touch_y_size))
+			do_tilt = 1;
+	}
+
+	if (do_rotation)
+	{
+		if ((last_finger_motion_timestamp + 30 > timestamp) || (last_finger_multi_gesture_timestamp + 30 > timestamp))
+			return 1;
+		last_finger_motion_timestamp = timestamp;
+		camera_rotation_speed = camera_rotation_speed * 0.5 + normal_camera_rotation_speed * dx * -0.50;
+		camera_rotation_deceleration = normal_camera_deceleration * 1E-3;
+	}
+	else if (do_tilt)
+	{
+		if ((last_finger_motion_timestamp + 30 > timestamp) || (last_finger_multi_gesture_timestamp + 30 > timestamp))
+			return 1;
+		last_finger_motion_timestamp = timestamp;
+		camera_tilt_speed = camera_tilt_speed * 0.5 + normal_camera_rotation_speed * dy * -0.30;
+		camera_tilt_deceleration = normal_camera_deceleration * 1E-3;
+	}
+
+	return 1;
+
+}
+#endif
+
 static int keypress_game_handler (window_info *win, int mx, int my, SDL_Keycode key_code, Uint32 key_unicode, Uint16 key_mod)
 {
 	// first try the keypress handler for all root windows
@@ -2021,6 +2458,12 @@ static int keypress_game_handler (window_info *win, int mx, int my, SDL_Keycode 
 	{
 		return 1;
 	}
+#ifdef ANDROID
+	else if (key_code == SDLK_AC_BACK)
+	{
+		return 1; // don't handle this
+	}
+#endif
 	else if (KEY_DEF_CMP(K_TURNLEFT, key_code, key_mod))
 	{
 		//Moved delay to my_tcp_send
@@ -2179,11 +2622,21 @@ static int keypress_game_handler (window_info *win, int mx, int my, SDL_Keycode 
 
 	else if (key_code == SDLK_F9)
 	{
-		actor *me = get_actor_ptr_from_id (yourself);
-		if (key_mod & KMOD_SHIFT)
-			remove_fire_at_tile(me->x_pos * 2, me->y_pos * 2);
-		else
-			add_fire_at_tile(1, me->x_pos * 2, me->y_pos * 2, get_tile_height(me->x_tile_pos, me->y_tile_pos));
+		actor *me;
+		locked_list_ptr actors_list = lock_and_get_self(&me);
+		if (actors_list)
+		{
+			if (key_mod & KMOD_SHIFT)
+			{
+				remove_fire_at_tile(me->x_pos * 2, me->y_pos * 2);
+			}
+			else
+			{
+				add_fire_at_tile(1, me->x_pos * 2, me->y_pos * 2,
+					get_tile_height(me->x_tile_pos, me->y_tile_pos));
+			}
+			release_locked_actors_list_and_invalidate(actors_list, &me);
+		}
 	}
 #ifdef DEBUG
 	else if (key_code == SDLK_F10)
@@ -2305,7 +2758,12 @@ void create_game_root_window (int width, int height)
 
 		set_window_handler (game_root_win, ELW_HANDLER_DISPLAY, &display_game_handler);
 		set_window_handler (game_root_win, ELW_HANDLER_CLICK, &click_game_handler);
+#ifndef ANDROID
 		set_window_handler (game_root_win, ELW_HANDLER_MOUSEOVER, &mouseover_game_handler);
+#else
+		set_window_handler (game_root_win, ELW_HANDLER_MULTI_GESTURE, (int (*)())&multi_gesture_game_handler);
+		set_window_handler (game_root_win, ELW_HANDLER_FINGER_MOTION, (int (*)())&finger_motion_game_handler);
+#endif
 		set_window_handler (game_root_win, ELW_HANDLER_KEYPRESS, (int (*)())&keypress_game_handler);
 		set_window_handler (game_root_win, ELW_HANDLER_SHOW, &show_game_handler);
 		set_window_handler (game_root_win, ELW_HANDLER_AFTER_SHOW, &update_have_display);

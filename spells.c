@@ -2,6 +2,7 @@
 #include <string.h>
 #include <errno.h>
 #include "spells.h"
+#include "actors_list.h"
 #include "asc.h"
 #include "cursors.h"
 #include "context_menu.h"
@@ -825,19 +826,26 @@ static void time_out(const float x_start, const float y_start, const float grids
 
 void display_spells_we_have(void)
 {
+	locked_list_ptr actors_list;
+	actor *me;
 	Uint32 i;
 	float scale, duration;
 
-	if (your_actor != NULL)
+	actors_list = lock_and_get_self(&me);
+	if (actors_list)
 	{
 		static int last_actor_type = -1;
 		if (last_actor_type < 0)
-			last_actor_type = your_actor->actor_type;
-		if (last_actor_type != your_actor->actor_type)
 		{
-			last_actor_type = your_actor->actor_type;
+			last_actor_type = me->actor_type;
+		}
+		else if (last_actor_type != me->actor_type)
+		{
+			last_actor_type = me->actor_type;
 			rerequest_durations();
 		}
+
+		release_locked_actors_list_and_invalidate(actors_list, &me);
 	}
 
 #ifdef OPENGL_TRACE
@@ -1223,6 +1231,9 @@ static int switch_handler(int new_win){
 	set_id_MW(MW_SPELLS, this_win);
 	check_proportional_move(MW_SPELLS);
 	start_mini_spells=(this_win == spell_mini_win)? 1:0;
+#ifdef ANDROID
+	set_spell_help_text(we_have_spell);
+#endif
 
 	return 1;
 }
@@ -1306,6 +1317,9 @@ static int click_spells_handler(window_info *win, int mx, int my, Uint32 flags){
 		//a spell has been clicked
 		int code_pos=(the_group*256+the_spell);
 		we_have_spell=groups_list[the_group].spells_id[the_spell];
+#ifdef ANDROID
+		set_spell_help_text(we_have_spell);
+#endif
 		put_on_cast();
 		//handle double click && cast spell
 		if ( ((SDL_GetTicks() - last_clicked) < 400)&&last_pos==code_pos) cast_handler();
@@ -1964,7 +1978,9 @@ void display_sigils_menu()
 		set_window_custom_scale(sigils_win, MW_SPELLS);
 		set_window_handler(sigils_win, ELW_HANDLER_DISPLAY, &display_sigils_handler );
 		set_window_handler(sigils_win, ELW_HANDLER_CLICK, &click_sigils_handler );
+#ifndef ANDROID
 		set_window_handler(sigils_win, ELW_HANDLER_MOUSEOVER, &mouseover_sigils_handler );
+#endif
 		set_window_handler(sigils_win, ELW_HANDLER_UI_SCALE, &ui_scale_sigils_handler );
 		set_window_handler(sigils_win, ELW_HANDLER_FONT_CHANGE, &change_sigils_font_handler);
 
@@ -1988,7 +2004,9 @@ void display_sigils_menu()
 		set_window_custom_scale(spell_win, MW_SPELLS);
 		set_window_handler(spell_win, ELW_HANDLER_DISPLAY, &display_spells_handler );
 		set_window_handler(spell_win, ELW_HANDLER_CLICK, &click_spells_handler );
+#ifndef ANDROID
 		set_window_handler(spell_win, ELW_HANDLER_MOUSEOVER, &mouseover_spells_handler );
+#endif
 		set_window_handler(spell_win, ELW_HANDLER_UI_SCALE, &ui_scale_spells_handler );
 		set_window_handler(spell_win, ELW_HANDLER_FONT_CHANGE, &change_spells_font_handler);
 
@@ -2010,7 +2028,9 @@ void display_sigils_menu()
 		set_window_custom_scale(spell_mini_win, MW_SPELLS);
 		set_window_handler(spell_mini_win, ELW_HANDLER_DISPLAY, &display_spells_mini_handler );
 		set_window_handler(spell_mini_win, ELW_HANDLER_CLICK, &click_spells_mini_handler );
+#ifndef ANDROID
 		set_window_handler(spell_mini_win, ELW_HANDLER_MOUSEOVER, &mouseover_spells_mini_handler );
+#endif
 		set_window_handler(spell_mini_win, ELW_HANDLER_UI_SCALE, &ui_scale_spells_mini_handler );
 
 		if (spell_mini_win >= 0 && spell_mini_win < windows_list.num_windows)

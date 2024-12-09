@@ -15,7 +15,11 @@
 #include "eye_candy_types.h"
 
 #ifndef MAP_EDITOR
+#ifdef __cplusplus
+#include "actors_list.h"
+#else // __cplusplus
 #include "actors.h"
+#endif // __cplusplus
 #endif
 #include "e3d.h"
 #include "platform.h"
@@ -284,144 +288,144 @@ extern "C"
 		int mine_type, int LOD);
 
 #ifndef MAP_EDITOR
-	float ec_get_z(actor* _actor);
-	void ec_actor_delete(actor* _actor);
-	void ec_add_actor_obstruction(actor* actor, float force);
-	void ec_remove_weapon(actor* _actor);
+	float ec_get_z(const actor* _actor);
+	void ec_actor_delete(const actor* _actor);
+	void ec_add_actor_obstruction(const actor* actor, float force);
+	void ec_remove_weapon(const actor* _actor);
 
-	ec_reference ec_create_breath_fire2(actor* caster, actor* target, int LOD,
+	ec_reference ec_create_breath_fire2(const actor* caster, const actor* target, int LOD,
 		float scale);
-	ec_reference ec_create_breath_ice2(actor* caster, actor* target, int LOD,
+	ec_reference ec_create_breath_ice2(const actor* caster, const actor* target, int LOD,
 		float scale);
-	ec_reference ec_create_breath_poison2(actor* caster, actor* target,
+	ec_reference ec_create_breath_poison2(const actor* caster, const actor* target,
 		int LOD, float scale);
-	ec_reference ec_create_breath_magic2(actor* caster, actor* target, int LOD,
+	ec_reference ec_create_breath_magic2(const actor* caster, const actor* target, int LOD,
 		float scale);
-	ec_reference ec_create_breath_lightning2(actor* caster, actor* target,
+	ec_reference ec_create_breath_lightning2(const actor* caster, const actor* target,
 		int LOD, float scale);
-	ec_reference ec_create_breath_wind2(actor* caster, actor* target, int LOD,
+	ec_reference ec_create_breath_wind2(const actor* caster, const actor* target, int LOD,
 		float scale);
-	ec_reference ec_create_glow_harm(actor* caster, int LOD);
-	ec_reference ec_create_glow_level_up_att(actor* caster, int LOD);
-	ec_reference ec_create_glow_level_up_def(actor* caster, int LOD);
-	ec_reference ec_create_glow_level_up_har(actor* caster, int LOD);
-	ec_reference ec_create_glow_level_up_alc_left(actor* caster, int LOD);
-	ec_reference ec_create_glow_level_up_alc_right(actor* caster, int LOD);
-	ec_reference ec_create_glow_level_up_mag(actor* caster, int LOD);
-	ec_reference ec_create_glow_level_up_pot_left(actor* caster, int LOD);
-	ec_reference ec_create_glow_level_up_pot_right(actor* caster, int LOD);
-	ec_reference ec_create_glow_level_up_sum(actor* caster, int LOD);
-	ec_reference ec_create_glow_level_up_man_left(actor* caster, int LOD);
-	ec_reference ec_create_glow_level_up_man_right(actor* caster, int LOD);
-	ec_reference ec_create_glow_level_up_cra_left(actor* caster, int LOD);
-	ec_reference ec_create_glow_level_up_cra_right(actor* caster, int LOD);
-	ec_reference ec_create_glow_level_up_eng_left(actor* caster, int LOD);
-	ec_reference ec_create_glow_level_up_eng_right(actor* caster, int LOD);
-	ec_reference ec_create_glow_level_up_tai_left(actor* caster, int LOD);
-	ec_reference ec_create_glow_level_up_tai_right(actor* caster, int LOD);
-	ec_reference ec_create_glow_level_up_ran(actor* caster, int LOD);
-	ec_reference ec_create_glow_level_up_default(actor* caster, int LOD);
-	ec_reference ec_create_glow_level_up_oa(actor* caster, int LOD);
-	ec_reference ec_create_glow_poison(actor* caster, int LOD);
-	ec_reference ec_create_glow_remote_heal(actor* caster, int LOD);
-	ec_reference ec_create_harvesting_radon_pouch2(actor* caster, int LOD);
-	ec_reference ec_create_harvesting_cavern_wall2(actor* caster, int LOD);
-	ec_reference ec_create_harvesting_mother_nature2(actor* caster, int LOD);
-	ec_reference ec_create_harvesting_queen_of_nature2(actor* caster, int LOD);
-	ec_reference ec_create_harvesting_bees2(actor* caster, int LOD);
+	ec_reference ec_create_glow_harm(const actor* caster, int LOD);
+	ec_reference ec_create_glow_level_up_att(const actor* caster, int LOD);
+	ec_reference ec_create_glow_level_up_def(const actor* caster, int LOD);
+	ec_reference ec_create_glow_level_up_har(const actor* caster, int LOD);
+	ec_reference ec_create_glow_level_up_alc_left(const actor* caster, int LOD);
+	ec_reference ec_create_glow_level_up_alc_right(const actor* caster, int LOD);
+	ec_reference ec_create_glow_level_up_mag(const actor* caster, int LOD);
+	ec_reference ec_create_glow_level_up_pot_left(const actor* caster, int LOD);
+	ec_reference ec_create_glow_level_up_pot_right(const actor* caster, int LOD);
+	ec_reference ec_create_glow_level_up_sum(const actor* caster, int LOD);
+	ec_reference ec_create_glow_level_up_man_left(const actor* caster, int LOD);
+	ec_reference ec_create_glow_level_up_man_right(const actor* caster, int LOD);
+	ec_reference ec_create_glow_level_up_cra_left(const actor* caster, int LOD);
+	ec_reference ec_create_glow_level_up_cra_right(const actor* caster, int LOD);
+	ec_reference ec_create_glow_level_up_eng_left(const actor* caster, int LOD);
+	ec_reference ec_create_glow_level_up_eng_right(const actor* caster, int LOD);
+	ec_reference ec_create_glow_level_up_tai_left(const actor* caster, int LOD);
+	ec_reference ec_create_glow_level_up_tai_right(const actor* caster, int LOD);
+	ec_reference ec_create_glow_level_up_ran(const actor* caster, int LOD);
+	ec_reference ec_create_glow_level_up_default(const actor* caster, int LOD);
+	ec_reference ec_create_glow_level_up_oa(const actor* caster, int LOD);
+	ec_reference ec_create_glow_poison(const actor* caster, int LOD);
+	ec_reference ec_create_glow_remote_heal(const actor* caster, int LOD);
+	ec_reference ec_create_harvesting_radon_pouch2(const actor* caster, int LOD);
+	ec_reference ec_create_harvesting_cavern_wall2(const actor* caster, int LOD);
+	ec_reference ec_create_harvesting_mother_nature2(const actor* caster, int LOD);
+	ec_reference ec_create_harvesting_queen_of_nature2(const actor* caster, int LOD);
+	ec_reference ec_create_harvesting_bees2(const actor* caster, int LOD);
 	ec_reference ec_create_harvesting_bag_of_gold(float x, float y, float z, int LOD);
-	ec_reference ec_create_harvesting_bag_of_gold2(actor* caster, int LOD);
+	ec_reference ec_create_harvesting_bag_of_gold2(const actor* caster, int LOD);
 	ec_reference ec_create_harvesting_rare_stone(float x, float y, float z, int LOD);
-	ec_reference ec_create_harvesting_rare_stone2(actor* caster, int LOD);
-	ec_reference ec_create_harvesting_tool_break(actor* caster, int LOD);
-	ec_reference ec_create_ongoing_magic_protection2(actor* caster,
+	ec_reference ec_create_harvesting_rare_stone2(const actor* caster, int LOD);
+	ec_reference ec_create_harvesting_tool_break(const actor* caster, int LOD);
+	ec_reference ec_create_ongoing_magic_protection2(const actor* caster,
 		float hue_adjust, float saturation_adjust, int LOD, float scale);
-	ec_reference ec_create_ongoing_shield2(actor* caster, float hue_adjust,
+	ec_reference ec_create_ongoing_shield2(const actor* caster, float hue_adjust,
 		float saturation_adjust, int LOD, float scale);
-	ec_reference ec_create_ongoing_magic_immunity2(actor* caster,
+	ec_reference ec_create_ongoing_magic_immunity2(const actor* caster,
 		float hue_adjust, float saturation_adjust, int LOD, float scale);
-	ec_reference ec_create_ongoing_poison2(actor* caster, float hue_adjust,
+	ec_reference ec_create_ongoing_poison2(const actor* caster, float hue_adjust,
 		float saturation_adjust, int LOD, float scale);
-	ec_reference ec_create_ongoing_harvesting2(actor* caster, float hue_adjust,
+	ec_reference ec_create_ongoing_harvesting2(const actor* caster, float hue_adjust,
 		float saturation_adjust, int LOD, float scale);
-	ec_reference ec_create_selfmagic_heal2(actor* caster, int LOD);
+	ec_reference ec_create_selfmagic_heal2(const actor* caster, int LOD);
 	ec_reference ec_create_selfmagic_magic_protection(float x, float y, float z, int LOD);
-	ec_reference ec_create_selfmagic_magic_protection2(actor* caster, int LOD);
+	ec_reference ec_create_selfmagic_magic_protection2(const actor* caster, int LOD);
 	ec_reference ec_create_selfmagic_shield(float x, float y, float z, int LOD);
-	ec_reference ec_create_selfmagic_shield_generic(actor* caster, int LOD,
+	ec_reference ec_create_selfmagic_shield_generic(const actor* caster, int LOD,
 		special_effect_enum type);
-	ec_reference ec_create_selfmagic_restoration2(actor* caster, int LOD);
+	ec_reference ec_create_selfmagic_restoration2(const actor* caster, int LOD);
 	ec_reference ec_create_selfmagic_bones_to_gold(float x, float y, float z, int LOD);
-	ec_reference ec_create_selfmagic_bones_to_gold2(actor* caster, int LOD);
+	ec_reference ec_create_selfmagic_bones_to_gold2(const actor* caster, int LOD);
 	ec_reference ec_create_selfmagic_teleport_to_the_portals_room(float x,
 		float y, float z, int LOD);
-	ec_reference ec_create_selfmagic_teleport_to_the_portals_room2(actor* caster, int LOD);
-	ec_reference ec_create_selfmagic_magic_immunity2(actor* caster, int LOD);
-	ec_reference ec_create_alert2(actor* caster, int LOD);
-	ec_reference ec_create_summon_rabbit2(actor* caster, int LOD);
-	ec_reference ec_create_summon_rat2(actor* caster, int LOD);
-	ec_reference ec_create_summon_beaver2(actor* caster, int LOD);
-	ec_reference ec_create_summon_skunk2(actor* caster, int LOD);
-	ec_reference ec_create_summon_racoon2(actor* caster, int LOD);
-	ec_reference ec_create_summon_deer2(actor* caster, int LOD);
-	ec_reference ec_create_summon_green_snake2(actor* caster, int LOD);
-	ec_reference ec_create_summon_red_snake2(actor* caster, int LOD);
-	ec_reference ec_create_summon_brown_snake2(actor* caster, int LOD);
-	ec_reference ec_create_summon_fox2(actor* caster, int LOD);
-	ec_reference ec_create_summon_boar2(actor* caster, int LOD);
-	ec_reference ec_create_summon_wolf2(actor* caster, int LOD);
-	ec_reference ec_create_summon_skeleton2(actor* caster, int LOD);
-	ec_reference ec_create_summon_small_gargoyle2(actor* caster, int LOD);
-	ec_reference ec_create_summon_medium_gargoyle2(actor* caster, int LOD);
+	ec_reference ec_create_selfmagic_teleport_to_the_portals_room2(const actor* caster, int LOD);
+	ec_reference ec_create_selfmagic_magic_immunity2(const actor* caster, int LOD);
+	ec_reference ec_create_alert2(const actor* caster, int LOD);
+	ec_reference ec_create_summon_rabbit2(const actor* caster, int LOD);
+	ec_reference ec_create_summon_rat2(const actor* caster, int LOD);
+	ec_reference ec_create_summon_beaver2(const actor* caster, int LOD);
+	ec_reference ec_create_summon_skunk2(const actor* caster, int LOD);
+	ec_reference ec_create_summon_racoon2(const actor* caster, int LOD);
+	ec_reference ec_create_summon_deer2(const actor* caster, int LOD);
+	ec_reference ec_create_summon_green_snake2(const actor* caster, int LOD);
+	ec_reference ec_create_summon_red_snake2(const actor* caster, int LOD);
+	ec_reference ec_create_summon_brown_snake2(const actor* caster, int LOD);
+	ec_reference ec_create_summon_fox2(const actor* caster, int LOD);
+	ec_reference ec_create_summon_boar2(const actor* caster, int LOD);
+	ec_reference ec_create_summon_wolf2(const actor* caster, int LOD);
+	ec_reference ec_create_summon_skeleton2(const actor* caster, int LOD);
+	ec_reference ec_create_summon_small_gargoyle2(const actor* caster, int LOD);
+	ec_reference ec_create_summon_medium_gargoyle2(const actor* caster, int LOD);
 	ec_reference ec_create_summon_large_gargoyle(float x, float y, float z,
 		int LOD);
-	ec_reference ec_create_summon_large_gargoyle2(actor* caster, int LOD);
-	ec_reference ec_create_summon_puma2(actor* caster, int LOD);
-	ec_reference ec_create_summon_female_goblin2(actor* caster, int LOD);
-	ec_reference ec_create_summon_polar_bear2(actor* caster, int LOD);
-	ec_reference ec_create_summon_bear2(actor* caster, int LOD);
-	ec_reference ec_create_summon_armed_male_goblin2(actor* caster, int LOD);
-	ec_reference ec_create_summon_armed_skeleton2(actor* caster, int LOD);
-	ec_reference ec_create_summon_female_orc2(actor* caster, int LOD);
-	ec_reference ec_create_summon_male_orc2(actor* caster, int LOD);
-	ec_reference ec_create_summon_armed_female_orc2(actor* caster, int LOD);
-	ec_reference ec_create_summon_armed_male_orc2(actor* caster, int LOD);
-	ec_reference ec_create_summon_cyclops2(actor* caster, int LOD);
-	ec_reference ec_create_summon_fluffy2(actor* caster, int LOD);
-	ec_reference ec_create_summon_phantom_warrior2(actor* caster, int LOD);
-	ec_reference ec_create_summon_mountain_chimeran2(actor* caster, int LOD);
-	ec_reference ec_create_summon_yeti2(actor* caster, int LOD);
-	ec_reference ec_create_summon_arctic_chimeran2(actor* caster, int LOD);
-	ec_reference ec_create_summon_giant2(actor* caster, int LOD);
-	ec_reference ec_create_summon_giant_snake2(actor* caster, int LOD);
-	ec_reference ec_create_summon_spider2(actor* caster, int LOD);
-	ec_reference ec_create_summon_tiger2(actor* caster, int LOD);
-	ec_reference ec_create_sword_cutlass(actor* _actor, int LOD);
-	ec_reference ec_create_sword_emerald_claymore(actor* _actor, int LOD);
-	ec_reference ec_create_sword_sunbreaker(actor* _actor, int LOD);
-	ec_reference ec_create_sword_orc_slayer(actor* _actor, int LOD);
-	ec_reference ec_create_sword_eagle_wing(actor* _actor, int LOD);
-	ec_reference ec_create_sword_jagged_saber(actor* _actor, int LOD);
-	ec_reference ec_create_sword_of_fire(actor* _actor, int LOD);
-	ec_reference ec_create_sword_of_ice(actor* _actor, int LOD);
-	ec_reference ec_create_sword_of_magic(actor* _actor, int LOD);
-	ec_reference ec_create_staff_of_protection(actor* _actor, int LOD);
-	ec_reference ec_create_staff_of_the_mage(actor* _actor, int LOD);
-	ec_reference ec_create_targetmagic_remote_heal2(actor* caster,
-		actor* target, int LOD);
-	ec_reference ec_create_targetmagic_poison2(actor* caster, actor* target,
+	ec_reference ec_create_summon_large_gargoyle2(const actor* caster, int LOD);
+	ec_reference ec_create_summon_puma2(const actor* caster, int LOD);
+	ec_reference ec_create_summon_female_goblin2(const actor* caster, int LOD);
+	ec_reference ec_create_summon_polar_bear2(const actor* caster, int LOD);
+	ec_reference ec_create_summon_bear2(const actor* caster, int LOD);
+	ec_reference ec_create_summon_armed_male_goblin2(const actor* caster, int LOD);
+	ec_reference ec_create_summon_armed_skeleton2(const actor* caster, int LOD);
+	ec_reference ec_create_summon_female_orc2(const actor* caster, int LOD);
+	ec_reference ec_create_summon_male_orc2(const actor* caster, int LOD);
+	ec_reference ec_create_summon_armed_female_orc2(const actor* caster, int LOD);
+	ec_reference ec_create_summon_armed_male_orc2(const actor* caster, int LOD);
+	ec_reference ec_create_summon_cyclops2(const actor* caster, int LOD);
+	ec_reference ec_create_summon_fluffy2(const actor* caster, int LOD);
+	ec_reference ec_create_summon_phantom_warrior2(const actor* caster, int LOD);
+	ec_reference ec_create_summon_mountain_chimeran2(const actor* caster, int LOD);
+	ec_reference ec_create_summon_yeti2(const actor* caster, int LOD);
+	ec_reference ec_create_summon_arctic_chimeran2(const actor* caster, int LOD);
+	ec_reference ec_create_summon_giant2(const actor* caster, int LOD);
+	ec_reference ec_create_summon_giant_snake2(const actor* caster, int LOD);
+	ec_reference ec_create_summon_spider2(const actor* caster, int LOD);
+	ec_reference ec_create_summon_tiger2(const actor* caster, int LOD);
+	ec_reference ec_create_sword_cutlass(const actor* _actor, int LOD);
+	ec_reference ec_create_sword_emerald_claymore(const actor* _actor, int LOD);
+	ec_reference ec_create_sword_sunbreaker(const actor* _actor, int LOD);
+	ec_reference ec_create_sword_orc_slayer(const actor* _actor, int LOD);
+	ec_reference ec_create_sword_eagle_wing(const actor* _actor, int LOD);
+	ec_reference ec_create_sword_jagged_saber(const actor* _actor, int LOD);
+	ec_reference ec_create_sword_of_fire(const actor* _actor, int LOD);
+	ec_reference ec_create_sword_of_ice(const actor* _actor, int LOD);
+	ec_reference ec_create_sword_of_magic(const actor* _actor, int LOD);
+	ec_reference ec_create_staff_of_protection(const actor* _actor, int LOD);
+	ec_reference ec_create_staff_of_the_mage(const actor* _actor, int LOD);
+	ec_reference ec_create_targetmagic_remote_heal2(const actor* caster,
+		const actor* target, int LOD);
+	ec_reference ec_create_targetmagic_poison2(const actor* caster, const actor* target,
 		int LOD);
-	ec_reference ec_create_targetmagic_teleport_to_range2(actor* caster,
-		actor* target, int LOD);
-	ec_reference ec_create_targetmagic_harm2(actor* caster, actor* target,
+	ec_reference ec_create_targetmagic_teleport_to_range2(const actor* caster,
+		const actor* target, int LOD);
+	ec_reference ec_create_targetmagic_harm2(const actor* caster, const actor* target,
 		int LOD);
-	ec_reference ec_create_targetmagic_life_drain2(actor* caster,
-		actor* target, int LOD);
-	ec_reference ec_create_targetmagic_drain_mana2(actor* caster,
-		actor* target, int LOD);
+	ec_reference ec_create_targetmagic_life_drain2(const actor* caster,
+		const actor* target, int LOD);
+	ec_reference ec_create_targetmagic_drain_mana2(const actor* caster,
+		const actor* target, int LOD);
 	ec_reference ec_create_mine_detonate(float x, float y, float z,
 		int mine_type, int LOD);
-	ec_reference ec_create_mine_detonate2(actor* caster, int mine_type, int LOD);
+	ec_reference ec_create_mine_detonate2(const actor* caster, int mine_type, int LOD);
 	ec_reference ec_create_missile_effect(int missile_id, int LOD, int hitOrMiss);
 #endif // MAP_EDITOR
 

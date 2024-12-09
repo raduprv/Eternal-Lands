@@ -16,13 +16,14 @@
 #include <map>
 #include <cstdio>
 #include <algorithm>
+#include <mutex>
 #include <fcntl.h>
 #include <unistd.h>
 #include <dirent.h>
 #include <sys/stat.h>
-#include <SDL_mutex.h>
 #include <SDL_thread.h>
 #include "../elc_private.h"
+#include "../io/elpathwrapper.h"
 
 namespace eternal_lands
 {
@@ -35,7 +36,6 @@ namespace eternal_lands
 			public:
 				std::string m_name;
 				Uint64 m_log_file_pos;
-
 		};
 
 		class ThreadData
@@ -47,14 +47,11 @@ namespace eternal_lands
 				Uint32 m_last_message_count;
 				Uint32 m_message_level;
 				int m_log_file;
-
 		};
 
-		typedef std::map<Uint32, ThreadData> ThreadDatas;
-
 		std::string log_dir;
-		SDL_mutex* log_mutex;
-		ThreadDatas thread_datas;
+		std::mutex log_mutex;
+		std::map<Uint32, ThreadData> thread_datas;
 		volatile LogLevelType log_levels = llt_info;
 
 		std::string get_str(const LogLevelType log_level)
@@ -81,17 +78,19 @@ namespace eternal_lands
 		{
 			char buffer[128];
 			std::stringstream str, log_stream;
-			std::time_t raw_time;
 
 			if (thread.m_log_file == -1)
 			{
 				return;
 			}
 
-			std::time(&raw_time);
+			auto now = std::chrono::system_clock::now();
+			auto raw_time = std::chrono::system_clock::to_time_t(now);
+			auto now_ms = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch()) % 1000;
 			memset(buffer, 0, sizeof(buffer));
-			std::strftime(buffer, sizeof(buffer), "%Y-%m-%d %X",
-				std::localtime(&raw_time));
+			size_t time_len = std::strftime(buffer, sizeof(buffer), "%Y-%m-%d %X", std::localtime(&raw_time));
+			if(log_levels >= llt_debug_verbose)
+				snprintf(buffer+time_len, sizeof(buffer)-time_len, ".%03d", (int)now_ms.count()); // add milliseconds if log level is debug_verbose
 
 			str << ", " << file << ":" << line << "] " << type;
 			str << ": " << message;
@@ -280,21 +279,17 @@ namespace eternal_lands
 
 		void init(const std::string &name)
 		{
-			ThreadDatas::iterator found;
 			std::stringstream file_name;
 			std::stringstream str;
-			Uint32 id;
 
-			id = SDL_ThreadID();
+			Uint32 id = SDL_ThreadID();
 
 			str << name << " (" << std::hex << id << ")";
 
-			found = thread_datas.find(id);
-
+			auto found = thread_datas.find(id);
 			if (found != thread_datas.end())
 			{
 				found->second.m_name = str.str();
-
 				return;
 			}
 
@@ -307,11 +302,9 @@ namespace eternal_lands
 			thread_datas[id].m_log_file = open(file_name.str(
 				).c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0644);
 
-			log_message("Log started at", get_local_time_string(),
-				__FILE__, __LINE__, thread_datas[id]);
 
-			log_message("version", FILE_VERSION, __FILE__,
-				__LINE__, thread_datas[id]);
+			log_message("Log started at", get_local_time_string(), __FILE__, __LINE__, thread_datas[id]);
+			log_message("version", FILE_VERSION, __FILE__, __LINE__, thread_datas[id]);
 		}
 
 		void clear_dir(const std::string &dir)
@@ -345,41 +338,24 @@ namespace eternal_lands
 
 	void init_logging(const std::string &dir)
 	{
-		std::string str;
-
-		log_mutex = SDL_CreateMutex();
-
 		log_dir = dir + "/";
 
 		clear_dir(dir);
-#ifdef	WINDOWS
-		mkdir(dir.c_str());
-#else	/* WINDOWS */
-		mkdir(dir.c_str(), S_IRWXU | S_IRWXG);
-#endif	/* WINDOWS */
+		mkdir_single(dir.c_str());
 
 		init_thread_log("main");
 	}
 
 	void exit_logging()
 	{
-		ThreadDatas::iterator it, end;
-		Uint64 pos;
-
-		end = thread_datas.end();
-
-		for (it = thread_datas.begin(); it != end; ++it)
+		for (auto& it : thread_datas)
 		{
-			pos = lseek(it->second.m_log_file, 0, SEEK_CUR);
-
-			if (ftruncate(it->second.m_log_file, pos) < 0)
+			Uint64 pos = lseek(it.second.m_log_file, 0, SEEK_CUR);
+			if (ftruncate(it.second.m_log_file, pos) < 0)
 				std::cerr << "Failed to truncate log file: "
-					<< strerror(errno) << std::endl;
-
-			close(it->second.m_log_file);
+						  << strerror(errno) << std::endl;
+			close(it.second.m_log_file);
 		}
-
-		SDL_DestroyMutex(log_mutex);
 	}
 
 	LogLevelType get_log_level()
@@ -394,79 +370,57 @@ namespace eternal_lands
 
 	void init_thread_log(const std::string &name)
 	{
-		SDL_LockMutex(log_mutex);
-
+		std::lock_guard<std::mutex> lock(log_mutex);
 		init(name);
-
-		SDL_UnlockMutex(log_mutex);
 	}
 
-	void log_message(const LogLevelType log_level,
-		const std::string &message, const std::string &file,
-		const Uint32 line)
+	void log_message(const LogLevelType log_level, const std::string &message, const std::string &file, const Uint32 line)
 	{
-		ThreadDatas::iterator found;
-
 		if (log_levels < log_level)
 		{
 			return;
 		}
-
-		SDL_LockMutex(log_mutex);
-
-		found = thread_datas.find(SDL_ThreadID());
-
+		std::lock_guard<std::mutex> lock(log_mutex);
+		auto found = thread_datas.find(SDL_ThreadID());
 		if (found != thread_datas.end())
 		{
-			do_log_message(log_level, message, file, line,
-				found->second);
+			do_log_message(log_level, message, file, line, found->second);
 		}
-
-		SDL_UnlockMutex(log_mutex);
 	}
 
-	void enter_debug_mark(const std::string &name,
-		const std::string &file, const Uint32 line)
+	void enter_debug_mark(const std::string &name, const std::string &file, const Uint32 line)
 	{
-		ThreadDatas::iterator found;
-
 		if (log_levels < llt_debug)
 		{
 			return;
 		}
 
-		SDL_LockMutex(log_mutex);
+		std::lock_guard<std::mutex> lock(log_mutex);
 
-		found = thread_datas.find(SDL_ThreadID());
+		auto found = thread_datas.find(SDL_ThreadID());
 
 		if (found != thread_datas.end())
 		{
 			do_enter_debug_mark(name, file, line, found->second);
 		}
-
-		SDL_UnlockMutex(log_mutex);
 	}
 
 	void leave_debug_mark(const std::string &name,
 		const std::string &file, const Uint32 line)
 	{
-		ThreadDatas::iterator found;
-
 		if (log_levels < llt_debug)
 		{
 			return;
 		}
 
-		SDL_LockMutex(log_mutex);
+		std::lock_guard<std::mutex> lock(log_mutex);
 
-		found = thread_datas.find(SDL_ThreadID());
+		auto found = thread_datas.find(SDL_ThreadID());
 
 		if (found != thread_datas.end())
 		{
 			do_leave_debug_mark(name, file, line, found->second);
 		}
-
-		SDL_UnlockMutex(log_mutex);
 	}
 
 }

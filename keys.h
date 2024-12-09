@@ -53,6 +53,8 @@ extern el_key_def K_VIEWNAMES;          /*!< key used to toggle display of names
 extern el_key_def K_VIEWHP;             /*!< key used to toggle display of hitpoints (material points) */
 extern el_key_def K_VIEWETHER;          /*!< key used to toggle display of ether pointer */
 extern el_key_def K_ETHERBARS;          /*!< key used to toggle display of ether bar */
+extern el_key_def K_VIEWFOOD;           /*!< key used to toggle display of overhead food level */
+extern el_key_def K_FOODBAR;            /*!< key used to toggle display of overhead food level bar */
 extern el_key_def K_STATS;              /*!< key to toggle display of \ref stats_window */
 extern el_key_def K_QUESTLOG;           /*!< key to toggle display of \ref questlog_win */
 extern el_key_def K_SESSION;            /*!< key to toggle display of session tab in stats_window */

@@ -325,6 +325,8 @@ namespace IconWindow
 			{
 				if(icons_win < 0)
 					return;
+				while ((display_icon_size > def_icon_size / 2) && (get_icons_win_width() > (window_width - HUD_MARGIN_X)))
+					display_icon_size -= 1;
 				resize_window(icons_win, get_icons_win_width(), get_icon_size());
 				move_window(icons_win, -1, 0, 0, window_height-get_icon_size());
 			}
@@ -768,7 +770,9 @@ extern "C" void init_icon_window(icon_window_mode icon_mode)
 		icons_win= create_window("Icons", -1, 0, 0, 0, 0, 0, ELW_USE_UISCALE|ELW_TITLE_NONE|ELW_SHOW_LAST);
 		set_window_handler(icons_win, ELW_HANDLER_DISPLAY, (int (*)())&display_icons_handler);
 		set_window_handler(icons_win, ELW_HANDLER_CLICK, (int (*)())&click_icons_handler);
+#ifndef ANDROID
 		set_window_handler(icons_win, ELW_HANDLER_MOUSEOVER, (int (*)())&mouseover_icons_handler);
+#endif
 		set_window_handler(icons_win, ELW_HANDLER_UI_SCALE, (int (*)())&ui_scale_icons_handler);
 	}
 

@@ -4,10 +4,10 @@
 #include "multiplayer.h"
 #include "2d_objects.h"
 #include "3d_objects.h"
-#include "asc.h"
-#include "actors.h"
+#include "actors_list.h"
 #include "actor_scripts.h"
 #include "achievements.h"
+#include "asc.h"
 #include "books.h"
 #include "buddy.h"
 #include "buffs.h"
@@ -29,6 +29,7 @@
 #include "hud.h"
 #include "hud_quickspells_window.h"
 #include "interface.h"
+#include "invasion_window.h"
 #include "knowledge.h"
 #include "lights.h"
 #include "loginwin.h"
@@ -65,7 +66,7 @@
 #include "threads.h"
 
 #ifndef DEF_INFO
-  #define DEF_INFO ""
+  #define DEF_INFO "(" __DATE__ ")"
 #endif
 
 /* NOTE: This file contains implementations of the following, currently unused, and commented functions:
@@ -85,7 +86,7 @@ static int client_version_patch=VER_BUILD;
 #endif
 #ifndef USE_SSL
 static int version_first_digit=10;	//protocol/game version sent to server
-static int version_second_digit=29;
+static int version_second_digit=31;
 #endif // !USE_SSL
 
 const char * web_update_address= "http://www.eternal-lands.com/index.php?content=update";
@@ -243,6 +244,23 @@ static void invalidate_date(void)
 
 /*	End date handling code */
 
+void error_messages_to_console(Uint8 color, int show_option, int show_quit, int show_retry)
+{
+#ifdef ANDROID
+		if (show_option)
+			LOG_TO_CONSOLE(color, long_touch_cm_options_str);
+		if (show_retry)
+			LOG_TO_CONSOLE(color, touch_to_retry_str);
+#else
+		if (show_option)
+			LOG_TO_CONSOLE(color, ctrl_o_options);
+		if (show_quit)
+			LOG_TO_CONSOLE(color, alt_x_quit);
+		if (show_retry)
+			LOG_TO_CONSOLE(color, reconnect_str);
+#endif
+}
+
 #ifndef USE_SSL
 void create_tcp_out_mutex()
 {
@@ -287,21 +305,30 @@ int move_to (short int *x, short int *y, int try_pathfinder)
 
 	if (try_pathfinder && always_pathfinding)
 	{
-		actor *me = get_our_actor();
-		/* check distance */
-		if (me && (abs(me->x_tile_pos-*x) + abs(me->y_tile_pos-*y)) > 2)
+		actor *me;
+		locked_list_ptr actors_list = lock_and_get_self(&me);
+		if (actors_list)
 		{
-			/* if path finder fails, try standard move */
-			if (pf_find_path(*x, *y))
+			int path_found = 0;
+
+			if (abs(me->x_tile_pos-*x) + abs(me->y_tile_pos-*y) > 2)
 			{
-				*x = pf_dst_tile->x;
-				*y = pf_dst_tile->y;
+				/* if path finder fails, try standard move */
+				if (pf_find_path(me, *x, *y))
+				{
+					*x = pf_dst_tile->x;
+					*y = pf_dst_tile->y;
+					path_found = 1;
+				}
+				else
+				{
+					pathfinder_failed = 1;
+				}
+			}
+
+			release_locked_actors_list_and_invalidate(actors_list, &me);
+			if (path_found)
 				return 1;
-			}
-			else
-			{
-				pathfinder_failed = 1;
-			}
 		}
 	}
 
@@ -367,7 +394,9 @@ static int my_locked_tcp_flush(TCPsocket my_socket)
 int my_tcp_send(const Uint8 *str, int len)
 {
 	Uint8 *new_str = NULL;
-	int ret_status = 0;
+	int ret_status = 0, moving = 0;
+	locked_list_ptr actors_list;
+	actor *me;
 
 	CHECK_AND_LOCK_MUTEX(tcp_out_data_mutex);
 
@@ -390,9 +419,13 @@ int my_tcp_send(const Uint8 *str, int len)
 	// Grum: Adapted. Converting every movement to a path caused too much
 	// trouble. Instead we now check the current actor animation for
 	// movement.
-	if ((str[0] == TURN_LEFT || str[0] == TURN_RIGHT) && on_the_move (get_our_actor ()))
+	actors_list = lock_and_get_self(&me);
+	moving = actors_list && on_the_move(me);
+	release_locked_actors_list_and_invalidate(actors_list, &me);
+
+	if ((str[0] == TURN_LEFT || str[0] == TURN_RIGHT) && moving)
 		return 0;
-	if (str[0] == DROP_ITEM  && on_the_move (get_our_actor ()))
+	if (str[0] == DROP_ITEM  && moving)
 	{
 		// I thought about having a bit of code here that counts attempts, and after say 5,
 		// announces on #abuse something like "#abuse I attempted to bagspam, but was thwarted,
@@ -575,17 +608,18 @@ void connect_to_server()
 	draw_scene();	// update the screen
 	set= SDLNet_AllocSocketSet(1);
 	if(!set)
-        {
-            LOG_ERROR("SDLNet_AllocSocketSet: %s\n", SDLNet_GetError());
-            do_error_sound();
+		{
+			LOG_ERROR("SDLNet_AllocSocketSet: %s\n", SDLNet_GetError());
+			do_error_sound();
 			SDLNet_Quit();
 			SDL_Quit();
 			exit(4); //most of the time this is a major error, but do what you want.
-        }
+		}
 
 	if(SDLNet_ResolveHost(&ip,(char*)server_address,port)==-1)
 		{
 			LOG_TO_CONSOLE(c_red2,failed_resolve);
+			error_messages_to_console(c_red2, 1, 1, 1);
 			do_disconnect_sound();
 			return;
 		}
@@ -594,8 +628,7 @@ void connect_to_server()
 	if(!my_socket)
 		{
 			LOG_TO_CONSOLE(c_red1,failed_connect);
-			LOG_TO_CONSOLE(c_red1,reconnect_str);
-			LOG_TO_CONSOLE(c_red1,alt_x_quit);
+			error_messages_to_console(c_red1, 1, 1, 1);
 			do_disconnect_sound();
 			return;
 		}
@@ -649,6 +682,10 @@ void send_login_info()
 
 	if (!valid_username_password())
 		return;
+
+#ifdef ANDROID
+	SDL_StopTextInput();
+#endif
 
 	local_username_str = get_username();
 	local_password_str = get_password();
@@ -745,6 +782,9 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 				safe_strncpy2((char*)text_buf, (char*)&in_data[4], sizeof(text_buf), data_length - 4);
 				len = strlen((char*)text_buf);
 
+				if (in_data[3] == CHAT_MOD)
+					enable_invasion_window();
+
 				// if from the server popup channel
 				if (in_data[3] == server_pop_chan)
 				{
@@ -835,7 +875,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 #endif
 				// allow for multiple packets in a row
 				while(data_length >= 5){
-					destroy_actor(SDL_SwapLE16(*((short *)(in_data+3))));
+					remove_and_destroy_actor_from_list(SDL_SwapLE16(*((short *)(in_data+3))));
 					in_data+= 2;
 					data_length-= 2;
 				}
@@ -1299,10 +1339,8 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 				  LOG_WARNING("CAUTION: Possibly forged YOU_ARE packet received.\n");
 				  break;
 				}
-				LOCK_ACTORS_LISTS();
 				yourself= SDL_SwapLE16(*((short *)(in_data+3)));
-				set_our_actor (get_actor_ptr_from_id (yourself));
-				UNLOCK_ACTORS_LISTS();
+				set_self();
 			}
 			break;
 
@@ -1865,8 +1903,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 				  break;
 				}
 				safe_strncpy2(buf, (char*)in_data + 5, sizeof(buf), data_length - 5);
-				add_displayed_text_to_actor(
-					get_actor_ptr_from_id( SDL_SwapLE16(*((Uint16 *)(in_data+3))) ), buf);
+				add_displayed_text_to_actor_id(SDL_SwapLE16(*((Uint16 *)(in_data+3))), buf);
 			}
 			break;
 
@@ -2107,9 +2144,11 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 #ifdef BUFF_DEBUG
 			{
 				int actor_id = SDL_SwapLE16(*((short *)(in_data+3)));
-				actor *act = get_actor_ptr_from_id(actor_id);
-				if(act){
+				actor *act;
+				locked_list_ptr actors_list = lock_and_get_actor_from_id(actor_id, &act);
+				if(actors_list){
 					printf("SEND_BUFFS received for actor %s\n", act->actor_name);
+					release_locked_actors_list_and_invalidate(actors_list, &act);
 				}
 				else {
 					printf("SEND_BUFFS received for actor ID %i\n", actor_id);
@@ -2377,7 +2416,7 @@ static void enter_disconnected_state(const char *message)
 	safe_snprintf(str, sizeof(str), "<%1d:%02d>: %s [%s]", tgm/60, tgm%60,
 		disconnected_from_server, (message != NULL) ?message : "Grue?");
 	LOG_TO_CONSOLE(c_red2, str);
-	LOG_TO_CONSOLE(c_red2, alt_x_quit);
+	error_messages_to_console(c_red2, 0, 1, 1);
 #ifdef NEW_SOUND
 	stop_all_sounds();
 	do_disconnect_sound();

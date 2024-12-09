@@ -218,6 +218,8 @@
 		D791C71C25F9321900EB3011 /* json_io.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D791C71B25F9321900EB3011 /* json_io.cpp */; };
 		D791C72325F9336F00EB3011 /* SDL2_ttf.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D791C72225F9336F00EB3011 /* SDL2_ttf.framework */; };
 		D791C72425F9336F00EB3011 /* SDL2_ttf.framework in Copy Frameworks into .app bundle */ = {isa = PBXBuildFile; fileRef = D791C72225F9336F00EB3011 /* SDL2_ttf.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		D7A653702B861224003E0B91 /* actors_list.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D7A6536F2B861224003E0B91 /* actors_list.cpp */; };
+		D7A653732B861240003E0B91 /* invasion_window.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D7A653712B86123F003E0B91 /* invasion_window.cpp */; };
 		D7F7BF9A26E8D7860077BE9C /* 3d_objects.c in Sources */ = {isa = PBXBuildFile; fileRef = D7F7BF8426E8D7850077BE9C /* 3d_objects.c */; };
 		D7F7BF9B26E8D7860077BE9C /* alphamap.c in Sources */ = {isa = PBXBuildFile; fileRef = D7F7BF8526E8D7850077BE9C /* alphamap.c */; };
 		D7F7BF9C26E8D7860077BE9C /* actor_init.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D7F7BF8726E8D7850077BE9C /* actor_init.cpp */; };
@@ -673,15 +675,17 @@
 		8D1107320486CEB800E47090 /* Eternal Lands.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Eternal Lands.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D730263C244EE9FD00A6C002 /* data */ = {isa = PBXFileReference; lastKnownFileType = folder; name = data; path = "../../EL Development Assets/EL Data Files/data"; sourceTree = "<group>"; };
 		D7302641244F081F00A6C002 /* Eternal Lands.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "Eternal Lands.entitlements"; sourceTree = "<group>"; };
-		D7302669244F639200A6C002 /* SDL2.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL2.framework; path = ../../../Library/Frameworks/SDL2.framework; sourceTree = "<group>"; };
-		D730266A244F639200A6C002 /* SDL2_net.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL2_net.framework; path = ../../../Library/Frameworks/SDL2_net.framework; sourceTree = "<group>"; };
-		D730266B244F639200A6C002 /* ogg.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ogg.framework; path = ../../../Library/Frameworks/ogg.framework; sourceTree = "<group>"; };
-		D730266C244F639200A6C002 /* cal3d.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = cal3d.framework; path = ../../../Library/Frameworks/cal3d.framework; sourceTree = "<group>"; };
-		D730266D244F639300A6C002 /* libpng.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = libpng.framework; path = ../../../Library/Frameworks/libpng.framework; sourceTree = "<group>"; };
-		D730266E244F639300A6C002 /* SDL2_image.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL2_image.framework; path = ../../../Library/Frameworks/SDL2_image.framework; sourceTree = "<group>"; };
+		D7302669244F639200A6C002 /* SDL2.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL2.framework; path = "$(USER_LIBRARY_DIR)/Frameworks/SDL2.framework"; sourceTree = "<group>"; };
+		D730266A244F639200A6C002 /* SDL2_net.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL2_net.framework; path = "$(USER_LIBRARY_DIR)/Frameworks/SDL2_net.framework"; sourceTree = "<group>"; };
+		D730266B244F639200A6C002 /* ogg.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ogg.framework; path = "$(USER_LIBRARY_DIR)/Frameworks/ogg.framework"; sourceTree = "<group>"; };
+		D730266C244F639200A6C002 /* cal3d.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = cal3d.framework; path = "$(USER_LIBRARY_DIR)/Frameworks/cal3d.framework"; sourceTree = "<group>"; };
+		D730266D244F639300A6C002 /* libpng.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = libpng.framework; path = "$(USER_LIBRARY_DIR)/Frameworks/libpng.framework"; sourceTree = "<group>"; };
+		D730266E244F639300A6C002 /* SDL2_image.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL2_image.framework; path = "$(USER_LIBRARY_DIR)/Frameworks/SDL2_image.framework"; sourceTree = "<group>"; };
+		D73C7C762CCD8D740054FD88 /* json.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = json.hpp; sourceTree = "<group>"; };
+		D73C7C772CCD8D740054FD88 /* json_fwd.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = json_fwd.hpp; sourceTree = "<group>"; };
 		D7436E7B2459829500875ABE /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = "Eternal Lands/Images.xcassets"; sourceTree = "<group>"; };
-		D7437F0C245AB82B00875ABE /* Vorbis.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Vorbis.framework; path = ../../../Library/Frameworks/Vorbis.framework; sourceTree = "<group>"; };
-		D7437F0F245ABAD100875ABE /* vorbis.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = vorbis.framework; path = ../../../Library/Frameworks/vorbis.framework; sourceTree = "<group>"; };
+		D7437F0C245AB82B00875ABE /* Vorbis.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Vorbis.framework; path = "$(USER_LIBRARY_DIR)/Frameworks/Vorbis.framework"; sourceTree = "<group>"; };
+		D7437F0F245ABAD100875ABE /* vorbis.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = vorbis.framework; path = "$(USER_LIBRARY_DIR)/Frameworks/vorbis.framework"; sourceTree = "<group>"; };
 		D791C71425F9300700EB3011 /* books.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = books.cpp; path = ../books.cpp; sourceTree = "<group>"; };
 		D791C71625F930CF00EB3011 /* font.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = font.cpp; path = ../font.cpp; sourceTree = "<group>"; };
 		D791C71825F9313A00EB3011 /* hud_timer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = hud_timer.h; path = ../hud_timer.h; sourceTree = "<group>"; };
@@ -693,8 +697,11 @@
 		D791C71F25F9326D00EB3011 /* named_colours.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = named_colours.h; path = ../named_colours.h; sourceTree = "<group>"; };
 		D791C72025F9327D00EB3011 /* password_manager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = password_manager.h; path = ../password_manager.h; sourceTree = "<group>"; };
 		D791C72125F932ED00EB3011 /* trade_log.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = trade_log.h; path = ../trade_log.h; sourceTree = "<group>"; };
-		D791C72225F9336F00EB3011 /* SDL2_ttf.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL2_ttf.framework; path = ../../../Library/Frameworks/SDL2_ttf.framework; sourceTree = "<group>"; };
-		D791C74425F938F400EB3011 /* json.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = json.hpp; sourceTree = "<group>"; };
+		D791C72225F9336F00EB3011 /* SDL2_ttf.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL2_ttf.framework; path = "$(USER_LIBRARY_DIR)/Frameworks/SDL2_ttf.framework"; sourceTree = "<group>"; };
+		D7A6536E2B861224003E0B91 /* actors_list.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = actors_list.h; path = ../actors_list.h; sourceTree = "<group>"; };
+		D7A6536F2B861224003E0B91 /* actors_list.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = actors_list.cpp; path = ../actors_list.cpp; sourceTree = "<group>"; };
+		D7A653712B86123F003E0B91 /* invasion_window.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = invasion_window.cpp; path = ../invasion_window.cpp; sourceTree = "<group>"; };
+		D7A653722B86123F003E0B91 /* invasion_window.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = invasion_window.h; path = ../invasion_window.h; sourceTree = "<group>"; };
 		D7F7BF8426E8D7850077BE9C /* 3d_objects.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = 3d_objects.c; path = ../3d_objects.c; sourceTree = "<group>"; };
 		D7F7BF8526E8D7850077BE9C /* alphamap.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = alphamap.c; path = ../alphamap.c; sourceTree = "<group>"; };
 		D7F7BF8626E8D7850077BE9C /* astrology.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = astrology.h; path = ../astrology.h; sourceTree = "<group>"; };
@@ -730,7 +737,7 @@
 		D7F7BFB326E8D9120077BE9C /* cppwindows.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = cppwindows.h; path = ../cppwindows.h; sourceTree = "<group>"; };
 		D7F7BFB526E8D92A0077BE9C /* connection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = connection.h; path = ../connection.h; sourceTree = "<group>"; };
 		D7F7BFB626E8D92A0077BE9C /* connection.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = connection.cpp; path = ../connection.cpp; sourceTree = "<group>"; };
-		D7F7BFB826E8DB990077BE9C /* OpenSSL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenSSL.framework; path = ../../../Library/Frameworks/OpenSSL.framework; sourceTree = "<group>"; };
+		D7F7BFB826E8DB990077BE9C /* OpenSSL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenSSL.framework; path = "$(USER_LIBRARY_DIR)/Frameworks/OpenSSL.framework"; sourceTree = "<group>"; };
 		E182879E0EFFFC320046818E /* buffs.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = buffs.c; path = ../buffs.c; sourceTree = SOURCE_ROOT; };
 		E182879F0EFFFC320046818E /* buffs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = buffs.h; path = ../buffs.h; sourceTree = SOURCE_ROOT; };
 		E18287A00EFFFC320046818E /* eye_candy_types.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = eye_candy_types.h; path = ../eye_candy_types.h; sourceTree = SOURCE_ROOT; };
@@ -821,6 +828,8 @@
 				D7F7BF9826E8D7860077BE9C /* actor_init.h */,
 				D7F7BF9226E8D7860077BE9C /* actor_scripts.c */,
 				D7F7BF8B26E8D7850077BE9C /* actor_scripts.h */,
+				D7A6536F2B861224003E0B91 /* actors_list.cpp */,
+				D7A6536E2B861224003E0B91 /* actors_list.h */,
 				D7F7BF9926E8D7860077BE9C /* actors.c */,
 				D7F7BF8F26E8D7850077BE9C /* actors.h */,
 				D7F7BF8526E8D7850077BE9C /* alphamap.c */,
@@ -958,6 +967,8 @@
 				1F812A5A0D033551008792A7 /* init.h */,
 				1F812A5B0D033551008792A7 /* interface.c */,
 				1F812A5C0D033551008792A7 /* interface.h */,
+				D7A653712B86123F003E0B91 /* invasion_window.cpp */,
+				D7A653722B86123F003E0B91 /* invasion_window.h */,
 				1F812A5D0D033551008792A7 /* io */,
 				D7F7BFAC26E8D8930077BE9C /* ipaddress.cpp */,
 				D7F7BFAD26E8D8930077BE9C /* ipaddress.h */,
@@ -1395,29 +1406,30 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		D73C7C782CCD8D740054FD88 /* nlohmann */ = {
+			isa = PBXGroup;
+			children = (
+				D73C7C762CCD8D740054FD88 /* json.hpp */,
+				D73C7C772CCD8D740054FD88 /* json_fwd.hpp */,
+			);
+			path = nlohmann;
+			sourceTree = "<group>";
+		};
+		D73C7C792CCD8D740054FD88 /* include */ = {
+			isa = PBXGroup;
+			children = (
+				D73C7C782CCD8D740054FD88 /* nlohmann */,
+			);
+			path = include;
+			sourceTree = "<group>";
+		};
 		D791C73A25F938F300EB3011 /* nlohmann_json */ = {
 			isa = PBXGroup;
 			children = (
-				D791C74225F938F400EB3011 /* single_include */,
+				D73C7C792CCD8D740054FD88 /* include */,
 			);
 			name = nlohmann_json;
 			path = ../nlohmann_json;
-			sourceTree = "<group>";
-		};
-		D791C74225F938F400EB3011 /* single_include */ = {
-			isa = PBXGroup;
-			children = (
-				D791C74325F938F400EB3011 /* nlohmann */,
-			);
-			path = single_include;
-			sourceTree = "<group>";
-		};
-		D791C74325F938F400EB3011 /* nlohmann */ = {
-			isa = PBXGroup;
-			children = (
-				D791C74425F938F400EB3011 /* json.hpp */,
-			);
-			path = nlohmann;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -1528,6 +1540,7 @@
 				1F812C2B0D033551008792A7 /* effect_summon.cpp in Sources */,
 				1F812C2C0D033551008792A7 /* effect_sword.cpp in Sources */,
 				1F812C2D0D033551008792A7 /* effect_targetmagic.cpp in Sources */,
+				D7A653732B861240003E0B91 /* invasion_window.cpp in Sources */,
 				1F812C2E0D033551008792A7 /* effect_teleporter.cpp in Sources */,
 				1F812C2F0D033551008792A7 /* effect_wind.cpp in Sources */,
 				1F812C300D033551008792A7 /* eye_candy.cpp in Sources */,
@@ -1574,6 +1587,7 @@
 				1F812D470D033551008792A7 /* minimap.c in Sources */,
 				1F812D480D033551008792A7 /* misc.c in Sources */,
 				1F812D4A0D033551008792A7 /* new_actors.c in Sources */,
+				D7A653702B861224003E0B91 /* actors_list.cpp in Sources */,
 				1F812D4B0D033551008792A7 /* new_character.c in Sources */,
 				1F812D4C0D033551008792A7 /* notepad.c in Sources */,
 				1F812D4D0D033551008792A7 /* openingwin.c in Sources */,
@@ -1714,9 +1728,9 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
 				CODE_SIGN_ENTITLEMENTS = "Eternal Lands.entitlements";
-				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Manual;
-				DEVELOPMENT_TEAM = 58CZVHK7KH;
+				DEVELOPMENT_TEAM = "";
 				ENABLE_HARDENED_RUNTIME = YES;
 				FRAMEWORK_SEARCH_PATHS = $inherited;
 				HEADER_SEARCH_PATHS = $inherited;
@@ -1740,9 +1754,9 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
 				CODE_SIGN_ENTITLEMENTS = "Eternal Lands.entitlements";
-				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Manual;
-				DEVELOPMENT_TEAM = 58CZVHK7KH;
+				DEVELOPMENT_TEAM = "";
 				ENABLE_HARDENED_RUNTIME = YES;
 				FRAMEWORK_SEARCH_PATHS = $inherited;
 				HEADER_SEARCH_PATHS = $inherited;
@@ -1765,7 +1779,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 1.9.6p1;
+				CURRENT_PROJECT_VERSION = 1.9.7;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(USER_LIBRARY_DIR)/Frameworks",
@@ -1797,10 +1811,10 @@
 					"$(USER_LIBRARY_DIR)/Frameworks/SDL2_net.framework/Headers",
 					"$(USER_LIBRARY_DIR)/Frameworks/SDL2_ttf.framework/Headers",
 					"$(USER_LIBRARY_DIR)/Frameworks/SDL2_image.framework/Headers",
-					"$(SRCROOT)/../nlohmann_json/single_include/",
+					"$(SRCROOT)/../nlohmann_json/include/",
 					"$(SRCROOT)/include/",
 				);
-				MARKETING_VERSION = 1.9.6p1;
+				MARKETING_VERSION = 1.9.7;
 				OTHER_CFLAGS = (
 					"-Wno-deprecated-declarations",
 					"-Wno-pointer-sign",
@@ -1816,6 +1830,7 @@
 					"-lc",
 					"-lstdc++",
 					"-liconv",
+					"-ld_classic",
 				);
 				SDKROOT = macosx;
 				VALIDATE_WORKSPACE_SKIPPED_SDK_FRAMEWORKS = OpenGL;
@@ -1827,7 +1842,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 1.9.6p1;
+				CURRENT_PROJECT_VERSION = 1.9.7;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(USER_LIBRARY_DIR)/Frameworks",
@@ -1858,10 +1873,10 @@
 					"$(USER_LIBRARY_DIR)/Frameworks/SDL2_net.framework/Headers",
 					"$(USER_LIBRARY_DIR)/Frameworks/SDL2_ttf.framework/Headers",
 					"$(USER_LIBRARY_DIR)/Frameworks/SDL2_image.framework/Headers",
-					"$(SRCROOT)/../nlohmann_json/single_include/",
+					"$(SRCROOT)/../nlohmann_json/include/",
 					"$(SRCROOT)/include/",
 				);
-				MARKETING_VERSION = 1.9.6p1;
+				MARKETING_VERSION = 1.9.7;
 				OTHER_CFLAGS = (
 					"-Wno-deprecated-declarations",
 					"-Wno-pointer-sign",
@@ -1877,6 +1892,7 @@
 					"-lc",
 					"-lstdc++",
 					"-liconv",
+					"-ld_classic",
 				);
 				SDKROOT = macosx;
 				VALIDATE_WORKSPACE_SKIPPED_SDK_FRAMEWORKS = OpenGL;

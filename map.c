@@ -5,6 +5,7 @@
 #include "map.h"
 #include "2d_objects.h"
 #include "3d_objects.h"
+#include "actors_list.h"
 #include "asc.h"
 #include "bbox_tree.h"
 #include "consolewin.h"
@@ -112,6 +113,9 @@ void destroy_map(void)
 #ifdef CLUSTER_INSIDES
 	destroy_clusters_array ();
 #endif
+
+	inspect_map_text = 0;
+	adding_mark = 0;
 }
 
 #ifndef MAP_EDITOR2
@@ -676,6 +680,7 @@ static __inline__ int filter_out(const char *mark_text)
 
 static void display_map_marks(void)
 {
+	locked_list_ptr actors_list;
 	actor *me;
 	float x,y,z;
 	int i,ax,ay;
@@ -684,10 +689,12 @@ static void display_map_marks(void)
 	float fr = mark_z_rot/360;
 	float j,ff=0;
 
-	me = get_our_actor();
-	if(!me) return;
+	actors_list = lock_and_get_self(&me);
+	if (!actors_list)
+		return;
 	ax = me->x_pos;
 	ay = me->y_pos;
+	release_locked_actors_list_and_invalidate(actors_list, &me);
 
 	glDisable(GL_TEXTURE_2D);
 	glDisable(GL_LIGHTING);
@@ -736,12 +743,15 @@ static void display_map_markers(void)
 	float font_size_x=font_scale*SMALL_INGAME_FONT_X_LEN;
 	float font_size_y=font_scale*SMALL_INGAME_FONT_X_LEN;
 	char tmpb[4];
+	locked_list_ptr actors_list;
 	actor *me;
 
-	me = get_our_actor();
-	if(!me) return;
+	actors_list = lock_and_get_self(&me);
+	if (!actors_list)
+		return;
 	ax = me->x_pos;
 	ay = me->y_pos;
+	release_locked_actors_list_and_invalidate(actors_list, &me);
 
 	glGetDoublev(GL_MODELVIEW_MATRIX, model);
 	glGetDoublev(GL_PROJECTION_MATRIX, proj);

@@ -13,6 +13,10 @@
 #include "gamewin.h"
 #include "gl_init.h"
 #include "interface.h"
+#ifdef ANDROID
+#include "misc.h"
+#include "items.h"
+#endif
 #include "sound.h"
 
 //
@@ -130,6 +134,8 @@ namespace cm
 			int get_active_widget_id(void) const { return active_widget_id; }
 			bool valid(size_t cm_id) const { return cm_id<menus.size() && menus[cm_id]; }
 			size_t window_shown(void) const;
+			int move(int pos_x, int pos_y) const;
+			int get_size(int *len_x, int *len_y) const;
 			void showinfo(void);
 			void *get_data(size_t cm_id) const { if (!valid(cm_id)) return 0; return menus[cm_id]->get_data(); }
 			void set_data(size_t cm_id, void *data) { if (valid(cm_id)) menus[cm_id]->set_data(data); }
@@ -433,6 +439,35 @@ namespace cm
 	}
 
 
+	// move the open context window to the new position
+	int Container::move(int pos_x, int pos_y) const
+	{
+		if (menu_opened)
+		{
+			move_window(cm_window_id, -1, 0, pos_x, pos_y);
+			return 1;
+		}
+		return 0;
+	}
+
+
+	// return the size of the open context window
+	int Container::get_size(int *len_x, int *len_y) const
+	{
+		if (menu_opened && len_x && len_y)
+		{
+			window_info * win = window_info_from_id(cm_window_id);
+			if (win != NULL)
+			{
+				*len_x = win->len_x;
+				*len_y = win->len_y;
+				return 1;
+			}
+		}
+		return 0;
+	}
+
+
 	// for debug - display info on status of container object
 	void Container::showinfo(void)
 	{
@@ -478,6 +513,10 @@ namespace cm
 	Menu::Menu(const char *menu_list, int (*handler)(window_info *, int, int, int, int))
 		: border(5), text_border(5), line_sep(3), zoom(0.8), data_ptr(0), selection(-1), menu_has_bools(false)
 	{
+#ifdef ANDROID
+		// ANDROID_TODO this needs to be change on rescale too, and probably in the non-ANDROID client too
+		line_sep = scaled_value(12);
+#endif
 		set(menu_list, handler);
 		pre_show_handler = 0;
 		highlight_top.set(gui_invert_color[0], gui_invert_color[1], gui_invert_color[2]);
@@ -663,6 +702,7 @@ namespace cm
 		selection = -1;
 		for (size_t i=0; i<menu_lines.size(); ++i)
 		{
+#ifndef ANDROID
 			// if the mouse is over a valid line, draw the highlight and select line
 			if (!menu_lines[i].is_grey && !menu_lines[i].is_separator &&
 			  (mouse_y > win->cur_y + currenty - line_sep) &&
@@ -683,6 +723,7 @@ namespace cm
 				glEnable(GL_TEXTURE_2D);
 				selection = i;
 			}
+#endif
 
 			// draw a separator ...
 			if (menu_lines[i].is_separator)
@@ -740,6 +781,35 @@ namespace cm
 	//  if an option is selected, toggle if a bool option and call any callback function
 	int Menu::click(window_info *win, int mx, int my, Uint32 flags)
 	{
+#ifdef ANDROID
+		// ANDROID_TODO common function with display()
+		// We always want to use the entry that is clicked, the highlight is not used
+		{
+			float scale = scaled_value(1.0);
+			int line_height = get_line_height(win->font_category, scale);
+			int box_size = std::round(scaled_value(bool_box_size()));
+			float currenty = border + line_sep;
+			float line_step = line_sep + max2i(box_size, line_height);
+			for (size_t i=0; i<menu_lines.size(); ++i)
+			{
+				// if the mouse is over a valid line, select it
+				if (!menu_lines[i].is_grey && !menu_lines[i].is_separator &&
+				  (my > currenty - line_sep) &&
+				  (my < currenty + line_step - line_sep) &&
+				  (mx > border) &&
+				  (mx < width - border))
+				{
+					selection = i;
+					break;
+				}
+				if (menu_lines[i].is_separator)
+					currenty += get_line_height(win->font_category, 0.5*scale);
+				else
+					currenty += line_step;
+			}
+		}
+
+#endif
 		if (selection < 0)
 			return 0;
 
@@ -849,6 +919,8 @@ extern "C" int cm_add_widget(size_t cm_id, int window_id, int widget_id) { retur
 extern "C" int cm_remove_window(int window_id) { return cm::Container::get_instance().remove_window(window_id); }
 extern "C" int cm_remove_regions(int window_id) { return cm::Container::get_instance().remove_regions(window_id); }
 extern "C" int cm_remove_widget(int window_id, int widget_id) { return cm::Container::get_instance().remove_widget(window_id, widget_id); }
+extern "C" int cm_move(int pos_x, int pos_y) { return cm::Container::get_instance().move(pos_x, pos_y); }
+extern "C" int cm_get_size(int *len_x, int *len_y) { return cm::Container::get_instance().get_size(len_x, len_y); }
 extern "C" void cm_showinfo(void) { cm::Container::get_instance().showinfo(); }
 extern "C" int cm_valid(size_t cm_id) { if (cm::Container::get_instance().valid(cm_id)) return 1; else return 0; }
 extern "C" size_t cm_window_shown(void) { return cm::Container::get_instance().window_shown(); }
