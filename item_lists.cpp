@@ -527,8 +527,8 @@ namespace ItemLists
 		std::ofstream out(fullpath.c_str());
 		if (!out)
 		{
-			LOG_ERROR("%s: %s [%s]\n", __FILE__, item_list_save_error_str, fullpath.c_str() );
-			LOG_TO_CONSOLE(c_red2, item_list_save_error_str);
+			LOG_ERROR("%s: %s [%s]\n", __FILE__, item_cat_save_error_str, fullpath.c_str() );
+			LOG_TO_CONSOLE(c_red2, item_cat_save_error_str);
 			return;
 		}
 
