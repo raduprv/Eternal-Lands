@@ -742,6 +742,7 @@ char	reg_error_str[15],
 	/* item lists */
 	item_list_format_error[50],
 	item_list_save_error_str[50],
+	item_cat_save_error_str[50],
 	item_list_cat_format_error_str[50],
 	item_list_version_error_str[70],
 	item_list_empty_list_str[50],
@@ -1404,7 +1405,8 @@ void init_errors()
 
 	// item lists
 	add_xml_identifier (misc, "item_list_format_error", item_list_format_error, "Format error while reading item list.", sizeof(item_list_format_error));
-	add_xml_identifier (misc, "item_list_save_error", item_list_save_error_str, "Failed to save the item category file.", sizeof(item_list_save_error_str));
+	add_xml_identifier (misc, "item_list_save_error", item_list_save_error_str, "Failed to save the item lists file.", sizeof(item_list_save_error_str));
+	add_xml_identifier (misc, "item_cat_save_error", item_cat_save_error_str, "Failed to save the item category file.", sizeof(item_cat_save_error_str));
 	add_xml_identifier (misc, "item_list_cat_format_error", item_list_cat_format_error_str, "Format error reading item categories.", sizeof(item_list_cat_format_error_str));
 	add_xml_identifier (misc, "item_list_version_error", item_list_version_error_str, "Item lists file is not compatible with client version.", sizeof(item_list_version_error_str));
 	add_xml_identifier (misc, "item_list_empty_list", item_list_empty_list_str, "No point saving an empty list.", sizeof(item_list_empty_list_str));

@@ -828,6 +828,7 @@ extern char	reg_error_str[15],
 		/* item lists */
 		item_list_format_error[50],
 		item_list_save_error_str[50],
+		item_cat_save_error_str[50],
 		item_list_cat_format_error_str[50],
 		item_list_version_error_str[70],
 		item_list_empty_list_str[50],
