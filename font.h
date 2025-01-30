@@ -7,6 +7,8 @@
 #ifndef NEW_FONT_H
 #define NEW_FONT_H
 
+#include <string.h>
+
 #define DEFAULT_FIXED_FONT_WIDTH  11
 #define DEFAULT_FIXED_FONT_HEIGHT 18
 #define SMALL_FIXED_FONT_WIDTH    8

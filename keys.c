@@ -1,6 +1,7 @@
 #include <SDL_keyboard.h>
 #include <SDL_keycode.h>
 #include <SDL_scancode.h>
+#include <ctype.h>
 #include "errors.h"
 #include "keys.h"
 #include "asc.h"

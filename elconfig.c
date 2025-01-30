@@ -6,6 +6,7 @@
 #include <limits.h>
 #include <float.h>
 #include <errno.h>
+#include <ctype.h>
 //For stat() etc.. below
 #include <sys/types.h>
 #include <sys/stat.h>

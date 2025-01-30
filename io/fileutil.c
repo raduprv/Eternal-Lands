@@ -1,3 +1,4 @@
+#include <string.h>
 #include "fileutil.h"
 #include "../xz/Xz.h"
 #include "../xz/7zCrc.h"

@@ -5,6 +5,7 @@
  * Copyright: See COPYING file that comes with this distribution
  ****************************************************************************/
 
+#include <stdlib.h>
 #include "el_memory.h"
 #include "elloggingwrapper.h"
 #ifdef	USE_SIMD

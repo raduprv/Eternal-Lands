@@ -6,6 +6,8 @@
 #ifndef __MISC_H__
 #define __MISC_H__
 
+#include <stdio.h>
+#include <string.h>
 #include <SDL_endian.h>
 #include "platform.h"
 #include <zlib.h>

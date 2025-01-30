@@ -5,6 +5,7 @@
  * Copyright: See COPYING file that comes with this distribution
  ****************************************************************************/
 
+#include <string.h>
 #include "image.h"
 #ifdef	USE_SIMD
 #include "errors.h"
