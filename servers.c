@@ -1,5 +1,6 @@
 #include <errno.h>
 #include <string.h>
+#include <ctype.h>
 #include "servers.h"
 #include "asc.h"
 #ifdef USE_SSL

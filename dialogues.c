@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <SDL_endian.h>
+#include <ctype.h>
 #include "context_menu.h"
 #include "console.h"
 #include "elconfig.h"
