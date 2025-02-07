@@ -392,8 +392,6 @@ int start_rendering()
 	LOG_INFO("gl_window_cleanup()");
 	gl_window_cleanup();
 
-	LOG_INFO("SDL_Quit()");
-	SDL_Quit();
 	LOG_INFO("cleanup_mem()");
 	cleanup_mem();
 	LOG_INFO("xmlCleanupParser()");
@@ -408,6 +406,9 @@ int start_rendering()
 	LOG_INFO("final_sound_exit()");
 	final_sound_exit();
 #endif
+
+	LOG_INFO("SDL_Quit()");
+	SDL_Quit();
 
 	LOG_INFO("exit_logging()");
 	exit_logging();
