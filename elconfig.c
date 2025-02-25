@@ -2134,6 +2134,7 @@ static int context_option_handler(window_info *win, int widget_id, int mx, int m
 	{
 		case OPT_INT:
 		case OPT_INT_F:
+        case OPT_INT_S:
 			set_var_OPT_INT(option->name, (int)new_value);
 			break;
 		case OPT_MULTI:
@@ -2144,6 +2145,7 @@ static int context_option_handler(window_info *win, int widget_id, int mx, int m
 			set_var_OPT_BOOL(option->name, (int)new_value);
 			break;
 		case OPT_FLOAT:
+        case OPT_FLOAT_S:
 			set_var_OPT_FLOAT(option->name, new_value);
 			break;
 		default:
@@ -2160,6 +2162,7 @@ static int add_cm_option_line(const char *prefix, var_struct *option, float valu
 	{
 		case OPT_INT:
 		case OPT_INT_F:
+        case OPT_INT_S:
 		case OPT_MULTI:
 		case OPT_MULTI_H:
 			safe_snprintf(menu_text, sizeof(menu_text), "\n%s: %d\n", prefix, (int)value);
@@ -2168,6 +2171,7 @@ static int add_cm_option_line(const char *prefix, var_struct *option, float valu
 			safe_snprintf(menu_text, sizeof(menu_text), "\n%s: %s\n", prefix, ((int)value) ?"true": "false");
 			break;
 		case OPT_FLOAT:
+        case OPT_FLOAT_S:
 			safe_snprintf(menu_text, sizeof(menu_text), "\n%s: %g\n", prefix, value);
 			break;
 		default:
