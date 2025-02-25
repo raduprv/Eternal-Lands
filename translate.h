@@ -572,6 +572,7 @@ extern char
 		cm_encycl_base_str[150],
 		cm_options_default_str[50],
 		cm_options_initial_str[50],
+    cm_options_current_str[50],
 #ifdef JSON_FILES
 		cm_options_per_character_str[50],
 #endif

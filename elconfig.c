@@ -2117,13 +2117,28 @@ static int context_option_handler(window_info *win, int widget_id, int mx, int m
 {
 	float new_value = 0;
 	var_struct *option = (var_struct *)cm_get_data(cm_id);
-	if (menu_option == 1)
-		new_value = option->default_val;
-	else if (menu_option == 2)
-		new_value = option->config_file_val;
-	else
-		return 1;
-
+    
+    // Bump the menu_option index for slider option types as their context menu has an additional line
+    if(option->type == OPT_INT_S || option->type == OPT_FLOAT_S)
+    {
+        if (menu_option == 2)
+            new_value = option->default_val;
+        else if (menu_option == 3)
+            new_value = option->config_file_val;
+        else
+            return 1;
+    }
+    // All other types
+    else
+    {
+        if (menu_option == 1)
+                new_value = option->default_val;
+            else if (menu_option == 2)
+                new_value = option->config_file_val;
+            else
+                return 1;
+    }
+    
 	switch (option->type)
 	{
 		case OPT_INT:
@@ -2175,6 +2190,24 @@ static int add_cm_option_line(const char *prefix, var_struct *option, float valu
 	return 1;
 }
 
+static int add_cm_current_value_line(const char *prefix, var_struct *option, float value)
+{
+    char menu_text[256];
+    switch (option->type)
+    {
+        case OPT_INT_S:
+            safe_snprintf(menu_text, sizeof(menu_text), "\n%s: %d\n", prefix, (int)value);
+            break;
+        case OPT_FLOAT_S:
+            safe_snprintf(menu_text, sizeof(menu_text), "\n%s: %g\n", prefix, value);
+            break;
+        default:
+            return 0;
+    }
+    cm_add(cm_id, menu_text, NULL);
+    return 1;
+}
+
 // create the context menu when we right click an option label
 static void call_option_menu(var_struct *option)
 {
@@ -2185,6 +2218,8 @@ static void call_option_menu(var_struct *option)
 	cm_set_colour(cm_id, CM_GREY, 201.0/256.0, 254.0/256.0, 203.0/256.0);
 	cm_set(cm_id, option->name, context_option_handler);
 	cm_grey_line(cm_id, 0, 1);
+    add_cm_current_value_line(cm_options_current_str, option, *(float*)option->var);
+    cm_grey_line(cm_id, 1, 1);
 	if (add_cm_option_line(cm_options_default_str, option, option->default_val))
 	{
 		add_cm_option_line(cm_options_initial_str, option, option->config_file_val);
