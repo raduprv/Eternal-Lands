@@ -1902,7 +1902,7 @@ int toggle_OPT_BOOL_by_name(const char *str)
 }
 
 #ifdef	ELC
-// find an OPT_INT ot OPT_INT_F widget and set its's value
+// Find an OPT_INT, OPT_INT_F, or OPT_INT_S widget and set its value
 int set_var_OPT_INT(const char *str, int new_value)
 {
     int var_index = find_var(str, INI_FILE_VAR);
@@ -1916,9 +1916,9 @@ int set_var_OPT_INT(const char *str, int new_value)
         our_vars.var[var_index]->func(our_vars.var[var_index]->var, new_value);
         our_vars.var[var_index]->saved = 0;
         
-        if(our_vars.var[var_index]->type == OPT_INT_S)
+        if(widget != NULL && widget->widget_info != NULL)
         {
-            if(widget != NULL && widget->widget_info != NULL)
+            if(our_vars.var[var_index]->type == OPT_INT_S)
             {
                 slider *s = widget->widget_info;
                 *(int *)s->data = new_value;
@@ -1928,10 +1928,7 @@ int set_var_OPT_INT(const char *str, int new_value)
                 s->pos = ((new_value - s->min) * 100) / (s->max - s->min);
                 return 1;
             }
-        }
-        else
-        {
-            if(widget != NULL && widget->widget_info != NULL)
+            else
             {
                 spinbutton *button = widget->widget_info;
                 *(int *)button->data = new_value;
@@ -1947,7 +1944,7 @@ int set_var_OPT_INT(const char *str, int new_value)
     return 0;
 }
 
-// find an OPT_FLOAT widget and set its's value
+// Find an OPT_FLOAT or OPT_FLOAT_S widget and set its value
 static int set_var_OPT_FLOAT(const char *str, float new_value)
 {
     int var_index = find_var(str, INI_FILE_VAR);
@@ -1961,9 +1958,9 @@ static int set_var_OPT_FLOAT(const char *str, float new_value)
         our_vars.var[var_index]->func(our_vars.var[var_index]->var, &new_value);
         our_vars.var[var_index]->saved = 0;
         
-        if(our_vars.var[var_index]->type == OPT_FLOAT_S)
+        if(widget != NULL && widget->widget_info != NULL)
         {
-            if(widget != NULL && widget->widget_info != NULL)
+            if(our_vars.var[var_index]->type == OPT_FLOAT_S)
             {
                 slider *s = widget->widget_info;
                 *(float *)s->data = new_value;
@@ -1973,10 +1970,7 @@ static int set_var_OPT_FLOAT(const char *str, float new_value)
                 s->pos = ((new_value - s->min) * 100) / (s->max - s->min);
                 return 1;
             }
-        }
-        else
-        {
-            if(widget != NULL && widget->widget_info != NULL)
+            else
             {
                 spinbutton *button = widget->widget_info;
                 *(float *)button->data = new_value;
