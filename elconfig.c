@@ -2227,7 +2227,14 @@ static void call_option_menu(var_struct *option)
 		if (get_use_json_user_files() && ready_for_user_files)
 		{
 			cm_add(cm_id, cm_options_per_character_str, NULL);
-			cm_bool_line(cm_id, 3, &option->character_override, NULL);
+            if(option->type == OPT_INT_S || option->type == OPT_FLOAT_S)
+            {
+                cm_bool_line(cm_id, 4, &option->character_override, NULL);
+            }
+            else
+            {
+                cm_bool_line(cm_id, 3, &option->character_override, NULL);
+            }
 		}
 #endif
 		cm_set_data(cm_id, (void *)option);
