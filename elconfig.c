@@ -3836,10 +3836,7 @@ static int slider_onclick_handler(widget_list *widget, int mx, int my, Uint32 fl
 		for(i= 0; i < our_vars.no; i++) {
 			if(our_vars.var[i]->widgets.widget_id == widget->id) {
 				button= widget->widget_info;
-#ifdef ANDROID
-				if (mx < widget->len_x * 0.75)
-					SDL_StartTextInput();
-#endif
+				
 				switch(button->type) {
 					case SLIDER_FLOAT:
 						our_vars.var[i]->func(our_vars.var[i]->var, (float *)button->data);
