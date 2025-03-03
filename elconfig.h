@@ -90,8 +90,8 @@ typedef enum
 	OPT_FLOAT_F,       // Change float with functions that returns max and min values  func(float*,float*), max/min float func()
 	OPT_INT_F,         // Change int with functions that returns max and min values    func(int*,int), max/min int func()
 	// Values of _INI types are not displayed in the config window
-    OPT_FLOAT_S,       // Float with slider widget
-    OPT_INT_S,         // Int with slider widget
+	OPT_FLOAT_S,       // Float with slider widget
+	OPT_INT_S,         // Int with slider widget
 	OPT_BOOL_INI,
 	OPT_STRING_INI,
 	OPT_INT_INI

@@ -4842,145 +4842,145 @@ int spinbutton_add(int window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx
 // Slider
 static int slider_click(widget_list *widget, int mx, int my, Uint32 flags)
 {
-    if(widget != NULL && widget->widget_info != NULL) {
-        slider *s = widget->widget_info;
-        
-        // Do nothing if scrolling is involved, we don't want sliders jumping around
-        if(flags & (ELW_WHEEL_UP | ELW_WHEEL_DOWN))
-           return 0;
-        
-        // Calculate the current position of the slider as a percentage
-        int pos = ((mx) * 100) / (widget->len_x);
-        
-        // Check position is within bounds
-        if (pos < SLIDER_MIN)
-            s->pos = SLIDER_MIN;
-        else if (pos > SLIDER_MAX)
-            s->pos = SLIDER_MAX;
-        else
-            s->pos = pos;
-        
-        // Calculate the new value for this option based on the slider's position
-        switch (s->type) {
-            case SLIDER_INT:
-                *(int *)s->data = s->min + (s->pos * (s->max - s->min)) / 100;
-            break;
-            case SLIDER_FLOAT:
-                *(float *)s->data = s->min + (s->pos * (s->max - s->min)) / 100;
-            break;
-        }
-        
-        return 1;
-    }
-    return 0;
+	if(widget != NULL && widget->widget_info != NULL) {
+		slider *s = widget->widget_info;
+		
+		// Do nothing if scrolling is involved, we don't want sliders jumping around
+		if(flags & (ELW_WHEEL_UP | ELW_WHEEL_DOWN))
+		   return 0;
+		
+		// Calculate the current position of the slider as a percentage
+		int pos = ((mx) * 100) / (widget->len_x);
+		
+		// Check position is within bounds
+		if (pos < SLIDER_MIN)
+			s->pos = SLIDER_MIN;
+		else if (pos > SLIDER_MAX)
+			s->pos = SLIDER_MAX;
+		else
+			s->pos = pos;
+		
+		// Calculate the new value for this option based on the slider's position
+		switch (s->type) {
+			case SLIDER_INT:
+				*(int *)s->data = s->min + (s->pos * (s->max - s->min)) / 100;
+			break;
+			case SLIDER_FLOAT:
+				*(float *)s->data = s->min + (s->pos * (s->max - s->min)) / 100;
+			break;
+		}
+		
+		return 1;
+	}
+	return 0;
 }
 
 static int slider_drag(widget_list *W, int x, int y, Uint32 flags, int dx, int dy)
 {
-    if (!W)
-        return 0;
+	if (!W)
+		return 0;
 
-    slider_click(W, x, y, flags);
+	slider_click(W, x, y, flags);
 
-    return 1;
+	return 1;
 }
 
 static int slider_draw(widget_list *widget)
 {
-    slider *slider;
-    int arrow_size, handle_width, handle_position;
+	slider *slider;
+	int arrow_size, handle_width, handle_position;
 
-    if(widget == NULL || (slider = widget->widget_info) == NULL) {
-        return 0;
-    }
+	if(widget == NULL || (slider = widget->widget_info) == NULL) {
+		return 0;
+	}
 
-    arrow_size = (int)(0.5 + (float)(widget->len_y) / 4.0f);
+	arrow_size = (int)(0.5 + (float)(widget->len_y) / 4.0f);
 
-    glDisable(GL_TEXTURE_2D);
-    glColor3f(widget->r, widget->g, widget->b);
+	glDisable(GL_TEXTURE_2D);
+	glColor3f(widget->r, widget->g, widget->b);
 
-    /* Slider Spine */
-    glBegin(GL_LINES);
-        glVertex3i (widget->pos_x, widget->pos_y + widget->len_y/2, 0);
-        glVertex3i (widget->pos_x + widget->len_x, widget->pos_y + widget->len_y/2, 0);
-    glEnd();
-    
-    /* Slider Left Cap */
-    glBegin(GL_LINES);
-        glVertex3i (widget->pos_x+1, widget->pos_y+2, 0);
-        glVertex3i (widget->pos_x+1, widget->pos_y+widget->len_y-2, 0);
-    glEnd();
-    
-    /* Slider Right Cap */
-    glBegin(GL_LINES);
-    glVertex3i (widget->pos_x+widget->len_x-1, widget->pos_y+2, 0);
-    glVertex3i (widget->pos_x+widget->len_x-1, widget->pos_y+widget->len_y-2, 0);
-    glEnd();
-    
-    /* Slider Handle */
-    handle_width = 2 * arrow_size - (int)(0.5 + (float)arrow_size / 1.5f);
-    
-    // Calculate the x position of the slider handle based on percentages
-    handle_position = (widget->len_x/100) * slider->pos;
-    
-    // Make sure we don't go beyond the end of the slider
-    if (handle_position > (widget->len_x - handle_width))
-    {
-        handle_position = widget->len_x - handle_width;
-    }
-    
-    glBegin(GL_QUADS);
-    // TOP LEFT
-    glVertex3i(widget->pos_x + handle_position,
-               widget->pos_y + 0, 0);
-    
-    // TOP RIGHT
-    glVertex3i(widget->pos_x + handle_position + handle_width,
-               widget->pos_y + 0, 0);
-    
-    // BOTTOM RIGHT
-    glVertex3i(widget->pos_x + handle_position + handle_width,
-               widget->pos_y + widget->len_y, 0);
-    
-    // BOTTOM LEFT
-    glVertex3i(widget->pos_x + handle_position,
-               widget->pos_y + widget->len_y, 0);
-    glEnd();
+	/* Slider Spine */
+	glBegin(GL_LINES);
+		glVertex3i (widget->pos_x, widget->pos_y + widget->len_y/2, 0);
+		glVertex3i (widget->pos_x + widget->len_x, widget->pos_y + widget->len_y/2, 0);
+	glEnd();
+	
+	/* Slider Left Cap */
+	glBegin(GL_LINES);
+		glVertex3i (widget->pos_x+1, widget->pos_y+2, 0);
+		glVertex3i (widget->pos_x+1, widget->pos_y+widget->len_y-2, 0);
+	glEnd();
+	
+	/* Slider Right Cap */
+	glBegin(GL_LINES);
+	glVertex3i (widget->pos_x+widget->len_x-1, widget->pos_y+2, 0);
+	glVertex3i (widget->pos_x+widget->len_x-1, widget->pos_y+widget->len_y-2, 0);
+	glEnd();
+	
+	/* Slider Handle */
+	handle_width = 2 * arrow_size - (int)(0.5 + (float)arrow_size / 1.5f);
+	
+	// Calculate the x position of the slider handle based on percentages
+	handle_position = (widget->len_x/100) * slider->pos;
+	
+	// Make sure we don't go beyond the end of the slider
+	if (handle_position > (widget->len_x - handle_width))
+	{
+		handle_position = widget->len_x - handle_width;
+	}
+	
+	glBegin(GL_QUADS);
+	// TOP LEFT
+	glVertex3i(widget->pos_x + handle_position,
+			   widget->pos_y + 0, 0);
+	
+	// TOP RIGHT
+	glVertex3i(widget->pos_x + handle_position + handle_width,
+			   widget->pos_y + 0, 0);
+	
+	// BOTTOM RIGHT
+	glVertex3i(widget->pos_x + handle_position + handle_width,
+			   widget->pos_y + widget->len_y, 0);
+	
+	// BOTTOM LEFT
+	glVertex3i(widget->pos_x + handle_position,
+			   widget->pos_y + widget->len_y, 0);
+	glEnd();
 
-    glEnable(GL_TEXTURE_2D);
+	glEnable(GL_TEXTURE_2D);
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
-    return 1;
+	return 1;
 }
 
 int slider_add_extended(int window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint8 data_type, void *data, float min, float max, float size)
 {
-    slider *T = calloc (1, sizeof (slider));
-    // Filling the widget info
-    T->data = data;
-    T->max = max;
-    T->min = min;
-    T->type = data_type;
-    
-    switch(data_type)
-    {
-        case SLIDER_FLOAT:
-            safe_snprintf(T->input_buffer, sizeof(T->input_buffer), "%.2f", *(float *)T->data);
-            T->pos = ((*(float *)data - T->min) * 100) / (T->max - T->min);
-        break;
-        case SLIDER_INT:
-            safe_snprintf(T->input_buffer, sizeof(T->input_buffer), "%i", *(int *)T->data);
-            T->pos = ((*(int *)data - T->min) * 100) / (T->max - T->min);
-        break;
-    }
+	slider *T = calloc (1, sizeof (slider));
+	// Filling the widget info
+	T->data = data;
+	T->max = max;
+	T->min = min;
+	T->type = data_type;
+	
+	switch(data_type)
+	{
+		case SLIDER_FLOAT:
+			safe_snprintf(T->input_buffer, sizeof(T->input_buffer), "%.2f", *(float *)T->data);
+			T->pos = ((*(float *)data - T->min) * 100) / (T->max - T->min);
+		break;
+		case SLIDER_INT:
+			safe_snprintf(T->input_buffer, sizeof(T->input_buffer), "%i", *(int *)T->data);
+			T->pos = ((*(int *)data - T->min) * 100) / (T->max - T->min);
+		break;
+	}
 
-    return widget_add(window_id, wid, OnInit, x, y, lx, ly, 0, size, &slider_type, T, NULL);
+	return widget_add(window_id, wid, OnInit, x, y, lx, ly, 0, size, &slider_type, T, NULL);
 }
 
 int slider_add(int window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint8 data_type, void *data, float min, float max)
 {
-    return slider_add_extended(window_id, widget_id++, OnInit, x, y, lx, ly, data_type, data, min, max, 1);
+	return slider_add_extended(window_id, widget_id++, OnInit, x, y, lx, ly, data_type, data, min, max, 1);
 }
 
 // Helper functions for widgets

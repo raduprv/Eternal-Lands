@@ -195,12 +195,12 @@ typedef struct {
 }spinbutton;
 
 typedef struct {
-    void *data;
-    char input_buffer[255];
-    float max;
-    float min;
-    Uint8 type;
-    int pos;
+	void *data;
+	char input_buffer[255];
+	float max;
+	float min;
+	Uint8 type;
+	int pos;
 }slider;
 
 /* SPLIT INTO ELWIDGETS.C and ELWIDGETS.H */

@@ -213,7 +213,7 @@ typedef struct
 	{
 		struct { int min; int max; } imm;
 		struct { int (*min)(); int (*max)(); } immf;
-        struct { float min; float max; } fmm;
+		struct { float min; float max; } fmm;
 		struct { float min; float max; float interval; } fmmi;
 		struct { float (*min)(); float (*max)(); float interval; } fmmif;
 		struct { multi_element *elems; size_t count; } multi;
@@ -1905,85 +1905,85 @@ int toggle_OPT_BOOL_by_name(const char *str)
 // Find an OPT_INT, OPT_INT_F, or OPT_INT_S widget and set its value
 int set_var_OPT_INT(const char *str, int new_value)
 {
-    int var_index = find_var(str, INI_FILE_VAR);
+	int var_index = find_var(str, INI_FILE_VAR);
 
-    if ((var_index != -1) && ((our_vars.var[var_index]->type == OPT_INT) || (our_vars.var[var_index]->type == OPT_INT_F) || (our_vars.var[var_index]->type == OPT_INT_S)))
-    {
-        int tab_win_id = elconfig_tabs[our_vars.var[var_index]->widgets.tab_id].tab;
-        int widget_id = our_vars.var[var_index]->widgets.widget_id;
-        // This bit belongs in the widgets module
-        widget_list *widget = widget_find(tab_win_id, widget_id);
-        our_vars.var[var_index]->func(our_vars.var[var_index]->var, new_value);
-        our_vars.var[var_index]->saved = 0;
-        
-        if(widget != NULL && widget->widget_info != NULL)
-        {
-            if(our_vars.var[var_index]->type == OPT_INT_S)
-            {
-                slider *s = widget->widget_info;
-                *(int *)s->data = new_value;
-                safe_snprintf(s->input_buffer, sizeof(s->input_buffer), "%i", *(int *)s->data);
-                
-                // Force a position update for the slider
-                s->pos = ((new_value - s->min) * 100) / (s->max - s->min);
-                return 1;
-            }
-            else
-            {
-                spinbutton *button = widget->widget_info;
-                *(int *)button->data = new_value;
-                safe_snprintf(button->input_buffer, sizeof(button->input_buffer), "%i", *(int *)button->data);
-                return 1;
-            }
-        }
+	if ((var_index != -1) && ((our_vars.var[var_index]->type == OPT_INT) || (our_vars.var[var_index]->type == OPT_INT_F) || (our_vars.var[var_index]->type == OPT_INT_S)))
+	{
+		int tab_win_id = elconfig_tabs[our_vars.var[var_index]->widgets.tab_id].tab;
+		int widget_id = our_vars.var[var_index]->widgets.widget_id;
+		// This bit belongs in the widgets module
+		widget_list *widget = widget_find(tab_win_id, widget_id);
+		our_vars.var[var_index]->func(our_vars.var[var_index]->var, new_value);
+		our_vars.var[var_index]->saved = 0;
+		
+		if(widget != NULL && widget->widget_info != NULL)
+		{
+			if(our_vars.var[var_index]->type == OPT_INT_S)
+			{
+				slider *s = widget->widget_info;
+				*(int *)s->data = new_value;
+				safe_snprintf(s->input_buffer, sizeof(s->input_buffer), "%i", *(int *)s->data);
+				
+				// Force a position update for the slider
+				s->pos = ((new_value - s->min) * 100) / (s->max - s->min);
+				return 1;
+			}
+			else
+			{
+				spinbutton *button = widget->widget_info;
+				*(int *)button->data = new_value;
+				safe_snprintf(button->input_buffer, sizeof(button->input_buffer), "%i", *(int *)button->data);
+				return 1;
+			}
+		}
 
-        return 0;
-    }
+		return 0;
+	}
 
-    LOG_ERROR("Can't find var '%s', type 'OPT_INT'", str);
-    return 0;
+	LOG_ERROR("Can't find var '%s', type 'OPT_INT'", str);
+	return 0;
 }
 
 // Find an OPT_FLOAT or OPT_FLOAT_S widget and set its value
 static int set_var_OPT_FLOAT(const char *str, float new_value)
 {
-    int var_index = find_var(str, INI_FILE_VAR);
+	int var_index = find_var(str, INI_FILE_VAR);
 
-    if ((var_index != -1) && ((our_vars.var[var_index]->type == OPT_FLOAT) || (our_vars.var[var_index]->type == OPT_FLOAT_S)))
-    {
-        int tab_win_id = elconfig_tabs[our_vars.var[var_index]->widgets.tab_id].tab;
-        int widget_id = our_vars.var[var_index]->widgets.widget_id;
-        // This bit belongs in the widgets module
-        widget_list *widget = widget_find(tab_win_id, widget_id);
-        our_vars.var[var_index]->func(our_vars.var[var_index]->var, &new_value);
-        our_vars.var[var_index]->saved = 0;
-        
-        if(widget != NULL && widget->widget_info != NULL)
-        {
-            if(our_vars.var[var_index]->type == OPT_FLOAT_S)
-            {
-                slider *s = widget->widget_info;
-                *(float *)s->data = new_value;
-                safe_snprintf(s->input_buffer, sizeof(s->input_buffer), "%.2f", *(float *)s->data);
-                
-                // Force a position update for the slider
-                s->pos = ((new_value - s->min) * 100) / (s->max - s->min);
-                return 1;
-            }
-            else
-            {
-                spinbutton *button = widget->widget_info;
-                *(float *)button->data = new_value;
-                safe_snprintf(button->input_buffer, sizeof(button->input_buffer), "%.2f", *(float *)button->data);
-                return 1;
-            }
-        }
+	if ((var_index != -1) && ((our_vars.var[var_index]->type == OPT_FLOAT) || (our_vars.var[var_index]->type == OPT_FLOAT_S)))
+	{
+		int tab_win_id = elconfig_tabs[our_vars.var[var_index]->widgets.tab_id].tab;
+		int widget_id = our_vars.var[var_index]->widgets.widget_id;
+		// This bit belongs in the widgets module
+		widget_list *widget = widget_find(tab_win_id, widget_id);
+		our_vars.var[var_index]->func(our_vars.var[var_index]->var, &new_value);
+		our_vars.var[var_index]->saved = 0;
+		
+		if(widget != NULL && widget->widget_info != NULL)
+		{
+			if(our_vars.var[var_index]->type == OPT_FLOAT_S)
+			{
+				slider *s = widget->widget_info;
+				*(float *)s->data = new_value;
+				safe_snprintf(s->input_buffer, sizeof(s->input_buffer), "%.2f", *(float *)s->data);
+				
+				// Force a position update for the slider
+				s->pos = ((new_value - s->min) * 100) / (s->max - s->min);
+				return 1;
+			}
+			else
+			{
+				spinbutton *button = widget->widget_info;
+				*(float *)button->data = new_value;
+				safe_snprintf(button->input_buffer, sizeof(button->input_buffer), "%.2f", *(float *)button->data);
+				return 1;
+			}
+		}
 
-        return 0;
-    }
+		return 0;
+	}
 
-    LOG_ERROR("Can't find var '%s', type 'OPT_FLOAT'", str);
-    return 0;
+	LOG_ERROR("Can't find var '%s', type 'OPT_FLOAT'", str);
+	return 0;
 }
 
 
@@ -2117,33 +2117,33 @@ static int context_option_handler(window_info *win, int widget_id, int mx, int m
 {
 	float new_value = 0;
 	var_struct *option = (var_struct *)cm_get_data(cm_id);
-    
-    // Bump the menu_option index for slider option types as their context menu has an additional line
-    if(option->type == OPT_INT_S || option->type == OPT_FLOAT_S)
-    {
-        if (menu_option == 2)
-            new_value = option->default_val;
-        else if (menu_option == 3)
-            new_value = option->config_file_val;
-        else
-            return 1;
-    }
-    // All other types
-    else
-    {
-        if (menu_option == 1)
-                new_value = option->default_val;
-            else if (menu_option == 2)
-                new_value = option->config_file_val;
-            else
-                return 1;
-    }
-    
+
+	// Bump the menu_option index for slider option types as their context menu has an additional line
+	if(option->type == OPT_INT_S || option->type == OPT_FLOAT_S)
+	{
+		if (menu_option == 2)
+			new_value = option->default_val;
+		else if (menu_option == 3)
+			new_value = option->config_file_val;
+		else
+			return 1;
+	}
+	// All other types
+	else
+	{
+		if (menu_option == 1)
+				new_value = option->default_val;
+			else if (menu_option == 2)
+				new_value = option->config_file_val;
+			else
+				return 1;
+	}
+	
 	switch (option->type)
 	{
 		case OPT_INT:
 		case OPT_INT_F:
-        case OPT_INT_S:
+		case OPT_INT_S:
 			set_var_OPT_INT(option->name, (int)new_value);
 			break;
 		case OPT_MULTI:
@@ -2154,7 +2154,7 @@ static int context_option_handler(window_info *win, int widget_id, int mx, int m
 			set_var_OPT_BOOL(option->name, (int)new_value);
 			break;
 		case OPT_FLOAT:
-        case OPT_FLOAT_S:
+		case OPT_FLOAT_S:
 			set_var_OPT_FLOAT(option->name, new_value);
 			break;
 		default:
@@ -2171,7 +2171,7 @@ static int add_cm_option_line(const char *prefix, var_struct *option, float valu
 	{
 		case OPT_INT:
 		case OPT_INT_F:
-        case OPT_INT_S:
+		case OPT_INT_S:
 		case OPT_MULTI:
 		case OPT_MULTI_H:
 			safe_snprintf(menu_text, sizeof(menu_text), "\n%s: %d\n", prefix, (int)value);
@@ -2180,7 +2180,7 @@ static int add_cm_option_line(const char *prefix, var_struct *option, float valu
 			safe_snprintf(menu_text, sizeof(menu_text), "\n%s: %s\n", prefix, ((int)value) ?"true": "false");
 			break;
 		case OPT_FLOAT:
-        case OPT_FLOAT_S:
+		case OPT_FLOAT_S:
 			safe_snprintf(menu_text, sizeof(menu_text), "\n%s: %g\n", prefix, value);
 			break;
 		default:
@@ -2192,20 +2192,20 @@ static int add_cm_option_line(const char *prefix, var_struct *option, float valu
 
 static int add_cm_current_value_line(const char *prefix, var_struct *option, float value)
 {
-    char menu_text[256];
-    switch (option->type)
-    {
-        case OPT_INT_S:
-            safe_snprintf(menu_text, sizeof(menu_text), "\n%s: %d\n", prefix, (int)value);
-            break;
-        case OPT_FLOAT_S:
-            safe_snprintf(menu_text, sizeof(menu_text), "\n%s: %g\n", prefix, value);
-            break;
-        default:
-            return 0;
-    }
-    cm_add(cm_id, menu_text, NULL);
-    return 1;
+	char menu_text[256];
+	switch (option->type)
+	{
+		case OPT_INT_S:
+			safe_snprintf(menu_text, sizeof(menu_text), "\n%s: %d\n", prefix, (int)value);
+			break;
+		case OPT_FLOAT_S:
+			safe_snprintf(menu_text, sizeof(menu_text), "\n%s: %g\n", prefix, value);
+			break;
+		default:
+			return 0;
+	}
+	cm_add(cm_id, menu_text, NULL);
+	return 1;
 }
 
 // create the context menu when we right click an option label
@@ -2218,8 +2218,8 @@ static void call_option_menu(var_struct *option)
 	cm_set_colour(cm_id, CM_GREY, 201.0/256.0, 254.0/256.0, 203.0/256.0);
 	cm_set(cm_id, option->name, context_option_handler);
 	cm_grey_line(cm_id, 0, 1);
-    add_cm_current_value_line(cm_options_current_str, option, *(float*)option->var);
-    cm_grey_line(cm_id, 1, 1);
+	add_cm_current_value_line(cm_options_current_str, option, *(float*)option->var);
+	cm_grey_line(cm_id, 1, 1);
 	if (add_cm_option_line(cm_options_default_str, option, option->default_val))
 	{
 		add_cm_option_line(cm_options_initial_str, option, option->config_file_val);
@@ -2227,14 +2227,14 @@ static void call_option_menu(var_struct *option)
 		if (get_use_json_user_files() && ready_for_user_files)
 		{
 			cm_add(cm_id, cm_options_per_character_str, NULL);
-            if(option->type == OPT_INT_S || option->type == OPT_FLOAT_S)
-            {
-                cm_bool_line(cm_id, 4, &option->character_override, NULL);
-            }
-            else
-            {
-                cm_bool_line(cm_id, 3, &option->character_override, NULL);
-            }
+			if(option->type == OPT_INT_S || option->type == OPT_FLOAT_S)
+			{
+				cm_bool_line(cm_id, 4, &option->character_override, NULL);
+			}
+			else
+			{
+				cm_bool_line(cm_id, 3, &option->character_override, NULL);
+			}
 		}
 #endif
 		cm_set_data(cm_id, (void *)option);
@@ -2313,7 +2313,7 @@ static __inline__ void check_option_var(const char* name)
 		case OPT_MULTI:
 		case OPT_MULTI_H:
 		case OPT_INT_F:
-        case OPT_INT_S:
+		case OPT_INT_S:
 		case OPT_INT_INI:
 			value_i= *((int*)our_vars.var[i]->var);
 			our_vars.var[i]->func (our_vars.var[i]->var, value_i);
@@ -2333,7 +2333,7 @@ static __inline__ void check_option_var(const char* name)
 			break;
 		case OPT_FLOAT:
 		case OPT_FLOAT_F:
-        case OPT_FLOAT_S:
+		case OPT_FLOAT_S:
 			value_f= *((float*)our_vars.var[i]->var);
 			our_vars.var[i]->func (our_vars.var[i]->var, value_f);
 			break;
@@ -2630,7 +2630,7 @@ int check_var(char *str, var_name_type type)
 			// fallthrough
 		case OPT_INT:
 		case OPT_INT_F:
-        case OPT_INT_S:
+		case OPT_INT_S:
 		{
 			int new_val = atoi (ptr);
 			our_vars.var[i]->func(our_vars.var[i]->var, new_val);
@@ -2667,7 +2667,7 @@ int check_var(char *str, var_name_type type)
 			return 1;
 		case OPT_FLOAT:
 		case OPT_FLOAT_F:
-        case OPT_FLOAT_S:
+		case OPT_FLOAT_S:
 			foo= atof (ptr);
 			our_vars.var[i]->func (our_vars.var[i]->var, &foo);
 			our_vars.var[i]->config_file_val = foo;
@@ -2746,7 +2746,7 @@ static void add_var(option_type type, char * name, char * shortname, void * var,
 		break;
 		case OPT_INT:
 		case OPT_INT_INI:
-        case OPT_INT_S:
+		case OPT_INT_S:
 			va_start(ap, tab_id);
 			our_vars.var[no]->args.imm.min = va_arg(ap, uintptr_t);
 			our_vars.var[no]->args.imm.max = va_arg(ap, uintptr_t);
@@ -2778,13 +2778,13 @@ static void add_var(option_type type, char * name, char * shortname, void * var,
 			va_end(ap);
 			*f = def;
 			break;
-        case OPT_FLOAT_S:
-            va_start(ap, tab_id);
-            our_vars.var[no]->args.fmm.min = va_arg(ap, double);
-            our_vars.var[no]->args.fmm.max = va_arg(ap, double);
-            va_end(ap);
-            *f=def;
-            break;
+		case OPT_FLOAT_S:
+			va_start(ap, tab_id);
+			our_vars.var[no]->args.fmm.min = va_arg(ap, double);
+			our_vars.var[no]->args.fmm.max = va_arg(ap, double);
+			va_end(ap);
+			*f=def;
+			break;
 		case OPT_INT_F:
 			va_start(ap, tab_id);
 			our_vars.var[no]->args.immf.min = va_arg(ap, int (*)());
@@ -3499,7 +3499,7 @@ static void write_var(FILE *fout, int ivar)
 		case OPT_INT:
 		case OPT_BOOL:
 		case OPT_INT_F:
-        case OPT_INT_S:
+		case OPT_INT_S:
 		case OPT_BOOL_INI:
 		case OPT_INT_INI:
 		{
@@ -3534,7 +3534,7 @@ static void write_var(FILE *fout, int ivar)
 			break;
 		case OPT_FLOAT:
 		case OPT_FLOAT_F:
-        case OPT_FLOAT_S:
+		case OPT_FLOAT_S:
 		{
 			float *g = var->var;
 			fprintf(fout, "#%s= %g\n", var->name, *g);
@@ -3827,60 +3827,60 @@ static int spinbutton_onclick_handler(widget_list *widget, int mx, int my, Uint3
 
 static int slider_onclick_handler(widget_list *widget, int mx, int my, Uint32 flags)
 {
-    if(widget != NULL) {
-        int i;
-        slider *button;
+	if(widget != NULL) {
+		int i;
+		slider *button;
 
-        for(i= 0; i < our_vars.no; i++) {
-            if(our_vars.var[i]->widgets.widget_id == widget->id) {
-                button= widget->widget_info;
+		for(i= 0; i < our_vars.no; i++) {
+			if(our_vars.var[i]->widgets.widget_id == widget->id) {
+				button= widget->widget_info;
 #ifdef ANDROID
-                if (mx < widget->len_x * 0.75)
-                    SDL_StartTextInput();
+				if (mx < widget->len_x * 0.75)
+					SDL_StartTextInput();
 #endif
-                switch(button->type) {
-                    case SLIDER_FLOAT:
-                        our_vars.var[i]->func(our_vars.var[i]->var, (float *)button->data);
-                    break;
-                    case SLIDER_INT:
-                        our_vars.var[i]->func(our_vars.var[i]->var, *(int *)button->data);
-                    break;
-                }
-                our_vars.var[i]->saved= 0;
-                return 0;
-            }
-        }
-    }
-    return 0;
+				switch(button->type) {
+					case SLIDER_FLOAT:
+						our_vars.var[i]->func(our_vars.var[i]->var, (float *)button->data);
+					break;
+					case SLIDER_INT:
+						our_vars.var[i]->func(our_vars.var[i]->var, *(int *)button->data);
+					break;
+				}
+				our_vars.var[i]->saved= 0;
+				return 0;
+			}
+		}
+	}
+	return 0;
 }
 
 static int slider_ondrag_handler(widget_list *widget, int mx, int my, Uint32 flags)
 {
-    if(widget != NULL) {
-        int i;
-        slider *button;
+	if(widget != NULL) {
+		int i;
+		slider *button;
 
-        for(i= 0; i < our_vars.no; i++) {
-            if(our_vars.var[i]->widgets.widget_id == widget->id) {
-                button= widget->widget_info;
+		for(i= 0; i < our_vars.no; i++) {
+			if(our_vars.var[i]->widgets.widget_id == widget->id) {
+				button= widget->widget_info;
 #ifdef ANDROID
-                if (mx < widget->len_x * 0.75)
-                    SDL_StartTextInput();
+				if (mx < widget->len_x * 0.75)
+					SDL_StartTextInput();
 #endif
-                switch(button->type) {
-                    case SLIDER_FLOAT:
-                        our_vars.var[i]->func(our_vars.var[i]->var, (float *)button->data);
-                    break;
-                    case SLIDER_INT:
-                        our_vars.var[i]->func(our_vars.var[i]->var, *(int *)button->data);
-                    break;
-                }
-                our_vars.var[i]->saved= 0;
-                return 0;
-            }
-        }
-    }
-    return 0;
+				switch(button->type) {
+					case SLIDER_FLOAT:
+						our_vars.var[i]->func(our_vars.var[i]->var, (float *)button->data);
+					break;
+					case SLIDER_INT:
+						our_vars.var[i]->func(our_vars.var[i]->var, *(int *)button->data);
+					break;
+				}
+				our_vars.var[i]->saved= 0;
+				return 0;
+			}
+		}
+	}
+	return 0;
 }
 
 #ifdef ANDROID
@@ -4155,9 +4155,9 @@ static int get_elconfig_content_width(void)
 	var_struct *var;
 	int spin_button_width = max2i(ELCONFIG_SCALED_VALUE(100),
 		4 * get_max_digit_width_zoom(CONFIG_FONT, elconf_scale) + 4 * (int)(0.5 + 5 * elconf_scale));
-    
-    int slider_width = max2i(ELCONFIG_SCALED_VALUE(200),
-        4 * get_max_digit_width_zoom(CONFIG_FONT, elconf_scale) + 4 * (int)(0.5 + 5 * elconf_scale));
+
+	int slider_width = max2i(ELCONFIG_SCALED_VALUE(200),
+		4 * get_max_digit_width_zoom(CONFIG_FONT, elconf_scale) + 4 * (int)(0.5 + 5 * elconf_scale));
 
 	for (i = 0; i < our_vars.no; i++)
 	{
@@ -4182,11 +4182,11 @@ static int get_elconfig_content_width(void)
 				line_width = get_string_width_zoom(var->display.str, CONFIG_FONT, elconf_scale)
 					+ SPACING + spin_button_width;
 				break;
-            case OPT_INT_S:
-            case OPT_FLOAT_S:
-                line_width = get_string_width_zoom(var->display.str, CONFIG_FONT, elconf_scale)
-                + SPACING + slider_width;
-                break;
+			case OPT_INT_S:
+			case OPT_FLOAT_S:
+				line_width = get_string_width_zoom(var->display.str, CONFIG_FONT, elconf_scale)
+				+ SPACING + slider_width;
+				break;
 			case OPT_STRING:
 				// don't display the username, if it is changed after login, any name tagged files will be saved using the new name
 				if (strcmp(our_vars.var[i]->name, "username") == 0)
@@ -4237,8 +4237,8 @@ static void elconfig_populate_tabs(void)
 	int y_label, y_widget, dx, dy, iopt;
 	int spin_button_width = max2i(ELCONFIG_SCALED_VALUE(100),
 		4 * get_max_digit_width_zoom(CONFIG_FONT, elconf_scale) + 4 * (int)(0.5 + 5 * elconf_scale));
-    int slider_width = max2i(ELCONFIG_SCALED_VALUE(200),
-        4 * get_max_digit_width_zoom(CONFIG_FONT, elconf_scale) + 4 * (int)(0.5 + 5 * elconf_scale));
+	int slider_width = max2i(ELCONFIG_SCALED_VALUE(200),
+		4 * get_max_digit_width_zoom(CONFIG_FONT, elconf_scale) + 4 * (int)(0.5 + 5 * elconf_scale));
 #ifdef ANDROID
 	int right_margin = CHECKBOX_SIZE + TAB_MARGIN;
 #else
@@ -4319,35 +4319,35 @@ static void elconfig_populate_tabs(void)
 				widget_set_OnKey(window_id, widget_id, (int (*)())spinbutton_onkey_handler);
 				widget_set_OnClick(window_id, widget_id, spinbutton_onclick_handler);
 			break;
-            case OPT_INT_S:
-                label_id = label_add_extended(window_id, elconfig_free_widget_id++, NULL,
-                    current_x, current_y, 0, elconf_scale, (char*)var->display.str);
-                widget_width = slider_width;
-                widget_id = slider_add_extended(window_id, elconfig_free_widget_id++, NULL,
+			case OPT_INT_S:
+				label_id = label_add_extended(window_id, elconfig_free_widget_id++, NULL,
+					current_x, current_y, 0, elconf_scale, (char*)var->display.str);
+				widget_width = slider_width;
+				widget_id = slider_add_extended(window_id, elconfig_free_widget_id++, NULL,
 #ifdef ANDROID
-                    window_width - right_margin - 2.0f * widget_width, current_y, 2.0f * widget_width, 2.0f * line_height,
+					window_width - right_margin - 2.0f * widget_width, current_y, 2.0f * widget_width, 2.0f * line_height,
 #else
-                    window_width - right_margin - widget_width, current_y, widget_width, line_height,
+					window_width - right_margin - widget_width, current_y, widget_width, line_height,
 #endif
-                    SLIDER_INT, var->var, var->args.imm.min,
-                    var->args.imm.max, elconf_scale);
-                widget_set_OnClick(window_id, widget_id, slider_onclick_handler);
-                widget_set_OnDrag(window_id, widget_id, slider_ondrag_handler);
-            break;
-            case OPT_FLOAT_S:
-                label_id = label_add_extended(window_id, elconfig_free_widget_id++, NULL,
-                    current_x, current_y, 0, elconf_scale, (char*)var->display.str);
-                widget_width = slider_width;
-                widget_id = slider_add_extended(window_id, elconfig_free_widget_id++, NULL,
+					SLIDER_INT, var->var, var->args.imm.min,
+					var->args.imm.max, elconf_scale);
+				widget_set_OnClick(window_id, widget_id, slider_onclick_handler);
+				widget_set_OnDrag(window_id, widget_id, slider_ondrag_handler);
+			break;
+			case OPT_FLOAT_S:
+				label_id = label_add_extended(window_id, elconfig_free_widget_id++, NULL,
+					current_x, current_y, 0, elconf_scale, (char*)var->display.str);
+				widget_width = slider_width;
+				widget_id = slider_add_extended(window_id, elconfig_free_widget_id++, NULL,
 #ifdef ANDROID
-                    window_width - right_margin - 2.0f * widget_width, current_y, 2.0f * widget_width, 2.0f * line_height,
+					window_width - right_margin - 2.0f * widget_width, current_y, 2.0f * widget_width, 2.0f * line_height,
 #else
-                    window_width - right_margin - widget_width, current_y, widget_width, line_height,
+					window_width - right_margin - widget_width, current_y, widget_width, line_height,
 #endif
-                    SLIDER_FLOAT, var->var, var->args.fmm.min, var->args.fmm.max, elconf_scale);
-                widget_set_OnClick(window_id, widget_id, slider_onclick_handler);
-                widget_set_OnDrag(window_id, widget_id, slider_ondrag_handler);
-            break;
+					SLIDER_FLOAT, var->var, var->args.fmm.min, var->args.fmm.max, elconf_scale);
+				widget_set_OnClick(window_id, widget_id, slider_onclick_handler);
+				widget_set_OnDrag(window_id, widget_id, slider_ondrag_handler);
+			break;
 			case OPT_STRING:
 				// don't display the username, if it is changed after login, any name tagged files will be saved using the new name
 				if (strcmp(var->name, "username") == 0)
@@ -4688,7 +4688,7 @@ void save_character_options(void)
 			{
 				case OPT_INT:
 				case OPT_INT_F:
-                case OPT_INT_S:
+				case OPT_INT_S:
 				case OPT_MULTI:
 				case OPT_MULTI_H:
 				{
@@ -4709,7 +4709,7 @@ void save_character_options(void)
 					break;
 				}
 				case OPT_FLOAT:
-                case OPT_FLOAT_S:
+				case OPT_FLOAT_S:
 				{
 					if (json_character_options_exists(option->name))
 						if (*((float *)option->var) == json_character_options_get_float(option->name, *((float *)option->var)))
@@ -4770,7 +4770,7 @@ void load_character_options(void)
 			{
 				case OPT_INT:
 				case OPT_INT_F:
-                case OPT_INT_S:
+				case OPT_INT_S:
 				{
 					int new_value = json_character_options_get_int(option->name, *((int *)option->var));
 					set_var_OPT_INT(option->name, new_value);
@@ -4797,7 +4797,7 @@ void load_character_options(void)
 					break;
 				}
 				case OPT_FLOAT:
-                case OPT_FLOAT_S:
+				case OPT_FLOAT_S:
 				{
 					float new_value = json_character_options_get_float(option->name, *((float *)option->var));
 					set_var_OPT_FLOAT(option->name, new_value);
