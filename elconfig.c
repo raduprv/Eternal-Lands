@@ -2180,8 +2180,10 @@ static int add_cm_option_line(const char *prefix, var_struct *option, float valu
 			safe_snprintf(menu_text, sizeof(menu_text), "\n%s: %s\n", prefix, ((int)value) ?"true": "false");
 			break;
 		case OPT_FLOAT:
-		case OPT_FLOAT_S:
 			safe_snprintf(menu_text, sizeof(menu_text), "\n%s: %g\n", prefix, value);
+			break;
+		case OPT_FLOAT_S:
+			safe_snprintf(menu_text, sizeof(menu_text), "\n%s: %.2f\n", prefix, value);
 			break;
 		default:
 			return 0;
@@ -2199,7 +2201,7 @@ static int add_cm_current_value_line(const char *prefix, var_struct *option, flo
 			safe_snprintf(menu_text, sizeof(menu_text), "\n%s: %d\n", prefix, (int)value);
 			break;
 		case OPT_FLOAT_S:
-			safe_snprintf(menu_text, sizeof(menu_text), "\n%s: %g\n", prefix, value);
+			safe_snprintf(menu_text, sizeof(menu_text), "\n%s: %.2f\n", prefix, value);
 			break;
 		default:
 			return 0;
