@@ -4844,13 +4844,14 @@ static int slider_click(widget_list *widget, int mx, int my, Uint32 flags)
 {
 	if(widget != NULL && widget->widget_info != NULL) {
 		slider *s = widget->widget_info;
+		int pos = 0;
 		
 		// Do nothing if scrolling is involved, we don't want sliders jumping around
 		if(flags & (ELW_WHEEL_UP | ELW_WHEEL_DOWN))
 		   return 0;
 		
 		// Calculate the current position of the slider as a percentage
-		int pos = ((mx) * 100) / (widget->len_x);
+		pos = ((mx) * 100) / (widget->len_x);
 		
 		// Check position is within bounds
 		if (pos < SLIDER_MIN)
