@@ -4922,7 +4922,7 @@ static int slider_draw(widget_list *widget)
 	handle_width = 2 * arrow_size - (int)(0.5 + (float)arrow_size / 1.5f);
 	
 	// Calculate the x position of the slider handle based on percentages
-	handle_position = (widget->len_x/100) * slider->pos;
+	handle_position = (slider->pos * widget->len_x) / 100;
 	
 	// Make sure we don't go beyond the end of the slider
 	if (handle_position > (widget->len_x - handle_width))
