@@ -2220,8 +2220,10 @@ static void call_option_menu(var_struct *option)
 	cm_set_colour(cm_id, CM_GREY, 201.0/256.0, 254.0/256.0, 203.0/256.0);
 	cm_set(cm_id, option->name, context_option_handler);
 	cm_grey_line(cm_id, 0, 1);
-	add_cm_current_value_line(cm_options_current_str, option, *(float*)option->var);
-	cm_grey_line(cm_id, 1, 1);
+	if(add_cm_current_value_line(cm_options_current_str, option, *(float*)option->var))
+	{
+		cm_grey_line(cm_id, 1, 1);
+	}
 	if (add_cm_option_line(cm_options_default_str, option, option->default_val))
 	{
 		add_cm_option_line(cm_options_initial_str, option, option->config_file_val);
