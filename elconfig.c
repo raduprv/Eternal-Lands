@@ -3852,6 +3852,10 @@ static int slider_onclick_handler(widget_list *widget, int mx, int my, Uint32 fl
 					break;
 				}
 				our_vars.var[i]->saved= 0;
+				
+				if((flags&(ELW_LEFT_MOUSE|ELW_RIGHT_MOUSE)))
+					do_click_sound();
+				
 				return 0;
 			}
 		}
