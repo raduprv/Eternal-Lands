@@ -194,6 +194,15 @@ typedef struct {
 	float interval;
 }spinbutton;
 
+typedef struct {
+	void *data;
+	char input_buffer[255];
+	float max;
+	float min;
+	Uint8 type;
+	int pos;
+}slider;
+
 /* SPLIT INTO ELWIDGETS.C and ELWIDGETS.H */
 
 // Common widget functions
@@ -1384,6 +1393,14 @@ int multiselect_set_scrollbar_inc(int window_id, Uint32 multiselect_id, int inc)
 
 int spinbutton_add(int window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint8 data_type, void *data, float min, float max, float interval);
 int spinbutton_add_extended(int window_id, Uint32 widget_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint8 data_type, void *data, float min, float max, float interval, float size);
+
+#define SLIDER_FLOAT 0
+#define SLIDER_INT 1
+#define SLIDER_MIN 0
+#define SLIDER_MAX 100
+
+int slider_add(int window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint8 data_type, void *data, float min, float max);
+int slider_add_extended(int window_id, Uint32 widget_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint8 data_type, void *data, float min, float max, float size);
 
 /*!
  * \ingroup	widgets

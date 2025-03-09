@@ -213,6 +213,7 @@ typedef struct
 	{
 		struct { int min; int max; } imm;
 		struct { int (*min)(); int (*max)(); } immf;
+		struct { float min; float max; } fmm;
 		struct { float min; float max; float interval; } fmmi;
 		struct { float (*min)(); float (*max)(); float interval; } fmmif;
 		struct { multi_element *elems; size_t count; } multi;
@@ -1901,12 +1902,12 @@ int toggle_OPT_BOOL_by_name(const char *str)
 }
 
 #ifdef	ELC
-// find an OPT_INT ot OPT_INT_F widget and set its's value
+// Find an OPT_INT, OPT_INT_F, or OPT_INT_S widget and set its value
 int set_var_OPT_INT(const char *str, int new_value)
 {
 	int var_index = find_var(str, INI_FILE_VAR);
 
-	if ((var_index != -1) && ((our_vars.var[var_index]->type == OPT_INT) || (our_vars.var[var_index]->type == OPT_INT_F)))
+	if ((var_index != -1) && ((our_vars.var[var_index]->type == OPT_INT) || (our_vars.var[var_index]->type == OPT_INT_F) || (our_vars.var[var_index]->type == OPT_INT_S)))
 	{
 		int tab_win_id = elconfig_tabs[our_vars.var[var_index]->widgets.tab_id].tab;
 		int widget_id = our_vars.var[var_index]->widgets.widget_id;
@@ -1914,12 +1915,26 @@ int set_var_OPT_INT(const char *str, int new_value)
 		widget_list *widget = widget_find(tab_win_id, widget_id);
 		our_vars.var[var_index]->func(our_vars.var[var_index]->var, new_value);
 		our_vars.var[var_index]->saved = 0;
+		
 		if(widget != NULL && widget->widget_info != NULL)
 		{
-			spinbutton *button = widget->widget_info;
-			*(int *)button->data = new_value;
-			safe_snprintf(button->input_buffer, sizeof(button->input_buffer), "%i", *(int *)button->data);
-			return 1;
+			if(our_vars.var[var_index]->type == OPT_INT_S)
+			{
+				slider *s = widget->widget_info;
+				*(int *)s->data = new_value;
+				safe_snprintf(s->input_buffer, sizeof(s->input_buffer), "%i", *(int *)s->data);
+				
+				// Force a position update for the slider
+				s->pos = ((new_value - s->min) * 100) / (s->max - s->min);
+				return 1;
+			}
+			else
+			{
+				spinbutton *button = widget->widget_info;
+				*(int *)button->data = new_value;
+				safe_snprintf(button->input_buffer, sizeof(button->input_buffer), "%i", *(int *)button->data);
+				return 1;
+			}
 		}
 
 		return 0;
@@ -1929,12 +1944,12 @@ int set_var_OPT_INT(const char *str, int new_value)
 	return 0;
 }
 
-// find an OPT_FLOAT widget and set its's value
+// Find an OPT_FLOAT or OPT_FLOAT_S widget and set its value
 static int set_var_OPT_FLOAT(const char *str, float new_value)
 {
 	int var_index = find_var(str, INI_FILE_VAR);
 
-	if ((var_index != -1) && (our_vars.var[var_index]->type == OPT_FLOAT))
+	if ((var_index != -1) && ((our_vars.var[var_index]->type == OPT_FLOAT) || (our_vars.var[var_index]->type == OPT_FLOAT_S)))
 	{
 		int tab_win_id = elconfig_tabs[our_vars.var[var_index]->widgets.tab_id].tab;
 		int widget_id = our_vars.var[var_index]->widgets.widget_id;
@@ -1942,12 +1957,26 @@ static int set_var_OPT_FLOAT(const char *str, float new_value)
 		widget_list *widget = widget_find(tab_win_id, widget_id);
 		our_vars.var[var_index]->func(our_vars.var[var_index]->var, &new_value);
 		our_vars.var[var_index]->saved = 0;
+		
 		if(widget != NULL && widget->widget_info != NULL)
 		{
-			spinbutton *button = widget->widget_info;
-			*(float *)button->data = new_value;
-			safe_snprintf(button->input_buffer, sizeof(button->input_buffer), "%.2f", *(float *)button->data);
-			return 1;
+			if(our_vars.var[var_index]->type == OPT_FLOAT_S)
+			{
+				slider *s = widget->widget_info;
+				*(float *)s->data = new_value;
+				safe_snprintf(s->input_buffer, sizeof(s->input_buffer), "%.2f", *(float *)s->data);
+				
+				// Force a position update for the slider
+				s->pos = ((new_value - s->min) * 100) / (s->max - s->min);
+				return 1;
+			}
+			else
+			{
+				spinbutton *button = widget->widget_info;
+				*(float *)button->data = new_value;
+				safe_snprintf(button->input_buffer, sizeof(button->input_buffer), "%.2f", *(float *)button->data);
+				return 1;
+			}
 		}
 
 		return 0;
@@ -1956,6 +1985,7 @@ static int set_var_OPT_FLOAT(const char *str, float new_value)
 	LOG_ERROR("Can't find var '%s', type 'OPT_FLOAT'", str);
 	return 0;
 }
+
 
 static int set_var_OPT_BOOL(const char *str, int new_value)
 {
@@ -2087,17 +2117,33 @@ static int context_option_handler(window_info *win, int widget_id, int mx, int m
 {
 	float new_value = 0;
 	var_struct *option = (var_struct *)cm_get_data(cm_id);
-	if (menu_option == 1)
-		new_value = option->default_val;
-	else if (menu_option == 2)
-		new_value = option->config_file_val;
-	else
-		return 1;
 
+	// Bump the menu_option index for slider option types as their context menu has an additional line
+	if(option->type == OPT_INT_S || option->type == OPT_FLOAT_S)
+	{
+		if (menu_option == 2)
+			new_value = option->default_val;
+		else if (menu_option == 3)
+			new_value = option->config_file_val;
+		else
+			return 1;
+	}
+	// All other types
+	else
+	{
+		if (menu_option == 1)
+				new_value = option->default_val;
+			else if (menu_option == 2)
+				new_value = option->config_file_val;
+			else
+				return 1;
+	}
+	
 	switch (option->type)
 	{
 		case OPT_INT:
 		case OPT_INT_F:
+		case OPT_INT_S:
 			set_var_OPT_INT(option->name, (int)new_value);
 			break;
 		case OPT_MULTI:
@@ -2108,6 +2154,7 @@ static int context_option_handler(window_info *win, int widget_id, int mx, int m
 			set_var_OPT_BOOL(option->name, (int)new_value);
 			break;
 		case OPT_FLOAT:
+		case OPT_FLOAT_S:
 			set_var_OPT_FLOAT(option->name, new_value);
 			break;
 		default:
@@ -2124,6 +2171,7 @@ static int add_cm_option_line(const char *prefix, var_struct *option, float valu
 	{
 		case OPT_INT:
 		case OPT_INT_F:
+		case OPT_INT_S:
 		case OPT_MULTI:
 		case OPT_MULTI_H:
 			safe_snprintf(menu_text, sizeof(menu_text), "\n%s: %d\n", prefix, (int)value);
@@ -2133,6 +2181,27 @@ static int add_cm_option_line(const char *prefix, var_struct *option, float valu
 			break;
 		case OPT_FLOAT:
 			safe_snprintf(menu_text, sizeof(menu_text), "\n%s: %g\n", prefix, value);
+			break;
+		case OPT_FLOAT_S:
+			safe_snprintf(menu_text, sizeof(menu_text), "\n%s: %.2f\n", prefix, value);
+			break;
+		default:
+			return 0;
+	}
+	cm_add(cm_id, menu_text, NULL);
+	return 1;
+}
+
+static int add_cm_current_value_line(const char *prefix, var_struct *option, float value)
+{
+	char menu_text[256];
+	switch (option->type)
+	{
+		case OPT_INT_S:
+			safe_snprintf(menu_text, sizeof(menu_text), "\n%s: %d\n", prefix, (int)value);
+			break;
+		case OPT_FLOAT_S:
+			safe_snprintf(menu_text, sizeof(menu_text), "\n%s: %.2f\n", prefix, value);
 			break;
 		default:
 			return 0;
@@ -2151,6 +2220,10 @@ static void call_option_menu(var_struct *option)
 	cm_set_colour(cm_id, CM_GREY, 201.0/256.0, 254.0/256.0, 203.0/256.0);
 	cm_set(cm_id, option->name, context_option_handler);
 	cm_grey_line(cm_id, 0, 1);
+	if(add_cm_current_value_line(cm_options_current_str, option, *(float*)option->var))
+	{
+		cm_grey_line(cm_id, 1, 1);
+	}
 	if (add_cm_option_line(cm_options_default_str, option, option->default_val))
 	{
 		add_cm_option_line(cm_options_initial_str, option, option->config_file_val);
@@ -2158,7 +2231,14 @@ static void call_option_menu(var_struct *option)
 		if (get_use_json_user_files() && ready_for_user_files)
 		{
 			cm_add(cm_id, cm_options_per_character_str, NULL);
-			cm_bool_line(cm_id, 3, &option->character_override, NULL);
+			if(option->type == OPT_INT_S || option->type == OPT_FLOAT_S)
+			{
+				cm_bool_line(cm_id, 4, &option->character_override, NULL);
+			}
+			else
+			{
+				cm_bool_line(cm_id, 3, &option->character_override, NULL);
+			}
 		}
 #endif
 		cm_set_data(cm_id, (void *)option);
@@ -2237,6 +2317,7 @@ static __inline__ void check_option_var(const char* name)
 		case OPT_MULTI:
 		case OPT_MULTI_H:
 		case OPT_INT_F:
+		case OPT_INT_S:
 		case OPT_INT_INI:
 			value_i= *((int*)our_vars.var[i]->var);
 			our_vars.var[i]->func (our_vars.var[i]->var, value_i);
@@ -2256,6 +2337,7 @@ static __inline__ void check_option_var(const char* name)
 			break;
 		case OPT_FLOAT:
 		case OPT_FLOAT_F:
+		case OPT_FLOAT_S:
 			value_f= *((float*)our_vars.var[i]->var);
 			our_vars.var[i]->func (our_vars.var[i]->var, value_f);
 			break;
@@ -2552,6 +2634,7 @@ int check_var(char *str, var_name_type type)
 			// fallthrough
 		case OPT_INT:
 		case OPT_INT_F:
+		case OPT_INT_S:
 		{
 			int new_val = atoi (ptr);
 			our_vars.var[i]->func(our_vars.var[i]->var, new_val);
@@ -2588,6 +2671,7 @@ int check_var(char *str, var_name_type type)
 			return 1;
 		case OPT_FLOAT:
 		case OPT_FLOAT_F:
+		case OPT_FLOAT_S:
 			foo= atof (ptr);
 			our_vars.var[i]->func (our_vars.var[i]->var, &foo);
 			our_vars.var[i]->config_file_val = foo;
@@ -2666,6 +2750,7 @@ static void add_var(option_type type, char * name, char * shortname, void * var,
 		break;
 		case OPT_INT:
 		case OPT_INT_INI:
+		case OPT_INT_S:
 			va_start(ap, tab_id);
 			our_vars.var[no]->args.imm.min = va_arg(ap, uintptr_t);
 			our_vars.var[no]->args.imm.max = va_arg(ap, uintptr_t);
@@ -2696,6 +2781,13 @@ static void add_var(option_type type, char * name, char * shortname, void * var,
 			our_vars.var[no]->args.fmmif.interval = va_arg(ap, double);
 			va_end(ap);
 			*f = def;
+			break;
+		case OPT_FLOAT_S:
+			va_start(ap, tab_id);
+			our_vars.var[no]->args.fmm.min = va_arg(ap, double);
+			our_vars.var[no]->args.fmm.max = va_arg(ap, double);
+			va_end(ap);
+			*f=def;
 			break;
 		case OPT_INT_F:
 			va_start(ap, tab_id);
@@ -2996,7 +3088,7 @@ static void init_ELC_vars(void)
 	add_var(OPT_BOOL,"3d_map_markers","3dmarks",&marks_3d,change_var,1,"Enable 3D Map Markers","Shows user map markers in the game window",HUD);
 	add_var(OPT_BOOL,"filter_3d_map_markers","filter3dmarks",&filter_marks_3d,change_var,0,"Filter 3D Map Markers","Apply the current mark filter to 3d map marks.",HUD);
 	add_var(OPT_BOOL,"item_window_on_drop","itemdrop",&item_window_on_drop,change_var,1,"Item Window On Drop","Toggle whether the item window shows when you drop items",HUD);
-	add_var(OPT_FLOAT,"minimap_scale", "minimapscale", &local_minimap_size_coefficient, change_minimap_scale, 0.7, "Minimap Scale", "Adjust the overall size of the minimap", HUD, 0.5, 1.5, 0.1);
+	add_var(OPT_FLOAT_S,"minimap_scale", "minimapscale", &local_minimap_size_coefficient, change_minimap_scale, 0.7, "Minimap Scale", "Adjust the overall size of the minimap", HUD, 0.5, 1.5, 0.1);
 	add_var(OPT_BOOL,"rotate_minimap","rotateminimap",&rotate_minimap,change_var,1,"Rotate Minimap","Toggle whether the minimap should rotate.",HUD);
 	add_var(OPT_BOOL,"pin_minimap","pinminimap",&pin_minimap,change_var,0,"Pin Minimap","Toggle whether the minimap ignores close-all-windows.",HUD);
 	add_var(OPT_BOOL, "continent_map_boundaries", "cmb", &show_continent_map_boundaries, change_var, 1, "Map Boundaries On Continent Map", "Show map boundaries on the continent map", HUD);
@@ -3189,16 +3281,16 @@ static void init_ELC_vars(void)
 	add_var(OPT_STRING, "sound_device", "snddev", sound_device, change_string, sizeof(sound_device),
 		"Sound Device", "Device used for playing sounds & music", AUDIO);
 	add_var(OPT_BOOL,"enable_sound", "sound", &sound_on, toggle_sounds, 0, "Enable Sound Effects", "Turn sound effects on/off", AUDIO);
-	add_var(OPT_FLOAT,"sound_gain", "sgain", &sound_gain, change_sound_level, 1, "Overall Sound Effects Volume", "Adjust the overall sound effects volume", AUDIO, 0.0, 1.0, 0.1);
-	add_var(OPT_FLOAT,"crowd_gain", "crgain", &crowd_gain, change_sound_level, 1, "Crowd Sounds Volume", "Adjust the crowd sound effects volume", AUDIO, 0.0, 1.0, 0.1);
-	add_var(OPT_FLOAT,"enviro_gain", "envgain", &enviro_gain, change_sound_level, 1, "Environmental Sounds Volume", "Adjust the environmental sound effects volume", AUDIO, 0.0, 1.0, 0.1);
-	add_var(OPT_FLOAT,"actor_gain", "again", &actor_gain, change_sound_level, 1, "Character Sounds Volume", "Adjust the sound effects volume for fighting, magic and other character sounds", AUDIO, 0.0, 1.0, 0.1);
-	add_var(OPT_FLOAT,"walking_gain", "wgain", &walking_gain, change_sound_level, 1, "Walking Sounds Volume", "Adjust the walking sound effects volume", AUDIO, 0.0, 1.0, 0.1);
-	add_var(OPT_FLOAT,"gamewin_gain", "gwgain", &gamewin_gain, change_sound_level, 1, "Item and Inventory Sounds Volume", "Adjust the item and inventory sound effects volume", AUDIO, 0.0, 1.0, 0.1);
-	add_var(OPT_FLOAT,"client_gain", "clgain", &client_gain, change_sound_level, 1, "Misc Client Sounds Volume", "Adjust the client sound effects volume (warnings, hud/button clicks)", AUDIO, 0.0, 1.0, 0.1);
-	add_var(OPT_FLOAT,"warn_gain", "wrngain", &warnings_gain, change_sound_level, 1, "Text Warning Sounds Volume", "Adjust the user configured text warning sound effects volume", AUDIO, 0.0, 1.0, 0.1);
+	add_var(OPT_FLOAT_S,"sound_gain", "sgain", &sound_gain, change_sound_level, 1, "Overall Sound Effects Volume", "Adjust the overall sound effects volume", AUDIO, 0.0, 1.0, 0.1);
+	add_var(OPT_FLOAT_S,"crowd_gain", "crgain", &crowd_gain, change_sound_level, 1, "Crowd Sounds Volume", "Adjust the crowd sound effects volume", AUDIO, 0.0, 1.0, 0.1);
+	add_var(OPT_FLOAT_S,"enviro_gain", "envgain", &enviro_gain, change_sound_level, 1, "Environmental Sounds Volume", "Adjust the environmental sound effects volume", AUDIO, 0.0, 1.0, 0.1);
+	add_var(OPT_FLOAT_S,"actor_gain", "again", &actor_gain, change_sound_level, 1, "Character Sounds Volume", "Adjust the sound effects volume for fighting, magic and other character sounds", AUDIO, 0.0, 1.0, 0.1);
+	add_var(OPT_FLOAT_S,"walking_gain", "wgain", &walking_gain, change_sound_level, 1, "Walking Sounds Volume", "Adjust the walking sound effects volume", AUDIO, 0.0, 1.0, 0.1);
+	add_var(OPT_FLOAT_S,"gamewin_gain", "gwgain", &gamewin_gain, change_sound_level, 1, "Item and Inventory Sounds Volume", "Adjust the item and inventory sound effects volume", AUDIO, 0.0, 1.0, 0.1);
+	add_var(OPT_FLOAT_S,"client_gain", "clgain", &client_gain, change_sound_level, 1, "Misc Client Sounds Volume", "Adjust the client sound effects volume (warnings, hud/button clicks)", AUDIO, 0.0, 1.0, 0.1);
+	add_var(OPT_FLOAT_S,"warn_gain", "wrngain", &warnings_gain, change_sound_level, 1, "Text Warning Sounds Volume", "Adjust the user configured text warning sound effects volume", AUDIO, 0.0, 1.0, 0.1);
 	add_var(OPT_BOOL,"enable_music","music",&music_on,toggle_music,0,"Enable Music","Turn music on/off",AUDIO);
-	add_var(OPT_FLOAT,"music_gain","mgain",&music_gain,change_sound_level,1,"Music Volume","Adjust the music volume",AUDIO,0.0,1.0,0.1);
+	add_var(OPT_FLOAT_S,"music_gain","mgain",&music_gain,change_sound_level,1,"Music Volume","Adjust the music volume",AUDIO,0.0,1.0,0.1);
 #endif	//NEW_SOUND
 	// AUDIO TAB
 
@@ -3228,7 +3320,7 @@ static void init_ELC_vars(void)
 	add_var(OPT_INT,"video_height","height",&video_user_height,change_int, 480,"Userdefined height","Userdefined window height",VIDEO, 480,INT_MAX);
 	add_var(OPT_INT,"limit_fps","lfps",&limit_fps,change_fps,0,"Limit FPS","Limit the frame rate to reduce load on the system",VIDEO,0,INT_MAX);
 	add_var(OPT_BOOL,"enable_screensaver","esc",&enable_screensaver,change_screensaver,0,"Enable Desktop Screensaver","By default your desktop screen saver is disabled, this is normal behavour for games and media players. Set this option to enable the screensaver / monitor power managment.",VIDEO);
-	add_var(OPT_FLOAT,"gamma","g",&gamma_var,change_gamma,1,"Gamma","How bright your display should be.",VIDEO,0.10,3.00,0.05);
+	add_var(OPT_FLOAT_S,"gamma","g",&gamma_var,change_gamma,1,"Gamma","How bright your display should be.",VIDEO,0.10,3.00,0.05);
 	add_var(OPT_BOOL,"disable_gamma_adjust","dga",&disable_gamma_adjust,change_var,0,"Disable Gamma Adjustment","Stop the client from adjusting the display gamma.",VIDEO);
 #ifdef ANTI_ALIAS
 	add_var(OPT_BOOL,"anti_alias", "aa", &anti_alias, change_aa, 0, "Toggle Anti-Aliasing", "Anti-aliasing makes edges look smoother", VIDEO);
@@ -3295,10 +3387,10 @@ static void init_ELC_vars(void)
 
 
 	// CAMERA TAB
-	add_var(OPT_FLOAT,"far_plane", "far_plane", &far_plane, change_projection_float, 100.0, "Maximum Viewing Distance", "Adjusts how far you can see.", CAMERA, 40.0, 200.0, 1.0);
-	add_var(OPT_FLOAT,"far_reflection_plane", "far_reflection_plane", &far_reflection_plane, change_projection_float, 100.0, "Maximum Reflection Distance", "Adjusts how far the reflections are displayed.", CAMERA, 0.0, 200.0, 1.0);
-	add_var(OPT_FLOAT,"max_zoom_level","maxzoomlevel",&max_zoom_level,change_float,max_zoom_level,"Maximum Camera Zoom Out","Sets the maxiumum value that the camera can zoom out",CAMERA,4.0,8.0,0.5);
-	add_var(OPT_FLOAT,"perspective", "perspective", &perspective, change_projection_float, 0.15f, "Perspective", "The degree of perspective distortion. Change if your view looks odd.", CAMERA, 0.01, 0.80, 0.01);
+	add_var(OPT_FLOAT_S,"far_plane", "far_plane", &far_plane, change_projection_float, 100.0, "Maximum Viewing Distance", "Adjusts how far you can see.", CAMERA, 40.0, 200.0, 1.0);
+	add_var(OPT_FLOAT_S,"far_reflection_plane", "far_reflection_plane", &far_reflection_plane, change_projection_float, 100.0, "Maximum Reflection Distance", "Adjusts how far the reflections are displayed.", CAMERA, 0.0, 200.0, 1.0);
+	add_var(OPT_FLOAT_S,"max_zoom_level","maxzoomlevel",&max_zoom_level,change_float,max_zoom_level,"Maximum Camera Zoom Out","Sets the maxiumum value that the camera can zoom out",CAMERA,4.0,8.0,0.5);
+	add_var(OPT_FLOAT_S,"perspective", "perspective", &perspective, change_projection_float, 0.15f, "Perspective", "The degree of perspective distortion. Change if your view looks odd.", CAMERA, 0.01, 0.80, 0.01);
 	add_var(OPT_BOOL,"isometric" ,"isometric", &isometric, change_projection_bool, 1, "Use Isometric View", "Toggle the use of isometric (instead of perspective) view", CAMERA);
 	add_var(OPT_BOOL,"follow_cam","folcam", &fol_cam, toggle_follow_cam,0,"Follow Camera", "Causes the camera to stay fixed relative to YOU and not the world", CAMERA);
 	add_var(OPT_BOOL,"fol_cam_behind","fol_cam_behind", &fol_cam_behind, toggle_follow_cam_behind,0,"Keep the camera behind the char", "Causes the camera to stay behind you while walking (works only in follow camera mode)", CAMERA);
@@ -3411,6 +3503,7 @@ static void write_var(FILE *fout, int ivar)
 		case OPT_INT:
 		case OPT_BOOL:
 		case OPT_INT_F:
+		case OPT_INT_S:
 		case OPT_BOOL_INI:
 		case OPT_INT_INI:
 		{
@@ -3445,6 +3538,7 @@ static void write_var(FILE *fout, int ivar)
 			break;
 		case OPT_FLOAT:
 		case OPT_FLOAT_F:
+		case OPT_FLOAT_S:
 		{
 			float *g = var->var;
 			fprintf(fout, "#%s= %g\n", var->name, *g);
@@ -3735,6 +3829,70 @@ static int spinbutton_onclick_handler(widget_list *widget, int mx, int my, Uint3
 	return 0;
 }
 
+static int slider_onclick_handler(widget_list *widget, int mx, int my, Uint32 flags)
+{
+	if(widget != NULL) {
+		int i;
+		slider *button;
+		
+#ifdef ANDROID
+		cm_post_show_check(1);
+#endif
+
+		for(i= 0; i < our_vars.no; i++) {
+			if(our_vars.var[i]->widgets.widget_id == widget->id) {
+				button= widget->widget_info;
+				
+				switch(button->type) {
+					case SLIDER_FLOAT:
+						our_vars.var[i]->func(our_vars.var[i]->var, (float *)button->data);
+					break;
+					case SLIDER_INT:
+						our_vars.var[i]->func(our_vars.var[i]->var, *(int *)button->data);
+					break;
+				}
+				our_vars.var[i]->saved= 0;
+				
+				if((flags&(ELW_LEFT_MOUSE|ELW_RIGHT_MOUSE)))
+					do_click_sound();
+				
+				return 0;
+			}
+		}
+	}
+	return 0;
+}
+
+static int slider_ondrag_handler(widget_list *widget, int mx, int my, Uint32 flags)
+{
+	if(widget != NULL) {
+		int i;
+		slider *button;
+		
+#ifdef ANDROID
+		cm_post_show_check(1);
+#endif
+
+		for(i= 0; i < our_vars.no; i++) {
+			if(our_vars.var[i]->widgets.widget_id == widget->id) {
+				button= widget->widget_info;
+
+				switch(button->type) {
+					case SLIDER_FLOAT:
+						our_vars.var[i]->func(our_vars.var[i]->var, (float *)button->data);
+					break;
+					case SLIDER_INT:
+						our_vars.var[i]->func(our_vars.var[i]->var, *(int *)button->data);
+					break;
+				}
+				our_vars.var[i]->saved= 0;
+				return 0;
+			}
+		}
+	}
+	return 0;
+}
+
 #ifdef ANDROID
 static int string_onclick_handler(widget_list *widget, int mx, int my, Uint32 flags)
 {
@@ -4008,6 +4166,9 @@ static int get_elconfig_content_width(void)
 	int spin_button_width = max2i(ELCONFIG_SCALED_VALUE(100),
 		4 * get_max_digit_width_zoom(CONFIG_FONT, elconf_scale) + 4 * (int)(0.5 + 5 * elconf_scale));
 
+	int slider_width = max2i(ELCONFIG_SCALED_VALUE(200),
+		4 * get_max_digit_width_zoom(CONFIG_FONT, elconf_scale) + 4 * (int)(0.5 + 5 * elconf_scale));
+
 	for (i = 0; i < our_vars.no; i++)
 	{
 		var = our_vars.var[i];
@@ -4030,6 +4191,11 @@ static int get_elconfig_content_width(void)
 			case OPT_FLOAT_F:
 				line_width = get_string_width_zoom(var->display.str, CONFIG_FONT, elconf_scale)
 					+ SPACING + spin_button_width;
+				break;
+			case OPT_INT_S:
+			case OPT_FLOAT_S:
+				line_width = get_string_width_zoom(var->display.str, CONFIG_FONT, elconf_scale)
+				+ SPACING + slider_width;
 				break;
 			case OPT_STRING:
 				// don't display the username, if it is changed after login, any name tagged files will be saved using the new name
@@ -4080,6 +4246,8 @@ static void elconfig_populate_tabs(void)
 	int line_height = get_line_height(CONFIG_FONT, elconf_scale);
 	int y_label, y_widget, dx, dy, iopt;
 	int spin_button_width = max2i(ELCONFIG_SCALED_VALUE(100),
+		4 * get_max_digit_width_zoom(CONFIG_FONT, elconf_scale) + 4 * (int)(0.5 + 5 * elconf_scale));
+	int slider_width = max2i(ELCONFIG_SCALED_VALUE(200),
 		4 * get_max_digit_width_zoom(CONFIG_FONT, elconf_scale) + 4 * (int)(0.5 + 5 * elconf_scale));
 #ifdef ANDROID
 	int right_margin = CHECKBOX_SIZE + TAB_MARGIN;
@@ -4160,6 +4328,35 @@ static void elconfig_populate_tabs(void)
 					var->args.fmmi.interval, elconf_scale);
 				widget_set_OnKey(window_id, widget_id, (int (*)())spinbutton_onkey_handler);
 				widget_set_OnClick(window_id, widget_id, spinbutton_onclick_handler);
+			break;
+			case OPT_INT_S:
+				label_id = label_add_extended(window_id, elconfig_free_widget_id++, NULL,
+					current_x, current_y, 0, elconf_scale, (char*)var->display.str);
+				widget_width = slider_width;
+				widget_id = slider_add_extended(window_id, elconfig_free_widget_id++, NULL,
+#ifdef ANDROID
+					window_width - right_margin - widget_width, current_y, widget_width, 2.0f * line_height,
+#else
+					window_width - right_margin - widget_width, current_y, widget_width, line_height,
+#endif
+					SLIDER_INT, var->var, var->args.imm.min,
+					var->args.imm.max, elconf_scale);
+				widget_set_OnClick(window_id, widget_id, slider_onclick_handler);
+				widget_set_OnDrag(window_id, widget_id, slider_ondrag_handler);
+			break;
+			case OPT_FLOAT_S:
+				label_id = label_add_extended(window_id, elconfig_free_widget_id++, NULL,
+					current_x, current_y, 0, elconf_scale, (char*)var->display.str);
+				widget_width = slider_width;
+				widget_id = slider_add_extended(window_id, elconfig_free_widget_id++, NULL,
+#ifdef ANDROID
+					window_width - right_margin - widget_width, current_y, widget_width, 2.0f * line_height,
+#else
+					window_width - right_margin - widget_width, current_y, widget_width, line_height,
+#endif
+					SLIDER_FLOAT, var->var, var->args.fmm.min, var->args.fmm.max, elconf_scale);
+				widget_set_OnClick(window_id, widget_id, slider_onclick_handler);
+				widget_set_OnDrag(window_id, widget_id, slider_ondrag_handler);
 			break;
 			case OPT_STRING:
 				// don't display the username, if it is changed after login, any name tagged files will be saved using the new name
@@ -4501,6 +4698,7 @@ void save_character_options(void)
 			{
 				case OPT_INT:
 				case OPT_INT_F:
+				case OPT_INT_S:
 				case OPT_MULTI:
 				case OPT_MULTI_H:
 				{
@@ -4521,6 +4719,7 @@ void save_character_options(void)
 					break;
 				}
 				case OPT_FLOAT:
+				case OPT_FLOAT_S:
 				{
 					if (json_character_options_exists(option->name))
 						if (*((float *)option->var) == json_character_options_get_float(option->name, *((float *)option->var)))
@@ -4581,6 +4780,7 @@ void load_character_options(void)
 			{
 				case OPT_INT:
 				case OPT_INT_F:
+				case OPT_INT_S:
 				{
 					int new_value = json_character_options_get_int(option->name, *((int *)option->var));
 					set_var_OPT_INT(option->name, new_value);
@@ -4607,6 +4807,7 @@ void load_character_options(void)
 					break;
 				}
 				case OPT_FLOAT:
+				case OPT_FLOAT_S:
 				{
 					float new_value = json_character_options_get_float(option->name, *((float *)option->var));
 					set_var_OPT_FLOAT(option->name, new_value);

@@ -423,6 +423,7 @@ char
 	cm_encycl_base_str[150],
 	cm_options_default_str[50],
 	cm_options_initial_str[50],
+	cm_options_current_str[50],
 #ifdef JSON_FILES
 	cm_options_per_character_str[50],
 #endif
@@ -1833,6 +1834,7 @@ void init_help()
 	add_xml_identifier(misc, "cm_encycl_base", cm_encycl_base_str, "Encyclopedia Index\nSearch Encyclopedia Titles\nRepeat Last Search\nBookmark This Page\nUnbookmark This Page\nClear Bookmarks", sizeof(cm_encycl_base_str));
 	add_xml_identifier(misc, "cm_options_default", cm_options_default_str, "Set to default value", sizeof(cm_options_default_str));
 	add_xml_identifier(misc, "cm_options_initial", cm_options_initial_str, "Set to initial value", sizeof(cm_options_initial_str));
+	add_xml_identifier(misc, "cm_options_current", cm_options_current_str, "Current value", sizeof(cm_options_current_str));
 #ifdef JSON_FILES
 	add_xml_identifier(misc, "cm_options_per_character", cm_options_per_character_str, "Manage value just for this character", sizeof(cm_options_per_character_str));
 #endif
