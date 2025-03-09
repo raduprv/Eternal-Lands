@@ -3834,8 +3834,7 @@ static int slider_onclick_handler(widget_list *widget, int mx, int my, Uint32 fl
 		slider *button;
 		
 #ifdef ANDROID
-		if (cm_valid(CM_INIT_VALUE))
-			cm_destroy(CM_INIT_VALUE);
+		cm_post_show_check(1);
 #endif
 
 		for(i= 0; i < our_vars.no; i++) {
@@ -3865,8 +3864,7 @@ static int slider_ondrag_handler(widget_list *widget, int mx, int my, Uint32 fla
 		slider *button;
 		
 #ifdef ANDROID
-		if (cm_valid(CM_INIT_VALUE))
-			cm_destroy(CM_INIT_VALUE);
+		cm_post_show_check(1);
 #endif
 
 		for(i= 0; i < our_vars.no; i++) {
@@ -4331,7 +4329,7 @@ static void elconfig_populate_tabs(void)
 				widget_width = slider_width;
 				widget_id = slider_add_extended(window_id, elconfig_free_widget_id++, NULL,
 #ifdef ANDROID
-					window_width - right_margin - 2.0f * widget_width, current_y, 2.0f * widget_width, 2.0f * line_height,
+					window_width - right_margin - widget_width, current_y, widget_width, 2.0f * line_height,
 #else
 					window_width - right_margin - widget_width, current_y, widget_width, line_height,
 #endif
@@ -4346,7 +4344,7 @@ static void elconfig_populate_tabs(void)
 				widget_width = slider_width;
 				widget_id = slider_add_extended(window_id, elconfig_free_widget_id++, NULL,
 #ifdef ANDROID
-					window_width - right_margin - 2.0f * widget_width, current_y, 2.0f * widget_width, 2.0f * line_height,
+					window_width - right_margin - widget_width, current_y, widget_width, 2.0f * line_height,
 #else
 					window_width - right_margin - widget_width, current_y, widget_width, line_height,
 #endif
