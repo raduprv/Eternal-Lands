@@ -46,7 +46,7 @@ OPTIONS = -DLINUX -DELC $(foreach FEATURE, $(FEATURES), -D$(FEATURE)) -D_7ZIP_ST
 	$(foreach PKG, $(CFLAGS_PKG), $(shell pkg-config  --cflags $(PKG))) \
 	$(foreach FEATURE, $(FEATURES), $($(FEATURE)_CFLAGS))
 
-CFLAGS=$(PLATFORM) $(CWARN) -O1 -ggdb -pipe $(OPTIONS) -fno-strict-aliasing $(EXTRA_INCLUDES)
+CFLAGS=$(PLATFORM) $(CWARN) -O1 -ggdb -pipe $(OPTIONS) -fno-strict-aliasing $(EXTRA_INCLUDES) -std=gnu17
 
 CXXFLAGS=$(PLATFORM) $(CXXWARN) -O1 -ggdb -pipe $(OPTIONS) -fno-strict-aliasing $(EXTRA_INCLUDES)
 
