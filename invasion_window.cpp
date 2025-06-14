@@ -42,6 +42,10 @@
 	Show invasion numbers||#il
 	</icon>
 
+	Major Changes:
+		June 2025: Added directory widget.  Selecting a directory loads
+			the command-list files from just that directory.
+
 	To Do:
 		- Handle #command errors
 		- Monster count greater then 50
@@ -63,6 +67,7 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <filesystem>
 
 #ifdef WINDOWS
 #include "io.h"
@@ -379,6 +384,23 @@ namespace invasion_window
 
 
 	//
+	//	A class for a directory of files containing invasion command lists.
+	//
+	class Command_Directory
+	{
+		public:
+			Command_Directory(const std::string & dir_name, const std::string & dir_stub)
+			  : directory_name(dir_name), directory_stub(std::string("/") + dir_stub) {}
+			~Command_Directory(void) {};
+			const std::string & get_text(void) const { return directory_stub; }
+			const std::string & get_dirname(void) const { return directory_name; }
+		private:
+			std::string directory_name;
+			std::string directory_stub;
+	};
+
+
+	//
 	//	A class for a list of invasion commands.
 	//
 	class Command_List
@@ -388,6 +410,7 @@ namespace invasion_window
 			~Command_List(void);
 			bool execute_command(size_t index) const { if (index >= commands.size()) return false; return commands[index]->execute(); }
 			const std::string & get_text(void) const { return list_name; }
+			const std::string & get_filename(void) const { return file_name; }
 			size_t size(void) const { return commands.size(); }
 			const std::vector<Command *> & get_commands(void) const { return commands; }
 			const Command * get_command(size_t index) const { return ((index < commands.size()) ?commands[index] :0); }
@@ -517,6 +540,7 @@ namespace invasion_window
 				start_x(0), width(0), start_y(0), height(0), line_hight(0), margin(0), win(0), cm_id(CM_INIT_VALUE)
 				{ }
 			void init(window_info *_win, int widget_id);
+			void reset(size_t num_entries);
 			void update(int _start_x, int _width, int _start_y, int _height, int _line_hight, int scroll_offset_y, int _padding);
 			void list_updated(size_t list_size, bool select_last_command);
 			bool in_list(int mx, int my) const;
@@ -549,6 +573,15 @@ namespace invasion_window
 	{
 		win = _win;
 		scroll_id = vscrollbar_add_extended(win->window_id, widget_id, NULL, 0, 0, 0, 0, 0, 1.0, 0, 1, 0);
+	}
+
+	//	Set to the first entry and reset the scrollbar
+	//
+	void List_Widget::reset(size_t num_entries)
+	{
+		set_selected(0);
+		set_bar_len(num_entries);
+		make_selected_visable();
 	}
 
 	//	Update the sizes and position the scroll bar.
@@ -1180,18 +1213,25 @@ namespace invasion_window
 			void common_input_keypress(SDL_Keycode key_code, widget_list *widget);
 			void common_input_mouseover(widget_list *widget);
 			void set_help(const char *message) { help_text = message; }
+			bool valid_dir_selected(void) const
+				{ return dirs_widget.get_selected() < directory_lists.size(); }
 			bool valid_file_selected(void) const
-				{ return files_widget.get_selected() < commands_lists.size(); }
+				{ return valid_dir_selected() &&
+					(files_widget.get_selected() < commands_filtered_lists.size()); }
 			bool valid_command_selected(void) const
 				{ return valid_file_selected() &&
-					(commands_widget.get_selected() < commands_lists[files_widget.get_selected()]->size()); }
+					(commands_widget.get_selected() < commands_filtered_lists[files_widget.get_selected()]->size()); }
 			Command_List *get_selected_command_list(void)
-				{ assert(valid_file_selected()); return commands_lists[files_widget.get_selected()]; }
+				{ assert(valid_file_selected()); return commands_filtered_lists[files_widget.get_selected()]; }
 			int filter_selected(int option, int widget_id);
 		private:
-			void load_file_list(std::string glob_path);
+			void filter_commands_list(void);
+			void load_file_list(std::string list_path, std::string list_extension);
 			void clear_commands_lists(void);
+			void clear_directory_lists(void);
+			std::vector<Command_Directory *> directory_lists;
 			std::vector<Command_List *> commands_lists;
+			std::vector<Command_List *> commands_filtered_lists;
 			int add_list_button_id;
 			int reload_button_id;
 			int play_button_id;
@@ -1202,8 +1242,10 @@ namespace invasion_window
 			std::vector <int> button_ids;
 			bool is_playing;
 			Uint32 last_play_execute;
+			List_Widget dirs_widget;
 			List_Widget files_widget;
 			List_Widget commands_widget;
+			struct { int start_x; int start_y; int end_x; int end_y; } dir_files_sep;
 			Labelled_Input_Widget delay_input_widget;
 			Labelled_Input_Widget repeat_widget;
 			Labelled_Input_Widget x_coord_widget;
@@ -1356,7 +1398,15 @@ namespace invasion_window
 	//
 	void Container::create_list(const char *input_text)
 	{
-		std::string full_file_name = dir_path + std::string(input_text) + ".txt";
+		if (!valid_dir_selected())
+		{
+			console_error("No valid directory");
+			return;
+		}
+
+		std::string full_file_name = std::filesystem::path(
+			directory_lists[dirs_widget.get_selected()]->get_dirname() /
+			std::filesystem::path(std::string(input_text) + ".txt")).string();
 
 		stop_play();
 
@@ -1382,7 +1432,8 @@ namespace invasion_window
 		if (new_list->is_valid())
 		{
 			commands_lists.push_back(new_list);
-			files_widget.list_updated(commands_lists.size(), true);
+			commands_filtered_lists.push_back(new_list);
+			files_widget.list_updated(commands_filtered_lists.size(), true);
 		}
 		else
 		{
@@ -1511,6 +1562,7 @@ namespace invasion_window
 
 			int widget_id = 1;
 
+			dirs_widget.init(&windows_list.window[win_id], widget_id++);
 			files_widget.init(&windows_list.window[win_id], widget_id++);
 
 			init_ipu(&ipu_add_list, -1, 0, 0, 0, NULL, NULL);
@@ -1574,14 +1626,14 @@ namespace invasion_window
 		}
 	}
 
-	//	Initial or repeat of loading files and initialise inut widgets
+	//	Initial or repeat of loading files and initialise input widgets
 	//	Both are done here are the input filter vales can change validation.
 	//
 	void Container::reload(void)
 	{
 		stop_play();
 
-		dir_path = std::string(get_path_config_base()) + "invasion_lists/";
+		dir_path = std::filesystem::path(std::filesystem::path(get_path_config_base()) / "invasion_lists" / "").string();
 
 		// create the invasion config directory if required
 		if (access(dir_path.c_str(), F_OK) != 0)
@@ -1614,7 +1666,7 @@ namespace invasion_window
 		}
 
 		// reload the command lists
-		load_file_list(dir_path + "*.txt");
+		load_file_list(dir_path, ".txt");
 
 		// reinitialise the input widgets, they may have changes buffer size
 		delay_input_widget.init(std::string("D:"), "Enter delay in seconds", 0, &Container::valid_delay, 4, 5, false);
@@ -1721,6 +1773,15 @@ namespace invasion_window
 		return 0;
 	}
 
+	//	Clear the lists of directories.
+	//
+	void Container::clear_directory_lists(void)
+	{
+		for (size_t i = 0; i < directory_lists.size(); ++i)
+			delete directory_lists[i];
+		directory_lists.clear();
+	}
+
 	//	Clear the lists of invasion commands.
 	//
 	void Container::clear_commands_lists(void)
@@ -1728,6 +1789,7 @@ namespace invasion_window
 		for (size_t i = 0; i < commands_lists.size(); ++i)
 			delete commands_lists[i];
 		commands_lists.clear();
+		commands_filtered_lists.clear();
 	}
 
 	//	Clean up the class.
@@ -1739,6 +1801,7 @@ namespace invasion_window
 		destroy_window(get_id_MW(MW_INVASION));
 		set_id_MW(MW_INVASION, -1);
 		clear_commands_lists();
+		clear_directory_lists();
 		close_ipu(&ipu_add_list);
 		sess_state.init();
 	}
@@ -1758,7 +1821,18 @@ namespace invasion_window
 			}
 		}
 
-		files_widget.draw(commands_lists, false);
+		dirs_widget.draw(directory_lists, false);
+		files_widget.draw(commands_filtered_lists, false);
+
+		// draw the seperator line
+		glColor3fv(gui_color);
+		glDisable(GL_TEXTURE_2D);
+		glBegin(GL_LINES);
+		glVertex2i(dir_files_sep.start_x, dir_files_sep.start_y);
+		glVertex2i(dir_files_sep.end_x, dir_files_sep.end_y);
+		glEnd();
+		glEnable(GL_TEXTURE_2D);
+		glColor3f(1.0f,1.0f,1.0f);
 
 		if (valid_file_selected())
 			commands_widget.draw(get_selected_command_list()->get_commands(), is_playing);
@@ -1794,6 +1868,8 @@ namespace invasion_window
 	int Container::mouseover(window_info *win, int mx, int my)
 	{
 		bool disable = ((get_show_window(ipu_add_list.popup_win) == 1) || cm_valid(cm_window_shown()));
+		if (dirs_widget.mouse_over(mx, my, disable))
+			set_help("Click to show command lists in directory.");
 		if (files_widget.mouse_over(mx, my, disable))
 			set_help("Click to load command list.");
 		if (commands_widget.mouse_over(mx, my, disable))
@@ -1805,15 +1881,27 @@ namespace invasion_window
 	//
 	int Container::click(window_info *win, int mx, int my, Uint32 flags)
 	{
+		if (dirs_widget.in_list(mx, my))
+		{
+			if ((flags & ELW_LEFT_MOUSE) && (dirs_widget.get_under_mouse() < directory_lists.size()))
+			{
+				do_click_sound();
+				stop_play();
+				dirs_widget.set_selected(dirs_widget.get_under_mouse());
+				filter_commands_list();
+			}
+			dirs_widget.wheel_scroll(flags);
+			return 1;
+		}
+
 		if (files_widget.in_list(mx, my))
 		{
-			if ((flags & ELW_LEFT_MOUSE) && (files_widget.get_under_mouse() < commands_lists.size()))
+			if ((flags & ELW_LEFT_MOUSE) && (files_widget.get_under_mouse() < commands_filtered_lists.size()))
 			{
 				do_click_sound();
 				stop_play();
 				files_widget.set_selected(files_widget.get_under_mouse());
-				commands_widget.set_selected(0);
-				commands_widget.set_bar_len((valid_file_selected()) ?get_selected_command_list()->size(): 0);
+				commands_widget.reset((valid_file_selected()) ?get_selected_command_list()->size(): 0);
 			}
 			files_widget.wheel_scroll(flags);
 			return 1;
@@ -1880,21 +1968,32 @@ namespace invasion_window
 		// either use the last height of the two lists, or calculate new if the window is resizing
 		if (win->resized)
 			num_lines = std::min(max_num_lines, std::max(min_num_lines,
-				(win->len_y - 3 * margin - button_height) / static_cast<int>(win->small_font_len_y * 1.1)));
+				(win->len_y - 5 * margin - button_height) / static_cast<int>(win->small_font_len_y * 1.1)));
 
 		// keep the base of the lists aligned with the text, absorbing any extra in the space to the buttons
-		float files_list_height = static_cast<int>(num_lines) * static_cast<int>(win->small_font_len_y * 1.1);
 		float commands_list_height = static_cast<int>(num_lines - 1) * static_cast<int>(win->small_font_len_y * 1.1);
+		float dirs_list_height = static_cast<int>(1 * num_lines / 3) * static_cast<int>(win->small_font_len_y * 1.1);
+		float files_list_height = static_cast<int>(num_lines) * static_cast<int>(win->small_font_len_y * 1.1) - dirs_list_height;
 		float win_y = std::max(num_lines * static_cast<int>(win->small_font_len_y * 1.1),
 			generator_input_widgets.size() * (button_height + margin) + margin);
-		win_y += 3 * margin + button_height;
+		win_y += 5 * margin + button_height;
 
 		// list widget can have context regions, but we have to remove them all from the window.
 		cm_remove_regions(win->window_id);
 
+		// update the list of directories
+		dirs_widget.update(margin, name_list_width, margin, dirs_list_height, win->small_font_len_y * 1.1, 0, margin);
+		dirs_widget.set_bar_len(directory_lists.size());
+
+		// position of the dir/files seperator
+		dir_files_sep.start_x = margin;
+		dir_files_sep.start_y = 2 * margin + dirs_list_height;
+		dir_files_sep.end_x = margin + name_list_width;
+		dir_files_sep.end_y = 2 * margin + dirs_list_height;
+
 		// update the list of files
-		files_widget.update(margin, name_list_width, margin, files_list_height, win->small_font_len_y * 1.1, 0, margin);
-		files_widget.set_bar_len(commands_lists.size());
+		files_widget.update(margin, name_list_width, dirs_list_height + 3 * margin, files_list_height, win->small_font_len_y * 1.1, 0, margin);
+		files_widget.set_bar_len(commands_filtered_lists.size());
 
 		// update the list of commands
 		commands_widget.update(3 * margin + name_list_width + win->box_size,
@@ -1950,45 +2049,81 @@ namespace invasion_window
 		return 1;
 	}
 
+	//	Create a new list of command list files just from the current directory
+	//
+	void Container::filter_commands_list(void)
+	{
+		if (!valid_dir_selected())
+		{
+			console_error("No valid directory");
+			return;
+		}
+
+		std::string curr_dirname = directory_lists[dirs_widget.get_selected()]->get_dirname();
+		commands_filtered_lists.clear();
+		for (const auto& e : commands_lists)
+		{
+			std::filesystem::path expected_name = curr_dirname / std::filesystem::path(e->get_filename()).filename();
+			if (expected_name == std::filesystem::path(e->get_filename()))
+				commands_filtered_lists.push_back(e);
+		}
+		files_widget.reset(commands_filtered_lists.size());
+		commands_widget.reset((valid_file_selected()) ?get_selected_command_list()->size(): 0);
+	}
+
+
 	//	Load the file list, all files in folder.
 	//
-	void Container::load_file_list(std::string glob_path)
+	void Container::load_file_list(std::string list_path, std::string list_extension)
 	{
 		std::vector<std::string> file_list;
-#ifdef WINDOWS
-		struct _finddata_t c_file;
-		intptr_t hFile;
-		if ((hFile = _findfirst(glob_path.c_str(), &c_file)) != static_cast<intptr_t>(-1))
+		std::vector<std::string> dir_list;
+
+		try
 		{
-			do
-				file_list.push_back(dir_path + std::string(c_file.name));
-			while (_findnext(hFile, &c_file) == 0);
-			_findclose(hFile);
+			for (const auto& dirEntry : std::filesystem::recursive_directory_iterator(list_path, std::filesystem::directory_options::follow_directory_symlink))
+			{
+				if (std::filesystem::is_directory(dirEntry.status()))
+					dir_list.push_back(dirEntry.path().string());
+				else if ((std::filesystem::is_regular_file(dirEntry.status())) && (dirEntry.path().extension() == list_extension))
+					file_list.push_back(dirEntry.path().string());
+			}
 		}
-#else	// phew! it's a real operating system
-		glob_t glob_res;
-		if (glob(glob_path.c_str(), 0, NULL, &glob_res)==0)
+		catch (std::filesystem::filesystem_error const& ex)
 		{
-			for (size_t i=0; i<glob_res.gl_pathc; i++)
-				file_list.push_back(std::string(glob_res.gl_pathv[i]));
-			globfree(&glob_res);
+			console_error("Failed to read files list: " + ex.code().message());
 		}
-#endif
+
+		dir_list.push_back(list_path);
+		std::sort(dir_list.begin(), dir_list.end());
+		std::sort(file_list.begin(), file_list.end());
+
+		clear_directory_lists();
+		for (const auto& d : dir_list)
+		{
+			std::size_t pos = d.find(list_path);
+			if (pos != 0)
+				continue;
+			std::string dir_stub = d.substr(list_path.size());
+			Command_Directory *new_dir = new Command_Directory(d, dir_stub);
+			directory_lists.push_back(new_dir);
+		}
+
 		clear_commands_lists();
-		for (size_t i = 0; i < file_list.size(); i++)
+		for (const auto& p : file_list)
 		{
-			Command_List *new_list = new Command_List(file_list[i].c_str());
+			Command_List *new_list = new Command_List(p.c_str());
 			if (new_list->is_valid())
+			{
 				commands_lists.push_back(new_list);
+				commands_filtered_lists.push_back(new_list);
+			}
 			else
 				delete new_list;
 		}
 
-		files_widget.set_selected(0);
-		files_widget.set_bar_len(commands_lists.size());
-
-		commands_widget.set_selected(0);
-		commands_widget.set_bar_len((valid_file_selected()) ?get_selected_command_list()->size(): 0);
+		dirs_widget.reset(directory_lists.size());
+		filter_commands_list();
 	}
 
 #ifdef JSON_FILES
