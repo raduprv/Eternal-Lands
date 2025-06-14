@@ -285,7 +285,7 @@ executable(
         '-Wno-unused-parameter',
         '-Wno-sign-compare',
         '-D_GNU_SOURCE=1',
-        '-std=c18',
+        '-std=c17',
         build_defs
     ],
 
@@ -296,7 +296,7 @@ executable(
         '-Wno-sign-compare',
         '-Wno-cast-function-type',
         '-D_GNU_SOURCE=1',
-        '-std=c++20',
+        '-std=c++17',
         build_defs
     ],
 

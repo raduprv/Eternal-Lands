@@ -35,9 +35,10 @@ $(LOCAL_PATH)/nlohmann_json/include/ \
 $(LOCAL_PATH)/$(OPENSSL_PATH)/include/
 
 LOCAL_CPPFLAGS := \
-	-std=c++11
+	-std=c++17
 
 LOCAL_CFLAGS := \
+	-std=c17 \
 	-O3 -fsigned-char -frtti \
 	-DANDROID \
 	-DELC \

@@ -248,10 +248,10 @@ if (PACKET_COMPRESSION)
 endif()
 
 # set the compiler flags for DEBUG and RELEASE builds
-set(CMAKE_C_FLAGS "${EXTRA_C_FLAGS} -Wall -Wdeclaration-after-statement -W -Wno-unused-parameter -Wno-sign-compare -D_GNU_SOURCE=1 -D_REENTRANT -std=gnu17")
+set(CMAKE_C_FLAGS "${EXTRA_C_FLAGS} -Wall -Wdeclaration-after-statement -W -Wno-unused-parameter -Wno-sign-compare -D_GNU_SOURCE=1 -D_REENTRANT -std=c17")
 set(CMAKE_C_FLAGS_DEBUG "-Og -ggdb -pipe -fno-strict-aliasing")
 set(CMAKE_C_FLAGS_RELEASE "-O3 -fomit-frame-pointer -ffast-math -pipe -fno-strict-aliasing")
-set(CMAKE_CXX_FLAGS "${EXTRA_CXX_FLAGS} -Wall -D_GNU_SOURCE=1 -W -Wno-unused-parameter -Wno-sign-compare -Wno-cast-function-type -D_REENTRANT -std=c++11")
+set(CMAKE_CXX_FLAGS "${EXTRA_CXX_FLAGS} -Wall -D_GNU_SOURCE=1 -W -Wno-unused-parameter -Wno-sign-compare -Wno-cast-function-type -D_REENTRANT -std=c++17")
 set(CMAKE_CXX_FLAGS_DEBUG "-Og -ggdb -pipe -fno-strict-aliasing")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3 -fomit-frame-pointer -ffast-math -pipe -fno-strict-aliasing")
 
