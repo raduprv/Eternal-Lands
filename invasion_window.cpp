@@ -50,7 +50,7 @@
 		- Handle #command errors
 		- Monster count greater then 50
 		- Bulk edit feature
-		- validate entered map and monster name in filter lists - lists need to be complete
+		- Validate entered map and monster name in filter lists - lists need to be complete
 */
 
 #include <algorithm>
@@ -1182,8 +1182,8 @@ namespace invasion_window
 					&y_coord_widget, &map_widget, &monster_widget, &count_widget, &cap_widget }),
 				generator_input_widgets({ &x_coord_widget, &y_coord_widget, &map_widget,
 					&monster_widget, &count_widget, &cap_widget }),
-				char_width(def_char_width), num_lines(def_num_lines), initial_delay(def_delay),
-				initialised(false), generated_command_valid(true),
+				char_width(def_char_width), num_lines(def_num_lines), num_dir_lines(def_num_dir_lines),
+				initial_delay(def_delay), initialised(false), generated_command_valid(true),
 				add_list_prompt("Enter Command List Name"), monster_total_text({0, 0, 0}), repeats_done(0) {}
 			void init(void);
 			void destroy(void);
@@ -1192,6 +1192,8 @@ namespace invasion_window
 			int click(window_info *win, int mx, int my, Uint32 flags);
 			int ui_scale(window_info *win);
 			void create_list(const char *input_text);
+			int dir_list_context(window_info *win, int option);
+			int get_bounded_num_dir_lines(int prop_num_dir_lines);
 			int commands_list_context(int option);
 			int add_list_button(void);
 			void reload(void);
@@ -1259,10 +1261,12 @@ namespace invasion_window
 			std::string help_text;
 			int char_width;
 			float num_lines;
+			int num_dir_lines;
 			int initial_delay;
 			bool initialised;
 			bool generated_command_valid;
 			static float min_num_lines, max_num_lines, def_num_lines;
+			static int def_num_dir_lines, min_list_lines;
 			static int min_char_width, max_char_width, def_char_width;
 			static int min_delay, max_delay, def_delay, def_repeat;
 			static float min_scale, max_scale, def_scale;
@@ -1277,7 +1281,8 @@ namespace invasion_window
 	static Container container;
 
 	//	Limits and default for saved parameters
-	float Container::min_num_lines = 5.0f, Container::max_num_lines = 40.0f, Container::def_num_lines = 10.0f;
+	int Container::def_num_dir_lines = 4, Container::min_list_lines = 3;
+	float Container::min_num_lines = 2 * min_list_lines, Container::max_num_lines = 40.0f, Container::def_num_lines = 10.0f;
 	int Container::min_char_width = 60, Container::max_char_width = 180, Container::def_char_width = 60;
 	int Container::min_delay = 1, Container::max_delay = 999, Container::def_delay = 10;
 	int Container::def_repeat = 1;
@@ -1304,6 +1309,7 @@ namespace invasion_window
 	static int replace_button_mouseover_handler(widget_list *widget, int mx, int my) { container.set_help("Replace current command in list"); return 1; }
 	static int add_list_button_handler(widget_list *widget, int mx, int my) { return container.add_list_button(); }
 	static void create_list_handler(const char *input_text, void *data) { container.create_list(input_text); }
+	static int dir_list_cm_handler(window_info *win, int widget_id, int mx, int my, int option) { return container.dir_list_context(win, option); }
 	static int commands_cm_handler(window_info *win, int widget_id, int mx, int my, int option) { return container.commands_list_context(option); }
 
 	// Common keypress handler for labelled input widget.
@@ -1443,6 +1449,36 @@ namespace invasion_window
 		}
 	}
 
+	//	Adjust the number of dir list lines.
+	//
+	int Container::dir_list_context(window_info *win, int option)
+	{
+		int delta = 0;
+		if (option == 0)
+			delta = 1;
+		else if (option == 1)
+			delta = -1;
+		else
+			return 0;
+		int new_num_dir_lines = get_bounded_num_dir_lines(get_bounded_num_dir_lines(num_dir_lines) + delta);
+		if (new_num_dir_lines == num_dir_lines)
+			return 0;
+		num_dir_lines = new_num_dir_lines;
+		ui_scale(win);
+		return 1;
+	}
+
+	//	Return a bound corrected value for the number of directory list lines
+	//
+	int Container::get_bounded_num_dir_lines(int prop_num_dir_lines)
+	{
+		if (static_cast<int>(num_lines - prop_num_dir_lines) < min_list_lines)
+			prop_num_dir_lines = static_cast<int>(num_lines - min_list_lines);
+		if (prop_num_dir_lines < min_list_lines)
+			prop_num_dir_lines = min_list_lines;
+		return prop_num_dir_lines;
+	}
+
 	//	Process the options from the command list widget context menu.
 	//
 	int Container::commands_list_context(int option)
@@ -1563,6 +1599,7 @@ namespace invasion_window
 			int widget_id = 1;
 
 			dirs_widget.init(&windows_list.window[win_id], widget_id++);
+			dirs_widget.add_context_menu("More Rows\nFewer Rows", dir_list_cm_handler);
 			files_widget.init(&windows_list.window[win_id], widget_id++);
 
 			init_ipu(&ipu_add_list, -1, 0, 0, 0, NULL, NULL);
@@ -1869,7 +1906,7 @@ namespace invasion_window
 	{
 		bool disable = ((get_show_window(ipu_add_list.popup_win) == 1) || cm_valid(cm_window_shown()));
 		if (dirs_widget.mouse_over(mx, my, disable))
-			set_help("Click to show command lists in directory.");
+			set_help("Click to show command lists in directory, right-click to change # rows.");
 		if (files_widget.mouse_over(mx, my, disable))
 			set_help("Click to load command list.");
 		if (commands_widget.mouse_over(mx, my, disable))
@@ -1965,14 +2002,22 @@ namespace invasion_window
 
 		float button_height = widget_get_height(win->window_id, reload_button_id);
 
-		// either use the last height of the two lists, or calculate new if the window is resizing
+		// if resizing, either use the last height of the two lists, or calculate new if the window is resizing
 		if (win->resized)
 			num_lines = std::min(max_num_lines, std::max(min_num_lines,
 				(win->len_y - 5 * margin - button_height) / static_cast<int>(win->small_font_len_y * 1.1)));
+		// else, check if we can have more lines due to the generator panel height
+		else
+		{
+			float gen_y = generator_input_widgets.size() * (button_height + margin) + margin;
+			float list_y = num_lines * static_cast<int>(win->small_font_len_y * 1.1);
+			if (gen_y > list_y)
+				num_lines = gen_y / static_cast<int>(win->small_font_len_y * 1.1);
+		}
 
 		// keep the base of the lists aligned with the text, absorbing any extra in the space to the buttons
 		float commands_list_height = static_cast<int>(num_lines - 1) * static_cast<int>(win->small_font_len_y * 1.1);
-		float dirs_list_height = static_cast<int>(1 * num_lines / 3) * static_cast<int>(win->small_font_len_y * 1.1);
+		float dirs_list_height = get_bounded_num_dir_lines(num_dir_lines) * static_cast<int>(win->small_font_len_y * 1.1);
 		float files_list_height = static_cast<int>(num_lines) * static_cast<int>(win->small_font_len_y * 1.1) - dirs_list_height;
 		float win_y = std::max(num_lines * static_cast<int>(win->small_font_len_y * 1.1),
 			generator_input_widgets.size() * (button_height + margin) + margin);
@@ -2139,6 +2184,7 @@ namespace invasion_window
 			json_cstate_get_int(window_dict_name, "char_width", def_char_width)));
 		num_lines = std::min(max_num_lines, std::max(min_num_lines,
 			json_cstate_get_float(window_dict_name, "num_lines",def_num_lines)));
+		num_dir_lines = json_cstate_get_int(window_dict_name, "num_dir_lines", def_num_dir_lines);
 		initial_delay = std::min(max_delay, std::max(min_delay,
 			json_cstate_get_int(window_dict_name, "delay_seconds", def_delay)));
 		sess_state.load_state(window_dict_name);
@@ -2153,6 +2199,7 @@ namespace invasion_window
 		json_cstate_set_float(window_dict_name, "scale", *get_scale_WM(MW_INVASION));
 		json_cstate_set_int(window_dict_name, "char_width", char_width);
 		json_cstate_set_float(window_dict_name, "num_lines", static_cast<int>(num_lines));
+		json_cstate_set_int(window_dict_name, "num_dir_lines", num_dir_lines);
 		json_cstate_set_int(window_dict_name, "delay_seconds",
 			(initialised) ?delay_input_widget.get_number_value() :initial_delay);
 		sess_state.save_state(window_dict_name);
