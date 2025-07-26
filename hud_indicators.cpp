@@ -489,15 +489,8 @@ namespace Indicators
 				}
 				new_x_len = 0;
 			}
-			else
-			{
-				if (locally_hidden)
-				{
-					std::string now_space_for_indicators("Now have space now to show indicators");
-					LOG_TO_CONSOLE(c_red1, now_space_for_indicators.c_str());
-					locally_hidden = false;
-				}
-			}
+			else if (locally_hidden)
+				locally_hidden = false;
 		}
 
 		if (force_width_change || (new_x_len != x_len))
