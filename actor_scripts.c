@@ -83,16 +83,16 @@ int actor_part_sizes[ACTOR_NUM_PARTS];
 #endif // EXT_ACTOR_DICT
 
 //Forward declarations
-int cal_load_weapon_mesh (actor_types *act, const char *fn, const char *kind);
-int cal_load_mesh(actor_types *act, const char *fn, const char *kind);
+int cal_load_weapon_mesh (actor_types *actor_def, const char *fn, const char *kind);
+int cal_load_mesh(actor_types *actor_def, const char *fn, const char *kind);
 static void unqueue_cmd(actor *act);
 #ifdef NEW_SOUND
-int parse_actor_sounds(actor_types *act, const xmlNode *cfg);
+int parse_actor_sounds(actor_types *actor_def, const xmlNode *cfg);
 #endif	//NEW_SOUND
 
 hash_table *emote_cmds = NULL;
 hash_table *emotes = NULL;
-int parse_actor_frames(actor_types *act, const xmlNode *cfg, const xmlNode *defaults);
+int parse_actor_frames(actor_types *actor_def, const xmlNode *cfg, const xmlNode *defaults);
 
 
 #ifdef MORE_ATTACHED_ACTORS_DEBUG
@@ -2590,22 +2590,22 @@ void move_self_forward()
 }
 
 
-static inline void actor_check_string(actor_types *act, const char *section, const char *type, const char *value)
+static inline void actor_check_string(actor_types *actor_def, const char *section, const char *type, const char *value)
 {
 	if (value == NULL || *value=='\0')
 	{
 #ifdef DEBUG
-		LOG_ERROR("Data Error in %s(%d): Missing %s.%s", act->actor_name, act->actor_type, section, type);
+		LOG_ERROR("Data Error in %s(%d): Missing %s.%s", actor_def->actor_name, actor_def->actor_type, section, type);
 #endif // DEBUG
 	}
 }
 
-static inline void actor_check_int(actor_types *act, const char *section, const char *type, int value)
+static inline void actor_check_int(actor_types *actor_def, const char *section, const char *type, int value)
 {
 	if (value < 0)
 	{
 #ifdef DEBUG
-		LOG_ERROR("Data Error in %s(%d): Missing %s.%s", act->actor_name, act->actor_type, section, type);
+		LOG_ERROR("Data Error in %s(%d): Missing %s.%s", actor_def->actor_name, actor_def->actor_type, section, type);
 #endif // DEBUG
 	}
 }
@@ -2987,7 +2987,7 @@ const xmlNode *get_default_node(const xmlNode *cfg, const xmlNode *defaults)
 	return NULL;
 }
 
-int parse_actor_shirt(actor_types *act, const xmlNode *cfg, const xmlNode *defaults)
+int parse_actor_shirt(actor_types *actor_def, const xmlNode *cfg, const xmlNode *defaults)
 {
 	const xmlNode *item;
 	int ok, col_idx;
@@ -3005,13 +3005,13 @@ int parse_actor_shirt(actor_types *act, const xmlNode *cfg, const xmlNode *defau
 		return 0;
 	}
 
-	if (act->shirt == NULL) {
+	if (actor_def->shirt == NULL) {
 		int i;
-		act->shirt = (shirt_part*)calloc(actor_part_sizes[ACTOR_SHIRT_SIZE], sizeof(shirt_part));
-		for (i = actor_part_sizes[ACTOR_SHIRT_SIZE]; i--;) act->shirt[i].mesh_index= -1;
+		actor_def->shirt = (shirt_part*)calloc(actor_part_sizes[ACTOR_SHIRT_SIZE], sizeof(shirt_part));
+		for (i = actor_part_sizes[ACTOR_SHIRT_SIZE]; i--;) actor_def->shirt[i].mesh_index= -1;
 	}
 
-	shirt= &(act->shirt[col_idx]);
+	shirt= &(actor_def->shirt[col_idx]);
 	ok= 1;
 	for(item=cfg->children; item; item=item->next) {
 		if(item->type == XML_ELEMENT_NODE) {
@@ -3019,7 +3019,7 @@ int parse_actor_shirt(actor_types *act, const xmlNode *cfg, const xmlNode *defau
 				get_string_value(shirt->arms_name, sizeof(shirt->arms_name), item);
 			} else if(xmlStrcasecmp(item->name, (xmlChar*)"mesh") == 0) {
 				get_string_value(shirt->model_name, sizeof(shirt->model_name), item);
-				shirt->mesh_index= cal_load_mesh(act, shirt->model_name, "shirt");
+				shirt->mesh_index= cal_load_mesh(actor_def, shirt->model_name, "shirt");
 			} else if(xmlStrcasecmp(item->name, (xmlChar*)"torso") == 0) {
 				get_string_value(shirt->torso_name, sizeof(shirt->torso_name), item);
 			} else if(xmlStrcasecmp(item->name, (xmlChar*)"armsmask") == 0) {
@@ -3042,7 +3042,7 @@ int parse_actor_shirt(actor_types *act, const xmlNode *cfg, const xmlNode *defau
 				get_item_string_value(shirt->arms_name, sizeof(shirt->arms_name), default_node, (xmlChar*)"arms");
 			if (*shirt->model_name=='\0'){
 				get_item_string_value(shirt->model_name, sizeof(shirt->model_name), default_node, (xmlChar*)"mesh");
-				shirt->mesh_index= cal_load_mesh(act, shirt->model_name, "shirt");
+				shirt->mesh_index= cal_load_mesh(actor_def, shirt->model_name, "shirt");
 			}
 			if (*shirt->torso_name=='\0')
 				get_item_string_value(shirt->torso_name, sizeof(shirt->torso_name), default_node, (xmlChar*)"torso");
@@ -3050,15 +3050,15 @@ int parse_actor_shirt(actor_types *act, const xmlNode *cfg, const xmlNode *defau
 	}
 
 	// check the critical information
-	actor_check_string(act, "shirt", "arms", shirt->arms_name);
-	actor_check_string(act, "shirt", "model", shirt->model_name);
-	actor_check_int(act, "shirt", "mesh", shirt->mesh_index);
-	actor_check_string(act, "shirt", "torso", shirt->torso_name);
+	actor_check_string(actor_def, "shirt", "arms", shirt->arms_name);
+	actor_check_string(actor_def, "shirt", "model", shirt->model_name);
+	actor_check_int(actor_def, "shirt", "mesh", shirt->mesh_index);
+	actor_check_string(actor_def, "shirt", "torso", shirt->torso_name);
 
 	return ok;
 }
 
-int parse_actor_skin (actor_types *act, const xmlNode *cfg, const xmlNode *defaults)
+int parse_actor_skin (actor_types *actor_def, const xmlNode *cfg, const xmlNode *defaults)
 {
 	const xmlNode *item;
 	int ok, col_idx;
@@ -3076,13 +3076,13 @@ int parse_actor_skin (actor_types *act, const xmlNode *cfg, const xmlNode *defau
 		return 0;
 	}
 
-	if (act->skin == NULL) {
+	if (actor_def->skin == NULL) {
 		int i;
-		act->skin = (skin_part*)calloc(actor_part_sizes[ACTOR_SKIN_SIZE], sizeof(skin_part));
-		for (i = actor_part_sizes[ACTOR_SKIN_SIZE]; i--;) act->skin[i].mesh_index= -1;
+		actor_def->skin = (skin_part*)calloc(actor_part_sizes[ACTOR_SKIN_SIZE], sizeof(skin_part));
+		for (i = actor_part_sizes[ACTOR_SKIN_SIZE]; i--;) actor_def->skin[i].mesh_index= -1;
 	}
 
-	skin = &(act->skin[col_idx]);
+	skin = &(actor_def->skin[col_idx]);
 	ok = 1;
 	for (item = cfg->children; item; item = item->next) {
 		if (item->type == XML_ELEMENT_NODE) {
@@ -3118,14 +3118,14 @@ int parse_actor_skin (actor_types *act, const xmlNode *cfg, const xmlNode *defau
 	}
 
 	// check the critical information
-	actor_check_string(act, "skin", "hands", skin->hands_name);
-	actor_check_string(act, "skin", "head", skin->head_name);
+	actor_check_string(actor_def, "skin", "hands", skin->hands_name);
+	actor_check_string(actor_def, "skin", "head", skin->head_name);
 
 
 	return ok;
 }
 
-int parse_actor_legs (actor_types *act, const xmlNode *cfg, const xmlNode *defaults)
+int parse_actor_legs (actor_types *actor_def, const xmlNode *cfg, const xmlNode *defaults)
 {
 	const xmlNode *item;
 	int ok, col_idx;
@@ -3143,13 +3143,13 @@ int parse_actor_legs (actor_types *act, const xmlNode *cfg, const xmlNode *defau
 		return 0;
 	}
 
-	if (act->legs == NULL) {
+	if (actor_def->legs == NULL) {
 		int i;
-		act->legs = (legs_part*)calloc(actor_part_sizes[ACTOR_LEGS_SIZE], sizeof(legs_part));
-		for (i = actor_part_sizes[ACTOR_LEGS_SIZE]; i--;) act->legs[i].mesh_index= -1;
+		actor_def->legs = (legs_part*)calloc(actor_part_sizes[ACTOR_LEGS_SIZE], sizeof(legs_part));
+		for (i = actor_part_sizes[ACTOR_LEGS_SIZE]; i--;) actor_def->legs[i].mesh_index= -1;
 	}
 
-	legs = &(act->legs[col_idx]);
+	legs = &(actor_def->legs[col_idx]);
 	ok = 1;
 	for (item = cfg->children; item; item = item->next) {
 		if (item->type == XML_ELEMENT_NODE) {
@@ -3157,7 +3157,7 @@ int parse_actor_legs (actor_types *act, const xmlNode *cfg, const xmlNode *defau
 				get_string_value (legs->legs_name, sizeof (legs->legs_name), item);
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"mesh") == 0) {
 				get_string_value (legs->model_name, sizeof (legs->model_name), item);
-				legs->mesh_index = cal_load_mesh (act, legs->model_name, "legs");
+				legs->mesh_index = cal_load_mesh (actor_def, legs->model_name, "legs");
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"legsmask") == 0) {
 				get_string_value (legs->legs_mask, sizeof (legs->legs_mask), item);
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"glow") == 0) {
@@ -3180,21 +3180,21 @@ int parse_actor_legs (actor_types *act, const xmlNode *cfg, const xmlNode *defau
 				get_item_string_value(legs->legs_name, sizeof(legs->legs_name), default_node, (xmlChar*)"skin");
 			if (*legs->model_name=='\0'){
 				get_item_string_value(legs->model_name, sizeof(legs->model_name), default_node, (xmlChar*)"mesh");
-				legs->mesh_index= cal_load_mesh(act, legs->model_name, "legs");
+				legs->mesh_index= cal_load_mesh(actor_def, legs->model_name, "legs");
 			}
 		}
 	}
 
 	// check the critical information
-	actor_check_string(act, "legs", "skin", legs->legs_name);
-	actor_check_string(act, "legs", "model", legs->model_name);
-	actor_check_int(act, "legs", "mesh", legs->mesh_index);
+	actor_check_string(actor_def, "legs", "skin", legs->legs_name);
+	actor_check_string(actor_def, "legs", "model", legs->model_name);
+	actor_check_int(actor_def, "legs", "mesh", legs->mesh_index);
 
 
 	return ok;
 }
 
-int parse_actor_weapon_detail (actor_types *act, weapon_part *weapon, const xmlNode *cfg, const xmlNode *defaults)
+int parse_actor_weapon_detail (actor_types *actor_def, weapon_part *weapon, const xmlNode *cfg, const xmlNode *defaults)
 {
 	const xmlNode *item;
 	char str[255];
@@ -3213,7 +3213,7 @@ int parse_actor_weapon_detail (actor_types *act, weapon_part *weapon, const xmlN
 
 			if (!strcmp(name, "mesh")) {
 				get_string_value (weapon->model_name, sizeof (weapon->model_name), item);
-				weapon->mesh_index = cal_load_weapon_mesh (act, weapon->model_name, "weapon");
+				weapon->mesh_index = cal_load_weapon_mesh (actor_def, weapon->model_name, "weapon");
 			} else if (!strcmp(name, "skin")) {
 				get_string_value (weapon->skin_name, sizeof (weapon->skin_name), item);
 			} else if (!strcmp(name, "skinmask")) {
@@ -3390,7 +3390,7 @@ int parse_actor_weapon_detail (actor_types *act, weapon_part *weapon, const xmlN
 				if (index > -1)
 				{
 					get_string_value (str,sizeof(str),item);
-					weapon->cal_frames[index] = cal_load_anim(act, str
+					weapon->cal_frames[index] = cal_load_anim(actor_def, str
 #ifdef NEW_SOUND
 						, get_string_property(item, "sound")
 						, get_string_property(item, "sound_scale")
@@ -3420,7 +3420,7 @@ int parse_actor_weapon_detail (actor_types *act, weapon_part *weapon, const xmlN
 		}
 		else if (item->type == XML_ENTITY_REF_NODE)
 		{
-			ok &= parse_actor_weapon_detail(act, weapon, item->children, defaults);
+			ok &= parse_actor_weapon_detail(actor_def, weapon, item->children, defaults);
 		}
 	}
 
@@ -3428,7 +3428,7 @@ int parse_actor_weapon_detail (actor_types *act, weapon_part *weapon, const xmlN
 	return ok;
 }
 
-int parse_actor_weapon(actor_types *act, const xmlNode *cfg, const xmlNode *defaults)
+int parse_actor_weapon(actor_types *actor_def, const xmlNode *cfg, const xmlNode *defaults)
 {
 	int ok, type_idx;
 	weapon_part *weapon;
@@ -3445,22 +3445,22 @@ int parse_actor_weapon(actor_types *act, const xmlNode *cfg, const xmlNode *defa
 		return 0;
 	}
 
-	if (act->weapon == NULL) {
+	if (actor_def->weapon == NULL) {
 		int i, j;
-		act->weapon = (weapon_part*)calloc(actor_part_sizes[ACTOR_WEAPON_SIZE], sizeof(weapon_part));
+		actor_def->weapon = (weapon_part*)calloc(actor_part_sizes[ACTOR_WEAPON_SIZE], sizeof(weapon_part));
 		for (i = actor_part_sizes[ACTOR_WEAPON_SIZE]; i--;) {
-			act->weapon[i].mesh_index = -1;
+			actor_def->weapon[i].mesh_index = -1;
 			for (j = 0; j < NUM_WEAPON_FRAMES; j++) {
-				act->weapon[i].cal_frames[j].anim_index = -1;
+				actor_def->weapon[i].cal_frames[j].anim_index = -1;
 #ifdef NEW_SOUND
-				act->weapon[i].cal_frames[j].sound = -1;
+				actor_def->weapon[i].cal_frames[j].sound = -1;
 #endif // NEW_SOUND
 			}
 		}
 	}
 
-	weapon = &(act->weapon[type_idx]);
-	ok= parse_actor_weapon_detail(act, weapon, cfg, defaults);
+	weapon = &(actor_def->weapon[type_idx]);
+	ok= parse_actor_weapon_detail(actor_def, weapon, cfg, defaults);
 	weapon->turn_horse=get_int_property(cfg, "turn_horse");
 	weapon->unarmed=(get_int_property(cfg, "unarmed")<=0) ? (0):(1);
 
@@ -3474,7 +3474,7 @@ int parse_actor_weapon(actor_types *act, const xmlNode *cfg, const xmlNode *defa
 			if(type_idx!=GLOVE_FUR && type_idx!=GLOVE_LEATHER){ // these dont have meshes
 				if(*weapon->model_name=='\0'){
 					get_item_string_value(weapon->model_name, sizeof(weapon->model_name), default_node, (xmlChar*)"mesh");
-					weapon->mesh_index= cal_load_weapon_mesh(act, weapon->model_name, "weapon");
+					weapon->mesh_index= cal_load_weapon_mesh(actor_def, weapon->model_name, "weapon");
 				}
 			}
 			// TODO: combat animations
@@ -3483,10 +3483,10 @@ int parse_actor_weapon(actor_types *act, const xmlNode *cfg, const xmlNode *defa
 
 	// check the critical information
 	if(type_idx!=WEAPON_NONE){   // no weapon doesn't have a skin/model
-		actor_check_string(act, "weapon", "skin", weapon->skin_name);
+		actor_check_string(actor_def, "weapon", "skin", weapon->skin_name);
 		if(type_idx!=GLOVE_FUR && type_idx!=GLOVE_LEATHER){ // these dont have meshes
-			actor_check_string(act, "weapon", "model", weapon->model_name);
-			actor_check_int(act, "weapon.mesh", weapon->model_name, weapon->mesh_index);
+			actor_check_string(actor_def, "weapon", "model", weapon->model_name);
+			actor_check_int(actor_def, "weapon.mesh", weapon->model_name, weapon->mesh_index);
 		}
 		// TODO: check combat animations
 	}
@@ -3495,7 +3495,7 @@ int parse_actor_weapon(actor_types *act, const xmlNode *cfg, const xmlNode *defa
 	return ok;
 }
 
-int parse_actor_body_part (actor_types *act, body_part *part, const xmlNode *cfg, const char *part_name, const xmlNode *default_node)
+int parse_actor_body_part (actor_types *actor_def, body_part *part, const xmlNode *cfg, const char *part_name, const xmlNode *default_node)
 {
 	const xmlNode *item;
 	int ok = 1;
@@ -3507,9 +3507,9 @@ int parse_actor_body_part (actor_types *act, body_part *part, const xmlNode *cfg
 			if(xmlStrcasecmp(item->name, (xmlChar*)"mesh") == 0) {
 				get_string_value (part->model_name, sizeof (part->model_name), item);
 				if(strcmp("shield",part_name)==0)
-					part->mesh_index = cal_load_weapon_mesh (act, part->model_name, part_name);
+					part->mesh_index = cal_load_weapon_mesh (actor_def, part->model_name, part_name);
 				else
-					part->mesh_index = cal_load_mesh (act, part->model_name, part_name);
+					part->mesh_index = cal_load_mesh (actor_def, part->model_name, part_name);
 			} else if(xmlStrcasecmp(item->name, (xmlChar*)"skin") == 0) {
 				get_string_value (part->skin_name, sizeof (part->skin_name), item);
 			} else if(xmlStrcasecmp(item->name, (xmlChar*)"skinmask") == 0) {
@@ -3534,24 +3534,24 @@ int parse_actor_body_part (actor_types *act, body_part *part, const xmlNode *cfg
 		if(*part->model_name=='\0'){
 			get_item_string_value(part->model_name, sizeof(part->model_name), default_node, (xmlChar*)"mesh");
 			if(strcmp("shield",part_name)==0)
-				part->mesh_index= cal_load_weapon_mesh(act, part->model_name, part_name);
+				part->mesh_index= cal_load_weapon_mesh(actor_def, part->model_name, part_name);
 			else
-				part->mesh_index= cal_load_mesh(act, part->model_name, part_name);
+				part->mesh_index= cal_load_mesh(actor_def, part->model_name, part_name);
 		}
 	}
 
 	// check the critical information
 	if(strcmp(part_name, "head")){ // heads don't have separate skins here
-		actor_check_string(act, part_name, "skin", part->skin_name);
+		actor_check_string(actor_def, part_name, "skin", part->skin_name);
 	}
-	actor_check_string(act, part_name, "model", part->model_name);
-	actor_check_int(act, part_name, "mesh", part->mesh_index);
+	actor_check_string(actor_def, part_name, "model", part->model_name);
+	actor_check_int(actor_def, part_name, "mesh", part->mesh_index);
 
 
 	return ok;
 }
 
-int parse_actor_helmet (actor_types *act, const xmlNode *cfg, const xmlNode *defaults)
+int parse_actor_helmet (actor_types *actor_def, const xmlNode *cfg, const xmlNode *defaults)
 {
 	const xmlNode *default_node= get_default_node(cfg, defaults);
 	int type_idx;
@@ -3569,19 +3569,19 @@ int parse_actor_helmet (actor_types *act, const xmlNode *cfg, const xmlNode *def
 		return 0;
 	}
 
-	if (act->helmet == NULL) {
+	if (actor_def->helmet == NULL) {
 		int i;
-		act->helmet = (body_part*)calloc(actor_part_sizes[ACTOR_HELMET_SIZE], sizeof(body_part));
-		for (i = actor_part_sizes[ACTOR_HELMET_SIZE]; i--;) act->helmet[i].mesh_index= -1;
+		actor_def->helmet = (body_part*)calloc(actor_part_sizes[ACTOR_HELMET_SIZE], sizeof(body_part));
+		for (i = actor_part_sizes[ACTOR_HELMET_SIZE]; i--;) actor_def->helmet[i].mesh_index= -1;
 	}
 
-	helmet= &(act->helmet[type_idx]);
+	helmet= &(actor_def->helmet[type_idx]);
 
 
-	return parse_actor_body_part(act,helmet, cfg->children, "helmet", default_node);
+	return parse_actor_body_part(actor_def,helmet, cfg->children, "helmet", default_node);
 }
 
-int parse_actor_neck (actor_types *act, const xmlNode *cfg, const xmlNode *defaults)
+int parse_actor_neck (actor_types *actor_def, const xmlNode *cfg, const xmlNode *defaults)
 {
 	const xmlNode *default_node = get_default_node(cfg, defaults);
 	int type_idx;
@@ -3596,19 +3596,19 @@ int parse_actor_neck (actor_types *act, const xmlNode *cfg, const xmlNode *defau
 		return 0;
 	}
 
-	if (act->neck == NULL) {
+	if (actor_def->neck == NULL) {
 		int i;
-		act->neck = (body_part*)calloc(actor_part_sizes[ACTOR_NECK_SIZE], sizeof(body_part));
-		for (i = actor_part_sizes[ACTOR_NECK_SIZE]; i--;) act->neck[i].mesh_index= -1;
+		actor_def->neck = (body_part*)calloc(actor_part_sizes[ACTOR_NECK_SIZE], sizeof(body_part));
+		for (i = actor_part_sizes[ACTOR_NECK_SIZE]; i--;) actor_def->neck[i].mesh_index= -1;
 	}
 
-	neck= &(act->neck[type_idx]);
+	neck= &(actor_def->neck[type_idx]);
 
-	return parse_actor_body_part(act,neck, cfg->children, "neck", default_node);
+	return parse_actor_body_part(actor_def,neck, cfg->children, "neck", default_node);
 }
 
 #ifdef NEW_SOUND
-int parse_actor_sounds(actor_types *act, const xmlNode *cfg)
+int parse_actor_sounds(actor_types *actor_def, const xmlNode *cfg)
 {
 	const xmlNode *item;
 	char str[255];
@@ -3623,44 +3623,44 @@ int parse_actor_sounds(actor_types *act, const xmlNode *cfg)
 		if (item->type == XML_ELEMENT_NODE) {
 			get_string_value (str,sizeof(str),item);
 			if (xmlStrcasecmp (item->name, (xmlChar*)"walk") == 0) {
-				cal_set_anim_sound(&act->cal_frames[cal_actor_walk_frame], str, get_string_property(item, "sound_scale"));
+				cal_set_anim_sound(&actor_def->cal_frames[cal_actor_walk_frame], str, get_string_property(item, "sound_scale"));
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"run") == 0) {
-				cal_set_anim_sound(&act->cal_frames[cal_actor_run_frame], str, get_string_property(item, "sound_scale"));
+				cal_set_anim_sound(&actor_def->cal_frames[cal_actor_run_frame], str, get_string_property(item, "sound_scale"));
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"die1") == 0) {
-				cal_set_anim_sound(&act->cal_frames[cal_actor_die1_frame], str, get_string_property(item, "sound_scale"));
+				cal_set_anim_sound(&actor_def->cal_frames[cal_actor_die1_frame], str, get_string_property(item, "sound_scale"));
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"die2") == 0) {
-				cal_set_anim_sound(&act->cal_frames[cal_actor_die2_frame], str, get_string_property(item, "sound_scale"));
+				cal_set_anim_sound(&actor_def->cal_frames[cal_actor_die2_frame], str, get_string_property(item, "sound_scale"));
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"pain1") == 0) {
-				cal_set_anim_sound(&act->cal_frames[cal_actor_pain1_frame], str, get_string_property(item, "sound_scale"));
+				cal_set_anim_sound(&actor_def->cal_frames[cal_actor_pain1_frame], str, get_string_property(item, "sound_scale"));
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"pain2") == 0) {
-				cal_set_anim_sound(&act->cal_frames[cal_actor_pain2_frame], str, get_string_property(item, "sound_scale"));
+				cal_set_anim_sound(&actor_def->cal_frames[cal_actor_pain2_frame], str, get_string_property(item, "sound_scale"));
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"pick") == 0) {
-				cal_set_anim_sound(&act->cal_frames[cal_actor_pick_frame], str, get_string_property(item, "sound_scale"));
+				cal_set_anim_sound(&actor_def->cal_frames[cal_actor_pick_frame], str, get_string_property(item, "sound_scale"));
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"drop") == 0) {
-				cal_set_anim_sound(&act->cal_frames[cal_actor_drop_frame], str, get_string_property(item, "sound_scale"));
+				cal_set_anim_sound(&actor_def->cal_frames[cal_actor_drop_frame], str, get_string_property(item, "sound_scale"));
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"harvest") == 0) {
-				cal_set_anim_sound(&act->cal_frames[cal_actor_harvest_frame], str, get_string_property(item, "sound_scale"));
+				cal_set_anim_sound(&actor_def->cal_frames[cal_actor_harvest_frame], str, get_string_property(item, "sound_scale"));
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"attack_cast") == 0) {
-				cal_set_anim_sound(&act->cal_frames[cal_actor_attack_cast_frame], str, get_string_property(item, "sound_scale"));
+				cal_set_anim_sound(&actor_def->cal_frames[cal_actor_attack_cast_frame], str, get_string_property(item, "sound_scale"));
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"attack_ranged") == 0) {
-				cal_set_anim_sound(&act->cal_frames[cal_actor_attack_ranged_frame], str, get_string_property(item, "sound_scale"));
+				cal_set_anim_sound(&actor_def->cal_frames[cal_actor_attack_ranged_frame], str, get_string_property(item, "sound_scale"));
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"sit_down") == 0) {
-				cal_set_anim_sound(&act->cal_frames[cal_actor_sit_down_frame], str, get_string_property(item, "sound_scale"));
+				cal_set_anim_sound(&actor_def->cal_frames[cal_actor_sit_down_frame], str, get_string_property(item, "sound_scale"));
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"stand_up") == 0) {
-				cal_set_anim_sound(&act->cal_frames[cal_actor_stand_up_frame], str, get_string_property(item, "sound_scale"));
+				cal_set_anim_sound(&actor_def->cal_frames[cal_actor_stand_up_frame], str, get_string_property(item, "sound_scale"));
 			// These sounds are only found in the <sounds> block as they aren't tied to an animation
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"battlecry") == 0) {
 				i = get_index_for_sound_type_name(str);
 				if (i == -1)
-					LOG_ERROR("Unknown battlecry sound (%s) in actor def: %s", str, act->actor_name);
+					LOG_ERROR("Unknown battlecry sound (%s) in actor def: %s", str, actor_def->actor_name);
 				else
 				{
-					act->battlecry.sound = i;
+					actor_def->battlecry.sound = i;
 					safe_strncpy(str, get_string_property(item, "sound_scale"), sizeof(str));
 					if (strcasecmp(str, ""))
-						act->battlecry.scale = atof(str);
+						actor_def->battlecry.scale = atof(str);
 					else
-						act->battlecry.scale = 1.0f;
+						actor_def->battlecry.scale = 1.0f;
 				}
 			} else {
 				LOG_ERROR("Unknown sound \"%s\"", item->name);
@@ -3673,7 +3673,7 @@ int parse_actor_sounds(actor_types *act, const xmlNode *cfg)
 }
 #endif	//NEW_SOUND
 
-int parse_actor_cape (actor_types *act, const xmlNode *cfg, const xmlNode *defaults)
+int parse_actor_cape (actor_types *actor_def, const xmlNode *cfg, const xmlNode *defaults)
 {
 	const xmlNode *default_node = get_default_node(cfg, defaults);
 	int type_idx;
@@ -3691,19 +3691,19 @@ int parse_actor_cape (actor_types *act, const xmlNode *cfg, const xmlNode *defau
 		return 0;
 	}
 
-	if (act->cape == NULL) {
+	if (actor_def->cape == NULL) {
 		int i;
-		act->cape = (body_part*)calloc(actor_part_sizes[ACTOR_CAPE_SIZE], sizeof(body_part));
-		for (i = actor_part_sizes[ACTOR_CAPE_SIZE]; i--;) act->cape[i].mesh_index= -1;
+		actor_def->cape = (body_part*)calloc(actor_part_sizes[ACTOR_CAPE_SIZE], sizeof(body_part));
+		for (i = actor_part_sizes[ACTOR_CAPE_SIZE]; i--;) actor_def->cape[i].mesh_index= -1;
 	}
 
-	cape= &(act->cape[type_idx]);
+	cape= &(actor_def->cape[type_idx]);
 
 
-	return parse_actor_body_part(act,cape, cfg->children, "cape", default_node);
+	return parse_actor_body_part(actor_def,cape, cfg->children, "cape", default_node);
 }
 
-int parse_actor_head (actor_types *act, const xmlNode *cfg, const xmlNode *defaults)
+int parse_actor_head (actor_types *actor_def, const xmlNode *cfg, const xmlNode *defaults)
 {
 	const xmlNode *default_node= get_default_node(cfg, defaults);
 	int type_idx;
@@ -3721,20 +3721,20 @@ int parse_actor_head (actor_types *act, const xmlNode *cfg, const xmlNode *defau
 		return 0;
 	}
 
-	if (act->head == NULL) {
+	if (actor_def->head == NULL) {
 		int i;
-		act->head = (body_part*)calloc(actor_part_sizes[ACTOR_HEAD_SIZE], sizeof(body_part));
-		for (i = actor_part_sizes[ACTOR_HEAD_SIZE]; i--;) act->head[i].mesh_index= -1;
+		actor_def->head = (body_part*)calloc(actor_part_sizes[ACTOR_HEAD_SIZE], sizeof(body_part));
+		for (i = actor_part_sizes[ACTOR_HEAD_SIZE]; i--;) actor_def->head[i].mesh_index= -1;
 	}
 
-	head= &(act->head[type_idx]);
+	head= &(actor_def->head[type_idx]);
 
 
 
-	return parse_actor_body_part(act, head, cfg->children, "head", default_node);
+	return parse_actor_body_part(actor_def, head, cfg->children, "head", default_node);
 }
 
-int parse_actor_shield_part (actor_types *act, shield_part *part, const xmlNode *cfg, const xmlNode *default_node)
+int parse_actor_shield_part (actor_types *actor_def, shield_part *part, const xmlNode *cfg, const xmlNode *default_node)
 {
 	const xmlNode *item;
 	int ok = 1;
@@ -3745,7 +3745,7 @@ int parse_actor_shield_part (actor_types *act, shield_part *part, const xmlNode 
 		if(item->type == XML_ELEMENT_NODE) {
 			if(xmlStrcasecmp(item->name, (xmlChar*)"mesh") == 0) {
 				get_string_value (part->model_name, sizeof (part->model_name), item);
-				part->mesh_index = cal_load_weapon_mesh (act, part->model_name, "shield");
+				part->mesh_index = cal_load_weapon_mesh (actor_def, part->model_name, "shield");
 			} else if(xmlStrcasecmp(item->name, (xmlChar*)"skin") == 0) {
 				get_string_value (part->skin_name, sizeof (part->skin_name), item);
 			} else if(xmlStrcasecmp(item->name, (xmlChar*)"skinmask") == 0) {
@@ -3767,19 +3767,19 @@ int parse_actor_shield_part (actor_types *act, shield_part *part, const xmlNode 
 	if(default_node){
 		if(*part->model_name=='\0'){
 			get_item_string_value(part->model_name, sizeof(part->model_name), default_node, (xmlChar*)"mesh");
-			part->mesh_index= cal_load_weapon_mesh(act, part->model_name, "shield");
+			part->mesh_index= cal_load_weapon_mesh(actor_def, part->model_name, "shield");
 		}
 	}
 
 	// check the critical information
-	actor_check_string(act, "shield", "model", part->model_name);
-	actor_check_int(act, "shield", "mesh", part->mesh_index);
+	actor_check_string(actor_def, "shield", "model", part->model_name);
+	actor_check_int(actor_def, "shield", "mesh", part->mesh_index);
 
 
 	return ok;
 }
 
-int parse_actor_shield (actor_types *act, const xmlNode *cfg, const xmlNode *defaults)
+int parse_actor_shield (actor_types *actor_def, const xmlNode *cfg, const xmlNode *defaults)
 {
 	const xmlNode *default_node = get_default_node(cfg, defaults);
 	int type_idx;
@@ -3797,22 +3797,22 @@ int parse_actor_shield (actor_types *act, const xmlNode *cfg, const xmlNode *def
 		return 0;
 	}
 
-	if (act->shield == NULL) {
+	if (actor_def->shield == NULL) {
 		int i;
-		act->shield = (shield_part*)calloc(actor_part_sizes[ACTOR_SHIELD_SIZE], sizeof(shield_part));
+		actor_def->shield = (shield_part*)calloc(actor_part_sizes[ACTOR_SHIELD_SIZE], sizeof(shield_part));
 		for (i = actor_part_sizes[ACTOR_SHIELD_SIZE]; i--;) {
-			act->shield[i].mesh_index = -1;
-			act->shield[i].missile_type = -1;
+			actor_def->shield[i].mesh_index = -1;
+			actor_def->shield[i].missile_type = -1;
 		}
 	}
 
-	shield= &(act->shield[type_idx]);
+	shield= &(actor_def->shield[type_idx]);
 
 
-	return parse_actor_shield_part(act, shield, cfg->children, default_node);
+	return parse_actor_shield_part(actor_def, shield, cfg->children, default_node);
 }
 
-int parse_actor_hair (actor_types *act, const xmlNode *cfg, const xmlNode *defaults)
+int parse_actor_hair (actor_types *actor_def, const xmlNode *cfg, const xmlNode *defaults)
 {
 	int col_idx;
 	size_t len;
@@ -3830,21 +3830,21 @@ int parse_actor_hair (actor_types *act, const xmlNode *cfg, const xmlNode *defau
 		return 0;
 	}
 
-	if (act->hair == NULL) {
+	if (actor_def->hair == NULL) {
 		int i;
-		act->hair = (hair_part*)calloc(actor_part_sizes[ACTOR_HAIR_SIZE], sizeof(hair_part));
-		for (i = actor_part_sizes[ACTOR_HAIR_SIZE]; i--;) act->hair[i].mesh_index= -1;
+		actor_def->hair = (hair_part*)calloc(actor_part_sizes[ACTOR_HAIR_SIZE], sizeof(hair_part));
+		for (i = actor_part_sizes[ACTOR_HAIR_SIZE]; i--;) actor_def->hair[i].mesh_index= -1;
 	}
 
-	buf= act->hair[col_idx].hair_name;
-	len= sizeof (act->hair[col_idx].hair_name);
+	buf= actor_def->hair[col_idx].hair_name;
+	len= sizeof (actor_def->hair[col_idx].hair_name);
 	get_string_value(buf, len, cfg);
 
 
 	return 1;
 }
 
-int parse_actor_eyes (actor_types *act, const xmlNode *cfg, const xmlNode *defaults)
+int parse_actor_eyes (actor_types *actor_def, const xmlNode *cfg, const xmlNode *defaults)
 {
 	int col_idx;
 	size_t len;
@@ -3862,40 +3862,40 @@ int parse_actor_eyes (actor_types *act, const xmlNode *cfg, const xmlNode *defau
 		return 0;
 	}
 
-	if (act->eyes == NULL) {
+	if (actor_def->eyes == NULL) {
 		int i;
-		act->eyes = (eyes_part*)calloc(actor_part_sizes[ACTOR_EYES_SIZE], sizeof(eyes_part));
-		for (i = actor_part_sizes[ACTOR_EYES_SIZE]; i--;) act->eyes[i].mesh_index= -1;
+		actor_def->eyes = (eyes_part*)calloc(actor_part_sizes[ACTOR_EYES_SIZE], sizeof(eyes_part));
+		for (i = actor_part_sizes[ACTOR_EYES_SIZE]; i--;) actor_def->eyes[i].mesh_index= -1;
 	}
 
-	buf= act->eyes[col_idx].eyes_name;
-	len= sizeof (act->eyes[col_idx].eyes_name);
+	buf= actor_def->eyes[col_idx].eyes_name;
+	len= sizeof (actor_def->eyes[col_idx].eyes_name);
 	get_string_value(buf, len, cfg);
 
 
 	return 1;
 }
 
-int cal_get_idle_group(actor_types *act,char *name)
+int cal_get_idle_group(actor_types *actor_def,char *name)
 {
 	int i;
 	int res=-1;
 
-	for (i=0;i<act->group_count;++i) {
-		if (strcmp(name,act->idle_group[i].name)==0) res=i;
+	for (i=0;i<actor_def->group_count;++i) {
+		if (strcmp(name,actor_def->idle_group[i].name)==0) res=i;
 	}
 
 	if (res>=0) return res;//Found it, return
 
 	//Create a new named group
-	res=act->group_count;
-	safe_strncpy(act->idle_group[res].name, name, sizeof(act->idle_group[res].name));
-	++act->group_count;
+	res=actor_def->group_count;
+	safe_strncpy(actor_def->idle_group[res].name, name, sizeof(actor_def->idle_group[res].name));
+	++actor_def->group_count;
 
 	return res;
 }
 
-struct cal_anim cal_load_idle(actor_types *act, char *str)
+struct cal_anim cal_load_idle(actor_types *actor_def, char *str)
 {
 	struct cal_anim res={-1,0,0,0.0f
 #ifdef NEW_SOUND
@@ -3905,12 +3905,12 @@ struct cal_anim cal_load_idle(actor_types *act, char *str)
 	};
 	struct CalCoreAnimation *coreanim;
 
-	res.anim_index=CalCoreModel_ELLoadCoreAnimation(act->coremodel,str,act->scale);
+	res.anim_index=CalCoreModel_ELLoadCoreAnimation(actor_def->coremodel,str,actor_def->scale);
 	if(res.anim_index == -1) {
 		LOG_ERROR("Cal3d error: %s: %s\n", str, CalError_GetLastErrorDescription());
 		return res;
 	}
-	coreanim=CalCoreModel_GetCoreAnimation(act->coremodel,res.anim_index);
+	coreanim=CalCoreModel_GetCoreAnimation(actor_def->coremodel,res.anim_index);
 
 	if (coreanim) {
 		res.duration=CalCoreAnimation_GetDuration(coreanim);
@@ -3921,17 +3921,17 @@ struct cal_anim cal_load_idle(actor_types *act, char *str)
 	return res;
 }
 
-void cal_group_addanim(actor_types *act,int gindex, char *fanim)
+void cal_group_addanim(actor_types *actor_def, int gindex, char *fanim)
 {
 	int i;
 
-	i=act->idle_group[gindex].count;
-	act->idle_group[gindex].anim[i]=cal_load_idle(act,fanim);
+	i=actor_def->idle_group[gindex].count;
+	actor_def->idle_group[gindex].anim[i]=cal_load_idle(actor_def,fanim);
 	//LOG_TO_CONSOLE(c_green2,fanim);
-	++act->idle_group[gindex].count;
+	++actor_def->idle_group[gindex].count;
 }
 
-void parse_idle_group (actor_types *act, const char *str)
+void parse_idle_group (actor_types *actor_def, const char *str)
 {
 	char gname[255]={0};
 	char fname[255]={0};
@@ -3940,15 +3940,15 @@ void parse_idle_group (actor_types *act, const char *str)
 
 	if (sscanf (str, "%254s %254s", gname, fname) != 2) return;
 
-	gindex=cal_get_idle_group(act,gname);
-	cal_group_addanim(act,gindex,fname);
+	gindex=cal_get_idle_group(actor_def,gname);
+	cal_group_addanim(actor_def,gindex,fname);
 	//safe_snprintf(temp, sizeof(temp), "%d",gindex);
 	//LOG_TO_CONSOLE(c_green2,gname);
 	//LOG_TO_CONSOLE(c_green2,fname);
 	//LOG_TO_CONSOLE(c_green2,temp);
 }
 
-int parse_actor_frames (actor_types *act, const xmlNode *cfg, const xmlNode *defaults)
+int parse_actor_frames (actor_types *actor_def, const xmlNode *cfg, const xmlNode *defaults)
 {
 	const xmlNode *item;
 	char str[255];
@@ -3961,9 +3961,9 @@ int parse_actor_frames (actor_types *act, const xmlNode *cfg, const xmlNode *def
 			int index = -1;
 			if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_IDLE_GROUP") == 0) {
 				get_string_value (str,sizeof(str),item);
-     				//act->cal_walk_frame=cal_load_anim(act,str);
+     				//actor_def->cal_walk_frame=cal_load_anim(act,str);
 				//LOG_TO_CONSOLE(c_green2,str);
-				parse_idle_group(act,str);
+				parse_idle_group(actor_def,str);
 				//Not functional!
 				index = -2;
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_walk") == 0) {
@@ -4106,17 +4106,17 @@ int parse_actor_frames (actor_types *act, const xmlNode *cfg, const xmlNode *def
 					//load emote frame
 					j=get_int_property(item,"index");	
 					get_string_value(str, sizeof(str), item);
-					if(!act->emote_frames)
-						act->emote_frames=create_hash_table(EMOTES_FRAMES,hash_fn_int,cmp_fn_int,free);
+					if(!actor_def->emote_frames)
+						actor_def->emote_frames=create_hash_table(EMOTES_FRAMES,hash_fn_int,cmp_fn_int,free);
 					anim=calloc(1,sizeof(struct cal_anim));
-		     			*anim = cal_load_anim(act, str
+		     			*anim = cal_load_anim(actor_def, str
 #ifdef NEW_SOUND
 					, get_string_property(item, "sound")
 					, get_string_property(item, "sound_scale")
 #endif	//NEW_SOUND
 					, get_int_property(item, "duration")
 					);
-					hash_add(act->emote_frames, (void *)(uintptr_t)j, (void*)anim);
+					hash_add(actor_def->emote_frames, (void *)(uintptr_t)j, (void*)anim);
 					continue;
 				}
 			}
@@ -4124,7 +4124,7 @@ int parse_actor_frames (actor_types *act, const xmlNode *cfg, const xmlNode *def
 			if (index >= 0)
 			{
 				get_string_value(str, sizeof(str), item);
-     			act->cal_frames[index] = cal_load_anim(act, str
+     			actor_def->cal_frames[index] = cal_load_anim(actor_def, str
 #ifdef NEW_SOUND
 					, get_string_property(item, "sound")
 					, get_string_property(item, "sound_scale")
@@ -4143,11 +4143,11 @@ int parse_actor_frames (actor_types *act, const xmlNode *cfg, const xmlNode *def
 	return ok;
 }
 
-int parse_actor_attachment (actor_types *act, const xmlNode *cfg, int actor_type)
+int parse_actor_attachment (actor_types *actor_def, const xmlNode *cfg, int actor_type)
 {
 	const xmlNode *item;
 	int ok = 1;
-	attached_actors_types *att = &attached_actors_defs[act->actor_type];
+	attached_actors_types *att = &attached_actors_defs[actor_def->actor_type];
 	actor_types *held_act = NULL;
 	char str[256];
 	struct CalCoreSkeleton *skel;
@@ -4161,7 +4161,7 @@ int parse_actor_attachment (actor_types *act, const xmlNode *cfg, int actor_type
 				if (att->actor_type[actor_type].is_holder)
 					held_act = &actors_defs[actor_type];
 				else
-					held_act = act;
+					held_act = actor_def;
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"parent_bone") == 0) {
 				get_string_value (str, sizeof (str), item);
 				skel = CalCoreModel_GetCoreSkeleton(actors_defs[actor_type].coremodel);
@@ -4178,16 +4178,16 @@ int parse_actor_attachment (actor_types *act, const xmlNode *cfg, int actor_type
 				}
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"local_bone") == 0) {
 				get_string_value (str, sizeof (str), item);
-				skel = CalCoreModel_GetCoreSkeleton(act->coremodel);
+				skel = CalCoreModel_GetCoreSkeleton(actor_def->coremodel);
 				if (skel) {
 					att->actor_type[actor_type].local_bone_id = find_core_bone_id(skel, str);
 					if (att->actor_type[actor_type].local_bone_id < 0) {
-						LOG_ERROR("bone %s was not found in skeleton of actor type %d", str, act->actor_type);
+						LOG_ERROR("bone %s was not found in skeleton of actor type %d", str, actor_def->actor_type);
 						ok = 0;
 					}
 				}
 				else {
-					LOG_ERROR("the skeleton for actor type %d doesn't exist!", act->actor_type);
+					LOG_ERROR("the skeleton for actor type %d doesn't exist!", actor_def->actor_type);
 					ok = 0;
 				}
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"held_shift") == 0) {
@@ -4256,14 +4256,14 @@ int parse_actor_attachment (actor_types *act, const xmlNode *cfg, int actor_type
 				ok = 0;
 			}
 		} else if (item->type == XML_ENTITY_REF_NODE) {
-			ok &= parse_actor_attachment(act, item->children, actor_type);
+			ok &= parse_actor_attachment(actor_def, item->children, actor_type);
 		}
 	}
 
 	return ok;
 }
 
-int parse_actor_boots (actor_types *act, const xmlNode *cfg, const xmlNode *defaults)
+int parse_actor_boots (actor_types *actor_def, const xmlNode *cfg, const xmlNode *defaults)
 {
 	const xmlNode *item;
 	int ok, col_idx;
@@ -4281,13 +4281,13 @@ int parse_actor_boots (actor_types *act, const xmlNode *cfg, const xmlNode *defa
 		return 0;
 	}
 
-	if (act->boots == NULL) {
+	if (actor_def->boots == NULL) {
 		int i;
-		act->boots = (boots_part*)calloc(actor_part_sizes[ACTOR_BOOTS_SIZE], sizeof(boots_part));
-		for (i = actor_part_sizes[ACTOR_BOOTS_SIZE]; i--;) act->boots[i].mesh_index= -1;
+		actor_def->boots = (boots_part*)calloc(actor_part_sizes[ACTOR_BOOTS_SIZE], sizeof(boots_part));
+		for (i = actor_part_sizes[ACTOR_BOOTS_SIZE]; i--;) actor_def->boots[i].mesh_index= -1;
 	}
 
-	boots = &(act->boots[col_idx]);
+	boots = &(actor_def->boots[col_idx]);
 	ok = 1;
 	for (item = cfg->children; item; item = item->next) {
 		if (item->type == XML_ELEMENT_NODE) {
@@ -4295,7 +4295,7 @@ int parse_actor_boots (actor_types *act, const xmlNode *cfg, const xmlNode *defa
 				get_string_value (boots->boots_name, sizeof (boots->boots_name), item);
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"mesh") == 0) {
 				get_string_value (boots->model_name, sizeof (boots->model_name), item);
-				boots->mesh_index = cal_load_mesh (act, boots->model_name, "boots");
+				boots->mesh_index = cal_load_mesh (actor_def, boots->model_name, "boots");
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"bootsmask") == 0) {
 				get_string_value (boots->boots_mask, sizeof (boots->boots_mask), item);
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"glow") == 0) {
@@ -4319,21 +4319,21 @@ int parse_actor_boots (actor_types *act, const xmlNode *cfg, const xmlNode *defa
 			if (*boots->model_name=='\0')
 			{
 				get_item_string_value(boots->model_name, sizeof(boots->model_name), default_node, (xmlChar*)"mesh");
-				boots->mesh_index= cal_load_mesh(act, boots->model_name, "boots");
+				boots->mesh_index= cal_load_mesh(actor_def, boots->model_name, "boots");
 			}
 		}
 	}
 
 	// check the critical information
-	actor_check_string(act, "boots", "boots", boots->boots_name);
-	actor_check_string(act, "boots", "model", boots->model_name);
-	actor_check_int(act, "boots", "mesh", boots->mesh_index);
+	actor_check_string(actor_def, "boots", "boots", boots->boots_name);
+	actor_check_string(actor_def, "boots", "model", boots->model_name);
+	actor_check_int(actor_def, "boots", "mesh", boots->mesh_index);
 
 	return ok;
 }
 
 //Searches if a mesh is already loaded- TODO:MAKE THIS BETTER
-int cal_search_mesh (actor_types *act, const char *fn, const char *kind)
+int cal_search_mesh (actor_types *actor_def, const char *fn, const char *kind)
 {
 	int i;
 
@@ -4341,74 +4341,74 @@ int cal_search_mesh (actor_types *act, const char *fn, const char *kind)
 	{
 		return -1;
 	}
-	else if (act->head && strcmp (kind, "head") == 0)
+	else if (actor_def->head && strcmp (kind, "head") == 0)
 	{
 		for (i = 0; i < actor_part_sizes[ACTOR_HEAD_SIZE]; i++)
-			if (strcmp (fn, act->head[i].model_name) == 0 && act->head[i].mesh_index != -1)
-				return act->head[i].mesh_index;
+			if (strcmp (fn, actor_def->head[i].model_name) == 0 && actor_def->head[i].mesh_index != -1)
+				return actor_def->head[i].mesh_index;
 	}
-	else if (act->shirt && strcmp (kind, "shirt") == 0)
+	else if (actor_def->shirt && strcmp (kind, "shirt") == 0)
 	{
 		for (i = 0; i < actor_part_sizes[ACTOR_SHIRT_SIZE]; i++)
 		{
-			if (strcmp (fn, act->shirt[i].model_name) == 0 && act->shirt[i].mesh_index != -1)
-				return act->shirt[i].mesh_index;
+			if (strcmp (fn, actor_def->shirt[i].model_name) == 0 && actor_def->shirt[i].mesh_index != -1)
+				return actor_def->shirt[i].mesh_index;
 		}
 	}
-	else if (act->legs && strcmp (kind, "legs") == 0)
+	else if (actor_def->legs && strcmp (kind, "legs") == 0)
 	{
 		for (i = 0; i < actor_part_sizes[ACTOR_LEGS_SIZE]; i++)
 		{
-			if (strcmp (fn, act->legs[i].model_name) == 0 && act->legs[i].mesh_index != -1)
-				return act->legs[i].mesh_index;
+			if (strcmp (fn, actor_def->legs[i].model_name) == 0 && actor_def->legs[i].mesh_index != -1)
+				return actor_def->legs[i].mesh_index;
 		}
 	}
-	else if (act->boots && strcmp (kind, "boots") == 0)
+	else if (actor_def->boots && strcmp (kind, "boots") == 0)
 	{
 		for (i = 0; i < actor_part_sizes[ACTOR_BOOTS_SIZE]; i++)
 		{
-			if (strcmp (fn, act->boots[i].model_name) == 0 && act->boots[i].mesh_index != -1)
-				return act->boots[i].mesh_index;
+			if (strcmp (fn, actor_def->boots[i].model_name) == 0 && actor_def->boots[i].mesh_index != -1)
+				return actor_def->boots[i].mesh_index;
 		}
 	}
-	else if (act->cape && strcmp (kind, "cape") == 0)
+	else if (actor_def->cape && strcmp (kind, "cape") == 0)
 	{
 		for (i = 0; i < actor_part_sizes[ACTOR_CAPE_SIZE]; i++)
 		{
-			if (strcmp (fn, act->cape[i].model_name) == 0 && act->cape[i].mesh_index != -1)
-				return act->cape[i].mesh_index;
+			if (strcmp (fn, actor_def->cape[i].model_name) == 0 && actor_def->cape[i].mesh_index != -1)
+				return actor_def->cape[i].mesh_index;
 		}
 	}
-	else if (act->helmet && strcmp (kind, "helmet") == 0)
+	else if (actor_def->helmet && strcmp (kind, "helmet") == 0)
 	{
 		for (i = 0; i < actor_part_sizes[ACTOR_HELMET_SIZE]; i++)
 		{
-			if (strcmp (fn, act->helmet[i].model_name) == 0 && act->helmet[i].mesh_index != -1)
-				return act->helmet[i].mesh_index;
+			if (strcmp (fn, actor_def->helmet[i].model_name) == 0 && actor_def->helmet[i].mesh_index != -1)
+				return actor_def->helmet[i].mesh_index;
 		}
 	}
-	else if (act->neck && strcmp (kind, "neck") == 0)
+	else if (actor_def->neck && strcmp (kind, "neck") == 0)
 	{
 		for (i = 0; i < actor_part_sizes[ACTOR_NECK_SIZE]; i++)
 		{
-			if (strcmp (fn, act->neck[i].model_name) == 0 && act->neck[i].mesh_index != -1)
-				return act->neck[i].mesh_index;
+			if (strcmp (fn, actor_def->neck[i].model_name) == 0 && actor_def->neck[i].mesh_index != -1)
+				return actor_def->neck[i].mesh_index;
 		}
 	}
-	else if (act->shield && strcmp (kind, "shield") == 0)
+	else if (actor_def->shield && strcmp (kind, "shield") == 0)
 	{
 		for (i = 0; i < actor_part_sizes[ACTOR_SHIELD_SIZE]; i++)
 		{
-			if (strcmp (fn, act->shield[i].model_name) == 0 && act->shield[i].mesh_index != -1)
-				return act->shield[i].mesh_index;
+			if (strcmp (fn, actor_def->shield[i].model_name) == 0 && actor_def->shield[i].mesh_index != -1)
+				return actor_def->shield[i].mesh_index;
 		}
 	}
-	else if (act->weapon && strcmp (kind, "weapon") == 0)
+	else if (actor_def->weapon && strcmp (kind, "weapon") == 0)
 	{
 		for (i = 0; i < actor_part_sizes[ACTOR_WEAPON_SIZE]; i++)
 		{
-			if (strcmp (fn, act->weapon[i].model_name) == 0 && act->weapon[i].mesh_index != -1)
-				return act->weapon[i].mesh_index;
+			if (strcmp (fn, actor_def->weapon[i].model_name) == 0 && actor_def->weapon[i].mesh_index != -1)
+				return actor_def->weapon[i].mesh_index;
 		}
 	}
 
@@ -4416,27 +4416,27 @@ int cal_search_mesh (actor_types *act, const char *fn, const char *kind)
 }
 
 //Loads a Cal3D mesh
-int cal_load_mesh(actor_types *act, const char *fn, const char *kind)
+int cal_load_mesh(actor_types *actor_def, const char *fn, const char *kind)
 {
 	int res;
 	struct CalCoreMesh *mesh;
 
 	if (fn==0) return -1;
 	if (strlen(fn)==0) return -1;
-	if (act->coremodel==NULL) return -1;
+	if (actor_def->coremodel==NULL) return -1;
 	if (kind != NULL)
 	{
-		res = cal_search_mesh (act, fn, kind);
+		res = cal_search_mesh (actor_def, fn, kind);
 		if (res != -1) return res;
 	}
 
 	//Load coremesh
-	res=CalCoreModel_ELLoadCoreMesh(act->coremodel,fn);
+	res=CalCoreModel_ELLoadCoreMesh(actor_def->coremodel,fn);
 
 	//Scale coremesh
 	if (res >= 0) {
-		mesh=CalCoreModel_GetCoreMesh(act->coremodel,res);
-		if ((mesh)&&(act->mesh_scale!=1.0)) CalCoreMesh_Scale(mesh,act->mesh_scale);
+		mesh=CalCoreModel_GetCoreMesh(actor_def->coremodel,res);
+		if ((mesh)&&(actor_def->mesh_scale!=1.0)) CalCoreMesh_Scale(mesh,actor_def->mesh_scale);
 	} else {
 		LOG_ERROR("Cal3d error: %s: %s\n", fn, CalError_GetLastErrorDescription());
 	}
@@ -4444,28 +4444,28 @@ int cal_load_mesh(actor_types *act, const char *fn, const char *kind)
 	return res;
 }
 
-int cal_load_weapon_mesh (actor_types *act, const char *fn, const char *kind)
+int cal_load_weapon_mesh (actor_types *actor_def, const char *fn, const char *kind)
 {
 	int res;
 	struct CalCoreMesh *mesh;
 
 	if (fn==0) return -1;
 	if (strlen(fn)==0) return -1;
-	if (act->coremodel==NULL) return -1;
+	if (actor_def->coremodel==NULL) return -1;
 
 	if (kind != NULL)
 	{
-		res = cal_search_mesh (act, fn, kind);
+		res = cal_search_mesh (actor_def, fn, kind);
 		if (res!=-1) return res;
 	}
 
 	//Load coremesh
-	res=CalCoreModel_ELLoadCoreMesh(act->coremodel,fn);
+	res=CalCoreModel_ELLoadCoreMesh(actor_def->coremodel,fn);
 
 	//Scale coremesh
 	if (res>=0) {
-		mesh=CalCoreModel_GetCoreMesh(act->coremodel,res);
-		if ((mesh)&&(act->skel_scale!=1.0)) CalCoreMesh_Scale(mesh,act->skel_scale);
+		mesh=CalCoreModel_GetCoreMesh(actor_def->coremodel,res);
+		if ((mesh)&&(actor_def->skel_scale!=1.0)) CalCoreMesh_Scale(mesh,actor_def->skel_scale);
 	} else {
 		LOG_ERROR("Cal3d error: %s: %s\n", fn, CalError_GetLastErrorDescription());
 	}
@@ -4473,7 +4473,7 @@ int cal_load_weapon_mesh (actor_types *act, const char *fn, const char *kind)
 	return res;
 }
 
-int parse_actor_nodes(actor_types *act, const xmlNode *cfg, const xmlNode *defaults)
+int parse_actor_nodes(actor_types *actor_def, const xmlNode *cfg, const xmlNode *defaults)
 {
 	char name[256];
 	const xmlNode *item;
@@ -4487,67 +4487,67 @@ int parse_actor_nodes(actor_types *act, const xmlNode *cfg, const xmlNode *defau
 			my_tolower(name);
 
 			if (!strcmp(name, "ghost")) {
-				act->ghost= get_bool_value(item);
+				actor_def->ghost= get_bool_value(item);
 			} else if (!strcmp(name, "skin")) {
-				get_string_value(act->skin_name, sizeof (act->skin_name), item);
+				get_string_value(actor_def->skin_name, sizeof (actor_def->skin_name), item);
 			} else if (!strcmp(name, "mesh")) {
-				get_string_value(act->file_name, sizeof (act->file_name), item);
+				get_string_value(actor_def->file_name, sizeof (actor_def->file_name), item);
 			} else if (!strcmp(name, "actor_scale")) {
-				act->actor_scale= get_float_value(item);
+				actor_def->actor_scale= get_float_value(item);
 			} else if (!strcmp(name, "scale")) {
-				act->scale= get_float_value(item);
+				actor_def->scale= get_float_value(item);
 			} else if (!strcmp(name, "mesh_scale")) {
-				act->mesh_scale= get_float_value(item);
+				actor_def->mesh_scale= get_float_value(item);
 			} else if (!strcmp(name, "bone_scale")) {
-				act->skel_scale= get_float_value(item);
+				actor_def->skel_scale= get_float_value(item);
 			} else if (!strcmp(name, "skeleton")) {
 				char skeleton_name[MAX_FILE_PATH];
 				get_string_value(skeleton_name, sizeof(skeleton_name), item);
-				act->coremodel= CalCoreModel_New("Model");
-				if(!CalCoreModel_ELLoadCoreSkeleton(act->coremodel, skeleton_name)) {
+				actor_def->coremodel= CalCoreModel_New("Model");
+				if(!CalCoreModel_ELLoadCoreSkeleton(actor_def->coremodel, skeleton_name)) {
 					LOG_ERROR("Cal3d error: %s: %s\n", skeleton_name, CalError_GetLastErrorDescription());
-					act->skeleton_type = -1;
+					actor_def->skeleton_type = -1;
 				}
 				else {
-					act->skeleton_type = get_skeleton(act->coremodel, skeleton_name);
+					actor_def->skeleton_type = get_skeleton(actor_def->coremodel, skeleton_name);
 				}
 			} else if (!strcmp(name, "walk_speed")) { // unused
-				act->walk_speed= get_float_value(item);
+				actor_def->walk_speed= get_float_value(item);
 			} else if (!strcmp(name, "run_speed")) { // unused
-				act->run_speed= get_float_value(item);
+				actor_def->run_speed= get_float_value(item);
 			} else if (!strcmp(name, "step_duration")) {
-				act->step_duration = get_int_value(item);
+				actor_def->step_duration = get_int_value(item);
 			} else if (!strcmp(name, "defaults")) {
 				defaults= item;
 			} else if (!strcmp(name, "frames")) {
-				ok &= parse_actor_frames(act, item->children, defaults);
+				ok &= parse_actor_frames(actor_def, item->children, defaults);
 			} else if (!strcmp(name, "shirt")) {
-				ok &= parse_actor_shirt(act, item, defaults);
+				ok &= parse_actor_shirt(actor_def, item, defaults);
 			} else if (!strcmp(name, "hskin")) {
-				ok &= parse_actor_skin(act, item, defaults);
+				ok &= parse_actor_skin(actor_def, item, defaults);
 			} else if (!strcmp(name, "hair")) {
-				ok &= parse_actor_hair(act, item, defaults);
+				ok &= parse_actor_hair(actor_def, item, defaults);
 			} else if (!strcmp(name, "eyes")) {
-				ok &= parse_actor_eyes(act, item, defaults);
+				ok &= parse_actor_eyes(actor_def, item, defaults);
 			} else if (!strcmp(name, "boots")) {
-				ok &= parse_actor_boots(act, item, defaults);
+				ok &= parse_actor_boots(actor_def, item, defaults);
 			} else if (!strcmp(name, "legs")) {
-				ok &= parse_actor_legs(act, item, defaults);
+				ok &= parse_actor_legs(actor_def, item, defaults);
 			} else if (!strcmp(name, "cape")) {
-				ok &= parse_actor_cape(act, item, defaults);
+				ok &= parse_actor_cape(actor_def, item, defaults);
 			} else if (!strcmp(name, "head")) {
-				ok &= parse_actor_head(act, item, defaults);
+				ok &= parse_actor_head(actor_def, item, defaults);
 			} else if (!strcmp(name, "shield")) {
-				ok &= parse_actor_shield(act, item, defaults);
+				ok &= parse_actor_shield(actor_def, item, defaults);
 			} else if (!strcmp(name, "weapon")) {
-				ok &= parse_actor_weapon(act, item, defaults);
+				ok &= parse_actor_weapon(actor_def, item, defaults);
 			} else if (!strcmp(name, "helmet")) {
-				ok &= parse_actor_helmet(act, item, defaults);
+				ok &= parse_actor_helmet(actor_def, item, defaults);
 			} else if (!strcmp(name, "neck")) {
-				ok &= parse_actor_neck(act, item, defaults);
+				ok &= parse_actor_neck(actor_def, item, defaults);
 			} else if (!strcmp(name, "sounds")) {
 #ifdef NEW_SOUND
-				ok &= parse_actor_sounds(act, item->children);
+				ok &= parse_actor_sounds(actor_def, item->children);
 #endif	//NEW_SOUND
 			} else if (!strcmp(name, "actor_attachment")) {
 				int id = get_int_property(item, "id");
@@ -4556,13 +4556,13 @@ int parse_actor_nodes(actor_types *act, const xmlNode *cfg, const xmlNode *defau
 					ok = 0;
 				}
 				else
-					ok &= parse_actor_attachment(act, item, id);
+					ok &= parse_actor_attachment(actor_def, item, id);
 			} else {
 				LOG_ERROR("Unknown actor attribute \"%s\"", item->name);
 				ok= 0;
 			}
 		} else if (item->type == XML_ENTITY_REF_NODE) {
-			ok &= parse_actor_nodes(act, item->children, defaults);
+			ok &= parse_actor_nodes(actor_def, item->children, defaults);
 		}
 	}
 	return ok;
@@ -4572,7 +4572,7 @@ int parse_actor_script(const xmlNode *cfg)
 {
 	int ok, act_idx, i;
 	int j;
-	actor_types *act;
+	actor_types *actor_def;
 	struct CalCoreSkeleton *skel;
 
 	if(cfg == NULL || cfg->children == NULL) return 0;
@@ -4588,36 +4588,36 @@ int parse_actor_script(const xmlNode *cfg)
 		return 0;
 	}
 
-	act= &(actors_defs[act_idx]);
+	actor_def= &(actors_defs[act_idx]);
 	// watch for loading an actor more then once
-	if(act->actor_type > 0 || *act->actor_name){
+	if(actor_def->actor_type > 0 || *actor_def->actor_name){
 		LOG_ERROR("Data Error in %s(%d): Already loaded %s(%d)",
-			get_string_property(cfg, "type"), act_idx, act->actor_name, act->actor_type);
+			get_string_property(cfg, "type"), act_idx, actor_def->actor_name, actor_def->actor_type);
 	}
-	act->actor_type= act_idx;	// memorize the ID & name to help in debugging
-	safe_strncpy(act->actor_name, get_string_property(cfg, "type"), sizeof(act->actor_name));
-	actor_check_string(act, "actor", "name", act->actor_name);
+	actor_def->actor_type= act_idx;	// memorize the ID & name to help in debugging
+	safe_strncpy(actor_def->actor_name, get_string_property(cfg, "type"), sizeof(actor_def->actor_name));
+	actor_check_string(actor_def, "actor", "name", actor_def->actor_name);
 
 	//Initialize Cal3D settings
-	act->coremodel= NULL;
-	act->actor_scale= 1.0;
-	act->scale= 1.0;
-	act->mesh_scale= 1.0;
-	act->skel_scale= 1.0;
-	act->group_count= 0;
+	actor_def->coremodel= NULL;
+	actor_def->actor_scale= 1.0;
+	actor_def->scale= 1.0;
+	actor_def->mesh_scale= 1.0;
+	actor_def->skel_scale= 1.0;
+	actor_def->group_count= 0;
 	for (i=0; i<16; ++i) {
-		safe_strncpy(act->idle_group[i].name, "", sizeof(act->idle_group[i].name));
-		act->idle_group[i].count= 0;
+		safe_strncpy(actor_def->idle_group[i].name, "", sizeof(actor_def->idle_group[i].name));
+		actor_def->idle_group[i].count= 0;
 	}
 
 	for (i = 0; i < NUM_ACTOR_FRAMES; i++) {
-		act->cal_frames[i].anim_index= -1;
+		actor_def->cal_frames[i].anim_index= -1;
 #ifdef NEW_SOUND
-		act->cal_frames[i].sound= -1;
+		actor_def->cal_frames[i].sound= -1;
 #endif // NEW_SOUND
 	}
 #ifdef NEW_SOUND
-	act->battlecry.sound = -1;
+	actor_def->battlecry.sound = -1;
 #endif // NEW_SOUND
 
 	for (i = 0; i < MAX_ACTOR_DEFS; ++i)
@@ -4630,29 +4630,29 @@ int parse_actor_script(const xmlNode *cfg)
 		}
 	}
 
-	act->step_duration = DEFAULT_STEP_DURATION; // default value
+	actor_def->step_duration = DEFAULT_STEP_DURATION; // default value
 
-	ok= parse_actor_nodes(act, cfg, NULL);
+	ok= parse_actor_nodes(actor_def, cfg, NULL);
 
 	// TODO: add error checking for missing actor information
 
 	//Actor def parsed, now setup the coremodel
-	if (act->coremodel!=NULL)
+	if (actor_def->coremodel!=NULL)
 	{
-		skel=CalCoreModel_GetCoreSkeleton(act->coremodel);
+		skel=CalCoreModel_GetCoreSkeleton(actor_def->coremodel);
 		if(skel){
-			CalCoreSkeleton_Scale(skel,act->skel_scale);
+			CalCoreSkeleton_Scale(skel,actor_def->skel_scale);
 		}
 
 		// If this not an enhanced actor, load the single mesh and exit
-		if(!act->head || strcmp (act->head[0].model_name, "") == 0)
+		if(!actor_def->head || strcmp (actor_def->head[0].model_name, "") == 0)
 		{
-			act->shirt = (shirt_part*)calloc(actor_part_sizes[ACTOR_SHIRT_SIZE], sizeof(shirt_part));
-			act->shirt[0].mesh_index= cal_load_mesh(act, act->file_name, NULL); //save the single meshindex as torso
+			actor_def->shirt = (shirt_part*)calloc(actor_part_sizes[ACTOR_SHIRT_SIZE], sizeof(shirt_part));
+			actor_def->shirt[0].mesh_index= cal_load_mesh(actor_def, actor_def->file_name, NULL); //save the single meshindex as torso
 		}
 		if (use_animation_program)
 		{
-			build_buffers(act);
+			build_buffers(actor_def);
 		}
 	}
 
