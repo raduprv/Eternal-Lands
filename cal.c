@@ -394,7 +394,7 @@ struct cal_anim cal_load_anim(actor_types *act, const char *str, int duration)
 		res.sound_scale = 1.0f;
 #endif	//NEW_SOUND
 
-	res.anim_index=CalCoreModel_ELLoadCoreAnimation(act->coremodel,fname,act->scale);
+	res.anim_index=CalCoreModel_ELLoadCoreAnimation(act->coremodel,fname,act->anim_scale);
 	if(res.anim_index == -1) {
 		LOG_ERROR("Cal3d error: %s: %s\n", fname, CalError_GetLastErrorDescription());
 		return res;
@@ -619,13 +619,10 @@ void cal_render_actor(actor *act, Uint32 use_lightning, Uint32 use_textures, Uin
 	skel=CalModel_GetSkeleton(act->calmodel);
 
 	glPushMatrix();
-	// actor model rescaling
-	if(actors_defs[act->actor_type].actor_scale != 1.0){
-		glScalef(actors_defs[act->actor_type].actor_scale, actors_defs[act->actor_type].actor_scale, actors_defs[act->actor_type].actor_scale);
-	}
-	// the dynamic scaling
-	if(act->scale != 1.0f){
-		glScalef(act->scale,act->scale,act->scale);
+
+	float scale = get_actor_scale(act);
+	if (scale != 1.0){
+		glScalef(scale, scale, scale);
 	}
 
 #ifdef	DYNAMIC_ANIMATIONS

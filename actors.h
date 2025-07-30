@@ -308,10 +308,15 @@ typedef struct
 	char file_name[256];
 	/*! \} */
 
+	// Actor model scale (outside Cal3D).
 	float actor_scale;
-	float scale;
+	// Cal3D mesh geometry scale.
 	float mesh_scale;
+	// Cal3D skeleton scale.
 	float skel_scale;
+	// Cal3D animation scale. Generally this should be the same as the skeleton
+	// scale unless you want to intentionally deform the mesh during animations.
+	float anim_scale;
 
 	struct CalCoreModel *coremodel;
 	struct CalHardwareModel* hardware_model;
@@ -733,11 +738,10 @@ static __inline__ float get_actor_z(const actor *a)
  * \param a the actor
  * \return the scale factor of the actor
  */
-static __inline__ float get_actor_scale(const actor *a)
+static __inline__ float get_actor_scale(const actor *act)
 {
-	float scale = a->scale;
-	scale *= actors_defs[a->actor_type].actor_scale;
-	return scale;
+	// Actor's dynamic scale received from server * static scale read from actor def xml.
+	return act->scale * actors_defs[act->actor_type].actor_scale;
 }
 
 /*!
