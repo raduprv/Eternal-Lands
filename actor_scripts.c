@@ -1841,7 +1841,7 @@ static void next_actor_command(actor* act, actor *attached, void* UNUSED(data),
 					if (actors_defs[actor_type].actor_scale != 1.0)
 						act->cur_anim.duration_scale /= actors_defs[actor_type].actor_scale;
 					else
-						act->cur_anim.duration_scale /= actors_defs[actor_type].scale;
+						act->cur_anim.duration_scale /= actors_defs[actor_type].anim_scale;
 					if (dx != 0 && dy != 0)
 						act->cur_anim.duration_scale *= 1.4142315;
 				}
@@ -3905,7 +3905,7 @@ struct cal_anim cal_load_idle(actor_types *act, char *str)
 	};
 	struct CalCoreAnimation *coreanim;
 
-	res.anim_index=CalCoreModel_ELLoadCoreAnimation(act->coremodel,str,act->scale);
+	res.anim_index=CalCoreModel_ELLoadCoreAnimation(act->coremodel,str,act->anim_scale);
 	if(res.anim_index == -1) {
 		LOG_ERROR("Cal3d error: %s: %s\n", str, CalError_GetLastErrorDescription());
 		return res;
@@ -4494,8 +4494,8 @@ int parse_actor_nodes(actor_types *act, const xmlNode *cfg, const xmlNode *defau
 				get_string_value(act->file_name, sizeof (act->file_name), item);
 			} else if (!strcmp(name, "actor_scale")) {
 				act->actor_scale= get_float_value(item);
-			} else if (!strcmp(name, "scale")) {
-				act->scale= get_float_value(item);
+			} else if (!strcmp(name, "scale")) { // TODO: Rename to anim_scale once xml is updated.
+				act->anim_scale= get_float_value(item);
 			} else if (!strcmp(name, "mesh_scale")) {
 				act->mesh_scale= get_float_value(item);
 			} else if (!strcmp(name, "bone_scale")) {
@@ -4601,9 +4601,9 @@ int parse_actor_script(const xmlNode *cfg)
 	//Initialize Cal3D settings
 	act->coremodel= NULL;
 	act->actor_scale= 1.0;
-	act->scale= 1.0;
 	act->mesh_scale= 1.0;
 	act->skel_scale= 1.0;
+	act->anim_scale= 1.0;
 	act->group_count= 0;
 	for (i=0; i<16; ++i) {
 		safe_strncpy(act->idle_group[i].name, "", sizeof(act->idle_group[i].name));
