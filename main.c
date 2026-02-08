@@ -410,6 +410,9 @@ int start_rendering()
 	LOG_INFO("SDL_Quit()");
 	SDL_Quit();
 
+	LOG_INFO("close_chat_svr_log_files()");
+	close_chat_svr_log_files();
+
 	LOG_INFO("exit_logging()");
 	exit_logging();
 

@@ -819,6 +819,10 @@ static void change_rotate_chat_log(int *value)
 {
 	*value = !*value;
 
+	/* make sure we use the new log mode immediately - for the next message */
+	rotate_chat_log = -1;
+	close_chat_svr_log_files();
+
 	/* create the flag file if we are switching on chat log rotate */
 	if (*value && (file_exists_config(rotate_chat_log_flag_file)!=1))
 	{

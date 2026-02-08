@@ -243,6 +243,17 @@ void write_to_log (Uint8 channel, const Uint8* const data, int len);
 
 /*!
  * \ingroup text_font
+ * \brief   Close the chat and server logfiles.
+ *
+ *      Close the chat and server logfiles.  They will
+ *      be reopened, potentially with new names, next time we
+ *      try to write.
+ *
+ */
+void close_chat_svr_log_files(void);
+
+/*!
+ * \ingroup text_font
  * \brief   Sends the current input text to the server
  *
  *      Sends the current text in input_text_line to the server.

@@ -2,6 +2,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <time.h>
+#include <errno.h>
 #include "text.h"
 #include "achievements.h"
 #include "actors_list.h"
@@ -152,6 +153,7 @@ int log_chat = LOG_SERVER;
 
 FILE	*chat_log=NULL;
 FILE	*srv_log=NULL;
+static long log_suffix = 0L;
 
 #ifndef NEW_SOUND
 int afk_snd_warning = 0;
@@ -210,6 +212,35 @@ void cleanup_text_buffers(void)
 		free_text_message_data (display_text_buffer + i);
 }
 
+// return the log file prefix based on the specified time
+static long get_log_suffix(struct tm *l_time)
+{
+	char logsuffix[11]; // should be good until the year 99999999, or testing with %H%M added :)
+	long val = 0;
+	strftime(logsuffix, sizeof(logsuffix), "%Y%m", l_time);
+	errno = 0;
+	val = strtol(logsuffix, NULL, 10);
+	if (errno == ERANGE)
+		val = 0;
+	return val;
+}
+
+// close the chat and server log file if open
+// they will reopne when writing the next message
+void close_chat_svr_log_files()
+{
+	if (chat_log != NULL)
+	{
+		fclose(chat_log);
+		chat_log = NULL;
+	}
+	if (srv_log != NULL)
+	{
+		fclose(srv_log);
+		srv_log = NULL;
+	}
+}
+
 void open_chat_log(){
 	char starttime[200], sttime[200];
 	struct tm *l_time; time_t c_time;
@@ -222,10 +253,9 @@ void open_chat_log(){
 
 	if (get_rotate_chat_log())
 	{
-		char logsuffix[7];
-		strftime(logsuffix, sizeof(logsuffix), "%Y%m", l_time);
-		safe_snprintf (chat_log_file, sizeof (chat_log_file),  "chat_log_%s.txt", logsuffix);
-		safe_snprintf (srv_log_file, sizeof (srv_log_file), "srv_log_%s.txt", logsuffix);
+		log_suffix = get_log_suffix(l_time);
+		safe_snprintf (chat_log_file, sizeof (chat_log_file),  "chat_log_%ld.txt", log_suffix);
+		safe_snprintf (srv_log_file, sizeof (srv_log_file), "srv_log_%ld.txt", log_suffix);
 	}
 	else
 	{
@@ -292,6 +322,20 @@ void write_to_log (Uint8 channel, const Uint8* const data, int len)
 		// we're not logging those
 		return;
 
+	time (&c_time);
+	l_time = localtime (&c_time);
+
+	// close the log files if we're using monthly and the date suffix has changed
+	// below, in open_chat_log(), the new files will be opened and the log_suffix updated
+	if (chat_log != NULL)
+	{
+		if (get_rotate_chat_log())
+		{
+			if (get_log_suffix(l_time) != log_suffix)
+				close_chat_svr_log_files();
+		}
+	}
+
 	if (chat_log == NULL){
 		open_chat_log();
 		if(chat_log == NULL){
@@ -302,8 +346,6 @@ void write_to_log (Uint8 channel, const Uint8* const data, int len)
 	// The file we'll write to
 	fout = (channel == CHAT_SERVER && log_chat >= 3) ? srv_log : chat_log;
 
-	time (&c_time);
-	l_time = localtime (&c_time);
 	if(!show_timestamp)
 	{
 		// Start filling the buffer with the time stamp
