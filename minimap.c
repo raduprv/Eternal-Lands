@@ -233,6 +233,7 @@ static void draw_actor_points(window_info *win, float zoom_multip, float px, flo
 				glPushMatrix();
 				glDisable(GL_TEXTURE_2D);
 				rotate_actor_points(zoom_multip,px,py);
+				glLineWidth(win->current_scale);
 				glBegin(GL_LINES);
 				elglColourN("minimap.cross");
 				glVertex2f(x-diff, y-diff);
@@ -252,13 +253,14 @@ static void draw_actor_points(window_info *win, float zoom_multip, float px, flo
 		y= float_minimap_size-(marks[i].y*size_y);
 		if (x != px || y != py)
 		{
-			float diff = 4.0f*zoom_multip;
-	
+			float diff = 4.0f * zoom_multip * win->current_scale;
+
 			if(is_within_radius(x,y,px,py,zoom_multip*(minimap_size/2-15)))
 			{
 				glPushMatrix();
 				glDisable(GL_TEXTURE_2D);
 				rotate_actor_points(zoom_multip,px,py);
+				glLineWidth(win->current_scale);
 				glBegin(GL_LINES);
 				elglColourN("minimap.servermark");
 				glVertex2f(x-diff, y-diff);
@@ -810,6 +812,7 @@ void display_minimap(void)
 		minimap_win = create_window(win_minimap, (not_on_top_now(MW_MANU) ?game_root_win : -1), 0, get_pos_x_MW(MW_MINIMAP), get_pos_y_MW(MW_MINIMAP), 
 			minimap_size, minimap_size+ELW_TITLE_HEIGHT, ELW_USE_UISCALE|ELW_CLICK_TRANSPARENT|ELW_SHOW|ELW_TITLE_NAME|ELW_ALPHA_BORDER|ELW_SWITCHABLE_OPAQUE|ELW_DRAGGABLE);
 		set_id_MW(MW_MINIMAP, minimap_win);
+		set_window_custom_scale(minimap_win, MW_MINIMAP);
 		set_window_handler(minimap_win, ELW_HANDLER_DISPLAY, &display_minimap_handler);	
 		set_window_handler(minimap_win, ELW_HANDLER_CLICK, &click_minimap_handler);	
 		set_window_handler(minimap_win, ELW_HANDLER_MOUSEOVER, &mouseover_minimap_handler);	
