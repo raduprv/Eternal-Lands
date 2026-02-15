@@ -166,7 +166,7 @@ extern "C" void unload_vertex_programs()
 	memset(vertex_program_ids, 0, sizeof(vertex_program_ids));
 }
 
-static inline void render_mesh_shader(actor_types *a, actor *act, Sint32 index, const HardwareMeshData &hmd, const bool use_glow)
+static inline void render_mesh_shader(actor_types *actor_def, actor *act, Sint32 index, const HardwareMeshData &hmd, const bool use_glow)
 {
 	Uint32 element_index, count, i;
 	Sint32 bone_id, glow;
@@ -182,18 +182,18 @@ static inline void render_mesh_shader(actor_types *a, actor *act, Sint32 index, 
 		{
 			if (act->cur_shield >= 0)
 			{
-				if ((Sint32)a->shield[act->cur_shield].mesh_index == hmd.get_mesh_index())
+				if ((Sint32)actor_def->shield[act->cur_shield].mesh_index == hmd.get_mesh_index())
 				{
 					bone_id = 21;
-					glow = a->shield[act->cur_shield].glow;
+					glow = actor_def->shield[act->cur_shield].glow;
 				}
 			}
 			if (act->cur_weapon >= 0)
 			{
-				if ((Sint32)a->weapon[act->cur_weapon].mesh_index == hmd.get_mesh_index())
+				if ((Sint32)actor_def->weapon[act->cur_weapon].mesh_index == hmd.get_mesh_index())
 				{
 					bone_id = 26;
-					glow = a->weapon[act->cur_weapon].glow;
+					glow = actor_def->weapon[act->cur_weapon].glow;
 				}
 			}
 		}
@@ -225,9 +225,9 @@ static inline void render_mesh_shader(actor_types *a, actor *act, Sint32 index, 
 			}
 		}
 
-		a->hardware_model->selectHardwareMesh(index);
+		actor_def->hardware_model->selectHardwareMesh(index);
 
-		count = a->hardware_model->getBoneCount() * 3;
+		count = actor_def->hardware_model->getBoneCount() * 3;
 		for (i = 0; i < count; i++)
 		{
 			ELglProgramLocalParameter4fvARB(GL_VERTEX_PROGRAM_ARB, i,
@@ -237,7 +237,7 @@ static inline void render_mesh_shader(actor_types *a, actor *act, Sint32 index, 
 		if (bone_id != -1)
 		{
 			glPushMatrix();
-			reverse_scale = 1.0f / a->skel_scale;
+			reverse_scale = 1.0f / actor_def->skel_scale;
 
 			skel = act->calmodel->getSkeleton();
 
@@ -249,9 +249,9 @@ static inline void render_mesh_shader(actor_types *a, actor *act, Sint32 index, 
 
 		}
 
-		element_index = a->hardware_model->getStartIndex() * a->index_size;
+		element_index = actor_def->hardware_model->getStartIndex() * actor_def->index_size;
 
-		glDrawElements(GL_TRIANGLES, a->hardware_model->getFaceCount() * 3, a->index_type,
+		glDrawElements(GL_TRIANGLES, actor_def->hardware_model->getFaceCount() * 3, actor_def->index_type,
 			reinterpret_cast<void*>(element_index));
 
 		if (bone_id != -1)
@@ -766,20 +766,20 @@ extern "C" void clear_buffers(actor_types* a)
 	delete a->hardware_model;
 }
 
-static inline void set_transformation_buffer(actor_types *a, actor *act, const Uint32 index,
+static inline void set_transformation_buffer(actor_types *actor_def, actor *act, const Uint32 index,
 	HardwareMeshData &hmd)
 {
 	Sint32 i, count;
 	const std::vector<CalBone *>& vectorBone = act->calmodel->getSkeleton()->getVectorBone();
 
-	a->hardware_model->selectHardwareMesh(index);
+	actor_def->hardware_model->selectHardwareMesh(index);
 
-	count = a->hardware_model->getBoneCount();
+	count = actor_def->hardware_model->getBoneCount();
 
 	for (i = 0; i < count; i++)
 	{
-		const CalVector &translationBoneSpace = vectorBone[a->hardware_model->getVectorHardwareMesh()[index].m_vectorBonesIndices[i]]->getTranslationBoneSpace();
-		const CalMatrix &rotationMatrix = vectorBone[a->hardware_model->getVectorHardwareMesh()[index].m_vectorBonesIndices[i]]->getTransformMatrix();
+		const CalVector &translationBoneSpace = vectorBone[actor_def->hardware_model->getVectorHardwareMesh()[index].m_vectorBonesIndices[i]]->getTranslationBoneSpace();
+		const CalMatrix &rotationMatrix = vectorBone[actor_def->hardware_model->getVectorHardwareMesh()[index].m_vectorBonesIndices[i]]->getTransformMatrix();
 
 		hmd.set_buffer_value(i * 12 +  0, rotationMatrix.dxdx);
 		hmd.set_buffer_value(i * 12 +  1, rotationMatrix.dxdy);
