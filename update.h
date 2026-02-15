@@ -12,9 +12,15 @@
 extern "C" {
 #endif
 
+// structure for server/port information from mirrors.lst
+struct update_server_struct {
+	char   host[128];
+	int    port;
+};
+
 // structure for requesting a file via http+thread
 struct http_get_struct {
-	char   server[128];
+	struct update_server_struct server;
 	char   path[256];
 	Uint8  *md5;
 	FILE   *fp;
@@ -34,6 +40,14 @@ extern int update_countdown;		/* Counter until the client restarts after an upda
  * 		The function initializes the auto update system and starts downloading if enabled
  */
 void    init_update();
+
+/*!
+ * \ingroup	update
+ * \brief	fill update_server_struct from string
+ *
+ * 		The function initializes an update_server_struct server_port info from a string
+ */
+void    fill_update_server_struct(struct update_server_struct *update_server, const char *buf);
 
 /*!
  * \ingroup	update
