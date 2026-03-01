@@ -1148,7 +1148,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 					const char *item_string = &inventory_item_string[27];
 
 					/* look for the ending, if found use it to locate the item name */
-					char *located = strstr(item_string, ", and lost the ingredients");
+					const char *located = strstr(item_string, ", and lost the ingredients");
 					if (located) item_name_len = (size_t)((located - item_string)/sizeof(char));
 
 					/* if there was no match then its not a crit fail string */

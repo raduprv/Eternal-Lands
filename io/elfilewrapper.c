@@ -344,7 +344,7 @@ static Uint32 locate_in_zip(el_zip_file_t* zip, const el_zip_file_entry_t* key)
 static void init_key(const char* file_name, el_zip_file_entry_t* key,
 	const Uint32 size, char* buffer)
 {
-	char* ptr;
+	const char* ptr;
 	Uint32 src_idx, dst_idx, len, count;
 
 	if ((key == 0) || (file_name == 0))

@@ -25,8 +25,8 @@ static const char* image_extensions[IMAGE_EXTENSIONS_MAX] =
 
 Uint32 get_file_name_len(const char* file_name)
 {
-	char* p0;
-	char* p1;
+	const char* p0;
+	const char* p1;
 	Uint32 len;
 
 	p0 = strrchr(file_name, '.');

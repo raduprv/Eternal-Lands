@@ -1296,7 +1296,7 @@ void catch_counters_text(const char* text)
 		/* look for one of the endings, if found use it to locate the item name */
 		for (i=0; i<sizeof(mess_ends)/sizeof(char *); i++)
 		{
-			char *located = strstr(item_string, mess_ends[i]);
+			const char *located = strstr(item_string, mess_ends[i]);
 			if (located)
 			{
 				to_count_name_len = (size_t)((located - item_string)/sizeof(char));

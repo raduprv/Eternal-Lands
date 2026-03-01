@@ -618,7 +618,7 @@ char *substitute_char_with_string(const char *str, char **out_str, char to_sub, 
 {
 	int amp_count = 0;
 	const char *start_ptr;
-	char *end_ptr;
+	const char *end_ptr;
 	int out_len = 0;
 	size_t alloc_len = 0;
 

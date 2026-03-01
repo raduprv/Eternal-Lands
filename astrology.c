@@ -80,7 +80,7 @@ static int display_astrology_handler (window_info *win);
 
 int is_astrology_message (const char * RawText)
 {
-	char * tmp1,*tmp2;
+	const char * tmp1,*tmp2;
 	char str[50];
 
 //check for predictors
