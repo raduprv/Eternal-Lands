@@ -67,7 +67,7 @@ static size_t no_near_actors = 0;
 static near_actor *near_actors = NULL;
 
 int cm_mouse_over_banner = 0;		/* use to trigger banner context menu */
-int player_banner_on_top = 1; /* Player banner gets unobstructed */
+int player_banner_on_top = 0;		/* Player banner gets unobstructed */
 
 //return the newly allocated actor
 static actor* create_actor (int actor_type, char * skin_name, float x_pos, float y_pos, float z_pos, float z_rot, float scale, char remappable, short skin_color, short hair_color, short eyes_color, short shirt_color, short pants_color, short boots_color, int actor_id)
@@ -492,7 +492,7 @@ static void draw_actor_banner(actor *actor_id, const actor *me, float offset_z)
 	// Input adjusted healthbar_y value to scale hy according to actor scale
 	gluProject(healthbar_x, healthbar_y, healthbar_z * actor_id->scale * actors_defs[actor_id->actor_type].actor_scale + 0.02, model, proj, view, &hx, &hy, &hz);
 	if (displaying_me && player_banner_on_top) {
-		hz = hz - 0.9; // force banner to be on top of everything
+		hz -= 0.9; // force banner to be on top of everything
 	}
 	//Save World-view and Projection matrices to allow precise raster placement of quads
 	glPushMatrix();

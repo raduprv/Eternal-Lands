@@ -3108,7 +3108,7 @@ static void init_ELC_vars(void)
 	add_var(OPT_BOOL,"player_dynamic_banner_colour", "pdbc", &dynamic_banner_colour.other_players, change_var, 1, "Dynamic Other Players Health Banner Colour", "Dynamically change the colour of the health banner for other players. It changes from green to red as they loose health.",HUD);
 	add_var(OPT_BOOL,"creature_dynamic_banner_colour", "cdbc", &dynamic_banner_colour.creatures, change_var, 1, "Dynamic Creatures Health Banner Colour", "Dynamically change the colour of the health banner for creatures. It changes from green to red as they loose health.",HUD);
 
-	add_var(OPT_BOOL,"player_banner_on_top", "pbot", &player_banner_on_top, change_var, 1, "Player Banner Always On Top", "Your banner will appear over all other banners and objects, so it's never obstructed.",HUD);
+	add_var(OPT_BOOL,"player_banner_on_top", "pbot", &player_banner_on_top, change_var, 0, "Player Banner Always On Top", "Your banner will appear over all other banners and objects, so it's never obstructed.",HUD);
 	// instance mode options
 	add_var(OPT_BOOL,"use_view_mode_instance","instance_mode",&view_mode_instance, change_var, 0, "Use instance mode banners", "Shows only your and mobs banners, adds mana bar to your banner.",HUD);
 	add_var(OPT_FLOAT,"instance_mode_banner_height","instance_mode_bheight",&view_mode_instance_banner_height,change_float,5.0f,"Your instance banner height","Sets how high the banner is located above your character",HUD,1.0,12.0,0.2);
