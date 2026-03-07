@@ -30,6 +30,7 @@ extern int yourself; 	/*!< This variable holds the actor_id (as the server sees 
 extern int you_sit; 	/*!< Specifies if you are currently sitting down.*/
 extern int sit_lock; 	/*!< The sit_lock variable holds you in a sitting position.*/
 extern int use_alpha_banner;	/*!< Use_alpha_banner defines if an alpha background is drawn behind the name/health banner.*/
+extern int player_banner_on_top; /*!< The player's overhead banner will be on top of all other banners and objects, so it will never be obstructed */
 
 /*!
  * \name	Actor types
