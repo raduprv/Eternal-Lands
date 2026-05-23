@@ -856,6 +856,9 @@ int BookWindow::click_handler(window_info *win, int mx, int my, Uint32 flags)
 	if (!book)
 		return 0;
 
+	bool turned_page = false;
+	bool link_actioned = false;
+
 	for (const auto& link: _links)
 	{
 		if (link.is_under(mx, my))
@@ -867,12 +870,19 @@ int BookWindow::click_handler(window_info *win, int mx, int my, Uint32 flags)
 			else
 			{
 				book->turn_to_page(link.target());
-				add_links(win);
+				turned_page = true;
 			}
 
-			return 1;
+			link_actioned = true;
+			break;
 		}
 	}
+
+	if (turned_page)
+		add_links(win);
+
+	if (link_actioned)
+		return 1;
 
 	return 0;
 }
