@@ -104,6 +104,9 @@ namespace ec
 			neighbors_map[distsquared] = neighbors[i];
 		}
 
+		if (neighbors_map.empty())
+			return false;
+
 		// Now, try to replace elements.
 		coord_t maxdist = neighbors_map.rbegin()->first;
 		for (int i = 0; (i < 1) || ((neighbors_map.size() < 20) && (i < 40)); i++)
