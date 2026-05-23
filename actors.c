@@ -420,6 +420,7 @@ static void draw_actor_banner(actor *actor_id, const actor *me, float offset_z)
 	double healthbar_x_len_loss=0;
 	double healthbar_x_loss_fade=1.0f;
 	double y_top, y_bottom;
+	int buffs_y = 0;
 
 	//we use health bar variables if possible, all the extras we need for ether bar are:
 	double ether_str_x_len = 0;
@@ -618,10 +619,6 @@ static void draw_actor_banner(actor *actor_id, const actor *me, float offset_z)
 				banner_width = 0.5 * (float)get_string_width_zoom((unsigned char*)actor_id->actor_name, NAME_FONT, name_font_size);
 				draw_ortho_ingame_string(hx - banner_width, name_bot_y, hz,
 					(const unsigned char*)actor_id->actor_name, 1, NAME_FONT, name_font_size, name_font_size);
-			}
-			if (view_buffs)
-			{
-				draw_buffs(actor_id, hx, hy, hz);
 			}
 
 			if(  (!actor_id->dead) && (actor_id->kind_of_actor != NPC) && (display_health_line || display_ether_line || display_food_line)){
@@ -881,8 +878,11 @@ static void draw_actor_banner(actor *actor_id, const actor *me, float offset_z)
 
 	glEnable(GL_TEXTURE_2D);
 
+	if (view_buffs)
+		buffs_y = draw_buffs(actor_id, hx, y_top + bar_y_len * 0.2, hz);
+
 	if ((actor_id->current_displayed_text_time_left>0)&&(actor_id->current_displayed_text[0] != 0)){
-		draw_actor_overtext(actor_id, me, hx, y_top, hz);
+		draw_actor_overtext(actor_id, me, hx, y_top + buffs_y, hz);
 	}
 
 	glMatrixMode(GL_PROJECTION);

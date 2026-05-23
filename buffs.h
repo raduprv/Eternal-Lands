@@ -30,7 +30,20 @@ extern int buff_icon_size;
 void update_actor_buffs(int actor_id, Uint32 in_buffs);
 void update_actor_buffs_locked(actor *act, actor *attached, Uint32 in_buffs);
 
-void draw_buffs(actor *act, float x, float y,float z);
+/*!
+ * \ingroup	network_actors
+ * \brief	Draw buffs.
+ *
+ * 		Draw the buffs for the actor using the coords.
+ *
+ * \param	act actor object actor
+ * \param	x x coord
+ * \param	y y coord
+ * \param	z z coord
+ * \retval int the scaled height of the buffs
+ * 
+ */
+int draw_buffs(actor *act, float x, float y,float z);
 
 #ifdef __cplusplus
 }

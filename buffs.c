@@ -170,12 +170,12 @@ static void update_buff_eye_candy(actor *act)
 	}
 }
 
-void draw_buffs(actor *act, float x, float y,float z)
+int draw_buffs(actor *act, float x, float y,float z)
 {
-	int scale_buff_icon_size = (int)(0.5 + buff_icon_size * get_global_scale());
-
 	if (act->buffs)
 	{
+		// scaled size of buffs
+		int scale_buff_icon_size = (int)(0.5 + buff_icon_size * get_global_scale());
 		// texture coords
 		float u_start,v_start,u_end,v_end;
 		// current texture
@@ -227,9 +227,6 @@ void draw_buffs(actor *act, float x, float y,float z)
 			texture_ids[num_buffs] = 35;
 			num_buffs++;
 		}
-		// move icons up by actor name and actor health bar
-		y = y + 1.0f/ALT_INGAME_FONT_X_LEN*SMALL_INGAME_FONT_Y_LEN*font_scales[NAME_FONT]*12.0*view_names // displayed_font_y_size from font.c
-		      + ALT_INGAME_FONT_Y_LEN*12.0*font_scales[NAME_FONT]*1.0f/ALT_INGAME_FONT_X_LEN; // healthbar_y_len from actors.c
 		for (i = 0; i < num_buffs; i++)
 		{
 			cur_tex = texture_ids[i];
@@ -259,5 +256,7 @@ void draw_buffs(actor *act, float x, float y,float z)
 	#ifdef OPENGL_TRACE
 		CHECK_GL_ERRORS();
 	#endif //OPENGL_TRACE
+		return ((num_buffs) ?scale_buff_icon_size : 0);
 	}
+	return 0;
 }
