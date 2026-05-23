@@ -142,7 +142,6 @@ namespace ec
 		}
 
 		// Set our color based on how deep into the cloud we are, based on our neighbors.  Also rebuild the neighbors vector.
-		coord_t distsquaredsum = 0;
 		Vec3 centerpoint(0.0, 0.0, 0.0);
 		for (auto neighbor: neighbors)
 			neighbor->remove_incoming_neighbor(this);
@@ -150,7 +149,6 @@ namespace ec
 
 		for (const auto& iter: neighbors_map)
 		{
-			distsquaredsum += iter.first;
 			centerpoint += iter.second->pos; //Should really be (pos - iter->second->pos); will correct this below for speed.
 			neighbors.push_back(iter.second);
 			iter.second->add_incoming_neighbor(this);
