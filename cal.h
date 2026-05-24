@@ -38,9 +38,9 @@ void cal_reset_emote_anims(actor *pActor, int cycles_too);
  */
 void cal_render_actor(actor *act, Uint32 use_lightning, Uint32 use_textures, Uint32 use_glow);
 	#ifdef NEW_SOUND
-struct cal_anim cal_load_anim(actor_types *act, const char *str, const char *sound, const char *sound_scale, int duration);
+struct cal_anim cal_load_anim(actor_types *actor_def, const char *str, const char *sound, const char *sound_scale, int duration);
 	#else
-struct cal_anim cal_load_anim(actor_types *act, const char *str, int duration);
+struct cal_anim cal_load_anim(actor_types *actor_def, const char *str, int duration);
 	#endif	//NEW_SOUND
 
 #define cal_cycle_blending_delay  0.1f	/*!< time in seconds for blending from cycle to action or cycle. */

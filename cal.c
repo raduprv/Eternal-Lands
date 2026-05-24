@@ -354,9 +354,9 @@ void cal_set_anim_sound(struct cal_anim *my_cal_anim, const char *sound, const c
 
 
 #ifdef NEW_SOUND
-struct cal_anim cal_load_anim(actor_types *act, const char *str, const char *sound, const char *sound_scale, int duration)
+struct cal_anim cal_load_anim(actor_types *actor_def, const char *str, const char *sound, const char *sound_scale, int duration)
 #else
-struct cal_anim cal_load_anim(actor_types *act, const char *str, int duration)
+struct cal_anim cal_load_anim(actor_types *actor_def, const char *str, int duration)
 #endif	//NEW_SOUND
 {
 	char fname[255]={0};
@@ -381,7 +381,7 @@ struct cal_anim cal_load_anim(actor_types *act, const char *str, int duration)
 	{
 		i = get_index_for_sound_type_name(sound);
 		if (i == -1)
-			LOG_ERROR("Unknown sound (%s) in actor def: %s", sound, act->actor_name);
+			LOG_ERROR("Unknown sound (%s) in actor def: %s", sound, actor_def->actor_name);
 		else
 			res.sound = i;
 	}
@@ -394,12 +394,12 @@ struct cal_anim cal_load_anim(actor_types *act, const char *str, int duration)
 		res.sound_scale = 1.0f;
 #endif	//NEW_SOUND
 
-	res.anim_index=CalCoreModel_ELLoadCoreAnimation(act->coremodel,fname,act->scale);
+	res.anim_index=CalCoreModel_ELLoadCoreAnimation(actor_def->coremodel,fname,actor_def->scale);
 	if(res.anim_index == -1) {
 		LOG_ERROR("Cal3d error: %s: %s\n", fname, CalError_GetLastErrorDescription());
 		return res;
 	}
-	coreanim=CalCoreModel_GetCoreAnimation(act->coremodel,res.anim_index);
+	coreanim=CalCoreModel_GetCoreAnimation(actor_def->coremodel,res.anim_index);
 
 	if (coreanim) {
 		res.duration=CalCoreAnimation_GetDuration(coreanim);
