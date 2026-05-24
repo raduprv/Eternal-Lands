@@ -48,7 +48,7 @@ unsigned int get_fsaa_mode(const unsigned int index)
 {
 	unsigned int mask;
 
-	mask = 1 << index;
+	mask = ((unsigned int)1) << index;
 
 	if ((fsaa_modes & mask) == mask)
 	{
