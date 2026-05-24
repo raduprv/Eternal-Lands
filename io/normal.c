@@ -23,7 +23,7 @@
 #ifdef _ENABLE_USUSED_CODE_
 Uint16 compress_normal(const float *normal)
 {
-	float tmp[3];
+	float tmp[3] = {0.0f, 0.0f, 0.0f};
 	float w;
 	Uint32 xbits, ybits;
 	Uint16 result;
