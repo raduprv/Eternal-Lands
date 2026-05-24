@@ -105,6 +105,7 @@ Uint32 copy_from_zip(unzFile source, zipFile dest)
 
 	memset(&info, 0, sizeof(zip_fileinfo));
 	memset(&src_info, 0, sizeof(unz_file_info64));
+	memset(&buffer, 0, sizeof(buffer));
 
 	unzGetCurrentFileInfo64(source, &src_info, file_name,
 		sizeof(file_name), 0, 0, comment, sizeof(comment));
@@ -142,6 +143,8 @@ static Uint32 check_crc_from_zip_current(unzFile source, const Uint32 size,
 	void* buffer;
 
 	buffer = malloc(size);
+
+	memset(&buffer, 0, sizeof(buffer));
 
 	unzOpenCurrentFile(source);
 
