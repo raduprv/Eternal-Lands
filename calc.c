@@ -151,7 +151,7 @@ static int reduce_stack(CalcStack* cs)
 		if (cs1->value >= 0 && cs1->value <= XPL(XPT_MAX))
 		{
 			nt.type = CALCTOK_NUM;
-			for (i = 0; i <= XPT_MAX; i++)
+			for (i = 0; i < XPT_MAX; i++)
 			{
 				if (XPL(i) >= cs1->value)
 					break;
