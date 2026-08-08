@@ -9,7 +9,7 @@ description: |
   of several character races but all are equal.
   See http://www.eternal-lands.com/
 grade: stable
-base: core20
+base: core22
 confinement: strict
 type: app
 icon: pkgfiles/snap-package/eternallands.png
