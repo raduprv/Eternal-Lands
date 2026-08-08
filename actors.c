@@ -551,7 +551,8 @@ static void draw_actor_banner(actor *actor_id, const actor *me, float offset_z)
 			}
 			else
 			{
-				float font_scale2 = font_scale*powf(1.0f+((float)abs(actor_id->damage)/2.0f)/1000.0f, 4.0);
+				int abs_damage = (abs(actor_id->damage) < 500) ?abs(actor_id->damage) : 500;
+				float font_scale2 = font_scale*powf(1.0f+((float)abs_damage/2.0f)/1000.0f, 4.0);
 				int extra_y = (view_mode_instance && displaying_me) ?view_mode_instance_damage_height * bar_y_len : 0;
 				int lines = (!(view_mode_instance && displaying_me) && (display_hp || display_health_bar) && (display_ether || display_ether_bar) && (display_food || display_food_bar)) ? 3 : 2;
 				draw_ortho_ingame_string(hx - 0.5f * (float)get_string_width_zoom(str, NAME_FONT, font_scale2*0.17),

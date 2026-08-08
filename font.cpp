@@ -1883,6 +1883,13 @@ Font& FontManager::get(Category cat, float text_zoom)
 	size_t idx = font_idxs[cat];
 	bool outline = cat != BOOK_FONT; // Don't draw an outline for book text
 
+	const float zoom_clip = 10.0;
+	if (text_zoom > zoom_clip)
+	{
+		LOG_ERROR("Font zoom of %.2f clipped at %.2f", text_zoom, zoom_clip);
+		text_zoom = zoom_clip;
+	}
+
 	if (idx > _options.size())
 	{
 #ifdef TTF
