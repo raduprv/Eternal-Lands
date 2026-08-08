@@ -47,7 +47,7 @@ parts:
       - libxrandr2
       - zlib1g
       - libpng16-16
-      - libssl1.1
+      - libssl3
       - libegl1-mesa
       - libglu1-mesa
       - libgl1-mesa-dri
