@@ -14,6 +14,11 @@ UInt32 MY_FAST_CALL CrcUpdateT4(UInt32 v, const void *data, size_t size, const U
     v = CRC_UPDATE_BYTE_2(v, *p);
   for (; size >= 4; size -= 4, p += 4)
   {
+    if (p == NULL)
+    {
+      /* printf("Avoid crash\n"); */
+      return 0;
+    }
     v ^= *(const UInt32 *)p;
     v =
       table[0x300 + (v & 0xFF)] ^

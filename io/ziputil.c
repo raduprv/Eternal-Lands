@@ -98,41 +98,43 @@ Uint32 copy_from_zip(unzFile source, zipFile dest)
 	char comment[128];
 	zip_fileinfo info;
 	unz_file_info64 src_info;
-	Uint64 size;
-	Uint8* buffer;
-	Uint32 crc;
-	int method, level;
+	int method = 0, level = 0;
 
 	memset(&info, 0, sizeof(zip_fileinfo));
 	memset(&src_info, 0, sizeof(unz_file_info64));
-	memset(&buffer, 0, sizeof(buffer));
 
-	unzGetCurrentFileInfo64(source, &src_info, file_name,
-		sizeof(file_name), 0, 0, comment, sizeof(comment));
+	if (unzGetCurrentFileInfo64(source, &src_info, file_name,
+			sizeof(file_name), 0, 0, comment, sizeof(comment)) != UNZ_OK)
+		return 0;
 
-	unzOpenCurrentFile2(source, &method, &level, 1);
+	if (unzOpenCurrentFile2(source, &method, &level, 1) == UNZ_OK)
+	{
+		Uint8* buffer = NULL;
+		Uint64 size = src_info.compressed_size;
+		Uint32 crc =src_info.crc;
 
-	size = src_info.compressed_size;
-	crc = src_info.crc;
+		buffer = (Uint8*)calloc(size, sizeof(Uint8));
 
-	buffer = malloc(size);
+		if (unzReadCurrentFile(source, buffer, size) >= 0)
+		{
+			if (unzCloseCurrentFile(source) == UNZ_OK)
+			{
+				info.tmz_date.tm_sec = src_info.tmu_date.tm_sec;
+				info.tmz_date.tm_min = src_info.tmu_date.tm_min;
+				info.tmz_date.tm_hour = src_info.tmu_date.tm_hour;
+				info.tmz_date.tm_mday = src_info.tmu_date.tm_mday;
+				info.tmz_date.tm_mon = src_info.tmu_date.tm_mon;
+				info.tmz_date.tm_year = src_info.tmu_date.tm_year;
 
-	unzReadCurrentFile(source, buffer, size);
-	unzCloseCurrentFile(source);
+				zipOpenNewFileInZip2_64(dest, file_name, &info, 0, 0, 0, 0, comment,
+					method, level, 1, 1);
+				zipWriteInFileInZip(dest, buffer, size);
+				zipCloseFileInZipRaw64(dest, src_info.uncompressed_size, crc);
+			}
+		}
 
-	info.tmz_date.tm_sec = src_info.tmu_date.tm_sec;
-	info.tmz_date.tm_min = src_info.tmu_date.tm_min;
-	info.tmz_date.tm_hour = src_info.tmu_date.tm_hour;
-	info.tmz_date.tm_mday = src_info.tmu_date.tm_mday;
-	info.tmz_date.tm_mon = src_info.tmu_date.tm_mon;
-	info.tmz_date.tm_year = src_info.tmu_date.tm_year;
-
-	zipOpenNewFileInZip2_64(dest, file_name, &info, 0, 0, 0, 0, comment,
-		method, level, 1, 1);
-	zipWriteInFileInZip(dest, buffer, size);
-	zipCloseFileInZipRaw64(dest, src_info.uncompressed_size, crc);
-
-	free(buffer);
+		free(buffer);
+	}
 
 	return 0;
 }
@@ -140,25 +142,25 @@ Uint32 copy_from_zip(unzFile source, zipFile dest)
 static Uint32 check_crc_from_zip_current(unzFile source, const Uint32 size,
 	const Uint32 crc)
 {
-	void* buffer;
-
-	buffer = malloc(size);
-
-	memset(&buffer, 0, sizeof(buffer));
-
-	unzOpenCurrentFile(source);
-
-	unzReadCurrentFile(source, buffer, size);
-	unzCloseCurrentFile(source);
-
-	if (crc != CrcCalc(buffer, size))
+	if (unzOpenCurrentFile(source) == UNZ_OK)
 	{
+		Uint8* buffer = (Uint8*)calloc(size, sizeof(Uint8));
+
+		if (unzReadCurrentFile(source, buffer, size) >= 0)
+		{
+			if (unzCloseCurrentFile(source) == UNZ_OK)
+			{
+				if (crc != CrcCalc(buffer, size))
+				{
+					free(buffer);
+
+					return 1;
+				}
+			}
+		}
+
 		free(buffer);
-
-		return 1;
 	}
-
-	free(buffer);
 
 	return 0;
 }
