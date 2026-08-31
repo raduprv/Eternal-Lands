@@ -46,31 +46,6 @@ void copy_to_clipboard(const char* text);
 void copy_to_primary(const char* text);
 #endif
 
-#if !defined OSX && !defined WINDOWS && !defined ANDROID
-
-#include <X11/Xlib.h>
-
-/*!
- * \ingroup hotkey
- * \brief Callback used when pasting is finishing.
- *
- *      A callback function used when pasting is finishing. This function is specific to the X Window system.
- *
- * \param event     the X Window event used for pasting
- *
- * \callgraph
- */
-void finishpaste(XSelectionEvent event);
-
-/*!
- * \brief called when SelectionRequest received, it sends selected text to requester.
- *
- * \param[in] e contains information about SelectionRequest event.
- */
-void process_copy(XSelectionRequestEvent* e);
-
-#endif // !def OSX && !def WINDOWS
-
 /*!
  * \brief Initialise the copy/paste routines.
  *

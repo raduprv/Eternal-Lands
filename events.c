@@ -286,14 +286,11 @@ int HandleEvent (SDL_Event *event)
 			break;
 #endif
 
-#if !defined(WINDOWS) && !defined(OSX) && !defined(ANDROID)
-		case SDL_SYSWMEVENT:
-			if (event->syswm.msg->msg.x11.event.type == SelectionNotify)
-				finishpaste(event->syswm.msg->msg.x11.event.xselection);
-			else if (event->syswm.msg->msg.x11.event.type == SelectionRequest)
-				process_copy(&event->syswm.msg->msg.x11.event.xselectionrequest);
-			break;
-#endif
+		// SDL_SYSWMEVENT/raw Xlib SelectionNotify/SelectionRequest handling
+		// removed: copy/paste now goes through SDL_Set/GetClipboardText()
+		// and SDL_Set/GetPrimarySelectionText() (see paste.c), which need
+		// no window-system-specific event plumbing and work under Wayland
+		// too (the Xlib code silently did nothing there).
 
 		case SDL_WINDOWEVENT:
 			switch (event->window.event) {

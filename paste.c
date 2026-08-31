@@ -139,221 +139,106 @@ void start_paste(widget_list *widget)
 
 #else
 
-static widget_list *paste_to_widget = NULL;
-static char* cur_text_primary = NULL;
-static char* cur_text_clipboard = NULL;
+// SDL_Set/GetClipboardText() are portable since SDL 2.0.0 and work
+// correctly under both X11 and Wayland (unlike the raw Xlib selection
+// code this replaced, which silently did nothing under Wayland — there
+// is no SDL_SYSWM_X11 subsystem to match there).
+//
+// SDL_Set/GetPrimarySelectionText() (the xterm-style middle-click
+// selection) are portable only since SDL 2.26.0, so that half is
+// compile-time guarded and simply unavailable on an older SDL2 — matches
+// the previous behaviour of never populating PRIMARY under Wayland,
+// rather than silently misbehaving.
+#include <SDL_version.h>
 
 int use_clipboard = 1;
-Atom targets_atom = None;
-
-void processpaste(Display *dpy, Window window, Atom atom)
-{
-	Atom type;
-	int actualformat;
-	unsigned long items;
-	unsigned long bytes, tmp;
-	unsigned char * value = NULL;
-
-	XGetWindowProperty(dpy, window, atom, 0, 0, 0, XA_STRING, &type, &actualformat, &items, &bytes, &value);
-	XFree(value);
-	// From the XGetWindowProperty man page:
-	// *) The length parameter is in 32 bit units, so we can divide
-	//    bytes by four (rounding up
-	// *) It always allocates one extra byte and sets it to zero, so
-	//    using value as a zero-terminated string should be safe
-	XGetWindowProperty(dpy, window, atom, 0, (bytes+3)/4, 1, XA_STRING, &type, &actualformat, &items, &tmp, &value);
-	if(type == XA_STRING)
-	{
-		if (paste_to_widget == NULL)
-		{
-			do_paste(value); // copy to input line
-		}
-		else
-		{
-			widget_handle_paste(paste_to_widget, (const char*) value);
-			paste_to_widget = NULL;
-		}
-	}
-	/* XGetWindowProperty allocated this, so we have to free it */
-	if(value)
-	{
-		XFree(value);
-	}
-}
-
-static void start_paste_from_target(widget_list *widget, int clipboard)
-{
-	Display *dpy;
-	Window window;
-	SDL_SysWMinfo wminfo;
-	Atom selection;
-	Atom property;
-
-	SDL_VERSION(&wminfo.version);
-	if (SDL_GetWindowWMInfo(el_gl_window, &wminfo) && wminfo.subsystem == SDL_SYSWM_X11)
-	{
-		dpy = wminfo.info.x11.display;
-		window = wminfo.info.x11.window;
-
-		paste_to_widget = widget;
-
-		/* Set selection to XA_PRIMARY to use xterm-style select,
-		 * or CLIPBOARD to use Gnome-style cut'n'paste.
-		 * KDE3 should use CLIPBOARD also, I'm not sure about older
-		 * KDE versions */
-
-		if (clipboard)
-			selection = XInternAtom(dpy, "CLIPBOARD", 0);
-		else
-			selection = XA_PRIMARY;
-		property = XInternAtom(dpy, "PASTE", 0);
-		XConvertSelection(dpy, selection, XA_STRING, property, window, CurrentTime);
-		/* - If we used the CLIPBOARD, we don't get a SelectionNotify
-		 *   event, so we have to call processpaste immediately.
-		 * - If we used XA_PRIMARY, the selection-holder will send us a
-		 *   SelectionNotify-event, as soon as the selection is
-		 *   available for us. Then finishpaste calls processpaste
-		 */
-		// Alia: we should receive SelectionNotify event, property is NULL until it comes.
-		// Let's try to comment it :)
-		// //if(clipboard) {
-		//	processpaste(dpy, window, property);
-		//}
-	}
-}
 
 void start_paste(widget_list *widget)
 {
-	start_paste_from_target(widget, use_clipboard);
+	char *text = NULL;
+
+	if (use_clipboard)
+	{
+		text = SDL_GetClipboardText();
+	}
+	else
+	{
+#if SDL_VERSION_ATLEAST(2, 26, 0)
+		text = SDL_GetPrimarySelectionText();
+#endif
+	}
+
+	if (text == NULL || text[0] == '\0')
+	{
+		SDL_free(text);
+		return;
+	}
+
+	if (widget == NULL)
+		do_paste((const Uint8 *)text);
+	else
+		widget_handle_paste(widget, text);
+
+	SDL_free(text);
 }
 
 void start_paste_from_primary(widget_list *widget)
 {
-	start_paste_from_target(widget, 0);
-}
+	char *text = NULL;
 
-static void copy_to_clipboard_target(const char* text, int clipboard)
-{
-	Display* dpy;
-	Window window;
-	SDL_SysWMinfo wminfo;
-	Atom selection;
+#if SDL_VERSION_ATLEAST(2, 26, 0)
+	text = SDL_GetPrimarySelectionText();
+#endif
 
-	SDL_VERSION(&wminfo.version);
-	if (SDL_GetWindowWMInfo(el_gl_window, &wminfo) && wminfo.subsystem == SDL_SYSWM_X11)
+	if (text == NULL || text[0] == '\0')
 	{
-		dpy = wminfo.info.x11.display;
-		window = wminfo.info.x11.window;
-
-		if (targets_atom == None)
-			targets_atom = XInternAtom(dpy, "TARGETS", False);
-
-		if (clipboard)
-		{
-			selection = XInternAtom(dpy, "CLIPBOARD", False);
-			if (cur_text_clipboard) free(cur_text_clipboard);
-			cur_text_clipboard = strdup(text);
-		}
-		else
-		{
-			selection = XA_PRIMARY;
-			if (cur_text_primary) free(cur_text_primary);
-			cur_text_primary = strdup(text);
-		}
-		//property = XInternAtom(dpy, "PASTE", 0);
-		XSetSelectionOwner(dpy, selection, window, CurrentTime);
+		SDL_free(text);
+		return;
 	}
+
+	if (widget == NULL)
+		do_paste((const Uint8 *)text);
+	else
+		widget_handle_paste(widget, text);
+
+	SDL_free(text);
 }
 
 void copy_to_clipboard(const char* text)
 {
-	copy_to_clipboard_target(text, use_clipboard);
+	if (text == NULL)
+		return;
+
+	if (use_clipboard)
+	{
+		if (SDL_SetClipboardText(text) != 0)
+			LOG_ERROR("SDL_SetClipboardText: %s", SDL_GetError());
+	}
+	else
+	{
+#if SDL_VERSION_ATLEAST(2, 26, 0)
+		if (SDL_SetPrimarySelectionText(text) != 0)
+			LOG_ERROR("SDL_SetPrimarySelectionText: %s", SDL_GetError());
+#endif
+	}
 }
 
 void copy_to_primary(const char* text)
 {
-	copy_to_clipboard_target(text, 0);
-}
+	if (text == NULL)
+		return;
 
-void process_copy(XSelectionRequestEvent* e)
-{
-	XEvent r;
-	Atom targets[] = {
-		targets_atom,
-		XA_STRING
-	};
-
-	if (e->target == XA_STRING)
-	{
-		// Copy the string
-		char *buf = e->selection == XA_PRIMARY
-			? cur_text_primary : cur_text_clipboard;
-		XChangeProperty(e->display, e->requestor, e->property,
-			XA_STRING, 8, PropModeReplace,
-			(unsigned char *)buf, strlen(buf));
-		r.xselection.property = e->property;
-	}
-	else if (targets_atom != None && e->target == targets_atom)
-	{
-		// Tell X we have a string available
-		XChangeProperty(e->display, e->requestor, e->property, XA_ATOM,
-			32, PropModeReplace, (unsigned char*)targets,
-			sizeof(targets) / sizeof(targets[0]));
-		r.xselection.property = e->property;
-	}
-	else
-	{
-		// No idea what X is requesting
-		r.xselection.property = None;
-	}
-	r.xselection.type = SelectionNotify;
-	r.xselection.display = e->display;
-	r.xselection.requestor = e->requestor;
-	r.xselection.selection =e->selection;
-	r.xselection.target= e->target;
-	r.xselection.time = e->time;
-	XSendEvent (e->display, e->requestor, 0, 0, &r);
-}
-
-void finishpaste(XSelectionEvent event)
-{
-	Display * dpy;
-	Window window;
-	SDL_SysWMinfo wminfo;
-
-	SDL_VERSION(&wminfo.version);
-	if (SDL_GetWindowWMInfo(el_gl_window, &wminfo) && wminfo.subsystem == SDL_SYSWM_X11)
-	{
-		dpy=wminfo.info.x11.display;
-		window=wminfo.info.x11.window;
-
-		if (event.property == None)
-		{
-			fprintf(stderr,"%s\n",not_ascii);
-			return;
-		}
-		processpaste(dpy, window, event.property);
-	}
-}
-
-//	On some configurations, X11 error are not caught and so stop the client
-//	We can catch them and just log the error
-//
-static int error_handler(Display *display, XErrorEvent *error)
-{
-	const size_t buf_len = 200;
-	char *buffer = calloc(buf_len + 1, sizeof(char));
-	if (buffer == NULL)
-		return 0;
-	XGetErrorText(display, error->error_code, buffer, buf_len);
-	LOG_ERROR("X11 error code (%d): [%s]", error->error_code, buffer);
-	free(buffer);
-	return 0;
+#if SDL_VERSION_ATLEAST(2, 26, 0)
+	if (SDL_SetPrimarySelectionText(text) != 0)
+		LOG_ERROR("SDL_SetPrimarySelectionText: %s", SDL_GetError());
+#endif
 }
 
 void init_x11_copy_paste(void)
 {
-	XSetErrorHandler(error_handler);
+	// No longer needed: SDL owns the selection handling now, there's no
+	// raw Xlib error handler to install here anymore. Kept as a no-op so
+	// callers (gl_init.c) don't need touching.
 }
 
 #endif // def OSX / def WINDOWS / other
