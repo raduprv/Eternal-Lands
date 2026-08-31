@@ -32,8 +32,14 @@ extern int write_ini_on_exit; /*< variable that determines if the ini file is re
 extern int textures_32bpp;
 extern int full_camera_bars;
 extern int window_camera_controls;
-extern int disable_GL_POINT_SMOOTH;
 #endif
+// Not Android-specific: some desktop GL drivers also make points vanish
+// entirely with GL_POINT_SMOOTH enabled (confirmed on this system's driver —
+// player/monster/NPC dots were completely missing on the minimap). Used to
+// be #ifdef ANDROID-only despite the generic "missing minimap dots"
+// description; now available everywhere, same as items.c/minimap.c which
+// already reference it unconditionally.
+extern int disable_GL_POINT_SMOOTH;
 
 extern int video_mode_set;
 extern int no_adjust_shadows;
