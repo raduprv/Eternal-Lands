@@ -286,12 +286,6 @@ int HandleEvent (SDL_Event *event)
 			break;
 #endif
 
-		// SDL_SYSWMEVENT/raw Xlib SelectionNotify/SelectionRequest handling
-		// removed: copy/paste now goes through SDL_Set/GetClipboardText()
-		// and SDL_Set/GetPrimarySelectionText() (see paste.c), which need
-		// no window-system-specific event plumbing and work under Wayland
-		// too (the Xlib code silently did nothing there).
-
 		case SDL_WINDOWEVENT:
 			switch (event->window.event) {
 				case SDL_WINDOWEVENT_HIDDEN:

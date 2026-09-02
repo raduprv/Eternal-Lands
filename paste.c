@@ -331,11 +331,4 @@ void copy_to_primary(const char* text)
 	free(utf8_text);
 }
 
-void init_x11_copy_paste(void)
-{
-	// No longer needed: SDL owns the selection handling now, there's no
-	// raw Xlib error handler to install here anymore. Kept as a no-op so
-	// callers (gl_init.c) don't need touching.
-}
-
 #endif // def OSX / def WINDOWS / other

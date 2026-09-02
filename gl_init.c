@@ -472,10 +472,6 @@ void init_video(void)
 	last_texture = -1;		//no active texture
 	video_mode_set = 1;		//now you may set the video mode using the %<foo> in-game
 
-#if !defined OSX && !defined WINDOWS && !defined ANDROID
-	init_x11_copy_paste();
-#endif
-
 	load_window_icon();
 
 	check_options();

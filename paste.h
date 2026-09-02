@@ -46,14 +46,6 @@ void copy_to_clipboard(const char* text);
 void copy_to_primary(const char* text);
 #endif
 
-/*!
- * \brief Initialise the copy/paste routines.
- *
- * Calls XSetErrorHandler().
- */
-void init_x11_copy_paste(void);
-
-
 #ifdef __cplusplus
 } // extern "C"
 #endif
