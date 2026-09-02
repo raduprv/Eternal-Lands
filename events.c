@@ -286,15 +286,6 @@ int HandleEvent (SDL_Event *event)
 			break;
 #endif
 
-#if !defined(WINDOWS) && !defined(OSX) && !defined(ANDROID)
-		case SDL_SYSWMEVENT:
-			if (event->syswm.msg->msg.x11.event.type == SelectionNotify)
-				finishpaste(event->syswm.msg->msg.x11.event.xselection);
-			else if (event->syswm.msg->msg.x11.event.type == SelectionRequest)
-				process_copy(&event->syswm.msg->msg.x11.event.xselectionrequest);
-			break;
-#endif
-
 		case SDL_WINDOWEVENT:
 			switch (event->window.event) {
 				case SDL_WINDOWEVENT_HIDDEN:

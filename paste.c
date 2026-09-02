@@ -139,221 +139,196 @@ void start_paste(widget_list *widget)
 
 #else
 
-static widget_list *paste_to_widget = NULL;
-static char* cur_text_primary = NULL;
-static char* cur_text_clipboard = NULL;
+// SDL_Set/GetClipboardText() are portable since SDL 2.0.0 and work
+// correctly under both X11 and Wayland (unlike the raw Xlib selection
+// code this replaced, which silently did nothing under Wayland — there
+// is no SDL_SYSWM_X11 subsystem to match there).
+//
+// SDL_Set/GetPrimarySelectionText() (the xterm-style middle-click
+// selection) are portable only since SDL 2.26.0, so that half is
+// compile-time guarded and simply unavailable on an older SDL2 — matches
+// the previous behaviour of never populating PRIMARY under Wayland,
+// rather than silently misbehaving.
+#include <SDL_version.h>
 
 int use_clipboard = 1;
-Atom targets_atom = None;
 
-void processpaste(Display *dpy, Window window, Atom atom)
+// EL's internal text buffers store one byte per glyph, where the byte
+// value is the character's ISO-8859-1 (Latin-1) codepoint (0x00-0xFF) -
+// see utf8_to_unicode() in events.c, which decodes SDL's UTF-8
+// SDL_TEXTINPUT events back down to that same single-byte encoding
+// before storing typed characters. SDL_Set/GetClipboardText() and
+// SDL_Set/GetPrimarySelectionText() require valid UTF-8, so without
+// converting at this boundary, any accented character (byte >= 0x80,
+// e.g. ae/oe/ue-umlauts) is invalid UTF-8 on copy - most receiving
+// applications silently drop or replace invalid UTF-8 bytes, which is
+// exactly the "umlauts don't get copied" symptom. Pasting has the same
+// problem in reverse: real UTF-8 from another application would get
+// inserted byte-for-byte into EL's single-byte buffer instead of being
+// decoded back to one Latin-1 byte per character.
+
+// Encode an EL-internal Latin-1 string as newly malloc'd UTF-8, for handing to SDL's clipboard functions.
+static char* latin1_to_utf8(const char* text)
 {
-	Atom type;
-	int actualformat;
-	unsigned long items;
-	unsigned long bytes, tmp;
-	unsigned char * value = NULL;
+	const unsigned char* p = (const unsigned char*)text;
+	char* out = malloc(2 * strlen(text) + 1); // worst case: every byte becomes 2 UTF-8 bytes
+	char* o = out;
 
-	XGetWindowProperty(dpy, window, atom, 0, 0, 0, XA_STRING, &type, &actualformat, &items, &bytes, &value);
-	XFree(value);
-	// From the XGetWindowProperty man page:
-	// *) The length parameter is in 32 bit units, so we can divide
-	//    bytes by four (rounding up
-	// *) It always allocates one extra byte and sets it to zero, so
-	//    using value as a zero-terminated string should be safe
-	XGetWindowProperty(dpy, window, atom, 0, (bytes+3)/4, 1, XA_STRING, &type, &actualformat, &items, &tmp, &value);
-	if(type == XA_STRING)
+	for (; *p != '\0'; ++p)
 	{
-		if (paste_to_widget == NULL)
+		if (*p < 0x80)
 		{
-			do_paste(value); // copy to input line
+			*o++ = (char)*p;
 		}
 		else
 		{
-			widget_handle_paste(paste_to_widget, (const char*) value);
-			paste_to_widget = NULL;
+			*o++ = (char)(0xc0 | (*p >> 6));
+			*o++ = (char)(0x80 | (*p & 0x3f));
 		}
 	}
-	/* XGetWindowProperty allocated this, so we have to free it */
-	if(value)
-	{
-		XFree(value);
-	}
+	*o = '\0';
+	return out;
 }
 
-static void start_paste_from_target(widget_list *widget, int clipboard)
+// Decode UTF-8 clipboard text (from SDL, i.e. from another application) into a newly malloc'd
+// EL-internal Latin-1 string. Codepoints outside U+0000-U+00FF can't be represented in EL's
+// single-byte charset/font and are replaced with '?'; malformed UTF-8 bytes are skipped.
+static char* utf8_to_latin1(const char* text)
 {
-	Display *dpy;
-	Window window;
-	SDL_SysWMinfo wminfo;
-	Atom selection;
-	Atom property;
+	const unsigned char* p = (const unsigned char*)text;
+	char* out = malloc(strlen(text) + 1); // decoding never grows the byte count
+	char* o = out;
 
-	SDL_VERSION(&wminfo.version);
-	if (SDL_GetWindowWMInfo(el_gl_window, &wminfo) && wminfo.subsystem == SDL_SYSWM_X11)
+	while (*p != '\0')
 	{
-		dpy = wminfo.info.x11.display;
-		window = wminfo.info.x11.window;
-
-		paste_to_widget = widget;
-
-		/* Set selection to XA_PRIMARY to use xterm-style select,
-		 * or CLIPBOARD to use Gnome-style cut'n'paste.
-		 * KDE3 should use CLIPBOARD also, I'm not sure about older
-		 * KDE versions */
-
-		if (clipboard)
-			selection = XInternAtom(dpy, "CLIPBOARD", 0);
+		if (*p < 0x80)
+		{
+			*o++ = (char)*p++;
+		}
+		else if ((p[0] & 0xe0) == 0xc0 && (p[1] & 0xc0) == 0x80)
+		{
+			unsigned int cp = ((p[0] & 0x1f) << 6) | (p[1] & 0x3f);
+			*o++ = (cp <= 0xff) ? (char)cp : '?';
+			p += 2;
+		}
+		else if ((p[0] & 0xf0) == 0xe0 && (p[1] & 0xc0) == 0x80 && (p[2] & 0xc0) == 0x80)
+		{
+			*o++ = '?';
+			p += 3;
+		}
+		else if ((p[0] & 0xf8) == 0xf0 && (p[1] & 0xc0) == 0x80 && (p[2] & 0xc0) == 0x80 && (p[3] & 0xc0) == 0x80)
+		{
+			*o++ = '?';
+			p += 4;
+		}
 		else
-			selection = XA_PRIMARY;
-		property = XInternAtom(dpy, "PASTE", 0);
-		XConvertSelection(dpy, selection, XA_STRING, property, window, CurrentTime);
-		/* - If we used the CLIPBOARD, we don't get a SelectionNotify
-		 *   event, so we have to call processpaste immediately.
-		 * - If we used XA_PRIMARY, the selection-holder will send us a
-		 *   SelectionNotify-event, as soon as the selection is
-		 *   available for us. Then finishpaste calls processpaste
-		 */
-		// Alia: we should receive SelectionNotify event, property is NULL until it comes.
-		// Let's try to comment it :)
-		// //if(clipboard) {
-		//	processpaste(dpy, window, property);
-		//}
+		{
+			++p; // invalid UTF-8 lead/continuation byte, drop it
+		}
 	}
+	*o = '\0';
+	return out;
 }
 
 void start_paste(widget_list *widget)
 {
-	start_paste_from_target(widget, use_clipboard);
+	char *text = NULL;
+	char *latin1_text;
+
+	if (use_clipboard)
+	{
+		text = SDL_GetClipboardText();
+	}
+	else
+	{
+#if SDL_VERSION_ATLEAST(2, 26, 0)
+		text = SDL_GetPrimarySelectionText();
+#endif
+	}
+
+	if (text == NULL || text[0] == '\0')
+	{
+		SDL_free(text);
+		return;
+	}
+
+	latin1_text = utf8_to_latin1(text);
+	SDL_free(text);
+
+	if (widget == NULL)
+		do_paste((const Uint8 *)latin1_text);
+	else
+		widget_handle_paste(widget, latin1_text);
+
+	free(latin1_text);
 }
 
 void start_paste_from_primary(widget_list *widget)
 {
-	start_paste_from_target(widget, 0);
-}
+	char *text = NULL;
+	char *latin1_text;
 
-static void copy_to_clipboard_target(const char* text, int clipboard)
-{
-	Display* dpy;
-	Window window;
-	SDL_SysWMinfo wminfo;
-	Atom selection;
+#if SDL_VERSION_ATLEAST(2, 26, 0)
+	text = SDL_GetPrimarySelectionText();
+#endif
 
-	SDL_VERSION(&wminfo.version);
-	if (SDL_GetWindowWMInfo(el_gl_window, &wminfo) && wminfo.subsystem == SDL_SYSWM_X11)
+	if (text == NULL || text[0] == '\0')
 	{
-		dpy = wminfo.info.x11.display;
-		window = wminfo.info.x11.window;
-
-		if (targets_atom == None)
-			targets_atom = XInternAtom(dpy, "TARGETS", False);
-
-		if (clipboard)
-		{
-			selection = XInternAtom(dpy, "CLIPBOARD", False);
-			if (cur_text_clipboard) free(cur_text_clipboard);
-			cur_text_clipboard = strdup(text);
-		}
-		else
-		{
-			selection = XA_PRIMARY;
-			if (cur_text_primary) free(cur_text_primary);
-			cur_text_primary = strdup(text);
-		}
-		//property = XInternAtom(dpy, "PASTE", 0);
-		XSetSelectionOwner(dpy, selection, window, CurrentTime);
+		SDL_free(text);
+		return;
 	}
+
+	latin1_text = utf8_to_latin1(text);
+	SDL_free(text);
+
+	if (widget == NULL)
+		do_paste((const Uint8 *)latin1_text);
+	else
+		widget_handle_paste(widget, latin1_text);
+
+	free(latin1_text);
 }
 
 void copy_to_clipboard(const char* text)
 {
-	copy_to_clipboard_target(text, use_clipboard);
+	char *utf8_text;
+
+	if (text == NULL)
+		return;
+
+	utf8_text = latin1_to_utf8(text);
+
+	if (use_clipboard)
+	{
+		if (SDL_SetClipboardText(utf8_text) != 0)
+			LOG_ERROR("SDL_SetClipboardText: %s", SDL_GetError());
+	}
+	else
+	{
+#if SDL_VERSION_ATLEAST(2, 26, 0)
+		if (SDL_SetPrimarySelectionText(utf8_text) != 0)
+			LOG_ERROR("SDL_SetPrimarySelectionText: %s", SDL_GetError());
+#endif
+	}
+
+	free(utf8_text);
 }
 
 void copy_to_primary(const char* text)
 {
-	copy_to_clipboard_target(text, 0);
-}
+	char *utf8_text;
 
-void process_copy(XSelectionRequestEvent* e)
-{
-	XEvent r;
-	Atom targets[] = {
-		targets_atom,
-		XA_STRING
-	};
+	if (text == NULL)
+		return;
 
-	if (e->target == XA_STRING)
-	{
-		// Copy the string
-		char *buf = e->selection == XA_PRIMARY
-			? cur_text_primary : cur_text_clipboard;
-		XChangeProperty(e->display, e->requestor, e->property,
-			XA_STRING, 8, PropModeReplace,
-			(unsigned char *)buf, strlen(buf));
-		r.xselection.property = e->property;
-	}
-	else if (targets_atom != None && e->target == targets_atom)
-	{
-		// Tell X we have a string available
-		XChangeProperty(e->display, e->requestor, e->property, XA_ATOM,
-			32, PropModeReplace, (unsigned char*)targets,
-			sizeof(targets) / sizeof(targets[0]));
-		r.xselection.property = e->property;
-	}
-	else
-	{
-		// No idea what X is requesting
-		r.xselection.property = None;
-	}
-	r.xselection.type = SelectionNotify;
-	r.xselection.display = e->display;
-	r.xselection.requestor = e->requestor;
-	r.xselection.selection =e->selection;
-	r.xselection.target= e->target;
-	r.xselection.time = e->time;
-	XSendEvent (e->display, e->requestor, 0, 0, &r);
-}
+	utf8_text = latin1_to_utf8(text);
 
-void finishpaste(XSelectionEvent event)
-{
-	Display * dpy;
-	Window window;
-	SDL_SysWMinfo wminfo;
+#if SDL_VERSION_ATLEAST(2, 26, 0)
+	if (SDL_SetPrimarySelectionText(utf8_text) != 0)
+		LOG_ERROR("SDL_SetPrimarySelectionText: %s", SDL_GetError());
+#endif
 
-	SDL_VERSION(&wminfo.version);
-	if (SDL_GetWindowWMInfo(el_gl_window, &wminfo) && wminfo.subsystem == SDL_SYSWM_X11)
-	{
-		dpy=wminfo.info.x11.display;
-		window=wminfo.info.x11.window;
-
-		if (event.property == None)
-		{
-			fprintf(stderr,"%s\n",not_ascii);
-			return;
-		}
-		processpaste(dpy, window, event.property);
-	}
-}
-
-//	On some configurations, X11 error are not caught and so stop the client
-//	We can catch them and just log the error
-//
-static int error_handler(Display *display, XErrorEvent *error)
-{
-	const size_t buf_len = 200;
-	char *buffer = calloc(buf_len + 1, sizeof(char));
-	if (buffer == NULL)
-		return 0;
-	XGetErrorText(display, error->error_code, buffer, buf_len);
-	LOG_ERROR("X11 error code (%d): [%s]", error->error_code, buffer);
-	free(buffer);
-	return 0;
-}
-
-void init_x11_copy_paste(void)
-{
-	XSetErrorHandler(error_handler);
+	free(utf8_text);
 }
 
 #endif // def OSX / def WINDOWS / other
