@@ -178,14 +178,6 @@ static void draw_actor_points(window_info *win, float zoom_multip, float px, flo
 	glDisable(GL_TEXTURE_2D);
 
 	//display the actors
-	// disable_GL_POINT_SMOOTH ("Fix missing minimap dots" in Troubleshooting)
-	// used to only be honored here under ANDROID — on desktop GL_POINT_SMOOTH
-	// was always force-enabled, so a driver where it makes points vanish
-	// (confirmed: player/monster/NPC dots were completely missing, visible
-	// again as square points once smoothing is off) had no way to use the
-	// existing, already-documented troubleshooting option. items.c has the
-	// same latent ANDROID-only restriction on its two GL_POINT_SMOOTH call
-	// sites, not touched here.
 	if (!disable_GL_POINT_SMOOTH)
 		glEnable( GL_POINT_SMOOTH );
 	glEnable( GL_BLEND );
