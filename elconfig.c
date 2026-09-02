@@ -290,8 +290,8 @@ int window_camera_controls = 0;
 static int done_initial_config = 0;
 #define MIN_UI_SCALE 0.6f
 #define MAX_UI_SCALE 3.2f
-int disable_GL_POINT_SMOOTH = 0;
 #endif
+int disable_GL_POINT_SMOOTH = 0;
 
 int you_sit= 0;
 int sit_lock= 0;
@@ -3435,9 +3435,7 @@ static void init_ELC_vars(void)
 	add_var(OPT_BOOL, "use_animation_program", "uap", &use_animation_program, change_use_animation_program, 1, "Use animation program", "Use GL_ARB_vertex_program for actor animation", TROUBLESHOOT);
 #endif
 	add_var(OPT_BOOL,"poor_man","poor",&poor_man,change_poor_man,0,"Poor Man","If the game is running very slow for you, toggle this setting.",TROUBLESHOOT);
-#ifdef ANDROID
 	add_var(OPT_BOOL,"disable_GL_POINT_SMOOTH","dglps",&disable_GL_POINT_SMOOTH,change_var,0,"Fix missing minimap dots.","If mising minimap and other dots, set this option.",TROUBLESHOOT);
-#endif
 	// TROUBLESHOOT TAB
 
 	// DEBUGTAB TAB

@@ -32,8 +32,8 @@ extern int write_ini_on_exit; /*< variable that determines if the ini file is re
 extern int textures_32bpp;
 extern int full_camera_bars;
 extern int window_camera_controls;
-extern int disable_GL_POINT_SMOOTH;
 #endif
+extern int disable_GL_POINT_SMOOTH; /*!< if set, don't call glEnable(GL_POINT_SMOOTH) when drawing points */
 
 extern int video_mode_set;
 extern int no_adjust_shadows;

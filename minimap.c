@@ -178,10 +178,8 @@ static void draw_actor_points(window_info *win, float zoom_multip, float px, flo
 	glDisable(GL_TEXTURE_2D);
 
 	//display the actors
-#ifdef ANDROID
 	if (!disable_GL_POINT_SMOOTH)
-#endif
-	glEnable( GL_POINT_SMOOTH );
+		glEnable( GL_POINT_SMOOTH );
 	glEnable( GL_BLEND );
 	glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
 	glPointSize((int)(0.5 + win->current_scale * 8));
@@ -212,10 +210,8 @@ static void draw_actor_points(window_info *win, float zoom_multip, float px, flo
 
 	glEnd();//GL_POINTS
 	glDisable(GL_BLEND);
-#ifdef ANDROID
 	if (!disable_GL_POINT_SMOOTH)
-#endif
-	glDisable(GL_POINT_SMOOTH);
+		glDisable(GL_POINT_SMOOTH);
 
 	glPopMatrix();
 	

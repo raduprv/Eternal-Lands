@@ -810,10 +810,8 @@ static int display_items_handler(window_info *win)
 			if ((colour >= c_lbound) && (colour <= c_ubound))
 			{
 				glColor4f((float) colors_list[colour].r1 / 255.0f, (float) colors_list[colour].g1 / 255.0f, (float) colors_list[colour].b1 / 255.0f, 1.0f);
-#ifdef ANDROID
 				if (!disable_GL_POINT_SMOOTH)
-#endif
-				glEnable( GL_POINT_SMOOTH );
+					glEnable( GL_POINT_SMOOTH );
 				glEnable( GL_BLEND );
 				glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
 				glPointSize(text_arrow.len_x/3);
@@ -821,10 +819,8 @@ static int display_items_handler(window_info *win)
 				glVertex2f(text_arrow.pos_x + text_arrow.len_x/2, text_arrow.pos_y - text_arrow.len_y + text_arrow.len_y/6);
 				glEnd();
 				glDisable(GL_BLEND);
-#ifdef ANDROID
 				if (!disable_GL_POINT_SMOOTH)
-#endif
-				glDisable(GL_POINT_SMOOTH);
+					glDisable(GL_POINT_SMOOTH);
 			}
 		}
 	}
