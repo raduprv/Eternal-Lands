@@ -153,9 +153,87 @@ void start_paste(widget_list *widget)
 
 int use_clipboard = 1;
 
+// EL's internal text buffers store one byte per glyph, where the byte
+// value is the character's ISO-8859-1 (Latin-1) codepoint (0x00-0xFF) -
+// see utf8_to_unicode() in events.c, which decodes SDL's UTF-8
+// SDL_TEXTINPUT events back down to that same single-byte encoding
+// before storing typed characters. SDL_Set/GetClipboardText() and
+// SDL_Set/GetPrimarySelectionText() require valid UTF-8, so without
+// converting at this boundary, any accented character (byte >= 0x80,
+// e.g. ae/oe/ue-umlauts) is invalid UTF-8 on copy - most receiving
+// applications silently drop or replace invalid UTF-8 bytes, which is
+// exactly the "umlauts don't get copied" symptom. Pasting has the same
+// problem in reverse: real UTF-8 from another application would get
+// inserted byte-for-byte into EL's single-byte buffer instead of being
+// decoded back to one Latin-1 byte per character.
+
+// Encode an EL-internal Latin-1 string as newly malloc'd UTF-8, for handing to SDL's clipboard functions.
+static char* latin1_to_utf8(const char* text)
+{
+	const unsigned char* p = (const unsigned char*)text;
+	char* out = malloc(2 * strlen(text) + 1); // worst case: every byte becomes 2 UTF-8 bytes
+	char* o = out;
+
+	for (; *p != '\0'; ++p)
+	{
+		if (*p < 0x80)
+		{
+			*o++ = (char)*p;
+		}
+		else
+		{
+			*o++ = (char)(0xc0 | (*p >> 6));
+			*o++ = (char)(0x80 | (*p & 0x3f));
+		}
+	}
+	*o = '\0';
+	return out;
+}
+
+// Decode UTF-8 clipboard text (from SDL, i.e. from another application) into a newly malloc'd
+// EL-internal Latin-1 string. Codepoints outside U+0000-U+00FF can't be represented in EL's
+// single-byte charset/font and are replaced with '?'; malformed UTF-8 bytes are skipped.
+static char* utf8_to_latin1(const char* text)
+{
+	const unsigned char* p = (const unsigned char*)text;
+	char* out = malloc(strlen(text) + 1); // decoding never grows the byte count
+	char* o = out;
+
+	while (*p != '\0')
+	{
+		if (*p < 0x80)
+		{
+			*o++ = (char)*p++;
+		}
+		else if ((p[0] & 0xe0) == 0xc0 && (p[1] & 0xc0) == 0x80)
+		{
+			unsigned int cp = ((p[0] & 0x1f) << 6) | (p[1] & 0x3f);
+			*o++ = (cp <= 0xff) ? (char)cp : '?';
+			p += 2;
+		}
+		else if ((p[0] & 0xf0) == 0xe0 && (p[1] & 0xc0) == 0x80 && (p[2] & 0xc0) == 0x80)
+		{
+			*o++ = '?';
+			p += 3;
+		}
+		else if ((p[0] & 0xf8) == 0xf0 && (p[1] & 0xc0) == 0x80 && (p[2] & 0xc0) == 0x80 && (p[3] & 0xc0) == 0x80)
+		{
+			*o++ = '?';
+			p += 4;
+		}
+		else
+		{
+			++p; // invalid UTF-8 lead/continuation byte, drop it
+		}
+	}
+	*o = '\0';
+	return out;
+}
+
 void start_paste(widget_list *widget)
 {
 	char *text = NULL;
+	char *latin1_text;
 
 	if (use_clipboard)
 	{
@@ -174,17 +252,21 @@ void start_paste(widget_list *widget)
 		return;
 	}
 
-	if (widget == NULL)
-		do_paste((const Uint8 *)text);
-	else
-		widget_handle_paste(widget, text);
-
+	latin1_text = utf8_to_latin1(text);
 	SDL_free(text);
+
+	if (widget == NULL)
+		do_paste((const Uint8 *)latin1_text);
+	else
+		widget_handle_paste(widget, latin1_text);
+
+	free(latin1_text);
 }
 
 void start_paste_from_primary(widget_list *widget)
 {
 	char *text = NULL;
+	char *latin1_text;
 
 #if SDL_VERSION_ATLEAST(2, 26, 0)
 	text = SDL_GetPrimarySelectionText();
@@ -196,42 +278,57 @@ void start_paste_from_primary(widget_list *widget)
 		return;
 	}
 
-	if (widget == NULL)
-		do_paste((const Uint8 *)text);
-	else
-		widget_handle_paste(widget, text);
-
+	latin1_text = utf8_to_latin1(text);
 	SDL_free(text);
+
+	if (widget == NULL)
+		do_paste((const Uint8 *)latin1_text);
+	else
+		widget_handle_paste(widget, latin1_text);
+
+	free(latin1_text);
 }
 
 void copy_to_clipboard(const char* text)
 {
+	char *utf8_text;
+
 	if (text == NULL)
 		return;
 
+	utf8_text = latin1_to_utf8(text);
+
 	if (use_clipboard)
 	{
-		if (SDL_SetClipboardText(text) != 0)
+		if (SDL_SetClipboardText(utf8_text) != 0)
 			LOG_ERROR("SDL_SetClipboardText: %s", SDL_GetError());
 	}
 	else
 	{
 #if SDL_VERSION_ATLEAST(2, 26, 0)
-		if (SDL_SetPrimarySelectionText(text) != 0)
+		if (SDL_SetPrimarySelectionText(utf8_text) != 0)
 			LOG_ERROR("SDL_SetPrimarySelectionText: %s", SDL_GetError());
 #endif
 	}
+
+	free(utf8_text);
 }
 
 void copy_to_primary(const char* text)
 {
+	char *utf8_text;
+
 	if (text == NULL)
 		return;
 
+	utf8_text = latin1_to_utf8(text);
+
 #if SDL_VERSION_ATLEAST(2, 26, 0)
-	if (SDL_SetPrimarySelectionText(text) != 0)
+	if (SDL_SetPrimarySelectionText(utf8_text) != 0)
 		LOG_ERROR("SDL_SetPrimarySelectionText: %s", SDL_GetError());
 #endif
+
+	free(utf8_text);
 }
 
 void init_x11_copy_paste(void)
