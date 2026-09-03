@@ -612,14 +612,18 @@ int display_particles_window_handler(window_info *win)
 			break;
 		case(PREVIEW_PARTICLE_LIGHT):
 			draw_checkbox(previewx+11*12-2,sel_handle_bottom+4,def.use_light);
+			/* fallthrough */
 		case(PREVIEW_PARTICLE_STARTPOS):
+			/* fallthrough */
 		case(PREVIEW_PARTICLE_STARTVEL):
+			/* fallthrough */
 		case(PREVIEW_PARTICLE_ACC):
 			display_plus_minus(previewx+(previewx2-previewx)/2-pm_width,sel_handle_bottom+30);
 			display_plus_minus(previewx+(previewx2-previewx)/2-pm_width,sel_handle_bottom+50);
 			display_plus_minus(previewx+(previewx2-previewx)/2-pm_width,sel_handle_bottom+70);
 			display_plus_minus(previewx2-pm_width,sel_handle_bottom+50);
 			display_plus_minus(previewx2-pm_width,sel_handle_bottom+70);
+			/* fallthrough */
 		default:
 			display_plus_minus(previewx2-pm_width,sel_handle_bottom+30);
 	}

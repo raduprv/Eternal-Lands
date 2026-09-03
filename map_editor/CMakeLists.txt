@@ -13,14 +13,13 @@
 # To enable runtime GCC address sanitization include -DADDRSANITISER=1
 #
 # Example if located in source directory:
-#   mkdir -p build && cd build
-#   cmake -DCMAKE_BUILD_TYPE=debug -DEXEC=el.$(uname -m).linux.bin -DMARCHNATIVE=1 -DADDRSANITISER=1 ..
-#   make
+#   cmake -B build/ -DCMAKE_BUILD_TYPE=debug -DEXEC=mapedit.$(uname -m).linux.bin
+#   make -C ./build/ -j $(nproc)
 #
 # Example for windows using msys2
 #   cmake -G "MSYS Makefiles" -DCMAKE_INCLUDE_PATH="/mingw64/local/include" -DCMAKE_LIBRARY_PATH="/mingw64/local/lib" ..
 
-cmake_minimum_required(VERSION 3.0.2)
+cmake_minimum_required(VERSION 3.10)
 
 project (Eternal-Lands-Map-Editor)
 
@@ -120,10 +119,10 @@ if (ADDRSANITISER)
 endif()
 
 # set the compiler flags for DEBUG and RELEASE builds
-set(CMAKE_C_FLAGS "${EXTRA_C_FLAGS} -Wall -Wdeclaration-after-statement -D_GNU_SOURCE=1 -D_REENTRANT")
+set(CMAKE_C_FLAGS "${EXTRA_C_FLAGS} -Wall -Wdeclaration-after-statement -W -Wno-unused-parameter -Wno-sign-compare -D_GNU_SOURCE=1 -D_REENTRANT -std=c17")
 set(CMAKE_C_FLAGS_DEBUG "-Og -ggdb -pipe -fno-strict-aliasing")
 set(CMAKE_C_FLAGS_RELEASE "-O3 -fomit-frame-pointer -ffast-math -pipe -fno-strict-aliasing")
-set(CMAKE_CXX_FLAGS "${EXTRA_CXX_FLAGS} -Wall -D_GNU_SOURCE=1 -D_REENTRANT")
+set(CMAKE_CXX_FLAGS "${EXTRA_CXX_FLAGS} -Wall -D_GNU_SOURCE=1 -W -Wno-unused-parameter -Wno-sign-compare -Wno-cast-function-type -D_REENTRANT -std=c++17")
 set(CMAKE_CXX_FLAGS_DEBUG "-Og -ggdb -pipe -fno-strict-aliasing")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3 -fomit-frame-pointer -ffast-math -pipe -fno-strict-aliasing")
 

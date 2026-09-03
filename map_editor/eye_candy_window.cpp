@@ -290,7 +290,8 @@ extern "C" void add_eye_candy_point()
       else if (current_effect.bounds.elements.size() < 13)
         current_effect.bounds.elements.insert(current_effect.bounds.elements.begin() + last_ec_index, angle_to(current_effect.position.x, current_effect.position.y, x, y));
       else
-        ; // Can't add any more; too many already.
+      {
+      } // Can't add any more; too many already.
     }
   }
   else
@@ -709,7 +710,7 @@ int get_eye_candy_count()
 
 void deserialize_eye_candy_effect(particles_io* data)
 {
-  const unsigned char*const code = (const unsigned char*const)data->file_name + 5;
+  const unsigned char*const code = (unsigned char*)data->file_name + 5;
 
 //  std::cout << "Deserialize" << std::endl;  
 

@@ -323,7 +323,10 @@ static e3d_object* do_load_e3d_detail(e3d_object* cur_object)
 	e3d_header header;
 	e3d_material material;
 	char cur_dir[1024];
-	int i, idx, l, mem_size, vertex_size, material_size;
+	int i, idx, l, vertex_size, material_size;
+#ifndef	MAP_EDITOR
+	int mem_size;
+#endif
 	int file_pos, indices_size, index_size;
 	char text_file_name[1024];
 	Uint32 tmp;
@@ -501,7 +504,9 @@ static e3d_object* do_load_e3d_detail(e3d_object* cur_object)
 	el_seek(file, SDL_SwapLE32(header.vertex_offset), SEEK_SET);
 
 	cur_object->vertex_data = malloc(cur_object->vertex_no * cur_object->vertex_layout->size);
+#ifndef	MAP_EDITOR
 	mem_size = cur_object->vertex_no * cur_object->vertex_layout->size;
+#endif
 	if (!CHECK_POINTER(cur_object->vertex_data, "vertex data")) return 0;
 
 	read_vertex_buffer(file, (float*)(cur_object->vertex_data), cur_object->vertex_no,
@@ -558,7 +563,9 @@ static e3d_object* do_load_e3d_detail(e3d_object* cur_object)
 		if (!CHECK_POINTER(cur_object->materials, "materials")) return 0;
 		memset(cur_object->materials, 0, cur_object->material_no * sizeof(e3d_draw_list));
 	}
+#ifndef	MAP_EDITOR
 	mem_size += cur_object->material_no * sizeof(e3d_draw_list);
+#endif
 
 	LOG_DEBUG("Reading materials at %d from e3d file '%s'.",
 		SDL_SwapLE32(header.material_offset), cur_object->file_name);
