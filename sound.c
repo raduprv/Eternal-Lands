@@ -36,6 +36,9 @@
 #define STREAM_BUFFER_SIZE (4096 * 16)
 #define SLEEP_TIME 300		// Time to give CPU to other processes between loops of update_streams()
 
+#define SOUND_LISTENER_CAMERA_OFFSET 8.0f
+#define SOUND_LISTENER_DIAGONAL_SCALE 0.70710678f
+
 #ifdef _EXTRA_SOUND_DEBUG
 #include <unistd.h>
 static char last_file[50] = "";
@@ -2955,19 +2958,37 @@ void update_sound(int ms)
 		my_pos[1] = me->y_pos * 2;
 		listenerPos[0] = my_pos[0];
 		listenerPos[1] = my_pos[1];
-		if (me->z_rot > 0 && me->z_rot < 180) {
+		// Orient the listener with the camera rather than with the actor.
+		// Preserve the existing coarse directional approximation.
+		if (rz > 0 && rz < 180) {
 			listenerOri[0] = 1;
-		} else if (me->z_rot > 180 && me->z_rot < 360) {
+		} else if (rz > 180 && rz < 360) {
 			listenerOri[0] = -1;
 		} else {
 			listenerOri[0] = 0;
 		}
-		if (me->z_rot > 315 || me->z_rot < 90) {
+		if (rz > 315 || rz < 90) {
 			listenerOri[1] = 1;
-		} else if (me->z_rot > 135 && me->z_rot < 225) {
+		} else if (rz > 135 && rz < 225) {
 			listenerOri[1] = -1;
 		} else {
 			listenerOri[1] = 0;
+		}
+
+		// Move the acoustic listener towards the camera. This makes the
+		// stereo position increase gradually with the source's lateral
+		// displacement instead of putting nearby side sources at 90 degrees.
+		if (listenerOri[0] != 0.0f && listenerOri[1] != 0.0f)
+		{
+			listenerPos[0] -= listenerOri[0] * SOUND_LISTENER_CAMERA_OFFSET
+				* SOUND_LISTENER_DIAGONAL_SCALE;
+			listenerPos[1] -= listenerOri[1] * SOUND_LISTENER_CAMERA_OFFSET
+				* SOUND_LISTENER_DIAGONAL_SCALE;
+		}
+		else
+		{
+			listenerPos[0] -= listenerOri[0] * SOUND_LISTENER_CAMERA_OFFSET;
+			listenerPos[1] -= listenerOri[1] * SOUND_LISTENER_CAMERA_OFFSET;
 		}
 		// a map change or sound-off will have stopped spell sounds,
 		// now we have our actor, we can re-enable the spell sounds
