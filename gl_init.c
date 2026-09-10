@@ -13,6 +13,7 @@
 #include "translate.h"
 #include "sky.h"
 #include "shader/shader.h"
+#include "gamma_postprocess.h"
 #ifdef	FSAA
 #include "fsaa/fsaa.h"
 #endif	/* FSAA */
@@ -436,7 +437,7 @@ void init_video(void)
 
 	// set the gamma of we are controlling it
 	if (!disable_gamma_adjust)
-		SDL_SetWindowBrightness(el_gl_window, gamma_var);
+		hardware_gamma_available = (SDL_SetWindowBrightness(el_gl_window, gamma_var) == 0);
 
 	// set the initial window title, though it will change once we are logged in
 	SDL_SetWindowTitle( el_gl_window, win_principal );
@@ -957,6 +958,7 @@ void init_gl_extensions(void)
 	}
 #endif
 	init_shaders();
+	init_gamma_postprocess();
 
 #ifdef	GL_EXTENSION_CHECK
 	evaluate_extension();

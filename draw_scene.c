@@ -15,6 +15,7 @@
 #include "eye_candy_wrapper.h"
 #include "gamewin.h"
 #include "gl_init.h"
+#include "gamma_postprocess.h"
 #include "hud.h"
 #include "hud_timer.h"
 #include "interface.h"
@@ -116,7 +117,11 @@ Uint32 draw_delay = 0;
 
 void draw_scene()
 {
+	int gamma_postprocess_pending;
+
 	CHECK_GL_ERRORS();
+
+	gamma_postprocess_pending = gamma_postprocess_begin_frame();
 
 	glClearColor(skybox_fog_color[0], skybox_fog_color[1], skybox_fog_color[2], 0.0);
 
@@ -154,6 +159,9 @@ void draw_scene()
 		if (current_cursor != elwin_mouse) change_cursor(elwin_mouse);
 		elwin_mouse = -1;
 	}
+
+	if (gamma_postprocess_pending)
+		gamma_postprocess_end_frame();
 
 	SDL_GL_SwapWindow(el_gl_window);
 	CHECK_GL_ERRORS();

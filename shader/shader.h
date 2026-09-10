@@ -34,5 +34,8 @@ GLhandleARB get_shader(shader_type type, shader_shadow_type shadow_type, shader_
 
 void free_shaders();
 
+/*! \brief Whether the GL context supports the ARB shader extensions we need. */
+int is_shader_supported();
+
 
 #endif	// _SHADER_H_
