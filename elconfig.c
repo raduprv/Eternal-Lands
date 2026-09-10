@@ -1605,7 +1605,7 @@ static void change_gamma(float *pointer, float *value)
 	*pointer= *value;
 	if(video_mode_set && !disable_gamma_adjust) {
 		// on systems where SDL can't set the display gamma (e.g. Wayland),
-		// software_gamma_active is set and gamma_postprocess_end_frame()
+		// software_gamma_active is set and gamma_postprocess_apply()
 		// picks up the new value every frame - nothing to do here
 		if (hardware_gamma_available)
 			SDL_SetWindowBrightness(el_gl_window, *value);

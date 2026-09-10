@@ -1,15 +1,23 @@
 /**
  * @file
  * @ingroup display_utils
- * @brief Software gamma correction fallback for platforms where
+ * @brief Software brightness fallback for platforms where
  *        SDL_SetWindowBrightness() is not supported (e.g. Wayland).
  *
  * SDL2's Wayland backend (and some X11/driver combinations) cannot set the
  * display gamma ramp - SDL_SetWindowBrightness() simply fails there. When
- * that happens, and the GPU supports shaders + framebuffer objects, we
- * render the frame into an offscreen buffer and apply the gamma curve
- * ourselves with a fragment shader before presenting it. Platforms where
- * SDL_SetWindowBrightness() already works are completely unaffected.
+ * that happens, we approximate the gamma slider by blending a translucent
+ * black (darken) or white (brighten) quad over the already-rendered frame,
+ * right before it is presented. Platforms where SDL_SetWindowBrightness()
+ * already works are completely unaffected.
+ *
+ * This deliberately avoids a GLSL shader: an ARB_shader_objects program
+ * bound during this post-process step - even a minimal one, even with a
+ * vertex shader attached - was found to corrupt fixed-function terrain
+ * rendering on subsequent frames on at least one Mesa/radeonsi driver. A
+ * plain glBlendFunc()/glColor4f() overlay only uses OpenGL 1.0 features and
+ * doesn't reproduce a true gamma curve, but reliably brightens/darkens the
+ * screen without that risk.
  */
 #ifndef GAMMA_POSTPROCESS_H
 #define GAMMA_POSTPROCESS_H
@@ -20,35 +28,27 @@ extern "C" {
 
 /*! \brief Non-zero if SDL_SetWindowBrightness() works on this system. */
 extern int hardware_gamma_available;
-/*! \brief Non-zero if the software gamma correction pass is active. */
+/*! \brief Non-zero if the software brightness fallback is active. */
 extern int software_gamma_active;
 
 /*!
- * \brief Try to set up the software gamma fallback.
+ * \brief Try to set up the software brightness fallback.
  *
- * Must be called after the GL extensions have been loaded and
- * hardware_gamma_available has been determined. Only has an effect when
- * hardware gamma is unavailable, gamma adjustment is not disabled by the
- * user, and the required GL features (shaders, FBOs) are present. Safe to
- * call when those conditions are not met - it is then a no-op.
+ * Must be called after hardware_gamma_available has been determined. Only
+ * has an effect when hardware gamma is unavailable and gamma adjustment is
+ * not disabled by the user.
  */
 void init_gamma_postprocess(void);
 
-/*! \brief Release all GL resources owned by the software gamma fallback. */
+/*! \brief Currently a no-op; kept for symmetry with init_gamma_postprocess(). */
 void free_gamma_postprocess(void);
 
 /*!
- * \brief Call at the very start of a frame.
- * \return Non-zero if the frame must be finished with
- *         gamma_postprocess_end_frame() before SDL_GL_SwapWindow().
+ * \brief Call once per frame, after the frame is fully rendered into the
+ *        default framebuffer, but before SDL_GL_SwapWindow(). A no-op
+ *        unless the software fallback is active and gamma_var != 1.0.
  */
-int gamma_postprocess_begin_frame(void);
-
-/*!
- * \brief Call right before SDL_GL_SwapWindow(), only if
- *        gamma_postprocess_begin_frame() returned non-zero.
- */
-void gamma_postprocess_end_frame(void);
+void gamma_postprocess_apply(void);
 
 #ifdef __cplusplus
 }

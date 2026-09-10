@@ -117,11 +117,7 @@ Uint32 draw_delay = 0;
 
 void draw_scene()
 {
-	int gamma_postprocess_pending;
-
 	CHECK_GL_ERRORS();
-
-	gamma_postprocess_pending = gamma_postprocess_begin_frame();
 
 	glClearColor(skybox_fog_color[0], skybox_fog_color[1], skybox_fog_color[2], 0.0);
 
@@ -160,8 +156,7 @@ void draw_scene()
 		elwin_mouse = -1;
 	}
 
-	if (gamma_postprocess_pending)
-		gamma_postprocess_end_frame();
+	gamma_postprocess_apply();
 
 	SDL_GL_SwapWindow(el_gl_window);
 	CHECK_GL_ERRORS();
