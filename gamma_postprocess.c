@@ -10,7 +10,6 @@ int software_gamma_active = 0;
 
 static GLuint gamma_fbo = 0;
 static GLuint gamma_fbo_depth_buffer = 0;
-static GLuint gamma_fbo_stencil_buffer = 0;
 static GLuint gamma_fbo_texture = 0;
 static GLhandleARB gamma_shader = 0;
 static GLint gamma_uniform_tex = -1;
@@ -75,13 +74,41 @@ void free_gamma_postprocess(void)
 		ELglDeleteObjectARB(gamma_shader);
 		gamma_shader = 0;
 	}
-	free_color_framebuffer(&gamma_fbo, &gamma_fbo_depth_buffer, &gamma_fbo_stencil_buffer,
-		&gamma_fbo_texture);
+	free_color_framebuffer(&gamma_fbo, &gamma_fbo_depth_buffer, NULL, &gamma_fbo_texture);
 	gamma_uniform_tex = -1;
 	gamma_uniform_gamma = -1;
 	fbo_width = 0;
 	fbo_height = 0;
 	software_gamma_active = 0;
+}
+
+/* Only a depth renderbuffer is attached (no stencil): a separate,
+ * non-packed depth+stencil renderbuffer pair reports
+ * GL_FRAMEBUFFER_UNSUPPORTED_EXT on at least some Mesa/AMD drivers. Stencil
+ * shadows won't be visible while this fallback is active, which is an
+ * acceptable trade-off for a fallback path that only exists because the
+ * platform can't do gamma any other way. */
+static int make_gamma_framebuffer(int width, int height)
+{
+	GLenum status;
+
+	make_color_framebuffer(width, height, &gamma_fbo, &gamma_fbo_depth_buffer, NULL,
+		&gamma_fbo_texture);
+	if ((gamma_fbo == 0) || (gamma_fbo_texture == 0))
+		return 0;
+
+	ELglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, gamma_fbo);
+	status = ELglCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
+	ELglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+
+	if (status != GL_FRAMEBUFFER_COMPLETE_EXT)
+	{
+		LOG_ERROR("Software gamma correction frame buffer is incomplete (0x%x).",
+			(unsigned int)status);
+		return 0;
+	}
+
+	return 1;
 }
 
 void init_gamma_postprocess(void)
@@ -104,11 +131,8 @@ void init_gamma_postprocess(void)
 	if (gamma_shader == 0)
 		return;
 
-	make_color_framebuffer(window_width, window_height, &gamma_fbo, &gamma_fbo_depth_buffer,
-		&gamma_fbo_stencil_buffer, &gamma_fbo_texture);
-	if ((gamma_fbo == 0) || (gamma_fbo_texture == 0))
+	if (!make_gamma_framebuffer(window_width, window_height))
 	{
-		LOG_ERROR("Failed to create the software gamma correction frame buffer.");
 		free_gamma_postprocess();
 		return;
 	}
@@ -130,16 +154,14 @@ static void resize_gamma_postprocess(int width, int height)
 	if ((width <= 0) || (height <= 0))
 		return;
 
-	change_color_framebuffer_size(width, height, &gamma_fbo, &gamma_fbo_depth_buffer,
-		&gamma_fbo_stencil_buffer, &gamma_fbo_texture);
-	fbo_width = width;
-	fbo_height = height;
-
-	if ((gamma_fbo == 0) || (gamma_fbo_texture == 0))
+	if (!make_gamma_framebuffer(width, height))
 	{
 		LOG_ERROR("Failed to resize the software gamma correction frame buffer.");
 		free_gamma_postprocess();
+		return;
 	}
+	fbo_width = width;
+	fbo_height = height;
 }
 
 int gamma_postprocess_begin_frame(void)
