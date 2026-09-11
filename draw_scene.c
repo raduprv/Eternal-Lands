@@ -15,6 +15,7 @@
 #include "eye_candy_wrapper.h"
 #include "gamewin.h"
 #include "gl_init.h"
+#include "gamma_postprocess.h"
 #include "hud.h"
 #include "hud_timer.h"
 #include "interface.h"
@@ -154,6 +155,8 @@ void draw_scene()
 		if (current_cursor != elwin_mouse) change_cursor(elwin_mouse);
 		elwin_mouse = -1;
 	}
+
+	gamma_postprocess_apply();
 
 	SDL_GL_SwapWindow(el_gl_window);
 	CHECK_GL_ERRORS();

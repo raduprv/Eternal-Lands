@@ -159,7 +159,7 @@ set(SOURCES
 	${SD}calc.c ${SD}chat.c ${SD}cluster.c ${SD}colors.c ${SD}console.c ${SD}consolewin.c ${SD}counters.c
 	${SD}cursors.c ${SD}dds.c ${SD}ddsimage.c ${SD}dialogues.c ${SD}draw_scene.c ${SD}elconfig.c ${SD}el_memory.c
 	${SD}elwindows.c ${SD}emotes.c ${SD}encyclopedia.c ${SD}errors.c ${SD}events.c ${SD}eye_candy_debugwin.c
-	${SD}filter.c ${SD}framebuffer.c ${SD}frustum.c ${SD}gamewin.c ${SD}gl_init.c ${SD}hash.c ${SD}help.c
+	${SD}filter.c ${SD}framebuffer.c ${SD}frustum.c ${SD}gamewin.c ${SD}gamma_postprocess.c ${SD}gl_init.c ${SD}hash.c ${SD}help.c
 	${SD}highlight.c ${SD}hud.c ${SD}hud_misc_window.c ${SD}hud_quickbar_window.c ${SD}hud_quickspells_window.c
 	${SD}hud_statsbar_window.c ${SD}ignore.c ${SD}image.c ${SD}image_loading.c ${SD}init.c ${SD}interface.c
 	${SD}items.c ${SD}keys.c ${SD}knowledge.c ${SD}langselwin.c ${SD}lights.c ${SD}list.c ${SD}load_gl_extensions.c
