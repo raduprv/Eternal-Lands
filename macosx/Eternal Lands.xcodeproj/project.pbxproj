@@ -75,6 +75,7 @@
 		1F812CB10D033551008792A7 /* filter.c in Sources */ = {isa = PBXBuildFile; fileRef = 1F812A450D033551008792A7 /* filter.c */; };
 		1F812CB30D033551008792A7 /* framebuffer.c in Sources */ = {isa = PBXBuildFile; fileRef = 1F812A490D033551008792A7 /* framebuffer.c */; };
 		1F812CB40D033551008792A7 /* frustum.c in Sources */ = {isa = PBXBuildFile; fileRef = 1F812A4B0D033551008792A7 /* frustum.c */; };
+		3712B29741E4614F21FC5561 /* gamma_postprocess.c in Sources */ = {isa = PBXBuildFile; fileRef = EC41FB5696A61DBA6F361CB3 /* gamma_postprocess.c */; };
 		1F812CB50D033551008792A7 /* gamewin.c in Sources */ = {isa = PBXBuildFile; fileRef = 1F812A4C0D033551008792A7 /* gamewin.c */; };
 		1F812CB60D033551008792A7 /* gl_init.c in Sources */ = {isa = PBXBuildFile; fileRef = 1F812A4E0D033551008792A7 /* gl_init.c */; };
 		1F812CB70D033551008792A7 /* help.c in Sources */ = {isa = PBXBuildFile; fileRef = 1F812A510D033551008792A7 /* help.c */; };
@@ -431,6 +432,8 @@
 		1F812A490D033551008792A7 /* framebuffer.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = framebuffer.c; path = ../framebuffer.c; sourceTree = SOURCE_ROOT; };
 		1F812A4A0D033551008792A7 /* framebuffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = framebuffer.h; path = ../framebuffer.h; sourceTree = SOURCE_ROOT; };
 		1F812A4B0D033551008792A7 /* frustum.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = frustum.c; path = ../frustum.c; sourceTree = SOURCE_ROOT; };
+		EC41FB5696A61DBA6F361CB3 /* gamma_postprocess.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = gamma_postprocess.c; path = ../gamma_postprocess.c; sourceTree = SOURCE_ROOT; };
+		097563D68598F6CD79307733 /* gamma_postprocess.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = gamma_postprocess.h; path = ../gamma_postprocess.h; sourceTree = SOURCE_ROOT; };
 		1F812A4C0D033551008792A7 /* gamewin.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = gamewin.c; path = ../gamewin.c; sourceTree = SOURCE_ROOT; };
 		1F812A4D0D033551008792A7 /* gamewin.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = gamewin.h; path = ../gamewin.h; sourceTree = SOURCE_ROOT; };
 		1F812A4E0D033551008792A7 /* gl_init.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = gl_init.c; path = ../gl_init.c; sourceTree = SOURCE_ROOT; };
@@ -930,6 +933,8 @@
 				1F812A490D033551008792A7 /* framebuffer.c */,
 				1F812A4A0D033551008792A7 /* framebuffer.h */,
 				1F812A4B0D033551008792A7 /* frustum.c */,
+				EC41FB5696A61DBA6F361CB3 /* gamma_postprocess.c */,
+				097563D68598F6CD79307733 /* gamma_postprocess.h */,
 				1F812A4C0D033551008792A7 /* gamewin.c */,
 				1F812A4D0D033551008792A7 /* gamewin.h */,
 				1F812A4E0D033551008792A7 /* gl_init.c */,
@@ -1552,6 +1557,7 @@
 				1F812CB10D033551008792A7 /* filter.c in Sources */,
 				1F812CB30D033551008792A7 /* framebuffer.c in Sources */,
 				1F812CB40D033551008792A7 /* frustum.c in Sources */,
+				3712B29741E4614F21FC5561 /* gamma_postprocess.c in Sources */,
 				1F812CB50D033551008792A7 /* gamewin.c in Sources */,
 				1F812CB60D033551008792A7 /* gl_init.c in Sources */,
 				1F812CB70D033551008792A7 /* help.c in Sources */,
