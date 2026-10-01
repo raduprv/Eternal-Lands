@@ -318,6 +318,8 @@ int square_buttons = 0;
 
 int buddy_log_notice=1;
 int video_mode_set=0;
+int min_window_width=640;
+int min_window_height=480;
 int video_info_sent = 0;
 int no_adjust_shadows=0;
 int clouds_shadows=1;
@@ -686,6 +688,12 @@ static void change_max_ec_framerate(float * var, float * value)
 static void change_int(int * var, int value)
 {
 	if(value>=0) *var= value;
+}
+
+static void change_min_window_size(int * var, int value)
+{
+	if(value>=0) *var= value;
+	set_main_window_minimum_size();
 }
 
 static void change_float(float * var, float * value)
@@ -3324,6 +3332,8 @@ static void init_ELC_vars(void)
 	}
 	add_var(OPT_INT,"video_width","width",&video_user_width,change_int, 640,"Userdefined width","Userdefined window width",VIDEO, 640,INT_MAX);
 	add_var(OPT_INT,"video_height","height",&video_user_height,change_int, 480,"Userdefined height","Userdefined window height",VIDEO, 480,INT_MAX);
+	add_var(OPT_INT,"min_window_width","minww",&min_window_width,change_min_window_size,640,"Minimum window width","Smallest width the main window may be resized to. Lower this to allow smaller windows.",VIDEO, 320,INT_MAX);
+	add_var(OPT_INT,"min_window_height","minwh",&min_window_height,change_min_window_size,480,"Minimum window height","Smallest height the main window may be resized to. Lower this to allow smaller windows.",VIDEO, 240,INT_MAX);
 	add_var(OPT_INT,"limit_fps","lfps",&limit_fps,change_fps,0,"Limit FPS","Limit the frame rate to reduce load on the system",VIDEO,0,INT_MAX);
 	add_var(OPT_BOOL,"enable_screensaver","esc",&enable_screensaver,change_screensaver,0,"Enable Desktop Screensaver","By default your desktop screen saver is disabled, this is normal behavour for games and media players. Set this option to enable the screensaver / monitor power managment.",VIDEO);
 	add_var(OPT_FLOAT_S,"gamma","g",&gamma_var,change_gamma,1,"Gamma","How bright your display should be.",VIDEO,0.10,3.00,0.05);
