@@ -36,6 +36,8 @@ extern int window_camera_controls;
 extern int disable_GL_POINT_SMOOTH; /*!< if set, don't call glEnable(GL_POINT_SMOOTH) when drawing points */
 
 extern int video_mode_set;
+extern int min_window_width; /*!< minimum width the main window may be resized to */
+extern int min_window_height; /*!< minimum height the main window may be resized to */
 extern int no_adjust_shadows;
 extern int clouds_shadows; /*!< flag that indicates whether the shadows of clouds should be displayed or not */
 extern int item_window_on_drop;
