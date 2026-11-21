@@ -77,6 +77,7 @@
   // Lachesis: Make sure snprintf is declared before we #define it to be something else,
   // else we'll eventually break C++ headers that use it
   #include <stdio.h>
+  #include <inttypes.h>
 
   #define snprintf safe_snprintf
  #endif // __MINGW32__
