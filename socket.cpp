@@ -486,7 +486,11 @@ void TCPSocket::encrypt(const std::string& hostname)
 		SSL_set_hostflags(_ssl, X509_CHECK_FLAG_NO_PARTIAL_WILDCARDS);
 	}
 
+#if OPENSSL_VERSION_NUMBER >= 0x40000000L
+	if (!SSL_set1_dnsname(_ssl, hostname.c_str()))
+#else
 	if (!SSL_set1_host(_ssl, hostname.c_str()))
+#endif
 	{
 		unsigned long err = ERR_get_error();
 		throw EncryptError(std::string("Failed to set host name for verification: ") + ERR_reason_error_string(err));
@@ -529,14 +533,14 @@ void TCPSocket::encrypt(const std::string& hostname)
 			{
 				// Mingw-w64 manages to confuse itself on the X509_NAME typedef somehow
 				//X509_NAME* name = X509_get_subject_name(cert);
-				struct X509_name_st* name = X509_get_subject_name(cert);
+				const struct X509_name_st* name = X509_get_subject_name(cert);
 				int loc = X509_NAME_get_index_by_NID(name, NID_commonName, -1);
 				if (loc < 0)
 					throw HostnameMismatch(hostname, "<unknown>");
-				X509_NAME_ENTRY *entry = X509_NAME_get_entry(name, loc);
+				const X509_NAME_ENTRY * entry = X509_NAME_get_entry(name, loc);
 				if (!entry)
 					throw HostnameMismatch(hostname, "<unknown>");
-				ASN1_STRING *cn = X509_NAME_ENTRY_get_data(entry);
+				const ASN1_STRING *cn = X509_NAME_ENTRY_get_data(entry);
 				throw HostnameMismatch(hostname, reinterpret_cast<const char*>(ASN1_STRING_get0_data(cn)));
 			}
 			default:
