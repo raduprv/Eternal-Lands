@@ -69,6 +69,7 @@ jobs:
         uses: msys2/setup-msys2@v2
         with:
           msystem: MINGW64
+          path-type: minimal
           update: true
           install: >-
             base-devel
@@ -100,7 +101,12 @@ jobs:
       - name: "cmake"
         shell: msys2 {0}
         run: |
-          cmake -G "MinGW Makefiles" -S . -B build -DCMAKE_BUILD_TYPE=release -DLOCAL_NLOHMANN_JSON=ON
+          cmake -G "MinGW Makefiles" -S . -B build \
+            -DCMAKE_MAKE_PROGRAM=mingw32-make \
+            -DCMAKE_C_COMPILER=gcc \
+            -DCMAKE_CXX_COMPILER=g++ \
+            -DCMAKE_BUILD_TYPE=release \
+            -DLOCAL_NLOHMANN_JSON=ON
         
       - name: "compile"
         shell: msys2 {0}
