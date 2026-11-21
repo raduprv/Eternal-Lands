@@ -88,7 +88,7 @@ unsigned int get_fsaa_modes()
 
 		wglMakeCurrent(hdc, hrc);
 
-		_wglGetExtensionsStringARB = (PFNWGLGETEXTENSIONSSTRINGARBPROC)wglGetProcAddress("wglGetExtensionsStringARB");
+		_wglGetExtensionsStringARB = (PFNWGLGETEXTENSIONSSTRINGARBPROC)(void *)wglGetProcAddress("wglGetExtensionsStringARB");
 
 		if (_wglGetExtensionsStringARB != 0)
 		{
@@ -107,8 +107,8 @@ unsigned int get_fsaa_modes()
 
 		if ((pixel_format == 1) && (multisample == 1))
 		{
-			_wglewChoosePixelFormatARB = (PFNWGLCHOOSEPIXELFORMATARBPROC)wglGetProcAddress("wglChoosePixelFormatARB");
-			_wglGetPixelFormatAttribivARB = (PFNWGLGETPIXELFORMATATTRIBIVARBPROC)wglGetProcAddress("wglGetPixelFormatAttribivARB");
+			_wglewChoosePixelFormatARB = (PFNWGLCHOOSEPIXELFORMATARBPROC)(void *)wglGetProcAddress("wglChoosePixelFormatARB");
+			_wglGetPixelFormatAttribivARB = (PFNWGLGETPIXELFORMATATTRIBIVARBPROC)(void *)wglGetProcAddress("wglGetPixelFormatAttribivARB");
 
 			if (_wglewChoosePixelFormatARB(hdc, iattr, 0, 256, formats, &count))
 			{
