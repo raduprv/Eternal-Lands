@@ -531,17 +531,22 @@ void TCPSocket::encrypt(const std::string& hostname)
 		{
 			case X509_V_ERR_HOSTNAME_MISMATCH:
 			{
-				// Mingw-w64 manages to confuse itself on the X509_NAME typedef somehow
-				//X509_NAME* name = X509_get_subject_name(cert);
 				const X509_NAME* name = X509_get_subject_name(cert);
-				int loc = X509_NAME_get_index_by_NID(name, NID_commonName, -1);
+				int loc = X509_NAME_get_index_by_NID(const_cast<X509_NAME*>(name), NID_commonName, -1);
 				if (loc < 0)
 					throw HostnameMismatch(hostname, "<unknown>");
-				const X509_NAME_ENTRY * entry = X509_NAME_get_entry(name, loc);
+				const X509_NAME_ENTRY* entry = X509_NAME_get_entry(const_cast<X509_NAME*>(name), loc);
 				if (!entry)
 					throw HostnameMismatch(hostname, "<unknown>");
-				const ASN1_STRING *cn = X509_NAME_ENTRY_get_data(entry);
-				throw HostnameMismatch(hostname, reinterpret_cast<const char*>(ASN1_STRING_get0_data(cn)));
+				const ASN1_STRING* cn = X509_NAME_ENTRY_get_data(const_cast<X509_NAME_ENTRY*>(entry));
+				if (!cn)
+					throw HostnameMismatch(hostname, "<unknown>");
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
+				const unsigned char* cn_data = ASN1_STRING_data(const_cast<ASN1_STRING*>(cn));
+#else
+				const unsigned char* cn_data = ASN1_STRING_get0_data(cn);
+#endif
+				throw HostnameMismatch(hostname, reinterpret_cast<const char*>(cn_data));
 			}
 			default:
 				throw InvalidCertificate("The server certificate could not be verified");
