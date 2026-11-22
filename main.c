@@ -46,6 +46,7 @@
 #include "events.h"
 #include "eye_candy_wrapper.h"
 #include "gl_init.h"
+#include "gamma_postprocess.h"
 #include "hud.h"
 #include "icon_window.h"
 #include "io/elfilewrapper.h"
@@ -388,6 +389,9 @@ int start_rendering()
 
 	LOG_INFO("free_shaders()");
 	free_shaders();
+
+	LOG_INFO("free_gamma_postprocess()");
+	free_gamma_postprocess();
 
 	LOG_INFO("gl_window_cleanup()");
 	gl_window_cleanup();
