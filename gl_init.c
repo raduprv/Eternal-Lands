@@ -80,6 +80,15 @@ static void get_window_size(int mode, int *width, int *height)
 	*height = (mode == 0) ?video_user_height :video_modes[index].height;
 }
 
+/* Apply the configured minimum main window size.
+ * The values default to 640x480 but can be lowered (video tab) to allow
+ * smaller windows, for example under tiling or Wayland window managers. */
+void set_main_window_minimum_size(void)
+{
+	if (el_gl_window != NULL)
+		SDL_SetWindowMinimumSize(el_gl_window, min_window_width, min_window_height);
+}
+
 static void load_window_icon(void)
 {
 	char *icon_name = "icon.bmp";
@@ -395,8 +404,8 @@ void init_video(void)
 				"Unknown %d.%d", gl_context_info.major, gl_context_info.minor);
 	}
 
-	// set the minimum size for the window, this is too small perhaps but a config option
-	SDL_SetWindowMinimumSize(el_gl_window, 640,  480);
+	// apply the minimum window size, configurable on the video tab
+	set_main_window_minimum_size();
 
 	// read events for a few milliseconds, this will catch window size changes made by the window manger
 	{
